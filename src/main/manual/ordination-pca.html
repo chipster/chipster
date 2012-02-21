@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Statistics / PCA</h2>
+
+<h3>Description</h3>
+
+<p>Calculates principal components for the selected gene list, and saves them for further use.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Data to use for the analysis (genes, chips) [genes] </li>
+<li>Variability to explain (0...100) [80]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>A principal component analysis is run for either genes or the samples. Principal components
+are retained until the explained variability exceeds the specified value.</p>
+
+<p>When PCA is run on samples, it's output can be visualized in Chipster GUI using the 3D scatterplot.</p>
+
+<h3>Output</h3>
+
+<p>A gene list with principal components (those are not expression values).</p>
+
+</body>
+

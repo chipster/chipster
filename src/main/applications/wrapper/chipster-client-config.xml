@@ -35,4 +35,10 @@
 	
 	</configuration-module>
 
+	<configuration-module moduleId="client">
+		<entry entryKey="manual-root" type="string" description="url for manual root">
+			<value>http://chipster.csc.fi/manual/</value>
+		</entry>
+	</configuration-module>
+
 </configuration>

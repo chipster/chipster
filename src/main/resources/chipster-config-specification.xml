@@ -21,6 +21,11 @@
 			<value>false</value>
 		</entry>
 
+		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
+			<value>http://chipster-filebroker.csc.fi:8090/public</value>
+		</entry>
+
+
 		<entry entryKey="disable-proxy" type="boolean" description="should we ignore Java proxy settings and connect directly">
 			<value>true</value>
 		</entry>
@@ -54,9 +59,27 @@
 
 		<entry entryKey="password" type="string" description="password for authenticating connection to broker">
 		</entry>
+
+		<entry entryKey="guest-username" type="string" description="username for the guest accout which is not allowed to run tasks">
+			<value>guest</value>
+		</entry>
+
 	
 	</configuration-module>
 
+
+	<configuration-module moduleId="auth" description="authentication service">
+
+		<entry entryKey="sessionRefreshTimeout" type="int" description="how ofter session needs to be refreshed, minutes">
+			<value>1440</value><!-- 24h -->
+		</entry>
+
+		<entry entryKey="sessionMaxLifetime" type="int" description="max lifetime for a session, minutes">
+			<value>4320</value><!-- 3x24h -->
+		</entry>
+
+	</configuration-module>
+	
 	
 	<configuration-module moduleId="filebroker" description="file broker">
 	
@@ -103,6 +126,10 @@
     
 	<configuration-module moduleId="comp" description="comp service">
 
+		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's user data directory">
+			<value></value>
+		</entry>
+		
 		<entry entryKey="work-dir" type="string" description="directory for temporary job files">
 			<value>jobs-data</value>
 		</entry>
@@ -118,10 +145,6 @@
 			<value>10</value>
 		</entry>
 		
-		<entry entryKey="custom-scripts-dir" type="string" description="directory for overriding scripts">
-			<value>custom-scripts</value>
-		</entry>
-
 		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
 		</entry>
 		
@@ -153,7 +176,7 @@
 		</entry>
 		
 		<entry entryKey="r-timeout" type="int" description="timeout for a single R script, seconds">
-			<value>36000</value> <!-- 10 hours -->
+			<value>2592000</value> <!-- 30 days -->
 		</entry>
 		
 		<entry entryKey="timeout-check-interval" type="int" description="receive, schedule timeout check interval, milliseconds">
@@ -197,8 +220,50 @@
 		<entry entryKey="backup-interval" type="int" description="backup interval in hours">
 			<value>24</value>
 		</entry>
+		
+		<entry entryKey="admin-email" type="string" description="admin email">
+		</entry>
+	
+		<entry entryKey="manager-web-console-port" type="int" description="">
+			<value>8083</value>
+		</entry>
+	
+	    <entry entryKey="manager-web-console-username" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+	    <entry entryKey="manager-web-console-password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+
+	
 			
 	</configuration-module>
+
+
+	<configuration-module moduleId="testrunner" description="testrunner">
+	
+		<entry entryKey="username" type="string" description="username for running test">
+			<value>chipster</value>
+		</entry>
+	
+		<entry entryKey="password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+		<entry entryKey="database-username" type="string" description="username for JDBC">
+			<value>chipster</value>
+		</entry>
+
+		<entry entryKey="database-password" type="string" description="password for JDBC">
+			<value></value>
+		</entry>
+
+	
+			
+	</configuration-module>
+
 	
 	
 	<configuration-module moduleId="client" description="client constants">
@@ -206,11 +271,11 @@
 		<entry entryKey="max-jobs" type="int" description="maximum job count">
 			<value>10</value>
 		</entry>
-		
-		<entry entryKey="max-job-size-mb" type="int" description="maximum job size in megabytes">
-			<value>5000</value>
+	
+		<entry entryKey="manual-root" type="string" description="url for manual root">
+			<value>http://chipster.csc.fi/manual/</value>
 		</entry>
-
+		
 	</configuration-module>
 	
 

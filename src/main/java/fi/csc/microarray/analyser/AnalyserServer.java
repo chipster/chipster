@@ -1,14 +1,14 @@
 package fi.csc.microarray.analyser;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -16,13 +16,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -30,12 +33,14 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.SourceMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
@@ -100,23 +105,34 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> receivedJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> scheduledJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
-	Timer timeoutTimer;
+	private Timer timeoutTimer;
+	private String localFilebrokerPath;
 	
 
 	/**
 	 * 
 	 * @throws Exception 
 	 */
-	public AnalyserServer() throws Exception {
+	public AnalyserServer(String configURL) throws Exception {
 		
 		// initialise dir, config and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
+		DirectoryLayout.initialiseServerLayout(
+		        Arrays.asList(new String[] {"comp"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+		// Initialise instance variables
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
-		this.maxJobs = configuration.getInt("comp", "max-jobs");		
+		this.maxJobs = configuration.getInt("comp", "max-jobs");
+		String fbPath = configuration.getString("comp", "local-filebroker-user-data-path");
+		if ("".equals(fbPath.trim())) {
+			this.localFilebrokerPath = null; // null => path optimisation not used
+		} else {
+			this.localFilebrokerPath = fbPath;
+		}
+		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
 		loggerStatus = Logger.getLogger("status");
@@ -126,16 +142,12 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("starting compute service...");
 		this.workDir = DirectoryLayout.getInstance().getJobsDataDirBase(id);
 		
-		// initialise custom scripts dir
-		DirectoryLayout.getInstance().getCustomScriptsDir();
-		
 		// initialize executor service
 		this.executorService = Executors.newCachedThreadPool();
 
 		// initialize analysis tools
 		this.toolRepository = new ToolRepository(this.workDir);
-		
-			
+					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
@@ -147,14 +159,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);
 		
-		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
+		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new FileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE));
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.info("analyser is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
@@ -167,38 +179,20 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	/**
 	 * Process incoming message. JobMessage for submitting a job, CommandMessage for canceling one.
 	 * 
-	 * Also operation descriptions and source codes are requested with a JobMessage. 
+	 *  
 	 *  
 	 */
-	public void onNamiMessage(NamiMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
-		// create job, request operation descriptions or source code for operation
-		if (namiMessage instanceof JobMessage) {
-			
-			JobMessage jobMessage = (JobMessage)namiMessage;
-			
-			// return the operations descriptions
-			if ("describe".equals(jobMessage.getAnalysisId())) {
-				logger.info("sending all descriptions");
-				sendReplyMessage(jobMessage, createDescriptionsMessage(jobMessage));
-				return; 
-			} 
-			
-			// return source code for an operation
-			else if ("describe-operation".equals(jobMessage.getAnalysisId())) {
-				sendReplyMessage(jobMessage, createSourceCodeMessage(jobMessage));
-				return; 
-			}
-			
-			//  job message
-			else {
-				receiveJob(jobMessage);
-			}
+		// job message
+		if (chipsterMessage instanceof JobMessage) {
+			JobMessage jobMessage = (JobMessage)chipsterMessage;
+			receiveJob(jobMessage);
 		}  
 		
 		// command messages
-		else if (namiMessage instanceof CommandMessage) {
-			CommandMessage commandMessage = (CommandMessage)namiMessage;
+		else if (chipsterMessage instanceof CommandMessage) {
+			CommandMessage commandMessage = (CommandMessage)chipsterMessage;
 			
 			if (CommandMessage.COMMAND_ACCEPT_OFFER.equals(commandMessage.getCommand())) {
 				
@@ -219,7 +213,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 							// run the job
 							executorService.execute(job);
-							logger.info("Executing job " + job.analysis.getFullName() + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
+							logger.info("Executing job " + job.analysis.getDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
 						} else {
 							logger.warn("Got ACCEPT_OFFER for job which is not scheduled.");
 						}
@@ -243,10 +237,39 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 							activeJobRemoved();
 						}
 					}
-					
 				}
 			}
 			
+			// Request to send descriptions
+			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
+	            logger.info("sending all descriptions");
+	            
+	            // Send descriptions for all available modules
+                try {
+                    List<ModuleDescriptionMessage> list;
+                    list = createDescriptionsMessages(commandMessage);
+
+                    for (ModuleDescriptionMessage msg : list) {
+        	            logger.info("sending descriptions for module " + msg.getModuleName());
+                        sendReplyMessage(commandMessage, msg);
+                    }
+                } catch (Exception e) {
+                    logger.error("sending descriptions message failed", e);
+                }
+	            return; 
+			}
+
+			// source code request
+			else if (CommandMessage.COMMAND_GET_SOURCE.equals(commandMessage.getCommand())) {
+	            logger.info("sending source code");
+				SourceMessage sourceMessage = createSourceCodeMessage(commandMessage);
+	            if (sourceMessage != null) {
+					sendReplyMessage(commandMessage, sourceMessage);
+	            }
+	            return;
+			}			
+			
+			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 				String jobId = commandMessage.getParameters().get(0);
 				
@@ -270,7 +293,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// unknown message
 		else {
-			logger.error("unidentified message: " + namiMessage.getMessageID());
+			logger.error("unidentified message: " + chipsterMessage.getMessageID());
 		}
 
 	}
@@ -297,14 +320,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 		
 		char delimiter = ';';
-		loggerJobs.info(job.getId() + delimiter + 
-						job.getInputMessage().getAnalysisId().replaceAll("\"", "") + delimiter +
-						job.getState() + delimiter + 
-						job.getInputMessage().getUsername() + delimiter + 
-						job.getExecutionStartTime().toString() + delimiter +
-						job.getExecutionEndTime().toString() + delimiter +
-						hostname);
-		
+		try {
+			loggerJobs.info(job.getId() + delimiter + job.getInputMessage().getAnalysisId().replaceAll("\"", "") + delimiter
+					+ job.getState() + delimiter + job.getInputMessage().getUsername() + delimiter + job.getExecutionStartTime().toString()
+					+ delimiter + job.getExecutionEndTime().toString() + delimiter + hostname);
+		} catch (Exception e) {
+			logger.warn("got exception when logging a job to be removed", e);
+		}
 		logger.debug("Analyser server removing job " + job.getId() + "(" + job.getState() + ")");
 		synchronized(jobsLock) {
 			this.runningJobs.remove(job.getId());
@@ -355,7 +377,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 * 
 	 */
-	public void sendResultMessage(NamiMessage original, ResultMessage reply) {
+	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -374,7 +396,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param original
 	 * @param reply
 	 */
-	private void sendReplyMessage(final NamiMessage original, final NamiMessage reply) {
+	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -400,32 +422,25 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private void receiveJob(JobMessage jobMessage) {
 
-		
-		
-		// check that we can run the requested analysis
-		AnalysisDescription description = null;
-		try {
-			description = toolRepository.getDescription(jobMessage.getAnalysisId());
-		} catch (AnalysisException e) {
-			logger.warn("Could not fetch description for " + jobMessage.getAnalysisId());
-			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Could not load operation.", 
+		if (jobMessage.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
+			ResultMessage resultMessage = new ResultMessage("", JobState.FAILED_USER_ERROR, "", "Running tools is disabled for guest users.", 
 					"", jobMessage.getReplyTo());
 			sendReplyMessage(jobMessage, resultMessage);
 			return;
 		}
+		
+		
+		// try to find the requested operation in tool repository
+		ToolDescription description = toolRepository.getDescription(jobMessage.getAnalysisId());
 
+		// check if this instance has the requested operation
 		if (description == null) {
-			logger.info("Analysis " + jobMessage.getAnalysisId() + " not found.");
-			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Operation not found.", 
-					"", jobMessage.getReplyTo());
-			sendReplyMessage(jobMessage, resultMessage);
-			return;
+		    return;
 		}
-		
 
 		// check if requested operation is supported, if not, just ignore the request
-		if (!toolRepository.supports(description.getFullName())) {
-			logger.debug("Analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceName() + " ) not supported, ignoring request.");
+		if (!toolRepository.supports(description.getID())) {
+			logger.debug("analysis " + jobMessage.getAnalysisId() + " ( " + description.getToolFile() + " ) not supported, ignoring request.");
 			return;
 		}
 
@@ -509,44 +524,27 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		sendReplyMessage(job.getInputMessage(), offerMessage);
 	}
 	
-	
-	private ResultMessage createDescriptionsMessage(JobMessage requestMessage) {
-		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
-				"", requestMessage.getReplyTo());
-		try {
-			String description = toolRepository.serialiseAsStringBuffer().toString();
-			URL url = fileBroker.addFile(new ByteArrayInputStream(description.getBytes()), null);
-			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, url);
-		} catch (Exception e) {
-			logger.error("Could not send analysis descriptions", e);
-			resultMessage.setState(JobState.ERROR);
-			resultMessage.setErrorMessage("Could not send analysis descriptions.");
-		}
-		return resultMessage;
+	private List<ModuleDescriptionMessage>
+	        createDescriptionsMessages(CommandMessage requestMessage)
+	        throws IOException, SAXException, ParserConfigurationException {
+	    List<ModuleDescriptionMessage> list = toolRepository.getModuleDescriptions();
+	    for (ModuleDescriptionMessage descriptionMsg : list) {
+	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
+	    }
+	    return list;
 	}
 
+	private SourceMessage createSourceCodeMessage(CommandMessage requestMessage) {
+			String toolID = new String(requestMessage.getParameters().get(0));
+			
+			logger.info("sending source code for " + toolID);
+			String sourceCode = toolRepository.getDescription(toolID).getSourceCode();
 
-	private ResultMessage createSourceCodeMessage(JobMessage requestMessage) {
-		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
-				"", requestMessage.getReplyTo());
-		try {
-			String name = new String(requestMessage.getParameters().get(0));
-			logger.info("sending source code for " + name);
-			String sourceCode = toolRepository.getDescription(name).getSourceCode();
-			
-			byte[] bytes = sourceCode.getBytes();
-			if (bytes.length == 0) {
-				bytes = "<empty source code>".getBytes(); // zero length bytes content would hang upload
+			if (sourceCode != null) {
+				return new SourceMessage(sourceCode);
+			} else {
+				return null;
 			}
-			
-			URL url = fileBroker.addFile(new ByteArrayInputStream(bytes), null);
-			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, url);
-		} catch (Exception e) {
-			logger.error("Could not send analysis source code", e);
-			resultMessage.setState(JobState.ERROR);
-			resultMessage.setErrorMessage("Could not send analysis source code.");
-		}
-		return resultMessage;
 	}
 	
 	private void updateStatus() {

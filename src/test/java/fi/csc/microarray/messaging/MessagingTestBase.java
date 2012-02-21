@@ -50,9 +50,13 @@ public abstract class MessagingTestBase {
 		// use default config if no config url
 		System.out.println("initialising client");
 		if (configURL == null) {
-			DirectoryLayout.initialiseClientLayout().getConfiguration();
+			DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		} else {
-			DirectoryLayout.initialiseClientLayout(configURL);
+			try {
+				DirectoryLayout.initialiseClientLayout(configURL);
+			} catch (IllegalStateException e) {
+				// ignore
+			}
 		}
 		
 		System.out.println("setting up messaging");
@@ -63,7 +67,7 @@ public abstract class MessagingTestBase {
 				return "test";
 			}
 		});
-		logger.debug("endpoint created");
+		System.out.println("endpoint created");
 		endpoint.setAuthenticationListener(authenticationListener);
 	}
 	

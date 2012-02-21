@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Alignment / TopHat for single end reads</h2>
+
+<h3>Description</h3>
+
+<p>This tool aligns Illumina single end RNA-seq reads to publicly available genomes. 
+You need to supply the reads in a FASTQ file. 
+If you would like us to add new reference genomes to Chipster, please contact us.
+
+<h3>Parameters</h3> 
+
+<ul>
+<li>Genome (human hg19, mouse mm9, rat rn4) [mouse mm9]</li>
+<li>Minimum anchor length (3-1000) [8]</li>
+<li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
+<li>Minimum intron length (10-1000) [70]</li>
+<li>Maximum intron length (1000-1,000,000) [500,000]</li>
+<li>Minimum isoform fraction (0-1) [0.15]</li>
+</ul>
+
+<h3>Details</h3>
+
+
+<p>TopHat first identifies potential exons by mapping the reads to the genome using the Bowtie aligner. 
+Using this initial mapping, it builds a database of possible splice junctions, and then maps the reads against these junctions to confirm them. 
+As many exons are shorter than reads, TopHat splits the reads into smaller segments,
+which are then mapped independently. The segment alignments are "glued" back together in a final step of the program to produce end-to-end read alignments.
+TopHat generates its database of possible splice junctions from two sources of evidence:</p>
+<ul>
+<li>Pairings of "coverage islands", which are distinct regions of piled up reads in the initial mapping. 
+Neighboring islands are often spliced together in the transcriptome, so TopHat looks for ways to join these with an intron.
+</li>
+<li>Two segments from the same read are mapped far apart, or when an internal segment fails to map.
+</li>
+</ul> 
+<p>
+The "anchor length" means that TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. 
+Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved 
+in spliced alignments is supported by at least one read with this many bases on each side. By default no mismatches are allowed in the anchor, but you can change this. 
+</p>
+<p>
+TopHat will ignore donor-acceptor pairs which are closer than the minimum intron length or further than the maximum intron length apart.  
+With long (>=75bp) reads, "GT-AG", "GC-AG" and "AT-AC" introns can be found ab initio. 
+With shorter reads, TopHat only reports alignments across "GT-AG" introns.
+</p>
+<p>
+TopHat filters out junctions supported by too few alignments. 
+Suppose a junction spanning two exons is supported by S reads. Let the average depth of coverage of exon A be D, and assume that it is higher than B.
+If S divided by D is less than the minimum isoform fraction, the junction is not reported. A value of zero disables this filter.
+</p>
+
+<p>After running TopHat, Chipster indexes the BAM file using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package. This way the results are ready to be visualized in the genome browser.</p>
+
+
+<h3>Output</h3>
+
+This tool returns a BAM file containing the alignment, and an index file (.bai) for it. In addition it produces the following BED files:
+<ul>
+<li>junctions.bed. Each junction consists of two connected BED blocks, where each block is as long as the maximal overhang of any read spanning the junction. 
+The score is the number of alignments spanning the junction.</li>
+<li>insertions.bed. Insertions reported by TopHat. chromLeft refers to the last genomic base before the insertion.</li>
+<li>deletions.bed. Deletions reported by TopHat. chromLeft refers to the first genomic base of the deletion.</li>
+</ul>
+
+ 
+
+<h3>Reference</h3>
+
+<p>This tool is based on the <a href="http://tophat.cbcb.umd.edu/">TopHat</a> package. Please cite the following article:</p>
+Trapnell C, Pachter L, Salzberg SL. <a href="http://bioinformatics.oxfordjournals.org/content/25/9/1105.abstract">TopHat: discovering splice junctions with RNA-Seq.</a>  Bioinformatics (2009) 25 (9): 1105-1111. 
+
+
+</body>

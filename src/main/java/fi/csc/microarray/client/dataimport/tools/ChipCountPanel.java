@@ -58,15 +58,14 @@ public class ChipCountPanel extends JXTaskPane implements ActionListener{
 		
 		for (int i = 0; i < KEYS.length; i++) {
 			if (i == 0) {
-				//Name label added separately to keep it black
+				// Name label added separately to keep it black
 				keyColumnCheckBoxes[i] = new JCheckBox();
-				//To place the label same way as checkboxes naturally do
+				// To place the label same way as checkboxes naturally do
 				keyColumnCheckBoxes[i].setPreferredSize(new Dimension(17, 19));
 				keyColumnCheckBoxes[i].setSelected(true);  // always at least one sample column..
 				keyColumnCheckBoxes[i].setEnabled(false);  // ..so this can't be unchecked
 			} else {
 				keyColumnCheckBoxes[i] = new JCheckBox(KEYS[i].toString());
-				//keyColumnCheckBoxes[i].setPreferredSize(new Dimension(105, 19));
 				keyColumnCheckBoxes[i].setSelected(true);
 				keyColumnCheckBoxes[i].setActionCommand(KEYS[i].toString());
 				keyColumnCheckBoxes[i].addActionListener(this);
@@ -129,7 +128,7 @@ public class ChipCountPanel extends JXTaskPane implements ActionListener{
 		}
 
 		this.setTitle("Channels");
-		this.setExpanded(false);
+		this.setCollapsed(true);
 	}
 	
 	public void updateKeyColumnCounter(int keyNumber) {

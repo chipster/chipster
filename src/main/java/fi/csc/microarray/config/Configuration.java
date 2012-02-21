@@ -39,18 +39,39 @@ public class Configuration {
 	}
 	
 	public Configuration(File workDir, List<String> configModules) throws IOException, IllegalConfigurationException {
-		this(new FileInputStream(new File(workDir, CONFIG_FILENAME)), configModules);
+		File configFile;
+		String mostSpecificModuleName = configModules.size() > 0 ? configModules.get(configModules.size()-1) : null;
+
+		if (new File(workDir, CONFIG_FILENAME).exists()) {
+			configFile = new File(workDir, CONFIG_FILENAME); // normal config file
+		} else if (new File(workDir, mostSpecificModuleName + "-" + CONFIG_FILENAME).exists()) {
+			configFile = new File(workDir, mostSpecificModuleName + "-" + CONFIG_FILENAME); // component specific filename for debugging and development
+		} else {
+			throw new IOException("cannot find configuration file " + new File(workDir, CONFIG_FILENAME));
+		}
+		
+		initialise(new FileInputStream(configFile), configModules);
+	}
+
+	public Configuration(List<String> configModules) throws IOException, IllegalConfigurationException {
+		initialise((InputStream)null, configModules);
+	}
+
+	public Configuration(InputStream configXml, List<String> configModules) throws IOException, IllegalConfigurationException {
+		initialise(configXml, configModules);
 	}
 	
-	public Configuration(InputStream configXml, List<String> configModules) throws IOException, IllegalConfigurationException {
-
+	private void initialise(InputStream configXml, List<String> configModules) throws IOException, IllegalConfigurationException {
+		
 		this.configModules = configModules;
 
-		// load configuration specification and actual configuration XML		
+		// load configuration specification and actual configuration XML (if present)		
 		ConfigurationLoader loader = new ConfigurationLoader(this, REQUIRED_CONFIGURATION_VERSION);
 		try {
 			loader.addFromStream(Configuration.class.getResourceAsStream(CONFIG_SPECIFICATION_FILE), true);
-			loader.addFromStream(configXml, false);
+			if (configXml != null) {
+				loader.addFromStream(configXml, false);
+			}
 
 		} catch (SAXException e) {
 			throw new IOException(e.getMessage());
@@ -60,9 +81,11 @@ public class Configuration {
 
 		} 
 
-		List<String> missingValues = rootModule.findMissingValues();
-		if (!missingValues.isEmpty()) {
-			throw new IllegalConfigurationException("configuration values missing: " + missingValues);
+		if (configXml != null) {
+			List<String> missingValues = rootModule.findMissingValues();
+			if (!missingValues.isEmpty()) {
+				throw new IllegalConfigurationException("configuration values missing: " + missingValues);
+			}
 		}
 	}
 

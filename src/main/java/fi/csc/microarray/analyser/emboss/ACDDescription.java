@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.emboss.jemboss.parser.ParseAcd;
 
@@ -23,6 +24,7 @@ public class ACDDescription {
     private String description;
     private LinkedList<String> groups = new LinkedList<String>(); 
     private LinkedList<ACDParameter> parameters = new LinkedList<ACDParameter>();
+    private LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
     
     /**
      * Get the name of this ACD.
@@ -67,6 +69,40 @@ public class ACDDescription {
             }
         }
         return null;
+    }
+    
+    /**
+     * Find output parameters.
+     * 
+     * @return a list containing all output parameters.
+     */
+    public List<ACDParameter> getOutputParameters() {
+        List<ACDParameter> params = new LinkedList<ACDParameter>();
+        for (ACDParameter parameter : parameters) {
+            if ((ACDParameter.detectParameterGroup(parameter.getType()) ==
+                 ACDParameter.PARAM_GROUP_OUTPUT) &&
+                !parameter.isAdvanced()) {
+                params.add(parameter);
+            }
+        }
+        return params;
+    }
+    
+    /**
+     * Find graphics parameters.
+     * 
+     * @return a list containing all graphics parameters.
+     */
+    public List<ACDParameter> getGraphicsParameters() {
+        List<ACDParameter> params = new LinkedList<ACDParameter>();
+        for (ACDParameter parameter : parameters) {
+            if ((ACDParameter.detectParameterGroup(parameter.getType()) ==
+                 ACDParameter.PARAM_GROUP_GRAPHICS) &&
+                parameter.isRequired()) {
+                params.add(parameter);
+            }
+        }
+        return params;
     }
     
     /**
@@ -119,15 +155,16 @@ public class ACDDescription {
      * @param file - ACD file to be read.
      */
     public ACDDescription(File file) {
+        // HACK: pretend that all files are proteins for now because otherwise
+        // we would need to check input files before calculating some defaults.
+        // See: http://emboss.sourceforge.net/developers/acd/syntax.html#sect2622
+        variableMap.put("acdprotein", "Y");
         
         // Application-level attributes that we want to extract
         HashMap<String, String> appAttrs = new HashMap<String, String>();
         appAttrs.put("application", "");
         appAttrs.put("documentation", "");
         appAttrs.put("groups", "");        
-        
-        // Define variable map
-        LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
 
         try {
             // Read the file
@@ -191,8 +228,8 @@ public class ACDDescription {
                     
                 } else if (!("application".startsWith(fieldType))) {
                     // Initialize the parameter
-                    ACDParameter param = new ACDParameter(fieldType, fieldName, currentSection,
-                            currentSubsection);
+                    ACDParameter param = new ACDParameter(this, fieldType, fieldName,
+                            currentSection, currentSubsection);
                     
                     // A parameter description
                     Integer numAttrs = parser.getNumofParams(j);
@@ -216,6 +253,11 @@ public class ACDDescription {
 
                         // Store the attribute in the variable map
                         variableMap.put(fieldName + "." + attrName, attrValue);
+                        
+                        // If a default value is given, store it as field's value
+                        if ("default".equals(attrName)) {
+                            variableMap.put(fieldName, attrValue);
+                        }
                     }
                     
                     // Add the parameter
@@ -226,6 +268,21 @@ public class ACDDescription {
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Update current known ACD variable values. E.g. user
+     * has filled the parameters and sent them back to the
+     * server.
+     */
+    public void updateVariables(HashMap<String, String> varMap) {
+        // Update current variable map
+        variableMap.putAll(varMap);
+        
+        // Recalculate parameter attributes
+        for (ACDParameter param : getParameters()) {
+            param.updateAttributes(variableMap);
         }
     }
 

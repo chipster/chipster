@@ -20,7 +20,7 @@ import fi.csc.microarray.messaging.JobState;
  * @author hupponen
  *
  */
-public class JobLogMessage extends NamiMessage {
+public class JobLogMessage extends ChipsterMessage {
 	/**
 	 * Logger for this class
 	 */
@@ -200,7 +200,7 @@ public class JobLogMessage extends NamiMessage {
 		"operation: " + operation + "\n" + 
 		"state: " + state.toString() + "\n" +
 		"jobId: " + jobId + "\n" +
-		"start time: " + startTime.toString() + "\n" +
+		"start time: " + (startTime != null ? startTime.toString() : "") + "\n" +
 		"end time: " + endTime.toString() + "\n" +
 		"username: " + username + "\n" +
 		"compHost: " + compHost + "\n";

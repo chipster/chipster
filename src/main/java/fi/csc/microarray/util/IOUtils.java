@@ -8,9 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * 
@@ -80,8 +84,15 @@ public class IOUtils {
 		}
 	}
 
+	public static void disconnectIfPossible(URLConnection connection) {
+		if (connection instanceof HttpURLConnection) {
+			disconnectIfPossible((HttpURLConnection)connection);
+		}
+	}
+	
+
 	public static interface CopyProgressListener {
-		public void progress(int bytes);
+		public void progress(long bytes);
 	}
 	
 	/**
@@ -102,7 +113,7 @@ public class IOUtils {
 		// initialise
 		byte buffer[] = new byte[BUFFER_SIZE];
 		int len = BUFFER_SIZE;
-		int sum = 0;
+		long sum = 0;
 		long lastCallback = Long.MAX_VALUE; 
 		
 		// tell that we are in the beginning
@@ -133,6 +144,15 @@ public class IOUtils {
 	public static void copy(InputStream source, OutputStream target) throws IOException {
 		copy(source, target, null);
 	}
+	
+	public static void copy(InputStream source, File target) throws IOException {
+		FileOutputStream out = new FileOutputStream(target);
+		try {
+			copy(source, out, null);
+		} finally {
+			closeIfPossible(out);
+		}
+	}
 
 	/**
 	 * Copies a file. 
@@ -155,4 +175,64 @@ public class IOUtils {
 		}
 	}
 
+	public static void closeIfPossible(RandomAccessFile raf) {
+		if (raf != null) {
+			try {
+				raf.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}		
+	}
+
+	public static URL createURL(URL url, String postfix) throws MalformedURLException {
+		return new URL(url, url.getFile() + "/" + postfix);
+	}
+	
+	public static boolean isLocalFileURL(URL url) {
+		return "file".equals(url.getProtocol());
+	}
+	
+	public static String getFilenameWithoutPath(URL url) {
+		return url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
+	}
+	
+	/**
+	 * Compare the contents of two Streams to determine if they are equal or not.
+	 * 
+	 * This method buffers the input internally using <code>BufferedInputStream</code> if they are
+	 * not already buffered.
+	 * 
+	 * @param input1
+	 *            the first stream
+	 * @param input2
+	 *            the second stream
+	 * @return true if the content of the streams are equal or they both don't exist, false
+	 *         otherwise
+	 * @throws NullPointerException
+	 *             if either input is null
+	 * @throws IOException
+	 *             if an I/O error occurs
+	 */
+	public static boolean contentEquals(InputStream input1, InputStream input2) throws IOException {
+		if (!(input1 instanceof BufferedInputStream)) {
+			input1 = new BufferedInputStream(input1);
+		}
+		if (!(input2 instanceof BufferedInputStream)) {
+			input2 = new BufferedInputStream(input2);
+		}
+
+		int ch = input1.read();
+		while (-1 != ch) {
+			int ch2 = input2.read();
+			if (ch != ch2) {
+				return false;
+			}
+			ch = input1.read();
+		}
+
+		int ch2 = input2.read();
+		return (ch2 == -1);
+	}
+	
 }

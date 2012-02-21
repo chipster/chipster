@@ -4,9 +4,10 @@ package fi.csc.microarray;
 import java.io.FileInputStream;
 
 import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
@@ -15,7 +16,7 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
@@ -35,6 +36,7 @@ public class MicroarrayMain {
 			// create args descriptions
 			CommandLineParser cmdParser = new CommandLineParser();
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
+			cmdParser.addParameter("standalone", false, false, null, "start standalone client");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
@@ -47,13 +49,17 @@ public class MicroarrayMain {
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
 			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
+            cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
 			
 			// parse commandline
 			cmdParser.parse(args);
 			
+			// configuration file path
+			String configURL = cmdParser.getValue("-config");
+			
 			// give help, if needed
 			if (cmdParser.userAskedHelp()) {
-				System.out.println("Chipster " + ApplicationConstants.NAMI_VERSION);
+				System.out.println("Chipster " + ApplicationConstants.VERSION);
 				System.out.println("Parameters:");
 				System.out.println(cmdParser.getDescription());
 				System.exit(0);
@@ -61,19 +67,19 @@ public class MicroarrayMain {
 
 			// start application
 			if (cmdParser.hasValue("authenticator")) {
-				new Authenticator();
+				new Authenticator(configURL);
 				
 			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer();
+				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
-				new FileServer();
+				new FileServer(configURL);
 			
 			} else if (cmdParser.hasValue("webstart")) {
 				new WebstartJettyServer().start();
 			
 			} else if (cmdParser.hasValue("manager")) {
-				new Manager();
+				new Manager(configURL);
 
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
@@ -88,6 +94,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
+					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
@@ -143,16 +150,19 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
-					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
-					new Validator().validate(cmdParser.getValue("rcheck"), res.VVSADL);
+					SADLTool.ParsedScript res = new SADLTool("#").parseScript(new FileInputStream(cmdParser.getValue("rcheck")));
+					new Validator().validate(cmdParser.getValue("rcheck"), res.SADL);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					fails = true;
 				}
 				System.out.println("parse succeeded: " + !fails);
+
+			} else if (cmdParser.hasValue("standalone")) {
+				SwingClientApplication.startStandalone(cmdParser.getValue("-module"));		
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-config")); 		
+				SwingClientApplication.start(configURL, cmdParser.getValue("-module"));		
 			}
 			
 		} catch (CommandLineException e) {

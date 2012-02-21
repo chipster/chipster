@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.screen;
 
-import org.apache.log4j.Logger;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -30,15 +26,12 @@ import javax.swing.event.CaretListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.ClientApplication.SourceCodeListener;
 import fi.csc.microarray.client.dataimport.ImportUtils;
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.biobeans.BioBean;
-import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
@@ -47,16 +40,11 @@ import fi.csc.microarray.util.Strings;
  * Allows the user to copypaste it to another application or save it as
  * a text file.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class HistoryScreen extends ScreenBase
-                           implements ActionListener, CaretListener, SourceCodeListener {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(HistoryScreen.class);
-
+                           implements ActionListener, CaretListener {
 	private static final Dimension BUTTON_SIZE = new Dimension(100, 25);
 	
 	private static final ClientApplication application = Session.getSession().getApplication();
@@ -78,12 +66,12 @@ public class HistoryScreen extends ScreenBase
 		JPanel contentPane = new JPanel(new GridBagLayout());
 		
 		checkBoxes.put("title", new JCheckBox("Step title"));
-		checkBoxes.put("name", new JCheckBox("Dataset Name"));
-		checkBoxes.put("date", new JCheckBox("Creation Date"));
+		checkBoxes.put("name", new JCheckBox("Dataset name"));
+		checkBoxes.put("date", new JCheckBox("Creation date"));
 		checkBoxes.put("oper", new JCheckBox("Applied analysis tool"));
 		checkBoxes.put("param", new JCheckBox("Parameters"));
-		checkBoxes.put("notes", new JCheckBox("User Notes"));
-		checkBoxes.put("code", new JCheckBox("Source Code"));
+		checkBoxes.put("notes", new JCheckBox("User notes"));
+		checkBoxes.put("code", new JCheckBox("Source code"));
 
 		for (JCheckBox box : checkBoxes.values()) {
 			box.setSelected(true);
@@ -94,7 +82,7 @@ public class HistoryScreen extends ScreenBase
 		checkBoxes.get("date").setSelected(false);
 		checkBoxes.get("code").setSelected(false);
 		checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 		
 		saveButton = new JButton("Save...");
 		saveButton.setPreferredSize(BUTTON_SIZE);
@@ -135,7 +123,7 @@ public class HistoryScreen extends ScreenBase
 		//c.insets.set(1, 20, 0, 2);
 		contentPane.add(checkBoxes.get("param"), c);
         c.gridy++;
-        contentPane.add(checkBoxes.get("code"), c);
+      	contentPane.add(checkBoxes.get("code"), c);
         c.gridx++; c.gridy = 1;
         c.insets.set(1, 2, 0, 2);
         contentPane.add(checkBoxes.get("notes"), c);
@@ -190,7 +178,7 @@ public class HistoryScreen extends ScreenBase
 		}
 		StringBuffer historyText = new StringBuffer();
 		int i = 0;
-		for (DataBean listData : new BioBean(data).getSourcePath()) {
+		for (DataBean listData : MicroarrayModule.getSourcePath(data)) {
 			if (checkBoxes.get("title").isSelected()) {
 				String title = "Step " + (i+1);
 				historyText.append(title + "\n");
@@ -203,18 +191,17 @@ public class HistoryScreen extends ScreenBase
 				historyText.append("Created " + listData.getDate().toString() + "\n");
 			}
 			if (checkBoxes.get("oper").isSelected()) {
-				Operation oper = listData.getOperation();
+				OperationRecord operationRecord = listData.getOperationRecord();
 				historyText.append("Created with operation: ");
-				if (oper != null) {
-					historyText.append(oper.getName() + "\n");
+				if (operationRecord != null) {
+					historyText.append(operationRecord.getFullName() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
-                        LinkedList<Parameter> params = oper.getParameters();
-						if (params != null && params.size() > 0) {
-							for (Parameter param : params) {
-								historyText.append("Parameter " + param.getName() + ": " +
-										param.getValue() + "\n");
-							}
-						} 
+
+						for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+							historyText.append("Parameter " + parameterRecord.getNameID().getDisplayName() + ": " +
+									parameterRecord.getValue() + "\n");
+							
+						}
 					} else {
                         historyText.append("\n");               
                     }
@@ -256,22 +243,12 @@ public class HistoryScreen extends ScreenBase
 		if (sourceCodes == null) {
 			
 			// make list of wanted source codes
-			List<String> names = new LinkedList<String>();
-			for (DataBean bean : new BioBean(data).getSourcePath()) {
-				OperationDefinition op = bean.getOperation().getDefinition();
-				if (op.hasSourceCode()) {
-					names.add(SADLParser.generateOperationIdentifier(op.getCategoryName(), op.getName()));
-				} else {
-					names.add(null);
-				}
-				logger.debug("added source path " + names.get(names.size()-1));
+			DataBean[] sourceDatas = MicroarrayModule.getSourcePath(data);
+			sourceCodes = new String[sourceDatas.length];
+			for (int i = 0; i < sourceDatas.length; i++){
+				// might be null, is ok
+				sourceCodes[i] = sourceDatas[i].getOperationRecord().getSourceCode();
 			}
-			
-			// initialise data structure that is used in result gathering 
-			sourceCodes = new String[names.size()];
-
-			// start source code fetching
-			application.fetchSourceFor(names.toArray(new String[1]), this);
 		}
 		return sourceCodes;
 	}
@@ -329,7 +306,7 @@ public class HistoryScreen extends ScreenBase
 		if (source instanceof JCheckBox) {
 			if (source == checkBoxes.get("oper")) {
 				checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 			}
 			textArea.setText(getHistoryText());
 		} else if (source == saveButton) {
@@ -351,11 +328,5 @@ public class HistoryScreen extends ScreenBase
 
 	public JFrame getFrame() {
 		return frame;
-	}
-
-	public void updateSourceCodeAt(int index, String sourceString) {
-		logger.debug("updating source at " + index + " with " + (sourceString != null ? ("string of length " + sourceString.length()) : "<null>"));
-		sourceCodes[index] = sourceString;
-		refreshText();
 	}
 }

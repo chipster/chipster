@@ -1,20 +1,24 @@
 package fi.csc.microarray.analyser.java;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class JavaAnalysisHandler implements AnalysisHandler {
 
@@ -22,16 +26,16 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	 * Logger for this class
 	 */
 	static final Logger logger = Logger.getLogger(JavaAnalysisHandler.class);
+	
+	private HashMap<String, String> parameters;
 
 	
 	public JavaAnalysisHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
-		//Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		this.parameters = parameters;
 	}
 
-	
-	
 	@SuppressWarnings(value="unchecked")
-	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
+	public AnalysisJob createAnalysisJob(JobMessage message, ToolDescription description, ResultCallback resultHandler) {
 		try {
 			Class<? extends Object> jobClass = (Class<? extends Object>)description.getImplementation();
 			JavaAnalysisJobBase analysisJob = (JavaAnalysisJobBase)jobClass.newInstance();
@@ -42,9 +46,12 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException("internal error: type " + description.getImplementation().toString() + " could not be instantiated");
 		}
 	}
+	
+	public HashMap<String, String> getParameters() {
+		return parameters;
+	}
 
-
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+	public ToolDescription handle(File moduleDir, String sourceResourceName, Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
@@ -65,19 +72,26 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
-		AnalysisDescription ad;
+		// parse SADL		
+		SADLDescription sadlDescription;
 		try {
-		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(jobInstance.getSADL()), this);
+			sadlDescription = new ChipsterSADLParser().parse(jobInstance.getSADL(),
+			        sourceResourceName);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
 		
+		// create analysis description
+		ToolDescription ad;
+		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
+		
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
-		ad.setVVSADL(jobInstance.getSADL());
-		ad.setSourceResourceName(jobClass.getName());
-		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
+		ad.setToolFile(new File(jobClass.getCanonicalName()));
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
 		
 		return ad;
@@ -96,7 +110,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		return JavaAnalysisJobBase.class.isAssignableFrom(jobClass);
 	}
 
-	public boolean isUptodate(AnalysisDescription description) {
+	public boolean isUptodate(ToolDescription description) {
 		return true;
 	}
 

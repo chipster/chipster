@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="session" type="sessionType"></xs:element>
+
+
+
+
+
+
+	<xs:complexType name="sessionType">
+		<xs:sequence>
+			<xs:element name="operation" type="operationType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+			<xs:element name="folder" type="folderType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+			<xs:element name="data" type="dataType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="format-version" type="xs:int"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="operationType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string"/>
+    		<xs:element name="name" type="nameType"/>
+    		<xs:element name="type" type="xs:string" minOccurs="0"/>
+    		<xs:element name="source-code-file" type="xs:string" minOccurs="0"/>
+			<xs:element name="input" type="inputType" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="output" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+    		<xs:element name="parameter" type="parameterType" maxOccurs="unbounded" minOccurs="0"/>
+    		<xs:element name="category" type="xs:string" />
+    		<xs:element name="categoryColor" type="xs:string" minOccurs="0" />
+			<xs:element name="module" type="xs:string" minOccurs="0"/>
+
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="folderType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="id" type="xs:string"/>
+            <xs:element name="parent" type="xs:string" minOccurs="0"/>
+            <xs:element name="child" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="dataType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="id" type="xs:string"/>
+			<xs:element name="folder" type="xs:string" minOccurs="0"/>
+			<xs:element name="result-of" type="xs:string" minOccurs="0"/>
+			<xs:element name="storage-type" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="url" type="xs:string"/>
+			<xs:element name="cache-url" type="xs:string" minOccurs="0"/>
+			<xs:element name="link" type="linkType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="notes" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+    <xs:complexType name="inputType">
+    	<xs:sequence>
+    		<xs:element name="name" type="nameType"></xs:element>
+    		<xs:element name="data" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+	
+    <xs:complexType name="nameType">
+    	<xs:sequence>
+    		<xs:element name="id" type="xs:string"></xs:element>
+    		<xs:element name="display-name" type="xs:string" minOccurs="0"></xs:element>
+    		<xs:element name="description" type="xs:string" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+
+    <xs:complexType name="parameterType">
+    	<xs:sequence>
+    		<xs:element name="name" type="nameType"></xs:element>
+    		<xs:element name="value" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="linkType">
+    	<xs:sequence>
+    		<xs:element name="target" type="xs:string"></xs:element>
+    		<xs:element name="type" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+</xs:schema>

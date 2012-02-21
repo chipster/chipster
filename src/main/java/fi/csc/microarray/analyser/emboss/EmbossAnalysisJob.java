@@ -6,35 +6,47 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.JobCancelledException;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
+import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
+import fi.csc.microarray.analyser.shell.ShellAnalysisJob.ShellParameterSecurityPolicy;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
+import fi.csc.microarray.util.Exceptions;
 
 /**
  * Runs EMBOSS applications.
  * 
- * @author naktinis, akallio
+ * @author naktinis, akallio, hupponen
  *
  */
-public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
+public class EmbossAnalysisJob extends ShellAnalysisJobBase {
     
+	public static class EmbossParameterSecurityPolicy extends ShellParameterSecurityPolicy {
+		
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection) and content (shell code injection).
+			// We don't check the parameter for ACD expression
+			// vulnerabilities, because due to recursion limited
+			// parsing and very limited syntax there should be none.
+			return super.isValueValid(value, parameterDescription);
+		}
+
+	}
+	
+	public static EmbossParameterSecurityPolicy EMBOSS_PARAMETER_SECURITY_POLICY = new EmbossParameterSecurityPolicy();
+
     private String toolDirectory;
     private String descriptionDirectory;
-    
-    // EMBOSS logger
+
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
     
-    LinkedList<EmbossQualifier> qualifiers;
-    LinkedList<String> inputParameters;
-    ACDDescription acdDescription;
+    // Output formats specified by user
+    private HashMap<String, String> outputFormats = new HashMap<String, String>();
+    private LinkedList<EmbossQualifier> qualifiers;
+    private ACDDescription acdDescription;
     
-    @Override
-    protected void cancelRequested() {
-        // TODO Auto-generated method stub
-
-    }
     
     public EmbossAnalysisJob(String toolDirectory, String descriptionDirectory) {
         // Directory where runnable files are stored
@@ -43,12 +55,23 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Directory where application descriptions are stored
         this.descriptionDirectory = descriptionDirectory;
     }
-
+    
+    
     @Override
-    protected void execute() throws Exception {
-      
+    protected void preExecute() throws JobCancelledException {
+        super.preExecute();
+        
         // Get parameter values from user's input (order is significant)
-        inputParameters = new LinkedList<String>(inputMessage.getParameters());
+        LinkedList<String> inputParameters;
+		try {
+			inputParameters = new LinkedList<String>(inputMessage.getParameters(EMBOSS_PARAMETER_SECURITY_POLICY, analysis));
+			
+		} catch (ParameterValidityException e) {
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
+			updateState(JobState.FAILED_USER_ERROR, "");
+			return;
+		}
         
         // Get the ACD description
         acdDescription = getACD();
@@ -59,13 +82,13 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Prepare variable map with values filled in by client
         // ACD format allows $(varname) declarations where the value
         // of varname might be not known prior to user input.
-        // TODO check if we actually need this anywhere
         HashMap<String, String> varMap = new HashMap<String, String>();
         Integer index = 0;
         for (ParameterDescription param : analysis.getParameters()) {
             varMap.put(param.getName(), inputParameters.get(index));
             index++;
         }
+        acdDescription.updateVariables(varMap);
         
         // Map description parameters to ACD parameters
         HashMap<String, ACDParameter> analysisToACD = new HashMap<String, ACDParameter>();
@@ -82,90 +105,113 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             }
             analysisToACD.put(param.getName(), mapTo);
         }
-        
+
         // Generate qualifiers and validate them
         index = 0;
         qualifiers = new LinkedList<EmbossQualifier>();
         for (ParameterDescription param : analysis.getParameters()) {
+            // Handle non-acd parameters separately
+            if (param.getName().startsWith(ACDToSADL.OUTPUT_TYPE_PREFIX)) {
+                String value = !(inputParameters.get(index).equals(ACDParameter.UNDEFINED))?
+                        inputParameters.get(index) : null;
+                outputFormats.put(
+                        param.getName().substring(ACDToSADL.OUTPUT_TYPE_PREFIX.length()),
+                        value);
+                continue;
+            }
+            
+            // Handle normal parameters
             EmbossQualifier qualifier = new EmbossQualifier(analysisToACD.get(param.getName()),
                                                             inputParameters.get(index));
-            if (qualifier.isValid()) {
+            EmbossQualifier.ValidityCheck check = qualifier.validate();
+            if (check.passed()) {
                 qualifiers.add(qualifier);
             } else {
-                // TODO Inform the user
-                updateState(JobState.FAILED_USER_ERROR, "Incorrect field value: " + param.getName(), false);
+                // Inform the user
+                outputMessage.setErrorMessage(check.getMessage());
+                updateState(JobState.FAILED_USER_ERROR, "Incorrect field value: " + param.getName());
+                logger.debug(check.getMessage());
                 return;
             }
             index++;
         }
-        
-        // Processing...
-        String cmd = commandLine();
-        Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
-        p.waitFor();
-        
-        // TODO: Some information from error stream
-        // byte[] b = new byte[150];
-        // p.getErrorStream().read(b);
-        // String errorString = new String(b);
-        
-        // This is what we should produce as output
-        ResultMessage outputMessage = this.outputMessage;
-        
-        // This is where results are returned 
-        ResultCallback resultHandler = this.resultHandler;
-        
-        outputMessage.setState(JobState.COMPLETED);
-        resultHandler.sendResultMessage(inputMessage, outputMessage);
+
+        // store the command for execute()
+        command = commandLine();
     }
-    
+
+
     /**
      * Parse the appropriate ACD description file.
      * 
      * @return ACD description object.
      */
-    protected ACDDescription getACD() {
-        String appName = analysis.getName();
-        return new ACDDescription(new File(descriptionDirectory, appName + ".acd"));
-    }
-
-    @Override
-    protected void preExecute() throws Exception {
-        super.preExecute();
+    private ACDDescription getACD() {
+        String appName = analysis.getID();
+        return new ACDDescription(new File(descriptionDirectory, appName));
     }
     
+    
     /**
-     * Return a command line, including executable and
-     * parameters, that will be executed.
+     * Return a command line that will be executed,
+     * including executable and parameters.
      * 
      * @return
      */
-    private String commandLine() {
+    private String[] commandLine() {
         
         // Form the parameters (including the executable)
         LinkedList<String> params = new LinkedList<String>();
-        params.add(new File(toolDirectory, analysis.getName()).getAbsolutePath());
+
+        params.add(new File(toolDirectory, analysis.getDisplayName()).getAbsolutePath());
         
         // Parameters
         for (EmbossQualifier qualifier : qualifiers) {
-            params.add(qualifier.toString());
+            if (!qualifier.getValue().equals("")) {
+                params.add("-" + qualifier.getName());
+                params.add(SHELL_STRING_SEPARATOR + qualifier.getValue() + SHELL_STRING_SEPARATOR);
+            }
         }
         
         // Inputs
         for (String name : inputMessage.payloadNames()) {
-            params.add("-" + name + " " + name);
+            params.add("-" + name);
+            params.add(name);
         }
         
-        // Outputs
-        // TODO: add outputs according to ACD
-        params.add("-outfile " +  "outfile");
-               
-        String cmd = "";
-        for (String string : params) {
-            cmd += string + " ";
+        // Simple outputs
+        for (ACDParameter param : acdDescription.getOutputParameters()) {
+            // User might have changed output type
+            String format = outputFormats.get(param.getName());
+            if (format != null) {
+                // Add additional qualifier for defining format
+                if (param.getType().equals("align")) {
+                    params.add("-aformat");
+                } else {
+                    params.add("-osformat");
+                }
+                params.add(format);
+            }
+            
+            // Add qualifier
+            params.add("-" + param.getName());
+            params.add(param.getOutputFilename(true));
         }
         
-        return cmd;
+        // Graphics outputs
+        for (ACDParameter param : acdDescription.getGraphicsParameters()) {
+            // Emboss automatically adds extensions for graphics files
+            params.add("-" + param.getName());
+            params.add("png");
+            params.add("-goutfile");
+            params.add(param.getOutputFilename(false));
+        }
+        
+        // Turn off prompts
+        params.add("-auto");
+        
+        String[] cmd = new String[0];
+        return params.toArray(cmd);
     }
     
     /**
@@ -177,6 +223,28 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      */
     class EmbossQualifier {
         
+        /**
+         * Represents validity check. Encapsulates check
+         * result and the error message if any.
+         */
+        class ValidityCheck {
+            private boolean passed;
+            private String message;
+            
+            public ValidityCheck(boolean passed, String message) {
+                this.passed = passed;
+                this.message = message;
+            }
+            
+            public boolean passed() {
+                return this.passed;
+            }
+            
+            public String getMessage() {
+                return this.message;
+            }
+        }
+        
         ACDParameter acdParameter;
         String value;
         
@@ -185,12 +253,24 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             this.value = value;
         }
         
-        public boolean isValid() {
-            return acdParameter.validate(value);
+        public String getName() {
+            return acdParameter.getName();
         }
         
-        public String toString() {
-            return "-" + acdParameter.getName() + " " + value;
+        public String getValue() {
+            return acdParameter.normalize(value);
+        }
+        
+        public ValidityCheck validate() {
+            // Check if this value is ok for this parameter
+            if (acdParameter.isRequired() && value.equals("")) {
+                return new ValidityCheck(false, "Parameter \"" + acdParameter.getName() +
+                                                "\" can not be empty.");
+            } else if (!value.equals("") && !acdParameter.validate(value)) {
+                return new ValidityCheck(false, "Incorrect value \"" + getValue() +
+                                                "\" for \"" + acdParameter.getName() + "\" parameter");
+            }
+            return new ValidityCheck(true, null);
         }
     }
 }

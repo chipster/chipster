@@ -14,34 +14,33 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationGenerator;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
+import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -52,32 +51,23 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataChangeEvent;
+import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.features.table.EditableTable;
-import fi.csc.microarray.databeans.features.table.TableBeanEditor;
-import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.AdminAPI;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.Node;
-import fi.csc.microarray.messaging.NodeBase;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.module.DefaultModules;
-import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.messaging.auth.ClientLoginListener;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.Strings;
 
 
 /**
@@ -88,25 +78,25 @@ import fi.csc.microarray.util.Strings;
  * @author Aleksi Kallio
  *
  */
-public abstract class ClientApplication implements Node {
-	private static final int HEARTBEAT_DELAY = 2*1000;
+public abstract class ClientApplication {
 
-	/**
-	 * Logger for this class
-	 */
-	private static Logger logger;
+	protected static final String ALIVE_SIGNAL_FILENAME = "i_am_alive";
 
-	public static File SNAPSHOT_DIR = null;
-	public static File OLD_SNAPSHOT_DIR = null;
-	
+	protected static final int MEMORY_CHECK_INTERVAL = 2*1000;
+	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
+
+	// Logger for this class
+	protected static Logger logger;
+
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract AuthenticationRequestListener getAuthenticationRequestListener();
+	protected abstract void initialiseGUI() throws MicroarrayException, IOException;
+	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
-	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
+	public abstract DataFolder initializeFolderForImport(String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
     public abstract void showDetailsFor(DataBean data);
@@ -119,7 +109,8 @@ public abstract class ClientApplication implements Node {
 	public abstract void viewHelp(String id);
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
-	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
@@ -127,6 +118,8 @@ public abstract class ClientApplication implements Node {
 	public abstract File openWorkflow();
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
+	public abstract void loadSessionFrom(File file);
+	public abstract void restoreSessionFrom(File file);
 	public abstract void saveSession();
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
@@ -140,7 +133,7 @@ public abstract class ClientApplication implements Node {
 	 * Method is called periodically to maintain state that cannot be maintained 
 	 * in realtime. 
 	 */
-	public abstract void heartBeat();
+	public abstract void checkFreeMemory();
 	
 	// 
 	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
@@ -156,161 +149,199 @@ public abstract class ClientApplication implements Node {
 		}		
 	};
 	
-	private NodeBase nodeSupport = new NodeBase() {
-		public String getName() {
-			return "client";
-		}
-	};
-
-	protected Collection<OperationCategory> parsedCategories;
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
 	
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
+	
+	protected String requestedModule;
 
+	/**
+	 * Tool modules contain tool categories, that contain the tools. 
+	 */
+	protected LinkedList<ToolModule> toolModules = new LinkedList<ToolModule>(); 
 	protected WorkflowManager workflowManager;
-	protected TaskExecutor taskExecutor;
-	protected MessagingEndpoint endpoint;
 	protected DataManager manager;
     protected DataSelectionManager selectionManager;
+    protected ServiceAccessor serviceAccessor;
+	protected TaskExecutor taskExecutor;
+	protected boolean isStandalone;
+	private AuthenticationRequestListener overridingARL;
+
+	protected boolean unsavedChanges = false;
+	protected boolean unbackuppedChanges = false;
+
+	protected File aliveSignalFile;
+	private LinkedList<File> deadDirectories = new LinkedList<File>();
 
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 
 	public ClientApplication() {
+		this(false, null);
+	}
+
+	public ClientApplication(boolean isStandalone, AuthenticationRequestListener overridingARL) {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.clientConstants = new ClientConstants();
+		this.serviceAccessor = isStandalone ? new LocalServiceAccessor() : new RemoteServiceAccessor();
+		this.isStandalone = isStandalone;
+		this.overridingARL = overridingARL;
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
 		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
-		SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "session-snapshot.zip");
-		OLD_SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "workspace-snapshot");
-		
-		// initialise modules
-		Modules modules = DefaultModules.getDefaultModules();
-		Session.getSession().putObject("modules", modules);
-		
-		// initialise workflows
-		this.workflowManager = new WorkflowManager(this);
-		 
-		// initialise data management
-		this.manager = new FSDataManager();
-		modules.plugFeatures(this.manager);
-		Session.getSession().putObject("data-manager", manager);
 
-        this.selectionManager = new DataSelectionManager(this);
-		Session.getSession().putObject("application", this);
-		
 		try {
-			// try to initialise JMS connection
+
+			// Initialise modules
+			ModuleManager modules = new ModuleManager(requestedModule);
+			Session.getSession().setModuleManager(modules);
+
+			// Initialise workflows
+			this.workflowManager = new WorkflowManager(this);
+
+			// Initialise data management
+			this.manager = new DataManager();
+			Session.getSession().setDataManager(manager);
+			modules.plugAll(this.manager, Session.getSession());
+			this.selectionManager = new DataSelectionManager(this);
+			Session.getSession().setClientApplication(this);
+		
+			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
-			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
-			reportInitialisation(" connected", false);				
+			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			this.taskExecutor = serviceAccessor.getTaskExecutor();
+			Session.getSession().setServiceAccessor(serviceAccessor);
+			reportInitialisation(" ok", false);
+
+			// Check services
+			reportInitialisation("Checking remote services...", true);
+			String status = serviceAccessor.checkRemoteServices();
+			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
+				throw new Exception(status);
+			}
+			reportInitialisation(" ok", false);
 			
-			//	put network stuff to session
-			Session.getSession().putObject("client-endpoint", endpoint);
-			taskExecutor = new TaskExecutor(endpoint, manager);
-			Session.getSession().putObject("client-job-executor", taskExecutor);
-			
-			reportInitialisation("Checking remote services...", true);				
-			AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
-			if (!api.areAllServicesUp(true)) {
-				throw new Exception("required services are not available (" + api.getErrorStatus() + ")");
-			}				
-			reportInitialisation(" all are available", false);
-			
-			// create metadata fetching job
-			reportInitialisation("Fetching analysis descriptions...", true);
-			final Task describeOperations = taskExecutor.createTask("describe", true);
-			
-			// run the job (blocking while it is progressing)
-			taskExecutor.execute(describeOperations);
-			
-			// parse metadata
-			DataBean metadataBean = describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME);
-			this.metadata = new String(metadataBean.getContents());
-			manager.delete(metadataBean); // don't leave the bean hanging around
-			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<SADLDescription> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
-			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
-			
-			logger.debug("created " + this.parsedCategories.size() + " operation categories");
-			
-			reportInitialisation(" received and processed", false);
-			definitionsInitialisedLatch.countDown();
+			// Fetch descriptions from compute server
+	        reportInitialisation("Fetching analysis descriptions...", true);
+	        serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
+			this.toolModules.addAll(serviceAccessor.getModules());
+
+			// Add local modules also when in remote mode
+			if (!isStandalone) {
+				ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+				localServiceAccessor.initialise(manager, null);
+				localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+				toolModules.addAll(localServiceAccessor.getModules());
+			}
+
+			// Add internal operation definitions
+			ToolCategory internalCategory = new ToolCategory("Internal tools");
+			internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
+			internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
+			ToolModule internalModule = new ToolModule("internal");
+			internalModule.addHiddenToolCategory(internalCategory);
+			toolModules.add(internalModule);
+
+			// Update to splash screen that we have loaded tools
+			reportInitialisation(" ok", false);
 			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
+
+			// definitions are now initialised
+			definitionsInitialisedLatch.countDown();
 			
-			// start heartbeat
-			final Timer timer = new Timer(HEARTBEAT_DELAY, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ClientApplication.this.heartBeat();
+			// we can initialise graphical parts of the system
+			initialiseGUI();
+
+			// Remember changes to confirm close only when necessary and to backup when necessary
+			manager.addDataChangeListener(new DataChangeListener() {
+				public void dataChanged(DataChangeEvent event) {
+					unsavedChanges = true;
+					unbackuppedChanges = true;
 				}
 			});
+
+			// Start checking amount of free memory 
+			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ClientApplication.this.checkFreeMemory();
+				}
+			});
+			memoryCheckTimer.setCoalesce(true);
+			memoryCheckTimer.setRepeats(true);
+			memoryCheckTimer.setInitialDelay(0);
+			memoryCheckTimer.start();
+			
+			// Start checking if background backup is needed
+			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
+			aliveSignalFile.createNewFile();
+			aliveSignalFile.deleteOnExit();
+			
+			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							if (unbackuppedChanges) {
+								
+								File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
+								sessionFile.deleteOnExit();
+								
+								try {
+									getDataManager().saveLightweightSession(sessionFile);
+									
+								} catch (Exception e) {
+									logger.warn(e); // do not care that much about failing session backups
+								}
+							}
+							unbackuppedChanges = false;
+						}
+					});
+				}
+			});
+
 			timer.setCoalesce(true);
 			timer.setRepeats(true);
-			timer.setInitialDelay(0);
+			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
 			
 		} catch (Exception e) {
-			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
-					"Please see the details below for more information about the problem.\n\n" + 
-					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
-					e.toString(), Severity.ERROR, false);
-			
+			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
 
 
 	}
-	
+
 	/**
 	 * Add listener for applications state changes.
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
+	public void addClientEventListener(PropertyChangeListener listener) {
 		eventSupport.addPropertyChangeListener(listener);		
 	}
 
 	/**
-	 * @see #addPropertyChangeListener(PropertyChangeListener)
+	 * @see #addClientEventListener(PropertyChangeListener)
 	 */
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    public void removeClientEventListener(PropertyChangeListener listener) {
         eventSupport.removePropertyChangeListener(listener);       
     }
     
-    public List<DataBean> getAllDataBeans(){
-		List<DataBean> datas = new ArrayList<DataBean>();
-		// The depth of the file structure is max 2, so we don't need recursion
-		
-		// Iterate the folders
-		for (DataItem item1 : this.manager.getRootFolder().getChildren()) {
-			if(item1 instanceof DataFolder){
-				DataFolder folder = (DataFolder)item1;
-				
-				// Iterate the datas
-				for(DataItem item2 : folder.getChildren()){
-					if(item2 instanceof DataBean){
-						DataBean bean = (DataBean)item2;
-						datas.add(bean);
-					}
-				}
-			}
-		}
-		return datas;
-    }
-
     public DataSelectionManager getSelectionManager() {
     	return selectionManager;
     }
     
     public void selectAllItems(){
-		List<DataBean> datas = getAllDataBeans();
+		List<DataBean> datas = manager.databeans();
 		for (DataBean data : datas) {
 			
 			selectionManager.selectMultiple(data, this);
@@ -319,11 +350,11 @@ public abstract class ClientApplication implements Node {
     }
 
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target ) {
-		dispatchVisualisationEvent(new VisualisationMethodChangedEvent(this, method, variables, datas, target));
+		fireClientEvent(new VisualisationMethodChangedEvent(this, method, variables, datas, target));
 	}
 	
 	public void setVisualisationMethod(VisualisationMethodChangedEvent e){
-		dispatchEvent(e);
+		fireClientEvent(e);
 	}
 	
 	public void setEventsEnabled(boolean eventsEnabled) {
@@ -331,14 +362,6 @@ public abstract class ClientApplication implements Node {
 		taskExecutor.setEventsEnabled(eventsEnabled);			
 	}
 	
-	public String getName() {
-		return nodeSupport.getName();
-	}
-	
-	public String getHost() {
-		return nodeSupport.getHost();
-	}
-
 	/**
 	 * Renames the given dataset with the given name and updates the change
 	 * on screen.
@@ -350,22 +373,18 @@ public abstract class ClientApplication implements Node {
 		data.setName(newName);
 	}
 	
-	public void executeOperation(final OperationDefinition operationDefinition, ResultListener resultListener) {
-		
-		try {
-			Operation operation = new Operation(operationDefinition, getSelectionManager().getSelectedDatasAsArray());
-			operation.setResultListener(resultListener);
-			executeOperation(operation);
-			
-		} catch (MicroarrayException e) {
-			reportException(e);
-		}
-	}
-	
+
 	public void executeOperation(final Operation operation) {
 
+		// check if guest user
+		if (Session.getSession().getUsername() != null && Session.getSession().getUsername().equals(configuration.getString("security", "guest-username"))) {
+			showDialog("Running tools is disabled for guest users.", "",
+					null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+			return;
+		}
+		
 		// check operation (relevant only for workflows)
-		if (operation.getBindings() == null) {
+		if (operation.getBindings().isEmpty()) {
 			throw new RuntimeException("Attempted to run " + operation.getDefinition().getFullName() + " with input datasets that were not compatitible with the operation.");
 		}
 		
@@ -376,29 +395,26 @@ public abstract class ClientApplication implements Node {
 			return;
 		}
 		
-		// check job size
-		long bytes = 0;
-		for (DataBinding binding : operation.getBindings()) {
-			bytes += binding.getData().getContentLength();			
-		}
-		int megabytes = (int)(bytes/1000000L);
-		if (megabytes > clientConstants.MAX_JOB_SIZE_MB) {
-			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE_MB + " megabytes.", "Input datasets size: " + megabytes, Severity.INFO, false);
-			return;
-		}
-		
-		// execute the job
-		operation.execute(new TaskEventListener() {
+		// start executing the task
+		Task task = taskExecutor.createTask(operation);
+		task.addTaskEventListener(new TaskEventListener() {
 			public void onStateChange(Task job, State oldState, State newState) {
 				if (newState.isFinished()) {
 					try {
+						// FIXME there should be no need to pass the operation as it goes within the task
 						onFinishedTask(job, operation);
 					} catch (Exception e) {
 						reportException(e);
 					}
 				}
 			}
-		});				
+		});
+
+		try {
+			taskExecutor.startExecuting(task);
+		} catch (TaskException te) {
+			reportException(te);
+		}
 	}
 	
 	/**
@@ -406,7 +422,7 @@ public abstract class ClientApplication implements Node {
 	 * monitors the execution. This creates a new dataset out of the
 	 * results and inserts it to the data set views.
 	 * 
-	 * @param job The finished job.
+	 * @param task The finished task.
 	 * @param oper The finished operation, which in fact is the GUI's
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
@@ -414,147 +430,109 @@ public abstract class ClientApplication implements Node {
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task job, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + job.getState());
+			logger.debug("operation finished, state is " + task.getState());
 			
-			// for canceled tasks, do nothing
-			if (job.getState() == State.CANCELLED) {
-
-			}
-			// for unsuccessful tasks, report failing
-			else if (!job.getState().finishedSuccesfully()) { 
-				reportTaskError(job);
-			}
-
-			// for completed tasks, create datasets etc.
-			else {
-
+			if (task.getState() == State.CANCELLED) {
+				// task cancelled, do nothing
+				
+			} else if (!task.getState().finishedSuccesfully()) {
+				// task unsuccessful, report it
+				reportTaskError(task);
+				
+			} else {
+				// task completed, create datasets etc.
 				newBeans = new LinkedList<DataBean>();
 
 				// read operated datas
+				Module primaryModule = Session.getSession().getPrimaryModule();
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
 				for (DataBinding binding : oper.getBindings()) {
-					// remove derivation links that start from phenodata
-					if (!binding.getData().queryFeatures("/phenodata").exists()) {
+					// do not create derivation links for metadata datasets
+					// also do not create links for sources without parents
+					// this happens when creating the input databean for example
+					// for import tasks
+					// FIXME should such a source be deleted here?
+					if (!primaryModule.isMetadata(binding.getData()) && (binding.getData().getParent() != null)) {
 						sources.add(binding.getData());
 
 					}
 				}
 
 				// decide output folder
-				DataFolder folder;
+				DataFolder folder = null;
 				if (oper.getOutputFolder() != null) {
 					folder = oper.getOutputFolder();
 				} else if (sources.size() > 0) {
-					folder = sources.get(0).getParent();
-				} else {
+					for (DataBean source : sources) {
+						if (source.getParent() != null) {
+							folder = source.getParent();
+						}
+					}
+				}
+				// use root if no better option 
+				if (folder == null) {
 					folder = manager.getRootFolder();
 				}
 
 
-				DataBean phenodata = null;
+				// read outputs and create derivational links for non-metadata beans
+				DataBean metadataOutput = null;
+				OperationRecord operationRecord = new OperationRecord(oper);
+				operationRecord.setSourceCode(task.getSourceCode());
+				
+				for (String outputName : task.outputNames()) {
 
-				for (String outputName : job.outputNames()) {
+					DataBean output = task.getOutput(outputName);
+					output.setOperationRecord(operationRecord);
 
-					DataBean result = job.getOutput(outputName);
-					result.setOperation(oper);
-
-					if (result.queryFeatures("/phenodata").exists()) {
-						phenodata = job.getOutput(outputName);					
-					}
 
 					// set sources
 					for (DataBean source : sources) {
-						result.addLink(Link.DERIVATION, source);
+						output.addLink(Link.DERIVATION, source);
 					}
 
 					// initialise cache
 					try {
-						result.initialiseStreamStartCache();
+						output.initialiseStreamStartCache();
 					} catch (IOException e) {
 						throw new MicroarrayException(e);
 					}
 
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(result);
+					folder.addChild(output);
 
-					newBeans.add(result);
+					// check if this is metadata
+					// for now this must be after folder.addChild(), as type tags are added there
+					if (primaryModule.isMetadata(output)) {
+						metadataOutput = output;				
+					}
+					
+					newBeans.add(output);
 				}
 
-				if (phenodata != null) {
-					// link phenodata to other datasets
+				// link metadata output to other outputs
+				if (metadataOutput != null) {
 					for (DataBean bean : newBeans) {
-						if (bean != phenodata) {
-							phenodata.addLink(Link.ANNOTATION, bean);
+						if (bean != metadataOutput) {
+							metadataOutput.addLink(Link.ANNOTATION, bean);
 						}
 					}
 
-					// if original names are not already contained in the phenodata 
-					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
-						// augment phenodata with original dataset names (using parameter bindings)
-						HashSet<String> insertedNames = new HashSet<String>();
-						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-						EditableTable editableTable = tableEditor.getEditable();
-						LinkedList<String> newColumn = new LinkedList<String>();
-						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-						editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
-						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
-							boolean correctRowFound = false;
-							String originalName = null;
-							for (DataBinding binding : oper.getBindings()) {
-								if (binding.getName().equals(sample)) {
-									originalName = binding.getData().getName();
-									correctRowFound = true;
-									break;
-								}
-							}
-							if (!correctRowFound) {
-								originalName = sample; // just duplicate the sample name if proper is not found
-							}
-
-							// check that original names are unique
-							if (insertedNames.contains(originalName)) {
-								final String separator = "/";
-								int i = 2;
-								while (insertedNames.contains(originalName + separator + i)) {
-									i++;
-								}
-								originalName = originalName + separator + i;
-							}
-
-							editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
-							insertedNames.add(originalName);
-
-						}
-						tableEditor.write();
-					}
-
-					// if chip descriptions (visualisation view names) aren't there already 
-					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
-						// copy original dataset names
-						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-						EditableTable editableTable = tableEditor.getEditable();
-						LinkedList<String> newColumn = new LinkedList<String>();
-						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-						editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
-						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
-							editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
-						}
-						tableEditor.write();
-					}				
+					primaryModule.postProcessOutputMetadata(oper, metadataOutput);				
 				}
 
 			}			
 	
 		} finally {
+			
+			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (job.getState().finishedSuccesfully()) {
+				if (task.getState().finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();
@@ -567,18 +545,13 @@ public abstract class ClientApplication implements Node {
 		logger.debug("quitting client");
 		
 		try {
-			endpoint.close();
-		} catch (JMSException je) {
+			serviceAccessor.close();
+		} catch (Exception e) {
 			// do nothing
 		}
 	}
 	
-	public void dispatchVisualisationEvent(VisualisationMethodChangedEvent event) {
-		logger.debug("VisualisationEvent dispatched: " + event.getNewMethod());
-		this.dispatchEvent(event);
-	}
-	
-	public void dispatchEvent(PropertyChangeEvent event) {
+	public void fireClientEvent(PropertyChangeEvent event) {
 		logger.debug("dispatching event: " + event);
 		if (eventsEnabled) {
 			eventSupport.firePropertyChange(event);
@@ -593,38 +566,31 @@ public abstract class ClientApplication implements Node {
 		public void updateSourceCodeAt(int index, String sourceCode);
 	}
 	
-	public void fetchSourceFor(String[] operationNames, final SourceCodeListener listener) throws MicroarrayException {
-		try {
-			int i = -1;		
-			for (String name : operationNames) {
-				i++;
-				logger.debug("describe operation " + name);
-				if (name == null) {
-					listener.updateSourceCodeAt(i, null);
-					continue;
-				}
-				final Task describeTask = taskExecutor.createTask("describe-operation", true);
-				final int index = i;
-				describeTask.addParameter("name", name);
-				describeTask.addTaskEventListener(new TaskEventListener() {
-					public void onStateChange(Task job, State oldState, State newState) {
-						if (newState == State.COMPLETED) {
-							try {
-								DataBean sourceBean = describeTask.getOutput(AnalyserServer.SOURCECODE_OUTPUT_NAME);
-								String source = new String(sourceBean.getContents());
-								manager.delete(sourceBean); // don't leave it hanging around
-								logger.debug(source);
-								listener.updateSourceCodeAt(index, source);
-							} catch (MicroarrayException e) {
-								reportException(e);
-							}
-						}
-					}
-				});
-				taskExecutor.startExecuting(describeTask);
+	public void fetchSourceFor(String[] operationIDs, final SourceCodeListener listener) throws MicroarrayException {
+		int i = -1;		
+		for (String id : operationIDs) {
+			i++;
+			logger.debug("describe operation " + id);
+			if (id == null) {
+				listener.updateSourceCodeAt(i, null);
+				continue;
 			}
-		} catch (TaskException e) {
-			throw new MicroarrayException(e);
+			
+			SourceMessageListener sourceListener = null;
+			try {
+				sourceListener = serviceAccessor.retrieveSourceCode(id);
+				String source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
+				listener.updateSourceCodeAt(i, source); // source can be null
+				
+			} catch (Exception e) {
+				throw new MicroarrayException(e);
+				
+			} finally {
+				if (sourceListener != null) {
+					sourceListener.cleanUp();
+				}
+			}
+			
 		}
 	}
 		
@@ -641,34 +607,47 @@ public abstract class ClientApplication implements Node {
 		ImportUtils.executeImport(importSession);
 	}
 
-	public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
-		for (OperationCategory category : parsedCategories) {
-			if (category.getName().equals(categoryName)) {
-				for (OperationDefinition definition : category.getOperationList()) {
-					if (definition.getName().equals(operationName)) {
-						return definition;
-					}
+	/**
+	 * 
+	 * @param toolId
+	 * @return null if operation definition is not found
+	 */
+	public OperationDefinition getOperationDefinition(String toolId) {
+		for (ToolModule module : toolModules) {
+			OperationDefinition tool = module.getOperationDefinition(toolId);
+			if (tool != null) {
+				return tool;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get OperationDefinition from specific module.
+	 * 
+	 * @param toolId
+	 * @param moduleName
+	 * @return null if not found
+	 */
+	public OperationDefinition getOperationDefinition(String toolId, String moduleName) {
+		for (ToolModule module : toolModules) {
+			if (module.getModuleName().equals(moduleName)) {
+				OperationDefinition tool = module.getOperationDefinition(toolId);
+				if (tool != null) {
+					return tool;
 				}
 			}
 		}
 		return null;
 	}
 
-	public void loadOldSnapshot() throws IOException, MicroarrayException {
-		manager.loadOldSnapshot(OLD_SNAPSHOT_DIR, manager.getRootFolder(), this);
-	}
-
-	public Iterable<OperationDefinition> getOperationDefinitions() {
-		LinkedList<OperationDefinition> definitions = new LinkedList<OperationDefinition>();
-		
-		for (OperationCategory category: parsedCategories) {
-			for (OperationDefinition operationDefinition: category.getOperationList()) {
-				definitions.add(operationDefinition);
-			}
-		}
-		return definitions;
-	}
 	
+	/**
+	 * FIXME Better handling for existing file
+	 * 
+	 * @param data
+	 * @param selectedFile
+	 */
 	protected void exportToFile(final DataBean data, final File selectedFile) {
 		runBlockingTask("exporting file", new Runnable() {
 
@@ -687,7 +666,7 @@ public abstract class ClientApplication implements Node {
 					IO.copy(data.getContentByteStream(), out);
 					out.close();
 				} catch (Exception e) {
-					throw new RuntimeException();
+					throw new RuntimeException(e);
 				}
 			}
 			
@@ -697,6 +676,112 @@ public abstract class ClientApplication implements Node {
 
 	public TaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
+	}
+	
+	protected AuthenticationRequestListener getAuthenticationRequestListener() {
+
+		AuthenticationRequestListener authenticator;
+
+		if (overridingARL != null) {
+			authenticator = overridingARL;
+		} else {
+			authenticator = new Authenticator();
+		}
+
+		authenticator.setLoginListener(new ClientLoginListener() {
+			public void firstLogin() {
+			}
+
+			public void loginCancelled() {
+				System.exit(1);
+			}
+		});
+
+		return authenticator;
+	}
+	
+	public boolean isStandalone() {
+		return this.isStandalone;
+	}
+
+	/**
+	 * Collects all dead temp directories and returns the most recent
+	 * that has a restorable session .
+	 */
+	protected File checkTempDirectories() throws IOException {
+
+		Iterable<File> tmpDirectories = getDataManager().listAllRepositories();
+		File mostRecentDeadSignalFile = null;
+		
+		for (File directory : tmpDirectories) {
+
+			// Skip current temp directory
+			if (directory.equals(getDataManager().getRepository())) {
+				continue;
+			}
+			
+			
+			// Check is it alive, wait until alive file should have been updated
+			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+			long originalLastModified = aliveSignalFile.lastModified();
+			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {
+				
+				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
+				// until we see new update that confirms it is alive, or have waited long
+				// enough that the time since last update grows larger than twice the interval.
+				
+				// Check if restorable
+				if (UserSession.findBackupFile(directory, false) == null) {
+					// Does not have backup file, so not interesting for backup.
+					// Should be removed anyway, but removing empty directories is not
+					// important enough to warrant the extra waiting that follows next.
+					// So we will skip this and if it was dead, it will be anyway 
+					// cleaned away in the next client startup.
+					
+					continue;
+				}
+				
+				// Check if updated
+				if (aliveSignalFile.lastModified() != originalLastModified) {
+					continue; // we saw an update, it is alive
+				}
+
+				// Wait for it to update
+				try {
+					Thread.sleep(1000); // 1 second
+				} catch (InterruptedException e) {
+					// ignore
+				}
+			}
+
+			// It is dead, might be the one that should be recovered, check that
+			deadDirectories.add(directory);
+			File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+			if (UserSession.findBackupFile(directory, false) != null 
+					&& (mostRecentDeadSignalFile == null 
+							|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
+				
+				mostRecentDeadSignalFile = deadSignalFile;
+				
+			}
+		}
+		
+		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
+	}
+	
+	public void clearDeadTempDirectories() {
+		
+		// Try to clear dead temp directories
+		try {
+			for (File dir : deadDirectories) {
+				Files.delTree(dir);
+			}
+		} catch (Exception e) {
+			reportException(e);
+		}
+
+		// Remove them from bookkeeping in any case
+		deadDirectories.clear();
 	}
 	
 }

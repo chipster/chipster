@@ -8,6 +8,7 @@ import javax.swing.Icon;
  * 
  * Type field contains the MIME type for the bean.
  * 
+ * Does not override equals() or hashCode()!
  * 
  * @author hupponen
  *

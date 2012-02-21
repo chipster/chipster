@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,18 +60,34 @@ public class Files {
 	}
 	
 	/**
-	 * Deletes a file or a directory recursively.
+	 * Deletes a file or a directory recursively. When traversing directories, does not follow symbolic links.
+	 * 
 	 * @param dir directory or file to be deleted
 	 * @return true if deleting was successful, false file does not exist or deleting it failed
+	 * @throws IOException 
 	 */
-	public static boolean delTree(File dir) {
+	public static boolean delTree(File dir) throws IOException {
+		return delTree(dir, false);
+	}
+	
+	/**
+	 * Deletes a file or a directory recursively.
+	 * 
+	 * @param dir directory or file to be deleted
+	 * @return true if deleting was successful, false file does not exist or deleting it failed
+	 * @throws IOException 
+	 */
+	public static boolean delTree(File dir, boolean followSymlinks) throws IOException {
 		try {
 			// if dir is directory, make it empty recursively
 			if (dir.isDirectory()) {
 				File[] contents = dir.listFiles();
 				if (contents.length > 0) {
 					for (int i = 0; i < contents.length; i++) {
-						delTree(contents[i]);
+						
+						if (followSymlinks || !Files.isLink(dir)) {
+							delTree(contents[i], followSymlinks);
+						}
 					}
 				}
 			}
@@ -141,14 +158,14 @@ public class Files {
 		return buffer.toString();
 	}
 
-	public static boolean sweepAndCreateDirectory(File dir) {
+	public static boolean sweepAndCreateDirectory(File dir) throws IOException {
 		
 		if (dir.exists()) {
 			if (!dir.isDirectory()) {
 				return false;
 			}
 			
-			if (!delTree(dir)) {
+			if (!delTree(dir, false)) {
 				return false;
 			}
 		}
@@ -180,7 +197,8 @@ public class Files {
 	}
 	
 	/**
-	 * Walks the baseDir recursively and deleted files and directories older than cutoff.
+	 * Walks the baseDir recursively and deletes files and directories older than cutoff. 
+	 * When traversing directories, does not follow symbolic links.
 	 * 
 	 * If a directory is old but contains files (which are not too old), it is not deleted.
 	 * 
@@ -188,12 +206,31 @@ public class Files {
 	 * 
 	 * @param baseDir
 	 * @param cutoff milliseconds 
+	 * @throws IOException 
 	 */
-	public static void cleanOldFiles(File baseDir, long cutoff ) {
+	public static void cleanOldFiles(File baseDir, long cutoff ) throws IOException {
 		walkAndDelete(baseDir, new AgeFileFilter(System.currentTimeMillis() - cutoff));
 	}
 
-	public static void walkAndDelete(File baseDir, IOFileFilter filter) {
+	/**
+	 * Walks the baseDir recursively and deletes files that match filter. When traversing directories, does not follow symbolic links.
+	 * 
+	 * @param baseDir
+	 * @param filter
+	 * @throws IOException 
+	 */
+	public static void walkAndDelete(File baseDir, IOFileFilter filter) throws IOException {
+		walkAndDelete(baseDir, filter, false);
+	}
+
+	/**
+	 * Walks the baseDir recursively and deletes files that match filter.
+	 * 
+	 * @param baseDir
+	 * @param filter
+	 * @throws IOException 
+	 */
+	public static void walkAndDelete(File baseDir, IOFileFilter filter, boolean followSymlinks) throws IOException {
 		
 		
 		File[] files = baseDir.listFiles((FileFilter)new OrFileFilter(DirectoryFileFilter.INSTANCE, filter));
@@ -202,7 +239,7 @@ public class Files {
 			return;
 		}
 		
-		for (File f: files) {
+		for (File f : files) {
 			if (f.isDirectory()) {
 				
 				// check the filter for directory before walking it as walking might affect the filter
@@ -213,7 +250,9 @@ public class Files {
 				}
 
 				// walk into dir
-				walkAndDelete(f, filter);
+				if (followSymlinks || !Files.isLink(f)) {
+					walkAndDelete(f, filter, followSymlinks);
+				}
 				
 				// possibly delete dir 
 				if (toBeDeleted) {
@@ -255,9 +294,76 @@ public class Files {
 	 */
 	public static URL toUrl(File file) {
 		try {
-			return file.toURL();
+			return file.toURI().toURL();
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Find files in a given directory whose filenames match given regex.
+	 */
+	public static File[] findFiles(File dir, String regex) {
+	    
+	    class RegexFileFilter implements FilenameFilter {
+	        private String regex;
+	        
+	        public RegexFileFilter(String regex) {
+                this.regex = regex;
+            }
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.matches(regex);
+            }
+	        
+	    }
+	    
+	    return dir.listFiles(new RegexFileFilter(regex));
+	}
+	
+	
+	/**
+	 * Tries to create a symbolic link. Returns true is link was created and false otherwise (links not supported 
+	 * on the platform, IO error, ...). Canonical paths of from and to Files are used when creating the link.
+	 *  
+	 * @param from
+	 * @param to
+	 * @return true iff link created successfully
+	 */
+	public static boolean createSymbolicLink(File from, File to) {
+		Process process = null;
+		try {
+			process = Runtime.getRuntime().exec( new String[] { "ln", "-s", from.getCanonicalPath(), to.getCanonicalPath() } );
+			process.waitFor();
+			return true;
+			
+		} catch (Exception e) {
+			return false;
+			
+		} finally {
+			if (process != null) {
+				process.destroy();
+			}
+		}
+	}
+	
+	/**
+	 * Checks the canonical and absolute paths of the file to find out if it is a symbolic link or
+	 * not.
+	 * 
+	 * @param file possible symbolic link
+	 * 
+	 * @return true iff file is a symbolic link
+	 * 
+	 * @throws IOException
+	 */
+	public static boolean isLink(File file) throws IOException {
+		return !file.getAbsolutePath().equals(file.getCanonicalPath());
+	}
+	
+	public static void main(String[] args) throws IOException {
+		new File("/home/akallio/link_session").delete();
+		new File("/home/akallio/link_test").delete();
 	}
 }

@@ -30,12 +30,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
@@ -47,8 +47,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	private float ROUNDING_LIMIT;
 
-	public Volcanoplot(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillCompoBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
-		Visualisation.fillCompoBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		xVar = (Variable) xBox.getSelectedItem();
 		yVar = (Variable) yBox.getSelectedItem();
 
-		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");
+		PlotDescription description = new PlotDescription(data.getName(), "fold change (log2)", "-log(p)");
 
 		NumberAxis domainAxis = new NumberAxis(description.xTitle);
 		NumberAxis rangeAxis = new NumberAxis(description.yTitle);
@@ -137,13 +137,13 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		this.updateSelectionsFromApplication(false);
 		
 		// rounding limit is calculated in updateSelectionsFromApplication
-		plot.getRangeAxis().setRange(new Range(0, -Math.log(ROUNDING_LIMIT))); 
-
+		plot.getRangeAxis().setRange(new Range(0, -Math.log10(ROUNDING_LIMIT)));
+		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
 
 		chart.removeLegend();
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		selectableChartPanel = new SelectableChartPanel(chart, this);
 		return selectableChartPanel;
@@ -168,7 +168,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	 */
 	private class YValueIterator implements Iterator<Float> {
 
-		private static final float DEFAULT_ROUNDING_LIMIT = 0.0001f;
+		private static final float DEFAULT_ROUNDING_LIMIT = 0.001f;
 		// "/column/" part of the query comes from the getExpression function
 		Iterator<Float> original;
 
@@ -191,10 +191,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			// plus one to hide points going into lines because of rounding
 			ROUNDING_LIMIT = (float) Math.pow(10, Math.ceil(Math.log10(min)) + 1);
 			
-			System.out.println("Min: " + min + ", Limit: " + ROUNDING_LIMIT);
-
 			// Sanity check
-			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > 1) {
+			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > DEFAULT_ROUNDING_LIMIT) {
 				ROUNDING_LIMIT = DEFAULT_ROUNDING_LIMIT;
 			}
 
@@ -212,7 +210,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			if (y < ROUNDING_LIMIT) {
 				y = ROUNDING_LIMIT;
 			}
-			return (float) -Math.log(y);
+			return (float) -Math.log10(y);
 		}
 
 		public void remove() {
@@ -236,7 +234,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			float x = xValues.next();
 			float y = yValues.next();
 
-			boolean overYThreshold = y >= -Math.log(0.05);
+			boolean overYThreshold = y >= -Math.log10(0.05);
 			boolean overXThreshold = Math.abs(x) >= 1f;
 
 			if (selectedIndexes.contains(row)) {
@@ -271,8 +269,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		return isTabular && hasRows(bean) && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
+		return super.canVisualise(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES) ;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -283,7 +280,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			vars.add((Variable) xBox.getSelectedItem());
 			vars.add((Variable) yBox.getSelectedItem());
 
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
 

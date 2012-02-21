@@ -6,6 +6,9 @@ package fi.csc.microarray.messaging;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -13,10 +16,12 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
-import javax.jms.TopicConnectionFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.Configuration;
@@ -27,7 +32,7 @@ import fi.csc.microarray.messaging.MessagingTopic.Type;
 import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -148,7 +153,7 @@ public class MessagingEndpoint implements MessagingListener {
 				// tests connecting with unreliable, so that if broker is not available, 
 				// we won't initiate retry sequence
 				logger.debug("testing connecting to " + completeBrokerUrl);
-				TopicConnectionFactory connectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+				ActiveMQConnectionFactory connectionFactory = createConnectionFactory(username, password, completeBrokerUrl);
 				Connection tempConnection = connectionFactory.createTopicConnection();
 				tempConnection.start();
 				tempConnection.stop();
@@ -159,7 +164,7 @@ public class MessagingEndpoint implements MessagingListener {
 			}
 			
 			// create actual reliable connection
-			TopicConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);		
+			ActiveMQConnectionFactory reliableConnectionFactory = createConnectionFactory(username, password, completeBrokerUrl);
 			connection = (ActiveMQConnection)reliableConnectionFactory.createTopicConnection();
 			connection.setExceptionListener(master);
 			connection.start();
@@ -174,6 +179,33 @@ public class MessagingEndpoint implements MessagingListener {
 		}
 	}
 
+	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {
+//		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+
+		// use dummy trust manager
+		ActiveMQSslConnectionFactory reliableConnectionFactory = new ActiveMQSslConnectionFactory();
+		
+		reliableConnectionFactory.setKeyAndTrustManagers(null, new TrustManager[] {new X509TrustManager() {
+
+			
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}}}, new SecureRandom());
+		reliableConnectionFactory.setUserName(username);
+		reliableConnectionFactory.setPassword(password);
+		reliableConnectionFactory.setBrokerURL(completeBrokerUrl);
+		
+
+		reliableConnectionFactory.setWatchTopicAdvisories(false);
+		return reliableConnectionFactory;
+	}
+
 	/**
 	 * Creates and returns a new MessagingTopic. Topics are needed for receiving and sending messages. 
 	 *  
@@ -184,27 +216,31 @@ public class MessagingEndpoint implements MessagingListener {
 		return new AuthenticatedTopic(session, topicName.toString(), Type.NORMAL, accessMode, authenticationListener, this);		
 	}
 	
-    public void replyToMessage(NamiMessage original, NamiMessage reply) throws JMSException {
+    public void replyToMessage(ChipsterMessage original, ChipsterMessage reply) throws JMSException {
     	replyToMessage(original, reply, DEFAULT_REPLY_CHANNEL);
     }
 
-    public void replyToMessage(NamiMessage original, NamiMessage reply, String replyChannel) throws JMSException {
+    public void replyToMessage(ChipsterMessage original, ChipsterMessage reply, String replyChannel) throws JMSException {
     	reply.setMultiplexChannel(replyChannel);
     	Destination replyToDest = original.getReplyTo();
     	replyToMessage(replyToDest, reply);
     }
 
-    private void replyToMessage(Destination replyToDest, NamiMessage reply) throws JMSException {
+    private void replyToMessage(Destination replyToDest, ChipsterMessage reply) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    	MapMessage msg = session.createMapMessage();
-    	reply.marshal(msg);
-    	session.createProducer(replyToDest).send(msg);
+    	try {
+			MapMessage msg = session.createMapMessage();
+	    	reply.marshal(msg);
+	    	session.createProducer(replyToDest).send(msg);
+    	} finally {
+    		session.close();
+    	}
     }
     
 	/**
 	 * Reacts to administrative messages.
 	 */
-	public void onNamiMessage(NamiMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 			CommandMessage txtMsg = (CommandMessage)msg;
 			logger.debug("got admin request " + txtMsg.getCommand());
@@ -263,5 +299,14 @@ public class MessagingEndpoint implements MessagingListener {
 
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
+	}
+
+	/**
+	 * For testing only.
+	 * 
+	 * @return
+	 */
+	public ActiveMQConnection getConnection() {
+		return connection;
 	}
 }

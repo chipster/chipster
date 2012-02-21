@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Normalisation / Affymetrix SNP arrays</h2>
+
+<h3>Description</h3>
+
+<p>Preprocesses Affymetrix SNP array CEL-files to give expression estimates and call values for genes.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>None</li>
+
+</ul>
+
+<h3>Details</h3>
+
+<p>Computes the genotype values using the SNPRMA and CRLMM methods.</p>
+
+<p>100K and 500K SNP arrays can be analyzed. Currently, genome-wide arrays 5.0 or 6.0 are not supported. </p>
+
+<h3>Output</h3>
+
+<p>A tab-delimited text file containing gene names and expression estimates. This file is
+suitable for all further analyses.</p>
+
+<h3>References</h3>
+
+<p> This tool uses Bioconductor package oligo. You can cite the package as:</p>
+
+<p>Benilton Carvalho, Henrik Bengtsson, Terence P Speed, and Rafael A
+Irizarry. Exploration, normalization, and genotype calls of high density
+oligonucleotide snp array data. Biostatistics, Dec 2006.</p>
+
+</body>
+
+

@@ -1,12 +1,9 @@
 package fi.csc.microarray.analyser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,19 +15,28 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.util.XmlUtil;
 
 
 /**
- * The ToolRepository manages analysis tools and runtimes. Analysis tools
- * are visible to AnalyserServer as AnalysisDescriptions, where as runtimes
- * are not visible outside of this class.
- * 
- * After initialization, any access to descriptions maps should be use 
- * synchronized using this, since reading descriptions may cause a
- * description to be updated.
+ * <p>Manages analysis tools, modules and runtimes. Analysis tools
+ * are visible to AnalyserServer as ToolDescriptions, whereas runtimes and modules
+ * are not visible outside of this class.</p>
+ *
+ * <p>Access is strictly synchronised, because all operations
+ * may lead to module or script updates if files on the disk have changed. To avoid
+ * deadlocking, dependencies must be kept one way: RepositoryModule never calls ToolRepository and
+ * ToolDescription never calls RepositoryModule.</p>
+ *
+ * <p>Initialisation of the repository can fail, but after that it is robust. The repository can be
+ * reload while it is running, but if reloading fails, it retains the original state. In other
+ * words, only constructor throws exceptions. Other errors are just logged.</p>
+ *   
+ * @see RepositoryModule
+ * @see ToolDescription
  *  
- * @author hupponen
+ * @author Taavi Hupponen, Aleksi Kallio
  *
  */
 public class ToolRepository {
@@ -40,253 +46,180 @@ public class ToolRepository {
 	private static final Logger logger = Logger
 			.getLogger(ToolRepository.class);
 	
-	private LinkedHashMap<String, AnalysisDescription> descriptions = new LinkedHashMap<String, AnalysisDescription>(); 
-	private LinkedHashMap<String, AnalysisDescription> supportedDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	private LinkedHashMap<String, AnalysisDescription> visibleDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
-	
-	
+	private List<RepositoryModule> modules = new LinkedList<RepositoryModule>();
+		
 	/**
 	 * 
 	 * @param the root workDir for the jobs of the computing service
 	 * @throws Exception
 	 */
-	public ToolRepository(File workDir) throws Exception {
+	public ToolRepository(File workDir) throws AnalysisException {
 		loadRuntimes(workDir);
-		loadTools();
+		loadModuleDescriptions();
 	}
 	
-	
-	
-	
-	public synchronized AnalysisDescription getDescription(String fullName) throws AnalysisException {
-		AnalysisDescription desc; 
-
-		// get the description
-		desc = descriptions.get(fullName);
-
-		// check if description needs to be updated
-		if (desc != null && !desc.isUptodate()) {
-			updateDescription(desc);
+	public synchronized ToolDescription getDescription(String id) {
+		
+		// Iterate over modules and return description if it is found
+		for (RepositoryModule module : modules) {
+			ToolDescription desc = module.getDescription(id);
+			
+			if (desc != null) {
+				return desc;
+			}
 		}
 		
-		// return the possibly updated description
-		return descriptions.get(fullName); 
+		// Nothing was found
+		return null;
 	}
-
-
-
+	
+	/**
+	 * @return true if this comp service can run the given tool.
+	 */
+	public synchronized boolean supports(String toolId) {
+		for (RepositoryModule module : modules) {
+			if (module.isSupportedDescription(toolId)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	
 	/**
-	 * Returns one huge VVSADL block that contains all loaded analysis 
-	 * descriptions.
-	 * @return huge block
+	 * @return a list of DescriptionMessages about available modules
+	 * that can be sent to client.
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+     * @throws IOException
+	 */
+	public synchronized List<ModuleDescriptionMessage> getModuleDescriptions() {
+		
+		LinkedList<ModuleDescriptionMessage> moduleDescriptions = new LinkedList<ModuleDescriptionMessage>();
+
+		for (RepositoryModule module : modules) {
+			moduleDescriptions.add(module.getModuleDescriptionMessage());
+		}
+		
+	    return moduleDescriptions;
+	}
+
+	
+	/**
+	 * Load available runtimes.
+	 * 
+	 * @param workDir
 	 * @throws AnalysisException 
 	 */
-	public synchronized StringBuffer serialiseAsStringBuffer() throws AnalysisException {
-		StringBuffer buf = new StringBuffer();
-
-		// find descs that need to be updated (custom script available)
-		List<AnalysisDescription> descsToBeUpdated = new LinkedList<AnalysisDescription>();
-		for (AnalysisDescription description : visibleDescriptions.values()) {
-			if (!description.isUptodate()) {
-				descsToBeUpdated.add(description);
-			}
-		}
-		
-		// update (can't update in the previous loop, would cause concurrent modification)
-		for (AnalysisDescription description: descsToBeUpdated) {
-			updateDescription(description);
-		}
-		
-		// get the descriptions
-		for (AnalysisDescription description: visibleDescriptions.values()) {
-			buf.append(description.getVVSADL());
-		}
-		return buf;
-	}
-
-	public synchronized boolean supports(String fullName) {
-		return supportedDescriptions.containsKey(fullName);
-	}
-
-	
-	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
-		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName());
-		if (newDescription != null) {
-			newDescription.setUpdatedSinceStartup();
-			
-			// name (id) of the tool has not changed
-			if (desc.getFullName().equals(newDescription.getFullName())) {
-				
-				// replace the old description with the same name
-				descriptions.put(newDescription.getFullName(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getFullName())) {
-					supportedDescriptions.put(newDescription.getFullName(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getFullName())) {
-					visibleDescriptions.put(newDescription.getFullName(), newDescription);
-				}
-			} 
-
-			// name (id) of the tool has changed
-			else {
-				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-				if (descriptions.containsKey(newDescription.getFullName())){
-					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
-					return;
-				} 
-				// add the tool with the new name
-				descriptions.put(newDescription.getFullName(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getFullName())) {
-					supportedDescriptions.put(newDescription.getFullName(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getFullName())) {
-					visibleDescriptions.put(newDescription.getFullName(), newDescription);
-				}
-			}
-		}
-	}
-
-	
-	
-	private void loadRuntimes(File workDir) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException, SAXException, ParserConfigurationException  { 
+	private synchronized void loadRuntimes(File workDir) throws AnalysisException  { 
 		logger.info("loading runtimes");
 
-		File runtimeConfig = new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml");
+		try {
+			File runtimeConfig = new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml");
 
-		Document document = XmlUtil.parseReader(new FileReader(runtimeConfig));
-		Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
+			Document document = XmlUtil.parseReader(new FileReader(runtimeConfig));
+			Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
 
 
-		for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
-			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
-			logger.info("loading runtime " + runtimeName);
-			if (runtimes.containsKey(runtimeName)) {
-				logger.warn("runtime with the same name " + runtimeName + " already loaded, keeping the first one");
-				continue;
+			for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
+				String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent().trim();
+				logger.info("loading runtime " + runtimeName);
+				if (runtimes.containsKey(runtimeName)) {
+					logger.warn("runtime with the same name " + runtimeName + " already loaded, keeping the first one");
+					continue;
+				}
+
+
+				boolean runtimeDisabled = runtimeElement.getAttribute("disabled").equals("true");
+				if (runtimeDisabled) {
+					logger.info("runtime " + runtimeName + " disabled by config");
+				}
+
+				// handler
+				Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
+				String handlerClassName = XmlUtil.getChildElement(handlerElement, "class").getTextContent().trim();
+
+				// parameters to handler
+				HashMap<String, String> parameters = new HashMap<String, String>();
+
+				// comp work dir
+				parameters.put("workDir", workDir.toString());
+
+				// parameters from config
+				for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
+					String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent().trim();
+					String paramValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent().trim(); 
+					parameters.put(paramName, paramValue);
+				}
+
+				// instantiate handler
+				AnalysisHandler handler = (AnalysisHandler)Class.forName(handlerClassName).getConstructor(HashMap.class).newInstance(parameters);
+
+				// disabled
+				if (handler.isDisabled()) {
+					runtimeDisabled = true;
+					logger.info("runtime " + runtimeName + " disabled as handler is disabled");
+				}
+
+				// add to runtimes
+				ToolRuntime runtime = new ToolRuntime(runtimeName, handler, runtimeDisabled); 
+				this.runtimes.put(runtimeName, runtime);
 			}
-			
-			
-			boolean runtimeDisabled = runtimeElement.getAttribute("disabled").equals("true");
-			if (runtimeDisabled) {
-				logger.info("runtime " + runtimeName + " disabled by config");
-			}
-			
-			// handler
-			Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
-			String handlerClassName = XmlUtil.getChildElement(handlerElement, "class").getTextContent();
 
-			// parameters to handler
-			HashMap<String, String> parameters = new HashMap<String, String>();
-
-			// comp work dir
-			parameters.put("workDir", workDir.toString());
-
-			// parameters from config
-			for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
-				String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
-				String paramValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent(); 
-				parameters.put(paramName, paramValue);
-			}
-
-			// instantiate handler
-			AnalysisHandler handler = (AnalysisHandler)Class.forName(handlerClassName).getConstructor(HashMap.class).newInstance(parameters);
-			
-			// disabled
-			if (handler.isDisabled()) {
-				runtimeDisabled = true;
-				logger.info("runtime " + runtimeName + " disabled as handler is disabled");
-			}
-
-			// add to runtimes
-			ToolRuntime runtime = new ToolRuntime(runtimeName, handler, runtimeDisabled); 
-			this.runtimes.put(runtimeName, runtime);
-		}
-	}	
-
-	private void loadTools() throws IOException, SAXException, ParserConfigurationException { 
-		logger.info("loading tools");
-		
-		String [] toolFiles = new String[] { "tools.xml", "emboss-tools.xml" };
-		for (String toolFileName: toolFiles) {
-			File toolFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
-			if (toolFile.exists()) {
-				logger.info("loading from " + toolFileName);
-				loadToolsFromFile(toolFile);
-			}
+		} catch (Exception e) {
+			throw new AnalysisException(e);
 		}
 	}
 
+	/**
+	 * Generate a list containing information about all modules
+	 * available in this analyser server.
+	 * 
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	private synchronized void loadModuleDescriptions()
+	       throws AnalysisException {
+		logger.info("loading modules");
 
-	private void loadToolsFromFile(File toolFile) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
-		File toolConfig = toolFile;
+		try {
+			// Iterate over all module directories, and over all module files inside them
+			List<String> moduleLoadSummaries = new LinkedList<String>();
+			for (String moduleDirName : DirectoryLayout.getInstance().getModulesDir().list()) {
+				File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
 
-		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
-		Element toolsElement = (Element)document.getElementsByTagName("tools").item(0);
+				if (moduleDir.isDirectory()) {
 
-		int totalCount = 0;
-		int successfullyLoadedCount = 0;
-		int hiddenCount = 0;
-		int disabledCount = 0;
-		for (Element toolElement: XmlUtil.getChildElements(toolsElement, "tool")) {
-			totalCount++;
+					// Load module specification files, if they exist (one module dir can contain multiple module specification files)
+					for (String moduleFilename : moduleDir.list()) {
+						if (moduleFilename.endsWith("-module.xml")) {
+							File moduleFile = new File(moduleDir, moduleFilename);
+							if (moduleFile.exists()) {
 
-			// tool name
-			String sourceResourceName = toolElement.getTextContent();
-			logger.debug("loading " + sourceResourceName);
+								// Load module
+								logger.info("loading tools specifications from: " + moduleFilename);
+								RepositoryModule module = new RepositoryModule(moduleDir, moduleFile, runtimes);
 
-			// runtime
-			String runtimeName = toolElement.getAttribute("runtime");
-
-			// disabled or hidden?
-			boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
-			boolean toolHidden = toolElement.getAttribute("hidden").equals("true");
-
-			// load the tool
-			ToolRuntime runtime = runtimes.get(runtimeName);
-			if (runtime == null) {
-				logger.warn("loading " + sourceResourceName + " failed, could not find runtime " + runtimeName);
-				continue;
+								// Register the module
+								modules.add(module);
+								moduleLoadSummaries.add(module.getSummary());
+							}
+						}
+					}
+				}
 			}
 
-			AnalysisDescription description;
-			try {
-				description = runtime.getHandler().handle(sourceResourceName);
-			} catch (Exception e) {
-				logger.warn("loading " + sourceResourceName + " failed, could not create description", e);
-				continue;
+			// print all summaries
+			logger.info("------ tool summary ------ ");
+			for (String summary : moduleLoadSummaries) {
+				logger.info(summary);
 			}
+			logger.info("------ tool summary ------ ");
 
-			// add to descriptions
-			if (descriptions.containsKey(description.getFullName())) {
-				logger.warn("loading " + sourceResourceName + " failed, description with the name " + description.getFullName() + " already exists");
-				continue;
-			}
-			descriptions.put(description.getFullName(), description);
-			successfullyLoadedCount++;
-
-			String disabledStatus = "";
-			if (!runtime.isDisabled() && !toolDisabled) {
-				supportedDescriptions.put(description.getFullName(), description);
-			} else {
-				disabledStatus = " DISABLED";
-				disabledCount++;
-			}
-			String hiddenStatus = "";
-			if (!toolHidden) {
-				visibleDescriptions.put(description.getFullName(), description);
-			} else {
-				hiddenStatus = " HIDDEN";
-				hiddenCount++;
-			}
-
-			logger.info("loaded " + description.getFullName().replace("\"", "") + " " + description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
+		} catch (Exception e) {
+			throw new AnalysisException(e);
 		}
-		logger.info("loaded " + successfullyLoadedCount + "/" + totalCount + " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
-
 	}
-
 }

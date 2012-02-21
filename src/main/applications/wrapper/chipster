@@ -1,56 +1,122 @@
 #!/bin/bash
 
+# The following two lines are used by the chkconfig command. Change as is
+#  appropriate for your application.  They should remain commented.
+# chkconfig: 2345 30 70
+# description: $APP_LONG_NAME
+ 
+# Initialization block for the install_initd and remove_initd scripts used by
+#  SUSE linux distributions.
+### BEGIN INIT INFO
+# Provides: $APP_NAME
+# Required-Start: $local_fs $network $syslog
+# Should-Start: 
+# Required-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: $APP_LONG_NAME
+# Description: $APP_LONG_NAME
+### END INIT INFO
+
 ACTIVEMQ_START_DELAY=10
 
-CHIPSTER_HOME="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
-# platform, should be linux-x86-32 or linux-x86-64, autodetected if not set
+# detect chipster home
+if [ -h $0 ]
+then
+    BINARY_REAL_PATH="$(readlink -f "$0")"
+else
+    BINARY_REAL_PATH="$0"
+fi
+CHIPSTER_HOME="$(dirname "${BINARY_REAL_PATH}")"
+
+
+# run auto configure if needed
+AUTO_CONFIG_FLAG_FILE="${CHIPSTER_HOME}/auto-config-to-be-run"
+if [[ -f $AUTO_CONFIG_FLAG_FILE && "$1" == "start" ]]
+then
+	rm "${AUTO_CONFIG_FLAG_FILE}"
+	cd "${CHIPSTER_HOME}"
+	./configure.sh auto
+fi
+
+# platform, should be linux-x86-32, linux-x86-64 or macosx (autodetected if not set)
 PLATFORM=""
 
 
-## detect if platform not set
+# detect if platform not set
 if [ ! $PLATFORM ]; then
-    ARCH=`uname -m`
-    if [ "$ARCH" = "i686" ]; then
-	PLATFORM="linux-x86-32"
-    elif [ "$ARCH" = "x86_64" ]; then
-	PLATFORM="linux-x86-64"
-    else
+
+	OS=`uname`
+	
+    if [ "$OS" = "Linux" ]; then
+		ARCH=`uname -m`
+		if [ "$ARCH" = "i686" ]; then
+			PLATFORM="linux-x86-32"
+		elif [ "$ARCH" = "x86_64" ]; then
+			PLATFORM="linux-x86-64"
+		fi
+	else
+		# assume Mac OS X
+		PLATFORM="macosx"
+	fi		
+fi
+if [ ! $PLATFORM ]; then
 	echo "Could not detect hardware architecture, please set platform manually."
 	exit -1;
-    fi
 fi
+
+run() {
+    # run command if directory exists
+    if [ -d $CHIPSTER_HOME/$1 ]; then
+    	
+    	# pick binary file name
+    	if [ "$1" == "activemq" ]; then
+        	BIN_FILE=$1
+		else 
+        	BIN_FILE=chipster-$1
+		fi
+		
+		# run the command
+        $CHIPSTER_HOME/$1/bin/$PLATFORM/$BIN_FILE $2
+    
+    	# wait if needed    
+        if [ "$1" == "activemq" ]; then
+	        if [ "$2" == "start" ]; then
+    			echo Waiting $ACTIVEMQ_START_DELAY seconds for ActiveMQ to start...
+    			sleep $ACTIVEMQ_START_DELAY
+    		fi
+    	fi
+    	
+    fi
+}
+
 
 
 start() {
-	$CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq start
-    echo Waiting $ACTIVEMQ_START_DELAY seconds for ActiveMQ to start...
-    sleep $ACTIVEMQ_START_DELAY
-
-    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver start
-    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart start
-    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth start
-    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp start
-#    $CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager start
+	run activemq start
+    run fileserver start
+    run webstart start
+    run auth start
+    run comp start
+    run manager start
 }
 
 stopit() {
-    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth stop
-    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp stop
-#	$CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager stop
-    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver stop
-    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart stop
-    
-    $CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq stop
+    run auth stop
+    run comp stop
+	run manager stop
+    run fileserver stop
+    run webstart stop
+    run activemq stop
 }
 
 status() {
-    $CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq status
-    
-    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver status
-    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart status
-    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth status
-    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp status
-#    $CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager status
+    run activemq status
+    run fileserver status
+    run webstart status
+    run auth status
+    run comp status
+    run manager status
 }
 
 case "$1" in

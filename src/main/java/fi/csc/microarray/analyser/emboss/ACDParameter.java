@@ -1,5 +1,6 @@
 package fi.csc.microarray.analyser.emboss;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
@@ -8,6 +9,8 @@ import java.util.regex.Pattern;
 import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
 import org.emboss.jemboss.parser.ParseAcd;
+
+import fi.csc.microarray.description.SADLDescription.Name;
 
 /**
  * Represents a single ACD parameter (simple, input, output, list etc.)
@@ -18,11 +21,26 @@ import org.emboss.jemboss.parser.ParseAcd;
 
 public class ACDParameter {
     
+    // ACDDescription that owns this parameter
+    ACDDescription acd = null;
+    
+    // Parameter groups according to ACD specification
+    static final Integer PARAM_GROUP_SIMPLE = 0;
+    static final Integer PARAM_GROUP_INPUT = 1;
+    static final Integer PARAM_GROUP_LIST = 2;
+    static final Integer PARAM_GROUP_OUTPUT = 3;
+    static final Integer PARAM_GROUP_GRAPHICS = 4;
+    
+    // Constants
+    public static final String UNDEFINED = "<undefined>";
+
+	private static final int MAX_RECURSION_DEPTH = 5;
+    
     private String type;
     private String name;
     private String section;
     private String subsection;
-    private HashMap<String, String> list;
+    private LinkedHashMap<String, String> list;
     
     private HashMap<String, String> attributes = new HashMap<String, String>();
     
@@ -42,6 +60,23 @@ public class ACDParameter {
         validators.put("boolean", new BooleanValidator());
         validators.put("list", new ListValidator());
         validators.put("selection", new ListValidator());
+    }
+    
+    /**
+     * This constructor binds this parameter to ACDDescription
+     * to which this parameter belongs. There is some functionality
+     * that expects parameter to know its parent ACDDescription.
+     * 
+     * @param acd
+     * @param type
+     * @param name
+     * @param section
+     * @param subsection
+     */
+    public ACDParameter(ACDDescription acd, String type, String name, String section,
+                        String subsection) {
+        this(type, name, section, subsection);
+        this.acd = acd;
     }
     
     /**
@@ -105,6 +140,77 @@ public class ACDParameter {
     }
     
     /**
+     * Reevaluate attributes for this parameter. E.g.
+     * user has filled in some parameters on which some
+     * attribute might depend on (e.g. $(paramname))
+     * 
+     * @param varMap - map with key/value pairs for ACD variables.
+     */
+    public void updateAttributes(LinkedHashMap<String, String> varMap) {
+       for (String key : attributes.keySet()) {
+           attributes.put(key, resolveExp(attributes.get(key), varMap));
+       }
+    }
+    
+    /**
+     * Check if given attribute has been set. An empty
+     * attriute (e.g. default: "") is considered not set.
+     * 
+     * @param name
+     * @return true if this attribute is present, false otherwise.
+     */
+    public Boolean hasAttribute(String name) {
+        if (attributes.containsKey(name) && !getAttribute(name).equals("")) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if given attribute has been set. An empty
+     * attriute (e.g. default: "") is considered not set.
+     * 
+     * @param name
+     * @param isEvaluated 9 - whether this parameter has to be
+     *        without @(x) and $(x) stuff
+     * @return true if this attribute is present, false otherwise.
+     */
+    public Boolean hasAttribute(String name, Boolean isEvaluated) {
+        isEvaluated = !isEvaluated || attributeIsEvaluated(name);
+        if (attributes.containsKey(name) &&
+            !getAttribute(name).equals("") &&
+            isEvaluated) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if given attribute can be evaluated to True.
+     * 
+     * @param name of the attribute to check
+     * @return
+     */
+    public Boolean attributeIsTrue(String name) {
+        String attrValue = getAttribute(name);
+        if (attrValue != null) {
+            return attrValue.toLowerCase().equals("y") ||
+                   attrValue.toLowerCase().equals("true");
+        }
+        return false;
+    }
+    
+    /**
+     * Get an array of default values defined for this parameter.
+     */
+    public String[] getDefaults() {
+        if (this.hasAttribute("default")) {
+            return this.getAttribute("default").split(",");   
+        }
+        return new String[] {};
+    }
+    
+    /**
      * Define keys and values for a list parameter. Valid only
      * if paramter is of type "list" or "selection".
      * 
@@ -112,10 +218,10 @@ public class ACDParameter {
      * @param index - parameter index in parser object.
      */
     public void setList(ParseAcd parser, Integer index) {
-        list = new HashMap<String, String>();
+        list = new LinkedHashMap<String, String>();
 
         // Check if it is "list" or "selection"
-        if (parser.getParameterAttribute(index, 0).equals("list")) {
+        if (getType().equals("list")) {
             String[] titles = parser.getList(index);
             
             for (int i = 0; i < titles.length; i++) {
@@ -125,6 +231,29 @@ public class ACDParameter {
             String[] titles = parser.getSelect(index);
 
             for (Integer i = 0; i < parser.getSelect(index).length; i++) {
+                list.put(i.toString(), titles[i]);
+            }
+        }
+    }
+    
+    /**
+     * Define keys and values for a list parameter. Valid only
+     * if paramter is of type "list" or "selection".
+     * 
+     * @param titles - array containing titles.
+     * @param values - array containing values for corresponding titles;
+     * ignored for "selection" type.
+     */
+    public void setList(String[] titles, String[] values) {
+        list = new LinkedHashMap<String, String>();
+
+        // Check if it is "list" or "selection"
+        if (getType().equals("list")) {           
+            for (int i = 0; i < titles.length; i++) {
+                list.put(values[i], titles[i]);
+            }
+        } else {
+            for (Integer i = 0; i < titles.length; i++) {
                 list.put(i.toString(), titles[i]);
             }
         }
@@ -139,6 +268,51 @@ public class ACDParameter {
      */
     public HashMap<String, String> getList() {
         return list;
+    }
+    
+    
+    /**
+     * Return a recommended filename for an output parameter. Valid
+     * only if parameter is of some output or graph type.
+     * 
+     * @param withExtension - append file extension to filename.
+     * @return the recommended name for output file.
+     */
+    public String getOutputFilename(Boolean withExtension) {
+        
+        // Add extension
+        String extension = "";
+        if (withExtension) {
+            if (ACDParameter.detectParameterGroup(getType()) ==
+                ACDParameter.PARAM_GROUP_OUTPUT) {
+                extension = ".txt";
+            }
+        }
+        
+        // Add suffix
+        String suffix = "";
+        if (acd != null) {
+            suffix = acd.getName();
+        }
+        
+        return getName() + "." + suffix + extension;
+    }
+    
+    /**
+     * Return a name object for some graphics parameter. This
+     * is useful because sometimes a program can generate
+     * several graphics files for one parameter.
+     * 
+     * Valid only for parameters of some graph type.
+     * 
+     * @return Name object if this is a graph parameter, null otherwise.
+     */
+    public Name getGraphicsName() {
+        if (ACDParameter.detectParameterGroup(getType()) ==
+            ACDParameter.PARAM_GROUP_GRAPHICS) {
+            return Name.createNameSet(getName(), ".png");
+        }
+        return null;
     }
     
     /**
@@ -183,10 +357,9 @@ public class ACDParameter {
      * @return
      */
     public Boolean isRequired() {
-        String attrStandard = getAttribute("standard");
-        String attrParameter = getAttribute("parameter");
-        if ((attrStandard != null && attrStandard.equals("Y")) ||
-            (attrParameter != null && attrParameter.equals("Y"))) {
+        Boolean attrStandard = attributeIsTrue("standard");
+        Boolean attrParameter = attributeIsTrue("parameter");
+        if (attrStandard || attrParameter) {
             return true;
         }
         return false;
@@ -199,8 +372,7 @@ public class ACDParameter {
      * @return
      */
     public Boolean isAdditional() {
-        String attrAdditional = getAttribute("additional");
-        return attrAdditional != null && attrAdditional.equals("Y");
+        return attributeIsTrue("additional");
     }
     
     /**
@@ -228,6 +400,7 @@ public class ACDParameter {
         String attrValue = getAttribute(attrName);
         return !(attrValue == null || attrValue.contains("$") || attrValue.contains("@"));
     }
+
     
     /**
      * Resolve a given ACD expression.<br><br>
@@ -238,11 +411,21 @@ public class ACDParameter {
      * 
      * @param exp - expression to be resolved.
      * @param map - a map of variable values.
+     * 
      * @return resolved value.
+     * @throws RuntimeException if maximum recursion depth is reached
      */
     public static String resolveExp(String exp, LinkedHashMap<String, String> map) {
+    	return resolveExp(exp, map, 0);
+    }
+
+    private static String resolveExp(String exp, LinkedHashMap<String, String> map, int recursionDepth) {
+    	
+    	if (recursionDepth > MAX_RECURSION_DEPTH) {
+    		throw new RuntimeException("ACD expression resolving failed, maximum recursion depth reached");
+    	}
+    	
         // Simulate the map
-        // TODO: store some precalculated values in map (such as acdprotein) -> server side
         // TODO: deal with calculated values (such as sequence.length) -> server side
 
         // Regular expression for variable names like $(variable.name)
@@ -261,6 +444,13 @@ public class ACDParameter {
             if (map.containsKey(match)) {
                 substitute = map.get(match);
             }
+            
+            // Hack booleans (somehow Jemboss does not understand Y/N)
+            if (substitute.toLowerCase().equals("y")) {
+                substitute = "true";
+            } else if (substitute.toLowerCase().equals("n")) {
+                substitute = "false";
+            }
 
             // Find position and change
             Integer start = reVar.getParenStart(1) - 2;
@@ -278,11 +468,51 @@ public class ACDParameter {
             resolvedExp = resolver.getResult();
         }
 
-        if (!(exp.equals(resolvedExp))) {
-            return resolveExp(resolvedExp, map);
+        if (!(exp.equals(resolvedExp))) {            
+            // Hack booleans back
+            resolvedExp = resolvedExp.equals("true") ? "Y" : resolvedExp;
+            resolvedExp = resolvedExp.equals("false") ? "N" : resolvedExp;
+                
+            return resolveExp(resolvedExp, map, recursionDepth++);
         } else {
             // No changes were made - stop the recursion
             return resolvedExp;
+        }
+    }
+    
+    /**
+     * Detect functional group of a parameter: simple, input,
+     * selection list, output or graphics.
+     * 
+     * @param fieldType
+     */
+    public static Integer detectParameterGroup(String fieldType) {
+        String typesSimple[] = {"array", "boolean", "float", "integer",
+                                "range", "string", "toggle"};
+        String typesInput[] = {"codon", "cpdb", "datafile", "directoty", "dirlist",
+                               "discretestates", "distances", "features", "filelist",
+                               "frequencies", "infile", "matrix", "matrixf", "pattern",
+                               "properties", "regexp", "scop", "sequence", "seqall", "seqset",
+                               "seqsetall", "seqsetall", "tree"};
+        String typesList[] = {"list", "selection"};
+        String typesOutput[] = {"align", "featout", "outcodon", "outcpdb", "outdata",
+                                "outdir", "outdiscrete", "outdistance", "outfile", "outfileall",
+                                "outfreq", "outmatrix", "outmatrixf", "outproperties", "outscop",
+                                "outtree", "report", "seqout", "seqoutall", "seqoutset"};
+        String typesGraphics[] = {"graph", "xygraph"};
+        
+        if (Arrays.asList(typesSimple).contains(fieldType)) {
+            return PARAM_GROUP_SIMPLE;
+        } else if (Arrays.asList(typesInput).contains(fieldType)) {
+            return PARAM_GROUP_INPUT;
+        } else if (Arrays.asList(typesList).contains(fieldType)) {
+            return PARAM_GROUP_LIST;
+        } else if (Arrays.asList(typesOutput).contains(fieldType)) {
+            return PARAM_GROUP_OUTPUT;
+        } else if (Arrays.asList(typesGraphics).contains(fieldType)) {
+            return PARAM_GROUP_GRAPHICS;
+        } else {
+            return -1;
         }
     }
     
@@ -292,19 +522,37 @@ public class ACDParameter {
      * convert "true" to "Y" (i.e. we convert the value
      * according to ACD spec.)
      * 
-     * @param value
+     * This method should be used to convert values,
+     * entered in GUI to values that can be passed to
+     * actual EMBOSS application in command line.
+     * 
+     * @param value - ACD-unaware value.
      */
-    // TODO check out what we get for ENUM, arrays etc.
     public String normalize(String value) {
         String type = getType();
-        value = value.toLowerCase();
         if (type.equals("boolean")) {
+            value = value.toLowerCase();
             if (value.equals("yes") || value.equals("true") || value.equals("1") ||
                 value.equals("y")) {
                 return "Y";
             } else if (value.equals("no") || value.equals("true") || value.equals("0") ||
                        value.equals("n")) {
                 return "N";
+            } else if (value.equals(UNDEFINED)) {
+                return "";
+            }
+        } else if (type.equals("selection") || type.equals("list")) {
+            String defaultDelim = ",";
+            String[] choices = value.split(defaultDelim);
+            String attrDelim = hasAttribute("delimiter") ? getAttribute("delimiter") : ";";
+            
+            // Reconnect values using different delimiter
+            if (choices.length > 1 && attrDelim != defaultDelim) {
+                String normalValue = "";
+                for (String choice : choices) {
+                    normalValue = normalValue.concat(attrDelim).concat(choice);
+                }
+                return normalValue.substring(1);
             }
         }
         return value;
@@ -340,7 +588,7 @@ public class ACDParameter {
     
     class BooleanValidator extends ACDValidator {       
         public boolean accepts(String value) {
-            if (value == "Y" || value == "N") {
+            if (value.equals("Y") || value.equals("N") || value.equals("")) {
                 return true;
             }
             return false;
@@ -362,17 +610,15 @@ public class ACDParameter {
         public boolean accepts(String value) {
             Boolean accepts = true;
             try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
                 Integer intVal = Integer.parseInt(value);
                 
-                if (attrMin != null && !attrMin.equals("")) {
-                    Integer minVal = Integer.parseInt(attrMin);
+                if (hasAttribute("minimum", true)) {
+                    Integer minVal = Integer.parseInt(getAttribute("minimum"));
                     accepts = accepts && (intVal >= minVal);
                 }
                 
-                if (attrMax != null && !attrMax.equals("")) {
-                    Integer maxVal = Integer.parseInt(attrMax);
+                if (hasAttribute("maximum", true)) {
+                    Integer maxVal = Integer.parseInt(getAttribute("maximum"));
                     accepts = accepts && (intVal <= maxVal);
                 }
                 return accepts;
@@ -387,17 +633,15 @@ public class ACDParameter {
         public boolean accepts(String value) {
             Boolean accepts = true;
             try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
                 Float floatVal = Float.parseFloat(value);
                 
-                if (attrMin != null && !attrMin.equals("")) {
-                    Float minVal = Float.parseFloat(attrMin);
+                if (hasAttribute("minimum", true)) {
+                    Float minVal = Float.parseFloat(getAttribute("minimum"));
                     accepts = accepts && (floatVal >= minVal);
                 }
                 
-                if (attrMax != null && !attrMax.equals("")) {
-                    Float maxVal = Float.parseFloat(attrMax);
+                if (hasAttribute("maximum", true)) {
+                    Float maxVal = Float.parseFloat(getAttribute("maximum"));
                     accepts = accepts && (floatVal <= maxVal);
                 }                
                 return accepts;
@@ -410,7 +654,27 @@ public class ACDParameter {
     
     class ListValidator extends ACDValidator {       
         public boolean accepts(String value) {
-            return getList().containsKey(value);
+            Boolean accepts = true;
+            
+            HashMap<String, String> acceptedList = getList();
+            String attrDelim = hasAttribute("delimiter") ? getAttribute("delimiter") : ";";
+            String[] choices = value.split(attrDelim);
+            
+            if (hasAttribute("minimum")) {
+                Integer minVal = Integer.parseInt(getAttribute("minimum"));
+                accepts = accepts && (choices.length >= minVal);
+            }
+            
+            if (hasAttribute("maximum")) {
+                Integer maxVal = Integer.parseInt(getAttribute("maximum"));
+                accepts = accepts && (choices.length <= maxVal);
+            }
+            
+            for (String choice : choices) {
+                accepts = accepts && acceptedList.containsKey(choice);
+            }
+
+            return accepts;
         }
     }
     

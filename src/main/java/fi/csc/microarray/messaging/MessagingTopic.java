@@ -10,13 +10,14 @@ import java.io.OutputStream;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TemporaryTopic;
 import javax.jms.Topic;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 /**
  * One topic ("channel") in the messaging fabric. Topics are publish-subscribe
@@ -70,7 +71,7 @@ public class MessagingTopic {
 	}
 
 	
-	protected void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
+	protected void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
 		MessagingTopic tempTopic = new MessagingTopic(session, null, Type.TEMPORARY, AccessMode.READ_WRITE, endpoint);
 		
 		MultiplexingMessagingListener plexer = new MultiplexingMessagingListener();
@@ -91,14 +92,14 @@ public class MessagingTopic {
 	 * 
 	 * @param replyListener receives replies (if any) through hidden temporary topic
 	 */
-	public void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener) throws JMSException {
+	public void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener) throws JMSException {
 		sendReplyableMessage(message, replyListener, null);
 	}
 	
 	/**
 	 * The basic message sending method. Sends a message without reply possibility.
 	 */
-	public void sendMessage(NamiMessage message) throws JMSException {
+	public void sendMessage(ChipsterMessage message) throws JMSException {
 
 		// log
 		logger.debug("sending " + message);
@@ -107,7 +108,16 @@ public class MessagingTopic {
 		MapMessage mapMessage = session.createMapMessage();
 		message.marshal(mapMessage);
 		
-		session.createProducer(topic).send(mapMessage);
+		MessageProducer producer = null;
+		try {
+			producer = session.createProducer(topic);
+			producer.send(mapMessage);
+		} finally {
+			try {
+				producer.close();
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	/**

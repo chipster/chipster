@@ -7,13 +7,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.client.tasks.TaskException;
-import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.TaskEventListener;
-import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.description.SADLSyntax.InputType;
@@ -25,7 +20,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * Operation are cloned from its definition object. Much other data is obtained
  * directly from the definition.
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio
+ * @author Janne Käki, Aleksi Kallio, hupponen
  * 
  */
 public class Operation implements ExecutionItem {
@@ -80,7 +75,7 @@ public class Operation implements ExecutionItem {
 	 * @throws MicroarrayException
 	 */
 	public Operation(OperationDefinition definition, DataBean[] beans) throws MicroarrayException {
-		logger.debug("created operation from definition " + definition.getName());
+		logger.debug("created operation from definition " + definition.getID());
 		this.definition = definition;
 		this.parameters = Parameter.cloneParameters(definition.getParameters());
 		bindInputs(beans);
@@ -96,9 +91,13 @@ public class Operation implements ExecutionItem {
 	 * @throws MicroarrayException
 	 */
 	public Operation(Operation o) throws MicroarrayException {
-		logger.debug("cloned operation from " + o.getName());
+		logger.debug("cloned operation from " + o.getID());
 		this.definition = o.definition;
-		this.bindings = o.bindings;
+		if (o.bindings != null) {
+			this.bindings = o.bindings;
+		} else {
+			this.bindings = new LinkedList<DataBinding>(); 
+		}
 		this.parameters = Parameter.cloneParameters(o.getParameters());
 	}
 
@@ -122,7 +121,10 @@ public class Operation implements ExecutionItem {
 	 */
 	public void bindInputs(DataBean[] beans) throws MicroarrayException {
 		this.bindings = definition.bindInputs(Arrays.asList(beans));
-
+		if (bindings == null) {
+			bindings = new LinkedList<DataBinding>();
+		}
+		
 		// update bindings to parameters
 		for (Parameter parameter : parameters) {
 			if (bindings == null) {
@@ -134,18 +136,43 @@ public class Operation implements ExecutionItem {
 	}
 
 	public void clearBindings() {
-		this.bindings = null;
+		this.bindings.clear();
 	}
 
 	public List<DataBinding> getBindings() {
 		return bindings;
 	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return null if a binding with the given name does not exist
+	 */
+	public DataBinding getBinding(String name) {
+		for (DataBinding binding : bindings) {
+			if (binding.getName().equals(name)) {
+				return binding;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Set new input file bindings.
+	 */
+	public void setBindings(LinkedList<DataBinding> bindings) {
+	    if (bindings != null) {
+	    	this.bindings = bindings;
+	    } else {
+	    	this.bindings = new LinkedList<DataBinding>();	
+	    }
+	}
 
 	/**
 	 * @return The name of this operation (actually, of its definition).
 	 */
-	public String getName() {
-		return definition.getName();
+	public String getID() {
+		return definition.getID();
 	}
 
 	/**
@@ -176,46 +203,31 @@ public class Operation implements ExecutionItem {
 	 *         it is assigned.
 	 */
 	public String toString() {
-		return definition.getName();
+		return definition.getID();
 	}
 
 	/**
-	 * Evaluates the suitability of this operation for the given dataset.
+	 * Evaluates the suitability of this operation for the given dataset
+	 * and current parameter values.
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
-		return definition.evaluateSuitabilityFor(data);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability currentSuitability) {
+	    
+	    // Check parameter suitability
+	    Suitability suitability = 
+	        OperationDefinition.parameterSuitability(getParameters());
+        
+	    // Check suitability that can be checked in definition
+	    suitability = definition.evaluateSuitabilityFor(data, suitability);
+	    
+		return suitability;
 	}
 
-	/**
-	 * Starts the execution of this operation and creates a Job object for that
-	 * matter. The job will be monitored by the listener given as parameter.
-	 */
-	public void execute(TaskEventListener listener) {
-		TaskExecutor je = Session.getSession().getJobExecutor("client-job-executor");
-		Task job = je.createTask(definition.getJobPhrase());
-		job.addTaskEventListener(listener);
-
-		try {
-			for (DataBinding binding : bindings) {
-				logger.debug("added input " + binding.name + " to job");
-				job.addInput(binding.name, binding.data);
-			}
-			for (Parameter parameter : parameters) {
-				logger.debug("operation has parameter value " + parameter.getValue());
-				job.addParameter(parameter.getName(), parameter.getValue());
-			}
-
-			je.startExecuting(job);
-
-		} catch (TaskException jex) {
-			Session.getSession().getApplication().reportException(jex);
-		}
-	}
 
 	/**
 	 * Used in client scripting.
@@ -230,7 +242,7 @@ public class Operation implements ExecutionItem {
 
 	public Parameter getParameter(String name) {
 		for (Parameter parameter : parameters) {
-			if (parameter.getName().equals(name)) {
+			if (parameter.getID().equals(name)) {
 				return parameter;
 			}
 		}
@@ -255,5 +267,9 @@ public class Operation implements ExecutionItem {
 
 	public void setOutputFolder(DataFolder outputFolder) {
 		this.outputFolder = outputFolder;
+	}
+
+	public String getDisplayName() {
+		return definition.getDisplayName();
 	}
 }

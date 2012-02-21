@@ -13,18 +13,18 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class TextViewer extends Visualisation {
 
-	public TextViewer(VisualisationFrame frame) {
-		super(frame);
+	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
+	
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] txt = data.getContents();
+		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
 
 		if (txt != null) {
-			JTextPane txtPane = new JTextPane();
-			txtPane.setFont(Font.decode("Monospaced"));
-			txtPane.setText(new String(txt));
+			JTextPane txtPane = makeTxtPane(new String(txt));
 			return new JScrollPane(txtPane);
 		}
 		return this.getDefaultVisualisation();
@@ -32,7 +32,14 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain");
+		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig", "text/bed", "text/fastq", "text/gtf");
 	}
-
+	
+	public static JTextPane makeTxtPane(String txt) {
+		JTextPane txtPane = new JTextPane();
+		txtPane.setFont(Font.decode("Monospaced"));
+		txtPane.setText(txt);
+		txtPane.setEditable(false);
+		return txtPane;
+	}
 }

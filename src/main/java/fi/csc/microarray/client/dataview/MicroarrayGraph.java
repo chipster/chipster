@@ -89,7 +89,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// start listening
 		application.getDataManager().addDataChangeListener(this);
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 */
 	public List<AbstractGraphVertex> getAllVertexes() {
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
-		for (DataBean data : application.getAllDataBeans()) {
+		for (DataBean data : application.getDataManager().databeans()) {
 			GraphVertex vertex = vertexMap.get(data);
 			if (vertex != null) {
 				vertexes.add(vertex);

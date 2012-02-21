@@ -65,52 +65,60 @@ public class AnnotateListPanel extends JPanel {
 		buttonPanel.add(filterButton, BorderLayout.SOUTH);
 		this.add(buttonPanel, BorderLayout.SOUTH);
 	}
-	
+
 	public AnnotateListPanel(String nameOfItems, boolean filterButtonVisible){
 		this();
 		this.nameOfItems  = nameOfItems;
 		this.filterButton.setVisible(filterButtonVisible);
 	}
 
-	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean dispatchEvent) {
+	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean showAnnotations, boolean dispatchEvent) {
 
 		setData(indexes.keySet());
-		
-		List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
-		try {
-			int i = 0;
-			for(DataBean data : indexes.keySet()){
-				annotationProviders.add(new TableAnnotationProvider(data));
-			}
-			i++;			
-		} catch (MicroarrayException me) {
-			throw new RuntimeException(me);
-		}
 
 		selectedListModel.removeAllElements();
 		setCount(content.size());
 		filterButton.setEnabled(content.size() > 0);
 
-		for (String row : content) {
-			
-			String viewName = "";
-			for(TableAnnotationProvider annotation : annotationProviders){
-				String annotationStr = annotation.getAnnotatedRowname(row);
-				if(annotationStr != null && !viewName.contains(annotationStr)) {
-					if(viewName.length() == 0){
-						viewName += annotationStr;
-					}else{
-						viewName += ", " + annotationStr;
-					}
-				}	
+		if (showAnnotations) {
+			List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
+			try {
+				int i = 0;
+				for(DataBean data : indexes.keySet()){
+					annotationProviders.add(new TableAnnotationProvider(data));
+				}
+				i++;			
+			} catch (MicroarrayException me) {
+				throw new RuntimeException(me);
 			}
-			
-			selectedListModel.addElement(viewName);
+
+
+			for (String row : content) {
+
+				String viewName = "";
+				for(TableAnnotationProvider annotation : annotationProviders){
+					String annotationStr = annotation.getAnnotatedRowname(row);
+					if(annotationStr != null && !viewName.contains(annotationStr)) {
+						if(viewName.length() == 0){
+							viewName += annotationStr;
+						}else{
+							viewName += ", " + annotationStr;
+						}
+					}	
+				}
+
+				selectedListModel.addElement(viewName);
+			} 
+		} else {
+			for (String row : content) {
+				selectedListModel.addElement(row);
+			}
 		}
+
 
 		if (dispatchEvent) {
 			for (DataBean data : indexes.keySet()) {
-				application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes.get(data), source);
+				application.getSelectionManager().getSelectionManager(data).setSelected(indexes.get(data), source);
 			}
 		}
 	}
@@ -129,15 +137,15 @@ public class AnnotateListPanel extends JPanel {
 	public void setSelectedListContentAsDataPoints(Collection<DataPoint> content, Object source, boolean dispatchEvent, DataBean data) {
 
 		setData(data);
-		
+
 		TableAnnotationProvider annotationProvider;
 		try {
 			annotationProvider = new TableAnnotationProvider(data);
-			
+
 		} catch (MicroarrayException me) {
 			throw new RuntimeException(me);
 		}		
-		
+
 		selectedListModel.removeAllElements();
 		setCount(content.size());
 		filterButton.setEnabled(content.size() > 0);
@@ -153,7 +161,7 @@ public class AnnotateListPanel extends JPanel {
 			selectedListModel.addElement(row.toString());
 			indexes[i++] = row.getIndex();
 		}*/
-		
+
 		for (DataPoint row : content) {
 			selectedListModel.addElement(annotationProvider.getAnnotatedRowname(row.toString()));
 			indexes[i++] = row.getIndex();
@@ -161,7 +169,7 @@ public class AnnotateListPanel extends JPanel {
 
 
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);
+			application.getSelectionManager().getSelectionManager(data).setSelection(indexes, source);
 		}
 	}
 
@@ -187,7 +195,7 @@ public class AnnotateListPanel extends JPanel {
 		setCount(rows.size());
 		filterButton.setEnabled(rows.size() > 0);
 
-		
+
 		//TODO getAnnotatedRowname should allow row index arguments, as it is used generally
 		//to locate rows in chipster. After that finding these identifiers isn't necessary anymore
 		Iterator<String> ids = null;
@@ -200,18 +208,18 @@ public class AnnotateListPanel extends JPanel {
 
 		for(int i = 0; ids.hasNext(); i++){
 			String id = ids.next();
-			
+
 			if(rows.contains(i)){
 				selectedListModel.addElement(annotationProvider.getAnnotatedRowname(id));
 			}
 		}
-		
+
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(
+			application.getSelectionManager().getSelectionManager(data).setSelected(
 					rows, source);
 		}
 	}
-	
+
 	private void setCount(int count){
 		countLabel.setText(count + " " + nameOfItems + " selected");
 	}
