@@ -10,8 +10,8 @@
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on estimated library size is calculated.)
 # PARAMETER replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (In order to estimate the biological and experimental variability of the data in one experiment it is necessary to have independent biological replicates of each experiment condition. However, for various reasons, biological replicates may be available for only one of the conditions or not available at all. In the former scenario, DESeq will estimate variability using the replicates of the single condition for which they are available. It is important to note that this is only an approximation and the reliability of results may suffer as a consequence. In the case where there are no replicates at all the variance is estimated by assuming the single samples from the different conditions to be replicates. The approximation will be even less reliable and results affected accordingly.)
 # PARAMETER fitting_method: "Dispersion method" TYPE [maximum: "fit all", fit-only: "fit low"] DEFAULT maximum (The dispersion of counts for any given sequence can either be replaced with the fitted value from the dispersion model or replaced only if the fitted value is larger than the original dispersion estimate, which is the default option. The latter option optimises the balance between false positives and false negatives whereas the former minimises false positives and is therefore more conservative.)
-# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (The dispersion can be estimated using either a two-coefficient parametric model, which is suitable in most cases, or the fit is calculated locally, which might work better under certain circumstances.)
-# PARAMETER p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY", fdr: "FDR"] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE [parametric: "parametric", local: "local"] DEFAULT local (The dispersion can be estimated using either a two-coefficient parametric model, which is suitable in most cases, or the fit is calculated locally, which might work better under certain circumstances.)
+# PARAMETER p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
 # PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
@@ -30,19 +30,16 @@
 # Loads the libraries
 library(DESeq)
 
-# Simplify variable names
-w <- image_width
-h <- image_height
-
 # Set parameters for testing
-column <- "group"
-replicates <- "yes"
-normalization <- "yes"
-fitting_method <- "maximum"
-dispersion_estimate <- "parametric"
-p.value.adjustment.method <- "BH"
-p.value.cutoff <- 0.1
-
+# column <- "group"
+# replicates <- "yes"
+# normalization <- "yes"
+# fitting_method <- "maximum"
+# dispersion_estimate <- "parametric"
+# p.value.adjustment.method <- "BH"
+# p.value.cutoff <- 0.1
+# image_height <- 600
+# image_width <- 600
 
 # Loads the normalized data
 file <- c("data.tsv")
@@ -82,7 +79,8 @@ if (number_samples == 2 && replicates == "yes")  {
 # Create a counts data object
 counts_data <- newCountDataSet(dat2, groups)
 
-# Calculate scaling factors based on estimated library size, unless it is give in phenodata
+# Calculate scaling factors based on estimated library size, unless it is given in phenodata
+# If normalization is turned off, set the size factors to 1 for all samples
 if (normalization == "yes") {
 	if (estimate_lib_size) {
 		counts_data <- estimateSizeFactors(counts_data)
@@ -94,9 +92,9 @@ if (normalization == "yes") {
 	estimateSizeFactors(counts_data) <- 1
 }
 
-# Estimate dispersion values for each gene and replaced with fitted values
-# use sharingMode parameter to control how conservative
-# use fitType to control for parametric or local fit
+# Estimate dispersion values for each gene and replace with fitted values
+# Use sharingMode parameter to control how conservative the replacement will be
+# Use fitType to control for parametric or local fit
 if (blind_dispersion) {
 	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode=fit_only,
 			fitType=dispersion_estimate)
@@ -115,7 +113,7 @@ plotDispEsts <- function(cds) {
 	legend(x="topright", legend="fitted dipersion", col="red", cex=1, pch="-")
 }
 
-# Make plot
+# Make dispersion plot
 pdf(file="dispersion-plot.pdf")
 plotDispEsts(counts_data)
 dev.off()
@@ -126,7 +124,7 @@ results_table <- nbinomTest(counts_data, group_levels[2], group_levels[1] )
 # Merge with original data table
 output_table <- cbind (dat2, results_table[,-1])
 
-# adjust p-values
+# Adjust p-values
 output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
 
 # Filter out the significant ones
@@ -140,11 +138,13 @@ if (dim(significant_table)[1] > 0) {
 	write.table(significant_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-# Make histogram of p-values
+# Make histogram of p-values with overlaid significance cutoff and uniform distribution
 pdf (file="p-value-plot.pdf")
-hist(results_table$pval, breaks=100, col="blue", border="slateblue", freq=FALSE,
+hist(results_table$pval, breaks=100, col="blue", angle=45, density=5,
+		border="slateblue", freq=FALSE,
 		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
-hist(results_table$padj, breaks=100, col="red", border="slateblue", add=TRUE, freq=FALSE)
+hist(results_table$padj, breaks=100, col="red", angle=-45, density=5,
+		border="slateblue", add=TRUE, freq=FALSE)
 abline(h=1, lwd=2, lty=2, col="black")
 abline(v=p.value.cutoff, lwd=2, lty=2, col="green")
 legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribution", "significance cutoff"), col=c("blue","red","black","green"),
