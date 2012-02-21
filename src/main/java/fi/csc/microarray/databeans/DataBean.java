@@ -269,7 +269,7 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @see #queryFeatures(String)
 	 * 
-	 * FIXME change name, locks stream start cache
+	 * FIXME change name
 	 */
 	public InputStream getContentByteStream() throws IOException {
 		return getRawContentByteStream();
