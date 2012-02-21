@@ -12,6 +12,7 @@ import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -30,7 +31,11 @@ public class GraphVertex extends AbstractGraphVertex {
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(GraphVertex.class);
-					
+	
+	private static final String AT_LEAST_ROWS_CACHENAME = "at-least-rows";
+	private static final int MAX_ROWS_TO_COUNT = 1000; 
+	private static final int MAX_BYTES_TO_COUNT = 100*1024;
+	
 	private List<GraphVertex> children;
 	
 	private String tooltipText;
@@ -72,13 +77,32 @@ public class GraphVertex extends AbstractGraphVertex {
 		this.graph = graph;
 		
 		try {
-			int rowCount = data.queryFeatures("/rowcount/max/1000").asFloat().intValue();
-			
-			// 15 000 row is still reasonably fast, but 500 000 isn't
-			if (rowCount < 1000) {
-				tooltipText = "" + rowCount  + " rows";
+			int rowCount;
+
+			if (data.getContentLength() < MAX_BYTES_TO_COUNT) {
+				// check if rows are counted already 
+				Integer cachedCount = (Integer)data.getFromContentCache(AT_LEAST_ROWS_CACHENAME);
+				if (cachedCount != null) {
+					rowCount = cachedCount; 
+
+				} else {
+					// count rows
+					Table rowCounter = data.queryFeatures("/column/*").asTable();
+					rowCount = 0;
+					while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+						rowCount++;
+					}
+					data.putToContentCache(AT_LEAST_ROWS_CACHENAME, (Integer)rowCount);
+				}
+
+				if (rowCount < 1000) {
+					tooltipText = ", " + rowCount  + " rows";
+				} else {
+					tooltipText = ", over " + rowCount  + " rows";
+				}
+				
 			} else {
-				tooltipText = "over " + rowCount  + " rows";
+				tooltipText = ""; // too large file, maybe binary, cannot say anything 
 			}
 			
 		} catch (MicroarrayException e) {
@@ -152,7 +176,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 * @return tooltip text
 	 */
 	public String getToolTipString() {
-		return this.getData().toString() + ", " + tooltipText;
+		return this.getData().toString() + tooltipText;
 	}
 	
 	

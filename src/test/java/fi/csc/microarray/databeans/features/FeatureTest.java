@@ -72,17 +72,6 @@ public class FeatureTest {
 
 	}
 	
-	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		new FeatureTest().testRowCount();
-	}
-
-	@Test(groups = {"unit"} )
-	public void testRowCount() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/10").asFloat(), 10f);
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/1000000").asFloat(), 15876f);
-	}
-	
 	@Test(groups = {"unit"} )
 	public void testTableColumnIterable() throws MicroarrayException, FileNotFoundException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
