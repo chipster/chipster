@@ -140,10 +140,10 @@ if (dim(significant_table)[1] > 0) {
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution
 pdf (file="p-value-plot.pdf")
-hist(results_table$pval, breaks=100, col="blue", angle=45, density=5,
+hist(results_table$pval, breaks=100, col="blue",
 		border="slateblue", freq=FALSE,
 		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
-hist(results_table$padj, breaks=100, col="red", angle=-45, density=5,
+hist(results_table$padj, breaks=100, col="red",
 		border="slateblue", add=TRUE, freq=FALSE)
 abline(h=1, lwd=2, lty=2, col="black")
 abline(v=p.value.cutoff, lwd=2, lty=2, col="green")
@@ -154,7 +154,7 @@ dev.off()
 # Define function for making MA-plot of significant findings
 plotDE <- function(res)
 	plot(res$baseMean, res$log2FoldChange,
-			log="x", pch=20, cex=.3, col = ifelse( res$padj < .1, "red", "black"),
+			log="x", pch=20, cex=.25, col = ifelse( res$padj < .1, "red", "black"),
 			main="MA plot", xlab="mean counts", ylab="log2(fold change)") 
 
 # Make MA-plot
