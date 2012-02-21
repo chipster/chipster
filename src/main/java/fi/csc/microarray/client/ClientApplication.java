@@ -496,13 +496,6 @@ public abstract class ClientApplication {
 						output.addLink(Link.DERIVATION, source);
 					}
 
-					// initialise cache
-					try {
-						output.initialiseStreamStartCache();
-					} catch (IOException e) {
-						throw new MicroarrayException(e);
-					}
-
 					// connect data (events are generated and it becomes visible)
 					folder.addChild(output);
 

@@ -16,10 +16,7 @@ import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
 import fi.csc.microarray.databeans.handlers.DataBeanHandler;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.InputStreamSource;
-import fi.csc.microarray.util.StreamStartCache;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -126,7 +123,6 @@ public class DataBean extends DataItemBase {
 	}
 
 	protected DataManager dataManager;
-	protected StreamStartCache streamStartCache = null;
 	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
 	
 	private URL cacheUrl = null;
@@ -277,14 +273,6 @@ public class DataBean extends DataItemBase {
 	 */
 	public InputStream getContentByteStream() throws IOException {
 		return getRawContentByteStream();
-
-		//lock.readLock().lock();
-//		if (streamStartCache != null) {
-//			return streamStartCache.getInputStream();
-//		} else {
-//			logger.debug("using non-cached stream");
-//			return getRawContentByteStream();
-//		}
 	}
 
 
@@ -390,32 +378,6 @@ public class DataBean extends DataItemBase {
 	protected void resetContentCache() {
 		this.contentCache.clear();
 	}
-
-
-
-	/**
-	 *  TODO should be integrated and hidden away
-	 * @throws MicroarrayException
-	 * @throws IOException
-	 */
-	public void initialiseStreamStartCache() throws MicroarrayException, IOException {
-		try {
-//			this.lock.readLock().lock();
-			this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
-				public InputStream getInputStream() {
-					try {
-						return getRawContentByteStream();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
-			});
-		} finally {
-//			this.lock.readLock().unlock();
-		}
-	}
-	
-	
 	
 	/**
 		 * Creates a link between this and target bean. Links represent relationships
