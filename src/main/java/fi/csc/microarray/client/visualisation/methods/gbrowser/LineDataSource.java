@@ -1,12 +1,15 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 
 
 /**
@@ -18,8 +21,8 @@ import java.net.HttpURLConnection;
  */
 public class LineDataSource extends DataSource {
 	
-	public LineDataSource(File file) throws FileNotFoundException {
-		super(file);
+	public LineDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+		super(url, requestHandler);
 	}
 
 	BufferedReader reader;

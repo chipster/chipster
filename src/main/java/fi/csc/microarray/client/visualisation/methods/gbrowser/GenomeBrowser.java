@@ -61,6 +61,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
@@ -254,7 +255,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
-		tracks.add(new Track(AnnotationManager.AnnotationType.GENES.getId(), new Interpretation(TrackType.GENES, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.ANNOTATIONS.getId(), new Interpretation(TrackType.GENES, null)));
 		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
 		
 
@@ -700,7 +701,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Create gene name index
 			gia = null;
 			try {
-				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.GENES).getUrl(),	new GeneParser()));
+				
+				URL gtfUrl = annotationManager.getAnnotation(
+						genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
+				
+				LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
+				
+				//gia = GeneIndexActions.getInstance(genome, gtfDataSource);
+				
 			} catch (Exception e) {
 				application.reportException(e);
 			}
@@ -719,34 +727,28 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				if (track.checkBox.isSelected()) {
 					switch (track.interpretation.type) {
 					case CYTOBANDS:
-						TrackFactory.addCytobandTracks(plot,
-								createAnnotationDataSource(
-										annotationManager.getAnnotation(
-												genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl(), null));
-										//new CytobandParser()));
+						
+						URL cytobandUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
+						URL regionsUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.CYTOBANDS_SEQ_REGION).getUrl();
+						
+						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl);
+						
+						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
 						break;
 						
 					case GENES:
 						// Start 3D effect
 						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
-
-						GenomeAnnotation snpRow = annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.SNP);
 						
-						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.GENES).getUrl(),
-										new GeneParser()),
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.TRANSCRIPTS).getUrl(),
-										new TranscriptParser()),
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(),
-										new SequenceParser()),
-								snpRow == null ? null : 
-									createAnnotationDataSource(annotationManager.getAnnotation(
-											genome, AnnotationManager.AnnotationType.SNP).getUrl(),
-											new SNPParser())
-								);
+						URL gtfUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
+						
+						LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
+						
+						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource);
+						
 						track.setTrackGroup(geneGroup);
 						break;
 
@@ -776,9 +778,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 							// No precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+							
+							FastaDataSource refSeqDataSource = annotationManager.getAnnotation(
+									genome, AnnotationManager.AnnotationType.REFERENCE);
+							
 							TrackGroup readGroup = TrackFactory.addReadTracks(
 									plot, treatmentData, createReadHandler(file), 
-									createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), 
+									refSeqDataSource, 
 									track.interpretation.primaryData.getName());
 							
 							track.setTrackGroup(readGroup);
@@ -803,18 +809,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					File file = track.interpretation.primaryData == null ? null : Session
 							.getSession().getDataManager().getLocalFile(
 									track.interpretation.primaryData);
+					URL fileUrl = file.toURI().toURL();
+					
 					DataSource peakData;
 					switch (track.interpretation.type) {
 					case REGIONS:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-						peakData = new ChunkDataSource(file, new BEDParser());
+						peakData = new ChunkDataSource(fileUrl, new BEDParser(), ChunkTreeHandlerThread.class);
 						TrackFactory.addPeakTrack(plot, peakData);
 						break;
 					case REGIONS_WITH_HEADER:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-						peakData = new ChunkDataSource(file, new HeaderTsvParser());
+						peakData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
 						TrackFactory.addHeaderPeakTrack(plot, peakData);
 						break;
 					}
@@ -907,23 +915,27 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	 *             if index file is not selected properly
 	 * @throws IOException
 	 *             if opening data files fails
+	 * @throws URISyntaxException 
 	 */
 	public DataSource createReadDataSource(DataBean data, DataBean indexData, List<Track> tracks)
-			throws MicroarrayException, IOException {
+			throws MicroarrayException, IOException, URISyntaxException {
 		DataSource dataSource = null;
 
 	    // Convert data bean into file
 	    File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
 	    
+	    URL fileUrl = file.toURI().toURL();
+	    
 	    if (file.getName().contains(".bam-summary")) {
-	    	dataSource = new TabixDataSource(file);
+	    	dataSource = new TabixDataSource(fileUrl);
 	    	
 	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
 	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);
-	    	dataSource = new SAMDataSource(file, indexFile);
+	    	URL indexFileUrl = indexFile.toURI().toURL();
+	    	dataSource = new SAMDataSource(fileUrl, indexFileUrl);
 	    	
 	    } else {
-	    	dataSource = new ChunkDataSource(file, new ElandParser());
+	    	dataSource = new ChunkDataSource(fileUrl, new ElandParser(), ChunkTreeHandlerThread.class);
 	    }
 	    
 	    return dataSource;
@@ -950,16 +962,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
         }
         return ChunkTreeHandlerThread.class;
     }
-
-	private ChunkDataSource createAnnotationDataSource(URL url,
-			TsvParser fileParser) throws FileNotFoundException, URISyntaxException  {
-		if ("file".equals(url.getProtocol())) {
-			return new ChunkDataSource(new File(url.toURI()), fileParser);
-		} else {
-			return new ChunkDataSource(url, fileParser);
-		}
-	}
-
 
 	@Override
 	public boolean canVisualise(DataBean data) throws MicroarrayException {

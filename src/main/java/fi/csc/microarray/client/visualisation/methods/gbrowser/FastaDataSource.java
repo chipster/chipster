@@ -1,12 +1,15 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.FastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
@@ -25,17 +28,17 @@ public class FastaDataSource extends DataSource {
 	private Map<Chromosome, ChunkDataSource> sources = new TreeMap<Chromosome, ChunkDataSource>();
 	
 
-    public FastaDataSource() throws FileNotFoundException {
-        super(new File(""));
+    public FastaDataSource() throws FileNotFoundException, MalformedURLException, URISyntaxException {
+        super(new URL(""), FastaHandlerThread.class);
     }
 
 	public Set<Entry<Chromosome, ChunkDataSource>> entrySet() {
 		return sources.entrySet();
 	}
 
-	public void put(Chromosome chromosome, File file) {
+	public void put(Chromosome chromosome, URL url) throws URISyntaxException {
 		try {
-			sources.put(chromosome, new ChunkDataSource(file, null));
+			sources.put(chromosome, new ChunkDataSource(url, null, FastaHandlerThread.class));
 		} catch (FileNotFoundException e) {
 			
 			e.printStackTrace();

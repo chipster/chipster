@@ -39,11 +39,6 @@ public abstract class Track implements AreaResultListener {
 		this.file = file;
 	}
 
-	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
-		this(view, file);
-		view.getQueueManager().createQueue(file, handler);
-	}
-
 	/**
 	 * Should be called after Track object is created, but can't be merged to constructor, because the coming areaResult event could cause
 	 * call to track object before it's constructed.

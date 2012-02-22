@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -12,7 +11,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.FastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -93,13 +91,9 @@ public class ReadTrackGroup extends TrackGroup {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-        	((FastaDataSource)seqFile).put(new Chromosome("1"), new File("/home/klemela/chipster/orig-annotations/Homo_sapiens.GRCh37.65.dna.chromosome.1.fa"));
-            
+			
             seq = new SeqTrack(view, seqFile,
                     FastaHandlerThread.class, GenomeBrowserConstants.SHOW_REFERENCE_AT);            
-            
-//            seq = new SeqTrack(view, seqFile,
-//                    FastaHandlerThread.class, GenomeBrowserConstants.SHOW_REFERENCE_AT);
                         
             tracks.add(seq);
             
