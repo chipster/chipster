@@ -461,13 +461,13 @@ public class TaskExecutor {
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							int length = (int)task.getInput(name).getContentLength();
+							long length = task.getInput(name).getContentLength();
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
-								float infile = ((float)bytes) / ((float)length);
-								float p = overall + (infile / ((float)task.getInputCount()));
-								updateTaskState(task, State.TRANSFERRING_INPUTS, null, Math.round(p * 100f));
+								float current = ((float)bytes) / ((float)length);
+								float total = overall + (current / ((float)task.getInputCount()));
+								updateTaskState(task, State.TRANSFERRING_INPUTS, null, Math.round(total * 100f));
 							}
 						};
 						

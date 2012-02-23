@@ -147,7 +147,7 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
 
-build_tools="no" # Should tools be built, set to either "yes" or "no"
+build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
@@ -171,7 +171,7 @@ R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
 INST_PATH=/opt
-CHIP_PATH=${INST_PATH}/chipster2
+CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
 TMPDIR_PATH=/tmp/install
 
@@ -194,15 +194,15 @@ sed -i'~' 's;http://www.bioconductor.org;http://mirrors.ebi.ac.uk/bioconductor/;
 sed -i'~' '/<configuration-module moduleId="comp">/a <!-- make compute service access filebroker file repository locally -->\
 <entry entryKey="local-filebroker-user-data-path" type="string" \
 description="path to local filebrokers user data directory">\
-        <value>/opt/chipster2/fileserver/file-root/user-data</value>\
+        <value>/opt/chipster/fileserver/file-root/user-data</value>\
 </entry>' ${CHIP_PATH}/comp/conf/chipster-config.xml
 sed -i'~' 's/#RUN_AS_USER=/RUN_AS_USER=chipster/' \
-    /opt/chipster2/activemq/bin/linux-x86-64/activemq \
-    /opt/chipster2/comp/bin/linux-x86-64/chipster-comp \
-    /opt/chipster2/auth/bin/linux-x86-64/chipster-auth \
-    /opt/chipster2/fileserver/bin/linux-x86-64/chipster-fileserver \
-    /opt/chipster2/webstart/bin/linux-x86-64/chipster-webstart \
-    /opt/chipster2/manager/bin/linux-x86-64/chipster-manager
+    /opt/chipster/activemq/bin/linux-x86-64/activemq \
+    /opt/chipster/comp/bin/linux-x86-64/chipster-comp \
+    /opt/chipster/auth/bin/linux-x86-64/chipster-auth \
+    /opt/chipster/fileserver/bin/linux-x86-64/chipster-fileserver \
+    /opt/chipster/webstart/bin/linux-x86-64/chipster-webstart \
+    /opt/chipster/manager/bin/linux-x86-64/chipster-manager
 
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
@@ -225,7 +225,7 @@ then
   #tar -xzf R-${R_VER}.tar.gz
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
   cd R-${R_VER}/
-  ## Fix for "/opt/chipster2/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
+  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
   sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
   export MAKEFLAGS=-j
   #LIBnn=lib
@@ -362,12 +362,12 @@ then
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.5.9.tar.bz2/download | tar -xj
-  cd bwa-0.5.9/
+  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download | tar -xj
+  cd bwa-0.6.1/
   make
   cd ../
-  mv bwa-0.5.9/ ${TOOLS_PATH}/
-  ln -s bwa-0.5.9 ${TOOLS_PATH}/bwa
+  mv bwa-0.6.1/ ${TOOLS_PATH}/
+  ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
@@ -404,11 +404,26 @@ then
   mkdir ${TOOLS_PATH}/bwa_indexes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/All_bwa_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bwa_indexes/
 
-  ## Data for CNA-seq tools (produced by Ilari Scheinin)
+  # Data for CNA-seq tools (produced by Ilari Scheinin)
+  cd ${TMPDIR_PATH}/
   wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
   unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
   rm GRCh37.zip
 
+  # prinseq
+  cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.17.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
+  mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+
+  # Genome annotations for genome browser
+  cd ${TMPDIR_PATH}/
+  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
+  
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
@@ -424,24 +439,23 @@ rm -rf ${TMPDIR_PATH}/
 # Configure chipster ports and hostname
 
 ## Init.d:
-ln -s ${CHIP_PATH}/chipster /etc/init.d/chipster2
-update-rc.d chipster2 defaults # start 99 3 5 . stop 1 0 1 2 4 6 .
+ln -s ${CHIP_PATH}/chipster /etc/init.d/chipster
+update-rc.d chipster defaults # start 99 3 5 . stop 1 0 1 2 4 6 .
 
-ln -s ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq /etc/init.d/chipster2-activemq
-ln -s ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp /etc/init.d/chipster2-comp
-ln -s ${CHIP_PATH}/auth/bin/linux-x86-64/chipster-auth /etc/init.d/chipster2-auth
-ln -s ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver /etc/init.d/chipster2-fileserver
-ln -s ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart /etc/init.d/chipster2-webstart
-ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipster2-manager
-#update-rc.d chipster2-activemq defaults
-#update-rc.d chipster2-comp defaults
-#update-rc.d chipster2-auth defaults
-#update-rc.d chipster2-fileserver defaults
-#update-rc.d chipster2-webstart defaults
-#update-rc.d chipster2-manager defaults
+ln -s ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq /etc/init.d/chipster-activemq
+ln -s ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp /etc/init.d/chipster-comp
+ln -s ${CHIP_PATH}/auth/bin/linux-x86-64/chipster-auth /etc/init.d/chipster-auth
+ln -s ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver /etc/init.d/chipster-fileserver
+ln -s ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart /etc/init.d/chipster-webstart
+ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipster-manager
+#update-rc.d chipster-activemq defaults
+#update-rc.d chipster-comp defaults
+#update-rc.d chipster-auth defaults
+#update-rc.d chipster-fileserver defaults
+#update-rc.d chipster-webstart defaults
+#update-rc.d chipster-manager defaults
 
 ## First boot
 #cd ${EXEC_PATH}/
-#cp firstboot.sh /etc/init.d/
-#chmod 755 /etc/init.d/firstboot.sh
-#update-rc.d firstboot.sh start 20 2 .
+chmod 755 /etc/init.d/firstboot.sh
+update-rc.d firstboot.sh start 20 2 .

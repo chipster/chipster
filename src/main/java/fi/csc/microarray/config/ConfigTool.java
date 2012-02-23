@@ -59,7 +59,7 @@ public class ConfigTool {
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
 			{"admin e-mail address", "chipster-admin@mydomain"},
-			{"path to R binary", "/opt/chipster2/tools/R/bin/R"},
+			{"path to R binary", "/opt/chipster/tools/R/bin/R"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 

@@ -68,6 +68,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private int receiveTimeout;
 	private int scheduleTimeout;
+	private int offerDelay;
 	private int timeoutCheckInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
@@ -123,6 +124,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// Initialise instance variables
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
+		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
@@ -402,7 +404,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				try {
 					endpoint.replyToMessage(original, reply);
 				} catch (JMSException e) {
-					logger.error("Could not send message.", e);
+					// Failing is ok, if some other comp has replied quicker and
+					// the TempTopic has already been deleted
+					//logger.error("Could not send message.", e);
 				}
 			}
 		}).start();
@@ -422,6 +426,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private void receiveJob(JobMessage jobMessage) {
 
+		logger.info("received job request from: " + jobMessage.getUsername());
+		logger.info("checking if matches guest account: " + DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"));
+		
 		if (jobMessage.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
 			ResultMessage resultMessage = new ResultMessage("", JobState.FAILED_USER_ERROR, "", "Running tools is disabled for guest users.", 
 					"", jobMessage.getReplyTo());
@@ -483,14 +490,35 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		updateStatus();
 	}
 
-	private void scheduleJob(AnalysisJob job) {
+	private void scheduleJob(final AnalysisJob job) {
 		synchronized(jobsLock) {
 			job.setScheduleTime(new Date());
 			scheduledJobs.put(job.getId(), job);
 		}	
 
 		try {
-			sendOfferMessage(job);
+			// delaying sending of the offer message can be used for
+			// prioritising comp instances 
+			if (offerDelay > 0 ) {
+				Timer timer = new Timer("offer-delay-timer", true);
+				timer.schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						try {
+							sendOfferMessage(job);
+						} catch (JMSException e) {
+							synchronized(jobsLock) {
+								scheduledJobs.remove(job.getId());
+							}
+							logger.error("Could not send OFFER for job " + job.getId());
+						}
+					}
+
+				}, offerDelay);
+			} else {
+				sendOfferMessage(job);
+			}
 		} catch (Exception e) {
 			synchronized(jobsLock) {
 				scheduledJobs.remove(job.getId());

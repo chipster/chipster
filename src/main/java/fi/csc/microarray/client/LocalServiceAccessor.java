@@ -67,9 +67,9 @@ public class LocalServiceAccessor implements ServiceAccessor {
                                                                     null);
         for (Input input : sadl.inputs()) {
             if (input.getName().isNameSet()) {
-                od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType());
+                od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
             } else {
-                od.addInput(input.getName(), input.getComment(), input.getType());
+                od.addInput(input.getName(), input.getComment(), input.getType(), input.isOptional());
             }
         }
 
