@@ -174,7 +174,7 @@ pdf(file="ma-plot-significant-deseq.pdf")
 plotDE(results_table)
 legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 		cex=1, pch=19)
-abline(h = c(-2, 0, 2), col = "dodgerblue", lwd = 2)
+abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 dev.off()
 
 # EOF
