@@ -65,7 +65,7 @@ rm /etc/apt/trusted.gpg~
 ## Install packages:
 
 ## Base:
-aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils
+aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils dstat chkconfig apt-file
 # manpages (not installed yet)
 # update-manager-core (do-release-upgrade comes from this)
 
@@ -134,7 +134,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -155,6 +155,9 @@ INST_PATH=/opt
 CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
 TMPDIR_PATH=/tmp/install
+# Misc
+USERNAME=chipster
+GROUPNAME=chipster
 
 ## Create tmpdir
 rm -rf ${TMPDIR_PATH}/
@@ -171,25 +174,31 @@ mv chipster/ ${CHIP_PATH}/
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/environment.xml
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/runtimes.xml
 sed -i'~' 's;http://www.bioconductor.org;http://mirrors.ebi.ac.uk/bioconductor/;' ${CHIP_PATH}/comp/conf/environment.xml
+# TODO The below should be made dynamic
 sed -i'~' '/<configuration-module moduleId="comp">/a <!-- make compute service access filebroker file repository locally -->\
 <entry entryKey="local-filebroker-user-data-path" type="string" \
 description="path to local filebrokers user data directory">\
         <value>/opt/chipster/fileserver/file-root/user-data</value>\
 </entry>' ${CHIP_PATH}/comp/conf/chipster-config.xml
-sed -i'~' 's/#RUN_AS_USER=/RUN_AS_USER=chipster/' \
-    /opt/chipster/activemq/bin/linux-x86-64/activemq \
-    /opt/chipster/comp/bin/linux-x86-64/chipster-comp \
-    /opt/chipster/auth/bin/linux-x86-64/chipster-auth \
-    /opt/chipster/fileserver/bin/linux-x86-64/chipster-fileserver \
-    /opt/chipster/webstart/bin/linux-x86-64/chipster-webstart \
-    /opt/chipster/manager/bin/linux-x86-64/chipster-manager
+sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
+    ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq \
+    ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp \
+    ${CHIP_PATH}/auth/bin/linux-x86-64/chipster-auth \
+    ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver \
+    ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart \
+    ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager
 
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
 
-# Create file-root and jobs-data symlinks
-ln -s /scratch/file-root ${CHIP_PATH}/fileserver/file-root
+# Create user-data and jobs-data symlinks
+mkdir ${CHIP_PATH}/fileserver/file-root/
+ln -s /scratch/user-data ${CHIP_PATH}/fileserver/file-root/user-data
 ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
+
+# Symlink to genome browser annotations
+mkdir ${CHIP_PATH}/fileserver/file-root/public/
+ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
@@ -399,7 +408,6 @@ then
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
   
   ## Create checksums
   cd ${TOOLS_PATH}/
@@ -407,8 +415,8 @@ then
 fi
 
 ## Clean up:
-chown -R -h chipster:chipster ${CHIP_PATH}/
-chown -R chipster:chipster /mnt/tools/
+chown -R -h ${USERNAME}:${GROUPNAME} ${CHIP_PATH}/
+chown -R ${USERNAME}:${GROUPNAME} /mnt/tools/
 ls -lah ${TMPDIR_PATH}/ # Debug, list uncleaned mess
 rm -rf ${TMPDIR_PATH}/
 
