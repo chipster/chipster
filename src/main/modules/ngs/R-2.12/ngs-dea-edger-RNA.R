@@ -117,6 +117,7 @@ if (normalization == "yes") {
 	title("Normalized counts")
 	legend (x="topleft", legend=c("not epressed in one condition","expressed in both conditions"), col=c("orange","black"),
 			cex=1, pch=19)
+	abline(h = 0, col = "darkgreen", lwd = 1)
 	dev.off()
 }
 
@@ -146,7 +147,7 @@ if (dispersion_method == "common") {
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
 	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence tags")
-	abline(h = c(-1, 0, 1), col = "dodgerblue", lwd = 2)
+	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 			cex=1, pch=19)
 	dev.off()
@@ -178,7 +179,7 @@ if (dispersion_method == "tagwise") {
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
 	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence tags")
-	abline(h = c(-1, 0, 1), col = "dodgerblue", lwd = 2)
+	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 	legend (x="topleft", legend=c("significant features","not significant"), col=c("red","black"),
 			cex=1, pch=19)
 	dev.off()
