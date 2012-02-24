@@ -52,8 +52,11 @@ public class AuthenticatedTopic extends MessagingTopic {
 							replyMsg.setPassword(credentials.password);
 							replyMsg.setSessionID(msg.getSessionID());
 							replyMsg.setReplyTo(authMsg.getReplyTo());
-
-							sendMessage(replyMsg);						
+							
+							// FIXME sometimes reply to this send (ack) is not received as reply temp topic
+							// gets deleted before that
+							// Should send replyable message.
+							sendMessage(replyMsg);
 						}
 						
 					} else if (authMsg.isLoginAck()) {						

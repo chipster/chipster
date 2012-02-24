@@ -185,6 +185,19 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 *  
 	 */
 	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
+
+		// sanity check username
+		if (chipsterMessage.getUsername() == null || chipsterMessage.getUsername().equals("")) {
+			logger.warn("not accepting message with null or empty username");
+			try {
+				ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Username was null or empty.", 
+						"", chipsterMessage.getReplyTo());
+				sendReplyMessage(chipsterMessage, resultMessage);
+			} catch (Exception e) {
+				logger.warn("could not send error message for null or empty username");
+			}
+			return;
+		}
 		
 		// job message
 		if (chipsterMessage instanceof JobMessage) {
