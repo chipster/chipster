@@ -108,11 +108,6 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public void plugTypeTags(DataManager manager) {
-		manager.plugTypeTag(TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
-	}
-
-	@Override
 	public boolean isImportToolSupported() {
 		return false;
 	}

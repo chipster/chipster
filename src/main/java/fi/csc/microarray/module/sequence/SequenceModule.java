@@ -53,12 +53,7 @@ public class SequenceModule implements Module {
 	public void plugModifiers(DataManager manager) {
 		// nothing to plug
 	}
-
-	@Override
-	public void plugTypeTags(DataManager manager) {
-		// nothing to plug
-	}
-
+	
 	@Override
 	public String[] getServerModuleNames() {
 		return new String[] { "sequence" };

@@ -2,10 +2,12 @@ package fi.csc.microarray.databeans;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,6 +27,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -32,9 +35,13 @@ import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -58,7 +65,6 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
-	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
@@ -69,6 +75,7 @@ public class DataManager {
 
 	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
 	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	private LinkedList<Module> modules;
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -808,14 +815,6 @@ public class DataManager {
 		}
 	}
 
-	public void plugTypeTag(TypeTag typeTag) {
-		this.tagMap.put(typeTag.getName(), typeTag);
-	}
-	
-	public TypeTag getTypeTag(String name) {
-		return this.tagMap.get(name);
-	}
-
 	public Iterable<File> listAllRepositories() {
 
 		LinkedList<File> repositories = new LinkedList<File>();
@@ -840,4 +839,114 @@ public class DataManager {
 	public void flushSession() {
 		zipDataBeanHandler.closeZipFiles();
 	}
+
+	public void setModules(LinkedList<Module> modules) {
+		this.modules = modules;
+	}
+	
+	// TODO remove and rely on new type system
+	public void doBackwardsCompatibleTypeTagInitialisation(DataBean data) throws IOException {
+
+		try {
+
+			// read first line and reuse it in checks
+			String firstLine = null;
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+				firstLine = reader.readLine();
+				
+			} finally {
+				IOUtils.closeIfPossible(reader);
+			}
+
+			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+			}
+
+			if (data.isContentTypeCompatitible("text/bed")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				
+				// Check if it has title row
+				BufferedReader in = null;
+				try {
+					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+					if (in.readLine().startsWith("track")) {
+						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				} finally {
+					IOUtils.closeIfPossible(in);
+				}
+				
+			}
+
+			// the rest is microarray specific
+			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
+				return;
+			}
+
+			Table chips = data.queryFeatures("/column/chip.*").asTable();
+
+			// Tag the "main type"
+			
+			if (data.isContentTypeCompatitible("application/cel")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+
+			} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+
+			} else if (chips != null && chips.getColumnCount() > 0) {
+				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			} 
+			
+			if (data.queryFeatures("/identifier").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			} 
+
+
+			// Tag additional typing information
+			if (data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(BasicModule.TypeTags.PHENODATA);
+			}
+				
+			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
+			}
+
+			boolean isChipwise = false;
+			ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
+			if (pcaOn != null) {
+				String pcaOnValue = pcaOn.getValue();
+				if (pcaOnValue != null && pcaOnValue.equals("chips")) {
+					isChipwise = true;
+				}
+			}
+			if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
+				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
+			}
+
+			if (chips != null && chips.getColumnNames().length > 1 && data.queryFeatures("/column/cluster").exists()) {
+				data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
+			}
+			
+		    if (data.isContentTypeCompatitible("text/plain", "text/bed", "text/tab") 
+		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
+		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
+		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
+
+		    	data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+		    }
+
+		    if (data.queryFeatures("/clusters/som").exists()) {
+		    	data.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
+		    }
+			
+		} catch (MicroarrayException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
 }
