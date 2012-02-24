@@ -162,7 +162,7 @@ public class DataBean extends DataItemBase {
 		
 		// add this as parent folders child
 		if (parentFolder != null) {
-			parentFolder.addChild(this);
+			manager.connectChild(this, parentFolder);
 		}
 		
 		for (DataBean source : sources) {

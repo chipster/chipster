@@ -497,7 +497,7 @@ public abstract class ClientApplication {
 					}
 
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(output);
+					manager.connectChild(output, folder);
 
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there

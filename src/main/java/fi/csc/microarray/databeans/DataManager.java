@@ -2,12 +2,10 @@ package fi.csc.microarray.databeans;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,7 +25,6 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -35,13 +32,10 @@ import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.basic.BasicModule;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -123,7 +117,7 @@ public class DataManager {
 	 */
 	public DataFolder createFolder(DataFolder root, String name) {
 		DataFolder folder = new DataFolder(this, name);
-		root.addChild(folder); // events are dispatched from here
+		connectChild(folder, root); // events are dispatched from here
 		return folder;
 	}
 
@@ -663,7 +657,7 @@ public class DataManager {
 		// remove bean
 		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(bean);
+			disconnectChild(bean, folder);
 		}
 		
 		// remove physical file
@@ -797,7 +791,7 @@ public class DataManager {
 		// remove this folder (unless root)
 		DataFolder parent = folder.getParent();
 		if (parent != null) {
-			parent.removeChild(folder);
+			disconnectChild(folder, parent);
 		}
 	}
 	
@@ -844,8 +838,45 @@ public class DataManager {
 		this.modules = modules;
 	}
 	
-	// TODO remove and rely on new type system
-	public void doBackwardsCompatibleTypeTagInitialisation(DataBean data) throws IOException {
+	public void connectChild(DataItem child, DataFolder parent) {
+
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+
+		// connect to this
+		child.setParent(parent);
+
+		// add
+		parent.children.add(child);
+
+		// add type tags to data beans
+		if (child instanceof DataBean) {
+			try {
+				addTypeTags((DataBean) child);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// dispatch events if needed
+		if (!wasConnected) {
+			dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void disconnectChild(DataItem child, DataFolder parent) {
+		// remove connections
+		child.setParent(null);
+
+		// remove
+		parent.children.remove(child);
+
+		// dispatch events
+		dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+
+	public void addTypeTags(DataBean data) throws IOException {
 
 		for (Module module : modules) {
 			try {

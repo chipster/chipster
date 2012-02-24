@@ -211,7 +211,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				dataBeanCopy.setOperationRecord(operationRecord);
 				
 				// TODO what if not in the root folder in the source manager
-				manager.getRootFolder().addChild(dataBeanCopy);
+				manager.connectChild(dataBeanCopy, manager.getRootFolder());
 				importOperationRecords.add(operationRecord);
 			}
 

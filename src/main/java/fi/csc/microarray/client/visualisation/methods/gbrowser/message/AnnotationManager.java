@@ -23,7 +23,6 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
 
 /**
