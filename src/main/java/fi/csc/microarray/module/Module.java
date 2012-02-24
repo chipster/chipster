@@ -219,5 +219,14 @@ public interface Module {
 	 * Converts server module name into GUI friendly name.
 	 */
 	public String getModuleLongName(String moduleName);
+
+	/**
+	 * Looks into data bean, possibly reading a little bit of content data, and adds type tags appropriate for the module.
+	 * 
+	 * @param data data bean to add type tags to
+	 * @throws MicroarrayException 
+	 * @throws IOException 
+	 */
+	public void addTypeTags(DataBean data) throws MicroarrayException, IOException;
 	
 }

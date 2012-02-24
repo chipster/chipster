@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
@@ -68,6 +71,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.GeneralFileFilter;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
@@ -549,6 +553,98 @@ public class MicroarrayModule implements Module {
 		entity.put("start", columns.getStringValue("column1"));
 		entity.put("end", columns.getStringValue("column2"));
 		return entity;
+	}
+
+	@Override
+	public void addTypeTags(DataBean data) throws MicroarrayException, IOException {
+
+
+		if (data.isContentTypeCompatitible("application/cel")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		}
+
+
+		if (data.isContentTypeCompatitible("text/bed")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+
+			// Check if it has title row
+			BufferedReader in = null;
+			try {
+				in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+				if (in.readLine().startsWith("track")) {
+					data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} finally {
+				IOUtils.closeIfPossible(in);
+			}
+
+		}
+
+
+		// Rest of the tags are set only when this module is primary
+		
+		if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
+			return;
+		}
+
+		Table chips = data.queryFeatures("/column/chip.*").asTable();
+
+		if (data.isContentTypeCompatitible("application/cel")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+
+		} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+
+		} else if (chips != null && chips.getColumnCount() > 0) {
+			data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+		} 
+
+		if (data.queryFeatures("/identifier").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+		} 
+
+
+		// Tag additional typing information
+		if (data.queryFeatures("/phenodata").exists()) {
+			data.addTypeTag(BasicModule.TypeTags.PHENODATA);
+		}
+
+		if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
+		}
+
+		boolean isChipwise = false;
+		ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
+		if (pcaOn != null) {
+			String pcaOnValue = pcaOn.getValue();
+			if (pcaOnValue != null && pcaOnValue.equals("chips")) {
+				isChipwise = true;
+			}
+		}
+		if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
+			data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
+		}
+
+		if (chips != null && chips.getColumnNames().length > 1 && data.queryFeatures("/column/cluster").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
+		}
+
+		if (data.queryFeatures("/clusters/som").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
+		}
+
+		// Finally, set NGS related tags
+
+		if (data.isContentTypeCompatitible("text/plain", "text/bed", "text/tab") 
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
+
+			data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+		}
+
 	}
 
 }

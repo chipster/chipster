@@ -219,4 +219,9 @@ public class SequenceModule implements Module {
 		return null;
 	}
 
+	@Override
+	public void addTypeTags(DataBean data) {
+		// nothing to add
+	}
+
 }

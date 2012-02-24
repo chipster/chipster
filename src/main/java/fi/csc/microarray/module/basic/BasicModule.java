@@ -209,4 +209,14 @@ public class BasicModule implements Module {
 	public IntegratedEntity createLinkableEntity(Table columns, int column) {
 		return null;
 	}
+
+	@Override
+	public void addTypeTags(DataBean data) {
+
+		if (data.isContentTypeCompatitible("text/tab", "text/csv")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		}
+
+
+	}
 }
