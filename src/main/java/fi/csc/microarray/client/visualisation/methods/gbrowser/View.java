@@ -35,7 +35,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
@@ -51,7 +51,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {
 
-	public BpCoordRegionDouble bpRegion;
+	public RegionDouble bpRegion;
 	public Region highlight;
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
@@ -161,7 +161,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected void drawView(Graphics2D g, boolean isAnimation) {
 
 		if (bpRegion == null) {
-			setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
 		showFullHeight = parentPlot.isFullHeight();
@@ -473,7 +473,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 	}
 
-	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
 
 		this.bpRegion = region;
 
@@ -487,7 +487,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 	}
 
-	public BpCoordRegionDouble getBpRegionDouble() {
+	public RegionDouble getBpRegionDouble() {
 		return bpRegion;
 	}
 
@@ -676,7 +676,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					}
 				}
 			}
-			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
+			setBpRegion(new RegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
 			
 			if (!disableDrawing) {
 				parentPlot.redraw();

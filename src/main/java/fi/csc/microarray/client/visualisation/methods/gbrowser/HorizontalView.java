@@ -22,7 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
  * The basic view of genome browser. Shows the tracks horizontally.
@@ -133,7 +133,7 @@ public class HorizontalView extends View implements KeyListener {
 	}
 	
 	@Override
-	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
 		
 		BpCoord maxBp = getMaxBp();
 		

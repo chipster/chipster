@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
@@ -30,13 +29,11 @@ import fi.csc.microarray.constants.VisualConstants;
  */
 public class TrackFactory {
 	
-    public static TrackGroup addGeneTracks(GenomePlot genomePlot, ChunkDataSource geneAnnotationFile,
-	        DataSource transcriptAnnotationFile, ChunkDataSource refSource, DataSource snpFile) throws FileNotFoundException {
+    public static TrackGroup addGeneTracks(GenomePlot genomePlot, LineDataSource annotationFile) throws FileNotFoundException {
         
 		View dataView = genomePlot.getDataView();
 		
-		TrackGroup geneGroup = new GeneTrackGroup(dataView, geneAnnotationFile,
-				transcriptAnnotationFile, refSource, snpFile);
+		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationFile);
 		
 		// Add gene group to data view
 	    addGroup(dataView, geneGroup);
@@ -108,19 +105,9 @@ public class TrackFactory {
 
 	}
 
-	public static void addCytobandTracks(GenomePlot plot, ChunkDataSource cytobandData) {
+	public static void addCytobandTracks(GenomePlot plot, CytobandDataSource cytobandData) {
 		
-		//TODO replace with real data
-		
-		CytobandDataSource data = null;
-		try {
-			data = new CytobandDataSource(new File("/home/klemela/chipster/orig-annotations/karyotype.txt"), 
-					new File("/home/klemela/chipster/orig-annotations/seq_region.txt"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), data, CytobandHandlerThread.class, false);
+		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, CytobandHandlerThread.class, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
 	}
 

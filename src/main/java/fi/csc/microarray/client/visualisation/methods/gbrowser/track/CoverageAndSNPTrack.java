@@ -58,7 +58,10 @@ public class CoverageAndSNPTrack extends Track {
 		setStrand(Strand.BOTH);
 		
 		this.refFile = refFile;
-		view.getQueueManager().createQueue(refFile, refHandler);
+		
+		if (refFile != null) {
+			view.getQueueManager().createQueue(refFile, refHandler);
+		}
 	}
 
 	@Override	
@@ -66,7 +69,7 @@ public class CoverageAndSNPTrack extends Track {
 		super.initializeListener();
 		
 		// Add listener for reference file
-		if (file != null) {
+		if (refFile != null) {
 			view.getQueueManager().addResultListener(refFile, this);
 		}
 	}

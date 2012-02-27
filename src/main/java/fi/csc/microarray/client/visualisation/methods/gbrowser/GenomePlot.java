@@ -20,7 +20,7 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
@@ -101,7 +101,7 @@ public class GenomePlot extends Plot {
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
 				overviewView.highlight = bpRegion;
-				overviewView.setBpRegion(new BpCoordRegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
+				overviewView.setBpRegion(new RegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
 			}
 		});
 		
@@ -109,7 +109,7 @@ public class GenomePlot extends Plot {
 
 			@Override
 			public void regionChanged(Region bpRegion) {
-				dataView.setBpRegion(new BpCoordRegionDouble(bpRegion), false);
+				dataView.setBpRegion(new RegionDouble(bpRegion), false);
 			}		
 		});
 	}
@@ -131,7 +131,7 @@ public class GenomePlot extends Plot {
 	 * @param length number of visible base pairs (zoom)
 	 */
 	public void start(String chromosome, Double chromosomeSizeBp, Long position, Long length) {
-		overviewView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		overviewView.setBpRegion(new RegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
 		moveDataBpRegion(new Chromosome(chromosome), position, length);
 	}
 
@@ -143,7 +143,7 @@ public class GenomePlot extends Plot {
      * @param length
      */
 	public void moveDataBpRegion(Chromosome moveToChr, Long moveToBp, Long length) {
-		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
+		RegionDouble bpCoordRegion = new RegionDouble(
 				new Double(moveToBp - (length/2)),
 				new Double(moveToBp + (length/2)), 
 				moveToChr

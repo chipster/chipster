@@ -213,7 +213,7 @@ public class CoverageTrack extends Track {
 	 */
 	@Override
     public boolean canExpandDrawables() {
-        return true;
+        return false;
     }
 	
 	@Override

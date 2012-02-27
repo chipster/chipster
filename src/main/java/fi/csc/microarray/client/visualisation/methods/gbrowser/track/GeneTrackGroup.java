@@ -1,25 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfFileFetcherThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.threed.AutomatedMovement;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -41,49 +30,30 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(View dataView, ChunkDataSource geneAnnotationFile,
-	        DataSource transcriptAnnotationFile, ChunkDataSource refSource, DataSource snpFile) {
+	public GeneTrackGroup(View dataView, LineDataSource annotationFile) {
 		super(dataView);
 		
-		DataSource annotationDataSource = null;
-		
-		try {
-			annotationDataSource = new LineDataSource(new File("/home/klemela/chipster/orig-annotations/Homo_sapiens.GRCh37.65.gtf"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		transcript = new TranscriptTrack(dataView, annotationDataSource, GtfHandlerThread.class,
+		transcript = new TranscriptTrack(dataView, annotationFile, GtfHandlerThread.class,
 		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcript.setStrand(Strand.FORWARD);
 		
-		geneOverview = new IntensityTrack(dataView, annotationDataSource, GtfHandlerThread.class, 
+		geneOverview = new IntensityTrack(dataView, annotationFile, GtfHandlerThread.class, 
 				VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 		geneOverview.setStrand(Strand.FORWARD);
 		
-		gene = new GeneTrack(dataView, annotationDataSource,
+		gene = new GeneTrack(dataView, annotationFile,
 		        GtfHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		gene.setStrand(Strand.FORWARD);
 		
-		if (snpFile != null) {
-			snpTrack = new ReferenceSNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, GenomeBrowserConstants.SHOW_SNP_AT);
-			snpTrack.setStrand(Strand.FORWARD);
-
-			snpTrackReversed = new ReferenceSNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, GenomeBrowserConstants.SHOW_SNP_AT);
-			snpTrackReversed.setStrand(Strand.REVERSED);
-		}
-		
-		repeatMasker = new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-		
 		geneOverviewReversed = new IntensityTrack(dataView,
-				annotationDataSource, GtfHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+				annotationFile, GtfHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 		geneOverviewReversed.setStrand(Strand.REVERSED);
 		
-		geneReversed = new GeneTrack(dataView, annotationDataSource,
+		geneReversed = new GeneTrack(dataView, annotationFile,
 				GtfHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		geneReversed.setStrand(Strand.REVERSED);
 		
-		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GtfHandlerThread.class,
+		transcriptReversed = new TranscriptTrack(dataView, annotationFile, GtfHandlerThread.class,
 		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcriptReversed.setStrand(Strand.REVERSED);
 		
@@ -118,9 +88,6 @@ public class GeneTrackGroup extends TrackGroup {
 			// SNP track Reversed
 			tracks.add(snpTrackReversed);
 		}
-		  
-        // Repeat masker track
-        tracks.add(repeatMasker);
 		
 		// Gene, overview, reverse
         tracks.add(geneOverviewReversed);

@@ -4,31 +4,31 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
  * Floating-point version of {@link Region}. Used when floating point precision is needed in calculations.
  * 
  */
-public class BpCoordRegionDouble implements Comparable<BpCoordRegionDouble> {
+public class RegionDouble implements Comparable<RegionDouble> {
 	
 	public BpCoordDouble start;
 	public BpCoordDouble end;
 
-	public BpCoordRegionDouble(BpCoordDouble start, BpCoordDouble end) {
+	public RegionDouble(BpCoordDouble start, BpCoordDouble end) {
 		this.start = start;
 		this.end = end;
 	}
 
-	public BpCoordRegionDouble(Double start, Double end, Chromosome chr) {
+	public RegionDouble(Double start, Double end, Chromosome chr) {
 		this.start = new BpCoordDouble(start, chr);
 		this.end = new BpCoordDouble(end, chr);
 	}
 
-	public BpCoordRegionDouble(Double start, Chromosome chr1, Double end, Chromosome chr2) {
+	public RegionDouble(Double start, Chromosome chr1, Double end, Chromosome chr2) {
 		this.start = new BpCoordDouble(start, chr1);
 		this.end = new BpCoordDouble(end, chr2);
 	}
 
-	public BpCoordRegionDouble() {
+	public RegionDouble() {
 		this(null, null);
 	}
 
-	public BpCoordRegionDouble(Region reg) {
+	public RegionDouble(Region reg) {
 		this((double)reg.start.bp, reg.start.chr, (double)reg.end.bp, reg.end.chr);
 	}
 
@@ -44,19 +44,19 @@ public class BpCoordRegionDouble implements Comparable<BpCoordRegionDouble> {
 		return "Region [" + start + " - " + end + "]";
 	}
 
-	public BpCoordRegionDouble clone() {
-		return new BpCoordRegionDouble(start, end);
+	public RegionDouble clone() {
+		return new RegionDouble(start, end);
 	}
 
-	public boolean intercepts(BpCoordRegionDouble other) {
+	public boolean intercepts(RegionDouble other) {
 		return end.compareTo(start) > 0 && start.compareTo(end) < 0;
 	}
 
-	public BpCoordRegionDouble intercept(BpCoordRegionDouble other) {
-		return new BpCoordRegionDouble(start.max(other.start), end.min(other.end));
+	public RegionDouble intercept(RegionDouble other) {
+		return new RegionDouble(start.max(other.start), end.min(other.end));
 	}
 
-	public int compareTo(BpCoordRegionDouble o) {
+	public int compareTo(RegionDouble o) {
 		int startComparison = start.compareTo(start);
 
 		if (startComparison != 0) {
@@ -68,8 +68,8 @@ public class BpCoordRegionDouble implements Comparable<BpCoordRegionDouble> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof BpCoordRegionDouble) {
-			BpCoordRegionDouble other = (BpCoordRegionDouble) o;
+		if (o instanceof RegionDouble) {
+			RegionDouble other = (RegionDouble) o;
 			return start.equals(other.start) && end.equals(other.end);
 		}
 		return false;
