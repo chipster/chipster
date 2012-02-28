@@ -40,9 +40,13 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 		SAMDataSource file = null;
 		try {
 			
+			String dataPath = System.getProperty("user.home") + "/chipster/ohtu/";
+
+			File BAM_DATA_FILE = new File(dataPath + "ohtu-within-chr.bam");
+			File BAI_DATA_FILE = new File(dataPath + "ohtu-within-chr.bam.bai");
+
 			// Adjust these paths to point to the demo data			
-			file = new SAMDataSource(new File("/home/klemela/chipster/ohtu/ohtu-within-chr.bam"),
-					new File("/home/klemela/chipster/ohtu/ohtu-within-chr.bam.bai"));
+			file = new SAMDataSource(BAM_DATA_FILE, BAI_DATA_FILE);
 			
 			
 		} catch (FileNotFoundException e) {

@@ -78,8 +78,12 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 			 *  and adjust this paths correspondingly:
 			 */
 			
-			file = new CytobandDataSource(new File("/home/klemela/chipster/ohtu/rattus/karyotype.txt"), 
-					new File("/home/klemela/chipster/ohtu/rattus/seq_region.txt"));
+			String dataPath = System.getProperty("user.home") + "/chipster/ohtu/";
+
+			File CYTOBAND_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.cytobands.txt");
+			File CYTOBAND_REGION_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.seq_region.txt");
+			
+			file = new CytobandDataSource(CYTOBAND_FILE, CYTOBAND_REGION_FILE);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
