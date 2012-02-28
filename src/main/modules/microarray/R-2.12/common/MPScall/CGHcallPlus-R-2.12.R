@@ -19,7 +19,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         abline(h=0)
         for (j in 2:max(chrom))
-            abline(v=chrom.ends[j-1], lty=2)
+            abline(v=chrom.ends[j-1], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1, at=ax, labels=chrom.labels, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1)
         amps <- data[,3]
@@ -66,7 +66,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
             mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
         abline(h=0) 
         for (j in 2:max(chrom))
-            abline(v=chrom.ends[j-1], lty=2)
+            abline(v=chrom.ends[j-1], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1,at=ax,labels=chrom.labels,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
         for (jjj in (1:nrow(segment))) {
@@ -96,13 +96,19 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
 })
 
 setMethod("plot", signature(x="cghCall", y="missing"),
-function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
+function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol='blue', losscol='red', misscol=NA, build='GRCh37',... )
 {
     calls           <- calls(x)
     nsamples        <- ncol(x)
     if (!is.null(probamp(x))) nclass <- 4 else nclass     <- 3
     chrom           <- chromosomes(x)
-    chrom.labels    <- unique(chrom)
+    pos             <- bpstart(x)
+    pos2            <- bpend(x)
+    chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
+    for (j in 2:max(chrom)) {
+        pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
+        pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+    }
     nclone          <- length(chrom)
 
     for (i in 1:ncol(x)) {
@@ -123,12 +129,16 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
         segment         <- CGHbase:::.makeSegments(cbind(chromosomes(x), segmented(x)[,i]))
         
         widths          <- segment[,3] - segment[,2] + 1
-        #plot.data       <- unique(probsdraw)
-        plot.data <- probsdraw[segment[,2],]
         par(mar=c(5, 4, 4, 4) + 0.2)
         
         ### Plot the probability bars
-        barplot(t(plot.data), width=widths, border=F, space=0, col=c("red","white","blue"), las=1, cex.axis=1, cex.lab=1, xaxt="n")
+        plot(NA, xlim=c(0, max(pos2)), ylim=c(0,1), xlab=NA, ylab=NA, las=1, xaxs='i', xaxt='n', yaxs='i')
+        if (!is.na(misscol)) {
+            rect(0, -1, max(pos2), 1, col=misscol, border=NA)
+            rect(pos, -1, pos2, 1, col='white', border=NA)
+        }
+        rect(pos[segment[,2]], 0, pos2[segment[,3]], probsdraw[segment[,2],1], col=losscol, border=losscol)
+        rect(pos[segment[,2]], 1, pos2[segment[,3]], 1-probsdraw[segment[,2],3], col=gaincol, border=gaincol)
         
         lim <- par("usr")
         lim[3:4] <- ylimit
@@ -136,9 +146,10 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
         dticks <- seq(ylimit[1], ylimit[2], by=1)
         axis(4, at=dticks, labels=dticks, srt=270, las=1, cex.axis=1, cex.lab=1)
         if (lt > 0) {
-            axis(3,at=ticksamp, labels=FALSE, col = "blue", col.axis="black", srt=270, las=1, cex.axis=1, cex.lab=1)
-        }        
-        box()
+            axis(3,at=pos[ticksamp], labels=FALSE, col=gaincol, col.axis="black", srt=270, las=1, cex.axis=1, cex.lab=1)
+        }     
+        box()   
+        abline(h=0)
         
         ### Add axis labels
         mtext(ylab, side=4, line=3, srt=270)
@@ -146,26 +157,26 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
         mtext('chromosomes', side=1, line=3)
         
         #### add vert lines at chromosome ends
-        abline(h=0) 
-        for (iii in 1:length(cumsum(table(chrom)))) {
-            segments(cumsum(table(chrom))[[iii]], ylimit[1], cumsum(table(chrom))[[iii]], ylimit[2], lty=2)
-        }
-        
+        for (j in 2:max(chrom))
+            abline(v=chrom.ends[j-1], lty='dashed')
+
         title(sampleNames(x)[i])
         if (dotres != 1)
             mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
         
         ### Add log2ratios
-        whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
-        points(whichtoplot-.5,genomdat[whichtoplot],cex=.1)
+        if (dotres>0) {
+            whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
+            points(pos[whichtoplot],genomdat[whichtoplot],cex=.1)
+        }
         
         ### X-axis with chromosome labels
-        ax<-(cumsum(table(chrom))+c(0, cumsum(table(chrom))[-length(cumsum(table(chrom)))]))/2
-        axis(side=1, at=ax, labels=chrom.labels, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1) # bottom axis
+        ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
+        axis(side=1,at=ax,labels=unique(chrom),cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
             
-        ### Blue lines for segment means
+        ### segment means
         for (jjj in (1:nrow(segment)))
-        segments(segment[jjj,2], segment[jjj,1], segment[jjj,3], segment[jjj,1], col="chocolate", lwd=3)    
+            segments(pos[segment[jjj,2]], segment[jjj,1], pos[segment[jjj,3]], segment[jjj,1], col="chocolate", lwd=3)        
 
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
@@ -184,43 +195,78 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
 })
 
 setMethod("frequencyPlot", signature(x="cghCall", y="missing"),
-function (x, y, main='Frequency Plot', gaincol='blue', losscol='red',... )
+function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA, build='GRCh37',... )
 {
-  chromosomes <- chromosomes(x)
+  chrom <- chromosomes(x)
+  pos <- bpstart(x)
+  pos2 <- bpend(x)
+  chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
+  for (j in 2:max(chrom)) {
+    pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
+    pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+  }
   calls <- calls(x)
   loss.freq <- rowMeans(calls < 0)
   gain.freq <- rowMeans(calls > 0)
-  plot(gain.freq, ylim=c(-1,1), type='h', col=gaincol, xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
-  points(-loss.freq, type='h', col=losscol)
+  plot(NA, xlim=c(0, max(pos2)), ylim=c(-1,1), type='n', xlab='chromosomes', ylab='frequency', xaxs='i', xaxt='n', yaxs='i', yaxt='n', main=main,...)
+  if (!is.na(misscol)) {
+    rect(0, -1, max(pos2), 1, col=misscol, border=NA)
+    rect(pos, -1, pos2, 1, col='white', border=NA)
+  }
+  rect(pos, 0, pos2, gain.freq, col=gaincol, border=gaincol)
+  rect(pos, 0, pos2, -loss.freq, col=losscol, border=losscol)
+  box()
   abline(h=0)
-  abline(v=0, lty='dashed')
-  for(i in cumsum(table(chromosomes)))
-    abline(v=i, lty='dashed')
-  ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
-  axis(side=1, at=ax, labels=unique(chromosomes))
+  for (j in 2:max(chrom))
+    abline(v=chrom.ends[j-1], lty='dashed')
+  ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
+  axis(side=1,at=ax,labels=unique(chrom),cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
   mtext('gains', side=2, line=3, at=0.5)
   mtext('losses', side=2, line=3, at=-0.5)
+  ### number of data points
+  str <- paste(round(nrow(x) / 1000), 'k x ', sep='')
+  probe <- median(bpend(x)-bpstart(x)+1)
+  if (probe < 1000) {
+    str <- paste(str, probe, ' bp', sep='')
+  } else {
+    str <- paste(str, round(probe / 1000), ' kbp', sep='')
+  }
+  mtext(str, side=3, line=0, adj=0)
 })
 
 setMethod("frequencyPlot", signature(x="cghRegions", y="missing"),
-function (x, y, main='Frequency Plot', gaincol='blue', losscol='red',... )
+function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA, build='GRCh37',... )
 {
-  chromosomes <- rep(pData(featureData(x))[,'Chromosome'], x@featureData@data$Nclone)
-  calls <- regions(x)[rep(rownames(x@featureData@data), x@featureData@data$Nclone),]
+  chrom <- chromosomes(x)
+  pos <- bpstart(x)
+  pos2 <- bpend(x)
+  chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
+  for (j in 2:max(chrom)) {
+    pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
+    pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+  }
+  calls <- regions(x)
   loss.freq <- rowMeans(calls < 0)
   gain.freq <- rowMeans(calls > 0)
-  plot(gain.freq, ylim=c(-1,1), type='h', col=gaincol, xlab='chromosomes', ylab='frequency', xaxt='n', yaxt='n', main=main, ...)
-  points(-loss.freq, type='h', col=losscol)
+  plot(NA, xlim=c(0, max(pos2)), ylim=c(-1,1), type='n', xlab='chromosomes', ylab='frequency', xaxs='i', xaxt='n', yaxs='i', yaxt='n', main=main,...)
+  if (!is.na(misscol)) {
+    rect(0, -1, max(pos2), 1, col=misscol, border=NA)
+    rect(pos, -1, pos2, 1, col='white', border=NA)
+  }
+  rect(pos, 0, pos2, gain.freq, col=gaincol, border=gaincol)
+  rect(pos, 0, pos2, -loss.freq, col=losscol, border=losscol)
+  box()
   abline(h=0)
-  abline(v=0, lty='dashed')
-  for(i in cumsum(table(chromosomes)))
-    abline(v=i, lty='dashed')
-  ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
-  axis(side=1, at=ax, labels=unique(chromosomes))
+  for (j in 2:max(chrom))
+    abline(v=chrom.ends[j-1], lty='dashed')
+  ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
+  axis(side=1,at=ax,labels=unique(chrom),cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
   mtext('gains', side=2, line=3, at=0.5)
   mtext('losses', side=2, line=3, at=-0.5)
+  ### number of data points
+  mtext(paste(nrow(x), 'regions'), side=3, line=0, adj=0)
 })
 
 make_cghRawPlus <- function(input) {

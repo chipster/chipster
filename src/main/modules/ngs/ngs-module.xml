@@ -268,13 +268,19 @@
 			<resource>cna-bin-hits.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>cna-plot-profile.R</resource>
+			<resource>cna-pool-hits.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>cna-compare-to-reference.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>cna-define-experiment.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cna-segment-and-call-aberrations.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cna-plot-profile.R</resource>
 		</tool>
 	</category>
 
