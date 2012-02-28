@@ -52,9 +52,9 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
@@ -72,17 +72,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Sequen
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -989,22 +990,26 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// Find interpretations for all primary data types
 		for (DataBean data : datas) {
 
-			if (data.isContentTypeCompatitible("text/plain")) {
-				// ELAND result / export
-				interpretations.add(new Interpretation(TrackType.READS, data));
+			// accept only datasets that are tagged to contain "ordered genomic entities"
+			if (data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
+				
+				if (data.isContentTypeCompatitible("text/plain")) {
+					// ELAND result / export
+					interpretations.add(new Interpretation(TrackType.READS, data));
 
-			} else if (data.isContentTypeCompatitible("text/bed")) {
-				// BED (ChIP-seq peaks)
-				interpretations.add(new Interpretation(TrackType.REGIONS, data));
+				} else if (data.isContentTypeCompatitible("text/bed")) {
+					// BED (ChIP-seq peaks)
+					interpretations.add(new Interpretation(TrackType.REGIONS, data));
 
-			} else if (data.isContentTypeCompatitible("text/tab")) {
-				// peaks (with header in the file)
-				interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
+				} else if (data.isContentTypeCompatitible("text/tab")) {
+					// peaks (with header in the file)
+					interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().endsWith(".bam"))) {
-				// BAM file
-                interpretations.add(new Interpretation(TrackType.READS, data));
+				} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+						(data.getName().endsWith(".bam"))) {
+					// BAM file
+					interpretations.add(new Interpretation(TrackType.READS, data));
+				}
 			}
 		}
 		

@@ -560,7 +560,6 @@ public class MicroarrayModule implements Module {
 	@Override
 	public void addTypeTags(DataBean data) throws MicroarrayException, IOException {
 
-
 		if (data.isContentTypeCompatitible("application/cel")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		}
@@ -569,19 +568,9 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("text/bed")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 
-			// Check if it has title row
-			BufferedReader in = null;
-			try {
-				in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-				if (in.readLine().startsWith("track")) {
-					data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
-				}
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
-				IOUtils.closeIfPossible(in);
+			if (readFirstLine(data).startsWith("track")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
 			}
-
 		}
 
 
@@ -638,17 +627,39 @@ public class MicroarrayModule implements Module {
 		}
 
 		// Finally, set NGS related tags
-
-		if (data.isContentTypeCompatitible("text/plain", "text/bed", "text/tab") 
+		if (data.isContentTypeCompatitible("text/plain", "text/bed") 
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
 
 			data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+			
+		} else if (data.isContentTypeCompatitible("text/tab")) {
+			
+			// require .tsv to have columns for genomic coordinates
+			String line = readFirstLine(data); 
+			if (line.contains("chr") && line.contains("start") && line.contains("end")) { 
+				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+			}
+			
 		}
 
 	}
 	
+	private String readFirstLine(DataBean data) {
+
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+			return in.readLine();
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+
 	@Override
 	public Icon getIconFor(DataBean data) {
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA)) {
