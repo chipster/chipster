@@ -883,12 +883,7 @@ public class SwingClientApplication extends ClientApplication {
 		if (element instanceof DataFolder) {
 			return VisualConstants.ICON_TYPE_FOLDER;
 		} else {
-			DataBean bean = (DataBean) element;
-			if (bean.queryFeatures("/phenodata").exists()) {
-				return VisualConstants.ICON_TYPE_PHENODATA;
-			} else {
-				return bean.getContentType().getIcon();
-			}
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}
 	}
 

@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -80,6 +81,7 @@ public class MicroarrayModule implements Module {
 	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
+		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
 		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format (text or binary)");
 		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag("raw-expression-values", "");
 		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values", "must have columns following name pattern \"chip.*\"");
@@ -608,7 +610,7 @@ public class MicroarrayModule implements Module {
 
 		// Tag additional typing information
 		if (data.queryFeatures("/phenodata").exists()) {
-			data.addTypeTag(BasicModule.TypeTags.PHENODATA);
+			data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 		}
 
 		if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
@@ -646,5 +648,15 @@ public class MicroarrayModule implements Module {
 		}
 
 	}
+	
+	@Override
+	public Icon getIconFor(DataBean data) {
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA)) {
+			return VisualConstants.ICON_TYPE_PHENODATA;
+		} else {
+			return data.getContentType().getIcon();
+		}
+	}
+
 
 }

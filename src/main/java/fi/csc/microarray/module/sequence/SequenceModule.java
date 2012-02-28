@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -222,6 +223,11 @@ public class SequenceModule implements Module {
 	@Override
 	public void addTypeTags(DataBean data) {
 		// nothing to add
+	}
+	
+	@Override
+	public Icon getIconFor(DataBean data) {
+		return data.getContentType().getIcon();
 	}
 
 }

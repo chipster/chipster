@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -228,5 +229,13 @@ public interface Module {
 	 * @throws IOException 
 	 */
 	public void addTypeTags(DataBean data) throws MicroarrayException, IOException;
+
+	
+	/**
+	 * Returns icon for given data, depending on it's type and possibly content.
+	 * 
+	 * @return icon
+	 */
+	public Icon getIconFor(DataBean data);
 	
 }
