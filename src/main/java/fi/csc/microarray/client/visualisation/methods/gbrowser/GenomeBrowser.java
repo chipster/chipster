@@ -719,11 +719,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				if (track.checkBox.isSelected()) {
 					switch (track.interpretation.type) {
 					case CYTOBANDS:
-						TrackFactory.addCytobandTracks(plot,
-								createAnnotationDataSource(
-										annotationManager.getAnnotation(
-												genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl(), null));
-										//new CytobandParser()));
+//						TrackFactory.addCytobandTracks(plot,
+//								createAnnotationDataSource(
+//										annotationManager.getAnnotation(
+//												genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl(), null));
+//										//new CytobandParser()));
 						break;
 						
 					case GENES:
@@ -732,22 +732,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 						GenomeAnnotation snpRow = annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.SNP);
 						
-						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.GENES).getUrl(),
-										new GeneParser()),
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.TRANSCRIPTS).getUrl(),
-										new TranscriptParser()),
-								createAnnotationDataSource(annotationManager.getAnnotation(
-										genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(),
-										new SequenceParser()),
-								snpRow == null ? null : 
-									createAnnotationDataSource(annotationManager.getAnnotation(
-											genome, AnnotationManager.AnnotationType.SNP).getUrl(),
-											new SNPParser())
-								);
-						track.setTrackGroup(geneGroup);
+//						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
+//								createAnnotationDataSource(annotationManager.getAnnotation(
+//										genome, AnnotationManager.AnnotationType.GENES).getUrl(),
+//										new GeneParser()),
+//								createAnnotationDataSource(annotationManager.getAnnotation(
+//										genome, AnnotationManager.AnnotationType.TRANSCRIPTS).getUrl(),
+//										new TranscriptParser()),
+//								createAnnotationDataSource(annotationManager.getAnnotation(
+//										genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(),
+//										new SequenceParser()),
+//								snpRow == null ? null : 
+//									createAnnotationDataSource(annotationManager.getAnnotation(
+//											genome, AnnotationManager.AnnotationType.SNP).getUrl(),
+//											new SNPParser())
+//								);
+//						track.setTrackGroup(geneGroup);
 						break;
 
 					case REFERENCE:

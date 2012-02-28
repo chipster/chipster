@@ -34,6 +34,10 @@ public class PreviewManager {
 	protected static int PREVIEW_WIDTH = 1024;
 	protected static int PREVIEW_HEIGHT = 576;
 	protected static int PREVIEW_UPDATES = 20;
+	
+	public interface PreviewUpdateListener {
+		public void PreviewUpdated();
+	}
 
 	public class GBrowserPreview {
 
@@ -43,6 +47,7 @@ public class PreviewManager {
 		private GenomePlot plot;
 		private Timer previewTimer;
 		private int previewTimerCounter;
+		private List<PreviewUpdateListener> listeners = new LinkedList<PreviewUpdateListener>();
 		
 		private File bamData;
 		private File bamIndex;
@@ -136,6 +141,8 @@ public class PreviewManager {
 										g2.clearRect(0, 0, PREVIEW_WIDTH, PREVIEW_HEIGHT);
 
 										plot.draw(g2, g2.getClipBounds(), null, null, null);
+										
+										previewUpdated();
 									}
 
 									previewTimerCounter++;					
@@ -173,7 +180,7 @@ public class PreviewManager {
 			return panel;
 		}
 		
-		public JComponent getSplitJComponent(GBrowserPreview other) {
+		private JComponent getSplitJComponent(GBrowserPreview other) {
 					
 			JComponent thisComponent = panel;
 			JComponent otherComponent = other.getJComponent();
@@ -182,20 +189,32 @@ public class PreviewManager {
 			
 			JPanel left = new JPanel(new BorderLayout());
 			JPanel right = new JPanel(new BorderLayout());
-			
+						
 			left.add(thisComponent, BorderLayout.CENTER);
 			right.add(otherComponent, BorderLayout.CENTER);
 			
-			
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+			
 			split.setLeftComponent(left);
 			split.setRightComponent(right);
 	
-			split.setResizeWeight(0.5);			
+			split.setResizeWeight(0.5);
+			
+			//FIXME ugly hack to avoid some update problems
+			Timer timer = new Timer(100, new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					panel.getParent().getParent().repaint();
+				}
+			});
+			timer.setRepeats(false);
+			timer.start();
+			
 			return split;
 		}
 
-		public void showFrame() {
+		public JFrame showFrame() {
 			initIfNeeded();
 
 			if (frame == null) {
@@ -207,19 +226,18 @@ public class PreviewManager {
 			}
 
 			frame.setVisible(true);
+			
+			return frame;
 		}
 		
-		public void showSplitFrame(GBrowserPreview other) {
+		private JFrame showSplitFrame(GBrowserPreview other) {
 
-			if (frame == null) {
-				frame = new JFrame();
-				frame.add(getSplitJComponent(other));
-				frame.pack();
-
-				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-			}
-
+			JFrame frame = new JFrame();
+			frame.add(getSplitJComponent(other));
+			frame.pack();
+			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			frame.setVisible(true);
+			return frame;
 		}
 
 		private void clean() {
@@ -260,6 +278,20 @@ public class PreviewManager {
 				System.exit(1);
 			}
 		}
+		
+		public void addPreviewUpdateListener(PreviewUpdateListener l) {
+			listeners.add(l);
+		}
+		
+		public void removePreviewUpdateListener(PreviewUpdateListener l) {
+			listeners.remove(l);
+		}
+		
+		private void previewUpdated() {
+			for (PreviewUpdateListener l : listeners) {
+				l.PreviewUpdated();
+			}
+		}
 	}
 	
 	private List<GBrowserPreview> previews = new LinkedList<GBrowserPreview>();
@@ -276,5 +308,13 @@ public class PreviewManager {
 
 		previews.remove(preview);
 		preview.clean();
+	}
+	
+	public JComponent getSplitJComponent(GBrowserPreview first, GBrowserPreview second) {
+		return second.getSplitJComponent(first);
+	}
+	
+	public JFrame showSplitFrame(GBrowserPreview first, GBrowserPreview second) {
+		return second.showSplitFrame(first);
 	}
 }

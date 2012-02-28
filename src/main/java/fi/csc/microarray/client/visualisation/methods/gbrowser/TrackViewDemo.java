@@ -19,16 +19,57 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.PreviewManager.GBrowserPreview;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.PreviewManager.PreviewUpdateListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
+/**
+ * Example class to demonstrate and test PreviewManager. Contains lot of GUI code, but the relevant 
+ * parts of the PreviewManager are quite simple:
+ * 
+ * First preview has to created:
+ * 		public  GBrowserPreview createPreview(Region region, File bamData, File bamIndex, File cytobandData, File cytobandRegions, File gtfAnnotation)
+	
+	When you have created the GBrowserPreview object with the method above, you set it to show
+	correct location in data:
+		public void setRegion(Region region);
+		
+	Get the image of the visualisation (image is buffered, so this can be called often, e.g. on every
+	frame):	
+		public BufferedImage getPreview();
+		
+	Or the actual Swing component: 
+		public JComponent getJComponent();
+		
+	If you can't use the Swing component directly, you can open it to new window:
+		public JFrame showFrame();
+	Make sure that you keep the returned JFrame object, if you need programmable access to that
+	frame later.
+	
+	If you wan't to be notified when preview is updated, there is possibility to add listener:
+		public void addPreviewUpdateListener(PreviewUpdateListener l);
+		public void removePreviewUpdateListener(PreviewUpdateListener l);
+	However, the previews don't currently know when the actual visualisation updates, but just
+	execute fixed number of updates with fixed timer delay.
+
+	Two visualisation can be opened side by side with either of following methods:
+		public JComponent getSplitJComponent(GBrowserPreview first, GBrowserPreview second);
+		public JFrame showSplitFrame(GBrowserPreview first, GBrowserPreview second);
+ * 
+ *  And finally useless visualisation should be removed with the following:
+ * 		public void removePreview(GBrowserPreview preview);	
+ *  However, currently there is a huge memory leak, around 100 megabytes per visualisation.
+
+ * 
+ * @author klemela
+ *
+ */
 public class TrackViewDemo extends JFrame implements ActionListener, ChangeListener{
 
 	private static final File BAM_DATA_FILE;
@@ -47,6 +88,8 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 		BAI_DATA_FILE = new File(dataPath + "ohtu-within-chr.bam.bai");
 		CYTOBAND_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.cytobands.txt");
 		CYTOBAND_REGION_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.seq_region.txt");
+		
+//ftp://ftp.ensembl.org/pub/release-65/gtf/homo_sapiens/Homo_sapiens.GRCh37.65.gtf.gz
 		GTF_ANNOTATION_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.gtf");
 	}
 
@@ -83,9 +126,9 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 		locationLabel = new JLabel();
 		sizeLabel = new JLabel();
 
-		chrSlider = new JSlider(1, 20);
-		locationSlider = new JSlider(1, 270000000); //about the size of the biggest chromosomes
-		sizeSlider = new JSlider(1, 1000000);
+		chrSlider = new JSlider(1, 20, 1);
+		locationSlider = new JSlider(1, 270000000, 52030000); //about the size of the biggest chromosomes, just some interesting location
+		sizeSlider = new JSlider(1, 1000000, 10000);
 		goButton = new JButton("Go");
 
 		this.stateChanged(null); //Init JLabels
@@ -145,11 +188,10 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 
 	private PreviewButton selection;
 
-	class PreviewButton extends JButton implements ActionListener, MouseListener {
+	class PreviewButton extends JButton implements MouseListener, PreviewUpdateListener {
 
 		private GBrowserPreview preview;
 		private TrackViewDemo parent;
-		private Timer timer;
 
 		public PreviewButton(GBrowserPreview preview, TrackViewDemo parent) {
 
@@ -159,21 +201,9 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 			this.preview = preview;
 			this.parent = parent;
 
-			timer = new Timer(500, this);
-			timer.start();				
+			preview.addPreviewUpdateListener(this);	
 
-			this.addActionListener(this);
 			this.addMouseListener(this);
-		}
-		
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			//timer
-			setIcon(new ImageIcon(preview.getPreview().getScaledInstance(64, 40, 0)));
-
-//			System.out.println("Memory usage: " + (Runtime.getRuntime().totalMemory() -
-//					Runtime.getRuntime().freeMemory())/1000000 + " Mb");
 		}
 		
 		private void showVisualization(JComponent component) {
@@ -193,9 +223,7 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 				showVisualization(null);
 				previewManager.removePreview(preview);
 
-				timer.stop();
-				timer.removeActionListener(this);
-				timer = null;
+				preview.removePreviewUpdateListener(this);
 				
 				Container parent = this.getParent();
 				parent.remove(this);
@@ -213,7 +241,7 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 					} else {
 						selection.setBorder(null);
 						showVisualization(null);
-						showVisualization(preview.getSplitJComponent(selection.preview));
+						showVisualization(previewManager.getSplitJComponent(preview, selection.preview));
 					}
 				} else {
 					if (selection != null) {
@@ -228,7 +256,7 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 				if (e.isControlDown()) {
 					if (selection != null) {
 						selection.setBorder(null);
-						preview.showSplitFrame(selection.preview);
+						previewManager.showSplitFrame(preview, selection.preview);
 					}
 				} else {
 					preview.showFrame();
@@ -251,6 +279,11 @@ public class TrackViewDemo extends JFrame implements ActionListener, ChangeListe
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
 
+		}
+
+		@Override
+		public void PreviewUpdated() {
+			setIcon(new ImageIcon(preview.getPreview().getScaledInstance(64, 40, 0)));
 		}
 	}
 
