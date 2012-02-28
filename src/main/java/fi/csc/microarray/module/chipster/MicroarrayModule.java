@@ -627,7 +627,7 @@ public class MicroarrayModule implements Module {
 		}
 
 		// Finally, set NGS related tags
-		if (data.isContentTypeCompatitible("text/plain", "text/bed") 
+		if (data.isContentTypeCompatitible("text/bed") 
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
 				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
