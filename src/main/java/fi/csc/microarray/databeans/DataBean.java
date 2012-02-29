@@ -123,7 +123,7 @@ public class DataBean extends DataItemBase {
 	}
 
 	protected DataManager dataManager;
-	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
+	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
 	private URL cacheUrl = null;
 	private boolean contentChanged = true;
@@ -339,7 +339,7 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
+	 * Puts named object to content bound cache. Content bound cache is a hashmap type cache where 
 	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
 	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
 	 * and generally, user should never assume cached values to be found.  
@@ -347,8 +347,8 @@ public class DataBean extends DataItemBase {
 	 *	FIXME think about locking
 	 *
 	 */
-	public void putToContentCache(String name, Object value) {
-		this.contentCache.put(name, value);
+	public void putToContentBoundCache(String name, Object value) {
+		this.contentBoundCache.put(name, value);
 	}
 
 
@@ -360,54 +360,44 @@ public class DataBean extends DataItemBase {
 	 * @param name
 	 * @return
 	 */
-	public Object getFromContentCache(String name) {
-		try {
-//			this.lock.readLock().lock();
-	
-			return this.contentCache.get(name);
-		} finally {
-//			this.lock.readLock().unlock();
-		}
+	public Object getFromContentBoundCache(String name) {
+		return this.contentBoundCache.get(name);
 	}
 
 
-
-	/** 
-	 * FIXME Think about locking.
-	 */
-	protected void resetContentCache() {
-		this.contentCache.clear();
+	protected void resetContentBoundCache() {
+		this.contentBoundCache.clear();
 	}
 	
 	/**
-		 * Creates a link between this and target bean. Links represent relationships
-		 * between beans. Links have hardcoded types.
-		 * 
-		 * @see Link
-		 */
-		public void addLink(Link type, DataBean target) {
-			if (target == null) {
-				return;
-			}		
-			
-			// FIXME add more internal state validation to FSDataBean
-	//		for (LinkedBean linkedBean : outgoingLinks) {
-	//			if (linkedBean.bean == target && linkedBean.link == type) {
-	//				throw new RuntimeException("duplicate link");
-	//			}
-	//		}
-	
-			// make both parties aware of the link
-			target.incomingLinks.add(new LinkedBean(type, this));
-			outgoingLinks.add(new LinkedBean(type, target));
-	
-			// dispatch events only if both visible
-			if (this.getParent() != null && target.getParent() != null) {
-				LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
-				dataManager.dispatchEvent(lce);
-			}
-	
+	 * Creates a link between this and target bean. Links represent relationships
+	 * between beans. Links have hardcoded types.
+	 * 
+	 * @see Link
+	 */
+	public void addLink(Link type, DataBean target) {
+		if (target == null) {
+			return;
+		}		
+
+		// FIXME add more internal state validation to FSDataBean
+		//		for (LinkedBean linkedBean : outgoingLinks) {
+		//			if (linkedBean.bean == target && linkedBean.link == type) {
+		//				throw new RuntimeException("duplicate link");
+		//			}
+		//		}
+
+		// make both parties aware of the link
+		target.incomingLinks.add(new LinkedBean(type, this));
+		outgoingLinks.add(new LinkedBean(type, target));
+
+		// dispatch events only if both visible
+		if (this.getParent() != null && target.getParent() != null) {
+			LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
+			dataManager.dispatchEvent(lce);
 		}
+
+	}
 
 
 
@@ -656,12 +646,17 @@ public class DataBean extends DataItemBase {
 
 	/**
 	 * Set content changed status. Should be called with true every time
-	 * content is changed.
+	 * content is changed. Resets content bound cache is set to true.
 	 * 
 	 * FIXME Think about locking.
 	 * @param contentChanged
 	 */
 	public void setContentChanged(boolean contentChanged) {
+		
+		if (contentChanged) {
+			resetContentBoundCache();
+		}
+		
 		this.contentChanged = contentChanged;
 	}
 
