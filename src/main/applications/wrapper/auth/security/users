@@ -1,6 +1,8 @@
+# User accounts
+# 
+# One user per line, format as follows: 
 #
+# username:password:expiration date (yyyy-mm-dd):comment
 #
-#
-#
-#
-chipster:chipster::This is just a test account
+chipster:chipster::Default user
+guest:guest::Guest user, not allowed to run tasks
