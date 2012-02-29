@@ -737,7 +737,7 @@ public class SwingClientApplication extends ClientApplication {
 						data.setOperationRecord(new OperationRecord(importOperation));
 
 						// data is ready now, make it visible
-						folder.addChild(data);
+						manager.connectChild(data, folder);
 
 						// Create group links only if both datas are raw type
 						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
@@ -883,12 +883,7 @@ public class SwingClientApplication extends ClientApplication {
 		if (element instanceof DataFolder) {
 			return VisualConstants.ICON_TYPE_FOLDER;
 		} else {
-			DataBean bean = (DataBean) element;
-			if (bean.queryFeatures("/phenodata").exists()) {
-				return VisualConstants.ICON_TYPE_PHENODATA;
-			} else {
-				return bean.getContentType().getIcon();
-			}
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}
 	}
 

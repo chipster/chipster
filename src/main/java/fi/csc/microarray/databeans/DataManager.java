@@ -35,6 +35,7 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -58,7 +59,6 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
-	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
@@ -69,6 +69,7 @@ public class DataManager {
 
 	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
 	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	private LinkedList<Module> modules;
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -116,7 +117,7 @@ public class DataManager {
 	 */
 	public DataFolder createFolder(DataFolder root, String name) {
 		DataFolder folder = new DataFolder(this, name);
-		root.addChild(folder); // events are dispatched from here
+		connectChild(folder, root); // events are dispatched from here
 		return folder;
 	}
 
@@ -656,7 +657,7 @@ public class DataManager {
 		// remove bean
 		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(bean);
+			disconnectChild(bean, folder);
 		}
 		
 		// remove physical file
@@ -790,7 +791,7 @@ public class DataManager {
 		// remove this folder (unless root)
 		DataFolder parent = folder.getParent();
 		if (parent != null) {
-			parent.removeChild(folder);
+			disconnectChild(folder, parent);
 		}
 	}
 	
@@ -806,14 +807,6 @@ public class DataManager {
 				return npf;
 			}
 		}
-	}
-
-	public void plugTypeTag(TypeTag typeTag) {
-		this.tagMap.put(typeTag.getName(), typeTag);
-	}
-	
-	public TypeTag getTypeTag(String name) {
-		return this.tagMap.get(name);
 	}
 
 	public Iterable<File> listAllRepositories() {
@@ -840,4 +833,59 @@ public class DataManager {
 	public void flushSession() {
 		zipDataBeanHandler.closeZipFiles();
 	}
+
+	public void setModules(LinkedList<Module> modules) {
+		this.modules = modules;
+	}
+	
+	public void connectChild(DataItem child, DataFolder parent) {
+
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+
+		// connect to this
+		child.setParent(parent);
+
+		// add
+		parent.children.add(child);
+
+		// add type tags to data beans
+		if (child instanceof DataBean) {
+			try {
+				addTypeTags((DataBean) child);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// dispatch events if needed
+		if (!wasConnected) {
+			dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void disconnectChild(DataItem child, DataFolder parent) {
+		// remove connections
+		child.setParent(null);
+
+		// remove
+		parent.children.remove(child);
+
+		// dispatch events
+		dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+
+	public void addTypeTags(DataBean data) throws IOException {
+
+		for (Module module : modules) {
+			try {
+				module.addTypeTags(data);
+				
+			} catch (MicroarrayException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 }

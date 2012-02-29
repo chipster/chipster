@@ -9,11 +9,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.TestConstants;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -26,15 +26,6 @@ public class FeatureTest {
 		DirectoryLayout.initialiseUnitTestLayout();
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
-	}
-
-	@Test(groups = {"unit"} )
-	public void testEmbeddedBinary() throws IOException, MicroarrayException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		DataBean binAffyMicroarray = manager.createDataBean("bin_affy.cel", new FileInputStream(TestConstants.BIN_AFFY_RESOURCE));
-		
-		Assert.assertFalse(affyMicroarray.queryFeatures("/embedded-binary-content/").exists());
-		Assert.assertTrue(binAffyMicroarray.queryFeatures("/embedded-binary-content/").exists());
 	}
 
 	@Test(groups = {"unit"} )
@@ -70,17 +61,6 @@ public class FeatureTest {
 		QueryResult doubleFeature = affyMicroarray.queryFeatures("log(log(/normalised-expression))");
 		Assert.assertTrue(doubleFeature.exists());
 
-	}
-	
-	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		new FeatureTest().testRowCount();
-	}
-
-	@Test(groups = {"unit"} )
-	public void testRowCount() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/10").asFloat(), 10f);
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/1000000").asFloat(), 15876f);
 	}
 	
 	@Test(groups = {"unit"} )

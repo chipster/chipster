@@ -41,10 +41,10 @@ public class FSDataEventTest implements DataChangeListener {
 		bean1.addLink(Link.DERIVATION, bean2);
 		assertNoEvent();
 		
-		manager.getRootFolder().addChild(bean1);
+		manager.connectChild(bean1, manager.getRootFolder());
 		assertDataCreatedEvent();
 		
-		manager.getRootFolder().addChild(bean2);
+		manager.connectChild(bean2, manager.getRootFolder());
 		assertDataCreatedEvent();
 		
 		bean1.addLink(Link.ANNOTATION, bean2);
@@ -53,7 +53,7 @@ public class FSDataEventTest implements DataChangeListener {
 		bean1.setName("My nice bean.txt");
 		assertContentChangedEvent();
 		
-		manager.getRootFolder().removeChild(bean2);
+		manager.disconnectChild(bean2, manager.getRootFolder());
 		assertDataRemovedEvent();
 		
 	}

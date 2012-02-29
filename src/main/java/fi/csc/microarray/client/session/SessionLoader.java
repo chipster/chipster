@@ -319,7 +319,7 @@ public class SessionLoader {
 			}
 
 			// add as a child
-			parent.addChild(child);
+			dataManager.connectChild(child, parent);
 			
 			// recursively go inside folders
 			if (child instanceof DataFolder) {
