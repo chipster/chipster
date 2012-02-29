@@ -1,11 +1,11 @@
 # TOOL dea-deseq-RNA.R: "Differential expression analysis using DESeq" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the DESeq algorithm.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
-# OUTPUT OPTIONAL de-list.tsv
-# OUTPUT OPTIONAL de-list.bed
-# OUTPUT OPTIONAL ma-plot.pdf
-# OUTPUT OPTIONAL dispersion-plot.pdf
-# OUTPUT OPTIONAL p-value-plot.pdf
+# OUTPUT OPTIONAL de-list-deseq.tsv
+# OUTPUT OPTIONAL de-list-deseq.bed
+# OUTPUT OPTIONAL ma-plot-significant-deseq.pdf
+# OUTPUT OPTIONAL dispersion-plot-deseq.pdf
+# OUTPUT OPTIONAL p-value-plot-deseq.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on estimated library size is calculated.)
 # PARAMETER replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (In order to estimate the biological and experimental variability of the data in one experiment it is necessary to have independent biological replicates of each experiment condition. However, for various reasons, biological replicates may be available for only one of the conditions or not available at all. In the former scenario, DESeq will estimate variability using the replicates of the single condition for which they are available. It is important to note that this is only an approximation and the reliability of results may suffer as a consequence. In the case where there are no replicates at all the variance is estimated by assuming the single samples from the different conditions to be replicates. The approximation will be even less reliable and results affected accordingly.)
@@ -114,7 +114,7 @@ plotDispEsts <- function(cds) {
 }
 
 # Make dispersion plot
-pdf(file="dispersion-plot.pdf")
+pdf(file="dispersion-plot-deseq.pdf")
 plotDispEsts(counts_data)
 dev.off()
 
@@ -122,7 +122,7 @@ dev.off()
 results_table <- nbinomTest(counts_data, group_levels[2], group_levels[1] )
 
 # Merge with original data table
-output_table <- cbind (dat2, results_table[,-1])
+output_table <- cbind (dat, results_table[,-1])
 
 # Adjust p-values
 output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
@@ -138,11 +138,20 @@ significant_table <- significant_table[ order(significant_table$pval), ]
 
 # Output the table
 if (dim(significant_table)[1] > 0) {
-	write.table(significant_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+}
+
+# Also output a bed graph file for visualization and region matching tools
+if (dim(significant_table)[1] > 0) {
+	empty_column <- character(length(significant_table[1]))
+	bed_output <- significant_table [,c("chr","start","end")]
+	bed_output <- cbind(bed_output,empty_column)
+	bed_output <- cbind(bed_output, significant_table[,"log2FoldChange"])
+	write.table(bed_output, file="de-list-deseq.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution
-pdf (file="p-value-plot.pdf")
+pdf (file="p-value-plot-deseq.pdf")
 hist(output_table$pval, breaks=100, col="blue",
 		border="slateblue", freq=FALSE,
 		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
@@ -158,13 +167,14 @@ dev.off()
 plotDE <- function(res)
 	plot(res$baseMean, res$log2FoldChange,
 			log="x", pch=20, cex=.25, col = ifelse( res$padj < p.value.cutoff, "red", "black"),
-			main="MA plot", xlab="mean counts", ylab="log2(fold change)") 
+			main="MA plot for significantly\ndifferentially expressed sequence tags", xlab="mean counts", ylab="log2(fold change)") 
 
 # Make MA-plot
-pdf(file="ma-plot.pdf")
+pdf(file="ma-plot-significant-deseq.pdf")
 plotDE(results_table)
-legend (x="topleft", legend=c("significant features","not significant"), col=c("red","black"),
+legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 		cex=1, pch=19)
+abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 dev.off()
 
 # EOF
