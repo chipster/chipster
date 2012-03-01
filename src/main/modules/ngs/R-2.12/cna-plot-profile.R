@@ -4,10 +4,10 @@
 # OUTPUT cna-profile.pdf: "Copy number profile"
 # PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-02-28
+# 2012-03-01
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -71,6 +71,22 @@ cn <- as.matrix(dat[,grep("^copynumber\\.", names(dat))])
 ratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 
+.getCumulativeChromosomeEnds <- function(build) {
+    build <- as.integer(gsub('[^0-9]', '', build))
+    if (build == 34 || build == 16) {
+       chromosome.sizes <- c(246127941, 243615958, 199344050, 191731959, 181034922, 170914576, 158545518, 146308819, 136372045, 135037215, 134482954, 132078379, 113042980, 105311216, 100256656, 90041932, 81860266, 76115139, 63811651, 63741868, 46976097, 49396972, 153692391, 50286555)
+    } else if (build == 35 || build == 17) {
+       chromosome.sizes <- c(245522847, 243018229, 199505740, 191411218, 180857866, 170975699, 158628139, 146274826, 138429268, 135413628, 134452384, 132449811, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49554710, 154824264, 57701691)
+    } else if (build == 36 || build == 18) {
+       chromosome.sizes <- c(247249719, 242951149, 199501827, 191273063, 180857866, 170899992, 158821424, 146274826, 140273252, 135374737, 134452384, 132349534, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
+    } else {
+       chromosome.sizes <- c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566)
+    }
+    for (i in 2:length(chromosome.sizes))
+      chromosome.sizes[i] <- chromosome.sizes[i] + chromosome.sizes[i-1]
+    chromosome.sizes
+}
+
 plot.freec <- 
 function (x, i, dotres=1, ploidy=2, ylab='copy number', build="GRCh37",... )
 {
@@ -85,9 +101,9 @@ function (x, i, dotres=1, ploidy=2, ylab='copy number', build="GRCh37",... )
     for (j in 2:max(chrom))
         pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
     # for (i in colnames(cn)) {
-        plot(pos[whichtoplot], ploidy*ratios[whichtoplot,i], cex=.1, main=i, ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i", col='dimgray')
+        plot(pos[whichtoplot], ploidy*ratios[whichtoplot,i], cex=.1, main=phenodata$description[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i", col='dimgray')
         if (dotres != 1)
-            mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
+            mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         # abline(h=ploidy)
         for (j in 2:max(chrom))
             abline(v=chrom.ends[j-1], lty='dashed')
@@ -121,9 +137,9 @@ function (x, i, dotres=1, ploidy=2, ylab='copy number', build="GRCh37",... )
 pdf(file='cna-profile.pdf', paper='a4r', width=0, height=0)
 for (sample in samples.to.plot)
   if (0 %in% chrs.to.plot) {
-    plot(cgh[,sample], dotres=1/resolution)
+    plot.freec(dat, sample, dotres=1/resolution)
   } else {
-    plot(cgh[chromosomes(cgh) %in% chrs.to.plot, sample], dotres=1/resolution)
+    plot.freec(dat[chromosomes(cgh) %in% chrs.to.plot,], sample, dotres=1/resolution)
   }
 dev.off()
 

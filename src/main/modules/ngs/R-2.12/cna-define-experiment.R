@@ -8,7 +8,7 @@
 # PARAMETER min.mappability: "Mimimum mappability" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0 (The bins with lower mappability will be removed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-02-28
+# 2012-03-01
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -23,9 +23,8 @@ if (counts == 'count') {
 filenames <- list.files(pattern='^binned-hits-[0-9]*\\.tsv$')
 
 dat <- read.table(filenames[1], header=TRUE, sep='\t', row.names=1, colClasses=colClasses1)
-dat[,4] <- dat[,4] - min(dat[,4], na.rm=TRUE) + 1 # to prevent negative values
-dat[,4] <- log2(dat[,4])
-dat <- data.frame(bin=1:nrow(dat), dat)
+if (log2 == 'yes')
+  dat[,4] <- log2(dat[,4] - min(dat[,4], na.rm=TRUE) + 1) # to prevent negative values
 
 if (length(filenames) > 1) {
   for (i in 2:length(filenames)) {
@@ -37,6 +36,11 @@ if (length(filenames) > 1) {
     dat <- cbind(dat, x[,1])
   }
 }
+
+identifiers <- gsub('tsv$', '', filenames)
+identifiers <- gsub('\\.', '', identifiers)
+identifiers <- gsub('-', '', identifiers)
+colnames(dat)[-(1:3)] <- paste('chip.', identifiers, sep='')
 
 if (min.mappability > 0) {
   mappability <- read.table(file.path(chipster.tools.path, 'MPScall', genome.build, paste('mappability.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE, colClasses=c('character', 'integer', 'integer', 'numeric'))
@@ -54,7 +58,7 @@ if (normalization != 'none') {
   cgh.nor <- normalize(cgh.pre, method=normalization)
 
   dat2 <- data.frame(cgh.nor@featureData@data, round(copynumber(cgh.nor), digits=2))
-  colnames(dat2) <- c('chromosome', 'start', 'end', sprintf('chip.microarray%.3i', 1:length(filenames)))
+  colnames(dat2) <- c('chromosome', 'start', 'end', paste('chip.', identifiers, sep=''))
 
   dat2$chromosome <- as.character(dat2$chromosome)
   dat2$chromosome[dat2$chromosome=='23'] <- 'X'

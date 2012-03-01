@@ -250,7 +250,7 @@
 			<resource>cna-bin-hits.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>cna-pool-hits.R</resource>
+			<resource>cna-pool-bins.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>cna-compare-to-reference.R</resource>

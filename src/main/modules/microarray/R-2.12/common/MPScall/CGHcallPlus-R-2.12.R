@@ -63,7 +63,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
         plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         if (dotres != 1)
-            mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
+            mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         abline(h=0) 
         for (j in 2:max(chrom))
             abline(v=chrom.ends[j-1], lty='dashed')
@@ -162,7 +162,7 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol
 
         title(sampleNames(x)[i])
         if (dotres != 1)
-            mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
+            mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         
         ### Add log2ratios
         if (dotres>0) {
