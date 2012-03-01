@@ -70,6 +70,8 @@ calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
 cn <- as.matrix(dat[,grep("^copynumber\\.", names(dat))])
 ratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
+ratios <- 2^ratios
+segmented <- 2^segmented
 
 .getCumulativeChromosomeEnds <- function(build) {
     build <- as.integer(gsub('[^0-9]', '', build))

@@ -17,6 +17,8 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
         plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
+        if (dotres != 1)
+            mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         abline(h=0)
         for (j in 2:max(chrom))
             abline(v=chrom.ends[j-1], lty='dashed')
@@ -238,9 +240,9 @@ function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA
 setMethod("frequencyPlot", signature(x="cghRegions", y="missing"),
 function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA, build='GRCh37',... )
 {
-  chrom <- chromosomes(x)
-  pos <- bpstart(x)
-  pos2 <- bpend(x)
+  chrom <- x@featureData@data$Chromosome
+  pos <- x@featureData@data$Start
+  pos2 <- x@featureData@data$End
   chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
   for (j in 2:max(chrom)) {
     pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]

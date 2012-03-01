@@ -77,8 +77,12 @@ cn <- as.matrix(cn[o,])
 calls <- as.matrix(calls[o,])
 colnames(ratios) <- colnames(segmented) <- colnames(cn) <- colnames(calls) <- colnames(input)[-(1:3)]
 
-ratios[ratios==-1] <- NA
-segmented[segmented==-1] <- NA
+ratios[ratios == -1] <- NA
+segmented[segmented == -1] <- NA
+ratios <- log2(ratios)
+segmented <- log2(segmented)
+ratios[ratios == -10] <- NA # or NA
+segmented[segmented == -10] <- NA # or NA
 
 identifiers <- sub('^chip\\.', '', colnames(ratios))
 colnames(segmented) <- paste('segmented.', identifiers, sep='')
@@ -158,9 +162,6 @@ dev.off()
 #segmented <- as.matrix(segmented[remove==0,])
 #cn <- as.matrix(cn[remove==0,])
 #calls <- as.matrix(calls[remove==0,])
-
-#ratios <- log2(ratios)
-#segmented <- log2(segmented)
 
 #probloss <- calls==-1
 #probnorm <- calls== 0

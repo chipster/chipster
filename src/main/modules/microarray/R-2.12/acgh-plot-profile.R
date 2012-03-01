@@ -4,11 +4,11 @@
 # OUTPUT cgh-profile.pdf: cgh-profile.pdf 
 # PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-13
+# 2012-03-01
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -55,16 +55,24 @@ probnorm <- as.matrix(dat[,grep("probnorm", names(dat))])
 probgain <- as.matrix(dat[,grep("probgain", names(dat))])
 probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
-if (ncol(segmented) == 0) {
+if (ncol(segmented) == 0) { # no segments
   cgh <- new('cghRaw', copynumber=copynumber, featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
-} else if (ncol(calls) == 0) {
+} else if (ncol(calls) == 0) { # segments, but no calls
   cgh <- new('cghSeg', assayData=assayDataNew(copynumber=copynumber, segmented=segmented), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
-} else if (ncol(probamp) == 0) {
+} else if (ncol(probnorm) == 0) { # calls, but no probabilities
+  probloss <- calls == -1
+  probnorm <- calls ==  0
+  probgain <- calls ==  1
   cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
-} else {
+} else if (ncol(probamp) == 0) { # probabilities, but not for amplifications
+  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+} else { # probabilities even for amplifications
   cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 }
 sampleNames(cgh) <- phenodata$description
+
+remove <- rowSums(is.na(copynumber)) + rowSums(is.na(segmented))
+cgh <- cgh[remove == 0,]
 
 # parse chromosomes to be plotted
 chromosomes <- gsub('X', '23', chromosomes, ignore.case=TRUE)

@@ -12,17 +12,18 @@
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
-if (counts == 'count') {
-  colClasses1 <- c('character', 'character', 'integer', 'integer', 'numeric', 'NULL')
-  colClasses2 <- c('character', 'NULL', 'NULL', 'NULL', 'numeric', 'NULL')
-} else {
-  colClasses1 <- c('character', 'character', 'integer', 'integer', 'NULL', 'numeric')
-  colClasses2 <- c('character', 'NULL', 'NULL', 'NULL', 'NULL', 'numeric')
-}
+colClasses1 <- c('character', 'character', 'integer', 'integer', 'numeric', 'numeric')
+colClasses2 <- c('character', 'NULL', 'NULL', 'NULL', 'numeric', 'numeric')
 
 filenames <- list.files(pattern='^binned-hits-[0-9]*\\.tsv$')
 
 dat <- read.table(filenames[1], header=TRUE, sep='\t', row.names=1, colClasses=colClasses1)
+total.reads <- sum(dat[,4], na.rm=TRUE)
+if (count == 'corrected') {
+  dat[,4] <- NULL
+} else {
+  dat[,5] <- NULL
+}
 if (log2 == 'yes')
   dat[,4] <- log2(dat[,4] - min(dat[,4], na.rm=TRUE) + 1) # to prevent negative values
 
@@ -31,6 +32,12 @@ if (length(filenames) > 1) {
     x <- read.table(filenames[i], header=TRUE, sep='\t', row.names=1, colClasses=colClasses2)
     if (nrow(x) != nrow(dat))
       stop("CHIPSTER-NOTE: All input files need to be binned using the same bin size.")
+    total.reads <- c(total.reads, sum(dat[,1], na.rm=TRUE))
+    if (count == 'corrected') {
+      dat[,1] <- NULL
+    } else {
+      dat[,2] <- NULL
+    }
     if (log2 == 'yes')
       x[,1] <- log2(x[,1] - min(x[,1], na.rm=TRUE) + 1) # to prevent negative values
     dat <- cbind(dat, x[,1])
@@ -69,7 +76,7 @@ if (normalization != 'none') {
 
 # generate phenodata
 
-phenodata <- data.frame(sample=filenames, chiptype='not applicable', experiment='cna_seq', group='', stringsAsFactors=FALSE) # description?
+phenodata <- data.frame(sample=filenames, chiptype='not applicable', experiment='cna_seq', reads=total.reads, group='', stringsAsFactors=FALSE)
 
 # write outputs
 
