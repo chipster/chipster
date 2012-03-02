@@ -147,6 +147,11 @@ function (x, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA, b
   mtext(str, side=3, line=0, adj=0)
 }
 
+dat$chromosome <- as.character(dat$chromosome)
+dat$chromosome[dat$chromosome=='23'] <- 'X'
+dat$chromosome[dat$chromosome=='24'] <- 'Y'
+dat$chromosome[dat$chromosome=='25'] <- 'MT'
+
 # write outputs
 
 options(scipen=10)
