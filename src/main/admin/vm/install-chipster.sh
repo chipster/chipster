@@ -440,7 +440,7 @@ rm -rf ${TMPDIR_PATH}/
 
 ## Init.d:
 ln -s ${CHIP_PATH}/chipster /etc/init.d/chipster
-update-rc.d chipster defaults # start 99 3 5 . stop 1 0 1 2 4 6 .
+update-rc.d chipster defaults 30 70 # start 99 3 5 . stop 1 0 1 2 4 6 .
 
 ln -s ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq /etc/init.d/chipster-activemq
 ln -s ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp /etc/init.d/chipster-comp
