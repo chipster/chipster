@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>RNA-seq /  Differential expression analysis using edgeR</h2>
+
+<h3>Description</h3>
+
+This tool will perform an analysis for differentially expressed sequences using the R implementation of the edgeR algorithm.
+
+<br>
+<br>
+<h3>Parameters</h3>
+
+<ul>
+<li> Column describing groups [group], (Phenodata column describing the groups to test)</li>
+<li> Apply normalization (yes, no) [yes], (If enabled, a normalization factor based on the trimmed mean of M-values \(TMM\) is performed to reduce the effect from sequencing biases.)</li>
+<li> Dispersion method (common, tagwise) [tagwise], (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity. Note that when no biological replicates are available common dispersion is used regardless of the setting.)</li>
+<li> Dispersion estimate (0-1) [0.1], (The value to use for estimating the common dispersion when no replicates are available.) </li>
+<li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH], (Multiple testing correction method.)</li>
+<li> P-value cutoff (0-1) [0.05], (The cutoff for statistical significance.)</li>
+<li> Plot width (200-3200 [600], (Width of the plotted network image)</li>
+<li> Plot height (200-3200) [600], (Height of the plotted network image)</li>
+</ul>
+
+<h3><br>Details</h3>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<br>
+<br>
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+
+
+<ul>
+<li>de-list-edger.tsv:	<br></li>
+<br></ul>
+<h3><br>References</h3>
+
+<p>This tool uses the edgeR package for statistical analysis. Please read the following article for more detailed information:</p>
+
+<p> MD Robinson, DJ McCarthy, and GK Smyth. <a href="http://www.ncbi.nlm.nih.gov/pubmed/19910308">edgeR: a bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics, 26 (1):139Ð40, Jan 2010.</a></p> 
+
+
+<p> </a>.</p> 
+
+</body>
