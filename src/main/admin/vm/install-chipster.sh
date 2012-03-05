@@ -242,6 +242,27 @@ then
   cd ${CHIP_PATH}/
   echo | ./setup.sh
 
+
+  ## R-2.14:
+	R_VER=2.14.1
+  cd ${TMPDIR_PATH}/
+  #wget -nv http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz
+  #tar -xzf R-${R_VER}.tar.gz
+  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+  cd R-${R_VER}/
+  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
+  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
+  export MAKEFLAGS=-j
+  #LIBnn=lib
+  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+  make
+  make install
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  cd ../
+  rm -rf R-${R_VER}/
+	${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/ngs/R-2.14/admin/install-libs.R   
+
+
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
@@ -440,7 +461,7 @@ rm -rf ${TMPDIR_PATH}/
 
 ## Init.d:
 ln -s ${CHIP_PATH}/chipster /etc/init.d/chipster
-update-rc.d chipster defaults # start 99 3 5 . stop 1 0 1 2 4 6 .
+update-rc.d chipster defaults 30 70 # start 99 3 5 . stop 1 0 1 2 4 6 .
 
 ln -s ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq /etc/init.d/chipster-activemq
 ln -s ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp /etc/init.d/chipster-comp
