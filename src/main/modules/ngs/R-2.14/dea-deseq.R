@@ -1,4 +1,4 @@
-# TOOL dea-deseq-RNA.R: "Differential expression analysis using DESeq" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the DESeq algorithm.)
+# TOOL dea-deseq.R: "Differential expression analysis using DESeq" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the DESeq algorithm.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
