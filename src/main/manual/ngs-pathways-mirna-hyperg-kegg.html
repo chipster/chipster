@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>miRNA-seq / KEGG enrichment for miRNA targets</h2>
+
+<h3>Description</h3>
+
+<p>Performs a statistical test for enrichment of KEGG pathways in the predicted gene targets of a list of miRNAs.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+
+<li>P-value threshold (0-1) [0.05]</li>
+<li>P-value adjustment method (none, BH, BY) [BH]</li>
+<li>Minimum population (1-1000000) [10]</li>
+<li>Species (human, mouse, rat) [human]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>This tool takes normalized data with miRNA IDs, fetches the target genes from miRBase, and runs a hypergeometric test for over-representation for KEGG pathways in this list. 
+ Analysis can be restricted to KEGG pathways which have a minimum, user-specified number of genes mapped to them (by default ten).
+ The user needs to specify species for the miRNA data. 
+</p>
+
+<h3>Output</h3>
+
+<p>Output is a text file with a list of significant categories.</p>
+
+</body>
+
