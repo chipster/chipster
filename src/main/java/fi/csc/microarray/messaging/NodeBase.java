@@ -38,7 +38,9 @@ public abstract class NodeBase implements Node {
 		if (logger == null) {
 			logger = Logger.getLogger(NodeBase.class);
 		}
-		logger.error(e, e);
+		// Don't log these as they might also be ok, for example when sending
+		// to a deleted temp topic
+		// logger.error(e, e);
 	}
 
 

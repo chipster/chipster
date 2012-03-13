@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Statistics / Test proportions</h2>
+
+<h3>Description</h3>
+
+Tests the null hypothesis that two proportions are equal. The test only apply to oportions in dichotomized data.)
+
+
+<h3>Parameters</h3>
+
+<ul>
+<li>column [group] </li>
+<li>Method of multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
+<li>P-value cut-off (0...1) [0.05]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>Tests the null hypothesis that two proportions are equal. The test only applies to dichotomised data,
+where the data can only assume one of two values. Unless the raw data imported into Chipster already contained
+dichotomised data the tool Preprocessing / Dichotomise contionious data will have to be applied to the the data
+prior to using this tool.</p>
+
+<p>The result file adds two columns to the input data table, one with the raw p-values from the test of equal proportions
+and one with the same values subjected to multiple testing correction. The smaller the value the smaller the probability 
+that the tested proportions are equal.</p>
+
+<p>Multiple testing correction options are Bonferroni, Holm, and Hochberg for family-wise error rate (FWER) and
+Benjamini-Hochberg, Benjamini-Yakutieri and Storey-Q for false discovery rate (FDR). Of these Bonferroni is the most
+conservative, returning the smallest number of significant results, and FDR-based adjustments are less
+conservative, and return more significant results.</p>
+
+<h3>Output</h3>
+
+<p>A text file containing the gene expression values plus the raw and adjusted p-value for the test. </p>
+
+
+<h3>References</h3>
+
+<p>This tool uses Bioconductor packages multtest and qvalue.</p>
+
+
+</body>
+

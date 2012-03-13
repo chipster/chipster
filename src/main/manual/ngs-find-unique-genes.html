@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>ChIP-seq /  Find unique and annotated genes</h2>
+
+<h3>Description</h3>
+
+This tool takes a list of ENSEMBL gene identifiers, removes duplicates and fetches annotation information. The output file is compatible with downstream tools used for example for pathway analysis.
+<br>
+<br>
+<h3>Parameters</h3>
+
+<ul>
+<li>Genome (Human hg18, Mouse mm9, Rat rn4) [none]</li>
+</ul>
+
+<br>
+
+<h3>Details</h3>
+
+<p>In order to fetch annotation information the tool uses ENSEMBL gene identifiers as input, which it converts to entrez gene id:s
+through the biomaRt interface to ENSEMBL. The output file is compatible with downstream tools used for example for pathway analysis.</p>
+
+
+<br>
+<h3>Output</h3>
+
+<p>The analysis output is a table of annotated genes, which is compatible with downstream tools used for example for pathway analysis.<br>
+
+</p>
+
+<br>
+<h3>References</h3>
+
+<p>The tool makes use of the following Bioconductor packages:</p>
+
+
+<ul>
+<li>biomaRt<br></li>
+<br>
+<li>ChIPpeakAnno<br></li>
+</ul>
+</body>
+

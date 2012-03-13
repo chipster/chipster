@@ -23,12 +23,14 @@ This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the 
 
 <p>For each of the genomic regions in the input data file, the closest located gene will be reported, regardless of distance, 3' or 5' location or strand. Such information is given in the result file, allowing further filtering for any of these criteria. 
 If two genes are located at exactly the same distance from a query region the gene that is reported will be selected randomly from the pair.</p>
-
+<br><br>
+In order to to perform downstream pathway analysis, the list of genes must be annotated with entrez gene id:s and duplicates be removed,
+which is conveniently achieved using the 'Find unique and annotated genes' tool.
 
 <br>
 <h3>Output</h3>
 
-<p>The analysis output is a table nearest-genes.tsv, containing all the genomic regions with their closest genes, including information to characterize the gene location with regards to the query region.<br>
+<p>The analysis output is a table 'nearest-genes.tsv', containing all the genomic regions with their closest genes, including information to characterize the gene location with regards to the query region.<br>
 
 </p>
 

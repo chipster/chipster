@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>RNA-seq /  Differential expression analysis using Cufflinks</h2>
+
+<h3>Description</h3>
+
+This tool will perform an analysis for differentially expressed genes using Cufflinks.
+
+<br>
+<br>
+<h3>Parameters</h3>
+
+<ul>
+<li> Genome (Human (hg19), Mouse (mm9), Rat (rn4)) [Mouse (mm9)]</li>
+<li> Fold change cutoff (0-1000000) [0]</li>
+<li> P-value cutoff (0-1) [1]</li>
+<li> Q-value cutoff (0-1) [1]</li>
+</ul>
+
+<h3><br>Details</h3>
+
+<br>
+This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm.
+Note that only one filtering criteria should be applied for a given analysis run. When left at default settings,
+Cufflinks filters out unsuccessfully tested loci, as well as those with a Benjamini-Hochberg adjusted false
+discovery rate less than 0.05.
+<br>
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+
+<ul>
+<li>de-genes-cufflinks.tsv:	Table containing the results of the statistical testing for differentially expressed genes, including fold change estimates and p-values.<br></li>
+<li>de-genes-cufflinks.bed:  The BED version of the results table for genes contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>de-isoforms-cufflinks.tsv:Table containing the results of the statistical testing for differentially expressed isoforms, including fold change estimates and p-values.<br></li>
+<li>de-isoform-cufflinks.bed: The BED version of the results table for isoforms contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>cufflinks.log: Contains useful information of the analysis run.
+
+
+</ul>
+
+<h3><br>References</h3>
+
+<p>This tool uses the Cufflinks package for statistical analysis. Please read the following article for more detailed information:</p>
+
+<p>Trapnell C, Williams BA, Pertea G, Mortazavi A, Kwan G, van Baren MJ, Salzberg
+SL, Wold BJ, Pachter L. <a href="http://www.ncbi.nlm.nih.gov/pubmed/20436464">Transcript assembly and quantification by RNA-Seq reveals unannotated transcripts and isoform switching during cell differentiation. Nat Biotechnol. 2010 May;28(5):511-5.</a></p> 
+
+
+<p> </a></p> 
+
+</body>

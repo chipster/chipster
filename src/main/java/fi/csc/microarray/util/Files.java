@@ -59,48 +59,36 @@ public class Files {
 		return files;		
 	}
 	
+	
 	/**
-	 * Deletes a file or a directory recursively. When traversing directories, does not follow symbolic links.
+	 * Deletes a file or a directory recursively. Deletes directory links, does not go 
+	 * into them recursively.
 	 * 
 	 * @param dir directory or file to be deleted
 	 * @return true if deleting was successful, false file does not exist or deleting it failed
 	 * @throws IOException 
 	 */
 	public static boolean delTree(File dir) throws IOException {
-		return delTree(dir, false);
-	}
-	
-	/**
-	 * Deletes a file or a directory recursively.
-	 * 
-	 * @param dir directory or file to be deleted
-	 * @return true if deleting was successful, false file does not exist or deleting it failed
-	 * @throws IOException 
-	 */
-	public static boolean delTree(File dir, boolean followSymlinks) throws IOException {
-		try {
-			// if dir is directory, make it empty recursively
-			if (dir.isDirectory()) {
-				File[] contents = dir.listFiles();
-				if (contents.length > 0) {
-					for (int i = 0; i < contents.length; i++) {
-						
-						if (followSymlinks || !Files.isLink(dir)) {
-							delTree(contents[i], followSymlinks);
-						}
-					}
-				}
+
+		// Just try to delete the file first
+		// Will work for normal files, empty dirs and links (dir or file)
+		// Avoids need for dealing with links later on
+		if (dir.delete()) {
+			return true;
+		} 
+		
+		// Directory
+		else if (dir.isDirectory()) {
+			for (File file : dir.listFiles()) {
+				delTree(file);
 			}
-			
-			// now dir should be either a file or an empty directory
-			// try to delete it
-			if (dir.delete()) {
-				return true;
-			} else {
-				return false;
-			}
-	
-		} catch (SecurityException se) {
+
+			// Dir should be empty now
+			return dir.delete();
+		} 
+		
+		// Could not delete, not a directory, no can do
+		else {
 			return false;
 		}
 	}
@@ -165,7 +153,7 @@ public class Files {
 				return false;
 			}
 			
-			if (!delTree(dir, false)) {
+			if (!delTree(dir)) {
 				return false;
 			}
 		}
@@ -220,19 +208,6 @@ public class Files {
 	 * @throws IOException 
 	 */
 	public static void walkAndDelete(File baseDir, IOFileFilter filter) throws IOException {
-		walkAndDelete(baseDir, filter, false);
-	}
-
-	/**
-	 * Walks the baseDir recursively and deletes files that match filter.
-	 * 
-	 * @param baseDir
-	 * @param filter
-	 * @throws IOException 
-	 */
-	public static void walkAndDelete(File baseDir, IOFileFilter filter, boolean followSymlinks) throws IOException {
-		
-		
 		File[] files = baseDir.listFiles((FileFilter)new OrFileFilter(DirectoryFileFilter.INSTANCE, filter));
 		
 		if (files == null) {
@@ -240,7 +215,13 @@ public class Files {
 		}
 		
 		for (File f : files) {
-			if (f.isDirectory()) {
+			
+			// Just try to delete it first
+			// Will work for normal files, empty dirs and links (dir or file)
+			// Avoid need for dealing with links later on
+			if (f.delete()) {
+				continue;
+			} else if (f.isDirectory()) {
 				
 				// check the filter for directory before walking it as walking might affect the filter
 				// conditions such as directory modified time
@@ -250,20 +231,16 @@ public class Files {
 				}
 
 				// walk into dir
-				if (followSymlinks || !Files.isLink(f)) {
-					walkAndDelete(f, filter, followSymlinks);
-				}
+				walkAndDelete(f, filter);
 				
 				// possibly delete dir 
 				if (toBeDeleted) {
 					f.delete();
 				}
-			
-			} else {
-				f.delete();
 			}
 		}
 	}
+
 
 	/**
 	 * Parses the whole filename and returns name and extension separately.
@@ -346,20 +323,6 @@ public class Files {
 				process.destroy();
 			}
 		}
-	}
-	
-	/**
-	 * Checks the canonical and absolute paths of the file to find out if it is a symbolic link or
-	 * not.
-	 * 
-	 * @param file possible symbolic link
-	 * 
-	 * @return true iff file is a symbolic link
-	 * 
-	 * @throws IOException
-	 */
-	public static boolean isLink(File file) throws IOException {
-		return !file.getAbsolutePath().equals(file.getCanonicalPath());
 	}
 	
 	public static void main(String[] args) throws IOException {

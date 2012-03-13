@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Utilities / Define NGS experiment</h2>
+
+<h3>Description</h3>
+
+<p>
+The tool takes a set of count files, merges them into a single data table and associates a phenodata file so that
+experiment setup can be defined and downstream analyses performed.
+</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Type of experiment (ChIP-seq, RNA-seq, miRNA-seq) [RNA-seq]</li>
+<li>Does your data contain genomic coordinates (yes, no) [yes]</li>
+<li>Impute missing data (0-1000000) [0]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>
+Takes a set of individual files with counts data and merges them into a single data table to
+which a phenodata file is associated. The 'group' column of the phenodata file should be edited by the user as to include
+information on which input files belong to a certain experiment condition. In addition,  the initial - that is, before
+any filtering steps - library size (in bases) may be added in the 'library_size' column. If added, this information
+will be used for normalization purposes in downstream tools for differential expression analysis.
+</p>
+<p>
+The tool has two modes of operation, dpendning on whether alignment has been performed using something else than a
+reference genome or not. For reference genome alignments, information about genomic location including chromosome,
+start and end coordinate will be added to the data file.
+</p>
+<p>
+Since zero counts in data may cause issues for certain downstream applications that transform data or calculate ratios, the
+tool also offers the possibility to impute a fixed value to replace the zeros with. By default, the zeros are left untouched,
+relying on the downstream applications to handle the issue instead.
+</p>
+
+<h3>Output</h3>
+
+<p>A data table with count columns and a corresponding phenodata table.</p>
+
+</body>
+
