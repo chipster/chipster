@@ -12,9 +12,8 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file.)
 
 # check out if the file is compressed and if so unzip it
-system("file fastqfile > file_info")
-system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv fastqfile reads.gz ; gzip -d reads.gz ; mv reads fastqfile")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("fastqfile")
 
 
 # binary
