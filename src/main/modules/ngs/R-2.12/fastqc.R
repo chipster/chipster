@@ -14,21 +14,20 @@
 # OUTPUT OPTIONAL sequence_length_distribution.png
 # PARAMETER all: "Create all plots" TYPE [yes, no] DEFAULT no (Whether to also create plots for GC and N content, sequence length distribution, duplication levels, overrepresented sequences and Kmer content.)
 
-# check out if the file is compressed and if so add a gzip suffix
-system("file reads.fastq > file_info")
-system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv reads.fastq reads.gz")
+# FastQC detects gzipped files by file extension so we need to add .gz
+# extension to compressed files.
+source(file.path(chipster.common.path, "zip-utils.R"))
+input.file <- "reads.fastq"
+if (isGZipFile(input.file)) {
+	system(paste("mv", input.file, "reads.gz"))
+	input.file <- "reads.gz"
+}
 
 # binary
-binary <- c(file.path(chipster.tools.path, "FastQC", "fastqc"))
+binary <- file.path(chipster.tools.path, "FastQC", "fastqc")
 
-# command, different for compressed file
-file_info <- scan(file="file_info", nlines=1, what="character")
-if (length(grep("gzip", file_info)) > 0) {
-	command <- paste(binary, "reads.gz")
-} else {
-	command <- paste(binary, "reads.fastq")
-}
+# command
+command <- paste(binary, input.file)
 
 # run
 system(command)

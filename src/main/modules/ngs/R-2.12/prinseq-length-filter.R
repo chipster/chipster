@@ -13,9 +13,8 @@
 
 
 # check out if the file is compressed and if so unzip it
-system("file fastqfile > file_info")
-system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv fastqfile reads.gz ; gzip -d reads.gz ; mv reads fastqfile")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("fastqfile")
 
 # binary
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl"))
