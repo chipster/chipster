@@ -1,5 +1,6 @@
 library(CGHcall)
 library(CGHregions)
+library(WECCA)
 
 setMethod("plot", signature(x="cghRaw", y="missing"),
 function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="GRCh37",... )
@@ -9,11 +10,17 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         chrom           <- chromosomes(x)
         data            <- data.frame(chrom, bpstart(x), copynumber(x)[,i])
         colnames(data)  <- c("chromosome", "position", "ratio")
-        chrom.labels    <- as.character(unique(chrom))
         pos             <- bpstart(x)
-        chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
-        for (j in 2:max(chrom))
-            pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
+        uni.chrom <- unique(chrom)
+        chrom.lengths <- .getChromosomeLengths(build)[as.character(uni.chrom)]
+        chrom.ends <- integer()
+        cumul <- 0
+        for (j in uni.chrom) {
+            pos[chrom > j] <- pos[chrom > j] + chrom.lengths[as.character(j)]
+            cumul <- cumul + chrom.lengths[as.character(j)]
+            chrom.ends <- c(chrom.ends, cumul)
+        }
+        names(chrom.ends) <- names(chrom.lengths)
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
         plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
@@ -23,7 +30,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         for (j in 2:max(chrom))
             abline(v=chrom.ends[j-1], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
-        axis(side=1, at=ax, labels=chrom.labels, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1)
+        axis(side=1, at=ax, labels=uni.chrom, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1)
         amps <- data[,3]
         amps[amps>=5] <- 5.15
         amps[amps<5] <- NA
@@ -56,11 +63,17 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         chrom           <- chromosomes(x)
         data            <- data.frame(chrom, bpstart(x), copynumber(x)[,i])
         colnames(data)  <- c("chromosome", "position", "ratio")
-        chrom.labels    <- as.character(unique(chrom))
         pos             <- bpstart(x)
-        chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
-        for (j in 2:max(chrom))
-            pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
+        uni.chrom <- unique(chrom)
+        chrom.lengths <- .getChromosomeLengths(build)[as.character(uni.chrom)]
+        chrom.ends <- integer()
+        cumul <- 0
+        for (j in uni.chrom) {
+            pos[chrom > j] <- pos[chrom > j] + chrom.lengths[as.character(j)]
+            cumul <- cumul + chrom.lengths[as.character(j)]
+            chrom.ends <- c(chrom.ends, cumul)
+        }
+        names(chrom.ends) <- names(chrom.lengths)
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
         plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
@@ -70,7 +83,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         for (j in 2:max(chrom))
             abline(v=chrom.ends[j-1], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
-        axis(side=1,at=ax,labels=chrom.labels,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
+        axis(side=1,at=ax,labels=uni.chrom,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
         for (jjj in (1:nrow(segment))) {
             segments(pos[segment[jjj,2]], segment[jjj,1], pos[segment[jjj,3]], segment[jjj,1], col="chocolate", lwd=3)        
         }
@@ -106,11 +119,17 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol
     chrom           <- chromosomes(x)
     pos             <- bpstart(x)
     pos2            <- bpend(x)
-    chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
-    for (j in 2:max(chrom)) {
-        pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
-        pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+    uni.chrom <- unique(chrom)
+    chrom.lengths <- .getChromosomeLengths(build)[as.character(uni.chrom)]
+    chrom.ends <- integer()
+    cumul <- 0
+    for (j in uni.chrom) {
+        pos[chrom > j] <- pos[chrom > j] + chrom.lengths[as.character(j)]
+        pos2[chrom > j] <- pos2[chrom > j] + chrom.lengths[as.character(j)]
+        cumul <- cumul + chrom.lengths[as.character(j)]
+        chrom.ends <- c(chrom.ends, cumul)
     }
+    names(chrom.ends) <- names(chrom.lengths)
     nclone          <- length(chrom)
 
     for (i in 1:ncol(x)) {
@@ -202,11 +221,17 @@ function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA
   chrom <- chromosomes(x)
   pos <- bpstart(x)
   pos2 <- bpend(x)
-  chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
-  for (j in 2:max(chrom)) {
-    pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
-    pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+  uni.chrom <- unique(chrom)
+  chrom.lengths <- .getChromosomeLengths(build)[as.character(uni.chrom)]
+  chrom.ends <- integer()
+  cumul <- 0
+  for (j in uni.chrom) {
+    pos[chrom > j] <- pos[chrom > j] + chrom.lengths[as.character(j)]
+    pos2[chrom > j] <- pos2[chrom > j] + chrom.lengths[as.character(j)]
+    cumul <- cumul + chrom.lengths[as.character(j)]
+    chrom.ends <- c(chrom.ends, cumul)
   }
+  names(chrom.ends) <- names(chrom.lengths)
   calls <- calls(x)
   loss.freq <- rowMeans(calls < 0)
   gain.freq <- rowMeans(calls > 0)
@@ -219,10 +244,11 @@ function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA
   rect(pos, 0, pos2, -loss.freq, col=losscol, border=losscol)
   box()
   abline(h=0)
-  for (j in 2:max(chrom))
-    abline(v=chrom.ends[j-1], lty='dashed')
+  if (length(chrom.ends) > 1)
+    for (j in names(chrom.ends)[-length(chrom.ends)])
+      abline(v=chrom.ends[j], lty='dashed')
   ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
-  axis(side=1,at=ax,labels=unique(chrom),cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
+  axis(side=1,at=ax,labels=uni.chrom,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
   mtext('gains', side=2, line=3, at=0.5)
   mtext('losses', side=2, line=3, at=-0.5)
@@ -243,11 +269,17 @@ function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA
   chrom <- x@featureData@data$Chromosome
   pos <- x@featureData@data$Start
   pos2 <- x@featureData@data$End
-  chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
-  for (j in 2:max(chrom)) {
-    pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
-    pos2[chrom == j] <- pos2[chrom == j] + chrom.ends[j-1]
+  uni.chrom <- unique(chrom)
+  chrom.lengths <- .getChromosomeLengths(build)[as.character(uni.chrom)]
+  chrom.ends <- integer()
+  cumul <- 0
+  for (j in uni.chrom) {
+    pos[chrom > j] <- pos[chrom > j] + chrom.lengths[as.character(j)]
+    pos2[chrom > j] <- pos2[chrom > j] + chrom.lengths[as.character(j)]
+    cumul <- cumul + chrom.lengths[as.character(j)]
+    chrom.ends <- c(chrom.ends, cumul)
   }
+  names(chrom.ends) <- names(chrom.lengths)
   calls <- regions(x)
   loss.freq <- rowMeans(calls < 0)
   gain.freq <- rowMeans(calls > 0)
@@ -260,10 +292,11 @@ function (x, y, main='Frequency Plot', gaincol='blue', losscol='red', misscol=NA
   rect(pos, 0, pos2, -loss.freq, col=losscol, border=losscol)
   box()
   abline(h=0)
-  for (j in 2:max(chrom))
-    abline(v=chrom.ends[j-1], lty='dashed')
+  if (length(chrom.ends) > 1)
+    for (j in names(chrom.ends)[-length(chrom.ends)])
+      abline(v=chrom.ends[j], lty='dashed')
   ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
-  axis(side=1,at=ax,labels=unique(chrom),cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
+  axis(side=1,at=ax,labels=uni.chrom,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
   mtext('gains', side=2, line=3, at=0.5)
   mtext('losses', side=2, line=3, at=-0.5)
@@ -346,20 +379,19 @@ function (input, maxmiss = 30, nchrom = 23, ...)
 environment(preprocessPlus) <- environment(CGHcall:::preprocess)
 preprocess <- preprocessPlus
 
-.getCumulativeChromosomeEnds <- function(build) {
+.getChromosomeLengths <- function(build) {
     build <- as.integer(gsub('[^0-9]', '', build))
     if (build == 34 || build == 16) {
-       chromosome.sizes <- c(246127941, 243615958, 199344050, 191731959, 181034922, 170914576, 158545518, 146308819, 136372045, 135037215, 134482954, 132078379, 113042980, 105311216, 100256656, 90041932, 81860266, 76115139, 63811651, 63741868, 46976097, 49396972, 153692391, 50286555)
+       chromosome.lengths <- c(246127941, 243615958, 199344050, 191731959, 181034922, 170914576, 158545518, 146308819, 136372045, 135037215, 134482954, 132078379, 113042980, 105311216, 100256656, 90041932, 81860266, 76115139, 63811651, 63741868, 46976097, 49396972, 153692391, 50286555)
     } else if (build == 35 || build == 17) {
-       chromosome.sizes <- c(245522847, 243018229, 199505740, 191411218, 180857866, 170975699, 158628139, 146274826, 138429268, 135413628, 134452384, 132449811, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49554710, 154824264, 57701691)
+       chromosome.lengths <- c(245522847, 243018229, 199505740, 191411218, 180857866, 170975699, 158628139, 146274826, 138429268, 135413628, 134452384, 132449811, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49554710, 154824264, 57701691)
     } else if (build == 36 || build == 18) {
-       chromosome.sizes <- c(247249719, 242951149, 199501827, 191273063, 180857866, 170899992, 158821424, 146274826, 140273252, 135374737, 134452384, 132349534, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
+       chromosome.lengths <- c(247249719, 242951149, 199501827, 191273063, 180857866, 170899992, 158821424, 146274826, 140273252, 135374737, 134452384, 132349534, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
     } else {
-       chromosome.sizes <- c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566)
+       chromosome.lengths <- c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566)
     }
-    for (i in 2:length(chromosome.sizes))
-      chromosome.sizes[i] <- chromosome.sizes[i] + chromosome.sizes[i-1]
-    chromosome.sizes
+    names(chromosome.lengths) <- 1:24
+    chromosome.lengths
 }
 
 .getCentromerePlus <- function(build) {
@@ -805,5 +837,95 @@ CGHregionsPlus <- function(input, ...) {
 }
 environment(CGHregionsPlus) <- environment(CGHregions:::CGHregions)
 CGHregions <- CGHregionsPlus
+
+regioningPlus <- function (cghdata.called, threshold = 0.00001) 
+{
+    find.reg.modus <- function(x) {
+        splitter <- list()
+        splitter[[1]] <- c(1)
+        index.temp <- 1
+        j <- 1
+        for (i in 1:(dim(x)[1] - 1)) {
+            if (all(x[i, ] == x[i + 1, ])) {
+                index.temp <- c(index.temp, i + 1)
+                splitter[[j]] <- index.temp
+            }
+            else {
+                index.temp <- i + 1
+                j <- j + 1
+                splitter[[j]] <- index.temp
+            }
+        }
+        region.details <- NULL
+        for (i in 1:length(splitter)) {
+            region.details <- rbind(region.details, c(min(splitter[[i]]), 
+                max(splitter[[i]])))
+        }
+        modus <- which.max(region.details[, 2] - region.details[, 
+            1] + 1)
+        return(x[region.details[modus[1], 1], ])
+    }
+    cat("CGHregions of hard call data...")
+    cghdata.regions <- CGHregions(cghdata.called, averror = threshold)
+    cat("...done", "\n")
+    print(paste("threshold used:", threshold, sep = " "))
+    calls.annotation <- pData(featureData(cghdata.called))
+    regions.annotation <- pData(featureData(cghdata.regions))
+    cat("Map regions to clones...")
+    reg.to.clones <- list()
+    counter <- 0
+    for (chr in unique(regions.annotation[, 1])) {
+        reg.ann.temp <- regions.annotation[regions.annotation[, 
+            1] == chr, 1:4]
+        for (r in 1:dim(reg.ann.temp)[1]) {
+            counter <- counter + 1
+            A1 <- which(calls.annotation[, 1] == chr)
+            A2 <- which(calls.annotation[, 2] >= reg.ann.temp[r, 
+                2])
+            A3 <- which(calls.annotation[, 3] <= reg.ann.temp[r, 
+                3])
+            reg.to.clones[[counter]] <- intersect(intersect(A1, 
+                A2), A3)
+        }
+    }
+    cat("...done", "\n")
+    cghdata.probs <- numeric()
+    for (i in 1:dim(calls(cghdata.called))[2]) {
+        cghdata.probs <- cbind(cghdata.probs, cbind(probloss(cghdata.called)[, 
+            i], probnorm(cghdata.called)[, i], probgain(cghdata.called)[, 
+            i], probamp(cghdata.called)[, i]))
+    }
+    cat("Calculate mode soft call signature for each region...")
+    cghdata.regprobs <- numeric()
+    for (i in 1:length(reg.to.clones)) {
+        cghdata.regprobs <- rbind(cghdata.regprobs, find.reg.modus(cghdata.probs[reg.to.clones[[i]], 
+            , drop = FALSE]))
+    }
+    cat("...done", "\n")
+    softcalls.samplenames <- character()
+    for (i in 1:dim(calls(cghdata.called))[2]) {
+        if (dim(cghdata.regprobs)[2]/dim(calls(cghdata.called))[2] == 
+            3) {
+            softcalls.samplenames <- c(softcalls.samplenames, 
+                paste(c("probloss_", "probnorm_", "probgain_"), 
+                  colnames(regions(cghdata.regions))[i], sep = ""))
+        }
+        if (dim(cghdata.regprobs)[2]/dim(calls(cghdata.called))[2] == 
+            4) {
+            softcalls.samplenames <- c(softcalls.samplenames, 
+                paste(c("probloss_", "probnorm_", "probgain_", 
+                  "probamp_"), colnames(regions(cghdata.regions))[i], 
+                  sep = ""))
+        }
+    }
+    colnames(cghdata.regprobs) <- softcalls.samplenames
+    rownames(cghdata.regprobs) <- rownames(regions(cghdata.regions))
+    regdata <- list()
+    regdata$ann <- regions.annotation
+    regdata$hardcalls <- regions(cghdata.regions)
+    regdata$softcalls <- cghdata.regprobs
+    return(regdata)
+}
+regioning <- regioningPlus
 
 # EOF
