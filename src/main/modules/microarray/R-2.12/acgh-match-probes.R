@@ -281,7 +281,7 @@ colnames(calls) <- paste('flag.', samples, sep='')
 dat3 <- cbind(dat3, calls)
 
 copynumber <- assayDataElement(matched$CNdata.matched, 'copynumber')
-colnames(copynumber) <- paste('copynumber.', samples, sep='')
+colnames(copynumber) <- paste('logratio.', samples, sep='')
 dat3 <- cbind(dat3, copynumber)
 
 segmented <- assayDataElement(matched$CNdata.matched, 'segmented')

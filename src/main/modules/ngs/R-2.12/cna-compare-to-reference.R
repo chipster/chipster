@@ -1,4 +1,4 @@
-# TOOL cna-compare-to-reference.R: "Compare to reference sample" (This tool compares binned read counts of a test sample to binned read counts of a reference sample by taking a ratio between the two.)
+# TOOL cna-compare-to-reference.R: "Take ratio of binned read counts between tumor and normal" (This tool compares binned read counts of a test sample to binned read counts of a reference sample by taking a ratio between the two.)
 # INPUT binned-hits-test.tsv: "Binned read counts of test sample" TYPE GENERIC
 # INPUT binned-hits-reference.tsv: "Binned read counts of reference sample" TYPE GENERIC
 # OUTPUT binned-hits-ratio.tsv: "Ratio of binned read counts"
