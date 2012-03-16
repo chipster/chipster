@@ -383,11 +383,6 @@ public abstract class ClientApplication {
 			return;
 		}
 		
-		// check operation (relevant only for workflows)
-		if (operation.getBindings().isEmpty()) {
-			throw new RuntimeException("Attempted to run " + operation.getDefinition().getFullName() + " with input datasets that were not compatitible with the operation.");
-		}
-		
 		// check job count
 		if (taskExecutor.getRunningTaskCount() >= clientConstants.MAX_JOBS) {
 			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + clientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
