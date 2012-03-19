@@ -6,7 +6,7 @@
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-01-05
+# 2012-03-01
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)
@@ -21,9 +21,9 @@ dat$chromosome <- as.integer(dat$chromosome)
 
 calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
 logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
+segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 
 if (length(grep("^probnorm\\.", names(dat)))>0) { # input contains probabilities (is a CGHcall object)
-  segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
   probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
   probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
   probgain <- as.matrix(dat[,grep("^probgain\\.", names(dat))])
@@ -61,17 +61,19 @@ if (2 %in% hardcalls)
   dat2$amp.freq <- round(rowMeans(hardcalls == 2), digits=3)
 
 dat2 <- cbind(dat2, hardcalls)
-colnames(dat2) <- sub('calls\\.', 'flag\\.', colnames(dat2))
+colnames(dat2) <- sub('^calls\\.', 'flag.', colnames(dat2))
 
-region.medians <- hardcalls
+region.medians <- segmented.medians <- hardcalls
 for (row in rownames(region.medians)) {
-    region.medians[row,] <- apply(logratios[dat$chromosome == dat2[row, "chromosome"] &
-                                            dat$start >= dat2[row, "start"] &
-                                            dat$start <= dat2[row, "end"],
-                                           ], 2, median)
+  index <- dat$chromosome == dat2[row, "chromosome"] &
+           dat$start >= dat2[row, "start"] &
+           dat$start <= dat2[row, "end"]
+  region.medians[row,] <- apply(logratios[index,], 2, median, na.rm=TRUE)
+  segmented.medians[row,] <- apply(logratios[index,], 2, median, na.rm=TRUE)
 }
-colnames(region.medians) <- sub('flag\\.', 'chip\\.', colnames(region.medians))
-dat2 <- cbind(dat2, region.medians)
+colnames(region.medians) <- sub('^flag\\.', 'chip.', colnames(region.medians))
+colnames(segmented.medians) <- sub('^flag\\.', 'segmented.', colnames(segmented.medians))
+dat2 <- cbind(dat2, region.medians, segmented.medians)
 
 # append soft calls if we have them
 if (softcalls) {
@@ -86,6 +88,7 @@ dat2$chromosome[dat2$chromosome=='23'] <- 'X'
 dat2$chromosome[dat2$chromosome=='24'] <- 'Y'
 dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
+options(scipen=10)
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 pdf(file='regions.pdf', paper='a4r', width=0, height=0)

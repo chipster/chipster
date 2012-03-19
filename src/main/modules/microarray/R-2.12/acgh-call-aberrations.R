@@ -7,7 +7,7 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-01-05
+# 2012-03-02
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -24,7 +24,14 @@ dat$chromosome <- as.integer(dat$chromosome)
 logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 
+logratios[logratios==-Inf] <- -10
+segmented[segmented==-Inf] <- -10
+
 cgh.seg <- new('cghSeg', assayData=assayDataNew(copynumber=logratios, segmented=segmented), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+
+remove <- rowSums(is.na(logratios)) + rowSums(is.na(segmented))
+cgh.seg <- cgh.seg[remove == 0,]
+cgh.seg <- cgh.seg[chromosomes(cgh.seg) < 24,]
 
 chips <- colnames(dat)[grep("^chip\\.", names(dat))]
 
@@ -80,6 +87,7 @@ dat3$chromosome[dat3$chromosome=='23'] <- 'X'
 dat3$chromosome[dat3$chromosome=='24'] <- 'Y'
 dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
+options(scipen=10)
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # bitmap(file='aberration-frequencies.png', width=image.width/72, height=image.height/72)

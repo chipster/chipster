@@ -3,10 +3,10 @@
 # OUTPUT binned-hits.tsv: "Binned hits"
 # PARAMETER organism: "Organism" TYPE [human: human] DEFAULT human (Organism.)
 # PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
-# PARAMETER bin.size: "Bin size" TYPE [1: "1 kbp", 5: "5 kbp", 10: "10 kbp", 15: "15 kbp", 30: "30 kbp", 100: "100 kbp"] DEFAULT 30 (Bin size.)
+# PARAMETER bin.size: "Bin size" TYPE [1: "1 kbp", 5: "5 kbp", 10: "10 kbp", 15: "15 kbp", 30: "30 kbp", 50: "50 kbp", 100: "100 kbp"] DEFAULT 30 (Bin size.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-22
+# 2012-03-01
 
 library(limma)
 bin.size <- as.integer(bin.size)
@@ -71,6 +71,7 @@ gc$permil <- as.integer(round(gc$gc*1000))
 gc.intervals <<- seq(from=range(gc$permil, finite=TRUE)[1], to=range(gc$permil, finite=TRUE)[2])
 bins$corrected <- gc.correct(bins)
 
+rownames(bins) <- paste('bin-', 1:nrow(bins), sep='')
 options(scipen=10)
 write.table(bins, 'binned-hits.tsv', quote=FALSE, sep='\t', na='')
 
