@@ -126,6 +126,15 @@ public class BedDemo extends JFrame implements AreaResultListener {
 		for (RegionContent content : areaResult.getContents()) {
 
 			regions.add(content.region);
+			
+			//Replace with the following code to get (artificially filtered) smaller number of bigger regions 
+			
+//			BpCoord start = content.region.start;
+//			BpCoord end = content.region.end;
+//			
+//			if (start.bp % 100 == 0) {
+//				regions.add(new Region(start.bp, end.bp + 1000000, start.chr));
+//			}
 		}
 
 		this.repaint();
