@@ -16,7 +16,6 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -52,8 +51,9 @@ public class SeqBlockTrack extends Track {
 
 	private ReadpartDataProvider readpartProvider;
 
-	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, Color fontColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
+			long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.readpartProvider = readpartProvider;
@@ -68,7 +68,7 @@ public class SeqBlockTrack extends Track {
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
 		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
-int reads = 0;
+
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
 		for (ReadPart readPart : readParts) {
@@ -104,8 +104,6 @@ int reads = 0;
 			} else {
 				occupiedSpace.add(end);
 			}
-
-			reads++;
 			
 			// Now we can decide the y coordinate
 			rect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
@@ -258,13 +256,12 @@ int reads = 0;
 	 * @param highlightSNP
 	 * @see SeqBlockTrack.setReferenceSeq
 	 */
-	public void enableSNPHighlight(DataSource file, Class<? extends AreaRequestHandler> handler) {
+	public void enableSNPHighlight(DataSource file) {
 		// turn on highlighting mode
 		highlightSNP = true;
 
 		// set reference data
 		refData = file;
-		view.getQueueManager().createQueue(file, handler);
 		view.getQueueManager().addResultListener(file, this);
 	}
 
@@ -273,7 +270,7 @@ int reads = 0;
 	 * 
 	 * @param file
 	 */
-	public void disableSNPHiglight(DataSource file) {
+	public void disableSNPHiglight() {
 		// turn off highlighting mode
 		highlightSNP = false;
 	}

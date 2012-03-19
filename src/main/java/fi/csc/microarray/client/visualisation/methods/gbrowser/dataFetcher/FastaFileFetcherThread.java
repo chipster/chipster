@@ -65,7 +65,7 @@ public class FastaFileFetcherThread extends Thread {
 		}
 		
 		public long bpToFile(long bp) {
-			long bpRowLength = fileRowLength - 1;//Minus one because file rowLength contains new line character
+			long bpRowLength = fileRowLength - 1;//Minus one because fileRowLength contains new line character
 			int rows = (int) (bp / bpRowLength);
 			int column = (int) (bp % bpRowLength);
 			return headerLength + rows * fileRowLength + column;

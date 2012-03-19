@@ -39,9 +39,8 @@ public class GeneTrack extends Track {
 	private Color color;
 
 
-	public GeneTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color color, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public GeneTrack(View view, DataSource file, Color color, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;

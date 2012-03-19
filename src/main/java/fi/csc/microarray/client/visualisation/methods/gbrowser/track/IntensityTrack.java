@@ -37,9 +37,8 @@ public class IntensityTrack extends Track {
 	private boolean doLog;
 	private boolean removeTooWide;
 
-	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
-		super(view, file, handler);
+	public IntensityTrack(View view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
+		super(view, file);
 		this.color = c;
 		this.doLog = doLog;
 		this.minBpLength = maxBpLength;

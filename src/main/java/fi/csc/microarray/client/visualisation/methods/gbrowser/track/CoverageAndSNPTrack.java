@@ -15,7 +15,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -35,7 +34,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * SNPs are disabled.
  * 
  */
-public class CoverageAndSNPTrack extends Track {
+public class CoverageAndSNPTrack extends Track { 
 
 	private long maxBpLength;
 	private long minBpLength;
@@ -50,9 +49,9 @@ public class CoverageAndSNPTrack extends Track {
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 
-	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, DataSource refFile, Class<? extends AreaRequestHandler> refHandler, 
+	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, DataSource refFile, 
 			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+		super(view, file);
 		this.forwardColor = forwardColor;
 		this.reverseColor = reverseColor;
 		this.minBpLength = minBpLength;
@@ -62,7 +61,6 @@ public class CoverageAndSNPTrack extends Track {
 		setStrand(Strand.BOTH);
 		
 		this.refFile = refFile;
-		view.getQueueManager().createQueue(refFile, refHandler);
 	}
 
 	@Override	

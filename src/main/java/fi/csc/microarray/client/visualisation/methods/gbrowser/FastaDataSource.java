@@ -29,7 +29,7 @@ public class FastaDataSource extends DataSource {
 	
 
     public FastaDataSource() throws FileNotFoundException, MalformedURLException, URISyntaxException {
-        super(new URL(""), FastaHandlerThread.class);
+        super(null, FastaHandlerThread.class);
     }
 
 	public Set<Entry<Chromosome, ChunkDataSource>> entrySet() {

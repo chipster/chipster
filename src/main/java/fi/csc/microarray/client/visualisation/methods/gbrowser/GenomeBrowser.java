@@ -8,12 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -57,21 +54,12 @@ import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
@@ -517,9 +505,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				if (interpretation.type == TrackType.REGIONS) {
 					DataBean data = interpretation.primaryData;
 					File file = Session.getSession().getDataManager().getLocalFile(data);
-					List<RegionContent> rows = new RegionOperations().loadFile(file);
-					for (RegionContent row : rows) {
-						chromosomeNames.add(row.region.start.chr.toNormalisedString());
+					List<RegionContent> rows = null;
+					try {
+						rows = new RegionOperations().loadFile(file);
+						for (RegionContent row : rows) {
+							chromosomeNames.add(row.region.start.chr.toNormalisedString());
+						}
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -707,6 +700,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				
 				LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
 				
+				//FIXME enable gene search
 				//gia = GeneIndexActions.getInstance(genome, gtfDataSource);
 				
 			} catch (Exception e) {
@@ -771,32 +765,37 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 							.getSession().getDataManager().getLocalFile(
 									track.interpretation.primaryData);
 					DataSource treatmentData;
-					switch (track.interpretation.type) {
+					if (track.interpretation.type == TrackType.READS) {
 
-					case READS:
+						FastaDataSource refSeqDataSource = new FastaDataSource();
+
+						for (GenomeAnnotation annotation : annotationManager.getAnnotations(
+								genome, AnnotationManager.AnnotationType.REFERENCE)) {
+
+							refSeqDataSource.put(annotation.chr, annotation.getUrl());
+						}
+
 						if (track.interpretation.summaryDatas.size() == 0) {
 							// No precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							
-							FastaDataSource refSeqDataSource = annotationManager.getAnnotation(
-									genome, AnnotationManager.AnnotationType.REFERENCE);
-							
+
 							TrackGroup readGroup = TrackFactory.addReadTracks(
-									plot, treatmentData, createReadHandler(file), 
+									plot, treatmentData, 
 									refSeqDataSource, 
 									track.interpretation.primaryData.getName());
-							
+
 							track.setTrackGroup(readGroup);
+
 						} else { 
 							// Has precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), track.interpretation.primaryData.getName(), new TabixDataSource(file));
+							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
+									plot, treatmentData, refSeqDataSource, 
+									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL()));
 							track.setTrackGroup(readGroupWithSummary);
 						}
-						break;
-
 					}
 				}
 			}
@@ -805,11 +804,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					
+					URL fileUrl = null;
 
-					File file = track.interpretation.primaryData == null ? null : Session
-							.getSession().getDataManager().getLocalFile(
+					if (track.interpretation.primaryData != null) {
+						File file = Session.getSession().getDataManager().getLocalFile(
 									track.interpretation.primaryData);
-					URL fileUrl = file.toURI().toURL();
+						fileUrl = file.toURI().toURL();
+					}
 					
 					DataSource peakData;
 					switch (track.interpretation.type) {
@@ -944,24 +945,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private boolean isIndexData(DataBean bean) {
 		return bean.getName().endsWith(".bai");
 	}
-
-    /**
-     * Create AreaRequestHandler either for SAM/BAM or ELAND data files.
-     * 
-     * @param file
-     * @return
-     */
-    public Class<?extends AreaRequestHandler> createReadHandler(File file) {
-    	
-    	if (file.getName().contains(".bam-summary")) {
-    		return TabixHandlerThread.class;
-    	}
-    	
-        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
-            return SAMHandlerThread.class;
-        }
-        return ChunkTreeHandlerThread.class;
-    }
 
 	@Override
 	public boolean canVisualise(DataBean data) throws MicroarrayException {
@@ -1106,7 +1089,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void translateGenename() throws SQLException {
 		if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
 
-			Region geneLocation = gia.getLocation(locationField.getText().toUpperCase());
+			//FIXME re-enable gene search
+			Region geneLocation = null;//gia.getLocation(locationField.getText().toUpperCase());
 
 			if (geneLocation == null) {
 				

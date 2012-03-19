@@ -29,13 +29,15 @@ public abstract class DataSource {
 
 	public DataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		
-		if ("file".equals(url.getProtocol())) {
-			file = new File(url.toURI());
-		} else {
-			this.url = url;
+		if (url != null) {
+			if ("file".equals(url.getProtocol())) {
+				file = new File(url.toURI());
+			} else {
+				this.url = url;
+			}
+			this.name = url.toString(); 
 		}
 		
-		this.name = url.toString(); 
 		this.requestHandler = requestHandler;
 	}
 	
@@ -47,5 +49,9 @@ public abstract class DataSource {
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	public Class<? extends AreaRequestHandler> getRequestHandler() {
+		return requestHandler;
 	}
 }

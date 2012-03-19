@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.Map.Entry;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
@@ -31,8 +33,15 @@ public class RegionOperations {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		RegionOperations tool = new RegionOperations();
-		List<RegionContent> file1 = tool.loadFile(new File("test1.bed"));
-		List<RegionContent> file2 = tool.loadFile(new File("test2.bed"));
+		List<RegionContent> file1 = null;
+		List<RegionContent> file2 = null;
+		try {
+			file1 = tool.loadFile(new File("test1.bed"));
+			file2 = tool.loadFile(new File("test2.bed"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
 		tool.print(tool.intersect(file1, file2, 1L, RegionOperations.LEFT_PAIR_POLICY_WITH_AUGMENTATION, false), System.out);
 	}
 	
@@ -239,9 +248,10 @@ public class RegionOperations {
 	 * 
 	 * @param input BED file
 	 * @return regions and their extra data
+	 * @throws URISyntaxException 
 	 */
-	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException {
-		ChunkDataSource dataSource = new ChunkDataSource(input, new BEDParser());
+	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException {
+		ChunkDataSource dataSource = new ChunkDataSource(input.toURI().toURL(), new BEDParser(), ChunkTreeHandlerThread.class);
 		byte[] fileChunk = dataSource.readAll();
 		return parseString(new String(fileChunk));
 	}

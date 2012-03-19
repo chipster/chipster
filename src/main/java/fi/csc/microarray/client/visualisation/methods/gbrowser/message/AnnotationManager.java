@@ -5,12 +5,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -46,6 +44,7 @@ public class AnnotationManager {
 	private final File contentsFile = new File(CONTENTS_FILE);
 
 	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2";
+	private final String CHR_UNSPECIFIED =  "*";
 
 	private LinkedList<GenomeAnnotation> annotations = new LinkedList<GenomeAnnotation>();
 
@@ -226,16 +225,29 @@ public class AnnotationManager {
 	public List<GenomeAnnotation> getAnnotations() {
 		return annotations;
 	}
+	
+	public List<GenomeAnnotation> getAnnotations(Genome genome, AnnotationType annotationType) {
+		List<GenomeAnnotation> filteredAnnotations = new LinkedList<GenomeAnnotation>();
+		for (GenomeAnnotation annotation : annotations) {
+
+			if (annotation.getGenome().equals(genome) && annotation.type == annotationType) {
+					filteredAnnotations.add(annotation);
+			}
+		}
+		return filteredAnnotations;
+	}
 
 	public GenomeAnnotation getAnnotation(Genome genome, AnnotationType annotationType) {
 
-		for (GenomeAnnotation annotation : annotations) {
-			if (annotation.getGenome().equals(genome) && annotation.type == annotationType) {
-				return annotation;
-			}
+		List<GenomeAnnotation> filteredList =  getAnnotations(genome, annotationType);
+		
+		if (filteredList.size() > 0) {
+			return filteredList.get(0);
+		} else {
+			return null;
 		}
-		return null;
 	}
+	
 
 	public List<Genome> getGenomes() {
 		List<Genome> genomes = new LinkedList<Genome>();
@@ -385,11 +397,15 @@ public class AnnotationManager {
 			// Try to always store the remote url even if a local file exists.
 			// Existence of the local is checked later every time it is needed.
 			URL url;
-			String fileName = splitted[3];
+			String fileName = splitted[4];
 			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
 
 			long contentLength = Long.parseLong(splitted[5]);
-			Chromosome chr = new Chromosome(splitted[3]);
+			
+			Chromosome chr = null;
+			if (!splitted[3].equals(CHR_UNSPECIFIED)) {
+				chr = new Chromosome(splitted[3]);
+			}
 
 			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], chr, url, contentLength));
 		}

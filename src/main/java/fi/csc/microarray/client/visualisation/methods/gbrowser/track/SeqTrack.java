@@ -41,9 +41,9 @@ public class SeqTrack extends Track {
 
 	private long maxBpLength;
 
-	public SeqTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, long maxBpLength) {
+	public SeqTrack(View view, DataSource file, long maxBpLength) {
 
-		super(view, file, handler);
+		super(view, file);
 		this.maxBpLength = maxBpLength;
 
 	}

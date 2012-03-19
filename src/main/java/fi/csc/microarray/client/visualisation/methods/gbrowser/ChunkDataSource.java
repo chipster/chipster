@@ -32,12 +32,20 @@ public class ChunkDataSource extends DataSource {
 	public ChunkDataSource(URL url, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 		this.fileParser = fileParser;
+		
+		if (file != null) { //Initialized by super constructor if file is local
+			raFile = new RandomAccessFile(file.getPath(), "r");
+		}
 	}
 
 	public ChunkDataSource(URL urlRoot, String path, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler)
 	throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		super(urlRoot, path, requestHandler);
 		this.fileParser = fileParser;
+		
+		if (file != null) { //Initialized by super constructor if file is local
+			raFile = new RandomAccessFile(file.getPath(), "r");
+		}
 	}
 
 	/**
@@ -164,7 +172,7 @@ public class ChunkDataSource extends DataSource {
 					length = Long.parseLong(connection.getHeaderField("content-length"));
 				} finally {
 					IOUtils.disconnectIfPossible(connection);
-				}
+				}       
 			} 
 			return length;
 		}
