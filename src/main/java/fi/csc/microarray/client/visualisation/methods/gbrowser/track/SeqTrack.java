@@ -14,7 +14,6 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
@@ -36,7 +35,8 @@ public class SeqTrack extends Track {
 			new Color(64, 192, 64, 128), // A
 			new Color(64, 64, 192, 128), // C
 			new Color(128, 128, 128, 128), // G
-			new Color(192, 64, 64, 128) // T
+			new Color(192, 64, 64, 128), // T
+			new Color(192, 192, 192,128) //N
 	};
 
 	private long maxBpLength;
@@ -112,6 +112,8 @@ public class SeqTrack extends Track {
 			bg = charColors[2];
 		} else if (letter == 'T' || letter == 't') {
 			bg = charColors[3];
+		} else if (letter == 'N' || letter == 'n') {
+			bg = charColors[4];
 		}
 
 		nextX = x + increment;

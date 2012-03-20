@@ -455,13 +455,15 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				}
 			}
 		}
+		
+		Region requestRegion = getBpRegion();
 
 		// Fire area requests for concise requests
 		for (DataSource file : conciseDatas.keySet()) {
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = true;
-			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, conciseDatas.get(file), status), true);
 		}
 
 		// Fire area requests for precise requests
@@ -469,7 +471,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = false;
-			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, preciseDatas.get(file), status), true);
 		}
 	}
 
@@ -492,7 +494,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public Region getBpRegion() {
-		return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long) (double) bpRegion.end.bp, bpRegion.end.chr);
+		return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long)Math.ceil((double) bpRegion.end.bp), bpRegion.end.chr);
 	}
 
 	public void mouseClicked(MouseEvent e) {

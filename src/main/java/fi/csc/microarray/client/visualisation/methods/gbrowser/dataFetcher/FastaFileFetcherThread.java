@@ -84,7 +84,7 @@ public class FastaFileFetcherThread extends Thread {
 			
 			//Convert to 0-based coordinate system
 			bpStart--;
-			bpEnd--;
+			bpEnd--; //Correct conversion from 1-based to 0-based wouldn't change the end coordinate, but rest of the calculations assume it to be this way
 			
 			if (headerLength == -1) {
 				init();
@@ -154,6 +154,12 @@ public class FastaFileFetcherThread extends Thread {
 		Chromosome chr = request.start.chr;
 		
 		Fasta fasta = fastas.get(chr);
+		
+		if (request.start.bp < 1) {
+			long move = 1 - request.start.bp;
+			request.start.bp += move;
+			request.end.bp += move;
+		}
 
 		String seqence = fasta.read(request.start.bp, request.end.bp);
 		
