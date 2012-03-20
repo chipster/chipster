@@ -27,8 +27,9 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         if (dotres != 1)
             mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         abline(h=0)
-        for (j in 2:max(chrom))
-            abline(v=chrom.ends[j-1], lty='dashed')
+        if (length(chrom.ends) > 1)
+            for (j in names(chrom.ends)[-length(chrom.ends)])
+                abline(v=chrom.ends[j], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1, at=ax, labels=uni.chrom, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1)
         amps <- data[,3]
@@ -80,8 +81,9 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         if (dotres != 1)
             mtext(paste('Plot resolution: ', 100/dotres, '%', sep=''), side=3, line=0)
         abline(h=0) 
-        for (j in 2:max(chrom))
-            abline(v=chrom.ends[j-1], lty='dashed')
+        if (length(chrom.ends) > 1)
+            for (j in names(chrom.ends)[-length(chrom.ends)])
+                abline(v=chrom.ends[j], lty='dashed')
         ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1,at=ax,labels=uni.chrom,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
         for (jjj in (1:nrow(segment))) {
@@ -178,8 +180,9 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol
         mtext('chromosomes', side=1, line=3)
         
         #### add vert lines at chromosome ends
-        for (j in 2:max(chrom))
-            abline(v=chrom.ends[j-1], lty='dashed')
+        if (length(chrom.ends) > 1)
+            for (j in names(chrom.ends)[-length(chrom.ends)])
+                abline(v=chrom.ends[j], lty='dashed')
 
         title(sampleNames(x)[i])
         if (dotres != 1)

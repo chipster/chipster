@@ -1,12 +1,11 @@
 # TOOL acgh-identify-regions.R: "Identify common regions from called copy number data" (Reduces dimensionality of called copy number data by identifying common breakpoints.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
-# OUTPUT regions.pdf: regions.pdf 
 # OUTPUT region-frequencies.pdf: region-frequencies.pdf 
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-01
+# 2012-03-20
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)
@@ -91,12 +90,9 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 options(scipen=10)
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='regions.pdf', paper='a4r', width=0, height=0)
-plot(regions)
-dev.off()
-
 pdf(file='region-frequencies.pdf', paper='a4r', width=0, height=0)
 frequencyPlot(regions)
+plot(regions)
 dev.off()
 
 # EOF

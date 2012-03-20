@@ -8,7 +8,7 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-01
+# 2012-03-20
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -34,6 +34,9 @@ samples.to.plot <- unique(samples.to.plot)
 
 # remove samples that are out of bounds
 samples.to.plot <- samples.to.plot[samples.to.plot<=nrow(phenodata)]
+
+if (0 %in% samples.to.plot)
+  samples.to.plot <- 1:nrow(phenodata)
 
 # check that we have something to plot
 if (length(samples.to.plot)==0)
