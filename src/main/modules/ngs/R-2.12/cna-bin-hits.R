@@ -1,9 +1,9 @@
 # TOOL cna-bin-hits.R: "Count reads in fixed bins" (Divide the genome into non-overlapping bins of fixed size, calculate reads in each bin, and correct for GC content.)
 # INPUT alignment.bam: "Input BAM file" TYPE GENERIC
 # OUTPUT binned-hits.tsv: "Binned hits"
-# PARAMETER organism: "Organism" TYPE [human: human] DEFAULT human (Organism.)
-# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
-# PARAMETER bin.size: "Bin size" TYPE [1: "1 kbp", 5: "5 kbp", 10: "10 kbp", 15: "15 kbp", 30: "30 kbp", 50: "50 kbp", 100: "100 kbp"] DEFAULT 30 (Bin size.)
+# PARAMETER organism: "organism" TYPE [human: human] DEFAULT human (Organism.)
+# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
+# PARAMETER bin.size: "bin size" TYPE [1: "1 kbp", 5: "5 kbp", 10: "10 kbp", 15: "15 kbp", 30: "30 kbp", 50: "50 kbp", 100: "100 kbp"] DEFAULT 30 (Bin size.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-03-20

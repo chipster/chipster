@@ -2,12 +2,12 @@
 # INPUT binned-hits-{...}.tsv: "Individual files with binned hits" TYPE GENERIC
 # OUTPUT cna-data-table.tsv: "Data table with log-transformed read counts"
 # OUTPUT META phenodata.tsv: "Experiment description file"
-# PARAMETER counts: "Counts" TYPE [count: "Original raw counts", corrected: "GC corrected counts"] DEFAULT count (Whether to use original raw read counts, or GC corrected ones.)
-# PARAMETER log2.transformation: "Log2 transform counts" TYPE [no: no, yes: yes] DEFAULT no (Whether the counts should be log2 transformed.)
-# PARAMETER min.mappability: "Mimimum mappability" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0 (The bins with lower mappability will be removed. Values are between 0 and 1.)
-# PARAMETER normalization: "Normalization" TYPE [none: none, median: median] DEFAULT none (Normalization method.)
-# PARAMETER organism: "Organism" TYPE [human: human] DEFAULT human (Organism.)
-# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
+# PARAMETER counts: "Read counts" TYPE [count: "Original raw counts", corrected: "GC corrected counts"] DEFAULT count (Whether to use original raw read counts, or GC corrected ones.)
+# PARAMETER log2.transformation: "log2 transform counts" TYPE [no: no, yes: yes] DEFAULT no (Whether the counts should be log2 transformed.)
+# PARAMETER min.mappability: "mimimum mappability" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0 (The bins with lower mappability will be removed. Values are between 0 and 1.)
+# PARAMETER normalization: "normalization" TYPE [none: none, median: median] DEFAULT none (Normalization method.)
+# PARAMETER organism: "organism" TYPE [human: human] DEFAULT human (Organism.)
+# PARAMETER genome.build: "human genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-03-20

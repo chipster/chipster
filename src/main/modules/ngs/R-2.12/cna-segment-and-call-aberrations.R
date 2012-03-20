@@ -3,15 +3,13 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT aberrations.tsv: aberrations.tsv
 # OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf
-# PARAMETER organism: "Organism" TYPE [human: human] DEFAULT human (Organism.)
-# PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
-# PARAMETER breakpoint.threshold: "Breakpoint threshold" TYPE DECIMAL DEFAULT 0.8 (Threshold for segmentation of normalized profiles. Use something like 0.6 to get more segments, and thus more predicted CNVs.)
-# PARAMETER min.mappability: "Mimimum mappability" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.85 (The bins with lower mappability will be removed.)
-# PARAMETER ploidy: "Phenodata column with ploidy of samples" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column with ploidy)
-# PARAMETER cellularity: "Phenodata column with cellularity of samples" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column with the proportion of tumor cells in the sample)
-# PARAMETER unique.match: "Unique match" TYPE [FALSE: no, TRUE: yes] DEFAULT FALSE (Use a mappability profile to correct read counts.)
-
-# add parameters: ploidy, read length, breakPointThreshold
+# PARAMETER organism: "organism" TYPE [human: human] DEFAULT human (Organism.)
+# PARAMETER genome.build: "human genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
+# PARAMETER breakpoint.threshold: "breakpoint threshold" TYPE DECIMAL DEFAULT 0.8 (Threshold for segmentation of normalized profiles. Use something like 0.6 to get more segments, and thus more predicted CNVs.)
+# PARAMETER min.mappability: "mimimum mappability" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.85 (The bins with lower mappability will be removed.)
+# PARAMETER ploidy: "phenodata column with ploidy of samples" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column with ploidy)
+# PARAMETER cellularity: "phenodata column with cellularity of samples" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column with the proportion of tumor cells in the sample)
+# PARAMETER unique.match: "unique match" TYPE [FALSE: no, TRUE: yes] DEFAULT FALSE (Use a mappability profile to correct read counts.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-03-20
