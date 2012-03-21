@@ -18,7 +18,7 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
@@ -98,11 +98,11 @@ public class GeneIndexActions {
 	 * getting location of a gene
 	 * @throws SQLException 
 	 */
-	public BpCoordRegion getLocation(String name) throws SQLException {
+	public Region getLocation(String name) throws SQLException {
 		selectStatement.setString(1, name.toUpperCase());
 		ResultSet rs = selectStatement.executeQuery();
 		if (rs.next()) {
-			return new BpCoordRegion(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
+			return new Region(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
 		} else {
 			return null;
 		}
@@ -120,5 +120,31 @@ public class GeneIndexActions {
 				return false;
 			}
 		}
+	}
+	
+	public void clean() {
+
+		try {
+			Connection conn = insertGeneStatement.getConnection();
+
+			// Clear the database 
+			PreparedStatement dropStatement;
+
+			dropStatement = conn.prepareStatement(
+					"DROP ALL OBJECTS;");
+
+			dropStatement.execute();
+			dropStatement.close();
+
+			insertGeneStatement.close();
+			selectStatement.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		instances.clear();
+		instances = null;
 	}
 }

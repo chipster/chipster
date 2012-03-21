@@ -43,9 +43,8 @@ public class QualityCoverageTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-			Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public QualityCoverageTrack(View view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -199,10 +198,10 @@ public class QualityCoverageTrack extends Track {
 						getStrand() == Strand.BOTH) {
 
 					forwardReads.add(content);
-					getView().redraw();
 				}
 			}
 		}
+		getView().redraw();
 	}
 
 	@Override

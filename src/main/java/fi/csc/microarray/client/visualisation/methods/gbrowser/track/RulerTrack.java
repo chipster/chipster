@@ -16,7 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * Ruler that shows coordinates.
@@ -37,7 +37,7 @@ public class RulerTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		BpCoordRegion region = getView().getBpRegion();
+		Region region = getView().getBpRegion();
 
 		long magnitude = (long) Math.pow(10, (int) Math.log10(region.getLength()));
 
@@ -53,12 +53,12 @@ public class RulerTrack extends Track {
 			drawables.add(new TextDrawable(x, textY, text, Color.black));
 		}
 
-		drawables.addAll(getRuler(new BpCoordRegion(start, end, region.start.chr), steps * MINOR_STEPS, start / magnitude % 2 == 1));
+		drawables.addAll(getRuler(new Region(start, end, region.start.chr), steps * MINOR_STEPS, start / magnitude % 2 == 1));
 
 		return drawables;
 	}
 
-	private Collection<Drawable> getRuler(BpCoordRegion bpRegion, int steps, boolean whiteStart) {
+	private Collection<Drawable> getRuler(Region bpRegion, int steps, boolean whiteStart) {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 

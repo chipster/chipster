@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
 
 /**
  * The active thread of the processing layer. Receives area requests and sends out
@@ -18,6 +19,8 @@ public abstract class AreaRequestHandler extends Thread {
 
 	private Queue<AreaRequest> areaRequestQueue;
 	private AreaResultListener areaResultListener;
+
+	private boolean poison = false;
 
 	public AreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
@@ -33,7 +36,7 @@ public abstract class AreaRequestHandler extends Thread {
 	 */
 	public synchronized void run() {
 
-		while (true) {
+		while (!poison) {
 			AreaRequest areaRequest;
 			if ((areaRequest = areaRequestQueue.poll()) != null) {
 				areaRequest.status.areaRequestCount = areaRequestQueue.size();
@@ -63,7 +66,13 @@ public abstract class AreaRequestHandler extends Thread {
 		notifyAll();
 	}
 
-	protected abstract void processAreaRequest(AreaRequest areaRequest);
+	protected void processAreaRequest(AreaRequest areaRequest) {
+
+		if (areaRequest.status.poison) {
+
+			this.poison = true;
+		}
+	}
 
 	/**
 	 * Pass the result to be visualised in GUI.
