@@ -93,13 +93,17 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChunked;
 	private boolean useCompression;
 	private String localFilebrokerPath;
+	private URL publicUrl;
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
 
 		this.urlTopic = urlTopic;
 		this.localFilebrokerPath = localFilebrokerPath;
+		
+		// Fetch filebroker public URL and cache it
+		this.publicUrl = fetchPublicUrl();
 
-		// read configs
+		// Read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
 		
@@ -263,12 +267,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public URL getPublicUrl() throws JMSException {
+		return publicUrl;
+	}
+
+	private URL fetchPublicUrl() throws JMSException {
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
-			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener); // FIXME blocks forever if we have lost network
+			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();

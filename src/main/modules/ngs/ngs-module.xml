@@ -13,21 +13,6 @@
 		<tool runtime="R-2.12">
 			<resource>ngs-filter-results-column.R</resource>
 		</tool>	
-		<tool runtime="R-2.12">
-			<resource>prinseq-length-filter.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-N-filter.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-complexity-filter.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-duplicate-filter.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-filter.R</resource>
-		</tool>
 	</category>
 
 	<category name="Quality control" color="#e7df70">
@@ -44,16 +29,7 @@
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>prinseq-AT-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-quality-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-renamer.R</resource>
@@ -104,7 +80,10 @@
 			<resource>extract-features-from-BED.R</resource>
 		</tool>	
         <tool runtime="R-2.12">
-			<resource>prinseq-statistics.R</resource>
+			<resource>test-data-in.R</resource>
+		</tool>	
+        <tool runtime="R-2.12">
+			<resource>test-data-in-out.R</resource>
 		</tool>	
 	</category>
 
@@ -194,16 +173,19 @@
 
 	<category name="RNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
-			<resource>htseq-count-own-gtf.R</resource>
+			<resource>htseq-count.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>convert-RNA-bam-to-edger.R</resource>
+			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
+		</tool>
+		<tool runtime="R-2.14">
+			<resource>dea-deseq.R</resource>
 		</tool>
 	</category>
 

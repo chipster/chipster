@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -12,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.FastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -20,14 +20,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 /**
  * 
- * The data retrieval layer thread for gtf files from the ftp.ensembl.org containing genes and transcripts. 
- * Keeps annotations of only one chromosome in memory to keep memory consumption in about 200 MB (for 1. human 
- * chromosome). Annotation file is about 400 MB and has to be read through in every chromosome change, so
- * performance and memory consumption of readFile() method is quite important. This allows showing annotations
- * without too much waiting, currently in about 4 seconds. Receives file requests and sends file results.
+ * The data retrieval layer thread for fasta files from the ftp.ensembl.org containing reference sequence. 
+ * There is a separate fasta file for each chromosome. When first request of a file is received, first rows of the file
+ * are read to get the lengths of header line and data rows. It's assumed that all data rows have equal length, so that 
+ * with this information we can calculate exact byte location of every requested sequence region. File parsing is not 
+ * needed like in the tabular files, because the String from the file is all the data that is needed.
  * 
- * Data is stored in hierarchical structure of Gene, Transcript and Exon objects. After file reading a 
- * coverage is calculated representing number of exons over the chromosome.
+ * Receives file requests and sends file results.
  * 
  * @author Petri Klemelä
  *
@@ -62,16 +61,31 @@ public class FastaFileFetcherThread extends Thread {
 			int secondNewLine = headString.indexOf("\n", firstNewLine + 1);
 			
 			headerLength = firstNewLine + 1; //plus one because of new line character
-			rowLength = secondNewLine - firstNewLine; //including new line character
+			fileRowLength = secondNewLine - firstNewLine; //including new line character
 		}
 		
 		public long bpToFile(long bp) {
-			int rows = (int) (bp / rowLength);			
-			int column = (int) (bp % rowLength);
-			return headerLength + rows * rowLength + column;
+			long bpRowLength = fileRowLength - 1;//Minus one because fileRowLength contains new line character
+			int rows = (int) (bp / bpRowLength);
+			int column = (int) (bp % bpRowLength);
+			return headerLength + rows * fileRowLength + column;
 		}
 		
+		/**
+		 * Returns the requested region of the file. Coordinates are in 1-based coordinate system and
+		 * returned sequence includes the end coordinate, i.e. read(3, 5) returns a String with three characters.
+		 * 
+		 * @param bpStart
+		 * @param bpEnd
+		 * @return
+		 * @throws IOException
+		 */
 		public String read(long bpStart, long bpEnd) throws IOException {
+			
+			//Convert to 0-based coordinate system
+			bpStart--;
+			bpEnd--; //Correct conversion from 1-based to 0-based wouldn't change the end coordinate, but rest of the calculations assume it to be this way
+			
 			if (headerLength == -1) {
 				init();
 			}
@@ -79,7 +93,7 @@ public class FastaFileFetcherThread extends Thread {
 			long startPosition = bpToFile(bpStart);
 			long endPosition = bpToFile(bpEnd);
 			
-			byte[] bytes = new byte[(int) (endPosition - startPosition + 1)];
+			byte[] bytes = new byte[(int) (endPosition - startPosition) + 1];
 			
 			dataSource.read(startPosition, bytes);
 			
@@ -92,12 +106,12 @@ public class FastaFileFetcherThread extends Thread {
 		
 		private ChunkDataSource dataSource;
 		private long headerLength = -1;
-		private long rowLength = -1;
+		private long fileRowLength = -1;
 	}
 
 	public FastaFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
 			ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, FastaHandlerThread areaRequestThread,
-			Map<Chromosome, ChunkDataSource> dataSources) {
+			FastaDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
@@ -105,7 +119,7 @@ public class FastaFileFetcherThread extends Thread {
 		
 		this.fastas = new TreeMap<Chromosome, Fasta>();
 		
-		for (Entry<Chromosome, ChunkDataSource> entry : dataSources.entrySet()) {
+		for (Entry<Chromosome, ChunkDataSource> entry : dataSource.entrySet()) {
 			fastas.put(entry.getKey(), new Fasta(entry.getValue()));
 		}
 
@@ -140,6 +154,12 @@ public class FastaFileFetcherThread extends Thread {
 		Chromosome chr = request.start.chr;
 		
 		Fasta fasta = fastas.get(chr);
+		
+		if (request.start.bp < 1) {
+			long move = 1 - request.start.bp;
+			request.start.bp += move;
+			request.end.bp += move;
+		}
 
 		String seqence = fasta.read(request.start.bp, request.end.bp);
 		
@@ -159,14 +179,5 @@ public class FastaFileFetcherThread extends Thread {
 	
 	public String toString() {
 		return this.getClass().getName() + " - " + fastas;
-	}
-	
-	public static void main(String args[]) throws IOException {
-		
-		FastaFileFetcherThread thread = new FastaFileFetcherThread(null,  null, null, new TreeMap<Chromosome, ChunkDataSource>());
-				
-		Fasta fasta = thread.new Fasta(new ChunkDataSource(new File("/home/klemela/chipster/fastaTest.fa"), null));
-		
-		System.out.println(fasta.read(0, 29));
 	}
 }

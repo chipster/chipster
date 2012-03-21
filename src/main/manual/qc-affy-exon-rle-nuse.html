@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Quality control / Affymetrix exon arrays - using RLE and NUSE</h2>
+
+<h3>Description</h3>
+
+<p>Performs some more advanced quality control for Affymetrix arrays.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Image width [600]</li>
+<li>Image height [600]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>Fit a probe-level model to the data, and creates two plots for the dataset. The first plot reports
+relative log expression values (RLE), and the second the normalized unscaled standard errors (NUSE)</p>
+
+<h3>Output</h3>
+
+<p>Assuming that most probesets on arrays are not changing, most of the RLE values are close 0. When examining
+the boxplot, the deviant arrays can be identified by not being centered at 0, or being more spread out than the other
+arrays.</p>
+
+<img src="rle-plot.png">
+
+<p>The standard error from the probe-level model are visualized as boxplots in the NUSE plot. When examining
+the boxplot, the deviant arrays can be identified by not being centered at 0, or being more spread out than the other
+arrays.</p>
+
+<img src="nuse-plot.png">
+
+</body>
+
+</html>

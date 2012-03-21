@@ -1,31 +1,24 @@
-# TOOL prinseq-length-filter.R: "Filter reads for length" (Selects nucleotide sequences from a FASTQ file based on read length.)
+# TOOL prinseq-length-filter.R: "Filter reads based on length" (Filters reads based on length. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
 # OUTPUT OPTIONAL rejected.fastq
 # OUTPUT OPTIONAL rejected.fasta
 # OUTPUT OPTIONAL filter.log
-# PARAMETER max.len: "Maximum length" TYPE INTEGER (Select only sequences that are shorter than the given value.)
-# PARAMETER OPTIONAL min.len: "Minimum length" TYPE INTEGER DEFAULT 0 (Select only sequences that are longer than the given value.)
-# PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "Accepted sequences only", both: "Accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
+# PARAMETER max.len: "Maximum length" TYPE INTEGER DEFAULT 500 (Select only reads that are shorter than the given value.)
+# PARAMETER min.len: "Minimum length" TYPE INTEGER DEFAULT 15 (Select only reads that are longer than the given value.)
+# PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "No", y: "Yes"] DEFAULT n (Write a log file. The log file shows the PRINSEQ command used and the amount of sequences in the result files)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file. The log file shows the PRINSEQ command used and the amount of reads in the result files)
 
 
 # check out if the file is compressed and if so unzip it
-system("file fastqfile > file_info")
-system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv fastqfile reads.gz ; gzip -d reads.gz ; mv reads fastqfile")
-
-
-system("
-wget http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz
-tar zxf prinseq-lite-0.17.3.tar.gz
-")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("fastqfile")
 
 # binary
-#binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "bin", "prinseq-lite.pl"))
-binary.prinseq <- c("perl prinseq-lite-0.17.3/prinseq-lite.pl")
+binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl"))
+
 
 
 filter.params <- paste(" ")

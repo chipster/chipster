@@ -80,6 +80,7 @@
 		<tool runtime="R-2.12"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
+		<tool runtime="R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
 	</category>
 	
 	<category name="Pathways" color="#0177b7">

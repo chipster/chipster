@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>miRNA-seq /  Differential expression analysis using edgeR</h2>
+
+<h3>Description</h3>
+
+This tool will perform an analysis for differentially expressed sequences using the R implementation of the edgeR algorithm.
+
+<br>
+<br>
+<h3>Parameters</h3>
+
+<ul>
+<li> Column describing groups [group]</li>
+<li> Apply normalization (yes, no) [yes]</li>
+<li> Dispersion estimate (common, tagwise) [tagwise]</li>
+<li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
+<li> P-value cutoff (0-1) [0.05]</li>
+<li> Plot width (200-3200 [600]</li>
+<li> Plot height (200-3200) [600]</li>
+</ul>
+
+<h3><br>Details</h3>
+
+<br>
+Given an input table of counts data for at least two samples, the edgeR package performs scaling, normalization
+and statistical analysis to identify differentially expressed genomic features between two experimental conditions.
+Notice that the statistical analysis assumes that there are at least two independent biological replicate samples
+for each experiment condition.
+<br><br>
+In it's current implementation, the tool only supports single-factor experiment designs. The experiment
+conditions to be compared should be defined in the phenodata.tsv file and the appropriate column be selected using
+the 'Column describing groups' parameter.
+<br><br>
+Scaling, to account for variations in library size, are done either by dividing with the average of the total counts for each sample or,
+if the user have filled in the 'library_size' column of the phenodata.tsv file, by dividing with the average of those values.
+<br><br>
+In order to reduce the impact of so called RNA composition bias, which can arise for example when only a small number of genes
+are very highly expressed in one experiment condition but not in the other, an offset value can be estimated and built into
+the generalized linear model. The user can choose to turn normalization off using the 'Apply normalization' parameter.
+<br><br>
+There are two different methods for estimating the dispersion. The 'common' dispersion method assumes there are a small number of samples but
+many reads for estimating a common dispersion value, whereas the 'tagwise' method might be more suited for small library sizes. 
+<br><br>
+Statistical testing is performed using a generalized linear model and the p-values are adjusted for multiple testing using the classical approaches.
+<br><br>
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+
+
+<ul>
+<li>de-list-edger.tsv:	Table containing the results of the statistical testing, including fold change estimates and p-values.<br></li>
+<li>de-list-edger.bed:  The BED version of the results table contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.<br></li>
+<li>a-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. <br></li>
+<li>ma-plot-significant-edger.pdf: A scatter plot where the significantly differentially expressed features are highlighted. <br></li>
+<li>mds-plot-edger.pdf: A plot showing the results of multidimensional scaling of the data to visualize sample similarities. <br></li>
+<li>edger-log.txt: Log file. <br></li>
+<br></ul>
+<h3><br>References</h3>
+
+<p>This tool uses the edgeR package for statistical analysis. Please read the following article for more detailed information:</p>
+
+<p> MD Robinson, DJ McCarthy, and GK Smyth. <a href="http://www.ncbi.nlm.nih.gov/pubmed/19910308">edgeR: a bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics, 26 (1):139Ð40, Jan 2010.</a></p> 
+
+
+<p> </a>.</p> 
+
+</body>

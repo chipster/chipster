@@ -28,6 +28,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	protected MessagingEndpoint endpoint;
 	protected MessagingTopic requestTopic;
 	protected TaskExecutor taskExecutor;
+	private FileBrokerClient filebrokerClient;
 
 	private NodeBase nodeSupport = new NodeBase() {
 		public String getName() {
@@ -40,6 +41,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
 	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
 		this.taskExecutor = new TaskExecutor(endpoint, manager);
+		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
 	public TaskExecutor getTaskExecutor() {
@@ -96,7 +98,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 
 	@Override
 	public FileBrokerClient getFileBrokerClient() throws Exception {
-        return new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+        return filebrokerClient;
 	}
 
 	@Override

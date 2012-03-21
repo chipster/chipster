@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Filter out duplicate reads</h2>
+
+<h3>Description</h3>
+
+<p>This tool filters out duplicate reads from a reads file.
+</p>
+
+
+<h3>Details</h3>
+
+<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.<br>
+The input data can be in FASTQ or in FASTA format.
+</p> 
+<p>
+The main purpose of removing duplicates is to mitigate the effects of PCR amplification bias 
+introduced during library construction. In addition, removing duplicates can result in computational 
+benefits by reducing the number of sequences that need to be processed and by lowering the memory requirements. 
+Sequence duplicates can also impact abundance or expression measures and can result in false variant 
+(SNP) calling.
+</p>
+
+The duplicate reads can be defined in several ways: 
+<ul>
+<li><b>exact duplicates</b> are reads that are identical copies to some other read</li>
+<li><b>5' or 3' duplicates</b> are reads that are identical with the 5' or 3' end of a longer read.</li>
+<li><b>exact reverse complement duplicates</b> are reads for which the reverse complement is identical copies to some other read</li>
+<li><b>reverse complement 5' or 3' duplicates</b> are reads that for which the reverse complement is identical with the 5' or 3' end of a longer read.</li>
+</ul>
+ 
+In addition to the the way how duplicates are defined, you should also define a threshold value:
+<b>Number of allowed duplicates</b>, that specifies the number of allowed duplicates. For example, 
+to remove sequences that occur more than 5 times, you would specify value 6. Note that this parameter
+is used only for filtering exact duplicates or reverse complement exact duplicates.
+
+
+<h3>Output</h3>
+<p>
+The reads that pass the duplicate filtering condition are saved to file called <b>accepted.fastq</b> or <a>accepted.fasta</a>.
+You can also choose to write out the duplicate reads that are filtered out.
+These reads are stored to file <b>rejected.fastq</b> or <b>rejected.fasta</b>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected. 
+</p>
+
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

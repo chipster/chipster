@@ -15,7 +15,6 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytoband;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
@@ -59,9 +58,8 @@ public class CytobandTrack extends Track {
 		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
 	}
 
-	public CytobandTrack(View view, CytobandDataSource data,
-	        Class<? extends AreaRequestHandler> handler, boolean showText) {
-		super(view, data, handler); 
+	public CytobandTrack(View view, CytobandDataSource data, boolean showText) {
+		super(view, data); 
 
 		this.showText = showText;
 	}

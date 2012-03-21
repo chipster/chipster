@@ -21,6 +21,7 @@
 	<property name="lib-ext" location="ext/lib-ext" />
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
+	<property name="manual" location="src/main/manual" />
 	<property name="workflows" location="src/main/workflows" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
@@ -38,7 +39,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.0.0" />
+	<property name="release-version" value="2.0.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -267,7 +268,12 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
-			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" />
+			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" >
+				<exclude name="sequence/" />
+			</tarfileset>
+			
+				
+				
 			
 			
 			<!-- fileserver -->
@@ -335,6 +341,7 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
+			<tarfileset dir="${manual}" prefix="chipster/webstart/web-root/manual" />
 			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />

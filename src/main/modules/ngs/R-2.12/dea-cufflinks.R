@@ -2,10 +2,10 @@
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
-# OUTPUT de-genes.tsv
-# OUTPUT de-isoforms.tsv
-# OUTPUT OPTIONAL de-genes.bed
-# OUTPUT OPTIONAL de-isoforms.bed
+# OUTPUT de-genes-cufflinks.tsv
+# OUTPUT de-isoforms-cufflinks.tsv
+# OUTPUT OPTIONAL de-genes-cufflinks.bed
+# OUTPUT OPTIONAL de-isoforms-cufflinks.bed
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
 # PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1000000 DEFAULT 0 (The cutoff for differential expression. Note that the fold changes are reported using base 2 logarithmic scale, so the cutoff for finding 2-fold regulated genes should be given as 1.)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction, the cutoff needs to be substantially more conservative than what is usually applied.)
@@ -16,7 +16,7 @@
 #                                                          #
 # Analaysis workflow using Cufflinks for normalization and #
 # statistical testing for finding differentially expressed #
-# known genes and transcript isoforms.  #
+# known genes and transcript isoforms.                     #
 #                                                          #
 # The tool assumes that all samples belonging to each      #
 # experiment condition have been merged into one single    #
@@ -103,7 +103,7 @@ if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1
 }
 # order according to increasing q-value
 results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
@@ -112,7 +112,7 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
-	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	write.table(bed_output, file="de-genes-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
 # Report numbers to the log file
@@ -169,7 +169,7 @@ if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1
 }
 # order according to increasing q-value
 results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
@@ -178,7 +178,7 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
-	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	write.table(bed_output, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
 # Report numbers to the log file

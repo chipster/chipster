@@ -12,7 +12,6 @@ import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -79,9 +78,8 @@ public class ReferenceSNPTrack extends Track {
 		INTRONIC_NMD_TRANSCRIPT, NONE,
 	}
 
-	public ReferenceSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-			long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public ReferenceSNPTrack(View view, DataSource file, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
@@ -201,12 +199,11 @@ public class ReferenceSNPTrack extends Track {
         }
     }
 
-	public void changeSNPView(Class<? extends AreaRequestHandler> handler) {
+	public void changeSNPView() {
         // turn on highlighting mode
         changeView = true;
         
         // set reference data
-        view.getQueueManager().createQueue(file, handler);
         view.getQueueManager().addResultListener(file, this);
     }
 

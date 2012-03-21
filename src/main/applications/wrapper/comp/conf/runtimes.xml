@@ -39,7 +39,7 @@
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
 			<parameter>
 				<name>command</name>
-				<value>/opt/chipster/tools/R-2.12.0/bin/R</value>
+				<value>/opt/chipster/tools/R-2.12.1/bin/R</value>
 			</parameter>
 			<parameter>
 				<name>commandParameters</name>
@@ -56,6 +56,33 @@
 			
 		</handler>
 	</runtime>
+
+	<runtime>
+		<name>R-2.14</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<parameter>
+				<name>command</name>
+				<value>/opt/chipster/tools/R-2.14.1/bin/R</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/R-2.14</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
+			
+		</handler>
+	</runtime>
+
+
+
 
 	<runtime>
 		<name>beanshell</name>

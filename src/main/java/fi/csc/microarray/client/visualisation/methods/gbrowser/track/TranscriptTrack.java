@@ -17,7 +17,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Transcript;
@@ -54,10 +53,9 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file,
-			Class<? extends AreaRequestHandler> handler, Color color, long maxBpLength) {
+	public TranscriptTrack(View view, DataSource file, Color color, long maxBpLength) {
 
-		super(view, file, handler);
+		super(view, file);
 		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}

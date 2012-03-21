@@ -1,8 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TabixFile;
 
 /**
@@ -22,10 +24,11 @@ public class TabixDataSource extends DataSource {
      * 
      * @param file
      * @throws FileNotFoundException
+     * @throws URISyntaxException 
      */
-    public TabixDataSource(File file) throws FileNotFoundException {
-        super(file);
-        tabixFile = new TabixFile(file);
+    public TabixDataSource(URL file) throws FileNotFoundException, URISyntaxException {
+        super(file, TabixHandlerThread.class);
+        tabixFile = new TabixFile(this.file);
     }
     
     public TabixFile getTabix() {

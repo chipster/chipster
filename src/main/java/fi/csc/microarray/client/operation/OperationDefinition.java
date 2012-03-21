@@ -130,35 +130,40 @@ public class OperationDefinition implements ExecutionItem {
 		private String displayName;
 		private String description = null;
 		private String postfix = null;
-		private boolean multi = false;
+		private boolean isMulti = false;
 		private int multiCounter;
 		private SADLSyntax.InputType type;
+		private boolean isOptional;
 
 		/**
 		 * Creates single input.
+		 * @param isOptional 
 		 */
-		public InputDefinition(Name name, String description, SADLSyntax.InputType type) {
+		public InputDefinition(Name name, String description, SADLSyntax.InputType type, boolean isOptional) {
 			resetMulti();
 			this.id = name.getID();
 			this.displayName = name.getDisplayName();
 			this.description = description;
 			this.type = type;
+			this.isOptional = isOptional;
 		}
 
 		/**
-		 * Creates multi-input.
+		 * Creates isMulti-input.
+		 * @param isOptional 
 		 */
-		public InputDefinition(String prefix, String postfix, String displayName, String description, SADLSyntax.InputType type) {
+		public InputDefinition(String prefix, String postfix, String displayName, String description, SADLSyntax.InputType type, boolean isOptional) {
 			this.id = prefix;
 			this.postfix = postfix;
 			this.displayName = displayName;
 			this.description = description;
 			this.type = type;
-			this.multi = true;
+			this.isOptional = isOptional;
+			this.isMulti = true;
 		}
 
 		public String getID() {
-			if (!multi) {
+			if (!isMulti) {
 				return id;
 			} else {
 				return id + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
@@ -174,7 +179,7 @@ public class OperationDefinition implements ExecutionItem {
         }
         
         /**
-         * Get display name for multi input.
+         * Get display name for isMulti input.
          * 
          * @param id
          * @return display name with {...} replaced with the number of the parameter id
@@ -200,12 +205,16 @@ public class OperationDefinition implements ExecutionItem {
 		    return type;
 		}
 
+		public boolean isOptional() {
+			return isOptional;
+		}
+
 		private void nextMulti() {
 			multiCounter++;
 		}
 
 		public boolean isMulti() {
-			return multi;
+			return isMulti;
 		}
 
 		public void resetMulti() {
@@ -406,13 +415,13 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(Name name, String description, InputType type) {
-		InputDefinition input = new InputDefinition(name, description, type);
+	public void addInput(Name name, String description, InputType type, boolean isOptional) {
+		InputDefinition input = new InputDefinition(name, description, type, isOptional);
 		inputs.add(input);
 	}
 
-	public void addInput(String prefix, String postfix, String displayName, String description, InputType type) {
-		InputDefinition input = new InputDefinition(prefix, postfix, displayName, description, type);
+	public void addInput(String prefix, String postfix, String displayName, String description, InputType type, boolean isOptional) {
+		InputDefinition input = new InputDefinition(prefix, postfix, displayName, description, type, isOptional);
 		inputs.add(input);
 	}
 	
@@ -496,8 +505,8 @@ public class OperationDefinition implements ExecutionItem {
 			}
 			notProcessedInputValues.removeAll(removedValues);
 
-			// input not bound, so can give up
-			if (!foundBinding) {
+			// input not bound and is mandatory, so can give up
+			if (!foundBinding && !input.isOptional()) {
 				logger.debug("  no binding found for " + input.id);
 				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
 				return null;

@@ -156,7 +156,14 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 
 							// authenticate with username/password
 							if (authenticationProvider.authenticate(authMsg.getUsername(), authMsg.getPassword().toCharArray())) {
-								ackLogin(authMsg, session.getID().toString(), true);
+								
+								// ack username to client
+								try {
+									ackLogin(authMsg, session.getID().toString(), true);
+								} catch (Exception e) {
+									logger.warn("could not send acknowledge message for " + authMsg.getUsername());
+								}
+
 								session.putParameter(KEY_USERNAME, authMsg.getUsername());
 								authMsg.setSessionID(session.getID().toString());
 								securityLogger.info("authenticated user " + authMsg.getUsername() + " (auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
@@ -195,10 +202,23 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 				//
 
 				if (messageToBeRouted != null) {
+					
+					// sanity check for username;
+					String username = (String)session.getParameter(KEY_USERNAME);
+					
+					if (username == null || username.equals("")) {
+						logger.error("not routing a message with null or empty username");
+						Session sessionToBeRemoved = sessionPool.getSession(messageToBeRouted.getSessionID()); 
+						if (sessionToBeRemoved != null) {
+							sessionPool.removeSession(sessionToBeRemoved);	
+						}
+						return;
+					}
+					
 					securityLogger.info("message " + messageToBeRouted.getMessageID() + " was allowed");
 					messageLogger.info(messageToBeRouted);
 					
-					messageToBeRouted.setUsername((String)session.getParameter(KEY_USERNAME));
+					messageToBeRouted.setUsername(username);
 					routeTo.sendMessage(messageToBeRouted);
 					securityLogger.info("routing message " + messageToBeRouted.getMessageID() + " to authorised topic");
 				}

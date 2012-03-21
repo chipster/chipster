@@ -4,9 +4,6 @@ import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.CytobandHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrackGroup;
@@ -29,11 +26,11 @@ import fi.csc.microarray.constants.VisualConstants;
  */
 public class TrackFactory {
 	
-    public static TrackGroup addGeneTracks(GenomePlot genomePlot, LineDataSource annotationFile) throws FileNotFoundException {
+    public static TrackGroup addGeneTracks(GenomePlot genomePlot, DataSource annotationDataSource) throws FileNotFoundException {
         
 		View dataView = genomePlot.getDataView();
 		
-		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationFile);
+		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource);
 		
 		// Add gene group to data view
 	    addGroup(dataView, geneGroup);
@@ -48,16 +45,13 @@ public class TrackFactory {
 		dataView.addTrack(new SeparatorTrack3D(dataView, 0, Long.MAX_VALUE, true));
 	}
 	
-	public static TrackGroup addReadTracks(GenomePlot genomePlot, DataSource userData,
-	        Class<? extends AreaRequestHandler> userDataHandler,
-	        DataSource seqFile, String title)
+	public static TrackGroup addReadTracks(GenomePlot genomePlot, DataSource userData, DataSource seqFile, String title)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, userData,
-		        userDataHandler, seqFile, title);
+		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, userData, seqFile, title);
 		readGroup.initialise();
         
         addGroup(dataView, readGroup);
@@ -66,14 +60,13 @@ public class TrackFactory {
 	}
 	
 	public static TrackGroup addReadSummaryTracks(GenomePlot genomePlot, DataSource userData,
-	        Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String title, TabixDataSource summaryDataSource)
+	        DataSource seqFile, String title, TabixDataSource summaryDataSource)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData,
-		        userDataHandler, seqFile, title, summaryDataSource);
+		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData, seqFile, title, summaryDataSource);
 		readGroup.initialise();
 		
         addGroup(dataView, readGroup);
@@ -83,21 +76,21 @@ public class TrackFactory {
 
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
 		WIGTrack annotation = new WIGTrack(plot.getDataView(), peakFile,
-		        ChunkTreeHandlerThread.class, Color.BLUE, 0, Long.MAX_VALUE);
+		        Color.BLUE, 0, Long.MAX_VALUE);
 		addTrack(plot.getDataView(), annotation);
 	}
 	
 	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
 	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
@@ -107,7 +100,7 @@ public class TrackFactory {
 
 	public static void addCytobandTracks(GenomePlot plot, CytobandDataSource cytobandData) {
 		
-		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, CytobandHandlerThread.class, false);
+		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
 	}
 

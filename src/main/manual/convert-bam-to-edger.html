@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>miRNA-seq / Convert genomic BAM file to edgeR input format</h2>
+
+<h3>Description</h3>
+
+<p>
+his tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes
+the ones for which the count is under the user defined threshold.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Count limit (0-1000000) [10]</li>
+<li>Merge overlapping reads (no, start, end, both) [both]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>
+The tool takes as input a BAM file with sequence reads that have been aligned to a reference genome,
+so that genomic location information for each mapped sequence is available. Depending on how the
+'Merge overlapping reads' parameter is set the counts are calculated so that only perfectly identical
+reads are summed up or all the reads that start and/or end at a certain genomic position are added together.
+The latter option is set by default since it greatly reduces redundancy in the counts data. 
+</p>
+<p>
+
+
+<h3>Output</h3>
+
+<p>
+edgeR-input.tsv: A text file with counts for each genomic feature, together with chromosome location info, suitable as input for tools like edgeR or DESeq.
+</p>
+
+
+<h3>References</h3>
+
+<p>
+
+</body>
+

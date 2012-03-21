@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -42,9 +41,9 @@ public class CoverageTrack extends Track {
 	private ReadpartDataProvider readpartProvider;
 
 
-	public CoverageTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
+	public CoverageTrack(View view, DataSource file, ReadpartDataProvider readpartProvider,
 	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+		super(view, file);
 		this.forwardColor = forwardColor;
 		this.backwardColor = backwardColor;
 		this.minBpLength = minBpLength;
@@ -213,7 +212,7 @@ public class CoverageTrack extends Track {
 	 */
 	@Override
     public boolean canExpandDrawables() {
-        return false;
+        return true;
     }
 	
 	@Override

@@ -18,6 +18,7 @@ public class JettyFileServer {
 		this.urlRepository = urlRepository;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void start(String resourceBase, int port) throws Exception {
 		
 		if (DirectoryLayout.getInstance().getConfiguration().getBoolean("filebroker", "jetty-debug")) {
@@ -32,6 +33,7 @@ public class JettyFileServer {
 		jettyInstance.setConnectors(new Connector[]{ connector });
 
 		Context root = new Context(jettyInstance, "/", false, false);
+		root.getInitParams().put("org.mortbay.jetty.servlet.Default.aliases", "true");
 		root.setResourceBase(resourceBase);
 		root.addServlet(new ServletHolder(new RestServlet(urlRepository, urlRepository.getRootUrl())), "/*");
 		jettyInstance.start();

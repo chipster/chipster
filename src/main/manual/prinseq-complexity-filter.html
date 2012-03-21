@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Filter reads by complexity</h2>
+
+<h3>Description</h3>
+
+<p>This tool filters out low complexly sequences using either DUST or Entropy algorithm. 
+The algorithm is selected by defining a threshold value for one of the methods. 
+</p>
+
+
+<h3>Details</h3>
+
+<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
+The filtering is calculated with PRIONSEQ option -stats_all.
+The input data can be in FASTQ or FASTA format. You should give a threshold value 
+to DUST or Entropy filter threshold but not for both methods.
+The method fof which the threshold value is defined will be used.
+</p><p>
+The DUST method uses the threshold value as maximum allowed score.
+The DUST approach is adapted from the algorithm used to mask low-complexity 
+regions during BLAST search preprocessing. The scores are computed based on 
+how often different trinucleotides occur and are scaled from 0 to 100. 
+Higher scores imply lower complexity. A sequence of homopolymer repeats 
+(e.g. TTTTTTTTT) has a score of 100, of dinucleotide repeats (e.g. TATATATATA) 
+has a score around 49, and of trinucleotide repeats (e.g. TAGTAGTAGTAG) has a 
+score around 32.
+</p><p>
+The Entropy method  uses the threshold as minimum allowed value. </p>
+The Entropy approach evaluates the entropy of trinucleotides in a sequence. 
+The entropy values are scaled from 0 to 100 and lower entropy values imply 
+lower complexity. A sequence of homopolymer repeats (e.g. TTTTTTTTT) has an 
+entropy value of 0, of dinucleotide repeats (e.g. TATATATATA) has a value around 16, 
+and of trinucleotide repeats (e.g. TAGTAGTAGTAG) has a value around 26.
+</p>
+
+<h3>Output</h3>
+<p>
+The reads that pass the low complexity filtering condition are saved to file called accepted.fastq or accepted.fasta.
+You can also choose to write out the reads that are filtered out due to their low complexity.
+These reads are stored to file rejected.fastq or rejected.fasta.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected. 
+</p>
+
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

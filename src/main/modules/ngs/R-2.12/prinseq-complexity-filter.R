@@ -1,37 +1,30 @@
-# TOOL prinseq-complexity-filter.R: "Filter reads by complexity" (Filters out low complexly sequences using either DUST or ENTROPY algorithm. The algorith is selected by defining a threshold value for one of the methods.)
+# TOOL prinseq-complexity-filter.R: "Filter reads by complexity" (Filters out low complexly sequences using either DUST or ENTROPY algorithm. The algorith is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
 # OUTPUT OPTIONAL rejected.fastq
 # OUTPUT OPTIONAL rejected.fasta
 # OUTPUT OPTIONAL filter.log
-# PARAMETER OPTIONAL lc.dust: "Dust filter threshold" TYPE INTEGER (Use DUST algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The dust method uses this as maximum allowed score.)
+# PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The DUST method uses this as maximum allowed score.)
 # PARAMETER OPTIONAL lc.entropy: "Entropy filter threshold" TYPE INTEGER (Use Entripy algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The entropy method uses this as the as minimum allowed value.)
-# PARAMETER output.mode: "Results to write out" TYPE [ filt: "Accepted sequences only", both: "Accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file.) 
-# PARAMETER input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file.)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "No", y: "Yes"] DEFAULT n (Write a log file.)
+# PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file.) 
+# PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file.)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file.)
 
 # check out if the file is compressed and if so unzip it
-system("file fastqfile > file_info")
-system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv fastqfile reads.gz ; gzip -d reads.gz ; mv reads fastqfile")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("fastqfile")
 
-
-
-system("
-wget http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz
-tar zxf prinseq-lite-0.17.3.tar.gz
-")
 
 # binary
-#binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "bin", "prinseq-lite.pl"))
-binary.prinseq <- c("perl prinseq-lite-0.17.3/prinseq-lite.pl")
-
+binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 
 filter.params <- paste(" ")
 
-if (lc.dust > 0 && lc.entropy > 0) {
-   stop(paste('CHIPSTER-NOTE: Please give threshold value only for one complexity filtering method, not both of them')
+if (!is.na(lc.dust)) {
+	if (!is.na(lc.entropy)) {
+	   stop(paste('CHIPSTER-NOTE: Please give threshold value only for one complexity filtering method, not both of them'))
+	}
 }
 
 if (!is.na(lc.dust)) {
