@@ -139,8 +139,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 		// tool and script locations
 		File commonRScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath); 
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n" +
-						  "chipster.common.path = '" + commonRScriptDir.getAbsolutePath() + "'\n");
-		
+						  "chipster.common.path = '" + commonRScriptDir.getAbsolutePath() + "'\n" + 
+						  "chipster.module.path = '" + moduleDir.getAbsolutePath() + "'\n");
 		return ad;
 	}
 
