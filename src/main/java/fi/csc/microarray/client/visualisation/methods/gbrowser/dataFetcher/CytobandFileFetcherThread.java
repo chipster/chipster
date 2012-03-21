@@ -3,9 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
@@ -70,11 +72,31 @@ public class CytobandFileFetcherThread extends Thread {
 
 	private void readFile() throws IOException {
 		
-				Map<String, String> chrMap = new HashMap<String, String>();
 				
 				String line;
 				
-				LineDataSource regionDataSource = dataSource.getRegionDataSrouce();
+				
+				//First find out chromosome coordinate systems
+				Set<String> chrCoordSystems = new HashSet<String>();
+				
+				LineDataSource coordDataSource = dataSource.getCoordDataSource();
+				
+				while ((line = coordDataSource.readLine()) != null) {
+
+					String[] cols = line.split("\t");
+
+					String coordSystemId = cols[0];
+					String coordType = cols[2];
+					
+					if ("chromosome".equals(coordType)) {
+						chrCoordSystems.add(coordSystemId);
+					}
+				}
+				
+				//Then find out identifiers for different chromosomes 
+				Map<String, String> chrMap = new HashMap<String, String>();
+				
+				LineDataSource regionDataSource = dataSource.getRegionDataSource();
 				
 				while ((line = regionDataSource.readLine()) != null) {
 
@@ -86,16 +108,12 @@ public class CytobandFileFetcherThread extends Thread {
 					String coord_system_id = cols[2];
 					//String length = cols[3];
 					
-					
-					//seq_region types can be found from following file, but now it's assumed that type 2 means
-					//chromosome: ftp://ftp.ensembl.org/pub/release-57/mysql/homo_sapiens_core_57_37b/coord_system.txt.gz
-					if (!(coord_system_id.equals("2") || coord_system_id.equals("101"))) {
-						continue;
+					if (chrCoordSystems.contains(coord_system_id)) {									
+						chrMap.put(seq_region_id, chr);
 					}
-										
-					chrMap.put(seq_region_id, chr);
 				}
 				
+				//Finally read the actual data
 				while ((line = dataSource.readLine()) != null) {
 
 					String[] cols = line.split("\t");
@@ -108,7 +126,7 @@ public class CytobandFileFetcherThread extends Thread {
 					String band = cols[4];
 					String stain = cols[5];
 					
-					String chr = chrMap.get(seq_region_id);
+					String chr = chrMap.get(seq_region_id); //Translate chromosome identifiers to real names like "1" or "X"
 					
 					if (chr == null) {
 

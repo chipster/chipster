@@ -140,8 +140,8 @@ public class AnnotationManager {
 	}
 
 	public enum AnnotationType {
-		CYTOBANDS("Cytobands"), CYTOBANDS_SEQ_REGION("Cytobands seq_region"), ANNOTATIONS("ENSEMBL Gtf"), REFERENCE(
-				"Reference sequence"), SNP("ENSEMBL SNP");
+		CYTOBANDS("Cytobands"), CYTOBANDS_SEQ_REGION("Cytobands seq_region"), CYTOBANDS_COORD_SYSTEM("Cytobands coord_system"), 
+		ANNOTATIONS("ENSEMBL Gtf"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP");
 
 		String id;
 

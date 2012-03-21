@@ -726,8 +726,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 								genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
 						URL regionsUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.CYTOBANDS_SEQ_REGION).getUrl();
+						URL coordUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.CYTOBANDS_COORD_SYSTEM).getUrl();
 						
-						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl);
+						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl, coordUrl);
 						
 						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
 						break;
