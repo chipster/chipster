@@ -51,10 +51,11 @@ public class CytobandTrack extends Track {
 		stainColors.put(Cytoband.Stain.GPOS66, Color.darkGray);
 		stainColors.put(Cytoband.Stain.GPOS75, Color.darkGray);
 		stainColors.put(Cytoband.Stain.GPOS100, Color.black);
+		stainColors.put(Cytoband.Stain.GPOS, Color.black);
 		stainColors.put(Cytoband.Stain.ACEN, null);
-		stainColors.put(Cytoband.Stain.GVAR, Color.white);
+		stainColors.put(Cytoband.Stain.GVAR, Color.lightGray);
 		stainColors.put(Cytoband.Stain.STALK, null);
-		stainColors.put(Cytoband.Stain.TIP, null);
+		stainColors.put(Cytoband.Stain.TIP, Color.black);
 		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
 	}
 

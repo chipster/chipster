@@ -204,7 +204,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
 //		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
+		//trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
 //		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 

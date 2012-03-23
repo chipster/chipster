@@ -41,8 +41,6 @@ public class AnnotationManager {
 	private URL remoteAnnotationsRoot;
 	private File localAnnotationsRoot;
 
-	private final File contentsFile = new File(CONTENTS_FILE);
-
 	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2";
 	private final String CHR_UNSPECIFIED =  "*";
 
@@ -120,7 +118,7 @@ public class AnnotationManager {
 
 		@Override
 		public String toString() {
-			return species + version;
+			return species + " " + version;
 		}
 
 		@Override
@@ -193,7 +191,7 @@ public class AnnotationManager {
 		if (remoteContentsOk) {
 			logger.info("using remote annotation contents file");
 			OutputStream localContentsStream = null;
-			
+
 			try {
 				remoteContentsStream = remoteContents.openStream();
 				localContentsStream = new FileOutputStream(localContents);
@@ -220,18 +218,55 @@ public class AnnotationManager {
 				IOUtils.closeIfPossible(localContentsStream);
 			}
 		}
+
+		//if (remoteContentsOk) {
+		removeUnnecessaryFiles(localAnnotationsRoot);
+		//}
+	}
+
+	private void removeUnnecessaryFiles(File localAnnotationsRoot) {
+		File annotationFolder = localAnnotationsRoot;
+
+		String[] allFiles = annotationFolder.list();
+
+		for (String file : allFiles) {
+			if (!this.contains(file)) {
+				File fileToRemove = new File(localAnnotationsRoot, file);
+				//Check that we file removing 
+				if (fileToRemove.getPath().contains(".chipster")) {
+					fileToRemove.delete();
+				} 
+			}
+		}
+	}
+
+	private boolean contains(String file) {
+		
+		if (file.equals(CONTENTS_FILE)) {
+			return true;
+		}
+		
+		for (GenomeAnnotation annotation : annotations) {
+			String path = annotation.url.getPath();
+			String fileName = path.substring(path.lastIndexOf("/") + 1);
+
+			if (fileName.equals(file)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<GenomeAnnotation> getAnnotations() {
 		return annotations;
 	}
-	
+
 	public List<GenomeAnnotation> getAnnotations(Genome genome, AnnotationType annotationType) {
 		List<GenomeAnnotation> filteredAnnotations = new LinkedList<GenomeAnnotation>();
 		for (GenomeAnnotation annotation : annotations) {
 
 			if (annotation.getGenome().equals(genome) && annotation.type == annotationType) {
-					filteredAnnotations.add(annotation);
+				filteredAnnotations.add(annotation);
 			}
 		}
 		return filteredAnnotations;
@@ -240,14 +275,14 @@ public class AnnotationManager {
 	public GenomeAnnotation getAnnotation(Genome genome, AnnotationType annotationType) {
 
 		List<GenomeAnnotation> filteredList =  getAnnotations(genome, annotationType);
-		
+
 		if (filteredList.size() > 0) {
 			return filteredList.get(0);
 		} else {
 			return null;
 		}
 	}
-	
+
 
 	public List<Genome> getGenomes() {
 		List<Genome> genomes = new LinkedList<Genome>();
@@ -327,24 +362,24 @@ public class AnnotationManager {
 
 	public void openDownloadAnnotationsDialog(final Genome genome) {
 		Session.getSession().getApplication().showDialog(
-						"Download annotations for " + genome + "?",
-						"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
-						"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+				"Download annotations for " + genome + "?",
+				"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
+				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
-							@Override
-							public void actionPerformed() {
-								try {
-									downloadAnnotations(genome);
-								} catch (IOException e) {
-									throw new RuntimeException(e);
-								}
-							}
+					@Override
+					public void actionPerformed() {
+						try {
+							downloadAnnotations(genome);
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
 
-							@Override
-							public String getText() {
-								return "Download ";
-							}
-						});
+					@Override
+					public String getText() {
+						return "Download ";
+					}
+				});
 
 	}
 
@@ -401,7 +436,7 @@ public class AnnotationManager {
 			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
 
 			long contentLength = Long.parseLong(splitted[5]);
-			
+
 			Chromosome chr = null;
 			if (!splitted[3].equals(CHR_UNSPECIFIED)) {
 				chr = new Chromosome(splitted[3]);
@@ -414,12 +449,12 @@ public class AnnotationManager {
 	public void addAnnotation(GenomeAnnotation annotation) {
 		annotations.add(annotation);
 	}
-	
+
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		if (fileBroker.getPublicUrl() != null) {
 			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
-			
+
 		} else {
 			return null;
 		}

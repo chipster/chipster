@@ -121,6 +121,8 @@ public class GtfFileFetcherThread extends Thread {
 		String geneName;
 		String transcName;
 		
+		long skippedRows = 0;
+		
 		String chrInMemoryString = chrInMemory.toNormalisedString() + "\t";
 	
 		while ((line = dataSource.readLine()) != null) {
@@ -144,7 +146,13 @@ public class GtfFileFetcherThread extends Thread {
 			}
 
 			ids = parseIds(cols[8]);
-
+			
+			if (ids.length != 5) {
+				//Unknown format or missing information
+				skippedRows++;
+				continue;
+			} 
+			
 			geneId = ids[0];
 			transcId = ids[1];
 			exonIndex = ids[2];
@@ -157,6 +165,11 @@ public class GtfFileFetcherThread extends Thread {
 			Exon exon = new Exon(region, feature, 0); //Integer.parseInt(exonIndex));
 
 			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);			
+		}
+		
+		if (skippedRows != 0) {
+			//TODO replace with proper logging
+			System.out.println("Unable to parse " + skippedRows + " rows from file " + dataSource);
 		}
 		
 		stopwatch("read and save");
