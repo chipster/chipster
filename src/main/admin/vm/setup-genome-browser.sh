@@ -159,5 +159,14 @@ download_and_rename "Cytobands coord_system" "ftp://ftp.ensembl.org/pub/release-
 download_and_rename "ENSEMBL Gtf" "ftp://ftp.ensembl.org/pub/release-66/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.66.gtf.gz" # no rename needed
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.66.dna.chromosome." ".fa.gz" "20" "X" 
 
+SPECIES="Arabidopsis lyrata"
+VERSION="(Araly1.13)"
+
+download_and_rename "Cytobands" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/mysql/arabidopsis_lyrata_core_13_66_10/karyotype.txt.gz" "Arabidopsis_lyrata.Araly1.13.cytobands.txt" 
+download_and_rename "Cytobands seq_region" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/mysql/arabidopsis_lyrata_core_13_66_10/seq_region.txt.gz" "Arabidopsis_lyrata.Araly1.13.seq_region.txt"
+download_and_rename "Cytobands coord_system" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/mysql/arabidopsis_lyrata_core_13_66_10/coord_system.txt.gz" "Arabidopsis_lyrata.Araly1.13.coord_system.txt"
+download_and_rename "ENSEMBL Gtf" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.Araly1.13.gtf.gz" # no rename needed
+download_chrs "Reference sequence" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.Araly1.13.dna.chromosome." ".fa.gz" "8"
+
 
 exit 0 
