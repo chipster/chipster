@@ -208,7 +208,7 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol
 
         ### number of data points
         str <- paste(round(nclone / 1000), 'k x ', sep='')
-        probe <- median(bpend(cgh)-bpstart(cgh)+1)
+        probe <- median(bpend(x)-bpstart(x)+1)
         if (probe < 1000) {
             str <- paste(str, probe, ' bp', sep='')
         } else {
