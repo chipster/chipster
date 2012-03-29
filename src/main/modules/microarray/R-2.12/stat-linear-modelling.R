@@ -22,7 +22,8 @@
 
 # Linear Modelling using limma
 # 
-# JTT 22.10.2007
+# JTT, 22.10.2007
+# MG, 28.3.2012, modified to handle NUID:s
 
 #main.effect1<-"group"
 #main.effect2<-"gender"
@@ -428,7 +429,6 @@ m<-matrix(nrow=nrow(dat2), ncol=ncol(design))
 mm<-matrix(nrow=nrow(dat2), ncol=ncol(design))
 for(i in 1:ncol(design)) {
    pp<-toptable(fit, coef=i, number=nrow(dat2), adjust.method=p.value.adjustment.method, sort.by="p")
-   rownames(pp)<-rownames(dat2[as.numeric(rownames(pp)),])
    if(adjust.p.values=="yes") {
       pp2<-pp$adj.P.Val
    }
@@ -436,10 +436,11 @@ for(i in 1:ncol(design)) {
       pp2<-pp$P.Value
    }
    pp3<-pp$logFC
-   pp2<-pp2[order(rownames(pp))]
-   pp3<-pp3[order(rownames(pp))]
+   pp2<-pp2[order(as.numeric(rownames(pp)))]
+   pp3<-pp3[order(as.numeric(rownames(pp)))]
    m[,(i)]<-pp2
    mm[,(i)]<-pp3
+   rownames(pp)<-rownames(dat2[as.numeric(rownames(pp)),])
 }
 
 

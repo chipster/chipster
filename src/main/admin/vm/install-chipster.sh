@@ -43,25 +43,6 @@ set -o pipefail
 #    fi
 #}
 
-## Temporary hacks for OpenNebula environment !!!
-#sed -i'~' 's:UUID=b05b9f6e-e7e1-490b-81f2-c698238d9f12:LABEL=tmp:' /etc/fstab
-#sed -i'~' 's:UUID=897ed4de-d7f9-40e6-ace7-fba7259f4438:LABEL=swap:' /etc/fstab
-#tune2fs -L tmp /dev/vdb
-#mkswap -f -L swap /dev/vdc
-#mount -a
-#swapon -a
-#chmod 1777 /tmp/
-#chown root:root /tmp/
-
-## Configure system:
-#! sudo mkfs.ext4 /dev/vdc
-#! sudo mkfs.ext4 /dev/vdd
-#! echo '/dev/vdb  /tmp        ext4  errors=remount-ro  0  1' >> /etc/fstab
-#! echo '/dev/vdd  /mnt/tools  ext4  errors=remount-ro  0  1' >> /etc/fstab
-#! mount /tmp
-#! chown -R root:root /tmp/
-#! chmod 1777 /tmp/
-
 ## System update
 aptitude update
 aptitude -y full-upgrade
@@ -84,7 +65,7 @@ rm /etc/apt/trusted.gpg~
 ## Install packages:
 
 ## Base:
-aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils
+aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils dstat chkconfig apt-file
 # manpages (not installed yet)
 # update-manager-core (do-release-upgrade comes from this)
 
@@ -153,7 +134,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -174,6 +155,9 @@ INST_PATH=/opt
 CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
 TMPDIR_PATH=/tmp/install
+# Misc
+USERNAME=chipster
+GROUPNAME=chipster
 
 ## Create tmpdir
 rm -rf ${TMPDIR_PATH}/
@@ -185,31 +169,36 @@ mkdir ${TMPDIR_PATH}/
 cd ${TMPDIR_PATH}/
 curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
 mv chipster/ ${CHIP_PATH}/
-#rm chipster-${CHIP_VER}.tar
 
 # Make some config "corrections"
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/environment.xml
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/runtimes.xml
 sed -i'~' 's;http://www.bioconductor.org;http://mirrors.ebi.ac.uk/bioconductor/;' ${CHIP_PATH}/comp/conf/environment.xml
+# TODO The below should be made dynamic
 sed -i'~' '/<configuration-module moduleId="comp">/a <!-- make compute service access filebroker file repository locally -->\
 <entry entryKey="local-filebroker-user-data-path" type="string" \
 description="path to local filebrokers user data directory">\
         <value>/opt/chipster/fileserver/file-root/user-data</value>\
 </entry>' ${CHIP_PATH}/comp/conf/chipster-config.xml
-sed -i'~' 's/#RUN_AS_USER=/RUN_AS_USER=chipster/' \
-    /opt/chipster/activemq/bin/linux-x86-64/activemq \
-    /opt/chipster/comp/bin/linux-x86-64/chipster-comp \
-    /opt/chipster/auth/bin/linux-x86-64/chipster-auth \
-    /opt/chipster/fileserver/bin/linux-x86-64/chipster-fileserver \
-    /opt/chipster/webstart/bin/linux-x86-64/chipster-webstart \
-    /opt/chipster/manager/bin/linux-x86-64/chipster-manager
+sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
+    ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq \
+    ${CHIP_PATH}/comp/bin/linux-x86-64/chipster-comp \
+    ${CHIP_PATH}/auth/bin/linux-x86-64/chipster-auth \
+    ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver \
+    ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart \
+    ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager
 
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
 
-# Create file-root and jobs-data symlinks
-ln -s /scratch/file-root ${CHIP_PATH}/fileserver/file-root
+# Create user-data and jobs-data symlinks
+mkdir ${CHIP_PATH}/fileserver/file-root/
+ln -s /scratch/user-data ${CHIP_PATH}/fileserver/file-root/user-data
 ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
+
+# Symlink to genome browser annotations
+mkdir ${CHIP_PATH}/fileserver/file-root/public/
+ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
@@ -221,8 +210,6 @@ if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
   cd ${TMPDIR_PATH}/
-  #wget -nv http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz
-  #tar -xzf R-${R_VER}.tar.gz
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
   cd R-${R_VER}/
   ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
@@ -235,7 +222,6 @@ then
   echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
   cd ../
   rm -rf R-${R_VER}/
-  #rm R-${R_VER}.tar.gz
   ln -s R-${R_VER} ${TOOLS_PATH}/R
 
   ## R Libraries:
@@ -244,7 +230,7 @@ then
 
 
   ## R-2.14:
-	R_VER=2.14.1
+  R_VER=2.14.1
   cd ${TMPDIR_PATH}/
   #wget -nv http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz
   #tar -xzf R-${R_VER}.tar.gz
@@ -260,7 +246,7 @@ then
   echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
   cd ../
   rm -rf R-${R_VER}/
-	${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/ngs/R-2.14/admin/install-libs.R   
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
 
 
   ## External apps:
@@ -443,7 +429,6 @@ then
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
   
   ## Create checksums
   cd ${TOOLS_PATH}/
@@ -451,8 +436,8 @@ then
 fi
 
 ## Clean up:
-chown -R -h chipster:chipster ${CHIP_PATH}/
-chown -R chipster:chipster /mnt/tools/
+chown -R -h ${USERNAME}:${GROUPNAME} ${CHIP_PATH}/
+chown -R ${USERNAME}:${GROUPNAME} /mnt/tools/
 ls -lah ${TMPDIR_PATH}/ # Debug, list uncleaned mess
 rm -rf ${TMPDIR_PATH}/
 
