@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ import javax.swing.WindowConstants;
 
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
@@ -49,21 +51,23 @@ public class PreviewManager {
 		private int previewTimerCounter;
 		private List<PreviewUpdateListener> listeners = new LinkedList<PreviewUpdateListener>();
 		
-		private File bamData;
-		private File bamIndex;
-		private File cytobandData;
-		private File cytobandRegions;
-		private File gtfAnnotations;
+		private URL bamData;
+		private URL bamIndex;
+		private URL cytobandData;
+		private URL cytobandRegions;
+		private URL cytobandCoordSystem;
+		private URL gtfAnnotations;
 		
-		public GBrowserPreview(File bamData, File bamIndex, File cytobandData, File cytobandRegions, File gtfAnnotation) {
+		public GBrowserPreview(URL bamData, URL bamIndex, URL cytobandData, URL cytobandRegions, URL cytobandCoordSystem, URL gtfAnnotation) {
 			this.bamData = bamData;
 			this.bamIndex = bamIndex;
 			this.cytobandData = cytobandData;
 			this.cytobandRegions = cytobandRegions;
+			this.cytobandCoordSystem = cytobandCoordSystem;
 			this.gtfAnnotations = gtfAnnotation;
 		}
 		
-		private void initIfNeeded() {
+		private void initIfNeeded() throws URISyntaxException {
 
 			if (panel == null) {
 				checkData();
@@ -75,10 +79,10 @@ public class PreviewManager {
 				try {
 					plot = new GenomePlot(panel, horizontal);
 
-					TrackFactory.addCytobandTracks(plot, new CytobandDataSource(cytobandData, cytobandRegions));
+					TrackFactory.addCytobandTracks(plot, new CytobandDataSource(cytobandData, cytobandRegions, cytobandCoordSystem));
 
 					TrackFactory.addTitleTrack(plot, "Annotations");		
-					TrackFactory.addGeneTracks(plot, new LineDataSource(gtfAnnotations));
+					TrackFactory.addGeneTracks(plot, new LineDataSource(gtfAnnotations, GtfHandlerThread.class));
 					TrackFactory.addThickSeparatorTrack(plot);
 
 //					TrackGroup controlGroup = TrackFactory.addReadTracks(
@@ -92,7 +96,6 @@ public class PreviewManager {
 					TrackGroup treatmentGroup = TrackFactory.addReadTracks(
 							plot, 
 							new SAMDataSource(bamData, bamIndex),
-							SAMHandlerThread.class,
 							null,
 							"Treatment"
 							);
@@ -163,7 +166,7 @@ public class PreviewManager {
 			}
 		}
 
-		public void setRegion(Region region) {
+		public void setRegion(Region region) throws URISyntaxException {
 			initIfNeeded();
 
 			plot.getDataView().setBpRegion(new RegionDouble(region), false);	
@@ -174,13 +177,13 @@ public class PreviewManager {
 			return preview;
 		}
 
-		public JComponent getJComponent() {
+		public JComponent getJComponent() throws URISyntaxException {
 			initIfNeeded();
 
 			return panel;
 		}
 		
-		private JComponent getSplitJComponent(GBrowserPreview other) {
+		private JComponent getSplitJComponent(GBrowserPreview other) throws URISyntaxException {
 					
 			JComponent thisComponent = panel;
 			JComponent otherComponent = other.getJComponent();
@@ -215,7 +218,11 @@ public class PreviewManager {
 		}
 
 		public JFrame showFrame() {
-			initIfNeeded();
+			try {
+				initIfNeeded();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
 
 			if (frame == null) {
 				frame = new JFrame();
@@ -233,7 +240,11 @@ public class PreviewManager {
 		private JFrame showSplitFrame(GBrowserPreview other) {
 
 			JFrame frame = new JFrame();
-			frame.add(getSplitJComponent(other));
+			try {
+				frame.add(getSplitJComponent(other));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
 			frame.pack();
 			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			frame.setVisible(true);
@@ -266,9 +277,15 @@ public class PreviewManager {
 		}
 		
 		private void checkData() {
-			File[] files = new File[] { bamData, bamIndex, cytobandData, cytobandRegions, gtfAnnotations };
+			URL[] urls = new URL[] { bamData, bamIndex, cytobandData, cytobandRegions, cytobandCoordSystem, gtfAnnotations };
 			boolean fileNotFoundFail = false;
-			for (File file : files) {
+			for (URL url : urls) {
+				File file = null;
+				try {
+					file = new File(url.toURI());
+				} catch (URISyntaxException e) {
+					fileNotFoundFail = true;
+				}
 				if (!file.exists()) {
 					System.err.println("File not found: " + file);
 					fileNotFoundFail = true;
@@ -296,8 +313,8 @@ public class PreviewManager {
 	
 	private List<GBrowserPreview> previews = new LinkedList<GBrowserPreview>();
 	
-	public  GBrowserPreview createPreview(Region region, File bamData, File bamIndex, File cytobandData, File cytobandRegions, File gtfAnnotation) {
-		GBrowserPreview preview = new GBrowserPreview(bamData, bamIndex, cytobandData, cytobandRegions, gtfAnnotation);
+	public  GBrowserPreview createPreview(Region region, URL bamData, URL bamIndex, URL cytobandData, URL cytobandRegions, URL cytobandCoordSystem, URL gtfAnnotation) throws URISyntaxException {
+		GBrowserPreview preview = new GBrowserPreview(bamData, bamIndex, cytobandData, cytobandRegions, cytobandCoordSystem, gtfAnnotation);
 		preview.setRegion(region);
 		previews.add(preview);
 				
@@ -310,7 +327,7 @@ public class PreviewManager {
 		preview.clean();
 	}
 	
-	public JComponent getSplitJComponent(GBrowserPreview first, GBrowserPreview second) {
+	public JComponent getSplitJComponent(GBrowserPreview first, GBrowserPreview second) throws URISyntaxException {
 		return second.getSplitJComponent(first);
 	}
 	

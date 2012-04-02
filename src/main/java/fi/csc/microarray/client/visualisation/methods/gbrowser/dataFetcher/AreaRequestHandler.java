@@ -6,7 +6,6 @@ import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
 
 /**
  * The active thread of the processing layer. Receives area requests and sends out
@@ -70,6 +69,7 @@ public abstract class AreaRequestHandler extends Thread {
 
 		if (areaRequest.status.poison) {
 
+			this.areaResultListener = null;
 			this.poison = true;
 		}
 	}

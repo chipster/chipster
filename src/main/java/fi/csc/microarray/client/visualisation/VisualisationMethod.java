@@ -78,7 +78,7 @@ public class VisualisationMethod {
 			return visualisation;
 		} catch (Exception e) {
 			e.printStackTrace();
-			//field 'application' not always initialized
+			//field 'application' not always initialised
 			Session.getSession().getApplication().reportException(e);
 			return null;
 		}
