@@ -5,7 +5,7 @@
 # PARAMETER annotate_with: "annotate using" TYPE [probe_id: "probe ID", gene_symbol: "gene symbols"] DEFAULT gene_symbol (Should the probe identifiers be used to fetch the location of the corresponding gene targets or should gene symbols be used directly, if available.)
 # PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
 
-# MG 30.3.2012
+# MG 16.3.2012
 
 # Loads libraries into memory
 library(biomaRt)
@@ -71,19 +71,21 @@ annotated_genes <- getBM(mart=ensembl, attributes=c("hgnc_symbol","chromosome_na
 
 # Remove chromosome entries containing the "_" character
 annotated_genes <- annotated_genes [-grep( pattern="_", annotated_genes$chromosome_name),]
-rownames(annotated_genes) <- annotated_genes$hgnc_symbol
 
 # Match the list of input gene ids with the annotations
 chr_name <- character(length(probes_query))
 chr_start <- character(length(probes_query))
 chr_end <- character(length(probes_query))
 result_table <- data.frame(chr=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
-for (gene_count in 1:length(probes_query)) {
-	chr_name[gene_count] <- annotated_genes[gene_symbols[gene_count],2]
-	chr_start[gene_count] <- annotated_genes[gene_symbols[gene_count],3]
-	chr_end[gene_count] <- annotated_genes[gene_symbols[gene_count],4]
+for (gene_count in 1:length(gene_symbols)) {
+	chr_name[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],2][1]
+	chr_start[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],3][1]
+	chr_end[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],4][1]
 }	
-result_table <- data.frame(chromosome=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
+result_table <- data.frame(chr=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
+
+# Order the output based on chromosome and start position
+result_table <- result_table[order(result_table$chr, result_table$start),]
 
 # Output the data table with added chromosome location info
 write.table(result_table, file="data-with-locations.tsv", sep="\t", row.names=T, col.names=T, quote=F)
