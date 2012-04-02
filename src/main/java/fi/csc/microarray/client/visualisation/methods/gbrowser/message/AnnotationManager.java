@@ -213,7 +213,7 @@ public class AnnotationManager {
 				parseFrom(localContentsStream);
 			} catch (Exception e) {
 				// also local contents file failed
-				throw e;
+				throw new Exception("Cannot access genome browser annotations from the server or from the local cache.", e);
 			} finally {
 				IOUtils.closeIfPossible(localContentsStream);
 			}

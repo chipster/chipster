@@ -31,6 +31,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
@@ -443,7 +444,11 @@ public class MicroarrayModule implements Module {
 		JXHyperlink link;
 		boolean currentSelectionVisualisable = false;
 		try {
-			currentSelectionVisualisable = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
+			Visualisation visualisation = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null);
+			if (visualisation != null) {
+				List<DataBean> selection = application.getSelectionManager().getSelectedDataBeans();
+				currentSelectionVisualisable = visualisation.canVisualise(selection);
+			}
 		} catch (MicroarrayException e2) {
 			// ignore
 		}
