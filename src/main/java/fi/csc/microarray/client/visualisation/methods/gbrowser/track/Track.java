@@ -17,8 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
  * Single track inside a {@link View}. Typically multiple instances
@@ -189,10 +187,6 @@ public abstract class Track implements AreaResultListener {
 		}
 
 		return parts;
-	}
-
-	public BpCoord getMaxBp(Chromosome chr) {
-		return null;
 	}
 	
 	public String getName() {

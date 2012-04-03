@@ -23,7 +23,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**  
@@ -34,8 +33,6 @@ public class CytobandTrack extends Track {
 	private static final int THICKNESS = 11;
 
 	private static final int MARGIN = 2;
-
-	private BpCoord maxBp;
 
 	private SortedSet<Cytoband> cbands = new TreeSet<Cytoband>();
 
@@ -215,11 +212,5 @@ public class CytobandTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
-	}
-
-	@Override
-	public BpCoord getMaxBp(Chromosome chr) {
-
-		return maxBp;
 	}
 }

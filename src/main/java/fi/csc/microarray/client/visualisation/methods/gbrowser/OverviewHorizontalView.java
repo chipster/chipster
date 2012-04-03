@@ -4,7 +4,9 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
  * Special version of horizontal view of tracks. It is used for the chromosome overview panel.
@@ -115,5 +117,4 @@ public class OverviewHorizontalView extends HorizontalView {
 	public boolean isRulerEnabled() {
 		return false;
 	}
-
 }

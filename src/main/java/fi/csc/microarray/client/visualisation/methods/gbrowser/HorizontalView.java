@@ -21,7 +21,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
@@ -126,35 +125,14 @@ public class HorizontalView extends View implements KeyListener {
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
 		double bpMove = trackToBp((double) start.getX()).minus(trackToBp((double) end.getX()));
 
-		bpRegion.move(bpMove);
-		setBpRegion(bpRegion, disableDrawing);
+		RegionDouble newRegion = bpRegion.clone();
+		
+		newRegion.move(bpMove);
+		setBpRegion(newRegion, disableDrawing);
 
 		if (!disableDrawing) {
 			parentPlot.redraw();
 		}
-	}
-	
-	@Override
-	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
-		
-		BpCoord maxBp = getMaxBp();
-		
-		if (maxBp != null && region.getLength() > maxBp.bp) {
-			region.start.bp = 0.0;
-			region.end.bp = (double)maxBp.bp;
-			
-		} else {
-			if (region.start.bp < 0 ) {
-				region.move(-region.start.bp);
-			}
-
-			if (maxBp != null && region.end.bp > maxBp.bp) {				
-				double delta = region.end.bp - (double)maxBp.bp;
-				region.move(-delta);
-			}
-		}
-		
-		super.setBpRegion(region, disableDrawing);
 	}
 
 	@Override

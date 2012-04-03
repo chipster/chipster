@@ -189,6 +189,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private Long lastViewsize;
 	private JScrollPane verticalScroller;
 	private JCheckBox showFullHeightBox;
+	private ViewLimiter viewLimiter;
 	
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
@@ -732,6 +733,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl, coordUrl);
 						
 						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
+						
+						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
+								cytobandDataSource, plot.getOverviewView());
+						this.plot.getDataView().setViewLimiter(viewLimiter);
+						
 						break;
 						
 					case GENES:
