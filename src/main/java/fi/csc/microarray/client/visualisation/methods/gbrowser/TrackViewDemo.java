@@ -37,7 +37,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
  * parts of the PreviewManager are quite simple:
  * 
  * First preview has to created:
- * 		public  GBrowserPreview createPreview(Region region, File bamData, File bamIndex, File cytobandData, File cytobandRegions, File gtfAnnotation)
+		public GBrowserPreview(URL bamData, URL bamIndex, URL cytobandData, URL cytobandRegions, URL cytobandCoordSystem, URL gtfAnnotation) {
 	
 	When you have created the GBrowserPreview object with the method above, you set it to show
 	correct location in data:
@@ -67,7 +67,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
  * 
  *  And finally useless visualisation should be removed with the following:
  * 		public void removePreview(GBrowserPreview preview);	
- *  However, currently there is a huge memory leak, around 100 megabytes per visualisation.
 
  * 
  * @author klemela
