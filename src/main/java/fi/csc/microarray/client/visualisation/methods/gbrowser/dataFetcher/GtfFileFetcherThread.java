@@ -66,7 +66,7 @@ public class GtfFileFetcherThread extends Thread {
 	}
 
 	public void run() {
-
+		
 		while (!poison) {
 			try {
 				processFileRequest(fileRequestQueue.take());

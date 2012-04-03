@@ -458,7 +458,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			limitedRegion.move(-limitedRegion.start.bp);
 		}
 		
-		if (viewLimiter != null) {
+		if (viewLimiter != null && viewLimiter.getLimit() != null) {
 			BpCoord maxBp = viewLimiter.getLimit();
 			//Little bit extra space to the end
 			maxBp.bp += 100000;

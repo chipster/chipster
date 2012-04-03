@@ -324,6 +324,7 @@ public class GenomePlot extends Plot {
     }
 
 	public void clean() {
+		overviewView.clean();
 		dataView.clean();
 	}
 }

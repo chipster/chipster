@@ -574,6 +574,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 									// Show visualisation
 									showVisualisation();
 									
+									// Create tracks only once
+									initialised = true;
+									
 									// Set track visibility
 									updateVisibilityForTracks();
 								}
@@ -684,9 +687,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void showVisualisation() {
-
-		// Create tracks only once
-		initialised = true;
+		
+		//Clean old data layers
+		if (plot != null) {
+			plot.clean();
+		}
 
 		try {
 			
