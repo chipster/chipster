@@ -261,9 +261,6 @@
 		<tool runtime="R-2.12">
 			<resource>cna-plot-profile.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>cna-segment.R</resource>
-		</tool>
 	</category>
 
 	<category name="Methyl-seq" color="#c0d2de">
