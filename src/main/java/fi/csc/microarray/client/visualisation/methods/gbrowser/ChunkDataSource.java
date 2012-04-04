@@ -190,4 +190,15 @@ public class ChunkDataSource extends DataSource {
 	public RandomAccessFile getFile() {
 		return raFile;
 	}
+
+	public void close() {
+		if (raFile != null) {
+			try {
+				raFile.close();
+			} catch (IOException e) {
+				//No problem
+			}
+			raFile = null;
+		}
+	}
 }

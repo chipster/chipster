@@ -60,6 +60,8 @@ public class ChunkFileFetcherThread extends Thread {
 				e.printStackTrace(); // FIXME fix exception handling
 			}
 		}
+		
+		dataSource.close();
 	}
 	
 	/**

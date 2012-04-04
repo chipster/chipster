@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.FastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
@@ -137,6 +138,10 @@ public class FastaFileFetcherThread extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace(); // FIXME fix exception handling
 			}
+		}
+		
+		for (Fasta fasta : fastas.values()) {
+			fasta.dataSource.close();
 		}
 	}
 

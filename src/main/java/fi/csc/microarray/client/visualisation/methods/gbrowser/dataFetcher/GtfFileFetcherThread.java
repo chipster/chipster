@@ -250,7 +250,8 @@ public class GtfFileFetcherThread extends Thread {
 
 		if (!request.status.concise) {
 
-			Collection<Gene> filtered = genes.getGenes(new Region(request.start.bp - 5000, request.end.bp + 5000, new Chromosome("1")));
+			//FIXME create proper data structure for interval queries
+			Collection<Gene> filtered = genes.getGenes(new Region(request.start.bp - 5000, request.end.bp + 5000, requestChr));
 
 
 			for (Gene gene : filtered) {
