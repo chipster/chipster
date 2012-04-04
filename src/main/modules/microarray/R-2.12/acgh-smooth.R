@@ -7,7 +7,7 @@
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2011-12-09
 
-source(file.path(chipster.common.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
+source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(NoWaves)
 
 pos <- c('chromosome','start','end')

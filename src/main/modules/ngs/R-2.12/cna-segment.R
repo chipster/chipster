@@ -11,7 +11,7 @@
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-03-28
 
-source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
+source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 

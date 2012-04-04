@@ -10,7 +10,7 @@
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-03-20
 
-source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
+source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
 # read input files
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', row.names=1, as.is=TRUE)
