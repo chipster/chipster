@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>CNA-seq / Count reads in fixed bins</h2>
+	
+	<h3>Description</h3>
+	<p>Count reads in non-overlapping bins of fixed size.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>organism (human) [human]</li>
+		<li>human genome build (GRCh37/hg19) [GRCh37/hg19]</li>
+		<li>bin size (1 kbp, 5 kbp, 10 kbp, 15 kbp, 30 kbp, 50 kbp, 100 kbp) [30 kbp]</li>
+	</ul>
+	
+	<h3>Details</h3>
+	<p>The genome is divided into non-overlapping bins of the specified size, and the number of reads counted for each bin. The read counts are also adjusted for GC content.</p>
+	
+	<h3>Output</h3>
+	<p>Original and GC corrected read counts per bin.</p>
+</body>
+</html>

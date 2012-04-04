@@ -147,7 +147,7 @@ fi
 
 ## Initialize:
 # Versions
-CHIP_VER=2.0.0
+CHIP_VER=2.0.1
 R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
@@ -255,10 +255,7 @@ then
   mkdir ${TOOLS_PATH}/admin/
   ln -s ${CHIP_PATH}/comp/modules/ngs/admin ${TOOLS_PATH}/admin/ngs
   
-  # Copy common parts over to tools
-  cp -Ri ${CHIP_PATH}/comp/modules/microarray/R-2.12/common/* ${TOOLS_PATH}/
-
-  # Weeder, custom license, according to developers VM bundling is ok
+   # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
   curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
@@ -413,9 +410,10 @@ then
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
-  wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
-  unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
-  rm GRCh37.zip
+  mkdir ${TOOLS_PATH}/MPScall/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  mkdir ${TOOLS_PATH}/FREEC_Linux64/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # prinseq
   cd ${TMPDIR_PATH}/

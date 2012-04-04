@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>CNA-seq / Segment and call copy number aberrations</h2>
+	
+	<h3>Description</h3>
+	<p>CNA-seq binned read counts and segmented and called to identify copy number aberrations.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>organism (human) [human]</li>
+		<li>human genome build (GRCh37/hg19) [GRCh37/hg19]</li>
+		<li>breakpoint threshold [0.8]</li>
+		<li>minimum mappability (0...1) [0.85]</li>
+		<li>phenodata column with ploidy of samples</li>
+		<li>phenodata column with cellularity of samples (0...1)</li>
+		<li>unique match (no, yes) [no]</li>
+	</ul>
+	
+	<h3>Details</h3>
+	<p>The input should be original (not GC corrected, normalized, or filtered for mappability) read counts. They are processed with the FREEC algorithm, which includes GC correction, mappability filtering, segmentation, and calling copy number aberrations. Parameters are explained in the <a href"http://bioinfo-out.curie.fr/projects/freec/tutorial.html">tutorial</a> for the algorithm.</p>
+	<p>After running, copy number profiles can be plotted both with the NGS / CNA-seq / Plot copy number profiles, or the Microarrays / aCGH / Plot copy number profiles tools. For more downstream analyses, tools in the Microarrays / aCGH category are recommended starting from the Identify common regions from called copy number data. Alternative, calling can also be done with the aCGH / Call copy number aberrations tool.</p>
+	
+	<h3>Output</h3>
+	<p>Log ratios, segmented log ratios, copy number calls (-1 = loss, 0 = normal, 1 = gain), and the estimated copy numbers.</p>
+	<p>A plot is also returned that shows the frequencies of gains (blue) and losses (red).</p>
+	
+	<h3>References</h3>
+	<p>Boeva et al. (2011) Control-free calling of copy number alterations in deep-sequencing data using GC-content normalization. Bioinformatics 27: 268-269</p>
+</body>
+</html>
