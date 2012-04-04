@@ -147,7 +147,7 @@ fi
 
 ## Initialize:
 # Versions
-CHIP_VER=2.0.0
+CHIP_VER=2.0.1
 R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
