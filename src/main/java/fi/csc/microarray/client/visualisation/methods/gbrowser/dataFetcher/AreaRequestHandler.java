@@ -83,7 +83,9 @@ public abstract class AreaRequestHandler extends Thread {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				areaResultListener.processAreaResult(areaResult);
+				if (areaResultListener != null) {
+					areaResultListener.processAreaResult(areaResult);
+				}
 			}
 		});
 	}
