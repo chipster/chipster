@@ -2,64 +2,83 @@
 # INPUT binned-hits-{...}.tsv: "Individual files with binned hits" TYPE GENERIC
 # OUTPUT cna-data-table.tsv: "Data table with log-transformed read counts"
 # OUTPUT META phenodata.tsv: "Experiment description file"
-# PARAMETER counts: "Counts" TYPE [count: "Original raw counts", corrected: "GC corrected counts"] DEFAULT corrected (Whether to use original raw read counts, or GC corrected ones.)
-# PARAMETER normalization: "Normalization" TYPE [median: median] DEFAULT median (Normalization method.)
+# PARAMETER counts: "Read counts" TYPE [count: "Original raw counts", corrected: "GC corrected counts"] DEFAULT count (Whether to use original raw read counts, or GC corrected ones.)
+# PARAMETER log2.transformation: "log2 transform counts" TYPE [no: no, yes: yes] DEFAULT no (Whether the counts should be log2 transformed.)
+# PARAMETER min.mappability: "mimimum mappability" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0 (The bins with lower mappability will be removed. Values are between 0 and 1.)
+# PARAMETER normalization: "normalization" TYPE [none: none, median: median] DEFAULT none (Normalization method.)
+# PARAMETER organism: "organism" TYPE [human: human] DEFAULT human (Organism.)
+# PARAMETER genome.build: "human genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-22
+# 2012-03-20
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
-if (counts == 'count') {
-  colClasses1 <- c('character', 'character', 'integer', 'integer', 'numeric', 'NULL')
-  colClasses2 <- c('character', 'NULL', 'NULL', 'NULL', 'numeric', 'NULL')
-} else {
-  colClasses1 <- c('character', 'character', 'integer', 'integer', 'NULL', 'numeric')
-  colClasses2 <- c('character', 'NULL', 'NULL', 'NULL', 'NULL', 'numeric')
-}
-
 filenames <- list.files(pattern='^binned-hits-[0-9]*\\.tsv$')
-
-dat <- read.table(filenames[1], header=TRUE, sep='\t', row.names=1, colClasses=colClasses1)
-dat[,4] <- dat[,4] - min(dat[,4], na.rm=TRUE) + 1 # to prevent negative values
-dat[,4] <- log2(dat[,4])
-dat <- data.frame(bin=1:nrow(dat), dat)
+dat <- read.table(filenames[1], header=TRUE, sep='\t', row.names=1, as.is=TRUE)
+total.reads <- sum(dat$count, na.rm=TRUE)
+if (counts == 'corrected') {
+  dat$count <- NULL
+} else {
+  dat$corrected <- NULL
+}
 
 if (length(filenames) > 1) {
   for (i in 2:length(filenames)) {
-    x <- read.table(filenames[i], header=TRUE, sep='\t', row.names=1, colClasses=colClasses2)
+    x <- read.table(filenames[i], header=TRUE, sep='\t', row.names=1, as.is=TRUE)
     if (nrow(x) != nrow(dat))
       stop("CHIPSTER-NOTE: All input files need to be binned using the same bin size.")
-    x[,1] <- x[,1] - min(x[,1], na.rm=TRUE) + 1 # to prevent negative values
-    dat <- cbind(dat, log2(x[,1]))
+    total.reads <- c(total.reads, sum(x$count, na.rm=TRUE))
+    dat <- cbind(dat, x[,counts])
   }
 }
 
-dat$chromosome[dat$chromosome=='X'] <- '23'
-dat$chromosome[dat$chromosome=='Y'] <- '24'
-dat$chromosome[dat$chromosome=='MT'] <- '25'
-dat$chromosome <- as.integer(dat$chromosome)
+identifiers <- gsub('tsv$', '', filenames)
+identifiers <- gsub('\\.', '', identifiers)
+identifiers <- gsub('-', '', identifiers)
+colnames(dat)[-(1:3)] <- paste('chip.', identifiers, sep='')
 
-cgh.raw <- make_cghRaw(dat)
-cgh.pre <- preprocess(cgh.raw, nchrom=max(chromosomes(cgh.raw)))
-cgh.nor <- normalize(cgh.pre, method=normalization)
+if (log2.transformation == 'yes') {
+  for (i in colnames(dat)[-(1:3)])
+    dat[,i] <- log2(dat[,i] - min(dat[,i], na.rm=TRUE) + 1)
+}
 
-dat2 <- data.frame(cgh.nor@featureData@data, round(copynumber(cgh.nor), digits=2))
-colnames(dat2) <- c('chromosome', 'start', 'end', sprintf('chip.microarray%.3i', 1:length(filenames)))
+if (min.mappability > 0) {
+  bin.size <- (dat$end[1] - dat$start[1] + 1) / 1000
+  min.mappability <- 100 * min.mappability
+  mappability <- read.table(file.path(chipster.tools.path, 'MPScall', genome.build, paste('mappability.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE, colClasses=c('character', 'integer', 'integer', 'numeric'))
+  dat <- dat[mappability$mappability >= min.mappability,]
+}
 
-dat2$chromosome <- as.character(dat2$chromosome)
-dat2$chromosome[dat2$chromosome=='23'] <- 'X'
-dat2$chromosome[dat2$chromosome=='24'] <- 'Y'
-dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
+if (normalization != 'none') {
+  dat2 <- data.frame(bin=rownames(dat), dat, stringsAsFactors=FALSE)
+  colnames(dat2) <- c('bin', colnames(dat))
+  dat2$chromosome[dat2$chromosome=='X'] <- '23'
+  dat2$chromosome[dat2$chromosome=='Y'] <- '24'
+  dat2$chromosome[dat2$chromosome=='MT'] <- '25'
+  dat2$chromosome <- as.integer(dat2$chromosome)
+
+  cgh.raw <- make_cghRaw(dat2)
+  cgh.pre <- preprocess(cgh.raw, nchrom=24)
+  cgh.nor <- normalize(cgh.pre, method=normalization)
+
+  dat <- data.frame(cgh.nor@featureData@data, round(copynumber(cgh.nor), digits=2))
+  colnames(dat) <- c('chromosome', 'start', 'end', paste('chip.', identifiers, sep=''))
+
+  dat$chromosome <- as.character(dat$chromosome)
+  dat$chromosome[dat$chromosome=='23'] <- 'X'
+  dat$chromosome[dat$chromosome=='24'] <- 'Y'
+  dat$chromosome[dat$chromosome=='25'] <- 'MT'
+}
 
 # generate phenodata
 
-phenodata <- data.frame(sample=filenames, chiptype='not applicable', experiment='cna_seq', group='', stringsAsFactors=FALSE) # description?
+phenodata <- data.frame(sample=filenames, chiptype='not applicable', experiment='cna_seq', reads=total.reads, group='', stringsAsFactors=FALSE)
 
 # write outputs
 
 options(scipen=10)
-write.table(dat2, 'cna-data-table.tsv', quote=FALSE, sep='\t', na='')
+write.table(dat, 'cna-data-table.tsv', quote=FALSE, sep='\t', na='')
 
 write.table(phenodata, file='phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 

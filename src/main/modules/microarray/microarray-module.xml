@@ -113,6 +113,8 @@
 		<tool runtime="R-2.12"><resource>acgh-identify-regions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-cluster.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-group-test.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-survival-test.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-plot-survival.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-pathways-go.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-match-probes.R</resource></tool>
