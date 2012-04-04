@@ -568,13 +568,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					if (coverageTypeBox.getSelectedItem().equals(COVERAGE_NONE)) {
 						track.trackGroup.showOrHide("ProfileSNPTrack", false);
 						track.trackGroup.showOrHide("ProfileTrack", false);
+						track.trackGroup.showOrHide("ReadOverview", false);
 					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_TOTAL)) {
 						track.trackGroup.showOrHide("ProfileSNPTrack", true);	
 						track.trackGroup.showOrHide("highlightSNP", true);
 						track.trackGroup.showOrHide("ProfileTrack", false);
+						track.trackGroup.showOrHide("ReadOverview", true);
 					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_STRAND)) {
 						track.trackGroup.showOrHide("ProfileSNPTrack", false);
 						track.trackGroup.showOrHide("ProfileTrack", true);
+						track.trackGroup.showOrHide("ReadOverview", true);
 					}
 				}
 			}

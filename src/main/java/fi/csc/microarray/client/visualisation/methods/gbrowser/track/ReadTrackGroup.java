@@ -68,7 +68,7 @@ public class ReadTrackGroup extends TrackGroup {
         // Detailed
         reads = new SeqBlockTrack(view, userData, readpartProvider, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         tracks.add(reads);
-        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE);
+        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         sepTrackReads.setName("Reads");
         tracks.add(sepTrackReads);
         
@@ -154,12 +154,14 @@ public class ReadTrackGroup extends TrackGroup {
 		readOverviewReversed = new IntensityTrack(view, userData, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
         readOverviewReversed.setStrand(Strand.REVERSED);
+        readOverviewReversed.setName("ReadOverview");
 		tracks.add(readOverviewReversed);
 	}
 
 	protected void addReadOverviewTrack() {
 		readOverview = new IntensityTrack(view, userData, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
+		readOverview.setName("ReadOverview");
 		tracks.add(readOverview);
 	}
     
