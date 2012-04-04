@@ -9,7 +9,7 @@
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2012-12-09
 
-source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
+source(file.path(chipster.common.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(intCNGEan)
 
 # read the input files
