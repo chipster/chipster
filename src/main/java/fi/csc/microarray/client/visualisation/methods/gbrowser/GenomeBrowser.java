@@ -66,6 +66,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
@@ -89,6 +90,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private static final long DEFAULT_LOCATION = 1000000;
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
+	private static final String COVERAGE_NONE = "none";
+	private static final String COVERAGE_TOTAL = "total";
+	private static final String COVERAGE_STRAND = "strand-specific";
 
 	private static class Interpretation {
 		
@@ -178,6 +182,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
 	private JComboBox coverageScaleBox = new JComboBox();
+	
+	private JLabel coverageTypeLabel = new JLabel("Coverage type");
+	private JComboBox coverageTypeBox = new JComboBox(); 
 
 	private GeneIndexActions gia;
 
@@ -200,9 +207,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		this.annotationManager.initialize();
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
-		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
-		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
-		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
+//		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
+//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
+//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
+		
 //		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
 		//trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
@@ -334,8 +342,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				menu.add(trackSwitch, c);
 				c.gridy++;
 			}
+			
+			// coverage type
+			coverageTypeLabel.setEnabled(false);
+			c.insets.set(10,0,0,0);
+			menu.add(coverageTypeLabel, c);
+			c.gridy++;
+			c.insets.set(0,0,0,0);
+			coverageTypeBox = new JComboBox(new String[] {COVERAGE_NONE, COVERAGE_TOTAL, COVERAGE_STRAND});
+			coverageTypeBox.setSelectedItem(COVERAGE_TOTAL);
+			coverageTypeBox.setEnabled(false);
+			coverageTypeBox.addActionListener(this);
+			menu.add(coverageTypeBox, c);
 
 			// coverage scale
+			c.gridy++;
 			coverageScaleLabel.setEnabled(false);
 			c.insets.set(10,0,0,0);
 			menu.add(coverageScaleLabel, c);
@@ -542,6 +563,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
 				}
+							
+				if (track.trackGroup instanceof ReadTrackGroup) {
+					if (coverageTypeBox.getSelectedItem().equals(COVERAGE_NONE)) {
+						track.trackGroup.showOrHide("ProfileSNPTrack", false);
+						track.trackGroup.showOrHide("ProfileTrack", false);
+					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_TOTAL)) {
+						track.trackGroup.showOrHide("ProfileSNPTrack", true);	
+						track.trackGroup.showOrHide("highlightSNP", true);
+						track.trackGroup.showOrHide("ProfileTrack", false);
+					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_STRAND)) {
+						track.trackGroup.showOrHide("ProfileSNPTrack", false);
+						track.trackGroup.showOrHide("ProfileTrack", true);
+					}
+				}
 			}
 		}
 	}
@@ -602,7 +637,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	        showVisualisation();
 	        updateVisibilityForTracks();	        	        
 
-		} else if (trackSwitches.keySet().contains(source) && this.initialised) {
+		} else if ((trackSwitches.keySet().contains(source) || source == coverageTypeBox) && this.initialised) {
 			updateVisibilityForTracks();
 		} 
 		
@@ -629,6 +664,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				track.checkBox.setEnabled(true);
 			}
+			
+			coverageTypeLabel.setEnabled(true);
+			coverageTypeBox.setEnabled(true);
 			
 			coverageScaleLabel.setEnabled(true);
 			coverageScaleBox.setEnabled(true);
