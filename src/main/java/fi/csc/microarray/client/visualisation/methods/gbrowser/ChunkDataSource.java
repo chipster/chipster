@@ -169,6 +169,10 @@ public class ChunkDataSource extends DataSource {
 				try {
 					connection = (HttpURLConnection)url.openConnection();
 					// connection.getContentLength() returns int, which is not enough
+					String string = connection.getHeaderField("content-length");
+					if (string == null) {
+						throw new IOException("content-length unavailable for " + url);
+					}
 					length = Long.parseLong(connection.getHeaderField("content-length"));
 				} finally {
 					IOUtils.disconnectIfPossible(connection);

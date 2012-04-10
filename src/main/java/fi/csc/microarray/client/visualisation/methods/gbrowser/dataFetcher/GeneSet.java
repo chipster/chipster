@@ -50,4 +50,14 @@ public class GeneSet extends TreeMap<Region, Gene>{
 		
 		return this.subMap(new Region(region.start, region.start), new Region(region.end, region.end)).values();
 	}
+	
+	public Gene getGene(String name) {
+		
+		for (Gene gene : this.values()) {
+			if (name.equalsIgnoreCase(gene.getName())) {
+				return gene;
+			}
+		}
+		return null;
+	}
 }

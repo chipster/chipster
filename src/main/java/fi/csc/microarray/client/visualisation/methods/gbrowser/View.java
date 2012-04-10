@@ -495,7 +495,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public Region getBpRegion() {
-		return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long)Math.ceil((double) bpRegion.end.bp), bpRegion.end.chr);
+			return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long)Math.ceil((double) bpRegion.end.bp), bpRegion.end.chr);
 	}
 
 	public void mouseClicked(MouseEvent e) {

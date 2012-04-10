@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -83,7 +82,7 @@ import fi.csc.microarray.util.IOUtils;
  * @see GenomePlot
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
-		RegionListener, ComponentListener, PropertyChangeListener {
+RegionListener, ComponentListener, PropertyChangeListener, requestGeneSearch {
 
 
 	private static final long DEFAULT_VIEWSIZE = 100000;
@@ -95,19 +94,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private static final String COVERAGE_STRAND = "strand-specific";
 
 	private static class Interpretation {
-		
+
 		public TrackType type;
 		public List<DataBean> summaryDatas = new LinkedList<DataBean>();
 		public DataBean primaryData;
 		public DataBean indexData;
-		
+
 		public Interpretation(TrackType type, DataBean primaryData) {
 			this.type = type;
 			this.primaryData = primaryData;
 		}
 
 	}
-	
+
 	private static enum TrackType {
 		CYTOBANDS(false), 
 		GENES(false), 
@@ -117,7 +116,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		REGIONS_WITH_HEADER(true), 
 		READS(true),
 		HIDDEN(false);
-		
+
 		private boolean isToggleable;
 
 		private TrackType(boolean toggleable) {
@@ -170,26 +169,26 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private JLabel viewsizeLabel = new JLabel("View size");
 	private JTextField viewsizeField = new JTextField();
-	
+
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox chrBox = new JComboBox();
-	
+
 	private JComboBox genomeBox = new JComboBox();
-	
+
 	private Object visibleChromosome;
 
 	private AnnotationManager annotationManager;
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
 	private JComboBox coverageScaleBox = new JComboBox();
-	
+
 	private JLabel coverageTypeLabel = new JLabel("Coverage type");
 	private JComboBox coverageTypeBox = new JComboBox(); 
 
 	private GeneIndexActions gia;
 
 	private boolean initialised;
-	
+
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
 	private Long lastLocation;
@@ -197,8 +196,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private JScrollPane verticalScroller;
 	private JCheckBox showFullHeightBox;
 	private ViewLimiter viewLimiter;
-	
-	
+
+
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
 
@@ -207,14 +206,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		this.annotationManager.initialize();
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
-//		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
-//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
-//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
-		
-//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
+		//		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
+		//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
+		//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
+
+		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
 		//trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
-//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
+		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
 	@Override
@@ -228,10 +227,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			JScrollPane settingsScrollPane = new JScrollPane(settings);
 			settingsScrollPane.setBorder(BorderFactory.createEmptyBorder());
 			settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			
+
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
-			   
+
 			GridBagConstraints c = new GridBagConstraints();
 
 			c.gridy = 0;
@@ -254,14 +253,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// for now just always add genes and cytobands
 		tracks.add(new Track(AnnotationManager.AnnotationType.ANNOTATIONS.getId(), new Interpretation(TrackType.GENES, null)));
 		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
-		
+
 
 		for (int i = 0; i < interpretations.size(); i++) {
 			Interpretation interpretation = interpretations.get(i);
 			DataBean data = interpretation.primaryData;
 			tracks.add(new Track(data.getName(), interpretation));
 		}
-		
+
 		// update the dataset switches in the settings panel
 		updateDatasetSwitches();
 	}
@@ -281,16 +280,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			datasetSwitchesPanel = new JPanel();
 			datasetSwitchesPanel.setLayout(new BoxLayout(datasetSwitchesPanel, BoxLayout.Y_AXIS));
-			
+
 			datasetsPanel.add(datasetSwitchesPanel, dc);
 		}
-		
+
 		return datasetsPanel;
 	}
 
 	private void updateDatasetSwitches() {
 		datasetSwitches.clear();
-		
+
 		datasetSwitchesPanel.removeAll();
 
 		for (Track track : tracks) {
@@ -305,7 +304,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 		}
 	}
-	
+
 	public JPanel getOptionsPanel() {
 		if (this.optionsPanel == null) {
 			optionsPanel = new JPanel(new GridBagLayout());
@@ -342,7 +341,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				menu.add(trackSwitch, c);
 				c.gridy++;
 			}
-			
+
 			// coverage type
 			coverageTypeLabel.setEnabled(false);
 			c.insets.set(10,0,0,0);
@@ -366,7 +365,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
-			
+
 			c.gridy++;
 			showFullHeightBox = new JCheckBox("Show full height", false);
 			showFullHeightBox.setEnabled(false);
@@ -377,7 +376,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 		return optionsPanel;
 	}
-	
+
 	public JPanel createSettingsPanel() {
 
 		settingsPanel.setLayout(new GridBagLayout());
@@ -395,31 +394,31 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// genome
 		settingsPanel.add(getGenomePanel(), c);
 		c.gridy++;
-		
+
 		// location
 		settingsPanel.add(getLocationPanel(), c);
 		c.gridy++;
-		
+
 		c.fill = GridBagConstraints.BOTH;
-	
+
 		// options
 		settingsPanel.add(getOptionsPanel(), c);
 		c.gridy++;
-		
+
 		// datasets
 		c.weighty = 0.5;
 		c.insets.set(0, 5, 5, 5);
 		settingsPanel.add(getDatasetsPanel(), c);
-		
+
 		return settingsPanel;
 	}
 
-	
+
 	private JPanel getGenomePanel() {
 		if (this.genomePanel == null) {
 			this.genomePanel = new JPanel(new GridBagLayout());
 			genomePanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Genome"));
-			
+
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridy = 0;
 			c.gridx = 0;
@@ -445,7 +444,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		return genomePanel;
 	}
-	
+
 	private JPanel getLocationPanel() {
 		if (this.locationPanel == null) {
 
@@ -505,7 +504,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void fillChromosomeBox() throws IOException {
-		
+
 		// Gather all chromosome names from all indexed datasets (SAM/BAM)
 		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
 		for (Interpretation interpretation : interpretations) {
@@ -520,7 +519,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				}
 			}
 		}
-		
+
 		// If we still don't have names, go through non-indexed datasets
 		if (chromosomeNames.isEmpty()) {
 			for (Interpretation interpretation : interpretations) {
@@ -539,14 +538,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				}
 			}
 		}
-		
+
 		// Sort them
 		LinkedList<Chromosome> chromosomes = new LinkedList<Chromosome>();
 		for (String chromosomeName : chromosomeNames) {
 			chromosomes.add(new Chromosome(chromosomeName));
 		}
 		Collections.sort(chromosomes);
-		
+
 		// Fill in the box
 		for (Chromosome chromosome : chromosomes) {
 			chrBox.addItem(chromosome);
@@ -556,14 +555,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	protected JComponent getColorLabel() {
 		return new JLabel("Color: ");
 	}
-	
+
 	public void updateVisibilityForTracks() {
 		for (Track track : tracks) {
 			if (track.trackGroup != null) {
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
 				}
-							
+
 				if (track.trackGroup instanceof ReadTrackGroup) {
 					if (coverageTypeBox.getSelectedItem().equals(COVERAGE_NONE)) {
 						track.trackGroup.showOrHide("ProfileSNPTrack", false);
@@ -596,7 +595,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
 			if (!initialised) {
-				
+
 				application.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
 					public void run() {
@@ -608,13 +607,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 							SwingUtilities.invokeAndWait(new Runnable() {
 								@Override
 								public void run() {
-									
+
 									// Show visualisation
 									showVisualisation();
 									
+									updateLocation();
+
 									// Create tracks only once
 									initialised = true;
-									
+
 									// Set track visibility
 									updateVisibilityForTracks();
 								}
@@ -625,28 +626,28 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						}
 					}
 				});
-				
+
 			} else {
-		    	
-		    	// Move to correct location
-		        updateLocation();
-		    }
-			
+
+				// Move to correct location
+				updateLocation();
+			}
+
 		} else if ((datasetSwitches.contains(source) || source == coverageScaleBox) && this.initialised) {
-			
+
 			showFullHeightBox.setSelected(false);
 			setFullHeight(false);
-			
-	        showVisualisation();
-	        updateVisibilityForTracks();	        	        
+
+			showVisualisation();
+			updateVisibilityForTracks();	        	        
 
 		} else if ((trackSwitches.keySet().contains(source) || source == coverageTypeBox) && this.initialised) {
 			updateVisibilityForTracks();
 		} 
-		
+
 		// genome selected
 		else if (source == genomeBox) {
-			
+
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 
 			// dialog for downloading annotations if not already local
@@ -663,33 +664,33 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.viewsizeLabel.setEnabled(true);
 			this.viewsizeField.setEnabled(true);
 			this.showFullHeightBox.setEnabled(true);
-			
+
 			for (Track track : tracks) {
 				track.checkBox.setEnabled(true);
 			}
-			
+
 			coverageTypeLabel.setEnabled(true);
 			coverageTypeBox.setEnabled(true);
-			
+
 			coverageScaleLabel.setEnabled(true);
 			coverageScaleBox.setEnabled(true);
-			
+
 			this.setTrackSwitchesEnabled(true);
-			
+
 		} else if (source == showFullHeightBox && this.initialised) {
-			
+
 			setFullHeight(showFullHeightBox.isSelected());
 		}
 	}
-	
+
 	private void setFullHeight(boolean fullHeight) {
-		
+
 		if (fullHeight) {
 			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		} else {
 			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		}
-		
+
 		plot.setFullHeight(fullHeight);		
 	}
 
@@ -707,9 +708,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
-		
+
 		this.interpretations = interpretUserDatas(datas);
-		
+
 		// List available chromosomes from user data files
 		fillChromosomeBox();
 
@@ -720,7 +721,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// Create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		
+
 		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + goButton.getText() + "</p></html>"), c);
 		plotPanel.add(waitPanel, WAITPANEL);
 
@@ -728,82 +729,66 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void showVisualisation() {
-		
+
 		//Clean old data layers
 		if (plot != null) {
 			plot.clean();
 		}
 
 		try {
-			
-			Genome genome = (Genome) genomeBox.getSelectedItem();
-			
-			// Create gene name index
-			gia = null;
-			try {
-				
-				URL gtfUrl = annotationManager.getAnnotation(
-						genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
-				
-				LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
-				
-				//FIXME enable gene search
-				//gia = GeneIndexActions.getInstance(genome, gtfDataSource);
-				
-			} catch (Exception e) {
-				application.reportException(e);
-			}
-			
+
 			// Create the chart panel with tooltip support				
 			TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 			this.plot = new GenomePlot(chartPanel, true);
 			((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
-			
+
 			// Set scale of profile track containing reads information
 			this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
 
+			Genome genome = (Genome) genomeBox.getSelectedItem();
+			initGeneIndex(genome);
 
 			// Add selected annotation tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					switch (track.interpretation.type) {
 					case CYTOBANDS:
-						
+
 						URL cytobandUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
 						URL regionsUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.CYTOBANDS_SEQ_REGION).getUrl();
 						URL coordUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.CYTOBANDS_COORD_SYSTEM).getUrl();
-						
+
 						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl, coordUrl);
-						
+
 						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
-						
+
 						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
 								cytobandDataSource, plot.getOverviewView());
 						this.plot.getDataView().setViewLimiter(viewLimiter);
-						
+
 						break;
-						
+
 					case GENES:
 						// Start 3D effect
 						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
-						
+
 						URL gtfUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
-						
+
 						LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
-						
+
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource);
-						
+
 						track.setTrackGroup(geneGroup);
 						break;
 
 					case REFERENCE:
 						// integrated into peaks
 						break;
-						
+
 					case TRANSCRIPTS:
 						// integrated into genes
 						break;
@@ -857,15 +842,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Add selected peak tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					
+
 					URL fileUrl = null;
 
 					if (track.interpretation.primaryData != null) {
 						File file = Session.getSession().getDataManager().getLocalFile(
-									track.interpretation.primaryData);
+								track.interpretation.primaryData);
 						fileUrl = file.toURI().toURL();
 					}
-					
+
 					DataSource peakData;
 					switch (track.interpretation.type) {
 					case REGIONS:
@@ -887,26 +872,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// End 3D effect
 			plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
 
-			// Fill in initial position if not filled in
-			if (locationField.getText().trim().isEmpty()) {
-				locationField.setText("" + DEFAULT_LOCATION);
-				lastLocation = DEFAULT_LOCATION;
-			}
-
-			if (viewsizeField.getText().trim().isEmpty()) {
-				viewsizeField.setText("" + DEFAULT_VIEWSIZE);
-				lastViewsize = DEFAULT_VIEWSIZE;
-			}
+			//resetLocationFields();
 
 			// Initialise the plot
 			plot.addDataRegionListener(this);
 
-			// Translate gene name in position box, if needed
-			translateGenename();
-			
-			// Move to correct location
-			move();
-			
+			updateLocation();
+
 			// Remember chromosome
 			visibleChromosome = chrBox.getSelectedItem();
 
@@ -923,12 +895,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// Add selection listener
 			application.addClientEventListener(this);
-			
+
 			// Put panel on top of card layout
 			if (plotPanel.getComponentCount() == 2) {
 				plotPanel.remove(1);
 			}
-			
+
 			verticalScroller = new JScrollPane(chartPanel);
 
 			setFullHeight(showFullHeightBox.isSelected());
@@ -937,6 +909,39 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			plotPanel.addComponentListener(this);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
+
+		} catch (Exception e) {
+			application.reportException(e);
+		}
+	}
+
+	private void resetLocationFieldsIfEmpty() {
+		
+		// Fill in initial position if not filled in
+		if (locationField.getText().trim().isEmpty()) {
+			
+			updateCoordinateFields(DEFAULT_LOCATION, null);
+		}
+		
+		if (viewsizeField.getText().trim().isEmpty()) {
+			
+			updateCoordinateFields(null, DEFAULT_VIEWSIZE);
+			lastViewsize = DEFAULT_VIEWSIZE;
+		}
+	}
+
+	private void initGeneIndex(Genome genome) {
+
+		// Create gene name index
+		gia = null;
+		try {
+
+			URL gtfUrl = annotationManager.getAnnotation(
+					genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
+
+			LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
+
+			gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource);
 
 		} catch (Exception e) {
 			application.reportException(e);
@@ -958,7 +963,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
-	
+
 	/**
 	 * Create DataSource either for SAM/BAM or ELAND data files.
 	 * 
@@ -976,24 +981,24 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			throws MicroarrayException, IOException, URISyntaxException {
 		DataSource dataSource = null;
 
-	    // Convert data bean into file
-	    File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
-	    
-	    URL fileUrl = file.toURI().toURL();
-	    
-	    if (file.getName().contains(".bam-summary")) {
-	    	dataSource = new TabixDataSource(fileUrl);
-	    	
-	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
-	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);
-	    	URL indexFileUrl = indexFile.toURI().toURL();
-	    	dataSource = new SAMDataSource(fileUrl, indexFileUrl);
-	    	
-	    } else {
-	    	dataSource = new ChunkDataSource(fileUrl, new ElandParser(), ChunkTreeHandlerThread.class);
-	    }
-	    
-	    return dataSource;
+		// Convert data bean into file
+		File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+
+		URL fileUrl = file.toURI().toURL();
+
+		if (file.getName().contains(".bam-summary")) {
+			dataSource = new TabixDataSource(fileUrl);
+
+		} else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+			File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);
+			URL indexFileUrl = indexFile.toURI().toURL();
+			dataSource = new SAMDataSource(fileUrl, indexFileUrl);
+
+		} else {
+			dataSource = new ChunkDataSource(fileUrl, new ElandParser(), ChunkTreeHandlerThread.class);
+		}
+
+		return dataSource;
 	}
 
 	private boolean isIndexData(DataBean bean) {
@@ -1045,12 +1050,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().endsWith(".bam"))) {
+					(data.getName().endsWith(".bam"))) {
 				// BAM file
-                interpretations.add(new Interpretation(TrackType.READS, data));
+				interpretations.add(new Interpretation(TrackType.READS, data));
 			}
 		}
-		
+
 		// Find interpretations for all secondary data types
 		for (DataBean data : datas) {
 
@@ -1062,16 +1067,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					break;
 				}
 			}
-			
+
 			if (primaryInterpretation == null) {
 				return null; // could not bound this secondary data to any primary data
 			}
-			
+
 			if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(data.getName().contains(".bam-summary"))) {
 				// BAM summary file (from custom preprocessor)
 				primaryInterpretation.summaryDatas.add(data);
-				
+
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(isIndexData(data))) {
 				// BAI file
@@ -1081,14 +1086,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				primaryInterpretation.indexData = data;
 			}
 		}
-		
+
 		// Check that interpretations are now fully initialised
 		for (Interpretation interpretation : interpretations) {
 			if (interpretation.primaryData.getName().endsWith(".bam") && interpretation.indexData == null) {
 				return null; // BAM is missing BAI
 			}
 		}
-		
+
 
 		return interpretations;
 	}
@@ -1118,72 +1123,95 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		try {
 
-			// If gene name was given, search for it and 
-			// translate it to coordinates.
-			translateGenename();
-
-			// Check how large the update in location was 
-			if (visibleChromosome != null && visibleChromosome != chrBox.getSelectedItem()) {
-
-				// Chromosome changed, redraw everything
-				showVisualisation();
-				updateVisibilityForTracks();
-
+			if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
+				// If gene name was given, search for it
+				if (!locationField.getText().equals("")) {
+					requestGeneSearch();
+				}
+				locationField.setText("");
+				move(); //Init view.bpRegion if necesssary
+				
 			} else {
-				// Only bp position within chromosome changed, move there
-				move();
-			}		
-			
+
+				// Check how large the update in location was 
+				if (visibleChromosome != null && visibleChromosome != chrBox.getSelectedItem()) {
+
+					// Chromosome changed, redraw everything
+					showVisualisation();
+					updateVisibilityForTracks();
+
+				} else {
+					// Only bp position within chromosome changed, move there
+					move();
+				}		
+			}
 		} catch (Exception e) {
 			application.reportException(e);
 		}
-
 	}
 
-	private void translateGenename() throws SQLException {
-		if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
+	private void requestGeneSearch() {
 
-			//FIXME re-enable gene search
-			Region geneLocation = null;//gia.getLocation(locationField.getText().toUpperCase());
+		Chromosome chr = (Chromosome) chrBox.getSelectedItem();
 
-			if (geneLocation == null) {
-				
-				// Move to last known location
-				if (lastLocation != null && lastViewsize != null) {
-					updateCoordinateFields(lastLocation, lastViewsize);
+		gia.requestLocation(locationField.getText(), chr, new GeneIndexActions.GeneLocationListener() {
+
+			@Override
+			public void geneLocation(Region geneLocation) {
+
+				if (geneLocation == null) {
+
+					// Move to last known location
+					if (lastLocation != null && lastViewsize != null) {
+						updateCoordinateFields(lastLocation, lastViewsize);
+					} else {
+						updateCoordinateFields(DEFAULT_LOCATION, DEFAULT_VIEWSIZE);
+					}
+
+					// Tell the user 
+					application.showDialog("Not found",
+							"Gene was not found", null,
+							Severity.INFO, true,
+							DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+
 				} else {
-					updateCoordinateFields(DEFAULT_LOCATION, DEFAULT_VIEWSIZE);
-				}
-				
-				// Tell the user 
-				application.showDialog("Not found",
-						"Gene was not found", null,
-						Severity.INFO, true,
-						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-				
-			} else {
-				
-				// Update coordinate controls with gene's location
-				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
-				updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
 
+					// Update coordinate controls with gene's location
+					chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
+					updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
+					updateLocation();
+				}
 			}
-		}
+		});
 	}
 
+	/**
+	 * Null keeps the existing content.
+	 * 
+	 * @param location
+	 * @param viewsize
+	 */
 	private void updateCoordinateFields(Long location, Long viewsize) {
-		locationField.setText(location.toString());
-		if (viewsize > 1000000) {
-			viewsizeField.setText(Math.round(((float)viewsize) / 1000000f) + " Mb");
-		} else if (viewsize > 1000) {
-			viewsizeField.setText(Math.round(((float)viewsize) / 1000f) + " kb");
-		} else {
-			viewsizeField.setText(viewsize + "");
+		if (location != null) {
+			locationField.setText(location.toString());
+		}
+		
+		if (viewsize != null) {
+			if (viewsize > 1000000) {
+				viewsizeField.setText(Math.round(((float)viewsize) / 1000000f) + " Mb");
+			} else if (viewsize > 1000) {
+				viewsizeField.setText(Math.round(((float)viewsize) / 1000f) + " kb");
+			} else {
+				viewsizeField.setText(viewsize + "");
+			}
 		}
 	}
 
 
 	private void move() {
+		
+		resetLocationFieldsIfEmpty();
+
 		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
 				Long.parseLong(locationField.getText()), lastViewsize);
 
@@ -1211,7 +1239,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void componentShown(ComponentEvent arg0) {
 		// Ignore
 	}
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event instanceof PointSelectionEvent) {
@@ -1220,31 +1248,31 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// Check if we can process this
 			if (sel.containsKey("chromosome") && sel.containsKey("start") && sel.containsKey("end")) {
-				
+
 				// Move to selected region 
 				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
 				long start = Long.parseLong(sel.get("start"));
 				long end = Long.parseLong(sel.get("end"));
 				updateCoordinateFields((end + start) / 2, (end - start) * 2);
 			}
-			
+
 			// Update
 			updateLocation();
 		}
 	}
-	
+
 	@Override
 	public void removeVisualisation() {
-		
+
 		super.removeVisualisation();
 
 		if (plot != null) {
 			plot.clean();
 		}
-// Keeping database consumes maybe 30 MB of RAM per genome, but subsequent GB visualisations start faster
-//		gia.clean();	
-//		this.gia = null;
-		
+		// Keeping database consumes maybe 30 MB of RAM per genome, but subsequent GB visualisations start faster
+		//		gia.clean();	
+		//		this.gia = null;
+
 		application.removeClientEventListener(this);
 
 	}

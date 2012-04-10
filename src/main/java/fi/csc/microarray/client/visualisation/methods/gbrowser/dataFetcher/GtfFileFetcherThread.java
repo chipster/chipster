@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -235,7 +236,7 @@ public class GtfFileFetcherThread extends Thread {
 			poison = true;
 			return;
 		}
-
+		
 		Chromosome requestChr = fileRequest.areaRequest.start.chr;
 		
 		if (genes == null || !requestChr.equals(chrInMemory)) {
@@ -244,14 +245,19 @@ public class GtfFileFetcherThread extends Thread {
 			chrInMemory = requestChr;
 			readFile();
 		}
+		
 
 		AreaRequest request = fileRequest.areaRequest;
 		List<RegionContent> resultList = new ArrayList<RegionContent>();
 
-		if (!request.status.concise) {
+		if (fileRequest.areaRequest instanceof GeneRequest) {
+			
+			resultList.addAll(processGeneSearch((GeneRequest)fileRequest.areaRequest, fileRequest));
+			
+		} else if (!request.status.concise) {
 
 			//FIXME create proper data structure for interval queries
-			Collection<Gene> filtered = genes.getGenes(new Region(request.start.bp - 5000, request.end.bp + 5000, requestChr));
+			Collection<Gene> filtered = genes.getGenes(new Region(request.start.bp - 10000000, request.end.bp + 10000000, requestChr));
 
 
 			for (Gene gene : filtered) {
@@ -262,7 +268,6 @@ public class GtfFileFetcherThread extends Thread {
 
 				resultList.add(new RegionContent(gene.getRegion(), values));
 			}
-
 
 		} else {
 			
@@ -287,6 +292,21 @@ public class GtfFileFetcherThread extends Thread {
 		areaRequestThread.notifyAreaRequestHandler();
 	}
 	
+	private List<RegionContent> processGeneSearch(GeneRequest searchRequest, BpCoordFileRequest fileRequest) {
+		Gene gene = genes.getGene(searchRequest.getSearchString());
+		
+		List<RegionContent> resultList = new ArrayList<RegionContent>();
+		
+		if (gene != null) {
+			
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+			values.put(ColumnType.VALUE, gene);
+			resultList.add(new RegionContent(gene.getRegion(), values));
+		}
+		
+		return resultList;
+	}
+
 	public String toString() {
 		return this.getClass().getName() + " - " + dataSource;
 	}
