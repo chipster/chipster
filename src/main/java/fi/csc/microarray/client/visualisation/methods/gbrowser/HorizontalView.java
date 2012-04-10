@@ -83,8 +83,6 @@ public class HorizontalView extends View implements KeyListener {
 		g.setFont(g.getFont().deriveFont(10f));
 		TextDrawable text = (TextDrawable) drawable;
 
-		text.text = text.text.replaceAll("\"", "");
-
 		g.drawString(text.text, text.x + x, text.y + y);
 	}
 

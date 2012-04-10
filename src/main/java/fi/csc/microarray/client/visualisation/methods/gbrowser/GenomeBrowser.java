@@ -877,7 +877,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			// Initialise the plot
 			plot.addDataRegionListener(this);
 
-			updateLocation();
+			//updateLocation();
+			move();
 
 			// Remember chromosome
 			visibleChromosome = chrBox.getSelectedItem();

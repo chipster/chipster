@@ -86,15 +86,15 @@ public class GtfFileFetcherThread extends Thread {
 	
 	private void stopwatch(String lastOperation) {
 
-//		if (startTime == 0) {
-//			startTime = System.currentTimeMillis();
-//			lastTime = startTime;
-//		} else if ("END".equals(lastOperation)) {
-//			System.out.println("TOTAL: \t" + (System.currentTimeMillis() - startTime));
-//		} else {
-//			System.out.println(lastOperation + ": \t" + (System.currentTimeMillis() - lastTime));
-//			lastTime = System.currentTimeMillis();
-//		}
+		if (startTime == 0) {
+			startTime = System.currentTimeMillis();
+			lastTime = startTime;
+		} else if ("END".equals(lastOperation)) {
+			System.out.println("TOTAL: \t" + (System.currentTimeMillis() - startTime));
+		} else {
+			System.out.println(lastOperation + ": \t" + (System.currentTimeMillis() - lastTime));
+			lastTime = System.currentTimeMillis();
+		}
 
 	}
 
@@ -122,16 +122,14 @@ public class GtfFileFetcherThread extends Thread {
 		String geneName;
 		String transcName;
 		
-		long skippedRows = 0;
-		
 		String chrInMemoryString = chrInMemory.toNormalisedString() + "\t";
 	
 		while ((line = dataSource.readLine()) != null) {
 			
-			//Check correct chromosome already here to skip uninteresting rows because splitting is slow
-			if (!line.startsWith(chrInMemoryString)) {
-				continue;
-			}
+//			//Check correct chromosome already here to skip uninteresting rows because splitting is slow
+//			if (!line.startsWith(chrInMemoryString)) {
+//				continue;
+//			}
 			
 			cols = line.split("\t");
 
@@ -148,17 +146,18 @@ public class GtfFileFetcherThread extends Thread {
 
 			ids = parseIds(cols[8]);
 			
-			if (ids.length != 5) {
-				//Unknown format or missing information
-				skippedRows++;
-				continue;
-			} 
-			
 			geneId = ids[0];
 			transcId = ids[1];
 			exonIndex = ids[2];
 			geneName = ids[3];
 			transcName = ids[4];
+			
+			//Keep only gene information from other chromosomes
+			if (!chrInMemory.toNormalisedString().equals(chr)) {
+				if (!"1".equals(exonIndex)) {
+					continue;
+				}
+			}
 			
 			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
 					new Chromosome(chr), getStrand(strand));
@@ -166,11 +165,6 @@ public class GtfFileFetcherThread extends Thread {
 			Exon exon = new Exon(region, feature, 0); //Integer.parseInt(exonIndex));
 
 			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);			
-		}
-		
-		if (skippedRows != 0) {
-			//TODO replace with proper logging
-			System.out.println("Unable to parse " + skippedRows + " rows from file " + dataSource);
 		}
 		
 		stopwatch("read and save");
@@ -205,6 +199,7 @@ public class GtfFileFetcherThread extends Thread {
 		
 		stopwatch("coverage");
 		stopwatch("END");
+		
 	} 
 
 	private static Strand getStrand(String strand) {
@@ -219,15 +214,40 @@ public class GtfFileFetcherThread extends Thread {
 		return Strand.UNRECOGNIZED;
 	}
 
-	public static String[] parseIds(String ids) {
+	private static final String[] ID_FIELDS = { "gene_id", "transcript_id", "exon_number", "gene_name", "transcript_name" };
+	
+	public static String[] parseIds(String ids) {		
+		
 		String[] split = ids.split(";");
-
+		String[] result = new String[ID_FIELDS.length];
+		
+		String key = null;
+		String value = null;
+		int indexOfQuotationMark = 0;
+		
 		for (int i = 0; i < split.length; i++) {
-			split[i] = split[i].substring(split[i].indexOf("\"") + 1, split[i]
+			
+			indexOfQuotationMark = split[i].indexOf("\"");
+			
+			key = split[i].substring(1, indexOfQuotationMark - 1);
+			value = split[i].substring(indexOfQuotationMark + 1, split[i]
 					.lastIndexOf("\""));
+			
+			for (int fieldNumber = 0; fieldNumber < ID_FIELDS.length; fieldNumber++) {
+				if (ID_FIELDS[fieldNumber].equals(key)) {
+					result[fieldNumber] = value;
+				}
+			}
 		}
 
-		return split;
+		return result;
+	}
+	
+	private void updateFor(Chromosome requestChr) throws IOException {
+		genes = new GeneSet();
+
+		chrInMemory = requestChr;
+		readFile();
 	}
 
 	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
@@ -239,13 +259,9 @@ public class GtfFileFetcherThread extends Thread {
 		
 		Chromosome requestChr = fileRequest.areaRequest.start.chr;
 		
-		if (genes == null || !requestChr.equals(chrInMemory)) {
-			genes = new GeneSet();
-
-			chrInMemory = requestChr;
-			readFile();
+		if (genes == null) {
+			updateFor(requestChr);
 		}
-		
 
 		AreaRequest request = fileRequest.areaRequest;
 		List<RegionContent> resultList = new ArrayList<RegionContent>();
@@ -254,7 +270,13 @@ public class GtfFileFetcherThread extends Thread {
 			
 			resultList.addAll(processGeneSearch((GeneRequest)fileRequest.areaRequest, fileRequest));
 			
-		} else if (!request.status.concise) {
+		} else { 
+			
+			if ( !requestChr.equals(chrInMemory)) {
+				updateFor(requestChr);
+			}
+			
+			if (!request.status.concise) {
 
 			//FIXME create proper data structure for interval queries
 			Collection<Gene> filtered = genes.getGenes(new Region(request.start.bp - 10000000, request.end.bp + 10000000, requestChr));
@@ -284,6 +306,7 @@ public class GtfFileFetcherThread extends Thread {
 				
 				resultList.add(new RegionContent(entry.getKey(), values));
 			}
+		}
 		}
 		
 		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.status);

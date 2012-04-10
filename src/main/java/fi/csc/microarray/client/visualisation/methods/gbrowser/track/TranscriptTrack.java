@@ -126,6 +126,11 @@ public class TranscriptTrack extends Track {
 					String name = transcript.getName();
 
 					if (isNameVisible(rect)) {
+						
+						if (name == null) {
+							name = "n/a";
+						}
+						
 						drawTextAboveRectangle(name, drawables, rect, 1);
 					}
 					

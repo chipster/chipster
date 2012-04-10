@@ -102,9 +102,7 @@ public class QueueManager implements AreaResultListener {
 						
 			QueueContext context = entry.getValue();
 			context.queue.add(request);
-			context.thread.notifyAreaRequestHandler();
-			
-			context.thread = null;
+			context.thread.notifyAreaRequestHandler();		
 		}
 	}
 }

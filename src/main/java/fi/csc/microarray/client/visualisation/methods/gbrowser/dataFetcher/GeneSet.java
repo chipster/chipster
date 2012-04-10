@@ -41,7 +41,7 @@ public class GeneSet extends TreeMap<Region, Gene>{
 			
 			gene.prepareForReading();
 		}
-			
+						
 		geneIdMap = null;
 		transcriptIdMap = null;
 	}
