@@ -82,7 +82,7 @@ import fi.csc.microarray.util.IOUtils;
  * @see GenomePlot
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
-RegionListener, ComponentListener, PropertyChangeListener, requestGeneSearch {
+RegionListener, ComponentListener, PropertyChangeListener {
 
 
 	private static final long DEFAULT_VIEWSIZE = 100000;
