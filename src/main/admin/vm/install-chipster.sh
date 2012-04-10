@@ -373,6 +373,10 @@ then
   mv bwa-0.6.1/ ${TOOLS_PATH}/
   ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
+	# BWA index check
+	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
+	chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
+	
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
   ln -s /usr/bin/fasta_* ${TOOLS_PATH}/fastx/bin/
