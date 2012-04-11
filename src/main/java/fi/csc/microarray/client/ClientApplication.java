@@ -120,7 +120,7 @@ public abstract class ClientApplication {
 	public abstract void loadSessionFrom(URL url);
 	public abstract void loadSessionFrom(File file);
 	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession();
+	public abstract void saveSession(final boolean quit, final boolean lightweight);
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)

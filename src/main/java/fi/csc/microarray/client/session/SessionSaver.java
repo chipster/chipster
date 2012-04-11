@@ -77,7 +77,6 @@ public class SessionSaver {
 
 	private String validationErrors;
 
-
 	/**
 	 * Create a new instance for every session to be saved.
 	 * 

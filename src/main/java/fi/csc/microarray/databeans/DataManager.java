@@ -46,6 +46,17 @@ public class DataManager {
 	private static final Logger logger = Logger.getLogger(DataManager.class);
 
 	/**
+	 * Reports session validation related problems.
+	 */
+	public static class ValidationException extends Exception {
+
+		public ValidationException(String validationDetails) {
+			// TODO Auto-generated constructor stub
+		}
+		
+	}
+
+	/**
 	 * The initial name for the root folder.
 	 */
 	public final static String ROOT_NAME = "Datasets";
@@ -69,6 +80,7 @@ public class DataManager {
 
 	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
 	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -553,16 +565,9 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean restoreData) {
-		SessionLoader sessionLoader;
-		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
-			sessionLoader.loadSession();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			logger.error("loading session failed", e);
-		}
+	public void loadSession(File sessionFile, boolean restoreData) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile, restoreData, this);
+		sessionLoader.loadSession();
 	}
 
 	/**
@@ -570,28 +575,21 @@ public class DataManager {
 	 * File is a zip file with all the data files and one metadata file.
 	 * 
 	 * @return true if the session was saved perfectly
+	 * @throws Exception 
 	 */
-	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+	public void saveSession(File sessionFile) throws Exception {
+
+		// save session file
 		boolean metadataValid = false;
-		try {
-			// save
-			metadataValid = sessionSaver.saveSession();
-		} catch (Exception e) {
-			// save failed, warn about it
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		}
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		metadataValid = sessionSaver.saveSession();
 
-		// check validation, warn if not valid, return false
+		// check validation
 		if (!metadataValid) {
-			// save was successful but metadata validation failed, warn about it
+			// save was successful but metadata validation failed, file might be usable
 			String validationDetails = sessionSaver.getValidationErrors();
-			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
+			throw new ValidationException(validationDetails);
 		}
-
-		return true;
 	}
 
 	

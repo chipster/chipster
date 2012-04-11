@@ -64,9 +64,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem startedMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
 	private JMenuItem helpWorkflowMenuItem;
-	private JMenuItem saveSnapshotMenuItem;
+	private JMenuItem saveSessionMenuItem;
+	private JMenuItem saveRemoteSessionMenuItem;
 	private JMenu recentWorkflowMenu;
-	private JMenuItem loadSnapshotMenuItem;
+	private JMenuItem loadSessionMenuItem;
 	private JMenuItem taskListMenuItem;
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
@@ -136,8 +137,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getLoadSnapshotMenuItem());
-			fileMenu.add(getSaveSnapshotMenuItem());
+			fileMenu.add(getLoadSessionMenuItem());
+			fileMenu.add(getSaveSessionMenuItem());
+			fileMenu.add(getSaveRemoteSessionMenuItem());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -689,12 +691,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return clearSessionMenuItem;
 	}
 
-	private JMenuItem getLoadSnapshotMenuItem() {
-		if (loadSnapshotMenuItem == null) {
-			loadSnapshotMenuItem = new JMenuItem();
-			loadSnapshotMenuItem.setText("Open session...");
-			loadSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			loadSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	private JMenuItem getLoadSessionMenuItem() {
+		if (loadSessionMenuItem == null) {
+			loadSessionMenuItem = new JMenuItem();
+			loadSessionMenuItem.setText("Open session...");
+			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						application.loadSession();
@@ -705,21 +707,34 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				}
 			});
 		}
-		return loadSnapshotMenuItem;
+		return loadSessionMenuItem;
 	}
 
-	private JMenuItem getSaveSnapshotMenuItem() {
-		if (saveSnapshotMenuItem == null) {
-			saveSnapshotMenuItem = new JMenuItem();
-			saveSnapshotMenuItem.setText("Save session...");
-			saveSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			saveSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	private JMenuItem getSaveRemoteSessionMenuItem() {
+		if (saveRemoteSessionMenuItem == null) {
+			saveRemoteSessionMenuItem = new JMenuItem();
+			saveRemoteSessionMenuItem.setText("Save remote session...");
+			saveRemoteSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession();
+					application.saveSession(false, false);
 				}
 			});
 		}
-		return saveSnapshotMenuItem;
+		return saveRemoteSessionMenuItem;
+	}
+
+	private JMenuItem getSaveSessionMenuItem() {
+		if (saveSessionMenuItem == null) {
+			saveSessionMenuItem = new JMenuItem();
+			saveSessionMenuItem.setText("Save session...");
+			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					application.saveSession(false, false);
+				}
+			});
+		}
+		return saveSessionMenuItem;
 	}
 
 	private JMenuItem getAddDirMenuItem() {

@@ -101,6 +101,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -1248,7 +1249,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSessionAndQuit();
+					saveSession(false, false);
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1771,8 +1772,13 @@ public class SwingClientApplication extends ClientApplication {
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile, restoreSession);
-
+				try {
+					manager.loadSession(sessionFile, restoreSession);
+				} catch (Exception e) {
+					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					logger.error("loading session failed", e);
+				}
+				
 				unsavedChanges = somethingToSave;
 				
 				if (restoreSession) {
@@ -1784,15 +1790,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	
 	@Override
-	public void saveSession() {
-		saveSession(false);
-	}
-
-	public void saveSessionAndQuit() {
-		saveSession(true);
-	}
-	
-	public void saveSession(final boolean quit) {
+	public void saveSession(final boolean quit, final boolean lightweight) {
 
 		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1822,10 +1820,30 @@ public class SwingClientApplication extends ClientApplication {
 					public void run() {
 
 						// save
-						boolean saveSuccessful;
-						saveSuccessful = getDataManager().saveSession(file);
+						boolean saveFailed = false;
+						if (lightweight) {
+							try {
+								getDataManager().saveLightweightSession(file);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 
-						if (saveSuccessful) {
+						} else { 
+							try {
+								getDataManager().saveSession(file);
+								
+							} catch (ValidationException e) {
+								Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+								saveFailed = true;
+								
+							} catch (Exception e) {
+								Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+								saveFailed = true;
+							}
+						}
+						
+						if (!saveFailed) {
 
 							// quit
 							if (quit) {
