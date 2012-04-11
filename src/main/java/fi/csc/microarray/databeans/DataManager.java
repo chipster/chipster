@@ -21,9 +21,6 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
@@ -35,7 +32,6 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
