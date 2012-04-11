@@ -716,7 +716,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			saveRemoteSessionMenuItem.setText("Save remote session...");
 			saveRemoteSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, false);
+					application.saveSession(false, true);
 				}
 			});
 		}
