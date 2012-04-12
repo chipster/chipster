@@ -1007,11 +1007,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public File openWorkflow() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}

@@ -58,16 +58,16 @@ import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
@@ -80,27 +80,27 @@ import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
@@ -1685,15 +1685,9 @@ public class SwingClientApplication extends ClientApplication {
 		openImportTool(importSession);
 	}
 
-
-	@Override
-	public void loadSessionFrom(File file) {
-		loadSessionImpl(file, false);
-	}
-
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, true);
+		loadSessionImpl(file, true, true);
 	}
 
 	@Override
@@ -1705,7 +1699,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile, false);
+					loadSessionImpl(tempFile, false, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1748,12 +1742,13 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile(), false);		
+			boolean isDataless = fileChooser.getSelectedFile().getName().startsWith("remote") ? true : false; // FIXME remove remote session sniffing HACK
+			loadSessionImpl(fileChooser.getSelectedFile(), isDataless, false);		
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
+	private void loadSessionImpl(final File sessionFile, final boolean isDataless, final boolean clearDeadTempDirs) {
 		
 		// check that it's a valid session file 
 		if (!UserSession.isValidSessionFile(sessionFile)) {
@@ -1768,12 +1763,13 @@ public class SwingClientApplication extends ClientApplication {
 					
 				/* If there wasn't data or it was just cleared, there is no need to warn about
 				 * saving after opening session. However, if there was datasets already, combination
-				 * of them and new session can be necessary to save. This has to set after the import, because 
+				 * of them and new session can be necessary to save. This has to set after the import. 
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
 				try {
-					manager.loadSession(sessionFile, restoreSession);
+					manager.loadSession(sessionFile, isDataless);
+					
 				} catch (Exception e) {
 					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 					logger.error("loading session failed", e);
@@ -1781,7 +1777,10 @@ public class SwingClientApplication extends ClientApplication {
 				
 				unsavedChanges = somethingToSave;
 				
-				if (restoreSession) {
+				// If this was restored session, clear dead temp directories in the end.
+				// It is done inside this method to avoid building synchronization between
+				// session loading and temp directory cleaning during restore. 
+				if (clearDeadTempDirs) {
 					clearDeadTempDirectories();
 				}
 			}

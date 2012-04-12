@@ -65,13 +65,13 @@ public class SessionLoader {
 	private static final Logger logger = Logger.getLogger(SessionLoader.class);
 	
 	
-	public SessionLoader(File sessionFile, boolean restoreData, DataManager dataManager) throws MicroarrayException {
+	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
 		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
 		this.dataManager = dataManager; 
-		this.isDatalessSession = restoreData;
+		this.isDatalessSession = isDatalessSession;
 	}
 	
 	

@@ -561,8 +561,8 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean restoreData) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionFile, restoreData, this);
+	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
 		sessionLoader.loadSession();
 	}
 
