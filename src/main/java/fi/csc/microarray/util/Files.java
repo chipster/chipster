@@ -16,13 +16,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
+
 import org.mortbay.util.IO;
 
 /**
@@ -323,6 +327,12 @@ public class Files {
 				process.destroy();
 			}
 		}
+	}
+	
+	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {
+		List<File> files = listFilesRecursively(dir);
+		Collections.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+		return files;
 	}
 	
 	public static void main(String[] args) throws IOException {
