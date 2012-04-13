@@ -22,17 +22,22 @@ public class FileCleanUpTest {
 
 	@Test(groups = {"unit"} )
 	public void listFilesSortByDate() throws IOException {
-		List<File> files = Files.listFilesRecursivelySortByDateOldestFirst(new File("/Users/taavi/Downloads"));
+		List<File> files = Files.listFilesRecursivelySortByDateOldestFirst(new File("/home/hupponen/Documents"));
 		for (File file : files) {
 			System.out.println(file.getName() + ", " + FileUtils.byteCountToDisplaySize(file.length()) + ", " + new SimpleDateFormat("yyyy-MM-dd HH:mm:SS").format(new Date(file.lastModified())));
 		}
 	}
 
 	
+	@Test(groups = {"unit"} )
+	public void makeSpace() throws IOException {
+		File f = new File("/home/hupponen");
+		System.out.println(Files.partitionHasUsableSpacePercentage(f, 27));
+	}
 
 
 	public static void main(String[] args) throws IOException {
-		new FileCleanUpTest().listFilesSortByDate();
+		new FileCleanUpTest().makeSpace();
 		
 	}
 }

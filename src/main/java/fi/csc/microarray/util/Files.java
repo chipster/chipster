@@ -26,15 +26,17 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
+import org.apache.log4j.Logger;
 
 import org.mortbay.util.IO;
+
+import fi.csc.microarray.client.tasks.TaskExecutor;
 
 /**
  * @author Taavi Hupponen, Aleksi Kallio
  *
  */
 public class Files {
-
 
 	/**
 	 * Lists all files (for which isDirectory() returns false) 
@@ -51,6 +53,7 @@ public class Files {
 		
 		if (file.isDirectory()) {
 			// dir, recurse into it and combine result lists
+			System.out.println(file.getName());
 			for (File subFile : file.listFiles()) {
 				files.addAll(listFilesRecursively(subFile));
 			}
@@ -334,6 +337,46 @@ public class Files {
 		Collections.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
 		return files;
 	}
+	
+	public static void makeSpaceInDirectoryPercentage(File dir, int percentage) {
+
+		// check parameters
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException(dir.getAbsolutePath() + " is not a directory");
+		}
+		if (!(percentage >= 0 && percentage <= 100)) {
+			throw new IllegalArgumentException("percentage " + percentage + " not between 0 and 100");
+		}
+		
+		// is there already enough space?
+		if (partitionHasUsableSpacePercentage(dir, percentage)) {
+			return;
+		}
+		
+		
+		List<File> files = listFilesRecursivelySortByDateOldestFirst(dir);
+		for (File file : files) {
+			// file age check
+			
+			// delete ok
+			if (file.delete()) {
+				if (partitionHasUsableSpacePercentage(dir, percentage)) {
+					break;
+				} else {
+					continue;
+				}
+			}
+		}
+	}
+
+	public static boolean partitionHasUsableSpacePercentage(File file, int percentage) {
+		return ((double)file.getUsableSpace()/(double)file.getTotalSpace())*100 >= percentage;
+	}
+
+	public static boolean partitionHasUsableSpaceBytes(File file, long bytes) {
+		return file.getUsableSpace() >= bytes;
+	}
+
 	
 	public static void main(String[] args) throws IOException {
 		new File("/home/akallio/link_session").delete();
