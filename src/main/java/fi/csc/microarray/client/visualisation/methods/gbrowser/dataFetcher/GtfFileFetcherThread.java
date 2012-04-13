@@ -86,16 +86,15 @@ public class GtfFileFetcherThread extends Thread {
 	
 	private void stopwatch(String lastOperation) {
 
-		if (startTime == 0) {
-			startTime = System.currentTimeMillis();
-			lastTime = startTime;
-		} else if ("END".equals(lastOperation)) {
-			System.out.println("TOTAL: \t" + (System.currentTimeMillis() - startTime));
-		} else {
-			System.out.println(lastOperation + ": \t" + (System.currentTimeMillis() - lastTime));
-			lastTime = System.currentTimeMillis();
-		}
-
+//		if (startTime == 0) {
+//			startTime = System.currentTimeMillis();
+//			lastTime = startTime;
+//		} else if ("END".equals(lastOperation)) {
+//			System.out.println("TOTAL: \t" + (System.currentTimeMillis() - startTime));
+//		} else {
+//			System.out.println(lastOperation + ": \t" + (System.currentTimeMillis() - lastTime));
+//			lastTime = System.currentTimeMillis();
+//		}
 	}
 
 	private void readFile() throws IOException {
@@ -126,10 +125,10 @@ public class GtfFileFetcherThread extends Thread {
 	
 		while ((line = dataSource.readLine()) != null) {
 			
-//			//Check correct chromosome already here to skip uninteresting rows because splitting is slow
-//			if (!line.startsWith(chrInMemoryString)) {
-//				continue;
-//			}
+			//Check correct chromosome already here to skip uninteresting rows because splitting is slow
+			if (!line.startsWith(chrInMemoryString)) {
+				continue;
+			}
 			
 			cols = line.split("\t");
 
@@ -152,12 +151,12 @@ public class GtfFileFetcherThread extends Thread {
 			geneName = ids[3];
 			transcName = ids[4];
 			
-			//Keep only gene information from other chromosomes
-			if (!chrInMemory.toNormalisedString().equals(chr)) {
-				if (!"1".equals(exonIndex)) {
-					continue;
-				}
-			}
+//			//Keep only gene information from other chromosomes
+//			if (!chrInMemory.toNormalisedString().equals(chr)) {
+//				if (!"1".equals(exonIndex)) {
+//					continue;
+//				}
+//			}
 			
 			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
 					new Chromosome(chr), getStrand(strand));
