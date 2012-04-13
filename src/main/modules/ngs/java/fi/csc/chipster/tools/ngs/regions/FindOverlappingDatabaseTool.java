@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -29,7 +30,7 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 	}
 
 	@Override
-	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws FileNotFoundException, IOException {
+	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws FileNotFoundException, IOException, URISyntaxException {
 
 		// Add DB regions to inputs
 		File dbDirectory = new File(((JavaAnalysisHandler)this.analysis.getHandler()).getParameters().get("externalToolPath"), "genomic_regions");

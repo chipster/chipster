@@ -36,7 +36,7 @@ public class Exon implements Comparable<Exon> {
 		return Feature.UNRECOGNIZED;
 	}
 	
-	public Exon(Region region, String feature, int exonNumber) {
+	public Exon(Region region, String feature) {
 		this.region = region;
 		this.feature = getFeature(feature);
 //		this.exonNumber = exonNumber;

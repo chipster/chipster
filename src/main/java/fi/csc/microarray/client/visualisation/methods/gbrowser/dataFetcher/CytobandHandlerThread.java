@@ -9,7 +9,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSourc
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
 
 /**
  * Processing layer of cytoband data. There is no need for processing with this data type, so just passing 

@@ -26,7 +26,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.constants.VisualConstants;
 
@@ -189,36 +188,6 @@ public class TranscriptTrack extends Track {
 		}
 		
 		return drawables;
-	}
-
-	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, Color c) {
-		return createDrawable(startBp, endBp, 5, c);
-	}
-
-	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c) {
-		Rectangle rect = new Rectangle();
-
-		rect.x = getView().bpToTrack(startBp);
-		rect.width = getView().bpToTrack(endBp) - rect.x;
-
-		int i = 0;
-
-		while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x + 1) {
-			i++;
-		}
-
-		int end = rect.x + rect.width;
-
-		if (occupiedSpace.size() > i) {
-			occupiedSpace.set(i, end);
-		} else {
-			occupiedSpace.add(end);
-		}
-
-		rect.y = (int) ((i + 1) * (height + 2));
-		rect.height = height;
-
-		return new RectDrawable(rect, c, null);
 	}
 
 	public void processAreaResult(AreaResult areaResult) {

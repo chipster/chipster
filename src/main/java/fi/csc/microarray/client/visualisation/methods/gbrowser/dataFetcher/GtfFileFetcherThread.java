@@ -117,7 +117,7 @@ public class GtfFileFetcherThread extends Thread {
 
 		String geneId;
 		String transcId;
-		String exonIndex;
+		//String exonIndex;
 		String geneName;
 		String transcName;
 		
@@ -147,7 +147,7 @@ public class GtfFileFetcherThread extends Thread {
 			
 			geneId = ids[0];
 			transcId = ids[1];
-			exonIndex = ids[2];
+			//exonIndex = ids[2];
 			geneName = ids[3];
 			transcName = ids[4];
 			
@@ -161,7 +161,7 @@ public class GtfFileFetcherThread extends Thread {
 			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
 					new Chromosome(chr), getStrand(strand));
 		
-			Exon exon = new Exon(region, feature, 0); //Integer.parseInt(exonIndex));
+			Exon exon = new Exon(region, feature);
 
 			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);			
 		}
