@@ -1,7 +1,9 @@
 # TOOL prinseq-filter.R: "Filter reads for several criteria" (Filters reads based on several criteria. Different criterias are combined with AND operator. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
+# INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
+# OUTPUT OPTIONAL accepted_natepair.fastq
 # OUTPUT OPTIONAL rejected.fastq
 # OUTPUT OPTIONAL rejected.fasta
 # OUTPUT OPTIONAL filter.log
@@ -29,6 +31,18 @@
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("fastqfile")
+
+
+# Check if two files were given as input and if so run the python script
+# that interlaces the mate pairs into a single file
+input_files <- dir()
+if (grep("matepair_fastqfile", input_files)) {
+	
+# binary
+	binary_python_scrpts <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
+	system_command <- paste("interleave_fastq.py", "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
+	system(system_command)	
+}
 
 # binary
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
@@ -116,7 +130,6 @@ if (input.mode == "fa") {
 	filter.command <- paste(binary.prinseq, filter.params, "-fasta fastqfile -out_good accepted")
 }
 
-
 if (log.file == "y") {
 	system("echo Running PRINSEQ filtering with command: > filter.log")
 	echo.command <- paste("echo '", filter.command, "'>> filter.log")
@@ -126,7 +139,7 @@ if (log.file == "y") {
 
 system(filter.command)
 
-#Make sure something is in the output
+# Make sure something is in the output
 if (input.mode == "fq") {
 	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set' > accepted.fastq ; fi")
 }
@@ -144,5 +157,16 @@ if (output.mode == "both") {
 		system("if [ ! -e  rejected.fasta ] ; then echo 'Filtering produced an empty rejected.fasta sequence set' >> filter.log  ; echo '' > rejected.fasta ; fi")
 	}
 }
+
+# If filtering on paired-end data perform matching of
+# nate pairs using python script and then de-interlace
+if (grep("matepair_fastqfile", input_files)) {
+	system_command <- paste("match_pairs.py", "accepted.fastq", "matched_fastqfile")
+	system(system_command)	
+	system_command <- paste("deinterleave.py", "matched_fastqfile", "accepted.fastq", "accepted_matepair.fastq")
+	system(system_command)	
+	
+}
+
 
 #stop
