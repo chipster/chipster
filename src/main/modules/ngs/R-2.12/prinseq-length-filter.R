@@ -9,7 +9,7 @@
 # PARAMETER min.len: "Minimum length" TYPE INTEGER DEFAULT 15 (Select only reads that are longer than the given value.)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file. The log file shows the PRINSEQ command used and the amount of reads in the result files)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file. The log file shows the PRINSEQ command used and the amount of reads in the result files)
 
 
 # check out if the file is compressed and if so unzip it

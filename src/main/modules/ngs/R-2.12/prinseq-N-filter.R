@@ -1,15 +1,15 @@
-# TOOL prinseq-N-filter.R: "Filter reads based on Ns" (Filters out reads form a reads file based the number or percentage of unassigned nucleotides in a read. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-N-filter.R: "Filter reads based on Ns" (Filters reads based the number or percentage of ambiguous nucleotides, N. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
 # OUTPUT OPTIONAL rejected.fastq
 # OUTPUT OPTIONAL rejected.fasta
 # OUTPUT OPTIONAL filter.log
-# PARAMETER OPTIONAL ns.max.n: "Maximum count of Ns" TYPE INTEGER (Filter out reads for which the count of Ns is higher than the given value.)
-# PARAMETER OPTIONAL ns.max.p: "Maximum percentage of Ns" TYPE INTEGER (Filter reads for which the percentage of Ns id higher than the given value.)
+# PARAMETER OPTIONAL ns.max.n: "Maximum count of Ns" TYPE INTEGER (Filter out reads which contain more Ns than the given value.)
+# PARAMETER OPTIONAL ns.max.p: "Maximum percentage of Ns" TYPE INTEGER (Filter out reads for which the percentage of Ns is higher than the given value.)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
 
 # check out if the file is compressed and if so unzip it
@@ -52,7 +52,7 @@ if (log.file == "y") {
 
 system(filter.command)
 
-#Make sure that someting is given as an output
+#Make sure that something is given as an output
 if (input.mode == "fq") {
 	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set' >> filter.log ; echo '' > accepted.fastq ; fi")
 }
