@@ -1,4 +1,4 @@
-# TOOL ngs-filter-annotations.R: "Filter by column term" (Allows the user to filter the table rows on the basis of terms in any text column.)
+# TOOL ngs-filter-annotations.R: "Filter table by column term" (Allows the user to filter the table rows on the basis of terms in any text column.)
 # INPUT annotations.tsv: annotations.tsv TYPE GENERIC 
 # OUTPUT filtered-NGS-annotations.tsv: filtered-NGS-annotations.tsv 
 # PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
