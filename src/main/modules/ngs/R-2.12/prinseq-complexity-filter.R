@@ -1,4 +1,4 @@
-# TOOL prinseq-complexity-filter.R: "Filter reads by complexity" (Filters out low complexity reads using either the DUST or ENTROPY method. The method is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
+# TOOL prinseq-complexity-filter.R: "Filter reads for low complexity" (Filters out low complexity reads using either the DUST or ENTROPY method. The method is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta

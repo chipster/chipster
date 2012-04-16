@@ -1,4 +1,4 @@
-# TOOL prinseq-length-filter.R: "Filter reads based on length" (Filters reads based on length. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-length-filter.R: "Filter reads for length" (Filters reads based on length. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
