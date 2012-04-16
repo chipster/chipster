@@ -1,4 +1,4 @@
-# TOOL prinseq-duplicate-filter.R: "Filter out duplicate reads" (Removes duplicate reads from a reads file. This tool is based on the PRINSEQ package)
+# TOOL prinseq-duplicate-filter.R: "Filter out duplicate reads" (Removes duplicate reads. This tool is based on the PRINSEQ package)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
@@ -51,7 +51,7 @@ if (log.file == "y") {
   
 system(filter.command)
 
-#Make sure that someting is given as an output
+#Make sure that something is given as an output
 if (input.mode == "fq") {
 	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
 }

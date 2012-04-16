@@ -3,15 +3,6 @@
 	<category name="Filtering" color="#d5c796">
 		<tool runtime="R-2.12">
 			<resource>fastx-quality-filter.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>fastx-clipper.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-filter-annotations.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-filter-results-column.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>prinseq-length-filter.R</resource>
@@ -27,6 +18,15 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>prinseq-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-clipper.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-filter-annotations.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-filter-results-column.R</resource>
 		</tool>
 	</category>
 
@@ -44,16 +44,19 @@
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>prinseq-AT-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-quality-trimmer.R</resource>
+			<resource>prinseq-statistics.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>prinseq-quality-trimmer.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>prinseq-trimmer.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-AT-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-renamer.R</resource>
@@ -102,10 +105,7 @@
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
-		</tool>	
-        <tool runtime="R-2.12">
-			<resource>prinseq-statistics.R</resource>
-		</tool>	
+		</tool>		
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
