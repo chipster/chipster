@@ -5,7 +5,7 @@
 # PARAMETER OPTIONAL trim.tail.left: "Trim left tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 5-prime end.)
 # PARAMETER OPTIONAL trim.tail.right: "Trim right tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 3-prime end.)
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "No", y: "Yes"] DEFAULT n (Write a log file)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "No", y: "Yes"] DEFAULT y (Write a log file)
 
 
 
