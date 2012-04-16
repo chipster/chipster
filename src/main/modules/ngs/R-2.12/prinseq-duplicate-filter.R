@@ -1,4 +1,4 @@
-# TOOL prinseq-duplicate-filter.R: "Filter out duplicate reads" (Removes duplicate reads from a reads file. This tool is based on the PRINSEQ package)
+# TOOL prinseq-duplicate-filter.R: "Filter reads for duplicates" (Removes duplicate reads. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
@@ -9,7 +9,7 @@
 # PARAMETER derep.min: "Number of allowed duplicates" TYPE INTEGER DEFAULT 2 (This option specifies the number of allowed duplicates. For example, to remove sequences that occur more than 5 times, you would specify value 6. Note that this option is used only for filtering exact duplicates or reverse complement exact duplicates.)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file.) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file.)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file.)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file.)
 
 
 # check out if the file is compressed and if so unzip it
@@ -51,7 +51,7 @@ if (log.file == "y") {
   
 system(filter.command)
 
-#Make sure that someting is given as an output
+#Make sure that something is given as an output
 if (input.mode == "fq") {
 	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
 }

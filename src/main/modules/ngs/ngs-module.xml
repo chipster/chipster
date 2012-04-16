@@ -3,6 +3,21 @@
 	<category name="Filtering" color="#d5c796">
 		<tool runtime="R-2.12">
 			<resource>fastx-quality-filter.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>prinseq-length-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-N-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-complexity-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-duplicate-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-filter.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-clipper.R</resource>
@@ -12,7 +27,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-filter-results-column.R</resource>
-		</tool>	
+		</tool>
 	</category>
 
 	<category name="Quality control" color="#e7df70">
@@ -29,13 +44,22 @@
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>prinseq-statistics.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>fastx-renamer.R</resource>
+			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>fastx-collapser.R</resource>
+			<resource>prinseq-AT-trimmer.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-trimmer.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-renamer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-rmdup.R</resource>
@@ -78,8 +102,8 @@
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
-		</tool>	
-        <tool runtime="R-2.12">
+		</tool>		
+	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
         <tool runtime="R-2.12">

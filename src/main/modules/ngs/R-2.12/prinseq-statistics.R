@@ -1,7 +1,7 @@
-# TOOL prinseq-statistics.R: "Reads file statistics" (Calculates general statistics of the reads in the given file. This tool is based on the PRINSEQ program.)
+# TOOL prinseq-statistics.R: "Statistics for FASTQ" (Calculates general statistics of the reads in the given file. This tool is based on the PRINSEQ program.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
 # OUTPUT reads-stats.tsv 
-# OUTPUT OPTIONAL reads-stats.html 
+# OUTPUT OPTIONAL reads-stats.html
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
 
 # KM 17.1.2012
@@ -18,7 +18,7 @@ unzipIfGZipFile("fastqfile")
 # binary
 binary.stats <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 #binary.stats <- c(file.path("perl prinseq-lite-0.17.3/prinseq-lite.pl"))
-# command to generate graph file
+# command to generate result table
 system('printf "%s\t%s\t%s\n"  Class Feature Value > reads-stats.tsv')
 if (input.mode == "fq") {
 	command.stats <- paste("perl", binary.stats, " -fastq fastqfile -out_good null -out_bad null -stats_all >> reads-stats.tsv")
@@ -43,7 +43,7 @@ if (input.mode == "fa") {
 }
 system(command.graph)
 
-## create html file
+# create html file
 binary.graph <- c(file.path(chipster.tools.path, "prinseq", "prinseq-graphs.pl"))
 command.graph <- paste("perl", binary.graph, " -i tmp_graph_file -html_all -o reads-stats")
 system(command.graph)

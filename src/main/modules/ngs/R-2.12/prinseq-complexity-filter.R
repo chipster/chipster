@@ -1,15 +1,15 @@
-# TOOL prinseq-complexity-filter.R: "Filter reads by complexity" (Filters out low complexly sequences using either DUST or ENTROPY algorithm. The algorith is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
+# TOOL prinseq-complexity-filter.R: "Filter reads for low complexity" (Filters out low complexity reads using either the DUST or ENTROPY method. The method is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
 # OUTPUT OPTIONAL rejected.fastq
 # OUTPUT OPTIONAL rejected.fasta
 # OUTPUT OPTIONAL filter.log
-# PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The DUST method uses this as maximum allowed score.)
-# PARAMETER OPTIONAL lc.entropy: "Entropy filter threshold" TYPE INTEGER (Use Entripy algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The entropy method uses this as the as minimum allowed value.)
+# PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST method with the given maximum allowed score, between 0 and 100. Reads with complexity scores above 7 can be considered low complexity.)
+# PARAMETER OPTIONAL lc.entropy: "ENTROPY filter threshold" TYPE INTEGER (Use ENTROPY method with the given minimum allowed entropy value, between 0 and 100. Reads with entropy value below 70 can be considered low complexity.)
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted reads only", both: "accepted and rejected reads into separate files"] DEFAULT filt (With this section you can define if the reads that get filtered out are collected to a separate file.) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file.)
-# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT n (Write a log file.)
+# PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file.)
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -57,7 +57,7 @@ if (log.file == "y") {
 
 system(filter.command)
 
-#Make sure that someting is given as an output
+#Make sure that something is given as an output
 if (input.mode == "fq") {
 	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
 }
