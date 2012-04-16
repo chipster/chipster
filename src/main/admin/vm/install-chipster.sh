@@ -112,6 +112,19 @@ aptitude -y install python2.6
 # python-matplotlib, for HTSeq
 aptitude -y --without-recommends install python-numpy python-matplotlib
 
+## Perl Libraries:
+# libjson-perl, for prinseq-graph
+# libcairo-perl, for prinseq-graph
+# libtext-simpletable-perl, for prinseq-graph
+# libcontextual-return-perl, for prinseq-graph
+# libwant-perl, for prinseq-graph
+# cpanminus, for prinseq-graph
+# Statistics::PCA, for prinseq-graph
+# Math::Cephes, for prinseq-graph
+# Math::MatrixReal, for prinseq-graph
+aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
+cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
+
 ## Libraries:
 # build-essential (only devel)
 # gfortran (libgfortran3)
