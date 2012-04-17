@@ -17,7 +17,7 @@
 # PARAMETER OPTIONAL max.multihits: "How many hits is a read allowed to have" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 20 (Instructs TopHat to allow up to this many alignments to the reference for a given read, and suppresses all alignments for reads with more than this many alignments.)
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is supplied, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If you supply an optional GTF file, TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. This parameter controls if TopHat should look for reads accross the known junctions only.)
 
-# EK 17.4 added -G and -g options
+# EK 17.4.2012 added -G and -g options
 
 options(scipen = 10)
 # max.intron.length <- formatC(max.intron.length, "f", digits = 0)
