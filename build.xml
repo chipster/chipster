@@ -93,7 +93,7 @@
             <fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>   
             <fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/commons-io-1.3.2.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/commons-io-2.2.jar" relpath=""/>
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
