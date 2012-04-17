@@ -39,7 +39,7 @@ input_files <- dir()
 if (grep("matepair_fastqfile", input_files)) {
 	
 # binary
-	binary_python_scrpts <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
+	binary <- file.path(chipster.module.path, "shell", "match-mate-pairs")
 	system_command <- paste("interleave_fastq.py", "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
 	system(system_command)	
 }
