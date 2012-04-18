@@ -6,7 +6,7 @@
 # PARAMETER OPTIONAL trim.qual.left: "Trim 5-prime end by quality" TYPE INTEGER (Trim reads from the 5-prime end using the given quality threshold score.)
 # PARAMETER OPTIONAL trim.qual.type: "Quality score calculation method" TYPE [min: "minimum quality value", mean: "mean quality", max: "maximum quality value", sum: "total sum of quality values"] DEFAULT min (Type of quality score calculation to use.)
 # PARAMETER OPTIONAL trim.qual.rule: "Quality score comparison condition" TYPE [ lt: "less than", gt: "greater than", et: "equal to"] DEFAULT lt (Rule to use to compare quality score threshold to calculated value.)
-# PARAMETER OPTIONAL trim.qual.window: "Window size for quality calculation" TYPE INTEGER DEFAULT 1 (The sliding window size used to calculate quality score by type. Use a window size of 1 to stop at the first base that fails the defined rule defined.)
+# PARAMETER OPTIONAL trim.qual.window: "Window size for quality calculation" TYPE INTEGER DEFAULT 1 (The sliding window size used to calculate quality score by type. Use a window size of 1 to stop at the first base that fails the defined rule.)
 # PARAMETER OPTIONAL trim.qual.step: "Step size used to move the quality window" TYPE INTEGER DEFAULT 1 (Step size used to move the sliding window. To move the window over all quality scores without missing any, the step size should be less than or equal to the window size.)
 # PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)

@@ -1,4 +1,4 @@
-# TOOL prinseq-AT-trimmer.R: "Trim reads for poly-A/T tails" (Removes poly-A/T tails from nucleotide sequences. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-AT-trimmer.R: "Trim reads for poly-A/T tails" (Removes poly-A/T tails from reads. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT trimmed.fastq
 # OUTPUT OPTIONAL trim.log

@@ -1,4 +1,4 @@
-# TOOL prinseq-duplicate-filter.R: "Filter out duplicate reads" (Removes duplicate reads. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-duplicate-filter.R: "Filter reads for duplicates" (Removes duplicate reads. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta

@@ -1,4 +1,4 @@
-# TOOL prinseq-N-filter.R: "Filter reads based on Ns" (Filters reads based the number or percentage of ambiguous nucleotides, N. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-N-filter.R: "Filter reads for Ns" (Filters reads based the number or percentage of ambiguous nucleotides, N. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq
 # OUTPUT OPTIONAL accepted.fasta
