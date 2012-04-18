@@ -28,30 +28,69 @@
 # PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
-# check out if the file is compressed and if so unzip it
+# Filter fastq and fasta files based on a number of criteria
+# EK, 16-04-2012
+# MG, 18-04-2012, added matepair functionality
+
+# Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("fastqfile")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("matepair_fastqfile")
 
+# Check whether input files are fastq
+if (input.mode == "fq") {
+	first_four_rows <- read.table(file="fastqfile", nrow=4, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
+	# compare sequence ID with quality score id, but discard first character
+	name_length <- nchar(as.character(first_four_rows[1,1]))
+	seq_id <- substr(as.character(first_four_rows[1,1]), start=2, stop=name_length)
+	quality_id <- substr(as.character(first_four_rows[3,1]), start=2, stop=name_length)
+	if (seq_id != quality_id) {
+		stop("CHIPSTER-NOTE: It appears as though the input file(s) are not in fastq format. Please check input files or rerun the tool but with the 'Input file format' parameter set to 'FASTA'.")
+	}
+}
 
 # Check if two files were given as input and if so run the python script
 # that interlaces the mate pairs into a single file
 input_files <- dir()
 is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 if (is_paired_end) {
-	# binary
-#	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave_fastq.py")
-	system_command <- paste("python", binary_python_scripts, "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
-	system(system_command)	
-	system("echo Executed interleave python script with: > filter.log")
-	echo.command <- paste("echo '", system_command, "'>> filter.log")
-	system(echo.command)
-	system("ls -l >> filter.log")
+	
+	# check that the input files are truly matepairs by comparing
+	# sequence ID, discarding the last character
+	first_row_1 <- read.table(file="fastqfile", nrow=1, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
+	first_row_2 <- read.table(file="matepair_fastqfile", nrow=1, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
+	name_length <- nchar(as.character(first_row_1[1,1]))
+	id_1 <- substr(as.character(first_row_1[1,1]), start=1, stop=name_length-1)
+	id_2 <- substr(as.character(first_row_2[1,1]), start=1, stop=name_length-1)
+	if (id_1 != id_2) {
+		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please checkthat the correct input files were selected.")
+	}
+	
+	# figure out which file is the first and second matepair and issue
+	# the python script call accordingly
+	mate_number <- substr(as.character(first_row_1[1,1]), start=name_length, stop=name_length)
+	if (mate_number == "1") {
+		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "interleave-fasta.py")
+		system_command <- paste("python", binary_python_scripts, "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
+		system(system_command)	
+		system("echo Executed interleave python script with: > filter.log")
+		echo.command <- paste("echo '", system_command, "'>> filter.log")
+		system(echo.command)
+	} else {
+		binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave-fastq.py")
+		system_command <- paste("python", binary_python_scripts, "matepair_fastqfile", "fastqfile", "interleaved_fastqfile")
+		system(system_command)	
+		system("echo Executed interleave python script with: > filter.log")
+		echo.command <- paste("echo '", system_command, "'>> filter.log")
+		system(echo.command)
+}	
+
 	# remove input files to clear up disk space
 	system("rm -f fastqfile")
 	system("rm -f matepair_fastqfile")
 	system("mv interleaved_fastqfile fastqfile")
-	system("ls -l >> filter.log")
+
 }
 
 # binary
@@ -171,17 +210,10 @@ if (output.mode == "both") {
 # remove input files to clear up disk space
 system("rm -f fastqfile")
 
-system("ls -l >> filter.log")
-system("echo Beginning of file: >> filter.log")
-system("head accepted.fastq >> filter.log")
-system("echo Emd of file >> filter.log")
-system("tail accepted.fastq >> filter.log")
-
 # If filtering on paired-end data perform matching of
 # nate pairs using python script and then de-interlace
 if (is_paired_end) {
-#	system_command <- paste(binary_python_scripts, "match_pairs.py", "accepted.fastq", "matched_fastqfile")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "match_pairs.py")
+	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs.py")
 	system_command <- paste("python", binary_python_scripts, "accepted.fastq", "matched_fastqfile")
 	system(system_command)
 	
@@ -191,11 +223,8 @@ if (is_paired_end) {
 
 	# remove input files to clear up disk space
 	system("rm -f accepted.fastq")
-	
-	system("ls -l >> filter.log")
 
-#	system_command <- paste(binary_python_scripts, "deinterleave.py", "matched_fastqfile", "accepted.fastq", "accepted_matepair.fastq")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "deinterleave_fastq.py")
+	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "deinterleave-fastq.py")
 	system_command <- paste("python", binary_python_scripts, "matched_fastqfile", "accepted.fastq", "accepted_matepair.fastq")
 	system(system_command)	
 
@@ -203,8 +232,7 @@ if (is_paired_end) {
 	echo.command <- paste("echo '", system_command, "'>> filter.log")
 	system(echo.command)
 
-	system("ls -l >> filter.log")
-	
+	# remove input files to clear up disk space
 	system("rm -f matched_fastqfile")
 }
 
