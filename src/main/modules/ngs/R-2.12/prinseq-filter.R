@@ -38,6 +38,11 @@ unzipIfGZipFile("fastqfile")
 input_files <- dir()
 is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 if (is_paired_end) {
+	# figure out which file is the first and second matepair
+	first_row <- read.table(file="fastqfile", nrow=1, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
+	name_length <- nchar(as.character(first_row[1,1]))
+	mate_number <- substr(as.character(first_row[1,1]), start=name_length, stop=name_length)
+if (mate_number == "1") {
 	# binary
 #	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs")
 	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave-fastq.py")
@@ -46,7 +51,17 @@ if (is_paired_end) {
 	system("echo Executed interleave python script with: > filter.log")
 	echo.command <- paste("echo '", system_command, "'>> filter.log")
 	system(echo.command)
-	system("ls -l >> filter.log")
+} else {
+	# binary
+#	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs")
+	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave-fastq.py")
+	system_command <- paste("python", binary_python_scripts, "matepair_fastqfile", "fastqfile", "interleaved_fastqfile")
+	system(system_command)	
+	system("echo Executed interleave python script with: > filter.log")
+	echo.command <- paste("echo '", system_command, "'>> filter.log")
+	system(echo.command)
+}	
+#	system("ls -l >> filter.log")
 	# remove input files to clear up disk space
 	system("rm -f fastqfile")
 	system("rm -f matepair_fastqfile")
