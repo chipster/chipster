@@ -266,6 +266,10 @@ public class DataManagerTest {
 		// load
 		manager.loadSession(session, true);
 		
+		// check
+		Assert.assertEquals(manager.getRootFolder().getChildCount(), 1);
+		Assert.assertEquals(manager.getRootFolder().getChildren().iterator().next().getName(), "test-content");
+		
 		// clean up
 		manager.deleteAllDataItems();
 	}
