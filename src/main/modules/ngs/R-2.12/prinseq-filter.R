@@ -40,7 +40,7 @@ is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 if (is_paired_end) {
 	# binary
 #	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave_fastq.py")
+	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave-fastq.py")
 	system_command <- paste("python", binary_python_scripts, "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
 	system(system_command)	
 	system("echo Executed interleave python script with: > filter.log")
@@ -181,7 +181,7 @@ system("tail accepted.fastq >> filter.log")
 # nate pairs using python script and then de-interlace
 if (is_paired_end) {
 #	system_command <- paste(binary_python_scripts, "match_pairs.py", "accepted.fastq", "matched_fastqfile")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "match_pairs.py")
+	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "match-pairs.py")
 	system_command <- paste("python", binary_python_scripts, "accepted.fastq", "matched_fastqfile")
 	system(system_command)
 	
@@ -195,7 +195,7 @@ if (is_paired_end) {
 	system("ls -l >> filter.log")
 
 #	system_command <- paste(binary_python_scripts, "deinterleave.py", "matched_fastqfile", "accepted.fastq", "accepted_matepair.fastq")
-	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "deinterleave_fastq.py")
+	binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "deinterleave-fastq.py")
 	system_command <- paste("python", binary_python_scripts, "matched_fastqfile", "accepted.fastq", "accepted_matepair.fastq")
 	system(system_command)	
 
