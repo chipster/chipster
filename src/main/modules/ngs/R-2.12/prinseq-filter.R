@@ -78,7 +78,7 @@ if (is_paired_end) {
 		echo.command <- paste("echo '", system_command, "'>> filter.log")
 		system(echo.command)
 	} else {
-		binary_python_scripts <- file.path("/opt/chipster4/comp/modules/ngs/shell/match-mate-pairs", "interleave-fastq.py")
+		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "interleave-fasta.py")
 		system_command <- paste("python", binary_python_scripts, "matepair_fastqfile", "fastqfile", "interleaved_fastqfile")
 		system(system_command)	
 		system("echo Executed interleave python script with: > filter.log")
