@@ -21,7 +21,7 @@ public class PhenodataTest {
 
 	private DataManager manager; 
 	
-	@BeforeTest(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
@@ -85,7 +85,6 @@ public class PhenodataTest {
 		matrix.addColumn("chiptype", chiptypes);
 
 		// FIXME use data manager
-		throw new IllegalStateException("Fix these to use DataManager");
 //		// write first phenodata out
 //		OutputStream out = phenodata1.getContentOutputStreamAndLockDataBean();
 //		matrix.writeTo(out);

@@ -6,36 +6,43 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.ClientContextUtil;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.ModuleManager;
 
 public class FSDataEventTest implements DataChangeListener {
 	
-	@BeforeTest
-	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
+	@BeforeTest(groups = {"unit"} )
+	public void init() throws Exception {
+		ClientContextUtil.setupClientContext();
 	}
 
 	@Test(groups = {"unit"} )
-	public void testEvents() throws IOException, MicroarrayException {
+	public void testEvents() throws IOException, MicroarrayException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DataManager manager = new DataManager();
+		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
+		moduleManager.plugAll(manager, null);
+
+		moduleManager.plugAll(manager, Session.getSession());
 		manager.addDataChangeListener(this);
 		manager.setEventsEnabled(true);
 		
 		DataBean bean1 = manager.createDataBean("My bean.txt");
+		ClientContextUtil.setupDatabean(bean1);
 		assertNoEvent();
 		
 		DataBean bean2 = manager.createDataBean("My other bean.txt");
+		ClientContextUtil.setupDatabean(bean2);
 		assertNoEvent();
 		
 		bean1.addLink(Link.DERIVATION, bean2);

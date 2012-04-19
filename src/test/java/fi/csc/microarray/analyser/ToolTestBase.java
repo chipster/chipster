@@ -19,7 +19,7 @@ public class ToolTestBase extends AnalysisTestBase {
 		super(username, password, configURL);
 	}
 
-	@BeforeTest(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void setUp() throws Exception {
 		super.setUp();
 		serviceAccessor = new RemoteServiceAccessor();

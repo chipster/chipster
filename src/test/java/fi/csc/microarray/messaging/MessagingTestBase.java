@@ -36,8 +36,9 @@ public abstract class MessagingTestBase {
 
 	
 	
-	@BeforeTest
+	@BeforeTest(groups = {"unit"} )
 	protected void setUp() throws Exception {
+		
 		
 		// use demo listener if no username or password
 		System.out.println("setting up authentication listener");
@@ -69,10 +70,10 @@ public abstract class MessagingTestBase {
 			}
 		});
 		System.out.println("endpoint created");
-		endpoint.setAuthenticationListener(authenticationListener);
+		endpoint.setAuthenticationListener(authenticationListener);		
 	}
 	
-	@AfterTest
+	@AfterTest(groups = {"unit"} )
 	protected void tearDown() throws Exception {
 		System.out.println("closing messaging endpoint");
 		endpoint.close();

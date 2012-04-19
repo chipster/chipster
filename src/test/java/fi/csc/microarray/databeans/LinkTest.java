@@ -16,7 +16,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class LinkTest {
 	private DataManager manager; 
 	
-	@BeforeTest(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			

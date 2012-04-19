@@ -60,7 +60,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 	
 
-	@BeforeTest(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void setUp() throws Exception {
 		super.setUp();
 		this.manager = new DataManager();
@@ -68,7 +68,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 		
 	}
 
-	@AfterTest(alwaysRun = true)
+	@AfterTest(groups = {"unit"} )
 	public void tearDown() throws Exception {
 		super.tearDown();
 	}
