@@ -3,6 +3,7 @@ package fi.csc.microarray.filebroker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -10,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.log.Log;
 import org.mortbay.util.IO;
@@ -17,6 +19,7 @@ import org.mortbay.util.URIUtil;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.util.Files;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -31,6 +34,7 @@ public class RestServlet extends DefaultServlet {
 
 	private String userDataPath;
 	private String publicDataPath;
+	private int cleanUpFreeSpacePerentage;
 	
 	private AuthorisedUrlRepository urlRepository;
 	private String rootUrl;
@@ -42,6 +46,7 @@ public class RestServlet extends DefaultServlet {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		userDataPath = configuration.getString("filebroker", "user-data-path");
 		publicDataPath = configuration.getString("filebroker", "public-data-path");
+		cleanUpFreeSpacePerentage = configuration.getInt("filebroker", "clean-up-free-space-percentage");
 	}
 	
 	@Override
@@ -142,13 +147,25 @@ public class RestServlet extends DefaultServlet {
 		}
 		
 		FileOutputStream out = new FileOutputStream(file);
+		InputStream in = request.getInputStream();
 		try {
-			IO.copy(request.getInputStream(), out);
-			
+			IO.copy(in, out);
 		} catch (IOException e) {
 			Log.warn(Log.EXCEPTION, e); // is this obsolete?
-			out.close();
+			file.delete();
 			throw(e);
+		} finally {
+			// TODO check that IO.copy and closing
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(in);
+		}
+		
+		// make sure there's space left after the transfer
+		// TODO check that path
+		try {
+			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage);
+		} catch (Exception e) {
+			Log.warn("could not clean up space after put", e);
 		}
 		
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content

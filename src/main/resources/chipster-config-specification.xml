@@ -103,6 +103,10 @@
 			<value>3600</value>
 		</entry>
 
+		<entry entryKey="clean-up-free-space-percentage" type="int" description="how much space should be available after clean up">
+			<value>20</value>
+		</entry>
+
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		
