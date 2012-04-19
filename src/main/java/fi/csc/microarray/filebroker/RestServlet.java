@@ -166,7 +166,7 @@ public class RestServlet extends DefaultServlet {
 		// make sure there's space left after the transfer
 		// TODO check that path
 		try {
-//			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			Log.warn("could not clean up space after put", e);
 		}
