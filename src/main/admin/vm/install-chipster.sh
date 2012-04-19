@@ -4,7 +4,7 @@
 # This script will install Chipster 2, w/ dependencies
 #
 # Notice! This script needs super-user rights!!
-# e.g. sudo bash chipster.sh 2>&1 | tee chipster.log
+# e.g. sudo bash install-chipster.sh 2>&1 | tee chipster.log
 #
 
 # Set execution trace
@@ -103,7 +103,12 @@ aptitude -y install fastx-toolkit
 ## OpenMPI
 #aptitude -y --without-recommends install openmpi-bin
 
-# Python 2.6
+## Python
+# !! Anything from PyPI should/shall be installed with pip !!
+# python-virtualenv
+# virtualenvwrapper
+aptitude --without-recommends install python-pip
+# 2.6
 # Needed for MACS?!?, IF REALLY THE CASE IT SHOULD BE RECOMPILED FOR 2.7
 aptitude -y install python2.6
 
@@ -219,6 +224,21 @@ touch ${CHIP_PATH}/auto-config-to-be-run
 # Install external applications and datasets #
 ##############################################
 
+## In root:
+
+# MACS, Artistic license
+# part 1
+cd ${TMPDIR_PATH}/
+wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
+dpkg -i macs_1.4.1.deb
+rm macs_1.4.1.deb
+
+# HTSeq, GPL v3 or later
+# part 1
+pip install HTSeq==0.5.3p3
+
+## In tools:
+ 
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
@@ -241,7 +261,6 @@ then
   cd ${CHIP_PATH}/
   echo | ./setup.sh
 
-
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/
@@ -261,14 +280,13 @@ then
   rm -rf R-${R_VER}/
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
 
-
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
   mkdir ${TOOLS_PATH}/admin/
   ln -s ${CHIP_PATH}/comp/modules/ngs/admin ${TOOLS_PATH}/admin/ngs
   
-   # Weeder, custom license, according to developers VM bundling is ok
+  # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
   curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
@@ -307,13 +325,11 @@ then
   mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
   ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
 
-  # MACS, Artistic licence
+  # MACS, Artistic license
+  # part 2
   cd ${TMPDIR_PATH}/
-  wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
-  sudo dpkg -i macs_1.4.1.deb
   mkdir -p ${TOOLS_PATH}/macs/
   ln -s /usr/bin/macs14 ${TOOLS_PATH}/macs/macs14
-  rm macs_1.4.1.deb
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
@@ -344,21 +360,12 @@ then
   mv FastQC/ ${TOOLS_PATH}/
   rm fastqc_v0.10.0.zip
 
-  # !! ANYTHING FROM PYPI SHOULD/SHALL BE INSTALLED WITH EASY_INSTALL OR PIP !!
-  # python-virtualenv
-  # virtualenvwrapper
-  # python-pip
-  #
   # HTSeq, GPL v3 or later
+  # part 2
   cd ${TMPDIR_PATH}/
-  curl -s http://pypi.python.org/packages/source/H/HTSeq/HTSeq-0.5.3p3.tar.gz#md5=624ef2a50b07bf62b979802f1b114762 | tar -xz
-  cd HTSeq-0.5.3p3/
-  python setup.py install
-  cd ../
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
-  rm -rf HTSeq-0.5.3p3/
 
   # HTseq GTFs
   cd ${TMPDIR_PATH}/
@@ -386,10 +393,10 @@ then
   mv bwa-0.6.1/ ${TOOLS_PATH}/
   ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
-	# BWA index check
-	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	
+  # BWA index check
+  curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
+  chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
+
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
   ln -s /usr/bin/fasta_* ${TOOLS_PATH}/fastx/bin/
@@ -427,9 +434,7 @@ then
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/MPScall/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  mkdir ${TOOLS_PATH}/FREEC_Linux64/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # prinseq
