@@ -47,33 +47,7 @@ set -o pipefail
 aptitude update
 aptitude -y full-upgrade
 
-## Clean /etc/apt/
-#rm /etc/apt/sources.list~
-rm /etc/apt/trusted.gpg~
-
-## /etc/apt/sources.list
-# Uncomment '# deb http://archive.canonical.com/ubuntu natty partner'
-#sed -i'~' '/deb .*partner$/ s/^# //' /etc/apt/sources.list
-#echo 'deb http://archive.canonical.com/ubuntu natty partner' >> /etc/apt/sources.list
-#aptitude update
-
-## Keyboard layout
-#echo 'keyboard-configuration keyboard-configuration/layout select Finnish' | /usr/bin/debconf-set-selections
-#echo 'keyboard-configuration keyboard-configuration/variant select Finnish' | /usr/bin/debconf-set-selections
-#dpkg-reconfigure -f noninteractive keyboard-configuration
-
 ## Install packages:
-
-## Base:
-aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils dstat chkconfig apt-file
-# manpages (not installed yet)
-# update-manager-core (do-release-upgrade comes from this)
-
-## Text Editors
-aptitude -y install nano vim emacs23-nox
-
-## NFS support
-aptitude -y install nfs-common
 
 ## Pre-requesites:
 
@@ -480,8 +454,3 @@ ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipste
 #update-rc.d chipster-fileserver defaults
 #update-rc.d chipster-webstart defaults
 #update-rc.d chipster-manager defaults
-
-## First boot
-#cd ${EXEC_PATH}/
-chmod 755 /etc/init.d/firstboot.sh
-update-rc.d firstboot.sh start 20 2 .
