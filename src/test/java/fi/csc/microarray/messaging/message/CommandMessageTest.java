@@ -3,20 +3,20 @@ package fi.csc.microarray.messaging.message;
 import javax.jms.JMSException;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTestBase;
-import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.Topics;
 
 public class CommandMessageTest extends MessagingTestBase {
 
 	
 	private String command;
 	
-	@BeforeSuite
+	@BeforeTest
 	public void setUp() throws Exception {
 		super.setUp();
 	}

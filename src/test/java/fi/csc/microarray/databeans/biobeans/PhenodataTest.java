@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
@@ -21,8 +21,9 @@ public class PhenodataTest {
 
 	private DataManager manager; 
 	
-	@BeforeSuite(alwaysRun = true)
+	@BeforeTest(alwaysRun = true)
 	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);

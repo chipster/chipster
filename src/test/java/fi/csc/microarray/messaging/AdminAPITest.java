@@ -3,14 +3,14 @@ package fi.csc.microarray.messaging;
 import javax.jms.JMSException;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 
 public class AdminAPITest extends MessagingTestBase {
 
-	@BeforeSuite
+	@BeforeTest
 	public void setUp() throws Exception {
 		super.setUp();
 	}

@@ -23,6 +23,7 @@ public class FeatureTest {
 	private DataManager manager;
 
 	public FeatureTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);

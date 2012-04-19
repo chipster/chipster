@@ -10,26 +10,25 @@ import java.net.URL;
 import javax.jms.JMSException;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.messaging.MessagingTestBase;
-import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.util.IOUtils;
 
 public class FileBrokerClientTest extends MessagingTestBase {
 
 	private FileBrokerClient fbc;
 	
-	@BeforeSuite(alwaysRun = true)
+	@BeforeTest
 	protected void setUp() throws Exception {
 		super.setUp();
 		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
-	@AfterSuite(alwaysRun = true)
+	@BeforeTest
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}

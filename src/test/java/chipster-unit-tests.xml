@@ -1,7 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd">
 
-<suite name="Chipster unit test suite">
-
+<suite name="Chipster unit test suite" configfailurepolicy="continue">
+  <!-- without configfailurepolicy TestNG is too eager to skip unrelated tests when initialisers fails somewhere else -->
+  
   <test name="Unit test">
   	<groups>
 		<run>

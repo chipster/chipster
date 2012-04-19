@@ -1,8 +1,8 @@
 package fi.csc.microarray.messaging;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -36,7 +36,7 @@ public abstract class MessagingTestBase {
 
 	
 	
-	@BeforeSuite
+	@BeforeTest
 	protected void setUp() throws Exception {
 		
 		// use demo listener if no username or password
@@ -49,6 +49,7 @@ public abstract class MessagingTestBase {
 		
 		// use default config if no config url
 		System.out.println("initialising client");
+		DirectoryLayout.uninitialise();
 		if (configURL == null) {
 			DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		} else {
@@ -71,7 +72,7 @@ public abstract class MessagingTestBase {
 		endpoint.setAuthenticationListener(authenticationListener);
 	}
 	
-	@AfterSuite
+	@AfterTest
 	protected void tearDown() throws Exception {
 		System.out.println("closing messaging endpoint");
 		endpoint.close();
