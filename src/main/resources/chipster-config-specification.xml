@@ -107,6 +107,11 @@
 			<value>20</value>
 		</entry>
 
+		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
+			<value>259200</value>
+		</entry>
+
+
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		

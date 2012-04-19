@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ public class RestServlet extends DefaultServlet {
 	private String userDataPath;
 	private String publicDataPath;
 	private int cleanUpFreeSpacePerentage;
+	private int cleanUpMinimumFileAge;
 	
 	private AuthorisedUrlRepository urlRepository;
 	private String rootUrl;
@@ -47,6 +49,7 @@ public class RestServlet extends DefaultServlet {
 		userDataPath = configuration.getString("filebroker", "user-data-path");
 		publicDataPath = configuration.getString("filebroker", "public-data-path");
 		cleanUpFreeSpacePerentage = configuration.getInt("filebroker", "clean-up-free-space-percentage");
+		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
 	}
 	
 	@Override
@@ -163,7 +166,7 @@ public class RestServlet extends DefaultServlet {
 		// make sure there's space left after the transfer
 		// TODO check that path
 		try {
-			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage);
+			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			Log.warn("could not clean up space after put", e);
 		}
