@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 
@@ -20,6 +21,7 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
@@ -27,6 +29,7 @@ import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.FileCleanUpTimerTask;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.MemUtil;
 
 public class FileServer extends NodeBase implements MessagingListener, ShutdownCallback {
@@ -39,10 +42,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
+	private File userDataRoot;
 	private String publicDataPath;
 	private String host;
 	private int port;
 
+	private int cleanUpFreeSpacePerentage;
+	private int cleanUpMinimumFileAge;
+	private long minimumSpaceForAcceptUpload;
 
 	public static void main(String[] args) {
 		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
@@ -76,7 +83,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// start scheduler
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
-    		File userDataRoot = new File(fileRepository, userDataPath);
+    		userDataRoot = new File(fileRepository, userDataPath);
+    		cleanUpFreeSpacePerentage = configuration.getInt("filebroker", "clean-up-free-space-percentage");
+    		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
+    		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
     		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
     		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
@@ -87,8 +97,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// initialise messaging
     		this.endpoint = new MessagingEndpoint(this);
-    		MessagingTopic urlRequestTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.READ);
-    		urlRequestTopic.setListener(this);
+    		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
+    		filebrokerTopic.setListener(this);
     		this.managerClient = new ManagerClient(endpoint); 
 
     		// create keep-alive thread and register shutdown hook
@@ -126,6 +136,29 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
 				managerClient.publicUrlRequest(msg.getUsername(), url);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				CommandMessage requestMessage = (CommandMessage) msg;
+				long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+				long preferredSpaceAvailableAfterUpload = (long) ((double)userDataRoot.getTotalSpace()*(double)cleanUpFreeSpacePerentage/100);
+				long preferredSpaceAvailable = size + preferredSpaceAvailableAfterUpload;
+				
+				boolean spaceAvailable;
+				if (userDataRoot.getUsableSpace() >= preferredSpaceAvailable) {
+					spaceAvailable = true;
+				} else {
+					Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+					
+					// say no if too little space would be available after upload 
+					if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
+						spaceAvailable = true;
+					} else {
+						spaceAvailable = false;
+					}
+				}
+				
+				BooleanMessage reply = new BooleanMessage(spaceAvailable);
+				endpoint.replyToMessage(msg, reply);
 
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");

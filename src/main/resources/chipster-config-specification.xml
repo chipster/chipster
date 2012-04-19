@@ -111,6 +111,10 @@
 			<value>259200</value>
 		</entry>
 
+		<entry entryKey="minimum-space-for-accept-upload" type="int" description="when client requests for free space, say no if less than this many megabytes would be available after upload, megabytes">
+			<value>100</value>
+		</entry>
+
 
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>

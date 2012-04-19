@@ -26,7 +26,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 	@BeforeSuite(alwaysRun = true)
 	protected void setUp() throws Exception {
 		super.setUp();
-		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	}
 
 	@AfterSuite(alwaysRun = true)
@@ -39,7 +39,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 		File file = new File("src/test/resources/affy_example.cel");
 		
 		System.out.println("Adding file");
-		URL url = fbc.addFile(new FileInputStream(file), null);
+		URL url = fbc.addFile(new FileInputStream(file), file.length(), null);
 
 		System.out.println("Checking file");
 		Assert.assertTrue(fbc.checkFile(url, file.length()));
