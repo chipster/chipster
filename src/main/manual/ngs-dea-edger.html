@@ -16,7 +16,8 @@ This tool will perform an analysis for differentially expressed sequences using 
 <ul>
 <li> Column describing groups [group]</li>
 <li> Apply normalization (yes, no) [yes]</li>
-<li> Dispersion estimate (common, tagwise) [tagwise]</li>
+<li> Dispersion method (common, tagwise) [tagwise]</li>
+<li> Dispersion estimate (0-1) [0.1] </li>
 <li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
 <li> P-value cutoff (0-1) [0.05]</li>
 <li> Plot width (200-3200 [600]</li>
@@ -28,10 +29,11 @@ This tool will perform an analysis for differentially expressed sequences using 
 <br>
 Given an input table of counts data for at least two samples, the edgeR package performs scaling, normalization
 and statistical analysis to identify differentially expressed genomic features between two experimental conditions.
-Notice that the statistical analysis assumes that there are at least two independent biological replicate samples
-for each experiment condition.
+Even though it is possible to run the analysis without independent biological replicates, by manually estimating
+the dispersion factor through the 'Dispersion estimate' parameter, it is highly recommended to always include
+at least one additional biological replicate for each experiment condition.
 <br><br>
-In it's current implementation, the tool only supports single-factor experiment designs. The experiment
+Notice that in it's current implementation, the tool only supports single-factor experiment designs. The experiment
 conditions to be compared should be defined in the phenodata.tsv file and the appropriate column be selected using
 the 'Column describing groups' parameter.
 <br><br>
@@ -42,8 +44,11 @@ In order to reduce the impact of so called RNA composition bias, which can arise
 are very highly expressed in one experiment condition but not in the other, an offset value can be estimated and built into
 the generalized linear model. The user can choose to turn normalization off using the 'Apply normalization' parameter.
 <br><br>
-There are two different methods for estimating the dispersion. The 'common' dispersion method assumes there are a small number of samples but
-many reads for estimating a common dispersion value, whereas the 'tagwise' method might be more suited for small library sizes. 
+There are three different methods for estimating the dispersion. The 'common' dispersion method assumes there are a small number of samples but
+many reads for estimating a common dispersion value, whereas the 'tagwise' method might be more suited for small library sizes. If there are no
+independent biological replicate samples for the experiment conditions, the dispersion has to be estimated with an 'educated guess'. By default,
+the dispersion estimate is set to 0.1, which is somewhere in-between what is usually observed for replicate samples (0.02) and samples from
+different experiment conditions (0.5). It is recommended to experiment with different setting for this parameter. 
 <br><br>
 Statistical testing is performed using a generalized linear model and the p-values are adjusted for multiple testing using the classical approaches.
 <br><br>
@@ -61,6 +66,7 @@ Statistical testing is performed using a generalized linear model and the p-valu
 <li>ma-plot-significant-edger.pdf: A scatter plot where the significantly differentially expressed features are highlighted. <br></li>
 <li>mds-plot-edger.pdf: A plot showing the results of multidimensional scaling of the data to visualize sample similarities. <br></li>
 <li>edger-log.txt: Log file. <br></li>
+<li>p-value-plot-edger.pdf: Plot of the raw and adjusted p-value distributions of the statistical test. <br></li>
 <br></ul>
 <h3><br>References</h3>
 
