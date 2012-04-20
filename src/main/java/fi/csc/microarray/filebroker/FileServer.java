@@ -140,19 +140,30 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				CommandMessage requestMessage = (CommandMessage) msg;
 				long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+				logger.debug("disk space request for " + size + " bytes");
+
 				long preferredSpaceAvailableAfterUpload = (long) ((double)userDataRoot.getTotalSpace()*(double)cleanUpFreeSpacePerentage/100);
 				long preferredSpaceAvailable = size + preferredSpaceAvailableAfterUpload;
 				
+				logger.debug("preferred after upload: " + preferredSpaceAvailableAfterUpload);
+				logger.debug("preferred : " + preferredSpaceAvailable);
+				logger.debug("usable: " + userDataRoot.getUsableSpace());
 				boolean spaceAvailable;
 				if (userDataRoot.getUsableSpace() >= preferredSpaceAvailable) {
+					logger.debug("space available, no need to do anything");
 					spaceAvailable = true;
 				} else {
+					logger.debug("making space");
 					Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 					
+					logger.debug("usable after cleaning: " + userDataRoot.getUsableSpace());
+					logger.debug("minimum extra: " + minimumSpaceForAcceptUpload);
 					// say no if too little space would be available after upload 
 					if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
+						logger.debug("enough after cleaning");
 						spaceAvailable = true;
 					} else {
+						logger.debug("not enough after cleaning");
 						spaceAvailable = false;
 					}
 				}

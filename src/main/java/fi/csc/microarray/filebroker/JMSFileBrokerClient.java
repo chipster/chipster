@@ -121,7 +121,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
-		if (file.length() > 0 && this.requestDiskSpace(file.length())) {
+		if (file.length() > 0 && !this.requestDiskSpace(file.length())) {
 			throw new NotEnoughDiskSpaceException();
 		}
 		
@@ -159,7 +159,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public URL addFile(InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
-		if (contentLength > 0  && this.requestDiskSpace(contentLength)) {
+		if (contentLength > 0  && !this.requestDiskSpace(contentLength)) {
 			throw new NotEnoughDiskSpaceException();
 		}
 		
