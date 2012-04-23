@@ -11,19 +11,19 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.BooleanMessage;
-import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -138,38 +138,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				managerClient.publicUrlRequest(msg.getUsername(), url);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				CommandMessage requestMessage = (CommandMessage) msg;
-				long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
-				logger.debug("disk space request for " + size + " bytes");
-
-				long preferredSpaceAvailableAfterUpload = (long) ((double)userDataRoot.getTotalSpace()*(double)cleanUpFreeSpacePerentage/100);
-				long preferredSpaceAvailable = size + preferredSpaceAvailableAfterUpload;
-				
-				logger.debug("preferred after upload: " + preferredSpaceAvailableAfterUpload);
-				logger.debug("preferred : " + preferredSpaceAvailable);
-				logger.debug("usable: " + userDataRoot.getUsableSpace());
-				boolean spaceAvailable;
-				if (userDataRoot.getUsableSpace() >= preferredSpaceAvailable) {
-					logger.debug("space available, no need to do anything");
-					spaceAvailable = true;
-				} else {
-					logger.debug("making space");
-					Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-					
-					logger.debug("usable after cleaning: " + userDataRoot.getUsableSpace());
-					logger.debug("minimum extra: " + minimumSpaceForAcceptUpload);
-					// say no if too little space would be available after upload 
-					if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
-						logger.debug("enough after cleaning");
-						spaceAvailable = true;
-					} else {
-						logger.debug("not enough after cleaning");
-						spaceAvailable = false;
-					}
-				}
-				
-				BooleanMessage reply = new BooleanMessage(spaceAvailable);
-				endpoint.replyToMessage(msg, reply);
+				handleSpaceRequest((CommandMessage)msg);
 
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
@@ -178,6 +147,73 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		} catch (Exception e) {
 			logger.error(e, e);
 		}
+	}
+
+	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
+		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+		logger.debug("disk space request for " + size + " bytes");
+
+		long preferredSpaceAvailableAfterUpload = (long) ((double)userDataRoot.getTotalSpace()*(double)cleanUpFreeSpacePerentage/100);
+		final long preferredSpaceAvailable = size + preferredSpaceAvailableAfterUpload;
+		
+		logger.debug("preferred after upload: " + preferredSpaceAvailableAfterUpload);
+		logger.debug("preferred : " + preferredSpaceAvailable);
+		logger.debug("usable: " + userDataRoot.getUsableSpace());
+		
+		boolean spaceAvailable;
+		
+		// preferred space available
+		if (userDataRoot.getUsableSpace() >= preferredSpaceAvailable) {
+			logger.debug("preferred space available, no need to do anything");
+			spaceAvailable = true;
+		} 
+
+		// space available, not as much as preferred
+		else if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload) {
+			logger.debug("space available, more preferred");
+			spaceAvailable = true;
+		
+			// schedule clean up
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						long cleanUpBeginTime = System.currentTimeMillis();
+						Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
+					} catch (Exception e) {
+						logger.warn("exception while cleaning cache", e);
+					}
+				}
+			}, "chipster-fileserver-cache-cleanup").start();
+		} 
+		
+		// not enough space, need to make more immediately
+		else {
+			logger.debug("making space");
+			try {
+				long cleanUpBeginTime = System.currentTimeMillis();
+				Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
+			} catch (Exception e) {
+				logger.warn("exception while cleaning cache", e);
+			}
+			logger.debug("usable after cleaning: " + userDataRoot.getUsableSpace());
+			logger.debug("minimum extra: " + minimumSpaceForAcceptUpload);
+
+			// check if cleaned up enough 
+			if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
+				logger.debug("enough after cleaning");
+				spaceAvailable = true;
+			} else {
+				logger.debug("not enough after cleaning");
+				spaceAvailable = false;
+			}
+		}
+		
+		// send reply
+		BooleanMessage reply = new BooleanMessage(spaceAvailable);
+		endpoint.replyToMessage(requestMessage, reply);
 	}
 
 	public void shutdown() {

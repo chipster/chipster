@@ -169,14 +169,18 @@ public class RestServlet extends DefaultServlet {
 			IOUtils.closeQuietly(in);
 		}
 		
-		// make sure there's space left after the transfer
-		// TODO check that path
-		try {
-			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			Log.warn("could not clean up space after put", e);
-		}
-		
+		// make sure there's preferred space left after the transfer
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				} catch (Exception e) {
+					Log.warn("could not clean up space after put", e);
+				}
+			}
+		}, "chipster-fileserver-cache-cleanup").start();
+
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
 	}
 	
