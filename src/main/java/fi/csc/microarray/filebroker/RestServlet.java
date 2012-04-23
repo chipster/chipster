@@ -116,6 +116,12 @@ public class RestServlet extends DefaultServlet {
 		if (isWelcomePage(request)) {
 			new WelcomePage(rootUrl).print(response);
 		} else {
+			
+			// touch the file
+			File file = locateFile(request);
+			file.setLastModified(System.currentTimeMillis());
+			
+			// delegate to super class
 			super.doGet(request, response);	
 		}
 		
