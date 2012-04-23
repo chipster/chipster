@@ -7,19 +7,17 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.module.ModuleManager;
+import fi.csc.microarray.ClientContextUtil;
+import fi.csc.microarray.client.Session;
 
 public class DataManagerTest {
 
 	private DataManager manager; 
 	
-	@BeforeClass(alwaysRun = true)
-	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
-		this.manager = new DataManager();
-		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(this.manager, null);
+	@BeforeClass(groups = {"unit"} )
+	public void init() throws Exception {
+		ClientContextUtil.setupClientContext();
+		this.manager = Session.getSession().getDataManager();
 	}
 	
 	@Test(groups = {"unit"} )
@@ -27,5 +25,33 @@ public class DataManagerTest {
 		File file = File.createTempFile("test", ".png");
 		Assert.assertEquals(manager.guessContentType(file).getType(), "image/png");
 	}
+
 	
+	@Test(groups = {"unit"} )
+	public void testRemoteSessions() throws Exception {
+		
+		// populate with crap
+		File content = File.createTempFile("content", ".tsv");
+		DataBean data = manager.createDataBean("test-content", content);
+		ClientContextUtil.setupDatabean(data);
+		manager.getRootFolder().addChild(data);
+		
+		// save
+		File session = File.createTempFile("test-remote-session", ".zip");
+		manager.saveLightweightSession(session);
+
+		// clear
+		manager.deleteAllDataItems();
+
+		// load
+		manager.loadSession(session, true);
+		
+		// check
+		Assert.assertEquals(manager.getRootFolder().getChildCount(), 1);
+		Assert.assertEquals(manager.getRootFolder().getChildren().iterator().next().getName(), "test-content");
+		
+		// clean up
+		manager.deleteAllDataItems();
+	}
+
 }

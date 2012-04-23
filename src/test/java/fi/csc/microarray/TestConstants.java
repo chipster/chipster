@@ -5,8 +5,8 @@ public class TestConstants {
 
 	public static final String TEST_DATA_ROOT = "src/test/resources/";
 	
-	public static final String FOUR_CHIPS_RESOURCE= TEST_DATA_ROOT + "4_chips_filtered.tsv";
-	public static final String FOUR_CHIPS_PHENODATA_RESOURCE = TEST_DATA_ROOT + "4_chips_phenodata.tsv";
+	public static final String FOUR_CHIPS_RESOURCE= TEST_DATA_ROOT + "filtered_4_chips.tsv";
+	public static final String FOUR_CHIPS_PHENODATA_RESOURCE = TEST_DATA_ROOT + "phenodata_4_chips.tsv";
 	public static final String AFFY_RESOURCE = TEST_DATA_ROOT + "affy_example.cel";
 	public static final String HIERARCHICAL_CLUSTERED_AGILENT_RESOURCE = TEST_DATA_ROOT + "agilent-hc.txt";
 	public static final String HIERARCHICAL_CLUSTERED_AGILENT_HEATMAP_RESOURCE = TEST_DATA_ROOT + "agilent-hc-normalized.tsv";

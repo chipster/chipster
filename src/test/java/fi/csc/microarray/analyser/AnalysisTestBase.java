@@ -4,15 +4,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.messaging.MessagingTestBase;
 
@@ -60,7 +60,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 	
 
-	@BeforeSuite(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void setUp() throws Exception {
 		super.setUp();
 		this.manager = new DataManager();
@@ -68,11 +68,9 @@ public class AnalysisTestBase extends MessagingTestBase {
 		
 	}
 
-	@AfterSuite(alwaysRun = true)
+	@AfterTest(groups = {"unit"} )
 	public void tearDown() throws Exception {
-		System.out.println("tear down");
 		super.tearDown();
-		System.out.println("tear down done");
 	}
 
 	

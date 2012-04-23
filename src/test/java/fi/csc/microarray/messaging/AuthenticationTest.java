@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import javax.jms.JMSException;
 
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.tasks.TaskException;
@@ -27,14 +27,14 @@ public class AuthenticationTest extends MessagingTestBase {
 //		this.manager = new DataManager();
 	}    
 
-	@BeforeSuite
+	@BeforeTest
 	protected void setUp() throws Exception {
 		super.setUp();
 //		microarray = manager.createDataBean("microarray1.tsv", this.getClass().getResourceAsStream("/microarray.tsv"));
 //		this.executor = new TaskExecutor(super.endpoint, manager);
 	}
 	
-	@AfterSuite
+	@AfterTest
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}

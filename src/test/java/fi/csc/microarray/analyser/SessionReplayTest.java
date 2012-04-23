@@ -186,7 +186,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		return true;
 	}
 
-	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
+	private void testSession(File session) throws Exception {
 
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
@@ -1007,11 +1007,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public File openWorkflow() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
@@ -1053,11 +1048,6 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void runWorkflow(URL workflowScript, AtEndListener atEndListener) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void saveSession() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1133,6 +1123,11 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void visualiseWithBestMethod(FrameType target) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+
+		@Override
+		public void saveSession(boolean quit, boolean lightweight) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 		

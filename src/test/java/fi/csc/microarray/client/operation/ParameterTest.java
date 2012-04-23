@@ -8,13 +8,13 @@ import javax.swing.JFrame;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
-import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.description.SADLDescription.Name;
@@ -32,8 +32,9 @@ public class ParameterTest {
     private Parameter paramMulti;
     private Parameter paramSingle;
     
-    @BeforeSuite
+    @BeforeTest
     protected void setUp() throws Exception {
+    	DirectoryLayout.uninitialise();
         DirectoryLayout.initialiseSimpleLayout();
     }
     
