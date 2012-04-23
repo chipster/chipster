@@ -12,6 +12,7 @@ import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.NonexistingFeature;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.Strings;
 
 public class HierarchicalClusterProvider extends FeatureProviderBase {
 
@@ -28,6 +29,7 @@ public class HierarchicalClusterProvider extends FeatureProviderBase {
 		} else if ("tree".equals(namePostfix)) {
 			return new BasicFeature(bean, this) {
 				public Iterable<String> asStrings() throws MicroarrayException {
+					
 					BufferedReader reader = null;
 					String tree = "";
 					try {
@@ -38,7 +40,7 @@ public class HierarchicalClusterProvider extends FeatureProviderBase {
 							if (first) {
 								// check first line to verify that this is a tree - a more robust yet efficient check would be very difficult to do...
 								if (!line.contains(":") && !line.contains("(")) {
-									return null;
+									throw new MicroarrayException("cannot parse tree: " + Strings.crop(line, 20));
 								}
 							}
 							first = false;

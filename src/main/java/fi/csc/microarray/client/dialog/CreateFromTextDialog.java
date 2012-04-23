@@ -33,6 +33,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
+import fi.csc.microarray.databeans.DataManager;
 
 /**
  * 
@@ -165,13 +166,14 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
                     // Create dataset
                     ClientApplication application =  Session.getSession().getApplication();
                 	ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+                	DataManager manager = application.getDataManager();
+                    DataBean data = manager.createDataBean(fileName, stream);
                     data.setContentType(application.getDataManager().guessContentType(fileName));
                     data.setOperationRecord(new OperationRecord(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data })));
                     
                     // Make it visible
                     DataFolder folder = application.initializeFolderForImport(folderName);
-                    folder.addChild(data);
+                    manager.connectChild(data, folder);
                     application.getSelectionManager().selectSingle(data, this);
                 } else {
                     // Open import dialog

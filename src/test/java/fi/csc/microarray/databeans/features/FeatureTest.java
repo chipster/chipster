@@ -31,15 +31,6 @@ public class FeatureTest {
 	}
 
 	@Test(groups = {"unit"} )
-	public void testEmbeddedBinary() throws IOException, MicroarrayException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		DataBean binAffyMicroarray = manager.createDataBean("bin_affy.cel", new FileInputStream(TestConstants.BIN_AFFY_RESOURCE));
-		
-		Assert.assertFalse(affyMicroarray.queryFeatures("/embedded-binary-content/").exists());
-		Assert.assertTrue(binAffyMicroarray.queryFeatures("/embedded-binary-content/").exists());
-	}
-
-	@Test(groups = {"unit"} )
 	public void testPhenodataFeatures() throws IOException, MicroarrayException {
 		DataBean data = manager.createDataBean("filtered.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_RESOURCE));
 		DataBean phenoData= manager.createDataBean("phenodata.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_PHENODATA_RESOURCE));
@@ -73,17 +64,6 @@ public class FeatureTest {
 		QueryResult doubleFeature = affyMicroarray.queryFeatures("log(log(/normalised-expression))");
 		Assert.assertTrue(doubleFeature.exists());
 
-	}
-	
-	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		new FeatureTest().testRowCount();
-	}
-
-	@Test(groups = {"unit"} )
-	public void testRowCount() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/10").asFloat(), 10f);
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/1000000").asFloat(), 15876f);
 	}
 	
 	@Test(groups = {"unit"} )
