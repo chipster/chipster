@@ -46,11 +46,17 @@ public class SetupTool {
 	}
 
 	private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
-	
+
+	/**
+	 * @see #setup()
+	 */
 	public static int main(String[] args) throws Exception {
 		return new SetupTool().setup();
 	}
 
+	/**
+	 * @return 0 on success, 1 on partial failure (environment is usable) and 2 on failure (environment is not usable).
+	 */
 	public int setup() throws Exception {
 
 		// start
