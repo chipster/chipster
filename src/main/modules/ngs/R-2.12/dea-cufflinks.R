@@ -39,15 +39,22 @@ command.start <- cufflinks.binary
 # Annotation file setup
 annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "homo_sapiens/annotations/Homo_sapiens.GRCh37.62.gtf"
+	annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
 }
 if (genome == "mm9") {
-	annotation.file <- "mus_musculus/annotations/Mus_musculus.NCBIM37.62.gtf"
+	annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
 }
 if (genome == "rn4") {
-	annotation.file <- "rattus_norvegicus/annotations/Rattus_norvegicus.RGSC3.4.62.gtf"
+	annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
 }
 annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
+
+# Run differential expression analysis for known genes and transcript isoforms
+cufflinks.parameters <- annotation.file
+cufflinks.input.treatment <- "treatment.bam"
+cufflinks.input.control <- "control.bam"
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
+system(cufflinks.command)
 
 # Run differential expression analysis for known genes and transcript isoforms
 cufflinks.parameters <- annotation.file
@@ -111,7 +118,7 @@ if (dim(results_list)[1] > 0) {
 	# sort according to chromosome location
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
+#	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-genes-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -177,7 +184,7 @@ if (dim(results_list)[1] > 0) {
 	# sort according to chromosome location
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
+#	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
