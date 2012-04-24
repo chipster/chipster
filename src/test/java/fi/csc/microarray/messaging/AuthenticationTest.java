@@ -1,15 +1,5 @@
 package fi.csc.microarray.messaging;
 
-import java.io.IOException;
-
-import javax.jms.JMSException;
-
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
-import fi.csc.microarray.client.tasks.TaskException;
-import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  *
@@ -22,25 +12,25 @@ public class AuthenticationTest extends MessagingTestBase {
 //	private TaskExecutor executor;
 //	private DataBean microarray;
 //	private DataManager manager; 
-	
-	public AuthenticationTest(String s) throws IOException {
+//	
+//	public AuthenticationTest(String s) throws IOException {
 //		this.manager = new DataManager();
-	}    
-
-	@BeforeTest
-	protected void setUp() throws Exception {
-		super.setUp();
+//	}    
+//
+//	@BeforeTest
+//	protected void setUp() throws Exception {
+//		super.setUp();
 //		microarray = manager.createDataBean("microarray1.tsv", this.getClass().getResourceAsStream("/microarray.tsv"));
 //		this.executor = new TaskExecutor(super.endpoint, manager);
-	}
-	
-	@AfterTest
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-	
-	@Test
-	public void testAuthenticationAndSessions() throws JMSException, IOException, MicroarrayException, InterruptedException, TaskException{
+//	}
+//	
+//	@AfterTest
+//	protected void tearDown() throws Exception {
+//		super.tearDown();
+//	}
+//	
+//	@Test
+//	public void testAuthenticationAndSessions() throws JMSException, IOException, MicroarrayException, InterruptedException, TaskException{
 //
 //		// start job
 //		Task job = executor.createTask(TestConstants.DUMMY_ANALYSIS_NAME);
@@ -105,5 +95,5 @@ public class AuthenticationTest extends MessagingTestBase {
 //			}
 //		}
 //		Assert.assertTrue(gotData);
-	}	
+//	}	
 }

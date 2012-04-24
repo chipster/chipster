@@ -10,7 +10,7 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 
 public class AdminAPITest extends MessagingTestBase {
 
-	@BeforeTest
+	@BeforeTest(groups = { "smoke"})
 	public void setUp() throws Exception {
 		super.setUp();
 	}

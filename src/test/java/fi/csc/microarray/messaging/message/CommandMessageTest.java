@@ -16,7 +16,7 @@ public class CommandMessageTest extends MessagingTestBase {
 	
 	private String command;
 	
-	@BeforeTest
+	@BeforeTest(groups = {"smoke"} )
 	public void setUp() throws Exception {
 		super.setUp();
 	}
