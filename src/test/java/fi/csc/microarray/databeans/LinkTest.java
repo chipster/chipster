@@ -1,14 +1,14 @@
 package fi.csc.microarray.databeans;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.List;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -16,8 +16,9 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class LinkTest {
 	private DataManager manager; 
 	
-	@BeforeSuite(alwaysRun = true)
+	@BeforeTest(groups = {"unit"} )
 	public void init() throws IOException, IllegalConfigurationException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 	}

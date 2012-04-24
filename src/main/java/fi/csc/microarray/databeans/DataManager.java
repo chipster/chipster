@@ -21,9 +21,6 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
@@ -35,7 +32,7 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.Exceptions;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
@@ -44,6 +41,17 @@ public class DataManager {
 	private static final String TEMP_DIR_PREFIX = "chipster";
 	private static final int MAX_FILENAME_LENGTH = 256;
 	private static final Logger logger = Logger.getLogger(DataManager.class);
+
+	/**
+	 * Reports session validation related problems.
+	 */
+	public static class ValidationException extends Exception {
+
+		public ValidationException(String validationDetails) {
+			// TODO Auto-generated constructor stub
+		}
+		
+	}
 
 	/**
 	 * The initial name for the root folder.
@@ -58,7 +66,6 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
-	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
@@ -69,6 +76,8 @@ public class DataManager {
 
 	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
 	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	private LinkedList<Module> modules;
+	
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -116,7 +125,7 @@ public class DataManager {
 	 */
 	public DataFolder createFolder(DataFolder root, String name) {
 		DataFolder folder = new DataFolder(this, name);
-		root.addChild(folder); // events are dispatched from here
+		connectChild(folder, root); // events are dispatched from here
 		return folder;
 	}
 
@@ -553,16 +562,9 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean restoreData) {
-		SessionLoader sessionLoader;
-		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
-			sessionLoader.loadSession();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			logger.error("loading session failed", e);
-		}
+	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
+		sessionLoader.loadSession();
 	}
 
 	/**
@@ -570,28 +572,21 @@ public class DataManager {
 	 * File is a zip file with all the data files and one metadata file.
 	 * 
 	 * @return true if the session was saved perfectly
+	 * @throws Exception 
 	 */
-	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+	public void saveSession(File sessionFile) throws Exception {
+
+		// save session file
 		boolean metadataValid = false;
-		try {
-			// save
-			metadataValid = sessionSaver.saveSession();
-		} catch (Exception e) {
-			// save failed, warn about it
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		}
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		metadataValid = sessionSaver.saveSession();
 
-		// check validation, warn if not valid, return false
+		// check validation
 		if (!metadataValid) {
-			// save was successful but metadata validation failed, warn about it
+			// save was successful but metadata validation failed, file might be usable
 			String validationDetails = sessionSaver.getValidationErrors();
-			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
+			throw new ValidationException(validationDetails);
 		}
-
-		return true;
 	}
 
 	
@@ -656,7 +651,7 @@ public class DataManager {
 		// remove bean
 		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(bean);
+			disconnectChild(bean, folder);
 		}
 		
 		// remove physical file
@@ -790,7 +785,7 @@ public class DataManager {
 		// remove this folder (unless root)
 		DataFolder parent = folder.getParent();
 		if (parent != null) {
-			parent.removeChild(folder);
+			disconnectChild(folder, parent);
 		}
 	}
 	
@@ -806,14 +801,6 @@ public class DataManager {
 				return npf;
 			}
 		}
-	}
-
-	public void plugTypeTag(TypeTag typeTag) {
-		this.tagMap.put(typeTag.getName(), typeTag);
-	}
-	
-	public TypeTag getTypeTag(String name) {
-		return this.tagMap.get(name);
 	}
 
 	public Iterable<File> listAllRepositories() {
@@ -840,4 +827,59 @@ public class DataManager {
 	public void flushSession() {
 		zipDataBeanHandler.closeZipFiles();
 	}
+
+	public void setModules(LinkedList<Module> modules) {
+		this.modules = modules;
+	}
+	
+	public void connectChild(DataItem child, DataFolder parent) {
+
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+
+		// connect to this
+		child.setParent(parent);
+
+		// add
+		parent.children.add(child);
+
+		// add type tags to data beans
+		if (child instanceof DataBean) {
+			try {
+				addTypeTags((DataBean) child);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// dispatch events if needed
+		if (!wasConnected) {
+			dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void disconnectChild(DataItem child, DataFolder parent) {
+		// remove connections
+		child.setParent(null);
+
+		// remove
+		parent.children.remove(child);
+
+		// dispatch events
+		dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+
+	public void addTypeTags(DataBean data) throws IOException {
+
+		for (Module module : modules) {
+			try {
+				module.addTypeTags(data);
+				
+			} catch (MicroarrayException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 }

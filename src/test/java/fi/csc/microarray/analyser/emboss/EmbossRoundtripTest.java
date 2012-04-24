@@ -10,18 +10,18 @@ import java.util.Random;
 import javax.jms.JMSException;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 
 public class EmbossRoundtripTest {
@@ -30,8 +30,9 @@ public class EmbossRoundtripTest {
     
     private boolean isResultOK = false; 
 
-    @BeforeSuite
+    @BeforeTest
     protected void setUp() throws Exception {
+    	DirectoryLayout.uninitialise();
         DirectoryLayout.initialiseSimpleLayout();
     }
 

@@ -58,16 +58,16 @@ import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
@@ -80,27 +80,28 @@ import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -737,7 +738,7 @@ public class SwingClientApplication extends ClientApplication {
 						data.setOperationRecord(new OperationRecord(importOperation));
 
 						// data is ready now, make it visible
-						folder.addChild(data);
+						manager.connectChild(data, folder);
 
 						// Create group links only if both datas are raw type
 						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
@@ -883,12 +884,7 @@ public class SwingClientApplication extends ClientApplication {
 		if (element instanceof DataFolder) {
 			return VisualConstants.ICON_TYPE_FOLDER;
 		} else {
-			DataBean bean = (DataBean) element;
-			if (bean.queryFeatures("/phenodata").exists()) {
-				return VisualConstants.ICON_TYPE_PHENODATA;
-			} else {
-				return bean.getContentType().getIcon();
-			}
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}
 	}
 
@@ -1248,7 +1244,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSessionAndQuit();
+					saveSession(false, false);
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1684,15 +1680,9 @@ public class SwingClientApplication extends ClientApplication {
 		openImportTool(importSession);
 	}
 
-
-	@Override
-	public void loadSessionFrom(File file) {
-		loadSessionImpl(file, false);
-	}
-
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, true);
+		loadSessionImpl(file, true, true);
 	}
 
 	@Override
@@ -1704,7 +1694,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile, false);
+					loadSessionImpl(tempFile, false, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1747,12 +1737,13 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile(), false);		
+			boolean isDataless = fileChooser.getSelectedFile().getName().startsWith("remote") ? true : false; // FIXME remove remote session sniffing HACK
+			loadSessionImpl(fileChooser.getSelectedFile(), isDataless, false);		
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
+	private void loadSessionImpl(final File sessionFile, final boolean isDataless, final boolean clearDeadTempDirs) {
 		
 		// check that it's a valid session file 
 		if (!UserSession.isValidSessionFile(sessionFile)) {
@@ -1767,15 +1758,24 @@ public class SwingClientApplication extends ClientApplication {
 					
 				/* If there wasn't data or it was just cleared, there is no need to warn about
 				 * saving after opening session. However, if there was datasets already, combination
-				 * of them and new session can be necessary to save. This has to set after the import, because 
+				 * of them and new session can be necessary to save. This has to set after the import. 
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile, restoreSession);
-
+				try {
+					manager.loadSession(sessionFile, isDataless);
+					
+				} catch (Exception e) {
+					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					logger.error("loading session failed", e);
+				}
+				
 				unsavedChanges = somethingToSave;
 				
-				if (restoreSession) {
+				// If this was restored session, clear dead temp directories in the end.
+				// It is done inside this method to avoid building synchronization between
+				// session loading and temp directory cleaning during restore. 
+				if (clearDeadTempDirs) {
 					clearDeadTempDirectories();
 				}
 			}
@@ -1784,15 +1784,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	
 	@Override
-	public void saveSession() {
-		saveSession(false);
-	}
-
-	public void saveSessionAndQuit() {
-		saveSession(true);
-	}
-	
-	public void saveSession(final boolean quit) {
+	public void saveSession(final boolean quit, final boolean lightweight) {
 
 		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1822,10 +1814,30 @@ public class SwingClientApplication extends ClientApplication {
 					public void run() {
 
 						// save
-						boolean saveSuccessful;
-						saveSuccessful = getDataManager().saveSession(file);
+						boolean saveFailed = false;
+						if (lightweight) {
+							try {
+								getDataManager().saveLightweightSession(file);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 
-						if (saveSuccessful) {
+						} else { 
+							try {
+								getDataManager().saveSession(file);
+								
+							} catch (ValidationException e) {
+								Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+								saveFailed = true;
+								
+							} catch (Exception e) {
+								Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+								saveFailed = true;
+							}
+						}
+						
+						if (!saveFailed) {
 
 							// quit
 							if (quit) {

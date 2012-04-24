@@ -112,7 +112,7 @@ public class IntegratedSelectionManager {
 		for (DataBean data : sources) {
 			newData.addLink(Link.MODIFICATION, data);
 		}
-		primarySource.getParent().addChild(newData);
+		dataManager.connectChild(newData, primarySource.getParent());
 		
 		return newData;
 	}

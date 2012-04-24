@@ -56,6 +56,13 @@ public class DirectoryLayout {
 	private AvailableConfiguration availableConfiguration;
 	private static DirectoryLayout instance;
 	
+	/**
+	 * Uninitialise (reset) directory layout. For testing purposes.
+	 */
+	public static void uninitialise() {
+		instance = null;
+	}
+	
 	public static DirectoryLayout initialiseServerLayout(List<String> specificModules)
 	        throws IOException, IllegalConfigurationException {
 	    return initialiseServerLayout(specificModules, null);
