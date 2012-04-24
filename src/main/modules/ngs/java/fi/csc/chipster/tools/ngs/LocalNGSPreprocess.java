@@ -24,12 +24,8 @@ public class LocalNGSPreprocess implements Runnable {
 	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
 		public String normaliseChromosome(String chromosomeName) {
-			
-			// Add prefix, if it is missing
-			String CHROMOSOME_NAME_PREFIX = "chr";
-			if (!chromosomeName.startsWith(CHROMOSOME_NAME_PREFIX)) {
-				chromosomeName = CHROMOSOME_NAME_PREFIX + chromosomeName;
-			}
+
+			// Leave prefix as it is
 			
 			// Remove postfix, if present
 			String SEPARATOR = ".";
