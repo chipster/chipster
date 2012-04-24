@@ -39,11 +39,35 @@ command.gtf <- ""
 input_files <- dir()
 is_gtf <- (length(grep("genes.gtf", input_files))>0)
 if (is_gtf) {
-if (no.novel.juncs == "yes") {
-command.gtf <- paste("-G", "genes.gtf", "--no-novel-juncs")
-} else {
-command.gtf <- paste("-G", "genes.gtf")
+	if (no.novel.juncs == "yes") {
+	command.gtf <- paste("-G", "genes.gtf", "--no-novel-juncs")
+	} else {
+		command.gtf <- paste("-G", "genes.gtf")
+	}
 }
+
+# optional GTF command, if a GTF file has NOT been provided by user
+# BUT is avaliable from Chipster server
+if (genome == "hg19" ||	genome == "mm9" || genome == "rn4") genome_available <- TRUE
+if (!is_gtf && genome_available) {
+	
+	# annotation file setup
+	if (genome == "hg19") {
+		annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
+	}
+	if (genome == "mm9") {
+		annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
+	}
+	if (genome == "rn4") {
+		annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
+	}
+	annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
+	
+	if (no.novel.juncs == "yes") {
+		command.gtf <- paste("-G", annotation.file, "--no-novel-juncs")
+	} else {
+		command.gtf <- paste("-G", annotation.file)
+	}
 }
 
 # command ending
