@@ -334,10 +334,20 @@ public class Files {
 		return files;
 	}
 
+	/**
+	 * Try to make space usable in partition. 
+	 * @param dir
+	 * @param percentage percentage which should be usable
+	 */
 	public static void makeSpaceInDirectoryPercentage(File dir, int percentage) {
 		makeSpaceInDirectoryPercentage(dir, percentage, 0, TimeUnit.SECONDS);
 	}
-	
+
+	/**
+	 * Try to make space usable in partition. 
+	 * @param dir
+	 * @param percentage percentage which should be usable
+	 */
 	public static void makeSpaceInDirectoryPercentage(File dir, int percentage, int minimumFileAge, TimeUnit minimumFileAgeTimeUnit) {
 
 		// check parameters

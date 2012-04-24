@@ -47,7 +47,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private String host;
 	private int port;
 
-	private int cleanUpFreeSpacePerentage;
+	private int cleanUpTriggerLimitPercentage;
+	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	private long minimumSpaceForAcceptUpload;
 
@@ -84,7 +85,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		// start scheduler
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
     		userDataRoot = new File(fileRepository, userDataPath);
-    		cleanUpFreeSpacePerentage = configuration.getInt("filebroker", "clean-up-free-space-percentage");
+    		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
+    		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
@@ -153,23 +155,24 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
 
-		long preferredSpaceAvailableAfterUpload = (long) ((double)userDataRoot.getTotalSpace()*(double)cleanUpFreeSpacePerentage/100);
-		final long preferredSpaceAvailable = size + preferredSpaceAvailableAfterUpload;
+		long usableSpaceSoftLimit =  (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
+		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;
 		
-		logger.debug("preferred after upload: " + preferredSpaceAvailableAfterUpload);
-		logger.debug("preferred : " + preferredSpaceAvailable);
-		logger.debug("usable: " + userDataRoot.getUsableSpace());
+		// deal with the weird config case of soft limit being smaller than hard limit
+		if (usableSpaceSoftLimit < usableSpaceHardLimit) {
+			usableSpaceSoftLimit = usableSpaceHardLimit;
+		}
 		
 		boolean spaceAvailable;
 		
-		// preferred space available
-		if (userDataRoot.getUsableSpace() >= preferredSpaceAvailable) {
-			logger.debug("preferred space available, no need to do anything");
+		// space available, clean up limit will not be reached
+		if (userDataRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
+			logger.debug("enough space available, no need to do anything");
 			spaceAvailable = true;
 		} 
 
-		// space available, not as much as preferred
-		else if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload) {
+		// space available, clean up soft limit will be reached, hard will not be reached
+		else if (userDataRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
 			logger.debug("space available, more preferred");
 			spaceAvailable = true;
 		
@@ -179,7 +182,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				public void run() {
 					try {
 						long cleanUpBeginTime = System.currentTimeMillis();
-						Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Files.makeSpaceInDirectory(userDataRoot, 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
@@ -188,12 +191,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			}, "chipster-fileserver-cache-cleanup").start();
 		} 
 		
-		// not enough space, need to make more immediately
-		else {
+		// hard limit will be reached, try to make more immediately
+		else if (userDataRoot.getUsableSpace() - size > 0){
 			logger.debug("making space");
 			try {
 				long cleanUpBeginTime = System.currentTimeMillis();
-				Files.makeSpaceInDirectory(userDataRoot, preferredSpaceAvailable, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				Files.makeSpaceInDirectory(userDataRoot, 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 			} catch (Exception e) {
 				logger.warn("exception while cleaning cache", e);
@@ -209,6 +212,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				logger.debug("not enough after cleaning");
 				spaceAvailable = false;
 			}
+		} 
+		
+		// request more than total, no can do
+		else {
+			spaceAvailable = false;
 		}
 		
 		// send reply
