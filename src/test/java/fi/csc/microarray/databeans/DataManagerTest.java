@@ -34,7 +34,7 @@ public class DataManagerTest {
 		File content = File.createTempFile("content", ".tsv");
 		DataBean data = manager.createDataBean("test-content", content);
 		ClientContextUtil.setupDatabean(data);
-		manager.getRootFolder().addChild(data);
+		manager.connectChild(data, manager.getRootFolder());
 		
 		// save
 		File session = File.createTempFile("test-remote-session", ".zip");

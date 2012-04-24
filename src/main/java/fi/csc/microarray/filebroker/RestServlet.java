@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,11 +17,9 @@ import org.mortbay.log.Log;
 import org.mortbay.util.IO;
 import org.mortbay.util.URIUtil;
 
+import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.util.Files;
-
-import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 

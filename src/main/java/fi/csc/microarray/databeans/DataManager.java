@@ -33,7 +33,6 @@ import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
