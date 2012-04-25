@@ -151,8 +151,7 @@ public class DataManager {
 	 * @throws IOException
 	 */
 	public synchronized File createNewRepositoryFile(String beanName) throws IOException {
-		// FIXME check the file name 
-		String fileName = beanName.replaceAll("[^\\wÃ¶Ã¤Ã¥ÃÃÃ\\\\.]", "");
+		String fileName = beanName.replaceAll("[^\\w\\.\\-_]", "");
 		if (fileName.length() < 1) {
 			fileName = "data";
 		} else if (fileName.length() > MAX_FILENAME_LENGTH) {
@@ -162,8 +161,21 @@ public class DataManager {
 		File file = new File(this.repositoryRoot, fileName);
 		
 		// if file with the beanName already exists, add running number to the name 
+		int indexOfDot = fileName.lastIndexOf(".");
+		String newFileName = "";
 		for (int i = 1; file.exists() && i < Integer.MAX_VALUE; i++) {
-			file = new File(this.repositoryRoot, fileName + "-" + i);
+			
+			// no dot add to end
+			if (indexOfDot < 0 ) {
+				newFileName = fileName + "-" + i;
+			} 
+
+			// add before last dot
+			else {
+				newFileName = fileName.substring(0, indexOfDot) + "-" + i + fileName.substring(indexOfDot, fileName.length());
+			}
+			
+			file = new File(this.repositoryRoot, newFileName);
 		}
 			
 		// create the file
