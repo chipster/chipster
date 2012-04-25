@@ -46,12 +46,18 @@ public class SetupTool {
 	}
 
 	private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
-	
-	public static void main(String[] args) throws Exception {
-		new SetupTool().setup();
+
+	/**
+	 * @see #setup()
+	 */
+	public static int main(String[] args) throws Exception {
+		return new SetupTool().setup();
 	}
 
-	public void setup() throws Exception {
+	/**
+	 * @return 0 on success, 1 on partial failure (environment is usable) and 2 on failure (environment is not usable).
+	 */
+	public int setup() throws Exception {
 
 		// start
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 
@@ -192,14 +198,18 @@ public class SetupTool {
 				}
 			}
 
-			// print out last summary line
+			// decide the final result
+			int returnCode;
 			out.print("\nResult: ");
 			if (requiredNotInstalled) {
 				out.println("Required bundles were not installed. Environment is not usable.");
+				returnCode = 2; // full fail
 			} else if (!workQueue.isEmpty() || !failedItems.isEmpty()) {
 				out.println("Some bundles were not installed, but all required bundles were. Environment is usable but not complete. ");
+				returnCode = 1; // partial fail
 			} else {
 				out.println("All bundles were installed. Environment is completely installed.");
+				returnCode = 0; // ok
 			}
 
 			// write buffer out
@@ -211,6 +221,8 @@ public class SetupTool {
 			// write changed installation states
 			xmlOut = new FileOutputStream(ENVIRONMENT_XML);
 			XmlUtil.printXml(xml, xmlOut);
+			
+			return returnCode;
 			
 		} finally {
 			IOUtils.closeIfPossible(infoOut);

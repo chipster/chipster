@@ -57,7 +57,7 @@ if(nrow(phenodata)==ncol(dat2)) {
 } else {
 	bitmap(file="boxplot.png", width=w/72, height=h/72)
 	par(mar=c(12,5,5,5))
-	boxplot(as.data.frame(dat2), las=2, col=sample_colots)
+	boxplot(as.data.frame(dat2), las=2, col=sample_colors)
 	if (length(levels(as.factor(phenodata$group))) > 0) {
 		legend (x="topleft", legend=group_levels, col=level_colors, cex=0.5, pch=19)
 	}

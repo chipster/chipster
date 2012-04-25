@@ -299,9 +299,6 @@ public class ToolPanel extends JPanel
 		}
 		
         
-		
-
-        
         operationPanel = new JPanel(new GridBagLayout());
         operationPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
         GridBagConstraints c = new GridBagConstraints();
@@ -418,7 +415,14 @@ public class ToolPanel extends JPanel
 		c.weighty = 0;
 		this.add(bottomPanel, c);		
 
-        selectModule(toolModules.getFirst().getModuleName());
+		// select last visible module
+		ToolModule selected = toolModules.getLast();
+		for (ToolModule module : toolModules) {
+			if (module.isVisible()) {
+				selected = module;
+			}
+		}
+        selectModule(selected.getModuleName());
 
 		// start listening
 		Session.getSession().getApplication().addClientEventListener(this);
