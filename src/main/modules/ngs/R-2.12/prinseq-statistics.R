@@ -1,10 +1,11 @@
-# TOOL prinseq-statistics.R: "Statistics for FASTQ" (Calculates general statistics of the reads in the given file. This tool is based on the PRINSEQ program.)
+# TOOL prinseq-statistics.R: "Read quality statistics with PRINSEQ" (Calculates general statistics of the reads in the given FASTQ file. This tool is based on the PRINSEQ program.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
 # OUTPUT reads-stats.tsv 
 # OUTPUT OPTIONAL reads-stats.html
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
 
 # KM 17.1.2012
+# EK 23.4.2012
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -18,6 +19,10 @@ unzipIfGZipFile("fastqfile")
 # binary
 binary.stats <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 #binary.stats <- c(file.path("perl prinseq-lite-0.17.3/prinseq-lite.pl"))
+
+# quality encoding check
+#quality.scale <- ifelse(phred64 == "y", "-phred64", "")
+
 # command to generate result table
 system('printf "%s\t%s\t%s\n"  Class Feature Value > reads-stats.tsv')
 if (input.mode == "fq") {
