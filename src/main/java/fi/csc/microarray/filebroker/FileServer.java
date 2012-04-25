@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -28,7 +27,6 @@ import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.FileCleanUpTimerTask;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.MemUtil;
 
@@ -82,7 +80,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
     		fileServer.start(fileRepository.getPath(), port);
 
-    		// start scheduler
+    		// cache clean up setup
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
     		userDataRoot = new File(fileRepository, userDataPath);
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
@@ -90,12 +88,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
-    		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
-    		int checkFrequency = 1000 * 5;
-    		Timer t = new Timer("frontend-scheduled-tasks", true);
-    		t.schedule(new FileCleanUpTimerTask(userDataRoot, cutoff), 0, cleanUpFrequency);
-    		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
+
+    		// disable periodic clean up for now
+//    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
+//    		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
+//    		int checkFrequency = 1000 * 5;
+//    		Timer t = new Timer("frontend-scheduled-tasks", true);
+//    		t.schedule(new FileCleanUpTimerTask(userDataRoot, cutoff), 0, cleanUpFrequency);
+//    		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
     		// initialise messaging
     		this.endpoint = new MessagingEndpoint(this);
