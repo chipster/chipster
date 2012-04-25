@@ -25,7 +25,7 @@
 # PARAMETER OPTIONAL derep.min: "Number of allowed duplicates" TYPE INTEGER (This option specifies the number of allowed duplicates. For example, to remove reads that occur more than 5 times, you would specify value 6.)
 # PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST method with the given maximum allowed score, between 0 and 100.)
 # PARAMETER OPTIONAL lc.entropy: "ENTROPY filter threshold" TYPE INTEGER (Use ENTROPY method with the given minimum entropy value, between 0 and 100.)
-# PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
+# PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
 # Filter fastq and fasta files based on a number of criteria
