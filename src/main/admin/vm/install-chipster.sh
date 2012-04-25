@@ -341,11 +341,6 @@ then
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
 
-  # HTseq GTFs
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/htseq/gtfs/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq_gtfs/All_htseq_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/htseq/gtfs/
-
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz
