@@ -899,7 +899,6 @@ public class SwingClientApplication extends ClientApplication {
 		String title;
 		String message;
 		
-		//
 		boolean userFixable = task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("");
 		
 		// user-friendly message

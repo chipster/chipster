@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -31,20 +30,21 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.TempTopicMessagingListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
@@ -260,13 +260,14 @@ public class TaskExecutor {
 					case COMPLETED:
 						updateTaskState(pendingTask, State.TRANSFERRING_OUTPUTS, null, -1);
 						try {
-							extractPayloads(resultMessage);
+							extractOutputs(resultMessage);
 						} catch (Exception e) {
 							logger.error("Getting outputs failed", e);
+							e.printStackTrace();
 
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
+							// usually taskFinished would pick the error message from
+							// ResultMessage, but here we use the stack trace
+							pendingTask.setErrorMessage(Exceptions.getStackTrace(e));
 							taskFinished(State.ERROR, "Transferring outputs failed", null);
 							break;
 						}
@@ -328,12 +329,13 @@ public class TaskExecutor {
 			}
 		}
 
-		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
+		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
-				InputStream payload = fileBroker.getFile(payloadUrl); 
-				DataBean bean = manager.createDataBean(name, payload);
+//				InputStream payload = fileBroker.getFile(payloadUrl);
+//				DataBean bean = manager.createDataBean(name, payload);
+				DataBean bean = manager.createDataBean(name, payloadUrl);
 				bean.setCacheUrl(payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
