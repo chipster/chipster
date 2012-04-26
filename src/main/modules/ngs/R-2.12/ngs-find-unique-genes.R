@@ -46,7 +46,7 @@ ensembl_id_list <- as.character(unique(ensembl_list$ensembl_id))
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
-gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","hgnc_symbol","description","entrezgene"), mart=ensembl_annotations)
+gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_id","description","entrezgene"), mart=ensembl_annotations)
 
 # Keep only the ones that have a unique ensembl gene id and actually map to unique entrez id:s
 gene_annotations_na <- na.omit(gene_annotations)
