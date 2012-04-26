@@ -18,6 +18,7 @@
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is supplied, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If you supply an optional GTF file, TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. This parameter controls if TopHat should look for reads accross the known junctions only.)
 
 # EK 17.4.2012 added -G and -g options
+# MG 24.4.2012 added ability to use gtf files from Chipster server
 
 options(scipen = 10)
 # max.intron.length <- formatC(max.intron.length, "f", digits = 0)
@@ -29,14 +30,13 @@ path.samtools <- c(file.path(chipster.tools.path, "samtools"))
 set.path <-paste(sep="", "PATH=", path.bowtie, ":", path.samtools, ":$PATH")
 path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
 
-
 # command start
 command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
 command.parameters <- paste("-r", mate.inner.distance, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-F", min.isoform.fraction, "-g", max.multihits, "--library-type fr-unstranded")
 
-# optional GTF command
+# optional GTF command, if a GTF file has been provided by user
 command.gtf <- ""
 input_files <- dir()
 is_gtf <- (length(grep("genes.gtf", input_files))>0)
@@ -45,6 +45,30 @@ if (is_gtf) {
 		command.gtf <- paste("-G", "genes.gtf", "--no-novel-juncs")
 	} else {
 		command.gtf <- paste("-G", "genes.gtf")
+	}
+}
+
+# optional GTF command, if a GTF file has NOT been provided by user
+# BUT is avaliable from Chipster server
+if (genome == "hg19" ||	genome == "mm9" || genome == "rn4") genome_available <- TRUE
+if (!is_gtf && genome_available) {
+
+	# annotation file setup
+	if (genome == "hg19") {
+		annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
+	}
+	if (genome == "mm9") {
+		annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
+	}
+	if (genome == "rn4") {
+		annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
+	}
+	annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
+	
+	if (no.novel.juncs == "yes") {
+		command.gtf <- paste("-G", annotation.file, "--no-novel-juncs")
+	} else {
+		command.gtf <- paste("-G", annotation.file)
 	}
 }
 

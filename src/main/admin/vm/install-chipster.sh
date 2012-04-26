@@ -81,7 +81,7 @@ aptitude -y install fastx-toolkit
 # !! Anything from PyPI should/shall be installed with pip !!
 # python-virtualenv
 # virtualenvwrapper
-aptitude --without-recommends install python-pip
+aptitude -y --without-recommends install python-pip
 # 2.6
 # Needed for MACS?!?, IF REALLY THE CASE IT SHOULD BE RECOMPILED FOR 2.7
 aptitude -y install python2.6
@@ -90,19 +90,6 @@ aptitude -y install python2.6
 # python-numpy, for HTSeq
 # python-matplotlib, for HTSeq
 aptitude -y --without-recommends install python-numpy python-matplotlib
-
-## Perl Libraries:
-# libjson-perl, for prinseq-graph
-# libcairo-perl, for prinseq-graph
-# libtext-simpletable-perl, for prinseq-graph
-# libcontextual-return-perl, for prinseq-graph
-# libwant-perl, for prinseq-graph
-# cpanminus, for prinseq-graph
-# Statistics::PCA, for prinseq-graph
-# Math::Cephes, for prinseq-graph
-# Math::MatrixReal, for prinseq-graph
-aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
-cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
 
 ## Libraries:
 # build-essential (only devel)
@@ -119,7 +106,6 @@ cpanm Statistics::PCA Math::Cephes Math::MatrixReal
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
-
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
@@ -136,6 +122,19 @@ else
   echo "PROBLEM!!"
   exit 1
 fi
+
+## Perl Libraries:
+# libjson-perl, for prinseq-graph
+# libcairo-perl, for prinseq-graph
+# libtext-simpletable-perl, for prinseq-graph
+# libcontextual-return-perl, for prinseq-graph
+# libwant-perl, for prinseq-graph
+# cpanminus, for prinseq-graph
+# Statistics::PCA, for prinseq-graph
+# Math::Cephes, for prinseq-graph
+# Math::MatrixReal, for prinseq-graph
+aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
+cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
 
 ## Initialize:
 # Versions
@@ -341,11 +340,6 @@ then
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
 
-  # HTseq GTFs
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/htseq/gtfs/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq_gtfs/All_htseq_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/htseq/gtfs/
-
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz
@@ -389,7 +383,7 @@ then
 
   # GTF gene data for tools
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
 
   # miRNA mapping data
   cd ${TMPDIR_PATH}/

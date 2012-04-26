@@ -110,7 +110,10 @@ if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1
 }
 # order according to increasing q-value
 results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+number_genes <- dim (results_list) [1]
+row_names <- 1:number_genes
+rownames(results_list) <- row_names
+write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
@@ -176,7 +179,10 @@ if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1
 }
 # order according to increasing q-value
 results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+number_genes <- dim (results_list) [1]
+row_names <- 1:number_genes
+rownames(results_list) <- row_names
+write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
