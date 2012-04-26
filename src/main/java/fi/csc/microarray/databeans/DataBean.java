@@ -140,21 +140,17 @@ public class DataBean extends DataItemBase {
 	private String notes;
 
 	protected ContentType contentType;
-
-	
 	private StorageMethod storageMethod;
-	private String repositoryName;
 	private URL url;
 	private DataBeanHandler handler;
 
 
-	public DataBean(String name, StorageMethod type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public DataBean(String name, StorageMethod type, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
 		
 		this.dataManager = manager;
 		this.name = name;
 		this.url = contentUrl;
 		this.storageMethod = type;
-		this.repositoryName = repositoryName;
 		this.handler = handler;
 		this.date = date;
 		this.parent = parentFolder;
@@ -614,21 +610,6 @@ public class DataBean extends DataItemBase {
 
 	public void setStorageMethod(StorageMethod storageMethod) {
 		this.storageMethod = storageMethod;
-	}
-
-
-
-	public String getRepositoryName() {
-		if (this.repositoryName == null) {
-			return "";
-		} else {
-			return this.repositoryName;
-		}
-	}
-
-
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
 	}
 
 	/**

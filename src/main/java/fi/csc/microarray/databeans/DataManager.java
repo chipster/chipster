@@ -494,7 +494,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -508,7 +508,7 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 */
 	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -551,7 +551,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, localFileDataBeanHandler);
+		DataBean dataBean = new DataBean(name, type, url, guessContentType(name), new Date(), sources, folder, this, localFileDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
