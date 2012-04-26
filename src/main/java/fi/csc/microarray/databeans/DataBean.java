@@ -41,7 +41,13 @@ public class DataBean extends DataItemBase {
 	public enum StorageMethod {
 		LOCAL_USER,
 		LOCAL_TEMP,
-		LOCAL_SESSION;
+		LOCAL_SESSION,
+		REMOTE_CACHED,
+		REMOTE_LONGTERM;
+		
+//		StorageMethod(boolean randomAccess, ) {
+//			
+//		}
 	}
 	
 	
@@ -125,7 +131,6 @@ public class DataBean extends DataItemBase {
 	protected DataManager dataManager;
 	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
-	private URL cacheUrl = null;
 	private boolean contentChanged = true;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
@@ -142,6 +147,7 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 	private StorageMethod storageMethod;
 	private URL url;
+	private URL cacheUrl = null;
 	private DataBeanHandler handler;
 
 
@@ -572,12 +578,12 @@ public class DataBean extends DataItemBase {
 		return false;
 	}
 	
-	
+	@Deprecated
 	public URL getContentUrl() {
 		return url;
 	}
 
-
+	@Deprecated
 	public void setContentUrl(URL contentUrl) {
 		this.url = contentUrl;
 	}
@@ -649,6 +655,7 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @return may be null
 	 */
+	@Deprecated
 	public URL getCacheUrl() {
 		return this.cacheUrl;
 	}
@@ -661,6 +668,7 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param url
 	 */
+	@Deprecated
 	public void setCacheUrl(URL url) {
 		this.cacheUrl = url;
 	}
