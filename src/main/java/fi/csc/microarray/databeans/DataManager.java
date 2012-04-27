@@ -716,7 +716,7 @@ public class DataManager {
 		bean.setContentChanged(true);
 		
 		// Only local temp beans support output, so convert to local temp bean if needed
-		if (!bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
+		if (bean.getUrl(StorageMethod.LOCAL_TEMP) == null) {
 			this.convertToLocalTempDataBean(bean);
 		}
 		
@@ -771,8 +771,7 @@ public class DataManager {
 		// update url, type and handler in the bean
 		URL newURL = newFile.toURI().toURL();
 		
-		bean.setContentUrl(newURL);
-		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
+		bean.setContentUrl(StorageMethod.LOCAL_TEMP, newURL);
 		bean.setHandler(localFileDataBeanHandler);
 		bean.setContentChanged(true);
 	}

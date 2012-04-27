@@ -38,18 +38,41 @@ import fi.csc.microarray.util.Files;
  */
 public class DataBean extends DataItemBase {
 	
-	public enum StorageMethod {
-		LOCAL_USER,
-		LOCAL_TEMP,
-		LOCAL_SESSION,
-		REMOTE_CACHED,
-		REMOTE_LONGTERM;
+	public static enum StorageMethod {
 		
-//		StorageMethod(boolean randomAccess, ) {
-//			
-//		}
+		LOCAL_USER(true, true),
+		LOCAL_TEMP(true, true),
+		LOCAL_SESSION(true, false),
+		REMOTE_CACHED(false, true),
+		REMOTE_LONGTERM(false, true);
+		
+		private boolean isLocal;
+		private boolean isRandomAccess;
+
+		StorageMethod(boolean isLocal, boolean isRandomAccess) {
+			this.isLocal = isLocal;
+			this.isRandomAccess = isRandomAccess;
+		}
 	}
 	
+	public static class StorageUrl {
+		
+		private StorageMethod method;
+		private URL url;
+		
+		StorageUrl(StorageMethod method, URL url) {
+			this.method = method;
+			this.url = url;
+		}
+		
+		public StorageMethod getMethod() {
+			return method;
+		}
+
+		public URL getUrl() {
+			return url;
+		}
+	}
 	
 	/**
 	 * Traversal specifies the way of traversing links. 
@@ -145,21 +168,18 @@ public class DataBean extends DataItemBase {
 	private String notes;
 
 	protected ContentType contentType;
-	private StorageMethod storageMethod;
-	private URL url;
-	private URL cacheUrl = null;
+	private LinkedList<StorageUrl> storageUrls = new LinkedList<DataBean.StorageUrl>();
 	private DataBeanHandler handler;
 
 
-	public DataBean(String name, StorageMethod type, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public DataBean(String name, StorageMethod type, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
 		
 		this.dataManager = manager;
 		this.name = name;
-		this.url = contentUrl;
-		this.storageMethod = type;
 		this.handler = handler;
 		this.date = date;
 		this.parent = parentFolder;
+		this.storageUrls.add(new StorageUrl(type, url));
 		
 		
 		// add this as parent folders child
@@ -578,14 +598,39 @@ public class DataBean extends DataItemBase {
 		return false;
 	}
 	
+		
+	public StorageUrl getStorageUrl(StorageMethod... methods) {
+		// Try to find storage url with matching method
+		for (StorageUrl storageUrl : storageUrls) {
+			for (StorageMethod method : methods) {
+				if (storageUrl.method == method) {
+					return storageUrl;
+				}
+			}
+		}
+		
+		// Nothing was found
+		return null; 
+	}
+	
+	public URL getUrl(StorageMethod... methods) {
+		StorageUrl storageUrl = getStorageUrl(methods);
+		return storageUrl != null ? storageUrl.url : null;
+	}
+	
 	@Deprecated
 	public URL getContentUrl() {
-		return url;
+		return getUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 	}
 
 	@Deprecated
-	public void setContentUrl(URL contentUrl) {
-		this.url = contentUrl;
+	public StorageUrl getContentStorageUrl() {
+		return getStorageUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+	}
+
+	@Deprecated
+	public void setContentUrl(StorageMethod method, URL contentUrl) {
+		storageUrls.add(new StorageUrl(method, contentUrl));
 	}
 
 	/**
@@ -606,17 +651,6 @@ public class DataBean extends DataItemBase {
 		this.handler = handler;
 	}
 
-
-
-	public StorageMethod getStorageMethod() {
-		return storageMethod;
-	}
-
-
-
-	public void setStorageMethod(StorageMethod storageMethod) {
-		this.storageMethod = storageMethod;
-	}
 
 	/**
 	 * Indicate whether the contents have been changed since the contents
@@ -657,7 +691,7 @@ public class DataBean extends DataItemBase {
 	 */
 	@Deprecated
 	public URL getCacheUrl() {
-		return this.cacheUrl;
+		return getUrl(StorageMethod.REMOTE_CACHED);
 	}
 
 
@@ -670,7 +704,7 @@ public class DataBean extends DataItemBase {
 	 */
 	@Deprecated
 	public void setCacheUrl(URL url) {
-		this.cacheUrl = url;
+		storageUrls.add(new StorageUrl(StorageMethod.REMOTE_CACHED, url));
 	}
 
 	public void setCreationDate(Date date) {

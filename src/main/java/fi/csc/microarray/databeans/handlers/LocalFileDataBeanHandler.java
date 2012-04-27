@@ -13,13 +13,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
+import fi.csc.microarray.databeans.DataManager;
 
 public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 
 	public LocalFileDataBeanHandler(DataManager dataManager) {
-		super(dataManager, StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP);
+		super(dataManager);
 	}
 	
 	
@@ -42,7 +42,7 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	 * Only delete temporary files, never user files.
 	 */
 	public void delete(DataBean dataBean) {
-		if (dataBean.getStorageMethod().equals(DataBean.StorageMethod.LOCAL_TEMP)) {
+		if (dataBean.getUrl(StorageMethod.LOCAL_TEMP) != null) {
 
 			checkCompatibility(dataBean);
 			File file = getFile(dataBean);
@@ -52,7 +52,6 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	
 	
 	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
-		super.checkCompatibility(dataBean);
 
 		URL url = dataBean.getContentUrl();
 		

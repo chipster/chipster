@@ -28,7 +28,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	private Map<File, ZipFile> zipFileInstances = new HashMap<File, ZipFile>();
 	
 	public ZipDataBeanHandler(DataManager dataManager) {
-		super(dataManager, StorageMethod.LOCAL_SESSION);
+		super(dataManager);
 	}
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
@@ -75,7 +75,6 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	
 
 	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
-		super.checkCompatibility(dataBean);
 		
 		URL url = dataBean.getContentUrl();
 		

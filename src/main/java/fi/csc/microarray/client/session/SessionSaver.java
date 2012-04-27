@@ -33,6 +33,7 @@ import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.StorageUrl;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -258,8 +259,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
-			bean.setContentUrl(newURLs.get(bean));
+			bean.setContentUrl(StorageMethod.LOCAL_SESSION, newURLs.get(bean));
 			bean.setHandler(new ZipDataBeanHandler(dataManager));
 		}
 	}
@@ -399,11 +399,12 @@ public class SessionSaver {
 			
 		} else {
 
-			// all data content goes to session --> type is local session
-			dataType.setStorageType(bean.getStorageMethod().toString());
+			// preserve existing storage type
+			StorageUrl url = bean.getContentStorageUrl();
+			dataType.setStorageType(url.getMethod().toString());
 
 			// url
-			dataType.setUrl(bean.getContentUrl().toString());
+			dataType.setUrl(url.getUrl().toString());
 		}
 		
 		// cache url
