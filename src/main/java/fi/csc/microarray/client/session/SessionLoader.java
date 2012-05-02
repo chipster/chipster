@@ -35,11 +35,11 @@ import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
@@ -158,7 +158,7 @@ public class SessionLoader {
 			
 			// create the data bean
 			String storageMethodString = dataType.getStorageType();
-			StorageMethod storageMethod = DataBean.StorageMethod.valueOf(storageMethodString);
+			StorageMethod storageMethod = StorageMethod.valueOf(storageMethodString);
 			String urlString = dataType.getUrl();
 			URL url = null;
 			try {

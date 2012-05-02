@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
@@ -38,30 +39,15 @@ import fi.csc.microarray.util.Files;
  */
 public class DataBean extends DataItemBase {
 	
-	public static enum StorageMethod {
-		
-		LOCAL_USER(true, true),
-		LOCAL_TEMP(true, true),
-		LOCAL_SESSION(true, false),
-		REMOTE_CACHED(false, true),
-		REMOTE_LONGTERM(false, true);
-		
-		private boolean isLocal;
-		private boolean isRandomAccess;
-
-		StorageMethod(boolean isLocal, boolean isRandomAccess) {
-			this.isLocal = isLocal;
-			this.isRandomAccess = isRandomAccess;
-		}
-	}
-	
 	public static class StorageUrl {
 		
 		private StorageMethod method;
 		private URL url;
+		private DataBeanHandler handler;
 		
-		StorageUrl(StorageMethod method, URL url) {
+		StorageUrl(StorageMethod method, DataBeanHandler handler, URL url) {
 			this.method = method;
+			this.handler = handler;
 			this.url = url;
 		}
 		
@@ -71,6 +57,10 @@ public class DataBean extends DataItemBase {
 
 		public URL getUrl() {
 			return url;
+		}
+
+		public DataBeanHandler getHandler() {
+			return handler;
 		}
 	}
 	
@@ -169,17 +159,14 @@ public class DataBean extends DataItemBase {
 
 	protected ContentType contentType;
 	private LinkedList<StorageUrl> storageUrls = new LinkedList<DataBean.StorageUrl>();
-	private DataBeanHandler handler;
 
-
-	public DataBean(String name, StorageMethod type, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public DataBean(String name, StorageMethod type, DataBeanHandler handler, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
 		
 		this.dataManager = manager;
 		this.name = name;
-		this.handler = handler;
 		this.date = date;
 		this.parent = parentFolder;
-		this.storageUrls.add(new StorageUrl(type, url));
+		this.storageUrls.add(new StorageUrl(type, handler, url));
 		
 		
 		// add this as parent folders child
@@ -334,14 +321,10 @@ public class DataBean extends DataItemBase {
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength() {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
-		}
-	
 		try {
-			return handler.getContentLength(this);
+			StorageUrl sUrl = getClosestStorageUrl();
+			return sUrl.getHandler().getContentLength(this);
 		} catch (IOException e) {
-			// FIXME what to do?
 			throw new RuntimeException(e);
 		}
 	}
@@ -350,8 +333,10 @@ public class DataBean extends DataItemBase {
 
 	public void delete() {
 //		lock.writeLock().lock();
-		try {
-			this.handler.delete(this);
+		try {			
+			for (StorageUrl storageUrl : storageUrls) {
+				storageUrl.getHandler().delete(this);
+			}
 			this.contentType = null;			
 		} finally {
 //			lock.writeLock().unlock();
@@ -629,28 +614,9 @@ public class DataBean extends DataItemBase {
 	}
 
 	@Deprecated
-	public void setContentUrl(StorageMethod method, URL contentUrl) {
-		storageUrls.add(new StorageUrl(method, contentUrl));
+	public void setContentUrl(StorageMethod method, DataBeanHandler handler, URL contentUrl) {
+		storageUrls.add(new StorageUrl(method, handler, contentUrl));
 	}
-
-	/**
-	 * Should only be used during saving or loading.
-	 * 
-	 * @param handler
-	 */
-	public DataBeanHandler getHandler() {
-		return this.handler;
-	}
-
-	/**
-	 * Should only be used during saving or loading.
-	 * 
-	 * @param handler
-	 */
-	public void setHandler(DataBeanHandler handler) {
-		this.handler = handler;
-	}
-
 
 	/**
 	 * Indicate whether the contents have been changed since the contents
@@ -704,7 +670,7 @@ public class DataBean extends DataItemBase {
 	 */
 	@Deprecated
 	public void setCacheUrl(URL url) {
-		storageUrls.add(new StorageUrl(StorageMethod.REMOTE_CACHED, url));
+		storageUrls.add(new StorageUrl(StorageMethod.REMOTE_CACHED, null, url));
 	}
 
 	public void setCreationDate(Date date) {
@@ -764,9 +730,28 @@ public class DataBean extends DataItemBase {
 
 
 	private InputStream getRawContentByteStream() throws IOException {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
+		StorageUrl sUrl = getClosestStorageUrl();
+		return sUrl.getHandler().getInputStream(this);
+	}
+	
+	public StorageUrl getClosestStorageUrl() {
+		
+		StorageUrl plainLocal = getStorageUrl(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+		if (plainLocal != null) {
+			return plainLocal;
 		}
-		return handler.getInputStream(this);
+
+		
+		StorageUrl plainRemote = getStorageUrl(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
+		if (plainRemote != null) {
+			return plainRemote;
+		}
+		
+		StorageUrl compressedLocal = getStorageUrl(StorageMethod.LOCAL_SESSION);
+		if (compressedLocal != null) {
+			return compressedLocal;
+		}
+
+		throw new IllegalStateException("data bean has not been properly initialised with URL");
 	}
 }

@@ -33,13 +33,12 @@ import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageUrl;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
-import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
 
@@ -259,8 +258,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			bean.setContentUrl(StorageMethod.LOCAL_SESSION, newURLs.get(bean));
-			bean.setHandler(new ZipDataBeanHandler(dataManager));
+			dataManager.setContentUrl(bean, StorageMethod.LOCAL_SESSION, newURLs.get(bean));
 		}
 	}
 	

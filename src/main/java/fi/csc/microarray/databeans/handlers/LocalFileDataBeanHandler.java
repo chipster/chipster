@@ -13,15 +13,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
-import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 
-public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
-
-	public LocalFileDataBeanHandler(DataManager dataManager) {
-		super(dataManager);
-	}
-	
+public class LocalFileDataBeanHandler implements DataBeanHandler {
 	
 	public InputStream getInputStream(DataBean dataBean) throws FileNotFoundException {
 		checkCompatibility(dataBean);

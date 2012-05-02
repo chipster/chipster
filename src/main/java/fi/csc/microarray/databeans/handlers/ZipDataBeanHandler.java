@@ -1,7 +1,5 @@
 package fi.csc.microarray.databeans.handlers;
 
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,24 +10,20 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
 
-public class ZipDataBeanHandler extends DataBeanHandlerBase {
+public class ZipDataBeanHandler implements DataBeanHandler {
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(ZipDataBeanHandler.class);
 
 	private Map<File, ZipFile> zipFileInstances = new HashMap<File, ZipFile>();
-	
-	public ZipDataBeanHandler(DataManager dataManager) {
-		super(dataManager);
-	}
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
