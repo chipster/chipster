@@ -75,9 +75,11 @@ public abstract class MessagingTestBase {
 	
 	@AfterTest(groups = {"unit"} )
 	protected void tearDown() throws Exception {
-		System.out.println("closing messaging endpoint");
-		endpoint.close();
-		endpoint = null;
+		if (endpoint != null) {
+			System.out.println("closing messaging endpoint");
+			endpoint.close();
+			endpoint = null;
+		}
 	}
 
 }

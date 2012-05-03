@@ -70,7 +70,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 	@AfterTest(groups = {"unit"} )
 	public void tearDown() throws Exception {
-		super.tearDown();
+//		super.tearDown();
 	}
 
 	
