@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import fi.csc.microarray.databeans.DataBean;
 
-public interface DataBeanHandler {
+public interface ContentHandler {
 
 	public InputStream getInputStream(DataBean dataBean) throws IOException;
 	

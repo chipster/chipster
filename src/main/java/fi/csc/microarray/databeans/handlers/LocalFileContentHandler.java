@@ -15,7 +15,7 @@ import java.net.URL;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 
-public class LocalFileDataBeanHandler implements DataBeanHandler {
+public class LocalFileContentHandler implements ContentHandler {
 	
 	public InputStream getInputStream(DataBean dataBean) throws FileNotFoundException {
 		checkCompatibility(dataBean);
@@ -47,7 +47,7 @@ public class LocalFileDataBeanHandler implements DataBeanHandler {
 	
 	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
 
-		URL url = dataBean.getContentUrl();
+		URL url = dataBean.getLocalUrl();
 		
 		// null url
 		if (url == null) {
@@ -68,9 +68,9 @@ public class LocalFileDataBeanHandler implements DataBeanHandler {
 	public File getFile(DataBean dataBean) {
 		File file;
 		try {
-			file = new File(dataBean.getContentUrl().toURI());
+			file = new File(dataBean.getLocalUrl().toURI());
 		} catch (URISyntaxException use) {
-			throw new IllegalArgumentException(dataBean.getContentUrl() + " does not point to a file.");
+			throw new IllegalArgumentException(dataBean.getLocalUrl() + " does not point to a file.");
 		}
 		return file;
 	}

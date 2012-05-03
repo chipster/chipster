@@ -38,7 +38,7 @@ public class PDFViewer extends Visualisation {
 		JPanel viewerComponentPanel = factory.buildViewerPanel();
 
 		// Open a PDF document to view
-		controller.openDocument(data.getContentByteStream(), data.getName(), data.getContentUrl().toString());
+		controller.openDocument(data.getContentByteStream(), data.getName(), data.getLocalUrl().toString());
 
 		// Set view mode
 		controller.setPageViewMode(DocumentViewControllerImpl.ONE_COLUMN_VIEW, true);

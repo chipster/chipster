@@ -16,7 +16,7 @@ import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.util.Files;
 
 /**
@@ -39,13 +39,13 @@ import fi.csc.microarray.util.Files;
  */
 public class DataBean extends DataItemBase {
 	
-	public static class StorageUrl {
+	public static class ContentLocation {
 		
 		private StorageMethod method;
 		private URL url;
-		private DataBeanHandler handler;
+		private ContentHandler handler;
 		
-		StorageUrl(StorageMethod method, DataBeanHandler handler, URL url) {
+		ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
 			this.method = method;
 			this.handler = handler;
 			this.url = url;
@@ -59,7 +59,7 @@ public class DataBean extends DataItemBase {
 			return url;
 		}
 
-		public DataBeanHandler getHandler() {
+		public ContentHandler getHandler() {
 			return handler;
 		}
 	}
@@ -158,15 +158,15 @@ public class DataBean extends DataItemBase {
 	private String notes;
 
 	protected ContentType contentType;
-	private LinkedList<StorageUrl> storageUrls = new LinkedList<DataBean.StorageUrl>();
+	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
 
-	public DataBean(String name, StorageMethod type, DataBeanHandler handler, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
+	public DataBean(String name, StorageMethod type, ContentHandler handler, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
 		
 		this.dataManager = manager;
 		this.name = name;
 		this.date = date;
 		this.parent = parentFolder;
-		this.storageUrls.add(new StorageUrl(type, handler, url));
+		this.contentLocations.add(new ContentLocation(type, handler, url));
 		
 		
 		// add this as parent folders child
@@ -322,7 +322,7 @@ public class DataBean extends DataItemBase {
 	 */
 	public long getContentLength() {
 		try {
-			StorageUrl sUrl = getClosestStorageUrl();
+			ContentLocation sUrl = getClosestContentLocation();
 			return sUrl.getHandler().getContentLength(this);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -334,8 +334,8 @@ public class DataBean extends DataItemBase {
 	public void delete() {
 //		lock.writeLock().lock();
 		try {			
-			for (StorageUrl storageUrl : storageUrls) {
-				storageUrl.getHandler().delete(this);
+			for (ContentLocation contentLocation : contentLocations) {
+				contentLocation.getHandler().delete(this);
 			}
 			this.contentType = null;			
 		} finally {
@@ -584,12 +584,12 @@ public class DataBean extends DataItemBase {
 	}
 	
 		
-	public StorageUrl getStorageUrl(StorageMethod... methods) {
-		// Try to find storage url with matching method
-		for (StorageUrl storageUrl : storageUrls) {
+	public ContentLocation getContentLocation(StorageMethod... methods) {
+		// Try to find content location with matching method
+		for (ContentLocation contentLocation : contentLocations) {
 			for (StorageMethod method : methods) {
-				if (storageUrl.method == method) {
-					return storageUrl;
+				if (contentLocation.method == method) {
+					return contentLocation;
 				}
 			}
 		}
@@ -599,23 +599,23 @@ public class DataBean extends DataItemBase {
 	}
 	
 	public URL getUrl(StorageMethod... methods) {
-		StorageUrl storageUrl = getStorageUrl(methods);
-		return storageUrl != null ? storageUrl.url : null;
+		ContentLocation contentLocation = getContentLocation(methods);
+		return contentLocation != null ? contentLocation.url : null;
 	}
 	
 	@Deprecated
-	public URL getContentUrl() {
+	public URL getLocalUrl() {
 		return getUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 	}
 
 	@Deprecated
-	public StorageUrl getContentStorageUrl() {
-		return getStorageUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+	public ContentLocation getLocalContentLocation() {
+		return getContentLocation(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 	}
 
 	@Deprecated
-	public void setContentUrl(StorageMethod method, DataBeanHandler handler, URL contentUrl) {
-		storageUrls.add(new StorageUrl(method, handler, contentUrl));
+	public void setContentLocation(StorageMethod method, ContentHandler handler, URL contentUrl) {
+		contentLocations.add(new ContentLocation(method, handler, contentUrl));
 	}
 
 	/**
@@ -670,7 +670,7 @@ public class DataBean extends DataItemBase {
 	 */
 	@Deprecated
 	public void setCacheUrl(URL url) {
-		storageUrls.add(new StorageUrl(StorageMethod.REMOTE_CACHED, null, url));
+		contentLocations.add(new ContentLocation(StorageMethod.REMOTE_CACHED, null, url));
 	}
 
 	public void setCreationDate(Date date) {
@@ -730,24 +730,24 @@ public class DataBean extends DataItemBase {
 
 
 	private InputStream getRawContentByteStream() throws IOException {
-		StorageUrl sUrl = getClosestStorageUrl();
+		ContentLocation sUrl = getClosestContentLocation();
 		return sUrl.getHandler().getInputStream(this);
 	}
 	
-	public StorageUrl getClosestStorageUrl() {
+	public ContentLocation getClosestContentLocation() {
 		
-		StorageUrl plainLocal = getStorageUrl(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 		if (plainLocal != null) {
 			return plainLocal;
 		}
 
 		
-		StorageUrl plainRemote = getStorageUrl(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
+		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
 		if (plainRemote != null) {
 			return plainRemote;
 		}
 		
-		StorageUrl compressedLocal = getStorageUrl(StorageMethod.LOCAL_SESSION);
+		ContentLocation compressedLocal = getContentLocation(StorageMethod.LOCAL_SESSION);
 		if (compressedLocal != null) {
 			return compressedLocal;
 		}

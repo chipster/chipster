@@ -25,13 +25,13 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageUrl;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
-import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
-import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
+import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
+import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
@@ -101,8 +101,8 @@ public class DataManager {
 	private File repositoryRoot;
 	private LinkedList<Module> modules;
 	
-	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler();
-	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler();
+	private ZipContentHandler zipContentHandler = new ZipContentHandler();
+	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -742,7 +742,7 @@ public class DataManager {
 
 		bean.setContentChanged(true);
 		
-		StorageUrl sUrl = bean.getClosestStorageUrl();
+		ContentLocation sUrl = bean.getClosestContentLocation();
 
 		// Only local temp beans support output, so convert to local temp bean if needed
 		if (sUrl.getMethod() != StorageMethod.LOCAL_TEMP) {
@@ -773,15 +773,15 @@ public class DataManager {
 
 	public File getLocalFile(DataBean bean) throws IOException {
 		
-		StorageUrl sUrl = bean.getClosestStorageUrl();
+		ContentLocation sUrl = bean.getClosestContentLocation();
 		
 		// convert non local file beans to local file beans
-		if (!(sUrl.getHandler() instanceof LocalFileDataBeanHandler)) {
+		if (!(sUrl.getHandler() instanceof LocalFileContentHandler)) {
 			this.convertToLocalTempDataBean(bean);
 		}
 		
 		// get the file
-		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler) sUrl.getHandler();
+		LocalFileContentHandler handler = (LocalFileContentHandler) sUrl.getHandler();
 		return handler.getFile(bean);
 	}
 	
@@ -803,7 +803,7 @@ public class DataManager {
 		URL newURL = newFile.toURI().toURL();
 		
 		StorageMethod method = StorageMethod.LOCAL_TEMP;
-		bean.setContentUrl(method, getHandlerFor(method), newURL);
+		bean.setContentLocation(method, getHandlerFor(method), newURL);
 		bean.setContentChanged(true);
 	}
 	
@@ -868,7 +868,7 @@ public class DataManager {
 
 	public void flushSession() {
 		// FIXME mitäs tälle, ehti jo ottaa DataManagerin sisällä olevat handlerit pois
-		zipDataBeanHandler.closeZipFiles();
+		zipContentHandler.closeZipFiles();
 	}
 
 	public void setModules(LinkedList<Module> modules) {
@@ -928,15 +928,15 @@ public class DataManager {
 	/**
 	 * Returns the handler instance of a given StorageMethod. Handler instances are DataManager specific.
 	 */
-	private DataBeanHandler getHandlerFor(StorageMethod method) {
+	private ContentHandler getHandlerFor(StorageMethod method) {
 		switch (method) {
 		
 		case LOCAL_SESSION:
-			return zipDataBeanHandler;
+			return zipContentHandler;
 
 		case LOCAL_TEMP:
 		case LOCAL_USER:
-			return localFileDataBeanHandler;
+			return localFileContentHandler;
 			
 		case REMOTE_CACHED:
 		case REMOTE_LONGTERM:
@@ -949,7 +949,7 @@ public class DataManager {
 	}
 
 	public void setContentUrl(DataBean bean, StorageMethod method, URL url) {
-		bean.setContentUrl(method, getHandlerFor(method), url);
+		bean.setContentLocation(method, getHandlerFor(method), url);
 	}
 
 }

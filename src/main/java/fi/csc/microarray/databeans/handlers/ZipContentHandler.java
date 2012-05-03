@@ -17,25 +17,25 @@ import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.databeans.DataBean;
 
-public class ZipDataBeanHandler implements DataBeanHandler {
+public class ZipContentHandler implements ContentHandler {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(ZipDataBeanHandler.class);
+	private static final Logger logger = Logger.getLogger(ZipContentHandler.class);
 
 	private Map<File, ZipFile> zipFileInstances = new HashMap<File, ZipFile>();
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = createZipFile(dataBean);
-		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
+		ZipEntry zipEntry = zipFile.getEntry(dataBean.getLocalUrl().getRef());
 		return zipEntry.getSize();
 	}
 
 	public InputStream getInputStream(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = createZipFile(dataBean);
-		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
+		ZipEntry zipEntry = zipFile.getEntry(dataBean.getLocalUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
 
@@ -70,7 +70,7 @@ public class ZipDataBeanHandler implements DataBeanHandler {
 
 	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
 		
-		URL url = dataBean.getContentUrl();
+		URL url = dataBean.getLocalUrl();
 		
 		// null url
 		if (url == null) {
@@ -102,11 +102,11 @@ public class ZipDataBeanHandler implements DataBeanHandler {
 		File zipFile;
 		try {
 			// remove fragment before converting to File
-			URI beanURI = dataBean.getContentUrl().toURI();
+			URI beanURI = dataBean.getLocalUrl().toURI();
 			URI zipURI = new URI(beanURI.getScheme(), beanURI.getSchemeSpecificPart(), null);
 			zipFile = new File(zipURI);
 		} catch (URISyntaxException use) {
-			throw new IllegalArgumentException(dataBean.getContentUrl() + " does not point to a file.");
+			throw new IllegalArgumentException(dataBean.getLocalUrl() + " does not point to a file.");
 		}
 		return zipFile;
 	}

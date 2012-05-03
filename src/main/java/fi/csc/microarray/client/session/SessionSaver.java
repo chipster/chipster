@@ -34,7 +34,7 @@ import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageUrl;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -313,7 +313,7 @@ public class SessionSaver {
 
 				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = bean.getContentUrl();
+				URL newURL = bean.getLocalUrl();
 				
 				if (saveData) {
 
@@ -398,7 +398,7 @@ public class SessionSaver {
 		} else {
 
 			// preserve existing storage type
-			StorageUrl url = bean.getContentStorageUrl();
+			ContentLocation url = bean.getLocalContentLocation();
 			dataType.setStorageType(url.getMethod().toString());
 
 			// url
