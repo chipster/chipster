@@ -41,7 +41,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         dels[dels>-2] <- NA
         points(pos, dels, pch=25, col='red', bg='red', cex=0.5)
         ### MAD
-        mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
+        mad.value <- round(mad(diff(copynumber(x)[,i])/sqrt(2), na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
         str <- paste(round(nclone / 1000), 'k x ', sep='')
@@ -98,7 +98,7 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         dels[dels>-2] <- NA
         points(pos, dels, pch=25, col='red', bg='red', cex=0.5)
         ### MAD
-        mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
+        mad.value <- round(mad(diff(copynumber(x)[,i])/sqrt(2), na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
         str <- paste(round(nclone / 1000), 'k x ', sep='')
@@ -203,7 +203,7 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio), gaincol
             segments(pos[segment[jjj,2]], segment[jjj,1], pos[segment[jjj,3]], segment[jjj,1], col="chocolate", lwd=3)        
 
         ### MAD
-        mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
+        mad.value <- round(mad(diff(copynumber(x)[,i])/sqrt(2), na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
 
         ### number of data points
@@ -869,7 +869,7 @@ regioningPlus <- function (cghdata.called, threshold = 0.00001)
         return(x[region.details[modus[1], 1], ])
     }
     cat("CGHregions of hard call data...")
-    cghdata.regions <- CGHregions(cghdata.called, averror = threshold)
+    cghdata.regions <- CGHregionsPlus(cghdata.called, averror = threshold)
     cat("...done", "\n")
     print(paste("threshold used:", threshold, sep = " "))
     calls.annotation <- pData(featureData(cghdata.called))
