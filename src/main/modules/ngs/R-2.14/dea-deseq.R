@@ -1,4 +1,4 @@
-# TOOL dea-deseq.R: "Differential expression analysis using DESeq" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the DESeq algorithm.)
+# TOOL dea-deseq.R: "Differential expression analysis using DESeq" (Differential expression analysis using the DESeq Bioconductor package.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
@@ -6,25 +6,24 @@
 # OUTPUT OPTIONAL ma-plot-significant-deseq.pdf
 # OUTPUT OPTIONAL dispersion-plot-deseq.pdf
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
-# PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on estimated library size is calculated.)
-# PARAMETER replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (In order to estimate the biological and experimental variability of the data in one experiment it is necessary to have independent biological replicates of each experiment condition. However, for various reasons, biological replicates may be available for only one of the conditions or not available at all. In the former scenario, DESeq will estimate variability using the replicates of the single condition for which they are available. It is important to note that this is only an approximation and the reliability of results may suffer as a consequence. In the case where there are no replicates at all the variance is estimated by assuming the single samples from the different conditions to be replicates. The approximation will be even less reliable and results affected accordingly.)
-# PARAMETER fitting_method: "Dispersion method" TYPE [maximum: "fit all", fit-only: "fit low"] DEFAULT maximum (The dispersion of counts for any given sequence can either be replaced with the fitted value from the dispersion model or replaced only if the fitted value is larger than the original dispersion estimate, which is the default option. The latter option optimises the balance between false positives and false negatives whereas the former minimises false positives and is therefore more conservative.)
+# PARAMETER replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (In order to estimate the biological and experimental variability of the data it is necessary to have biological replicates of each experiment condition. However, for various reasons, biological replicates may be available for only one of the conditions or not available at all. In the former scenario, DESeq will estimate variability using the replicates of the single condition for which they are available. It is important to note that this is only an approximation and the reliability of results may suffer as a consequence. In the case where there are no replicates at all the variance is estimated by assuming the single samples from the different conditions to be replicates. The approximation will be even less reliable and results affected accordingly.)
+# PARAMETER fitting_method: "Dispersion method" TYPE [maximum: "fit all", fit-only: "fit low"] DEFAULT maximum (The dispersion of counts for a gene can be replaced with the fitted value from the dispersion model, or replaced only if the fitted value is larger than the original dispersion estimate. The latter option optimises the balance between false positives and false negatives, whereas the former minimises false positives and is therefore more conservative.)
 # PARAMETER dispersion_estimate:"Dispersion estimate" TYPE [parametric: "parametric", local: "local"] DEFAULT local (The dispersion can be estimated either using a local fit, which is suitable in most cases - including when there are no biological independent replicate samples - or using a two-coefficient parametric model, which may be preferable under certain circumstances.)
 # PARAMETER p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
-# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
+# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image.)
 
 
 ############################################################
-#                                                          #
-# Analaysis workflow using DESeq for normalization and     #
-# statistical testing for finding differentially expressed #
-# sequence tags                                            #
-#                                                          #
-# MG, 7.2.2012                                             #
-#                                                          #
+#                                                          
+# Analysis workflow using DESeq for normalization and     
+# statistical testing for finding differentially expressed genes                                           
+#                                                          
+# MG, 7.2.2012                                             
+# EK, 6.5.2012, clarified texts                                                         
 ############################################################
 
 # Loads the libraries
@@ -110,7 +109,7 @@ plotDispEsts <- function(cds) {
 			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion")
 	xg <- 10^seq( -.5, 5, length.out=300)
 	lines(xg, fitInfo(cds)$dispFun(xg), col="red")
-	legend(x="topright", legend="fitted dipersion", col="red", cex=1, pch="-")
+	legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 }
 
 # Make dispersion plot
@@ -141,7 +140,7 @@ if (dim(significant_table)[1] > 0) {
 	write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-# Also output a bed graph file for visualization and region matching tools
+# Also output a BED file for visualization and region matching tools
 if (dim(significant_table)[1] > 0) {
 	empty_column <- character(length(significant_table[1]))
 	bed_output <- significant_table [,c("chr","start","end")]
@@ -167,7 +166,7 @@ dev.off()
 plotDE <- function(res)
 	plot(res$baseMean, res$log2FoldChange,
 			log="x", pch=20, cex=.25, col = ifelse( res$padj < p.value.cutoff, "red", "black"),
-			main="MA plot for significantly\ndifferentially expressed sequence tags", xlab="mean counts", ylab="log2(fold change)") 
+			main="MA plot for significantly\ndifferentially expressed genes", xlab="mean counts", ylab="log2(fold change)") 
 
 # Make MA-plot
 pdf(file="ma-plot-significant-deseq.pdf")

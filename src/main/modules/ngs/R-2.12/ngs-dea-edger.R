@@ -21,18 +21,12 @@
 
 ############################################################
 #                                                          #
-# Analaysis workflow using edgeR for normalization and     #
-# statistical testing for finding differentially expressed #
-# sequence tags                                            #
-#                                                          #
-# MG, 11.6.2011                                            #
-# updated, MG, 23.08.2011, to include library size from    #
-# phenodata file                                           #
-# updated MG, 30.01.2012 to allow analysis without         #
-# biological replicates                                    #
-# updated MG, 22.02.2012, prettified plots, added p-value  #
-# distribution plot                                        #
-#                                                          #
+# Analysis workflow using edgeR for normalization and statistical testing for finding differentially expressed sequence features
+# MG, 11.6.2011
+# MG, 23.8.2011, updated to include library size from phenodata file
+# MG, 30.1.2012 updated to allow analysis without biological replicates 
+# MG, 22.2.2012, prettified plots, added p-value distribution plot
+# EK, 6.5.2012, clarified texts
 ############################################################
 
 # Loads the libraries
@@ -104,7 +98,7 @@ title("Raw counts")
 abline(h = log2(dge_list$samples$norm.factors[2]/dge_list$samples$norm.factors[1]),
 		col = "red", lwd = 2)
 abline(h = 0, col = "darkgreen", lwd = 1)
-legend (x="topleft", legend=c("not epressed in one condition","expressed in both conditions"), col=c("orange","black"),
+legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"),
 		cex=1, pch=19)
 dev.off()
 
@@ -115,7 +109,7 @@ if (normalization == "yes") {
 			normalize = TRUE, pch = 19, cex = 0.4, ylim = c(-8, 8))
 	grid(col = "blue")
 	title("Normalized counts")
-	legend (x="topleft", legend=c("not epressed in one condition","expressed in both conditions"), col=c("orange","black"),
+	legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"),
 			cex=1, pch=19)
 	abline(h = 0, col = "darkgreen", lwd = 1)
 	dev.off()
@@ -146,7 +140,7 @@ if (dispersion_method == "common") {
 	# Make an MA-plot displaying the significant reads
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence tags")
+	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence features")
 	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 			cex=1, pch=19)
@@ -178,9 +172,9 @@ if (dispersion_method == "tagwise") {
 	# Make an MA-plot displaying the significant reads
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence tags")
+	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence features")
 	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-	legend (x="topleft", legend=c("significant features","not significant"), col=c("red","black"),
+	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 			cex=1, pch=19)
 	dev.off()
 }

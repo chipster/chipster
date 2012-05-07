@@ -14,7 +14,7 @@
 
 ############################################################
 #                                                          #
-# Analaysis workflow using Cufflinks for normalization and #
+# Analysis workflow using Cufflinks for normalization and #
 # statistical testing for finding differentially expressed #
 # known genes and transcript isoforms.                     #
 #                                                          #
@@ -85,7 +85,7 @@ for (count in 1:length(regions_list)) {
 }
 dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
-# Rename gene to symbol for compability with venn diagram
+# Rename gene to symbol for compatibility with venn diagram
 colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
@@ -134,7 +134,7 @@ if (dim(results_list)[1] > 0) {
 	cat("GENE TEST SUMMARY\n")
 	cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
 	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "genes were found to be statiscially significantly differentially expressed.")	
+	cat(number_significant, "genes were found to be statistically significantly differentially expressed.")	
 } else {
 	cat("GENE TEST SUMMARY\n")
 	cat("Out of the", number_genes_tested, "genes tested there were no statistically significantly differentially expressed ones found.")
@@ -184,12 +184,12 @@ row_names <- 1:number_genes
 rownames(results_list) <- row_names
 write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
 
-# Also output a bed graph file for visualization and region matching tools
+# Also output a BED file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# sort according to chromosome location
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
-	# add chr to the chromosome name for genome browser compability
+	# add chr to the chromosome name for genome browser compatibility
 #	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
@@ -202,7 +202,7 @@ if (dim(results_list)[1] > 0) {
 	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
 	cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
 	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "transcripts were found to be statiscially significantly differentially expressed.")	
+	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.")	
 } else {
 	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
 	cat("Out of the", number_genes_tested, "transcripts tested there were no statistically significantly differentially expressed ones found.")
