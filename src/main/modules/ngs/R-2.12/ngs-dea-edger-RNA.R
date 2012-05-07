@@ -15,17 +15,17 @@
 # PARAMETER dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
 # PARAMETER p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
-# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
+# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
 
 ############################################################
 #                                                          
 # Analysis workflow using edgeR for normalization and statistical testing for finding differentially expressed genes 
 # MG, 11.6.2011                                            
-# MG, 23.08.2011, updated to include library size from phenodata file                                           
-# MG, 30.01.2012 updated to allow analysis without biological replicates                                    
-# MG, 22.02.2012, prettified plots, added p-value  distribution plot
+# MG, 23.8.2011, updated to include library size from phenodata file                                           
+# MG, 30.1.2012 updated to allow analysis without biological replicates                                    
+# MG, 22.2.2012, prettified plots, added p-value  distribution plot
 # EK, 6.5.2012, clarified wording
 ############################################################
 
@@ -140,7 +140,7 @@ if (dispersion_method == "common") {
 	# Make an MA-plot displaying the significant reads
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed genes")
+	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed genomic features")
 	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 			cex=1, pch=19)
@@ -172,9 +172,9 @@ if (dispersion_method == "tagwise") {
 	# Make an MA-plot displaying the significant reads
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed sequence genes")
+	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed genomic features")
 	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-	legend (x="topleft", legend=c("significant features","not significant"), col=c("red","black"),
+	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 			cex=1, pch=19)
 	dev.off()
 }
