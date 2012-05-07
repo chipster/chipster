@@ -16,11 +16,9 @@
 # PARAMETER OPTIONAL min.isoform.fraction: "Minimum isoform fraction" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.15 (TopHat filters out junctions supported by too few alignments. Suppose a junction spanning two exons is supported by S reads. Let the average depth of coverage of exon A be D, and assume that it is higher than B. If S divided by D is less than the minimum isoform fraction, the junction is not reported. A value of zero disables the filter.)
 # PARAMETER OPTIONAL max.multihits: "How many hits is a read allowed to have" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 20 (Instructs TopHat to allow up to this many alignments to the reference for a given read, and suppresses all alignments for reads with more than this many alignments.)
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is supplied, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If you supply an optional GTF file, TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. This parameter controls if TopHat should look for reads accross the known junctions only.)
-# PARAMETER OPTIONAL use.gtf: "Employ annotation-aided aligning" TYPE [yes, no] DEFAULT yes (If you supply an optional GTF file, or align against the human, mouse or rat reference sequence, TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. This parameter controls if TopHat should look for reads accross the known junctions only.)
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
-# MG 3.5.2012, added parameter to turn off the use of GTF altogether
 
 options(scipen = 10)
 # max.intron.length <- formatC(max.intron.length, "f", digits = 0)
@@ -53,7 +51,7 @@ if (is_gtf) {
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
 if (genome == "hg19" ||	genome == "mm9" || genome == "rn4") genome_available <- TRUE
-if (!is_gtf && genome_available && use.gtf == "yes") {
+if (!is_gtf && genome_available) {
 
 	# annotation file setup
 	if (genome == "hg19") {
