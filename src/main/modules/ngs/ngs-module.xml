@@ -1,6 +1,18 @@
 <module name="ngs">
 
-	<category name="Filtering" color="#d5c796">
+	<category name="Quality control" color="#d5c796">
+		<tool runtime="R-2.12">
+			<resource>fastqc.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-statistics.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>prinseq-statistics.R</resource>
+		</tool>
+	</category>
+	
+	<category name="Filtering" color="#e7df70">
 		<tool runtime="R-2.12">
 			<resource>fastx-quality-filter.R</resource>
 		</tool>	
@@ -27,18 +39,6 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-filter-results-column.R</resource>
-		</tool>
-	</category>
-
-	<category name="Quality control" color="#e7df70">
-		<tool runtime="R-2.12">
-			<resource>fastqc.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>fastx-statistics.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-statistics.R</resource>
 		</tool>
 	</category>
 
