@@ -3,28 +3,26 @@
 <head><title></title></head>
 <body>
 
-<h2>General reads set trimmer</h2>
+<h2>Trim reads for several criteria</h2>
 
 <h3>Description</h3>
 
-<p>This tool is a general trimming tool for FASTQ or FASTA formatted reads files. It contains all the trimming
-methods used in the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>, including the poly-A/T and quality methods 
-that are available as separate trimming  tools too.
+<p>This tool is a general trimming tool containing all the trimming
+methods used in the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>, including the poly-A/T and quality methods. The input data can be in FASTQ or in FASTA format.
 </p>
 
 <h3>Details</h3>
 <p>
-When you launch the trimming tool, only those trimming methods, for which some value is assigned, are used. 
-You can use several trimming methods in the same time. Form example trimming with parameters 
+Only those trimming methods are used for which you assigned a value. 
+You can use several trimming methods at the same time. For example trimming with parameters 
 <b>Trim left: 3</b> and <b>Trim right: 10</b>
-would produce a reads set where all the reads are trimmed by removing 3 bases form the 5'-end and 10 bases from the 3'-end.
-</p>
-<p>For detailed descriptions of the different trimming conditions, please check the
-manual of the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+would produce a reads set where all the reads are trimmed by removing 3 bases form the 5'-end and 10 bases from the 3'-end. For detailed description of the different trimming options, 
+please check the <a href="http://prinseq.sourceforge.net/">PRINSEQ manual</a>.
 From the table below, you can check what PRINSEQ command line options the parameter definitions 
-correspond:
+correspond to:
+<p>
 <table>
-<tr><td><b>Parameter name</b></td><td><b>command line option</b></td><td><b>Description</b> </td></tr>
+<tr><td><b>Parameter name</b></td><td><b>Command line</b></td><td><b>Description</b> </td></tr>
 <tr><td>Trim to length</td><td>-trim_to_len</td><td>Trim all reads from the 3-prime-end to result in reads with this length.</td></tr>
 <tr><td>Trim left</td><td>-trim_left</td><td>Trim reads at the 5-prime-end by given number of positions.</td></tr>
 <tr><td>Trim right</td><td>-trim.right</td><td>Trim reads at the 3-prime-end by given number of positions.</td></tr>
@@ -36,9 +34,9 @@ correspond:
 <tr><td>Trim 3-prime-end by quality</td><td>-trim_qual_right</td><td>Trim reads by quality score from the 3-prime-end with the given threshold score.</td></tr>
 <tr><td>The quality score calculation method</td><td>-trim_qual_type</td><td>Type of quality score calculation to use</td></tr>
 <tr><td>Quality score comparison condition</td><td>-trim_qual_rule</td><td> Rule to use to compare quality score threshold to calculated value. </td></tr>
-<tr><td>Window size for quality calculation</td><td>-trim_qual_window</td><td>The sliding window size used to calculate quality score by type. To stop at the first base that fails the rule defined, use a window size of 1.</td></tr>
-<tr><td>Step size used to move the quality window</td><td>-trim_qual_step</td><td> TYPE INTEGER DEFAULT 1 (Step size used to move the sliding window. To move the window over all quality scores without missing any, the step size should be less or equal to the window size.</td></tr>
-<tr><td>Quality data is in Phred+64 format</td><td>-phred64</td><td> You should select "yes" option if the quality data in FASTQ file is in Phred+64 format. For Illumina 1.8+, Sanger, Roche/454, Ion Torrent, PacBio data, you should use the default value: no</td></tr>
+<tr><td>Window for quality calculation</td><td>-trim_qual_window</td><td>The sliding window size used to calculate quality score by type. To stop at the first base that fails the rule defined, use a window size of 1.</td></tr>
+<tr><td>Step size to move the quality window</td><td>-trim_qual_step</td><td> Step size used to move the sliding window. To move the window over all quality scores without missing any, the step size should be less or equal to the window size.</td></tr>
+<tr><td>Base quality encoding</td><td>-phred64</td><td> Select "Sanger" for Illumina 1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.</td></tr>
 </table>
 
 </p> 
@@ -46,7 +44,7 @@ correspond:
 
 <p>
 The trimmed reads are saved to file called <b>trimmed.fastq</b> or <a>trimmed.fasta</a>.
-You can also print out a log file that contains information about the filtering task and
+You can also print out a log file that contains information about the trimming task and
 statistics about how many reads were accepted and rejected.
 </p>
 
