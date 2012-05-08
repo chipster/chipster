@@ -24,8 +24,8 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
@@ -742,14 +742,14 @@ public class DataManager {
 
 		bean.setContentChanged(true);
 		
-		ContentLocation sUrl = bean.getClosestContentLocation();
-
 		// Only local temp beans support output, so convert to local temp bean if needed
-		if (sUrl.getMethod() != StorageMethod.LOCAL_TEMP) {
+		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		if (location == null) {
 			this.convertToLocalTempDataBean(bean);
+			location = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
 		}
 		
-		return sUrl.getHandler().getOutputStream(bean);
+		return location.getHandler().getOutputStream(location);
 	}
 
 	/**
@@ -773,16 +773,17 @@ public class DataManager {
 
 	public File getLocalFile(DataBean bean) throws IOException {
 		
-		ContentLocation sUrl = bean.getClosestContentLocation();
+		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_USER);
 		
 		// convert non local file beans to local file beans
-		if (!(sUrl.getHandler() instanceof LocalFileContentHandler)) {
+		if (location == null) {
 			this.convertToLocalTempDataBean(bean);
+			location = bean.getContentLocation(StorageMethod.LOCAL_USER);
 		}
 		
 		// get the file
-		LocalFileContentHandler handler = (LocalFileContentHandler) sUrl.getHandler();
-		return handler.getFile(bean);
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
 	}
 	
 	

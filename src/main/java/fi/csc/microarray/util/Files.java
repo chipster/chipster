@@ -96,27 +96,22 @@ public class Files {
 		}
 	}
 
-	public static byte[] fileToBytes(File file) throws IOException  {
-		if (file == null) {
-			throw new IllegalArgumentException("parameter file is null.");
-		}
-		
-		InputStream s = new FileInputStream(file);
-		try {
-			return inputStreamToBytes(new FileInputStream(file));	
-		} finally {
-			s.close();
-		}
-	}
-
 	public static byte[] inputStreamToBytes(InputStream input) throws IOException  {
+		return inputStreamToBytes(input, -1);
+	}
+	
+	public static byte[] inputStreamToBytes(InputStream input, long byteCount) throws IOException  {
 		if (input == null) {
 			throw new NullPointerException("parameter input is null.");
 		}
 		
 		BufferedInputStream in = new BufferedInputStream(input);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		IO.copy(in, out);
+		if (byteCount == -1) {
+			IO.copy(in, out);
+		} else {
+			IO.copy(in, out, byteCount);
+		}
 		return out.toByteArray();
 	}
 	

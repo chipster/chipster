@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +13,7 @@ import org.apache.log4j.Logger;
 
 import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipFile;
-import fi.csc.microarray.client.session.UserSession;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
 
 public class ZipContentHandler implements ContentHandler {
 	/**
@@ -25,17 +23,17 @@ public class ZipContentHandler implements ContentHandler {
 
 	private Map<File, ZipFile> zipFileInstances = new HashMap<File, ZipFile>();
 	
-	public long getContentLength(DataBean dataBean) throws IOException {
-		checkCompatibility(dataBean);
-		ZipFile zipFile = createZipFile(dataBean);
-		ZipEntry zipEntry = zipFile.getEntry(dataBean.getLocalUrl().getRef());
+	public long getContentLength(ContentLocation location) throws IOException {
+//		checkCompatibility(dataBean);
+		ZipFile zipFile = createZipFile(location);
+		ZipEntry zipEntry = zipFile.getEntry(location.getUrl().getRef());
 		return zipEntry.getSize();
 	}
 
-	public InputStream getInputStream(DataBean dataBean) throws IOException {
-		checkCompatibility(dataBean);
-		ZipFile zipFile = createZipFile(dataBean);
-		ZipEntry zipEntry = zipFile.getEntry(dataBean.getLocalUrl().getRef());
+	public InputStream getInputStream(ContentLocation location) throws IOException {
+//		checkCompatibility(dataBean);
+		ZipFile zipFile = createZipFile(location);
+		ZipEntry zipEntry = zipFile.getEntry(location.getUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
 
@@ -43,8 +41,8 @@ public class ZipContentHandler implements ContentHandler {
 	 * Pools ZipFile instances to avoid having too many files open.
 	 * 
 	 */
-	private ZipFile createZipFile(DataBean dataBean) throws IOException {
-		File file = getZipFile(dataBean);
+	private ZipFile createZipFile(ContentLocation location) throws IOException {
+		File file = getZipFile(location);
 		if (!zipFileInstances.containsKey(file)) {
 			zipFileInstances.put(file, new ZipFile(file));
 		}
@@ -66,56 +64,56 @@ public class ZipContentHandler implements ContentHandler {
 		zipFileInstances.clear();
 		
 	}
+//	
+//
+//	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
+//		
+//		URL url = dataBean.getLocalUrl();
+//		
+//		// null url
+//		if (url == null) {
+//			throw new IllegalArgumentException("DataBean URL is null.");
+//		} 
+//		
+//		// protocol not "file"
+//		else if (!"file".equals(url.getProtocol())) {
+//			throw new IllegalArgumentException("Protocol of " + url.toString() + " is not \"file\".");
+//		} 
+//		
+//		// null or empty path
+//		else if (url.getPath() == null || url.getPath().length() == 0) {
+//			throw new IllegalArgumentException("Illegal path:" + url.toString());
+//		}
+//		
+//		// needs to be session file
+//		else if (!getZipFile(dataBean).getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION)) {
+//			throw new IllegalArgumentException("Not a session file.");
+//		}
+//		
+//		// needs to have non-empty reference
+//		else if (url.getRef() == null || url.getRef().length() == 0) {
+//			throw new IllegalArgumentException("Reference is null or empty.");
+//		}
+//	}
 	
-
-	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
-		
-		URL url = dataBean.getLocalUrl();
-		
-		// null url
-		if (url == null) {
-			throw new IllegalArgumentException("DataBean URL is null.");
-		} 
-		
-		// protocol not "file"
-		else if (!"file".equals(url.getProtocol())) {
-			throw new IllegalArgumentException("Protocol of " + url.toString() + " is not \"file\".");
-		} 
-		
-		// null or empty path
-		else if (url.getPath() == null || url.getPath().length() == 0) {
-			throw new IllegalArgumentException("Illegal path:" + url.toString());
-		}
-		
-		// needs to be session file
-		else if (!getZipFile(dataBean).getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION)) {
-			throw new IllegalArgumentException("Not a session file.");
-		}
-		
-		// needs to have non-empty reference
-		else if (url.getRef() == null || url.getRef().length() == 0) {
-			throw new IllegalArgumentException("Reference is null or empty.");
-		}
-	}
-	
-	private File getZipFile(DataBean dataBean) {
+	private File getZipFile(ContentLocation location) {
 		File zipFile;
 		try {
 			// remove fragment before converting to File
-			URI beanURI = dataBean.getLocalUrl().toURI();
+			URI beanURI = location.getUrl().toURI();
 			URI zipURI = new URI(beanURI.getScheme(), beanURI.getSchemeSpecificPart(), null);
 			zipFile = new File(zipURI);
 		} catch (URISyntaxException use) {
-			throw new IllegalArgumentException(dataBean.getLocalUrl() + " does not point to a file.");
+			throw new IllegalArgumentException(location.getUrl() + " does not point to a file.");
 		}
 		return zipFile;
 	}
 
-	public void delete(DataBean dataBean) {
-		// do nothing for now
+	public void canBeDeleted(ContentLocation location) {
+		// entries are not deleted from zip files
 	}
 
-	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
+	public OutputStream getOutputStream(ContentLocation location) throws IOException {
 		throw new UnsupportedOperationException("zip data bean does not support output");
 	}
 

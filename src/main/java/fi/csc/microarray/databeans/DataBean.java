@@ -1,6 +1,5 @@
 package fi.csc.microarray.databeans;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -18,6 +17,7 @@ import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
 import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -39,6 +39,10 @@ import fi.csc.microarray.util.Files;
  */
 public class DataBean extends DataItemBase {
 	
+	/**
+	 * Defines a location where the actual file content of the DataBean can be accessed from.
+	 * Location might be local, remote or contained within another file (zip). 
+	 */
 	public static class ContentLocation {
 		
 		private StorageMethod method;
@@ -66,7 +70,6 @@ public class DataBean extends DataItemBase {
 	
 	/**
 	 * Traversal specifies the way of traversing links. 
-	 *
 	 */
 	public enum Traversal {
 		DIRECT,
@@ -84,7 +87,6 @@ public class DataBean extends DataItemBase {
 	
 	/**
 	 * Link represents a relationship between two beans.
-	 *
 	 */
 	public enum Link {
 		/**
@@ -277,42 +279,42 @@ public class DataBean extends DataItemBase {
 	 * higher level accessing.
 	 * 
 	 * @see #queryFeatures(String)
-	 * 
-	 * FIXME change name
 	 */
 	public InputStream getContentByteStream() throws IOException {
 		return getRawContentByteStream();
 	}
 
 
-
 	/**
 	 * A convenience method for gathering streamed binary content into
 	 * a byte array.
+	 * 
 	 * @throws IOException 
 	 * 
-	 *   @see #getContentByteStream()
+	 * @see #getContentByteStream()
 	 */
 	public byte[] getContents() throws IOException {
-		try {
-			return Files.inputStreamToBytes(this.getContentByteStream());
-		} finally {
-			// FIXME release inputstream
-		}
-		
+		return getContents(-1); // -1 means "no max length"
 	}
-	
+
+	/**
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array. Gathers only maxLength first bytes.
+	 * 
+	 * @throws IOException 
+	 * 
+	 * @see #getContentByteStream()
+	 */
 	public byte[] getContents(long maxLength) throws IOException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		InputStream in = this.getContentByteStream();
-		long readCount = 0;
 		
-		for (int b = in.read(); b != -1 && readCount < maxLength; b = in.read()) {
-			outputStream.write(b);
-			readCount++;
+		InputStream in = null;
+		try {
+			in = getContentByteStream();
+			return Files.inputStreamToBytes(in, maxLength);
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
 		}
-		
-		return outputStream.toByteArray();
 	}
 
 
@@ -322,8 +324,8 @@ public class DataBean extends DataItemBase {
 	 */
 	public long getContentLength() {
 		try {
-			ContentLocation sUrl = getClosestContentLocation();
-			return sUrl.getHandler().getContentLength(this);
+			ContentLocation location = getClosestContentLocation();
+			return location.getHandler().getContentLength(location);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -335,7 +337,7 @@ public class DataBean extends DataItemBase {
 //		lock.writeLock().lock();
 		try {			
 			for (ContentLocation contentLocation : contentLocations) {
-				contentLocation.getHandler().delete(this);
+				contentLocation.getHandler().canBeDeleted(contentLocation);
 			}
 			this.contentType = null;			
 		} finally {
@@ -350,9 +352,6 @@ public class DataBean extends DataItemBase {
 	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
 	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
 	 * and generally, user should never assume cached values to be found.  
-	 *
-	 *	FIXME think about locking
-	 *
 	 */
 	public void putToContentBoundCache(String name, Object value) {
 		this.contentBoundCache.put(name, value);
@@ -387,13 +386,6 @@ public class DataBean extends DataItemBase {
 			return;
 		}		
 
-		// FIXME add more internal state validation to FSDataBean
-		//		for (LinkedBean linkedBean : outgoingLinks) {
-		//			if (linkedBean.bean == target && linkedBean.link == type) {
-		//				throw new RuntimeException("duplicate link");
-		//			}
-		//		}
-
 		// make both parties aware of the link
 		target.incomingLinks.add(new LinkedBean(type, this));
 		outgoingLinks.add(new LinkedBean(type, target));
@@ -403,7 +395,6 @@ public class DataBean extends DataItemBase {
 			LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
 			dataManager.dispatchEvent(lce);
 		}
-
 	}
 
 
@@ -583,21 +574,38 @@ public class DataBean extends DataItemBase {
 		return false;
 	}
 	
-		
+	/**
+	 * Gives one (arbitrary) location for the content of this DataBean that uses
+	 * one of the given storage methods. 
+	 * 
+	 * @param methods returned ContentLocation must use one of these
+	 */
 	public ContentLocation getContentLocation(StorageMethod... methods) {
-		// Try to find content location with matching method
+		List<ContentLocation> locations = getContentLocations(methods);
+		return locations.isEmpty() ? null : locations.get(0);
+	}
+
+	/**
+	 * Gives all locations for the content of this DataBean that use
+	 * one of the given storage methods. 
+	 * 
+	 * @param methods returned ContentLocations must use one of these
+	 */
+	public List<ContentLocation> getContentLocations(StorageMethod... methods) {
+		
+		// Collect content locations with matching method
+		LinkedList<ContentLocation> locations = new LinkedList<DataBean.ContentLocation>();
 		for (ContentLocation contentLocation : contentLocations) {
 			for (StorageMethod method : methods) {
 				if (contentLocation.method == method) {
-					return contentLocation;
+					locations.add(contentLocation);
 				}
 			}
 		}
-		
-		// Nothing was found
-		return null; 
+
+		return locations; 
 	}
-	
+
 	public URL getUrl(StorageMethod... methods) {
 		ContentLocation contentLocation = getContentLocation(methods);
 		return contentLocation != null ? contentLocation.url : null;
@@ -730,8 +738,8 @@ public class DataBean extends DataItemBase {
 
 
 	private InputStream getRawContentByteStream() throws IOException {
-		ContentLocation sUrl = getClosestContentLocation();
-		return sUrl.getHandler().getInputStream(this);
+		ContentLocation location = getClosestContentLocation();
+		return location.getHandler().getInputStream(location);
 	}
 	
 	public ContentLocation getClosestContentLocation() {
