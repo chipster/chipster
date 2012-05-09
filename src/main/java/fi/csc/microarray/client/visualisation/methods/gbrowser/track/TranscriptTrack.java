@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -26,6 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.constants.VisualConstants;
 
@@ -65,108 +67,113 @@ public class TranscriptTrack extends Track {
 
 		occupiedSpace.clear();
 
+		TreeMap<Region, Transcript> sortedTranscripts = new TreeMap<Region, Transcript>();
+
 		if (genes != null) {
-			
-			List<Drawable> geneDrawables = new ArrayList<Drawable>();
 
-			//Use iterator to be able to remove genes that are out of sight
-			Iterator<Gene> geneIter = genes.iterator();			
-			Gene gene;
+			Iterator<Gene> iter = genes.iterator();
+			while (iter.hasNext()) {
 
-			while (geneIter.hasNext()) {
-				gene = geneIter.next();
-				
+				//Use iterator to be able to remove genes that are out of sight
+				Gene gene = iter.next();
+
+				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
 				if (!gene.getRegion().intersects(getView().getBpRegion())) {
-					
-					geneIter.remove();
+					iter.remove();
 					continue;
 				}
 
-				//Transcript collection refers to original data from the data layer, so out-of-sight
-				//transcripts can't be removed
-				for (Transcript transcript : gene.getTranscripts()) {		
-					
-					Rectangle rect = new Rectangle();
+				for (Transcript transcript : gene.getTranscripts()) {
+					sortedTranscripts.put(transcript.getRegion(), transcript);
+				}
+			}
 
-					rect.x = getView().bpToTrack(transcript.getRegion().start);
-					int x = rect.x;
-					rect.width = getView().bpToTrack(transcript.getRegion().end) - rect.x;
-					int x2 = getView().bpToTrack(transcript.getRegion().end);
+			List<Drawable> geneDrawables = new ArrayList<Drawable>();
 
-					int i = 0;
+			//Transcript collection refers to original data from the data layer, so out-of-sight
+			//transcripts can't be removed
+			for (Transcript transcript : sortedTranscripts.values()) {
 
-					while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x) {
-						i++;
+				Rectangle rect = new Rectangle();
+
+				rect.x = getView().bpToTrack(transcript.getRegion().start);
+				int x = rect.x;
+				rect.width = getView().bpToTrack(transcript.getRegion().end) - rect.x;
+				int x2 = getView().bpToTrack(transcript.getRegion().end);
+
+				int i = 0;
+
+				while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x) {
+					i++;
+				}
+
+				int end = rect.x + rect.width;
+
+				if (occupiedSpace.size() > i) {
+					occupiedSpace.set(i, end);
+				} else {
+					occupiedSpace.add(end);
+				}
+
+				rect.y = (int) (((i + 1) * (14)));
+				int y = rect.y + 2;
+				rect.height = 2;
+
+				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
+
+				rect.height = 4;
+
+				// draw arrow
+				if (transcript.getRegion().getStrand() == Strand.REVERSED) {
+					drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
+				} else {
+					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
+				}
+
+				String name = transcript.getName();
+
+				if (isNameVisible(rect)) {
+
+					if (name == null) {
+						name = "n/a";
 					}
 
-					int end = rect.x + rect.width;
+					drawTextAboveRectangle(name, drawables, rect, 1);
+				}
 
-					if (occupiedSpace.size() > i) {
-						occupiedSpace.set(i, end);
-					} else {
-						occupiedSpace.add(end);
+				for (Exon exon : transcript.getExons()) {
+
+					//					if (part.values == null) {
+					//						drawables.add(createDrawable(part.region.start, part.region.end, color));
+					//					} else {
+
+					Exon.Feature feature = exon.getFeature();
+					Color c;
+
+					switch (feature) {
+					case CDS:
+						c = PartColor.CDS.c;
+						break;
+					case EXON:
+						c = PartColor.UTR.c;
+						break;
+					case START_CODON:
+						c = PartColor.START_CODON.c;
+						break;
+					case STOP_CODON:
+						// TODO Check how this should be visualised
+						c = PartColor.UTR.c;
+						break;
+					default:
+						System.err.println("Gene description not recognised: " + feature);
+						c = Color.blue;
 					}
 
-					rect.y = (int) (((i + 1) * (14)));
-					int y = rect.y + 2;
-					rect.height = 2;
-
-					drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
-
+					rect.x = getView().bpToTrack(exon.getRegion().start);
+					rect.width = getView().bpToTrack(exon.getRegion().end) - rect.x;
 					rect.height = 4;
 
-					// draw arrow
-					if (transcript.getRegion().getStrand() == Strand.REVERSED) {
-						drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
-					} else {
-						drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
-					}
-
-					String name = transcript.getName();
-
-					if (isNameVisible(rect)) {
-						
-						if (name == null) {
-							name = "n/a";
-						}
-						
-						drawTextAboveRectangle(name, drawables, rect, 1);
-					}
-					
-					for (Exon exon : transcript.getExons()) {
-
-						//					if (part.values == null) {
-						//						drawables.add(createDrawable(part.region.start, part.region.end, color));
-						//					} else {
-						
-						Exon.Feature feature = exon.getFeature();
-						Color c;
-
-						switch (feature) {
-						case CDS:
-							c = PartColor.CDS.c;
-							break;
-						case EXON:
-							c = PartColor.UTR.c;
-							break;
-						case START_CODON:
-							c = PartColor.START_CODON.c;
-							break;
-						case STOP_CODON:
-							// TODO Check how this should be visualised
-							c = PartColor.UTR.c;
-							break;
-						default:
-							System.err.println("Gene description not recognised: " + feature);
-							c = Color.blue;
-						}
-
-						rect.x = getView().bpToTrack(exon.getRegion().start);
-						rect.width = getView().bpToTrack(exon.getRegion().end) - rect.x;
-						rect.height = 4;
-
-						geneDrawables.add(new RectDrawable(rect, c, null));
-					}
+					geneDrawables.add(new RectDrawable(rect, c, null));
 				}
 			}
 
@@ -186,19 +193,19 @@ public class TranscriptTrack extends Track {
 			drawables.addAll(geneDrawables);
 
 		}
-		
+
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
 
 		for (RegionContent content : areaResult.getContents()) {
-			
+
 			// Sorting is needed to draw partly overlapping genes in the same order every time
 			if (!areaResult.getStatus().concise && content.region.getStrand() == getStrand()) {
 
 				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
-				
+
 				genes.add(gene);
 
 			}

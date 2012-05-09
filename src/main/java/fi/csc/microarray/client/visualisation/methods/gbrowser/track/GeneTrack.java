@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -21,6 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -50,7 +52,9 @@ public class GeneTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		occupiedSpace.clear();
-
+		
+		TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
+		
 		if (genes != null) {
 
 			Iterator<Gene> iter = genes.iterator();
@@ -63,6 +67,11 @@ public class GeneTrack extends Track {
 					iter.remove();
 					continue;
 				}
+
+				sortedGenes.put(gene.getRegion(), gene);
+			}
+
+			for (Gene gene : sortedGenes.values()) {
 
 				String name = gene.getName();
 
