@@ -6,7 +6,8 @@ public class Exon implements Comparable<Exon> {
 	
 	private Region region;
 	private Feature feature;
-//	private int exonNumber;
+	private int exonNumber;
+	private Transcript transcript;
 
 	public static enum Feature {
 
@@ -36,40 +37,49 @@ public class Exon implements Comparable<Exon> {
 		return Feature.UNRECOGNIZED;
 	}
 	
-	public Exon(Region region, String feature) {
+	public Exon(Region region, String feature, int exonNumber) {
 		this.region = region;
 		this.feature = getFeature(feature);
-//		this.exonNumber = exonNumber;
+		this.exonNumber = exonNumber;
 	}
 
 	public int compareTo(Exon other) {
+		
+		int transcriptComparison = this.transcript.compareTo(other.transcript);
+		int exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
+		
+		if (transcriptComparison != 0) {
+			return transcriptComparison;
+		} else {
+			return exonNumberComparison;
+		}
 
-		int featureComparison = 0;
+//		int featureComparison = 0;
 //		int exonNumberComparison = 0;
-
-		int regionComparison = this.region.compareTo(other.region);
-		
-		if (regionComparison != 0) {
-			return regionComparison;
-		}
-
-		if (this.feature != null) {
-			featureComparison = this.feature.compareTo(other.getFeature());
-		} else if (other.getFeature() != null) {
-			featureComparison = 1;
-		}
-		
+//
+//		int regionComparison = this.region.compareTo(other.region);
+//		
+//		if (regionComparison != 0) {
+//			return regionComparison;
+//		}
+//
+//		if (this.feature != null) {
+//			featureComparison = this.feature.compareTo(other.getFeature());
+//		} else if (other.getFeature() != null) {
+//			featureComparison = 1;
+//		}
+//		
 //		exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
 //
 //		if (featureComparison != 0) {
-			return featureComparison;
+//			return featureComparison;
 //		}
 //		return exonNumberComparison;
 	}	
 	
-//	private Object getExonNumber() {
-//		return exonNumber;
-//	}
+	private Object getExonNumber() {
+		return exonNumber;
+	}
 
 	public Feature getFeature() {
 		return feature;
@@ -77,7 +87,7 @@ public class Exon implements Comparable<Exon> {
 
 	@Override
 	public int hashCode() {
-		return region.hashCode();
+		return transcript.hashCode() << 8 + exonNumber;
 	}
 
 	@Override
@@ -97,5 +107,13 @@ public class Exon implements Comparable<Exon> {
 
 	public Region getRegion() {
 		return region;
+	}
+
+	public Integer getIndex() {
+		return exonNumber;
+	}
+
+	public void setTranscript(Transcript transc) {
+		this.transcript = transc;
 	}
 }

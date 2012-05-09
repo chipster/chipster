@@ -1,30 +1,35 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Collection;
+import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class Transcript implements Comparable<Transcript> {
+public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Transcript> {
 	
+	private Gene gene;
 	private Region region;
-	private SortedSet<Exon> exons = new TreeSet<Exon>();
 	private String name;
+	private String id;
 
-	public Transcript(String name) {
+	public Transcript(String name, Gene gene, String id) {
 		this.name = name;
+		this.gene = gene;
+		this.id = id;
 	}
 
 	public int compareTo(Transcript other) {
 
-		int regionComparison = this.region.compareTo(other.region);
 		
-		return regionComparison;
+		return this.id.compareTo(other.id);
+//		int regionComparison = this.region.compareTo(other.region);
+//		
+//		return regionComparison;
 	}
 
 	@Override
 	public int hashCode() {
-		return region.hashCode();
+		return id.hashCode();
 	}
 
 	@Override
@@ -46,14 +51,14 @@ public class Transcript implements Comparable<Transcript> {
 		return region;
 	}
 
-	public void addExon(Exon exon) {
-		exons.add(exon);
+	public void addExon(Exon exon, String transcId) {
+		this.put(exon.getIndex(), exon);
 		
 		if(region == null) {
 			try {
 				region = exon.getRegion().clone();
 			} catch (CloneNotSupportedException e) {
-				e.printStackTrace(); //Shouldn't happen
+				e.printStackTrace();
 			}
 		} else {
 			
@@ -65,7 +70,7 @@ public class Transcript implements Comparable<Transcript> {
 		return name;
 	}
 
-	public SortedSet<Exon> getExons() {
-		return exons;
+	public Collection<Exon> getExons() {
+		return this.values();
 	}
 }

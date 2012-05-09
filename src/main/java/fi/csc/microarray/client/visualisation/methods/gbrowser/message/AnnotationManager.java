@@ -139,7 +139,7 @@ public class AnnotationManager {
 
 	public enum AnnotationType {
 		CYTOBANDS("Cytobands"), CYTOBANDS_SEQ_REGION("Cytobands seq_region"), CYTOBANDS_COORD_SYSTEM("Cytobands coord_system"), 
-		ANNOTATIONS("ENSEMBL Gtf"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP");
+		ANNOTATIONS("ENSEMBL Gtf"), GTF_TABIX("GtfTabix"), GTF_TABIX_INDEX("GtfTabix index"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP");
 
 		String id;
 
@@ -165,7 +165,8 @@ public class AnnotationManager {
 	public void initialize() throws Exception {
 
 		// get annotation locations
-		this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
+		
+		//this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
 		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
 
 		// try to parse the remote contents file
@@ -402,8 +403,12 @@ public class AnnotationManager {
 	private boolean checkLocalFile(GenomeAnnotation annotation) {
 		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
-		if (localFile.exists() && localFile.length() == annotation.getContentLength()) {
-			return true;
+		if (localFile.exists() ) {
+			if (localFile.length() == annotation.getContentLength()) {
+				return true;
+			} else {
+				throw new IllegalStateException("File size of the local file " + fileName + " isn't equivalent to information in annotation contents");
+			}
 		}
 		return false;
 	}

@@ -55,7 +55,6 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
@@ -196,6 +195,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private JScrollPane verticalScroller;
 	private JCheckBox showFullHeightBox;
 	private ViewLimiter viewLimiter;
+	protected boolean geneSearchDone;
 
 
 	public void initialise(VisualisationFrame frame) throws Exception {
@@ -774,11 +774,14 @@ RegionListener, ComponentListener, PropertyChangeListener {
 					case GENES:
 						// Start 3D effect
 						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
-
+						
 						URL gtfUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
+								genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
+						
+						URL gtfIndexUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
 
-						LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
+						GtfTabixDataSource gtfDataSource = new GtfTabixDataSource(gtfUrl, gtfIndexUrl);
 
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource);
 
@@ -938,9 +941,12 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		try {
 
 			URL gtfUrl = annotationManager.getAnnotation(
-					genome, AnnotationManager.AnnotationType.ANNOTATIONS).getUrl();
+					genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
+			
+			URL gtfIndexUrl = annotationManager.getAnnotation(
+					genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
 
-			LineDataSource gtfDataSource = new LineDataSource(gtfUrl, GtfHandlerThread.class);
+			GtfTabixDataSource gtfDataSource = new GtfTabixDataSource(gtfUrl, gtfIndexUrl);
 
 			gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource);
 
@@ -1129,7 +1135,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				if (!locationField.getText().equals("")) {
 					requestGeneSearch();
 				}
-				locationField.setText("");
+				updateLocationField();
 				move(); //Init view.bpRegion if necesssary
 				
 			} else {
@@ -1151,23 +1157,55 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		}
 	}
 
+	private void updateLocationField() {
+		
+		if (lastLocation != null && lastViewsize != null) {
+			updateCoordinateFields(lastLocation, lastViewsize);
+		} else {
+			updateCoordinateFields(DEFAULT_LOCATION, DEFAULT_VIEWSIZE);
+		}
+	}
+
 	private void requestGeneSearch() {
 
 		Chromosome chr = (Chromosome) chrBox.getSelectedItem();
+		
+		application.runBlockingTask("searching gene", new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				int TIME_OUT = 60*1000;
+				int INTERVAL = 100;
+				
+				for (int i = 0; i < TIME_OUT/INTERVAL; i++) {
+			
+					if (!geneSearchDone) {
+						try {
+							Thread.sleep(INTERVAL);
+						} catch (InterruptedException e) {
+							//Just continue
+						}
+					} else {
+						geneSearchDone = false;
+						break;
+					}
+				}		
+				//Give up
+			}
+		});
 
 		gia.requestLocation(locationField.getText(), chr, new GeneIndexActions.GeneLocationListener() {
 
 			@Override
 			public void geneLocation(Region geneLocation) {
+				
+				geneSearchDone = true;
 
 				if (geneLocation == null) {
-
+					
 					// Move to last known location
-					if (lastLocation != null && lastViewsize != null) {
-						updateCoordinateFields(lastLocation, lastViewsize);
-					} else {
-						updateCoordinateFields(DEFAULT_LOCATION, DEFAULT_VIEWSIZE);
-					}
+					updateLocation();
 
 					// Tell the user 
 					application.showDialog("Not found",
@@ -1178,9 +1216,21 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				} else {
 
 					// Update coordinate controls with gene's location
-					chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
-					updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
-					updateLocation();
+					
+					Chromosome resultChr = new Chromosome(geneLocation.start.chr);
+					
+					chrBox.setSelectedItem(resultChr);
+					
+					if (chrBox.getSelectedItem().equals(resultChr)) {
+
+						updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
+						updateLocation();
+					} else {
+						application.showDialog("Different chromosome", 
+								"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
+								Severity.INFO, true, 
+								DetailsVisibility.DETAILS_HIDDEN, null);
+					}
 				}
 			}
 		});

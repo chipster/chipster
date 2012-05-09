@@ -1,41 +1,41 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Collection;
+import java.util.HashMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class Gene implements Comparable<Gene> {
+public class Gene extends HashMap<String, Transcript> implements Comparable<Gene> {
 	
 	private Region region;
-	private List<Transcript> tempTranscripts = new LinkedList<Transcript>();
-	private SortedSet<Transcript> transcripts;
 	private String name;
 	private String biotype;
+	private String id;
 
-	public Gene(String name, String biotype) {
+	public Gene(String name, String biotype, String id) {
 		this.name = name;
 		this.biotype = biotype;
+		this.id = id;
 	}
 
 	public int compareTo(Gene other) {
+		
+		return this.id.compareTo(other.id);
 
-		int regionComparison = this.region.compareTo(other.region);
-		int biotypeComparison = 0;
-		
-		if (regionComparison != 0) {
-			return regionComparison;
-		}
-		
-		if (this.biotype != null) {
-			biotypeComparison = this.biotype.compareTo(other.getBiotype());
-		} else if (other.getBiotype() != null) {
-			biotypeComparison = 1;
-		}
-	
-		return biotypeComparison;
+//		int regionComparison = this.region.compareTo(other.region);
+//		int biotypeComparison = 0;
+//		
+//		if (regionComparison != 0) {
+//			return regionComparison;
+//		}
+//		
+//		if (this.biotype != null) {
+//			biotypeComparison = this.biotype.compareTo(other.getBiotype());
+//		} else if (other.getBiotype() != null) {
+//			biotypeComparison = 1;
+//		}
+//	
+//		return biotypeComparison;
 	}
 
 	private String getBiotype() {
@@ -44,7 +44,7 @@ public class Gene implements Comparable<Gene> {
 
 	@Override
 	public int hashCode() {
-		return region.hashCode();
+		return id.hashCode();
 	}
 
 	@Override
@@ -66,33 +66,40 @@ public class Gene implements Comparable<Gene> {
 		return region;
 	}
 
-	public void addTranscript(Transcript transcript) {
+	public void addTranscript(String transcId, Transcript transcript) {
 		
-		tempTranscripts.add(transcript);
+		this.put(transcId, transcript);
+	}
+
+
+	public Collection<Transcript> getTranscripts() {
+		return this.values() ;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void addExon(Exon exon, String geneId, String transcId, String transcName) {
+		Transcript transc;
+		
+		if ((transc = this.get(transcId)) == null) {
+			transc = new Transcript(transcName, this, transcId);
+			this.put(transcId, transc);
+		}
+		
+		transc.addExon(exon, transcId);
+		exon.setTranscript(transc);
 		
 		if(region == null) {
 			try {
-				region = transcript.getRegion().clone();
+				region = transc.getRegion().clone();
 			} catch (CloneNotSupportedException e) {
 				e.printStackTrace(); //Shouldn't happen
 			}
 		} else {
 			
-			this.region = region.fill(transcript.getRegion());
+			this.region = region.fill(transc.getRegion());
 		}
-	}
-
-	public void prepareForReading() {
-		
-		transcripts = new TreeSet<Transcript>(tempTranscripts);
-		tempTranscripts = null;
-	}
-
-	public SortedSet<Transcript> getTranscripts() {
-		return transcripts;
-	}
-
-	public String getName() {
-		return name;
 	}
 }
