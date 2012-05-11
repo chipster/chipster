@@ -57,6 +57,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -203,8 +204,9 @@ public class SessionReplayTest extends MessagingTestBase {
 			// pick import operations FIXME pick also any other without parent dataset
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
+				
 				// copy imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getLocalUrl().getRef());
+				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				
 				// avoid NPE 

@@ -28,6 +28,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
@@ -333,10 +334,8 @@ public class TaskExecutor {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
-//				InputStream payload = fileBroker.getFile(payloadUrl);
-//				DataBean bean = manager.createDataBean(name, payload);
 				DataBean bean = manager.createDataBean(name, payloadUrl);
-				bean.setCacheUrl(payloadUrl);
+				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
@@ -481,13 +480,15 @@ public class TaskExecutor {
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								URL url = fileBroker.addFile(bean.getContentByteStream(), progressListener);
+								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
 								bean.setContentChanged(false);
 							} 
 
 							// bean not modified, check cache, upload if needed
-							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+							else if (bean.getUrl(StorageMethod.REMOTE_CACHED) != null && !fileBroker.checkFile(bean.getUrl(StorageMethod.REMOTE_CACHED), bean.getContentLength())){
+								URL url = fileBroker.addFile(bean.getContentByteStream(), progressListener);
+								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 							}
 
 						} finally {
@@ -495,7 +496,7 @@ public class TaskExecutor {
 						}
 
 						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getCacheUrl());
+						jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED));
 						
 						
 						logger.debug("added input " + name + " to job message.");
@@ -712,13 +713,14 @@ public class TaskExecutor {
 			DataBean bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
-				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				URL url = fileBroker.addFile(bean.getContentByteStream(), null);
+				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 				bean.setContentChanged(false);
 			} finally {
 				bean.getLock().readLock().unlock();
 			}
 			
-			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED)); // no progress listening on resends
 		}
 		jobMessage.setReplyTo(replyTo);
 

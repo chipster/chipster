@@ -47,6 +47,13 @@ public class DataManager {
 		REMOTE_CACHED(false, true),
 		REMOTE_LONGTERM(false, true);
 		
+		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
+		
+		/**
+		 * Methods that will be valid between session loads.
+		 */
+		public static StorageMethod[] NONTRANSIENT_METHODS = {LOCAL_USER, REMOTE_CACHED, REMOTE_LONGTERM};
+		
 		private boolean isLocal;
 		private boolean isRandomAccess;
 		
@@ -470,14 +477,13 @@ public class DataManager {
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
 	public DataBean createDataBean(String name) throws MicroarrayException {
-		File contentFile;
 		try {
-			contentFile = createNewRepositoryFile(name);
+			File contentFile = createNewRepositoryFile(name);
+			createDataBean(name, contentFile);
+
 		} catch (IOException e) {
 			throw new MicroarrayException(e);
 		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
 	}
 
 	/**
@@ -495,7 +501,14 @@ public class DataManager {
 	 * 
 	 */
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		try {
+			DataBean bean = createDataBean(name,  null, new DataBean[] {});
+			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+			return bean;
+			
+		} catch (IOException e) {
+			throw new MicroarrayException(e);
+		}
 	}
 
 	/**
@@ -573,7 +586,12 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, StorageMethod.LOCAL_TEMP, folder, sources, contentFile);
+		DataBean bean = createDataBean(name, folder, sources);
+		try {
+			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+		} catch (MalformedURLException e) {
+			throw new MicroarrayException(e);
+		}
 		return bean;
 	}
 	
@@ -582,15 +600,8 @@ public class DataManager {
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	private DataBean createDataBean(String name, StorageMethod method, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
-		URL url;
-		try {
-			 url = contentFile.toURI().toURL();
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBean dataBean = new DataBean(name, method, getHandlerFor(method), url, guessContentType(name), new Date(), sources, folder, this);
+	private DataBean createDataBean(String name, DataFolder folder, DataBean[] sources) throws MicroarrayException {
+		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -803,8 +814,7 @@ public class DataManager {
 		// update url, type and handler in the bean
 		URL newURL = newFile.toURI().toURL();
 		
-		StorageMethod method = StorageMethod.LOCAL_TEMP;
-		bean.setContentLocation(method, getHandlerFor(method), newURL);
+		addUrl(bean, StorageMethod.LOCAL_TEMP, newURL);
 		bean.setContentChanged(true);
 	}
 	
@@ -949,8 +959,8 @@ public class DataManager {
 		}
 	}
 
-	public void setContentUrl(DataBean bean, StorageMethod method, URL url) {
-		bean.setContentLocation(method, getHandlerFor(method), url);
+	public void addUrl(DataBean bean, StorageMethod method, URL url) {
+		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
 	}
 
 }

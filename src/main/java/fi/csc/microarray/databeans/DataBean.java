@@ -49,7 +49,7 @@ public class DataBean extends DataItemBase {
 		private URL url;
 		private ContentHandler handler;
 		
-		ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
+		public ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
 			this.method = method;
 			this.handler = handler;
 			this.url = url;
@@ -162,13 +162,12 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
 
-	public DataBean(String name, StorageMethod type, ContentHandler handler, URL url, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
+	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
 		
 		this.dataManager = manager;
 		this.name = name;
 		this.date = date;
 		this.parent = parentFolder;
-		this.contentLocations.add(new ContentLocation(type, handler, url));
 		
 		
 		// add this as parent folders child
@@ -605,6 +604,18 @@ public class DataBean extends DataItemBase {
 
 		return locations; 
 	}
+	
+	/**
+	 * Add ContentLocations to bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * @see DataManager#addUrl(DataBean, StorageMethod, URL)
+	 * 
+	 */
+	void addContentLocation(ContentLocation contentLocation) {
+		contentLocations.add(contentLocation);
+	}
+	
 
 	public URL getUrl(StorageMethod... methods) {
 		ContentLocation contentLocation = getContentLocation(methods);
@@ -619,11 +630,6 @@ public class DataBean extends DataItemBase {
 	@Deprecated
 	public ContentLocation getLocalContentLocation() {
 		return getContentLocation(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
-	}
-
-	@Deprecated
-	public void setContentLocation(StorageMethod method, ContentHandler handler, URL contentUrl) {
-		contentLocations.add(new ContentLocation(method, handler, contentUrl));
 	}
 
 	/**
@@ -653,19 +659,6 @@ public class DataBean extends DataItemBase {
 		}
 		
 		this.contentChanged = contentChanged;
-	}
-
-
-
-	/**
-	 * Get the location of the remote copy for the content file. 
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @return may be null
-	 */
-	@Deprecated
-	public URL getCacheUrl() {
-		return getUrl(StorageMethod.REMOTE_CACHED);
 	}
 
 

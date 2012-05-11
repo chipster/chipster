@@ -18,6 +18,16 @@ import org.xml.sax.SAXException;
 import de.schlichtherle.truezip.zip.ZipFile;
 
 
+/**
+ * Utility class for working with user session files and
+ * metadata files contained in them (session.xml). Metadata files
+ * are specified by the XSD definition and accessed using
+ * classes generated from the definition. To generate the classes,
+ * use the Ant tasks in build.xml. 
+ * 
+ * @author Taavi Hupponen, Aleksi Kallio
+ *
+ */
 public class UserSession {
 
 	public static final String SESSION_FILE_EXTENSION = "zip";
@@ -27,7 +37,8 @@ public class UserSession {
 	
 	private static final Logger logger = Logger.getLogger(UserSession.class);
 	public static final String ROOT_FOLDER_ID = "0";
-	public static final Integer SESSION_VERSION = 1;
+	public static final Integer SESSION_VERSION = 2;
+	public static final Integer PREVIOUS_SESSION_VERSION = 1;
 	
 	
 	public static boolean isValidSessionFile(File file) {
@@ -77,23 +88,10 @@ public class UserSession {
 	
     public static boolean validateMetadataFile() throws IOException, SAXException  {
 
-        // 1. Specify you want a factory for RELAX NG
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        
-        // 2. Load the specific schema you want. 
-        // Here I load it from a java.io.File, but we could also use a 
-        // java.net.URL or a javax.xml.transform.Source
-//        File schemaLocation = new File("/opt/xml/docbook/rng/docbook.rng");
-        
-        // 3. Compile the schema.
         Schema schema = factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("/session.xsd")));
-    
-        // 4. Get a validator from the schema.
         Validator validator = schema.newValidator();
         
-        // 5. Parse the document you want to check.
-        
-        // 6. Check the document
         try {
         	validator.validate(new StreamSource(UserSession.class.getResourceAsStream("/session.xml")));
             System.out.println("input is valid.");
