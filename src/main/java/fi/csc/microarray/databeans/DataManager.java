@@ -476,10 +476,12 @@ public class DataManager {
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name) throws MicroarrayException {
+	public DataBean createLocalTempDataBean(String name) throws MicroarrayException {
 		try {
 			File contentFile = createNewRepositoryFile(name);
-			createDataBean(name, contentFile);
+			DataBean bean = createDataBean(name,  null, new DataBean[] {});
+			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+			return bean;
 
 		} catch (IOException e) {
 			throw new MicroarrayException(e);
@@ -503,7 +505,7 @@ public class DataManager {
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
 		try {
 			DataBean bean = createDataBean(name,  null, new DataBean[] {});
-			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+			addUrl(bean, StorageMethod.LOCAL_USER, contentFile.toURI().toURL());
 			return bean;
 			
 		} catch (IOException e) {
@@ -516,14 +518,18 @@ public class DataManager {
 	 * 
 	 */
 	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
-		File contentFile;
-		try {
-			contentFile = new File(url.toURI());
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not convert " + url + " to a file");
-		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		DataBean data = createDataBean(name, null, new DataBean[] {});
+		addUrl(data, StorageMethod.LOCAL_USER, url);
+		return data;
+	}
+
+	/**
+	 * For now, only file URLs are supported.
+	 * 
+	 */
+	public DataBean createDataBean(String name) throws MicroarrayException {
+		DataBean data = createDataBean(name, null, new DataBean[] {});
+		return data;
 	}
 
 	/**
@@ -544,8 +550,8 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		StorageMethod method = StorageMethod.LOCAL_SESSION;
-		DataBean dataBean = new DataBean(name, method, getHandlerFor(method), url, guessContentType(name), new Date(), new DataBean[] {}, null, this);
+		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), new DataBean[] {}, null, this);
+		addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -559,8 +565,8 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 */
 	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		StorageMethod method = StorageMethod.LOCAL_SESSION;
-		DataBean dataBean = new DataBean(name, method, getHandlerFor(method), url, guessContentType(name), new Date(), new DataBean[] {}, null, this);
+		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), new DataBean[] {}, null, this);
+		addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}

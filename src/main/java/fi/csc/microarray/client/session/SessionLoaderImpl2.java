@@ -134,7 +134,7 @@ public class SessionLoaderImpl2 {
 			
 			DataBean dataBean;
 			try {
-				dataBean = dataManager.createDataBean(name, ...);
+				dataBean = dataManager.createDataBean(name);
 
 				for (LocationType location : dataType.getLocation()) {
 					dataManager.addUrl(dataBean, StorageMethod.valueOf(location.getMethod()), new URL(location.getUrl()));

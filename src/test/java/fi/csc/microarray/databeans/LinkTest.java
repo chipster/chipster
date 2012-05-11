@@ -25,9 +25,9 @@ public class LinkTest {
 	
 	@Test(groups = {"unit"} )
 	public void testLinks() throws MicroarrayException {
-		DataBean bean1 = manager.createDataBean("test1");
-		DataBean bean2 = manager.createDataBean("test2");
-		DataBean bean3 = manager.createDataBean("test3");
+		DataBean bean1 = manager.createLocalTempDataBean("test1");
+		DataBean bean2 = manager.createLocalTempDataBean("test2");
+		DataBean bean3 = manager.createLocalTempDataBean("test3");
 		
 		bean1.addLink(Link.ANNOTATION, bean3);
 		bean1.addLink(Link.DERIVATION, bean2);
@@ -60,9 +60,9 @@ public class LinkTest {
 	
 	@Test(groups = {"unit"} )
 	public void testTraversal() throws MicroarrayException {
-		final DataBean bean1 = manager.createDataBean("test1");
-		final DataBean bean2 = manager.createDataBean("test2");
-		final DataBean bean3 = manager.createDataBean("test3");
+		final DataBean bean1 = manager.createLocalTempDataBean("test1");
+		final DataBean bean2 = manager.createLocalTempDataBean("test2");
+		final DataBean bean3 = manager.createLocalTempDataBean("test3");
 		
 		bean1.addLink(Link.DERIVATION, bean2);
 		bean1.addLink(Link.DERIVATION, bean3);

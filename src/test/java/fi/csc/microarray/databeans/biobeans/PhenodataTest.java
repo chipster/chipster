@@ -31,10 +31,10 @@ public class PhenodataTest {
 
 	@Test(groups = {"unit"} )
 	public void testPhenodataRetrieval() throws MicroarrayException, IOException {
-		DataBean normalised = manager.createDataBean("normalised.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
-		DataBean filtered2 = manager.createDataBean("filtered2.tsv");
-		DataBean phenodata = manager.createDataBean("phenodata.tsv");
+		DataBean normalised = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean filtered = manager.createLocalTempDataBean("filtered.tsv");
+		DataBean filtered2 = manager.createLocalTempDataBean("filtered2.tsv");
+		DataBean phenodata = manager.createLocalTempDataBean("phenodata.tsv");
 		
 		filtered.addLink(Link.DERIVATION, normalised);
 		filtered2.addLink(Link.DERIVATION, normalised);
@@ -49,14 +49,14 @@ public class PhenodataTest {
 	@Test(groups = {"unit"} )
 	public void testPhenodataGeneration() throws MicroarrayException, IOException {
 
-		DataBean normalised1 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata1 = manager.createDataBean("phenodata.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
+		DataBean normalised1 = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean phenodata1 = manager.createLocalTempDataBean("phenodata.tsv");
+		DataBean filtered = manager.createLocalTempDataBean("filtered.tsv");
 		filtered.addLink(Link.DERIVATION, normalised1);
 		phenodata1.addLink(Link.ANNOTATION, normalised1);
 
-		DataBean normalised2 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata2 = manager.createDataBean("phenodata.tsv");
+		DataBean normalised2 = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean phenodata2 = manager.createLocalTempDataBean("phenodata.tsv");
 		phenodata2.addLink(Link.ANNOTATION, normalised2);
 				
 		ArrayList<String> samples = new ArrayList<String>();

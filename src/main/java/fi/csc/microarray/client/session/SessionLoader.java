@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.util.zip.ZipException;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.XmlUtil;
 
 public class SessionLoader {
 	
@@ -27,10 +30,22 @@ public class SessionLoader {
 	}
 	
 	
-	public void loadSession() throws ZipException, IOException, JAXBException, SAXException {
-
-		SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
-		impl.loadSession();
+	public void loadSession() throws ZipException, IOException, JAXBException, SAXException, ParserConfigurationException {
+		
+		Document doc = XmlUtil.parseFile(sessionFile);
+		
+		String version = doc.getDocumentElement().getAttribute("format-version");
+		
+		if ("1".equals(version)) {
+			// old format, use old loader
+			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
+			impl.loadSession();
+			
+		} else {
+			// use new loader
+			SessionLoaderImpl2 impl = new SessionLoaderImpl2(sessionFile, dataManager);
+			impl.loadSession();
+		}
 	}
 
 }

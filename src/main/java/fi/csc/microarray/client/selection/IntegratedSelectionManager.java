@@ -89,7 +89,7 @@ public class IntegratedSelectionManager {
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
 		DataManager dataManager = Session.getSession().getApplication().getDataManager();
 		
-		DataBean newData = dataManager.createDataBean("user_edited.tsv");
+		DataBean newData = dataManager.createLocalTempDataBean("user_edited.tsv");
 		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);

@@ -37,11 +37,11 @@ public class FSDataEventTest implements DataChangeListener {
 		manager.addDataChangeListener(this);
 		manager.setEventsEnabled(true);
 		
-		DataBean bean1 = manager.createDataBean("My bean.txt");
+		DataBean bean1 = manager.createLocalTempDataBean("My bean.txt");
 		ClientContextUtil.setupDatabean(bean1);
 		assertNoEvent();
 		
-		DataBean bean2 = manager.createDataBean("My other bean.txt");
+		DataBean bean2 = manager.createLocalTempDataBean("My other bean.txt");
 		ClientContextUtil.setupDatabean(bean2);
 		assertNoEvent();
 		
