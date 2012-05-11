@@ -125,6 +125,12 @@ public class GeneTrack extends Track {
 				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
 								
 				if (gene.getRegion().getStrand() == getStrand()) {
+					
+					//Genes at edge of edge of screen may contain only visible exons, but moving should
+					//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
+					//new ones with better information for the current view location.
+					this.genes.remove(gene);
+					
 					this.genes.add(gene);
 
 				}

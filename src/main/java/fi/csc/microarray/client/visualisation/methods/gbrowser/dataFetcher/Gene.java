@@ -102,4 +102,8 @@ public class Gene extends HashMap<String, Transcript> implements Comparable<Gene
 			this.region = region.fill(transc.getRegion());
 		}
 	}
+
+	public void setRegion(Region region) {
+		this.region = region;
+	}
 }

@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.broad.tribble.readers.TabixReader;
+import org.broad.tribble.readers.TabixReader.Iterator;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GtfTabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -31,6 +33,7 @@ public class GtfTabixFileFetcherThread extends Thread {
 	private GtfTabixHandlerThread areaRequestThread;
 
 	private boolean poison = false;
+	private HashMap<String, Region> geneNameMap;
 
 	public GtfTabixFileFetcherThread(
 			BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
@@ -97,32 +100,43 @@ public class GtfTabixFileFetcherThread extends Thread {
 
 	private List<RegionContent> processGeneSearch(GeneRequest areaRequest,
 			BpCoordFileRequest fileRequest) throws IOException {
-
+		
 		String searchString = areaRequest.getSearchString();
 
-		String[] chrsToSearch = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
-				"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y" };
+		if (geneNameMap == null) {
 
+			geneNameMap = new HashMap<String, Region>();
+
+			String[] chrsToSearch = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+					"11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y" };
+
+			for (String chrString : chrsToSearch) {
+
+				System.out.println(chrString);
+
+				Region region = new Region(1l, Long.MAX_VALUE, new Chromosome(chrString));
+
+				GeneSet genes = fetchExons(region);
+
+				for (Gene gene : genes.values()) {
+					gene.getTranscripts().clear();
+					geneNameMap.put(gene.getName().toLowerCase(), gene.getRegion());
+				}
+			}		
+		}
+
+		Region geneRegion = geneNameMap.get(searchString.toLowerCase());
 		List<RegionContent> resultList = new LinkedList<RegionContent>();
 
-		for (String chrString : chrsToSearch) {
+		if (geneRegion != null) {
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 			
-			System.out.println(chrString);
-
-			Region region = new Region(1l, Long.MAX_VALUE, new Chromosome(chrString));
-
-			GeneSet genes = fetchExons(region);
-
-			Gene gene = genes.getGene(searchString);
-
-			if (gene != null) {
-				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-				values.put(ColumnType.VALUE, gene);
-				resultList.add(new RegionContent(gene.getRegion(), gene));
-				break;
-			}
+			Gene gene = new Gene(null, null, null);
+			gene.setRegion(geneRegion);
+			values.put(ColumnType.VALUE, gene);
+			resultList.add(new RegionContent(geneRegion, gene));
 		}
-		
+
 		return resultList;
 	}
 
@@ -135,6 +149,20 @@ public class GtfTabixFileFetcherThread extends Thread {
 	 */
 	public GeneSet fetchExons(Region request) throws IOException {
 		// Read the given region
+		TabixReader.Iterator iter = getTabixIterator(request);
+
+		GeneSet genes = new GeneSet();		
+		String line;
+
+		while ((line = iter.next()) != null) {
+
+			parseGtfLine(line, genes);
+		}
+
+		return genes;
+	}
+	
+	private Iterator getTabixIterator(Region request) {
 		String chromosome = request.start.chr.toNormalisedString();
 		
 		int MAX_BIN_SIZE = 512*1024*1024 - 2;
@@ -148,23 +176,9 @@ public class GtfTabixFileFetcherThread extends Thread {
 
 		String queryRegion = chromosome + ":" + start + "-" + end;
 
-		String line;
 		TabixReader.Iterator iter = dataSource.getReader().query(queryRegion);
-
-		GeneSet genes = new GeneSet();
-
-		while ((line = iter.next()) != null) {
-
-			/*
-			 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
-			 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
-			 * the same reads to their read sets again and again.
-			 */
-
-			parseGtfLine(line, genes);
-		}
-
-		return genes;
+		
+		return iter;
 	}
 
 
