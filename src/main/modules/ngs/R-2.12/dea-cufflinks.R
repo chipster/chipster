@@ -13,17 +13,17 @@
 
 
 ############################################################
-#                                                          #
-# Analysis workflow using Cufflinks for normalization and #
-# statistical testing for finding differentially expressed #
-# known genes and transcript isoforms.                     #
-#                                                          #
-# The tool assumes that all samples belonging to each      #
-# experiment condition have been merged into one single    #
-# BAM file.                                                #
-#                                                          #
-# MG, 21.6.2011                                            #
-#                                                          #
+#                                                          
+# Analysis workflow using Cufflinks for normalization and 
+# statistical testing for finding differentially expressed 
+# known genes and transcript isoforms.                     
+#                                                          
+# The tool assumes that all samples belonging to each      
+# experiment condition have been merged into one single    
+# BAM file.                                                
+#                                                          
+# MG, 21.6.2011                                            
+# EK, 11.5.2012											
 ############################################################
 
 # Output that is yet to be supported
