@@ -36,7 +36,7 @@ library(edgeR)
 w <- image_width
 h <- image_height
 
-# Loads the normalized data
+# Loads the count data
 file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
@@ -63,7 +63,7 @@ if (length(unique(groups))==1 | length(unique(groups))>=3) {
 if (number_samples == 2) dispersion_method <- "common" 
 
 # Create a DGEList
-# Notice that Library size is calculated from column totals if no library size
+# Notice that library size is calculated from column totals if no library size
 # exist in the phenodata file
 if (estimate_lib_size) {
 	dge_list <- DGEList (count=dat2, group=groups)
@@ -79,7 +79,7 @@ if (normalization == "yes") {
 	dge_list <- calcNormFactors(dge_list) 
 }
 
-# Produce MDS plot of normazied data
+# Produce MDS plot of normalized data
 # NOTE: only possible when there are more than 2 samples in total
 if (number_samples > 2) {
 	pdf(file="mds-plot-edger.pdf", width=w/72, height=h/72)
@@ -191,7 +191,7 @@ if (dim(significant_results)[1] > 0) {
 	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-# Also output a bed graph file for visualization and region matching tools
+# Also output a bed file for visualization and region matching tools
 if (dim(significant_results)[1] > 0) {
 	empty_column <- character(length(significant_indices))
 	bed_output <- output_table [,c("chr","start","end")]
