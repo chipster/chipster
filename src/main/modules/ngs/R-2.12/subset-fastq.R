@@ -11,7 +11,8 @@ binary <- c("head")
 n.seq <- as.integer(n.seq)
 n.lines <- n.seq * 4
 
-options <- paste(' ', '-', n.lines, collapse = '')
+l.opt <- c('-', as.integer(n.lines))
+options <- paste(l.opt , collapse = '')
 
 # input files
 options <- paste(options,"reads.fastq")
@@ -20,4 +21,5 @@ options <- paste(options,"reads.fastq")
 command <- paste(binary, options, " > subset.fastq")
 
 # run
+#stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
