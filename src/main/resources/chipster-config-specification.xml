@@ -154,8 +154,8 @@
 			<value>10</value>
 		</entry>
 
-		<entry entryKey="offer-delay" type="int" description="delay before sending the job offer message, milliseconds">
-			<value>0</value>
+		<entry entryKey="offer-delay" type="int" description="delay before sending the job offer message, multiplied by number of scheduled and running jobs, milliseconds">
+			<value>100</value>
 		</entry>
 		
 		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
