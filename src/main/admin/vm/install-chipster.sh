@@ -348,9 +348,9 @@ then
 
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.0.Linux_x86_64.tar.gz | tar -xz
-  mv tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/
-  ln -s tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/tophat
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
+  mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
+  ln -s tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/tophat
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
