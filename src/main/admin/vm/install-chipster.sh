@@ -324,7 +324,9 @@ then
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
-
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bwa_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/ # switched to organism specific packages and non-bomb tars
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bwa_index_miRBase18_mmu_matureT.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/ # switched to organism specific packages and non-bomb tars
+	
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip

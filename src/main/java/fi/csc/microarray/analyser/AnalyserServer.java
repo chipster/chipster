@@ -512,13 +512,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		try {
 			// delaying sending of the offer message can be used for
 			// prioritising comp instances 
-			if (offerDelay > 0 ) {
+			int delay = offerDelay * (runningJobs.size() + scheduledJobs.size()-1);
+			if (delay > 0 ) {
 				Timer timer = new Timer("offer-delay-timer", true);
 				timer.schedule(new TimerTask() {
 
 					@Override
 					public void run() {
 						try {
+							logger.info("sending offer message");
 							sendOfferMessage(job);
 						} catch (JMSException e) {
 							synchronized(jobsLock) {
@@ -526,9 +528,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 							}
 							logger.error("Could not send OFFER for job " + job.getId());
 						}
+						updateStatus();
 					}
 
-				}, offerDelay);
+				}, delay);
 			} else {
 				sendOfferMessage(job);
 			}
