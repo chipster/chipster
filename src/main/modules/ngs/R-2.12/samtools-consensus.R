@@ -1,4 +1,4 @@
-# TOOL samtools-consensus.R: "Create consensus sequence from BAM" (Create consensus sequence from a BAM file. Please note that in addition to BAM file you have to provide an index file for it. You can create the index file using the tool Index BAM. This tool is based on the SAMtools package.)
+# TOOL samtools-consensus.R: "Create consensus sequence from BAM" (Create consensus sequence from a BAM file. Please note that in addition to BAM file you have to provide an index file for it. You can create the index file using the tool Index BAM. You also need to provide the refeence sequence in fasta format. This tool is based on the SAMtools package.)
 # INPUT aln.bam: "BAM file to us as input" TYPE GENERIC
 # INPUT aln.bam.bai: "BAM index file to us as input" TYPE GENERIC
 # INPUT ref.fa: "Reference genome in FASTA format" TYPE GENERIC
@@ -7,7 +7,7 @@
 
 
 
-# EK 10.1.2012
+# KM 26.4.2012
 
 # samtools path
 samtools.binary <- c(file.path(chipster.tools.path, "samtools","samtools"))

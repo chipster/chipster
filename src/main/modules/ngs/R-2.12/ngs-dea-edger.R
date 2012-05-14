@@ -191,7 +191,7 @@ if (dim(significant_results)[1] > 0) {
 	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-# Also output a bed file for visualization and region matching tools
+# Also output a BED file for visualization and region matching tools
 if (dim(significant_results)[1] > 0) {
 	empty_column <- character(length(significant_indices))
 	bed_output <- output_table [,c("chr","start","end")]

@@ -55,7 +55,7 @@ groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
 number_samples <- length(groups)
 
-# If the library_size column contains data then use that to estimate size factors
+# If the library_size column of phenodata contains data, then use that to estimate size factors
 lib_size <- as.numeric(phenodata$library_size)
 if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
 lib_size <- lib_size/mean(lib_size)
