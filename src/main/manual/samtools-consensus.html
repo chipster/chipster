@@ -8,7 +8,7 @@
 <h3>Description</h3>
 
 <p>
-Given an indexed BAM file and corresponding reference genome, this tool constructs a consensus sequence based on the
+Given an indexed BAM file and corresponding reference genome (in fasta format), this tool constructs a consensus sequence based on the
 alignment. 
 </p>
 
@@ -24,7 +24,7 @@ The actual command line executed is:
 <pre>
   samtools mpileup -uf reference.fa aligment.bam | bcftools view -cg - | vcfutils vcf2fq  
 </pre>
-Note that the input bam file must be sorted and indexed befor it can be used by this tool. You can create the index file using the tool Index BAM. 
+Note that the input BAM file must be sorted and indexed before it can be used by this tool. You can create the index file using the tool Index BAM. 
 </p>
 
 
