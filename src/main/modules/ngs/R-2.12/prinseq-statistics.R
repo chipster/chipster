@@ -1,4 +1,4 @@
-# TOOL prinseq-statistics.R: "Read quality statistics with PRINSEQ" (Calculates general statistics of the reads in the given FASTQ file. This tool is based on the PRINSEQ program.)
+# TOOL prinseq-statistics.R: "Read quality statistics with PRINSEQ" (Calculates general statistics of the reads in the given FASTQ file. This tool is based on the PRINSEQ program. Please note that if your file is larger than 4 GB, we recommend that you submit only a sample of reads for the quality statistics analysis, because PRINSEQ uses a lot of memory when producing the html report and might fail with bigger files. You can use the tool Utilities / Make a subset of FASTQ for this.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
 # OUTPUT reads-stats.tsv 
 # OUTPUT OPTIONAL reads-stats.html
