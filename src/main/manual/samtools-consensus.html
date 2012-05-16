@@ -24,7 +24,7 @@ The actual command line executed is:
 <pre>
   samtools mpileup -uf reference.fa aligment.bam | bcftools view -cg - | vcfutils vcf2fq  
 </pre>
-Note that the input BAM file must be sorted and indexed before it can be used by this tool. You can create the index file using the tool Index BAM. 
+Note that the input BAM file must be sorted before it can be used by this tool. 
 </p>
 
 
