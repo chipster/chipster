@@ -112,8 +112,6 @@ public class GtfTabixFileFetcherThread extends Thread {
 
 			for (String chrString : chrsToSearch) {
 
-				System.out.println(chrString);
-
 				Region region = new Region(1l, Long.MAX_VALUE, new Chromosome(chrString));
 
 				GeneSet genes = fetchExons(region);
@@ -158,6 +156,8 @@ public class GtfTabixFileFetcherThread extends Thread {
 
 			parseGtfLine(line, genes);
 		}
+		
+		
 
 		return genes;
 	}
@@ -165,11 +165,17 @@ public class GtfTabixFileFetcherThread extends Thread {
 	private Iterator getTabixIterator(Region request) {
 		String chromosome = request.start.chr.toNormalisedString();
 		
-		int MAX_BIN_SIZE = 512*1024*1024 - 2;
+		//Extend area to be able to draw introns at screen edge
+		//TODO Be more clever to avoid getting so much useless data
+		int EXTRA = 500000; //O,5M should be enought for the longest human introns http://www.bioinfo.de/isb/2004040032/
+		int start = (int) (request.start.bp - EXTRA);
+		int end = (int) (request.end.bp + EXTRA);
 		
 		//Check that region is below max bin size of Tabix
-		int start = (int) Math.min(MAX_BIN_SIZE, request.start.bp);
-		int end = (int) Math.min(MAX_BIN_SIZE, request.end.bp);
+		int MAX_BIN_SIZE = 512*1024*1024 - 2;
+		
+		start = (int) Math.min(MAX_BIN_SIZE, start);
+		end = (int) Math.min(MAX_BIN_SIZE, end);
 		
 		start = (int) Math.max(1, start);
 		end = (int) Math.max(1, end);
