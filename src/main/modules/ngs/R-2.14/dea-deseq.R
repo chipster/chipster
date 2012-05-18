@@ -1,4 +1,4 @@
-# TOOL dea-deseq.R: "Differential expression analysis using DESeq" (Differential expression analysis using the DESeq Bioconductor package.)
+# TOOL dea-deseq.R: "Differential expression analysis using DESeq" (Differential expression analysis using the DESeq Bioconductor package. You can create the input count table and phenodata file by the tool Utilites - Define NGS experiment.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
