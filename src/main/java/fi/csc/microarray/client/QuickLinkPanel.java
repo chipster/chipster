@@ -33,6 +33,7 @@ public class QuickLinkPanel extends JPanel {
 	private JXHyperlink sessionLink;
 	private JXHyperlink importLink;
 	private JXHyperlink exampleLink;
+	private JXHyperlink exampleLinkAlternative;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
@@ -51,24 +52,53 @@ public class QuickLinkPanel extends JPanel {
 		
 		// Check if example session is available
 		exampleLink = null;
+		exampleLinkAlternative = null;
+
 		try {
-			final URL url = Session.getSession().getPrimaryModule().getExampleSessionUrl(application.isStandalone);
-			if (url != null) {
-				exampleLink = createLink("Open example session ", new AbstractAction() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						try {
-							application.loadSessionFrom(url);
-						} catch (Exception exception) {
-							application.reportException(exception);
+			final URL[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone);
+			if (urls != null) {
+
+				if (urls.length == 1) {
+					exampleLink = createLink("Example session ", new AbstractAction() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							try {
+								application.loadSessionFrom(urls[0]);
+							} catch (Exception exception) {
+								application.reportException(exception);
+							}
 						}
-					}
-				});
+					});
+				}
+				
+				if (urls.length == 2) {
+					exampleLink = createLink("Microarray example session", new AbstractAction() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							try {
+								application.loadSessionFrom(urls[0]);
+							} catch (Exception exception) {
+								application.reportException(exception);
+							}
+						}
+					});
+					
+					exampleLinkAlternative = createLink("NGS example session", new AbstractAction() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							try {
+								application.loadSessionFrom(urls[1]);
+							} catch (Exception exception) {
+								application.reportException(exception);
+							}
+						}
+					});
+				}
 			}
 		} catch (MalformedURLException mue) {
 			// ignore and let exampleLink be null
 		}
-
+		
 		importLink = createLink("Import files ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -118,11 +148,30 @@ public class QuickLinkPanel extends JPanel {
 		c.insets.set(0, 10, 0, 0);
 
 		if (exampleLink != null) {
-			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ".", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
+			
+
+			List<JXHyperlink> exampleLinks = new LinkedList<JXHyperlink>();
+			exampleLinks.add(exampleLink);
+			
+			if (exampleLinkAlternative != null) {
+				exampleLinks.add(exampleLinkAlternative);
+			}
+			
+			String linkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
+						
+			addLinks("Get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
+
 		}
 		
-		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
+		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+		openLinks.add(sessionLink);
+		
+		String linkTemplate = Strings.repeat("\n      *** ", openLinks.size());
+					
+		addLinks("Continue working on previous sessions: " + linkTemplate, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c);
+		
+		
 		// common links
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
 		importLinks.add(importLink);
@@ -135,7 +184,7 @@ public class QuickLinkPanel extends JPanel {
 			primaryModule.addImportLinks(this, importLinks);
 		}
 		
-		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
+		linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
 		addLinks("Import new data to " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
@@ -159,12 +208,6 @@ public class QuickLinkPanel extends JPanel {
 
 		this.setMinimumSize(new Dimension(0, 0));
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
-	}
-
-	private void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c) {
-		List<JXHyperlink> list = new LinkedList<JXHyperlink>();
-		list.add(link);
-		addLinks(description, list, icon, c);
 	}
 
 	private void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {

@@ -73,7 +73,8 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
+	private static final String EXAMPLE_SESSION_URL_ARRAY = "http://chipster.csc.fi/examples/chipster2-example-microarray.zip";
+	private static final String EXAMPLE_SESSION_URL_NGS = "http://chipster.csc.fi/examples/chipster2-example.zip";
 	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
@@ -260,8 +261,13 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
-		return isStandalone ? new URL(STANDALONE_EXAMPLE_SESSION_URL) : new URL(EXAMPLE_SESSION_URL);
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+		
+		if (isStandalone) {
+			return new URL[] { new URL(STANDALONE_EXAMPLE_SESSION_URL) };
+		}
+		
+		return new URL[] { new URL(EXAMPLE_SESSION_URL_ARRAY), new URL(EXAMPLE_SESSION_URL_NGS)};
 	}
 
 	@Override
