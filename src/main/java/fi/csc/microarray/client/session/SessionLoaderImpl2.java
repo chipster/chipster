@@ -91,10 +91,7 @@ public class SessionLoaderImpl2 {
 			}
 		}
 		finally {
-			// try to close all input streams from the zip file
-			if (zipFile != null) {
-				zipFile.close();
-			}
+			IOUtils.closeIfPossible(zipFile);
 		}
 	}
 

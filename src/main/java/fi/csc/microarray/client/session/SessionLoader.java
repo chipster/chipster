@@ -2,6 +2,7 @@ package fi.csc.microarray.client.session;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.zip.ZipException;
 
 import javax.xml.bind.JAXBException;
@@ -10,8 +11,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.XmlUtil;
 
 public class SessionLoader {
@@ -32,9 +35,20 @@ public class SessionLoader {
 	
 	public void loadSession() throws ZipException, IOException, JAXBException, SAXException, ParserConfigurationException {
 		
-		Document doc = XmlUtil.parseFile(sessionFile);
-		
-		String version = doc.getDocumentElement().getAttribute("format-version");
+		ZipFile zipFile = null;
+		InputStreamReader metadataReader = null;
+		String version = Integer.toString(UserSession.SESSION_VERSION);
+		try {
+			// get the session.xml zip entry
+			zipFile = new ZipFile(sessionFile);
+			metadataReader = new InputStreamReader(zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME)));
+			Document doc = XmlUtil.parseReader(metadataReader);
+			version = doc.getDocumentElement().getAttribute("format-version");
+
+		} finally {
+			IOUtils.closeIfPossible(metadataReader);
+			IOUtils.closeIfPossible(zipFile);
+		}
 		
 		if ("1".equals(version)) {
 			// old format, use old loader
