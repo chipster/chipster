@@ -336,7 +336,7 @@ public class DataBean extends DataItemBase {
 //		lock.writeLock().lock();
 		try {			
 			for (ContentLocation contentLocation : contentLocations) {
-				contentLocation.getHandler().canBeDeleted(contentLocation);
+				contentLocation.getHandler().markDeletable(contentLocation);
 			}
 			this.contentType = null;			
 		} finally {
@@ -661,18 +661,6 @@ public class DataBean extends DataItemBase {
 		this.contentChanged = contentChanged;
 	}
 
-
-
-	/**
-	 * Set the location of the remote copy of the content file.
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @param url
-	 */
-	@Deprecated
-	public void setCacheUrl(URL url) {
-		contentLocations.add(new ContentLocation(StorageMethod.REMOTE_CACHED, null, url));
-	}
 
 	public void setCreationDate(Date date) {
 		this.date = date;

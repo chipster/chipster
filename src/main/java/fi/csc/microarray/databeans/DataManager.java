@@ -31,6 +31,7 @@ import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
+import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
@@ -110,6 +111,7 @@ public class DataManager {
 	
 	private ZipContentHandler zipContentHandler = new ZipContentHandler();
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
+	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -884,7 +886,6 @@ public class DataManager {
 	}
 
 	public void flushSession() {
-		// FIXME mitäs tälle, ehti jo ottaa DataManagerin sisällä olevat handlerit pois
 		zipContentHandler.closeZipFiles();
 	}
 
@@ -957,7 +958,7 @@ public class DataManager {
 			
 		case REMOTE_CACHED:
 		case REMOTE_LONGTERM:
-			return null;
+			return remoteContentHandler;
 			
 		default:
 			throw new IllegalArgumentException("unrecognised method: " + method);	

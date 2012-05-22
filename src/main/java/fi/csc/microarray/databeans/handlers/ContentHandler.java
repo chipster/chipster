@@ -14,5 +14,7 @@ public interface ContentHandler {
 	
 	public long getContentLength(ContentLocation location) throws IOException;
 	
-	public void canBeDeleted(ContentLocation location);
+	public void markDeletable(ContentLocation location);
+	
+	public void checkCompatibility(ContentLocation location) throws IllegalArgumentException;
 }
