@@ -571,8 +571,9 @@ public class SwingClientApplication extends ClientApplication {
 			try {
 				UIManager.installLookAndFeel("Plastic3D", lnf.getClass().getName());
 				UIManager.setLookAndFeel(lnf);
-			} catch (UnsupportedLookAndFeelException e1) {
-				e1.printStackTrace();
+			} catch (UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+				logger.error(Exceptions.getStackTrace(e));
 			}
 		}
 
@@ -985,7 +986,7 @@ public class SwingClientApplication extends ClientApplication {
 		// easier IDE navigation
 		e.printStackTrace();
 		if (logger != null) {
-			logger.error("client got exception", e);
+			logger.error(Exceptions.getStackTrace(e));
 		}
 	}
 
@@ -1300,8 +1301,7 @@ public class SwingClientApplication extends ClientApplication {
 		} catch (Throwable t) {
 			t.printStackTrace();
 			if (logger != null) {
-				logger.error(t.getMessage());
-				logger.error(t);
+				logger.error(Exceptions.getStackTrace(t));
 			}
 		}
 
@@ -1341,8 +1341,7 @@ public class SwingClientApplication extends ClientApplication {
 		} catch (Throwable t) {
 			t.printStackTrace();
 			if (logger != null) {
-				logger.error(t.getMessage());
-				logger.error(t);
+				logger.error(Exceptions.getStackTrace(t));
 			}
 		}
 
