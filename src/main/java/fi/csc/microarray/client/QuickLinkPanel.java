@@ -72,7 +72,7 @@ public class QuickLinkPanel extends JPanel {
 				}
 				
 				if (urls.length == 2) {
-					exampleLink = createLink("Microarray", new AbstractAction() {
+					exampleLink = createLink("microarray", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -160,7 +160,7 @@ public class QuickLinkPanel extends JPanel {
 				exampleLinks.add(exampleLink);
 				exampleLinks.add(exampleLinkAlternative);
 
-				addLinks("Open example session ( *** or *** ) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
+				addLinks("Open example session (*** or ***) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
 			}			
 		}
 	
@@ -215,6 +215,38 @@ public class QuickLinkPanel extends JPanel {
 	private void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {
 
 		String[] words = description.split(" ");
+		
+		//Split links to separate words to be able to handle links that aren't separated by space character
+		List<String> linkSeparatedWords = new LinkedList<String>();
+		for (String word : words) {
+			if (!word.contains(LINK_WORD)) {
+				linkSeparatedWords.add(word + " ");
+			} else {
+				String wordTail = word + " ";
+				
+				while (wordTail.length() > 0) {
+					int linkWordIndex = wordTail.indexOf(LINK_WORD);
+					
+					if (linkWordIndex > 0) {
+						String wordHead = word.substring(0, linkWordIndex);	
+						linkSeparatedWords.add(wordHead);
+						wordTail = wordTail.substring(linkWordIndex);
+					}
+					
+					if (linkWordIndex >= 0) {
+						String linkWord = wordTail.substring(0, LINK_WORD.length());
+						linkSeparatedWords.add(linkWord);
+						wordTail = wordTail.substring(LINK_WORD.length());
+					}
+								
+					if (linkWordIndex == -1) {
+						linkSeparatedWords.add(wordTail);
+						wordTail = "";
+					}
+				}
+			}
+		}
+				
 		int rowChars = 0;
 		final int MAX_ROW_CHARS = 42;
 		Iterator<JXHyperlink> linkIterator = links.iterator();
@@ -224,8 +256,8 @@ public class QuickLinkPanel extends JPanel {
 		c.insets.top = 10;
 		JPanel row = null;
 
-		for (int i = 0; i < words.length; i++) {
-			if (row == null || rowChars + words[i].length() > MAX_ROW_CHARS || words[i].equals("\n")) {
+		for (int i = 0; i < linkSeparatedWords.size(); i++) {
+			if (row == null || rowChars + linkSeparatedWords.get(i).length() > MAX_ROW_CHARS || linkSeparatedWords.get(i).equals("\n ")) {
 
 				FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
 				flow.setVgap(0);
@@ -241,16 +273,16 @@ public class QuickLinkPanel extends JPanel {
 				rowCount++;
 			}
 
-			if (words[i].equals(LINK_WORD)) {
+			if (linkSeparatedWords.get(i).equals(LINK_WORD)) {
 
 				JXHyperlink link = linkIterator.next();
-				rowChars += link.getText().length() + 1;
+				rowChars += link.getText().length();
 				row.add(link);
-				// row.add(new JLabel(link.getText()));
-			} else if (!words[i].equals("\n")) {
-				JLabel text = new JLabel(words[i] + " ");
+				
+			} else if (!linkSeparatedWords.get(i).equals("\n")) {
+				JLabel text = new JLabel(linkSeparatedWords.get(i));
 				row.add(text);
-				rowChars += words[i].length() + 1;
+				rowChars += linkSeparatedWords.get(i).length();
 			}
 		}
 
