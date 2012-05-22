@@ -38,17 +38,6 @@ unzipIfGZipFile("fastqfile")
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("matepair_fastqfile")
 
-# Check whether input files are fastq
-if (input.mode == "fq") {
-	first_four_rows <- read.table(file="fastqfile", nrow=4, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
-	# compare sequence ID with quality score id, but discard first character
-	name_length <- nchar(as.character(first_four_rows[1,1]))
-	seq_id <- substr(as.character(first_four_rows[1,1]), start=2, stop=name_length)
-	quality_id <- substr(as.character(first_four_rows[3,1]), start=2, stop=name_length)
-	if (seq_id != quality_id) {
-		stop("CHIPSTER-NOTE: It appears as though the input file(s) are not in fastq format. Please check input files or rerun the tool but with the 'Input file format' parameter set to 'FASTA'.")
-	}
-}
 
 # Check if two files were given as input and if so run the python script
 # that interlaces the mate pairs into a single file
@@ -64,7 +53,7 @@ if (is_paired_end) {
 	id_1 <- substr(as.character(first_row_1[1,1]), start=1, stop=name_length-1)
 	id_2 <- substr(as.character(first_row_2[1,1]), start=1, stop=name_length-1)
 	if (id_1 != id_2) {
-		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please checkthat the correct input files were selected.")
+		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please check that the correct input files were selected.")
 	}
 	
 	# figure out which file is the first and second matepair and issue
