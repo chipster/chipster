@@ -105,7 +105,8 @@ process_gtf () # parameters 1:url
 		download_and_rename "$1" # no rename needed
 
 		#generate list of chromosomes of genes
-		cat $FILE | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5 | uniq | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > $FILE_BODY-gene.tsv
+		#Read file  Take only chr and name columns     Filter out other names    Remove duplicates   Replace useless chars with tab Or remove        And write to file
+		cat $FILE | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5      | uniq              | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > $FILE_BODY-gene.tsv
 		contents_append "Gene name" "*" "$FILE_BODY-gene.tsv"
 
 		#example in tabix manual:
@@ -174,8 +175,6 @@ VERSION="hg18 (NCBI36.54)"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-54/mysql/homo_sapiens_core_54_36p/" "Homo_sapiens.NCBI36.54." "HGNC"
 process_gtf "ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-54/fasta/homo_sapiens/dna/Homo_sapiens.NCBI36.54.dna.chromosome." ".fa.gz" "22" "X" "Y" 
-
-exit 0 
 
 SPECIES="Human"
 VERSION="hg19 (GRCh37.66)"
