@@ -72,7 +72,7 @@ public class QuickLinkPanel extends JPanel {
 				}
 				
 				if (urls.length == 2) {
-					exampleLink = createLink("Microarray example session", new AbstractAction() {
+					exampleLink = createLink("Microarray", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -83,7 +83,7 @@ public class QuickLinkPanel extends JPanel {
 						}
 					});
 					
-					exampleLinkAlternative = createLink("NGS example session", new AbstractAction() {
+					exampleLinkAlternative = createLink("NGS", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -148,29 +148,25 @@ public class QuickLinkPanel extends JPanel {
 		c.insets.set(0, 10, 0, 0);
 
 		if (exampleLink != null) {
-			
-
-			List<JXHyperlink> exampleLinks = new LinkedList<JXHyperlink>();
-			exampleLinks.add(exampleLink);
-			
-			if (exampleLinkAlternative != null) {
-				exampleLinks.add(exampleLinkAlternative);
-			}
-			
-			String linkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
 						
-			addLinks("Get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
+			if (exampleLinkAlternative == null) {
+				
+				exampleLink.setText("Open example session ");
+				addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". " , exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
 
+			} else {
+
+				List<JXHyperlink> exampleLinks = new LinkedList<JXHyperlink>();
+				exampleLinks.add(exampleLink);
+				exampleLinks.add(exampleLinkAlternative);
+
+				addLinks("Open example session ( *** or *** ) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
+			}			
 		}
+	
 		
+		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
-		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
-		openLinks.add(sessionLink);
-		
-		String linkTemplate = Strings.repeat("\n      *** ", openLinks.size());
-					
-		addLinks("Continue working on previous sessions: " + linkTemplate, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c);
-		
 		
 		// common links
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
@@ -184,7 +180,7 @@ public class QuickLinkPanel extends JPanel {
 			primaryModule.addImportLinks(this, importLinks);
 		}
 		
-		linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
+		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
 		addLinks("Import new data to " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
@@ -209,12 +205,18 @@ public class QuickLinkPanel extends JPanel {
 		this.setMinimumSize(new Dimension(0, 0));
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
 	}
+	
+	private void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c) {
+		List<JXHyperlink> list = new LinkedList<JXHyperlink>();
+		list.add(link);
+		addLinks(description, list, icon, c);
+	}
 
 	private void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {
 
 		String[] words = description.split(" ");
 		int rowChars = 0;
-		final int MAX_ROW_CHARS = 40;
+		final int MAX_ROW_CHARS = 42;
 		Iterator<JXHyperlink> linkIterator = links.iterator();
 		int rowCount = 0;
 
