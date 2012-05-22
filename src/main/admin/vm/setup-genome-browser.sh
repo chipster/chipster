@@ -107,20 +107,24 @@ process_gtf () # parameters 1:url
 		#generate list of chromosomes of genes
 		#Read file  Take only chr and name columns     Filter out other names    Remove duplicates   Replace useless chars with tab Or remove        And write to file
 		cat $FILE | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5      | uniq              | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > $FILE_BODY-gene.tsv
-		contents_append "Gene name" "*" "$FILE_BODY-gene.tsv"
+
 
 		#example in tabix manual:
 		(grep ^"#" $FILE; grep -v ^"#" $FILE | sort -k1,1 -k4,4n) | bgzip > $FILE_BODY-tabix.gtf.gz;
 		rm $FILE
-		contents_append "Transcript" "*" "$FILE_BODY-tabix.gtf.gz"
+
 
 		#generate index
 		tabix -p gff $FILE_BODY-tabix.gtf.gz; 
-		contents_append "Transcript index" "*" "$FILE_BODY-tabix.gtf.gz.tbi"	
+
 	
 	else 
 			echo "   Existing files $FILE_BODY.gtf* skipped"
 	fi
+	
+	contents_append "Gene name" "*" "$FILE_BODY-gene.tsv"
+	contents_append "Transcript" "*" "$FILE_BODY-tabix.gtf.gz"
+	contents_append "Transcript index" "*" "$FILE_BODY-tabix.gtf.gz.tbi"	
 }
 
 # process file from specified url and optionally rename the file
