@@ -194,14 +194,14 @@ SPECIES="Rat"
 VERSION="rn4 (RGSC3.4.66)"
 
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/rattus_norvegicus_core_66_34/" "Rattus_norvegicus.RGSC3.4.66." "RGD"
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.66.gtf"
+process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.66.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.66.dna.chromosome." ".fa.gz" "20" "X" 
 
 SPECIES="Arabidopsis lyrata"
 VERSION="(Araly1.13)"
 
 ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/mysql/arabidopsis_lyrata_core_13_66_10/" "Arabidopsis_lyrata.Araly1.13." "EntrezGene"
-process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.Araly1.13.gtf"
+process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.Araly1.13.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.Araly1.13.dna.chromosome." ".fa.gz" "8"
 
 exit 0 
