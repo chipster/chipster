@@ -29,8 +29,9 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
 # Filter fastq and fasta files based on a number of criteria
-# EK, 16-04-2012
+# KM, EK, 16-04-2012
 # MG, 18-04-2012, added matepair functionality
+# KM, 22-05-2012, fixed fastq checking
 
 # Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -53,7 +54,7 @@ if (input.mode == "fq") {
 	}
 }
 
-# Check if two files were given as input and if so run the python script
+# Check if two files were given as input, and if so run the python script
 # that interlaces the mate pairs into a single file
 input_files <- dir()
 is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
@@ -70,7 +71,7 @@ if (is_paired_end) {
 		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please check that the correct input files were selected.")
 	}
 	
-	# figure out which file is the first and second matepair and issue
+	# figure out which file is the first and second matepair, and issue
 	# the python script call accordingly
 	mate_number <- substr(as.character(first_row_1[1,1]), start=name_length, stop=name_length)
 	if (mate_number == "1") {
@@ -213,8 +214,8 @@ if (output.mode == "both") {
 # remove input files to clear up disk space
 system("rm -f fastqfile")
 
-# If filtering on paired-end data perform matching of
-# nate pairs using python script and then de-interlace
+# If filtering on paired-end data, perform matching of
+# mate pairs using python script and then de-interlace them to two files
 if (is_paired_end) {
 	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs.py")
 	system_command <- paste("python", binary_python_scripts, "accepted.fastq", "matched_fastqfile")
