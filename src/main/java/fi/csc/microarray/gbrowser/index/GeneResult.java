@@ -16,7 +16,7 @@ public class GeneResult extends AreaResult {
 		this.searchString = searchString;
 	}
 
-	public Object getSearchString() {
+	public String getSearchString() {
 		return searchString;
 	}
 

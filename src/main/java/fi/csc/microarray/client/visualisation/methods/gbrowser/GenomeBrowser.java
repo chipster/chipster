@@ -55,6 +55,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
@@ -251,7 +252,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
-		tracks.add(new Track(AnnotationManager.AnnotationType.ANNOTATIONS.getId(), new Interpretation(TrackType.GENES, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.GTF_TABIX.getId(), new Interpretation(TrackType.GENES, null)));
 		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
 
 
@@ -945,10 +946,15 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			
 			URL gtfIndexUrl = annotationManager.getAnnotation(
 					genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
+			
+			URL geneUrl = annotationManager.getAnnotation(
+					genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
+			
 
 			GtfTabixDataSource gtfDataSource = new GtfTabixDataSource(gtfUrl, gtfIndexUrl);
+			LineDataSource geneDataSource = new LineDataSource(geneUrl, GeneSearchHandler.class);
 
-			gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource);
+			gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource, geneDataSource);
 
 		} catch (Exception e) {
 			application.reportException(e);
@@ -1167,8 +1173,6 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void requestGeneSearch() {
-
-		Chromosome chr = (Chromosome) chrBox.getSelectedItem();
 		
 		application.runBlockingTask("searching gene", new Runnable() {
 			
@@ -1195,7 +1199,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			}
 		});
 
-		gia.requestLocation(locationField.getText(), chr, new GeneIndexActions.GeneLocationListener() {
+		gia.requestLocation(locationField.getText(), new GeneIndexActions.GeneLocationListener() {
 
 			@Override
 			public void geneLocation(Region geneLocation) {

@@ -138,8 +138,8 @@ public class AnnotationManager {
 	}
 
 	public enum AnnotationType {
-		CYTOBANDS("Cytobands"), CYTOBANDS_SEQ_REGION("Cytobands seq_region"), CYTOBANDS_COORD_SYSTEM("Cytobands coord_system"), 
-		ANNOTATIONS("ENSEMBL Gtf"), GTF_TABIX("GtfTabix"), GTF_TABIX_INDEX("GtfTabix index"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP");
+		CYTOBANDS("Cytoband"), CYTOBANDS_SEQ_REGION("Cytoband seq_region"), CYTOBANDS_COORD_SYSTEM("Cytoband coord_system"), 
+		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name");
 
 		String id;
 
