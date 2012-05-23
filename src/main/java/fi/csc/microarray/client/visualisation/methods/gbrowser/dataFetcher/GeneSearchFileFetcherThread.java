@@ -65,7 +65,7 @@ public class GeneSearchFileFetcherThread extends Thread {
 			String chr = cols[0];
 			String geneName = cols[1];
 
-			geneNameMap.put(geneName, new Chromosome(chr));
+			geneNameMap.put(geneName.toLowerCase(), new Chromosome(chr));
 		}
 	}
 

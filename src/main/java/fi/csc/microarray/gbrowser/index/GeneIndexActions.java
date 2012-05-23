@@ -89,7 +89,7 @@ public class GeneIndexActions implements AreaResultListener {
 		if (areaResult instanceof GeneResult) {
 			GeneResult geneResult = (GeneResult) areaResult;
 			
-			if (geneResult.getGeneLocation().start.chr == null) {
+			if (geneResult.getGeneLocation() == null) {
 				// There isn't such gene, return after first search
 				listenerMap.get(geneResult.getSearchString()).geneLocation(geneResult.getGeneLocation());
 				listenerMap.remove(geneResult.getSearchString());
