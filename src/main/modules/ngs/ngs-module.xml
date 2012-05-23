@@ -310,5 +310,10 @@
 			<resource>MEDIPS_two_samples.R</resource>
 		</tool>
 	</category>
+	<category name="Exome-seq" color="#c0d2de">
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-single.R</resource>
+		</tool>
+	</category>
 
 </module>
