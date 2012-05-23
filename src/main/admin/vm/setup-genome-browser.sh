@@ -97,7 +97,6 @@ download_and_rename () # parameters 1:url 2:new-name
 
 process_gtf () # parameters 1:url
 {
-	FILE=$(basename $1 .gz)
 	FILE_BODY=$(basename $1 .gtf.gz)
 
 	if [ ! -e "$FILE_BODY-tabix.gtf.gz.tbi" ] # if doesn't exist
@@ -106,19 +105,28 @@ process_gtf () # parameters 1:url
 
 		#generate list of chromosomes of genes
 		#Read file  Take only chr and name columns     Filter out other names    Remove duplicates   Replace useless chars with tab Or remove        And write to file
-		cat $FILE | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5      | uniq              | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > $FILE_BODY-gene.tsv
+		cat "$FILE_BODY.gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5      | uniq              | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > "$FILE_BODY-gene.tsv"
 
 		#tabix installation folder hast to be in $PATH to find bgzip and tabix programs
-		#according to example in tabix manual
-		(grep ^"#" $FILE; grep -v ^"#" $FILE | sort -k1,1 -k4,4n) | bgzip > $FILE_BODY-tabix.gtf.gz;
-		rm $FILE
+		#don't exit even if grep exits with error (when there isn't any comments)
+		set +e
+		grep "^#" "$FILE_BODY.gtf" > "$FILE_BODY-1.gtf"
+		set -e
+
+		grep -v "^#" "$FILE_BODY.gtf" >> "$FILE_BODY-1.gtf"
+		cat $FILE_BODY-1.gtf | sort -k1,1 -k4,4n > "$FILE_BODY-sorted.gtf"		
+		cat "$FILE_BODY-sorted.gtf" | bgzip > "$FILE_BODY-tabix.gtf.gz"
+
+		rm "$FILE_BODY.gtf"
+		rm "$FILE_BODY-1.gtf"
+		rm "$FILE_BODY-sorted.gtf"
 
 		#generate index
-		tabix -p gff $FILE_BODY-tabix.gtf.gz; 
+		tabix -p gff "$FILE_BODY-tabix.gtf.gz"; 
 
 	
 	else 
-			echo "   Existing files $FILE_BODY.gtf* skipped"
+		echo "   Existing files $FILE_BODY.gtf* skipped"
 	fi
 	
 	contents_append "Gene name" "*" "$FILE_BODY-gene.tsv"
