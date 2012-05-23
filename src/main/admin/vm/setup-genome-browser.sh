@@ -100,7 +100,7 @@ process_gtf () # parameters 1:url
 	FILE=$(basename $1 .gz)
 	FILE_BODY=$(basename $1 .gtf.gz)
 
-	if [ ! -e "$FILE_BODY-tabix.gtf.gz" ] # if doesn't exist
+	if [ ! -e "$FILE_BODY-tabix.gtf.gz.tbi" ] # if doesn't exist
 	then	
 		download_and_rename "$1" # no rename needed
 
@@ -108,11 +108,10 @@ process_gtf () # parameters 1:url
 		#Read file  Take only chr and name columns     Filter out other names    Remove duplicates   Replace useless chars with tab Or remove        And write to file
 		cat $FILE | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5      | uniq              | sed -e 's/; gene_name "/  /' | sed -e 's/\"//' > $FILE_BODY-gene.tsv
 
-
-		#example in tabix manual:
+		#tabix installation folder hast to be in $PATH to find bgzip and tabix programs
+		#according to example in tabix manual
 		(grep ^"#" $FILE; grep -v ^"#" $FILE | sort -k1,1 -k4,4n) | bgzip > $FILE_BODY-tabix.gtf.gz;
 		rm $FILE
-
 
 		#generate index
 		tabix -p gff $FILE_BODY-tabix.gtf.gz; 
