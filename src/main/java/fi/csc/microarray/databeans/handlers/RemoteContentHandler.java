@@ -1,32 +1,39 @@
 package fi.csc.microarray.databeans.handlers;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.util.IOUtils;
 
 public class RemoteContentHandler implements ContentHandler {
 	
 	@Override
-	public InputStream getInputStream(ContentLocation location) throws FileNotFoundException {
+	public InputStream getInputStream(ContentLocation location) throws IOException {
 		checkCompatibility(location);
-		return null; // FIXME
+		HttpURLConnection connection = (HttpURLConnection)location.getUrl().openConnection();
+		return connection.getInputStream();
 	}
 
 	@Override
 	public OutputStream getOutputStream(ContentLocation location) throws IOException {
-		checkCompatibility(location);
-		return null; // FIXME
+		throw new UnsupportedOperationException("remote content handler does not support output");
 	}
 	
 	@Override
-	public long getContentLength(ContentLocation location) {
+	public long getContentLength(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		
-		return 0; // FIXME
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection)location.getUrl().openConnection();
+			return Long.parseLong(connection.getHeaderField("content-length"));
+		} finally {
+			IOUtils.disconnectIfPossible(connection);
+		}
 	}
 
 	/**
@@ -59,6 +66,18 @@ public class RemoteContentHandler implements ContentHandler {
 		} 
 
 
+	}
+
+	@Override
+	public boolean isAccessible(ContentLocation location) {
+		checkCompatibility(location);
+		try {
+			HttpURLConnection connection = (HttpURLConnection)location.getUrl().openConnection();
+			connection.connect () ; 
+			return connection.getResponseCode() == 200;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 }

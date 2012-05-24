@@ -49,7 +49,6 @@
 			<xs:element name="id" type="xs:string"/>
 			<xs:element name="folder" type="xs:string" minOccurs="0"/>
 			<xs:element name="result-of" type="xs:string" minOccurs="0"/>
-			<xs:element name="storage-type" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="location" type="locationType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="link" type="linkType" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="notes" type="xs:string" minOccurs="0"/>

@@ -89,7 +89,7 @@ public class UserSession {
     public static boolean validateMetadataFile() throws IOException, SAXException  {
 
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("/session.xsd")));
+        Schema schema = factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("/session2.xsd")));
         Validator validator = schema.newValidator();
         
         try {
@@ -109,12 +109,22 @@ public class UserSession {
     public static void main(String[] args) throws IOException, SAXException {
 		validateMetadataFile();
 	}
+    
 	public static JAXBContext getJAXBContext() throws JAXBException {
+		return JAXBContext.newInstance("fi.csc.microarray.client.session.schema2");
+	}
+
+	public static JAXBContext getPreviousJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("fi.csc.microarray.client.session.schema");
 	}
 
 
 	public static Schema getSchema() throws SAXException {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		return factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("session2.xsd")));
+	}
+
+	public static Schema getPreviousSchema() throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		return factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("session.xsd")));
 	}

@@ -50,7 +50,7 @@ public class SessionLoader {
 			IOUtils.closeIfPossible(zipFile);
 		}
 		
-		if ("1".equals(version)) {
+		if (Integer.toString(UserSession.PREVIOUS_SESSION_VERSION).equals(version)) {
 			// old format, use old loader
 			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();

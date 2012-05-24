@@ -17,4 +17,6 @@ public interface ContentHandler {
 	public void markDeletable(ContentLocation location);
 	
 	public void checkCompatibility(ContentLocation location) throws IllegalArgumentException;
+
+	public boolean isAccessible(ContentLocation location);
 }

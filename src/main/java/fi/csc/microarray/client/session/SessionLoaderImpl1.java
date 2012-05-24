@@ -84,8 +84,8 @@ public class SessionLoaderImpl1 {
 			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
 			
 			// parse the metadata xml to java objects using jaxb
-			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
-			unmarshaller.setSchema(UserSession.getSchema());
+			Unmarshaller unmarshaller = UserSession.getPreviousJAXBContext().createUnmarshaller();
+			unmarshaller.setSchema(UserSession.getPreviousSchema());
 			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
 			unmarshaller.setEventHandler(validationEventHandler);
 			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();

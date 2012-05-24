@@ -726,21 +726,26 @@ public class DataBean extends DataItemBase {
 	public ContentLocation getClosestContentLocation() {
 		
 		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
-		if (plainLocal != null) {
+		if (plainLocal != null && isAccessible(plainLocal)) {
 			return plainLocal;
 		}
 
 		
 		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
-		if (plainRemote != null) {
+		if (plainRemote != null && isAccessible(plainRemote)) {
 			return plainRemote;
 		}
 		
 		ContentLocation compressedLocal = getContentLocation(StorageMethod.LOCAL_SESSION);
-		if (compressedLocal != null) {
+		if (compressedLocal != null && isAccessible(compressedLocal)) {
 			return compressedLocal;
 		}
 
 		throw new IllegalStateException("data bean has not been properly initialised with URL");
+	}
+
+
+	private boolean isAccessible(ContentLocation location) {
+		return location.getHandler().isAccessible(location);
 	}
 }

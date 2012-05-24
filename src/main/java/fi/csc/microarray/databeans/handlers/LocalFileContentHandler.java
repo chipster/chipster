@@ -78,4 +78,10 @@ public class LocalFileContentHandler implements ContentHandler {
 		return file;
 	}
 
+	@Override
+	public boolean isAccessible(ContentLocation location) {
+		checkCompatibility(location);
+		return getFile(location).exists();
+	}
+
 }

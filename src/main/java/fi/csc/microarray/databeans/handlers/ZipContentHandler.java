@@ -85,11 +85,6 @@ public class ZipContentHandler implements ContentHandler {
 			throw new IllegalArgumentException("Protocol of " + url.toString() + " is not \"file\".");
 		} 
 		
-		// null or empty path
-		else if (url.getPath() == null || url.getPath().length() == 0) {
-			throw new IllegalArgumentException("Illegal path:" + url.toString());
-		}
-		
 		// needs to be session file
 		else if (!getZipFile(location).getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION)) {
 			throw new IllegalArgumentException("Not a session file.");
@@ -122,7 +117,18 @@ public class ZipContentHandler implements ContentHandler {
 
 	@Override
 	public OutputStream getOutputStream(ContentLocation location) throws IOException {
-		throw new UnsupportedOperationException("zip data bean does not support output");
+		throw new UnsupportedOperationException("zip content handler does not support output");
+	}
+
+	@Override
+	public boolean isAccessible(ContentLocation location) {
+		checkCompatibility(location);
+		try {
+			ZipFile zipFile = createZipFile(location);
+			return zipFile.getEntry(location.getUrl().getRef()) != null;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 }

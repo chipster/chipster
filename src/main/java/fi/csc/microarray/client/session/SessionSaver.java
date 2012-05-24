@@ -154,7 +154,6 @@ public class SessionSaver {
 		marshaller.setEventHandler(validationEventHandler);
 		
 		marshaller.marshal(factory.createSession(sessionType), new DefaultHandler());
-		//marshaller.marshal(factory.createSession(sessionType), System.out);
 	
 		if (!validationEventHandler.hasEvents()) {
 			 return true;
