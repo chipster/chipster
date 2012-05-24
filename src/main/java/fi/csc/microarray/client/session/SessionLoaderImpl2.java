@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -53,7 +54,8 @@ public class SessionLoaderImpl2 {
 
 	private File sessionFile;
 	private SessionType sessionType;
-	
+	private boolean isDatalessSession;
+
 	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
 
@@ -64,9 +66,10 @@ public class SessionLoaderImpl2 {
 	private HashMap<OperationRecord, OperationType> operationTypes = new HashMap<OperationRecord, OperationType>();
 
 
-	public SessionLoaderImpl2(File sessionFile, DataManager dataManager) {
+	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
 		this.dataManager = dataManager;
+		this.isDatalessSession = isDatalessSession;
 	}
 
 	private void parseMetadata() throws ZipException, IOException, JAXBException, SAXException {
@@ -134,7 +137,22 @@ public class SessionLoaderImpl2 {
 				dataBean = dataManager.createDataBean(name);
 
 				for (LocationType location : dataType.getLocation()) {
-					dataManager.addUrl(dataBean, StorageMethod.valueOf(location.getMethod()), new URL(location.getUrl()));
+					
+					String urlString = location.getUrl();
+					URL url = null;
+					try {
+						url = new URL(urlString);
+					} catch (MalformedURLException e) {
+						logger.warn("could not parse url: "  + urlString + " for data bean: " + name);
+						continue;
+					}
+
+					if (StorageMethod.LOCAL_SESSION.toString().equals(location.getMethod()) && !isDatalessSession) {
+						// data is inside the session file, use the url for the real session file 
+						url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
+					}
+
+					dataManager.addUrl(dataBean, StorageMethod.valueOf(location.getMethod()), url);
 				}
 			
 			} catch (Exception e) {

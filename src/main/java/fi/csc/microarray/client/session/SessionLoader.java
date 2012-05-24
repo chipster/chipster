@@ -57,7 +57,7 @@ public class SessionLoader {
 			
 		} else {
 			// use new loader
-			SessionLoaderImpl2 impl = new SessionLoaderImpl2(sessionFile, dataManager);
+			SessionLoaderImpl2 impl = new SessionLoaderImpl2(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();
 		}
 	}
