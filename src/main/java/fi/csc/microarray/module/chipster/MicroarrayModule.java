@@ -73,7 +73,8 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
+	private static final String EXAMPLE_SESSION_URL_ARRAY = "http://chipster.csc.fi/examples/chipster2-example-microarray.zip";
+	private static final String EXAMPLE_SESSION_URL_NGS = "http://chipster.csc.fi/examples/chipster2-example.zip";
 	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
@@ -118,10 +119,13 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
 		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");
 		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
-		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf");
+		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf", "gff", "gff2", "gff3");
 		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
 		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
+		manager.plugContentType("application/gzip", true, true, "Gzip file", VisualConstants.ICON_TYPE_BINARY, "gz");
+		manager.plugContentType("text/vcf", true, false, "Variant Call Format", VisualConstants.ICON_TYPE_TEXT, "vcf");
 	}
+	
 
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
@@ -260,8 +264,13 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
-		return isStandalone ? new URL(STANDALONE_EXAMPLE_SESSION_URL) : new URL(EXAMPLE_SESSION_URL);
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+		
+		if (isStandalone) {
+			return new URL[] { new URL(STANDALONE_EXAMPLE_SESSION_URL) };
+		}
+		
+		return new URL[] { new URL(EXAMPLE_SESSION_URL_ARRAY), new URL(EXAMPLE_SESSION_URL_NGS)};
 	}
 
 	@Override

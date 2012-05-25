@@ -8,6 +8,8 @@ biocLite()
 # Bioconductor specific packages
 biocLite("DESeq")
 biocLite("RPA")
+biocLite("IlluminaHumanMethylation450k.db") # annotation package, not needed if all annotation packages are installed
+
 
 # EOF
 

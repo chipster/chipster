@@ -1,16 +1,15 @@
 # TOOL ngs-find-unique-genes.R: "Find unique and annotated genes" (This tool takes a list of ENSEMBL gene identifiers, removes duplicates and fetches annotation information. The output file is compatible with downstream tools used for example for pathway analysis.)
 # INPUT ensembl-list.tsv: "Table with ENSEMBL identifiers" TYPE GENERIC 
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
-# PARAMETER species: "Genome" TYPE [Human: "Human (hg19\)", Mouse: "Mouse (mm9\)", Rat: "Rat (rn4\)"] DEFAULT none (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat"] DEFAULT Human (The genome to use for fetching annotations.)
 
 #######################################################
-#                                                     #
-# MG, 13.7.2011                                       #
-#                                                     #
-# Tool that removes duplicate genes from a list of    #
-# ENSEMBL identifiers, coverts them to unique entrez  #
-# identifiers and adds gene annotations to the output #
-#                                                     #
+#                                                     
+# MG, 13.7.2011                                       
+# EK, 17.5.2012 fixed parameters
+# EK, 22.5.2012 fixed parameters
+# Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
+#                                                     
 #######################################################
 
 # Set up testing parameters
@@ -27,7 +26,7 @@ if (species == "Human") {
 	ensembl_dataset <- "hsapiens_gene_ensembl"
 	filter <- "ens_hs_gene"
 }
-if (species == "Nouse") {
+if (species == "Mouse") {
 	data(TSS.mouse.NCBIM37)
 	annotations <- TSS.mouse.NCBIM37
 	ensembl_dataset <- "mmusculus_gene_ensembl"
@@ -46,7 +45,7 @@ ensembl_id_list <- as.character(unique(ensembl_list$ensembl_id))
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
-gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","hgnc_symbol","description","entrezgene"), mart=ensembl_annotations)
+gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","external_gene_id","description","entrezgene"), mart=ensembl_annotations)
 
 # Keep only the ones that have a unique ensembl gene id and actually map to unique entrez id:s
 gene_annotations_na <- na.omit(gene_annotations)

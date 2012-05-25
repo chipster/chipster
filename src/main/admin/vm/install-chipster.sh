@@ -4,7 +4,7 @@
 # This script will install Chipster 2, w/ dependencies
 #
 # Notice! This script needs super-user rights!!
-# e.g. sudo bash chipster.sh 2>&1 | tee chipster.log
+# e.g. sudo bash install-chipster.sh 2>&1 | tee chipster.log
 #
 
 # Set execution trace
@@ -47,33 +47,7 @@ set -o pipefail
 aptitude update
 aptitude -y full-upgrade
 
-## Clean /etc/apt/
-#rm /etc/apt/sources.list~
-rm /etc/apt/trusted.gpg~
-
-## /etc/apt/sources.list
-# Uncomment '# deb http://archive.canonical.com/ubuntu natty partner'
-#sed -i'~' '/deb .*partner$/ s/^# //' /etc/apt/sources.list
-#echo 'deb http://archive.canonical.com/ubuntu natty partner' >> /etc/apt/sources.list
-#aptitude update
-
-## Keyboard layout
-#echo 'keyboard-configuration keyboard-configuration/layout select Finnish' | /usr/bin/debconf-set-selections
-#echo 'keyboard-configuration keyboard-configuration/variant select Finnish' | /usr/bin/debconf-set-selections
-#dpkg-reconfigure -f noninteractive keyboard-configuration
-
 ## Install packages:
-
-## Base:
-aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils dstat chkconfig apt-file
-# manpages (not installed yet)
-# update-manager-core (do-release-upgrade comes from this)
-
-## Text Editors
-aptitude -y install nano vim emacs23-nox
-
-## NFS support
-aptitude -y install nfs-common
 
 ## Pre-requesites:
 
@@ -103,7 +77,12 @@ aptitude -y install fastx-toolkit
 ## OpenMPI
 #aptitude -y --without-recommends install openmpi-bin
 
-# Python 2.6
+## Python
+# !! Anything from PyPI should/shall be installed with pip !!
+# python-virtualenv
+# virtualenvwrapper
+aptitude -y --without-recommends install python-pip
+# 2.6
 # Needed for MACS?!?, IF REALLY THE CASE IT SHOULD BE RECOMPILED FOR 2.7
 aptitude -y install python2.6
 
@@ -111,19 +90,6 @@ aptitude -y install python2.6
 # python-numpy, for HTSeq
 # python-matplotlib, for HTSeq
 aptitude -y --without-recommends install python-numpy python-matplotlib
-
-## Perl Libraries:
-# libjson-perl, for prinseq-graph
-# libcairo-perl, for prinseq-graph
-# libtext-simpletable-perl, for prinseq-graph
-# libcontextual-return-perl, for prinseq-graph
-# libwant-perl, for prinseq-graph
-# cpanminus, for prinseq-graph
-# Statistics::PCA, for prinseq-graph
-# Math::Cephes, for prinseq-graph
-# Math::MatrixReal, for prinseq-graph
-aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
-cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
 
 ## Libraries:
 # build-essential (only devel)
@@ -140,7 +106,6 @@ cpanm Statistics::PCA Math::Cephes Math::MatrixReal
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
-
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
@@ -157,6 +122,19 @@ else
   echo "PROBLEM!!"
   exit 1
 fi
+
+## Perl Libraries:
+# libjson-perl, for prinseq-graph
+# libcairo-perl, for prinseq-graph
+# libtext-simpletable-perl, for prinseq-graph
+# libcontextual-return-perl, for prinseq-graph
+# libwant-perl, for prinseq-graph
+# cpanminus, for prinseq-graph
+# Statistics::PCA, for prinseq-graph
+# Math::Cephes, for prinseq-graph
+# Math::MatrixReal, for prinseq-graph
+aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
+cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
 
 ## Initialize:
 # Versions
@@ -219,6 +197,21 @@ touch ${CHIP_PATH}/auto-config-to-be-run
 # Install external applications and datasets #
 ##############################################
 
+## In root:
+
+# MACS, Artistic license
+# part 1
+cd ${TMPDIR_PATH}/
+wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
+dpkg -i macs_1.4.1.deb
+rm macs_1.4.1.deb
+
+# HTSeq, GPL v3 or later
+# part 1
+pip install HTSeq==0.5.3p3
+
+## In tools:
+ 
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
@@ -241,7 +234,6 @@ then
   cd ${CHIP_PATH}/
   echo | ./setup.sh
 
-
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/
@@ -261,14 +253,13 @@ then
   rm -rf R-${R_VER}/
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
 
-
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
   mkdir ${TOOLS_PATH}/admin/
   ln -s ${CHIP_PATH}/comp/modules/ngs/admin ${TOOLS_PATH}/admin/ngs
   
-   # Weeder, custom license, according to developers VM bundling is ok
+  # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
   curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
@@ -307,13 +298,11 @@ then
   mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
   ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
 
-  # MACS, Artistic licence
+  # MACS, Artistic license
+  # part 2
   cd ${TMPDIR_PATH}/
-  wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
-  sudo dpkg -i macs_1.4.1.deb
   mkdir -p ${TOOLS_PATH}/macs/
   ln -s /usr/bin/macs14 ${TOOLS_PATH}/macs/macs14
-  rm macs_1.4.1.deb
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
@@ -335,7 +324,9 @@ then
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
-
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bwa_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/ # switched to organism specific packages and non-bomb tars
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bwa_index_miRBase18_mmu_matureT.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/ # switched to organism specific packages and non-bomb tars
+	
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip
@@ -344,26 +335,12 @@ then
   mv FastQC/ ${TOOLS_PATH}/
   rm fastqc_v0.10.0.zip
 
-  # !! ANYTHING FROM PYPI SHOULD/SHALL BE INSTALLED WITH EASY_INSTALL OR PIP !!
-  # python-virtualenv
-  # virtualenvwrapper
-  # python-pip
-  #
   # HTSeq, GPL v3 or later
+  # part 2
   cd ${TMPDIR_PATH}/
-  curl -s http://pypi.python.org/packages/source/H/HTSeq/HTSeq-0.5.3p3.tar.gz#md5=624ef2a50b07bf62b979802f1b114762 | tar -xz
-  cd HTSeq-0.5.3p3/
-  python setup.py install
-  cd ../
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
-  rm -rf HTSeq-0.5.3p3/
-
-  # HTseq GTFs
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/htseq/gtfs/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq_gtfs/All_htseq_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/htseq/gtfs/
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
@@ -373,9 +350,9 @@ then
 
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.0.Linux_x86_64.tar.gz | tar -xz
-  mv tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/
-  ln -s tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/tophat
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
+  mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
+  ln -s tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/tophat
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
@@ -386,10 +363,10 @@ then
   mv bwa-0.6.1/ ${TOOLS_PATH}/
   ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
-	# BWA index check
-	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	
+  # BWA index check
+  curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
+  chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
+
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
   ln -s /usr/bin/fasta_* ${TOOLS_PATH}/fastx/bin/
@@ -408,7 +385,7 @@ then
 
   # GTF gene data for tools
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
 
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
@@ -427,9 +404,7 @@ then
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/MPScall/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  mkdir ${TOOLS_PATH}/FREEC_Linux64/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # prinseq
@@ -475,8 +450,3 @@ ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipste
 #update-rc.d chipster-fileserver defaults
 #update-rc.d chipster-webstart defaults
 #update-rc.d chipster-manager defaults
-
-## First boot
-#cd ${EXEC_PATH}/
-chmod 755 /etc/init.d/firstboot.sh
-update-rc.d firstboot.sh start 20 2 .

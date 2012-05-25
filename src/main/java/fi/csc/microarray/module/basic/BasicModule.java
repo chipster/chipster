@@ -139,7 +139,7 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
 		return null;
 	}
 

@@ -133,7 +133,7 @@ public interface Module {
 	 * @return url or null
 	 * @throws MalformedURLException
 	 */
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException;
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException;
 
 	/**
 	 * If module is bundled with a repository of workflows, returns them.

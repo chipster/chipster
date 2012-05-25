@@ -58,13 +58,13 @@ command.start <- cufflinks.binary
 # Annotation file setup
 annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "homo_sapiens/annotations/Homo_sapiens.GRCh37.62.gtf"
+	annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
 }
 if (genome == "mm9") {
-	annotation.file <- "mus_musculus/annotations/Mus_musculus.NCBIM37.62.gtf"
+	annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
 }
 if (genome == "rn4") {
-	annotation.file <- "rattus_norvegicus/annotations/Rattus_norvegicus.RGSC3.4.62.gtf"
+	annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
 }
 annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 

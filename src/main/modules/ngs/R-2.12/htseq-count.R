@@ -1,4 +1,4 @@
-# TOOL htseq-count.R: "Map aligned reads to genes with HTSeq" (Calculates how many reads in a BAM file map to each gene. If you would like to map reads against your own GTF files, please use the tool \"Map aligned reads to genes with HTSeq using own GTF\". This tool is based on the HTSeq package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
+# TOOL htseq-count.R: "Map aligned reads to genes with HTSeq" (Calculates how many reads in a BAM file map to each gene. If you would like to map reads against your own GTF files, please use the tool \"Map aligned reads to genes with HTSeq using own GTF\". This tool is based on the HTSeq package. In order to use the output in edgeR or DESeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv 
 # OUTPUT OPTIONAL htseq-count-info.txt

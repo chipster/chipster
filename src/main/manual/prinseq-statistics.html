@@ -3,22 +3,26 @@
 <head><title></title></head>
 <body>
 
-<h2>Reads file statistics</h2>
+<h2>Read quality statistics with PRINSEQ</h2>
 
 <h3>Description</h3>
 
-<p>This tool calculates general statistics of the reads in the given FASTQ or FASTA file.</p>
+<p>This tool calculates several quality control statistics for reads using the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
+Please note that if your file is larger than 4 GB, we recommend that you submit only a sample of reads for the quality statistics analysis,
+because PRINSEQ uses a lot of memory when producing the html report and might fail with bigger files.
+You can use the tool "Utilities / Make a subset of FASTQ" for this.</p>
 
 
 <h3>Details</h3>
 
-<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. The statistics are calculated using the PRINSEQ option: <i>-stats_all</i>.<br>
-The input data can be in FASTQ or FASTA format </p>
+<p>The statistics are calculated using the PRINSEQ option: <i>-stats_all</i>. The input data can be in FASTQ or FASTA format </p>
 
 <h3>Output</h3>
 
 <p>
-The command output is a table that contains following values
+This tool produces a comprehensive quality report reads-stats.html containing many useful plots. 
+For viewing this file, please select the visualization method "Open in external web browser". 
+In addition, a table reads-stats.tsv is produced, containing following information:
 </p>
 <table>
 <tr><td>stats_dinuc	aatt</td><td>Dinucleotide odds ratio for AA/TT.</td></tr>
