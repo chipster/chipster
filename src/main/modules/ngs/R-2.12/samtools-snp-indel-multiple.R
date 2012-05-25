@@ -1,10 +1,9 @@
-# TOOL samtools-snp-indel-single.R: "Call SNPs and short INDELs for one diploid individual" (Call SNPs and short INDELs for one diploid individual. You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. This tool is based on the SAMtools package.)
-# INPUT alignment.bam: "sorted BAM file" TYPE GENERIC 
+# TOOL samtools-snp-indel-multiple.R: "Call SNPs and short INDELs for multiple diploid individuals" (Call SNPs and short INDELs for multiple diploid individuals. You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. This tool is based on the SAMtools package.)
+# INPUT alignment{...}.bam: "sorted BAM file" TYPE GENERIC 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT var.flt.vcf
 # PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", rn4.fa: "Rat (rn4\)", e_coli.fa: "E. coli"] DEFAULT hg19.fa (Reference sequence)
-# PARAMETER c: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. Given a read with a phred-scaled probability q of being generated from the mapped position, the new mapping quality is about sqrt( (INT-q\)\/INT\)\*INT. A zero value disables this functionality. If enabled, the recommended value for BWA is 50.)
-# PARAMETER p: "Platform" TYPE [CAPILLARY, HELICOS, IONTORRENT, ILLUMINA, IONTORRENT, LS454, PACBIO, SOLID] DEFAULT ILUMINA (Platform/technology used to produce the reads.)
+# PARAMETER p: "Platform" TYPE [CAPILLARY, HELICOS, IONTORRENT, ILLUMINA, IONTORRENT, LS454, PACBIO, SOLID] DEFAULT ILLUMINA (Platform/technology used to produce the reads.)
 # PARAMETER d: "Maximum read depth" TYPE INTEGER DEFAULT 2000 (Maximum read depth. Should be adjusted to about twice the average read depth.)
 
 # binaries
@@ -27,7 +26,7 @@ if (is_own) {
 
 
 # commands
-command1 <- paste(samtools.binary, "mpileup -ugf", ref.seq, "alignment.bam", "-C", c, "|", bcftools.binary, "view -bvcg - > var.raw.bcf")
+command1 <- paste(samtools.binary, "mpileup", "-P", p, "-ugf", ref.seq, "*.bam", "|", bcftools.binary, "view -bvcg - > var.raw.bcf")
 command2 <- paste(bcftools.binary, "view var.raw.bcf |", vcfutils.binary, "varFilter -D", d, "> var.flt.vcf")
 
 # run
