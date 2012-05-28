@@ -25,9 +25,9 @@ import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -179,7 +179,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void saveSession(boolean quit, boolean lightweight) {
+		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
 			// do nothing
 		}
 

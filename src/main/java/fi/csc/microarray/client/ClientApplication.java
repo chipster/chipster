@@ -88,6 +88,12 @@ public abstract class ClientApplication {
 	// Logger for this class
 	protected static Logger logger;
 
+	public static enum SessionSavingMethod {
+		LEAVE_DATA_AS_IT_IS,
+		INCLUDE_DATA_INTO_ZIP,
+		UPLOAD_DATA_TO_SERVER;
+	}
+	
     // 
 	// ABSTRACT INTERFACE
 	//
@@ -119,7 +125,7 @@ public abstract class ClientApplication {
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
 	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession(final boolean quit, final boolean lightweight);
+	public abstract void saveSession(final boolean quit, final SessionSavingMethod savingMethod);
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
