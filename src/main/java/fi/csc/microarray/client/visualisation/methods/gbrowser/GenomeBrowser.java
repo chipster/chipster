@@ -768,6 +768,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
 								cytobandDataSource, plot.getOverviewView());
 						this.plot.getDataView().setViewLimiter(viewLimiter);
+						this.plot.getOverviewView().setViewLimiter(viewLimiter);
 
 						break;
 

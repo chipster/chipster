@@ -2,6 +2,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
@@ -18,6 +20,8 @@ public class ViewLimiter implements RegionListener {
 	private QueueManager queueManager;
 	private CytobandDataSource cytobandDataSource;
 	private BpCoord limit;
+	
+	private List<RegionListener> limitChangeListeners = new LinkedList<RegionListener>();
 
 	/**
 	 * @param queueManager
@@ -32,6 +36,8 @@ public class ViewLimiter implements RegionListener {
 
 			@Override
 			public void processAreaResult(AreaResult areaResult) {
+				
+				Long previousLimit = limit.bp;
 
 				for (RegionContent regCont : areaResult.getContents()) {
 
@@ -42,6 +48,12 @@ public class ViewLimiter implements RegionListener {
 							limit.bp = value.bp;
 						}
 					} 
+				}
+				
+				if (!previousLimit.equals(limit.bp)) {
+					for (RegionListener listener : limitChangeListeners) {
+						listener.regionChanged(new Region(0l, limit.bp, limit.chr));
+					}
 				}
 			}
 		});
@@ -69,5 +81,13 @@ public class ViewLimiter implements RegionListener {
 		} else {
 			return null;
 		}
+	}
+	
+	public void addLimitChangeListener(RegionListener listener) {
+		limitChangeListeners.add(listener);
+	}
+	
+	public void removeLimitChangeListeners(RegionListener listener) {
+		limitChangeListeners.remove(listener);
 	}
 }

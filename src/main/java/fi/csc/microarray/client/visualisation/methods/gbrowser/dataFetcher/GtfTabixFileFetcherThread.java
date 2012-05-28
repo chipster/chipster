@@ -138,8 +138,11 @@ public class GtfTabixFileFetcherThread extends Thread {
 		GeneSet genes = new GeneSet();		
 		String line;
 		
-		while ((line = iter.next()) != null) {
-			parseGtfLine(line, genes);
+		if (iter != null) { //null if there isn't such chromosome in annotations
+
+			while ((line = iter.next()) != null) {
+				parseGtfLine(line, genes);
+			}
 		}
 
 		return genes;
@@ -170,8 +173,14 @@ public class GtfTabixFileFetcherThread extends Thread {
 
 		String queryRegion = chromosome + ":" + start + "-" + end;
 
-		TabixReader.Iterator iter = dataSource.getReader().query(queryRegion);
-
+		TabixReader.Iterator iter = null;
+		
+		try {
+			iter = dataSource.getReader().query(queryRegion);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			//No such chromosome
+		}
+			
 		return iter;
 	}
 
