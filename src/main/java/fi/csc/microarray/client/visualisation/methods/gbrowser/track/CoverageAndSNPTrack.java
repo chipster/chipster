@@ -91,7 +91,7 @@ public class CoverageAndSNPTrack extends Track {
 		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(dataStrand), view, refSeq); 
 
 		// Count width of a single bp in pixels
-		float bpWidth = ((float) (getView().getWidth()) / getView().getBpRegion().getLength());
+		float bpWidth = (float) (getView().getWidth() / getView().getBpRegionDouble().getLength());
 
 		// Count maximum y coordinate (the bottom of the track)
 		int bottomlineY = 0;
