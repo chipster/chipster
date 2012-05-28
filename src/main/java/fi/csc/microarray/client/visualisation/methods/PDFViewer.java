@@ -10,6 +10,7 @@ import org.icepdf.ri.common.views.DocumentViewControllerImpl;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class PDFViewer extends Visualisation {
@@ -38,7 +39,7 @@ public class PDFViewer extends Visualisation {
 		JPanel viewerComponentPanel = factory.buildViewerPanel();
 
 		// Open a PDF document to view
-		controller.openDocument(data.getContentByteStream(), data.getName(), data.getContentUrl().toString());
+		controller.openDocument(data.getContentByteStream(), data.getName(), data.getContentLocation(StorageMethod.LOCAL_FILE_METHODS).getUrl().toString());
 
 		// Set view mode
 		controller.setPageViewMode(DocumentViewControllerImpl.ONE_COLUMN_VIEW, true);

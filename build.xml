@@ -423,14 +423,14 @@
 
 	
 	<target name="generate-session-classes" description="">
-		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema2" />
 
 		<java classname="com.sun.tools.internal.xjc.XJCFacade">
 	            <arg value="-p" />
-	            <arg value="fi.csc.microarray.client.session.schema"/>
+	            <arg value="fi.csc.microarray.client.session.schema2"/>
             	<arg value="-d" />
             	<arg value="src/main/java"/>
-	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+	    		<arg value="src/main/java/fi/csc/microarray/client/session/session2.xsd" />
 	    </java>
 	</target>
 

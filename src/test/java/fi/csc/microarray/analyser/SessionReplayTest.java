@@ -57,6 +57,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -186,7 +187,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		return true;
 	}
 
-	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
+	private void testSession(File session) throws Exception {
 
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
@@ -203,15 +204,16 @@ public class SessionReplayTest extends MessagingTestBase {
 			// pick import operations FIXME pick also any other without parent dataset
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
+				
 				// copy imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getContentUrl().getRef());
+				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				
 				// avoid NPE 
 				dataBeanCopy.setOperationRecord(operationRecord);
 				
 				// TODO what if not in the root folder in the source manager
-				manager.getRootFolder().addChild(dataBeanCopy);
+				manager.connectChild(dataBeanCopy, manager.getRootFolder());
 				importOperationRecords.add(operationRecord);
 			}
 
@@ -1007,11 +1009,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public File openWorkflow() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
@@ -1053,11 +1050,6 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void runWorkflow(URL workflowScript, AtEndListener atEndListener) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void saveSession() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1133,6 +1125,11 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void visualiseWithBestMethod(FrameType target) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+
+		@Override
+		public void saveSession(boolean quit, boolean lightweight) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 		

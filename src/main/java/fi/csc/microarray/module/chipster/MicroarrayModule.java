@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -13,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -26,15 +29,16 @@ import org.jdesktop.swingx.JXHyperlink;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
@@ -54,11 +58,10 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Table;
-import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
 import fi.csc.microarray.databeans.features.stat.HierarchicalClusterProvider;
@@ -69,6 +72,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.GeneralFileFilter;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
@@ -78,7 +82,8 @@ public class MicroarrayModule implements Module {
 	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
-		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format");
+		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
+		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format (text or binary)");
 		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag("raw-expression-values", "");
 		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values", "must have columns following name pattern \"chip.*\"");
 		public static final TypeTag GENENAMES = new TypeTag("genenames", "must have column \" \" or \"identifier\"");
@@ -130,19 +135,12 @@ public class MicroarrayModule implements Module {
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
 		manager.plugFeatureFactory("/identifier", new IdentifierProvider());
-		manager.plugFeatureFactory("/embedded-binary-content", new EmbeddedBinaryProvider());
 		manager.plugFeatureFactory("/clusters/som", new SomClusterProvider());
 		manager.plugFeatureFactory("/clusters/hierarchical", new HierarchicalClusterProvider());
 	}
 
 	public void plugModifiers(DataManager manager) {
 		// nothing to plug
-	}
-
-	@Override
-	public void plugTypeTags(DataManager manager) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -567,5 +565,118 @@ public class MicroarrayModule implements Module {
 		entity.put("end", columns.getStringValue("column2"));
 		return entity;
 	}
+
+	@Override
+	public void addTypeTags(DataBean data) throws MicroarrayException, IOException {
+
+		if (data.isContentTypeCompatitible("application/cel")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		}
+
+
+		if (data.isContentTypeCompatitible("text/bed")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+
+			if (readFirstLine(data).startsWith("track")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+			}
+		}
+
+
+		// Rest of the tags are set only when this module is primary
+		
+		if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
+			return;
+		}
+
+		Table chips = data.queryFeatures("/column/chip.*").asTable();
+
+		if (data.isContentTypeCompatitible("application/cel")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+
+		} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+
+		} else if (chips != null && chips.getColumnCount() > 0) {
+			data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+		} 
+
+		if (data.queryFeatures("/identifier").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+		} 
+
+
+		// Tag additional typing information
+		if (data.queryFeatures("/phenodata").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.PHENODATA);
+		}
+
+		if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
+		}
+
+		boolean isChipwise = false;
+		ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
+		if (pcaOn != null) {
+			String pcaOnValue = pcaOn.getValue();
+			if (pcaOnValue != null && pcaOnValue.equals("chips")) {
+				isChipwise = true;
+			}
+		}
+		if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
+			data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
+		}
+
+		if (chips != null && chips.getColumnNames().length > 1 && data.queryFeatures("/column/cluster").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
+		}
+
+		if (data.queryFeatures("/clusters/som").exists()) {
+			data.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
+		}
+
+		// Finally, set NGS related tags
+		if (data.isContentTypeCompatitible("text/bed") 
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
+				|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {
+
+			data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+			
+		} else if (data.isContentTypeCompatitible("text/tab")) {
+			
+			// require .tsv to have columns for genomic coordinates
+			String line = readFirstLine(data); 
+			if (line.contains("chr") && line.contains("start") && line.contains("end")) { 
+				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
+			}
+			
+		}
+
+	}
+	
+	private String readFirstLine(DataBean data) {
+
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+			return in.readLine();
+			
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+
+	@Override
+	public Icon getIconFor(DataBean data) {
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA)) {
+			return VisualConstants.ICON_TYPE_PHENODATA;
+		} else {
+			return data.getContentType().getIcon();
+		}
+	}
+
 
 }

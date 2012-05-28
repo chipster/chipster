@@ -118,9 +118,8 @@ public abstract class ClientApplication {
 	public abstract File openWorkflow();
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
-	public abstract void loadSessionFrom(File file);
 	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession();
+	public abstract void saveSession(final boolean quit, final boolean lightweight);
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
@@ -491,15 +490,8 @@ public abstract class ClientApplication {
 						output.addLink(Link.DERIVATION, source);
 					}
 
-					// initialise cache
-					try {
-						output.initialiseStreamStartCache();
-					} catch (IOException e) {
-						throw new MicroarrayException(e);
-					}
-
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(output);
+					manager.connectChild(output, folder);
 
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there

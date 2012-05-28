@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -52,13 +53,6 @@ public interface Module {
 	 */
 	public void plugContentTypes(DataManager manager);
 	
-	/**
-	 * Plugs type tags of this module to given data manager.
-	 * 
-	 * @param manager data manager to plug into
-	 */
-	public void plugTypeTags(DataManager manager);
-
 	/**
 	 * Returns the name of the server module associated to this 
 	 * this client side module, or null if not available.
@@ -226,5 +220,22 @@ public interface Module {
 	 * Converts server module name into GUI friendly name.
 	 */
 	public String getModuleLongName(String moduleName);
+
+	/**
+	 * Looks into data bean, possibly reading a little bit of content data, and adds type tags appropriate for the module.
+	 * 
+	 * @param data data bean to add type tags to
+	 * @throws MicroarrayException 
+	 * @throws IOException 
+	 */
+	public void addTypeTags(DataBean data) throws MicroarrayException, IOException;
+
+	
+	/**
+	 * Returns icon for given data, depending on it's type and possibly content.
+	 * 
+	 * @return icon
+	 */
+	public Icon getIconFor(DataBean data);
 	
 }

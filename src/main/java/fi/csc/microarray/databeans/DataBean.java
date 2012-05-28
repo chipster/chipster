@@ -1,6 +1,5 @@
 package fi.csc.microarray.databeans;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -12,14 +11,13 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.InputStreamSource;
-import fi.csc.microarray.util.StreamStartCache;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -41,16 +39,37 @@ import fi.csc.microarray.util.StreamStartCache;
  */
 public class DataBean extends DataItemBase {
 	
-	public enum StorageMethod {
-		LOCAL_USER,
-		LOCAL_TEMP,
-		LOCAL_SESSION;
+	/**
+	 * Defines a location where the actual file content of the DataBean can be accessed from.
+	 * Location might be local, remote or contained within another file (zip). 
+	 */
+	public static class ContentLocation {
+		
+		private StorageMethod method;
+		private URL url;
+		private ContentHandler handler;
+		
+		public ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
+			this.method = method;
+			this.handler = handler;
+			this.url = url;
+		}
+		
+		public StorageMethod getMethod() {
+			return method;
+		}
+
+		public URL getUrl() {
+			return url;
+		}
+
+		public ContentHandler getHandler() {
+			return handler;
+		}
 	}
-	
 	
 	/**
 	 * Traversal specifies the way of traversing links. 
-	 *
 	 */
 	public enum Traversal {
 		DIRECT,
@@ -68,7 +87,6 @@ public class DataBean extends DataItemBase {
 	
 	/**
 	 * Link represents a relationship between two beans.
-	 *
 	 */
 	public enum Link {
 		/**
@@ -126,10 +144,8 @@ public class DataBean extends DataItemBase {
 	}
 
 	protected DataManager dataManager;
-	protected StreamStartCache streamStartCache = null;
-	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
+	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
-	private URL cacheUrl = null;
 	private boolean contentChanged = true;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
@@ -144,29 +160,19 @@ public class DataBean extends DataItemBase {
 	private String notes;
 
 	protected ContentType contentType;
+	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
 
-	
-	private StorageMethod storageMethod;
-	private String repositoryName;
-	private URL url;
-	private DataBeanHandler handler;
-
-
-	public DataBean(String name, StorageMethod type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
 		
 		this.dataManager = manager;
 		this.name = name;
-		this.url = contentUrl;
-		this.storageMethod = type;
-		this.repositoryName = repositoryName;
-		this.handler = handler;
 		this.date = date;
 		this.parent = parentFolder;
 		
 		
 		// add this as parent folders child
 		if (parentFolder != null) {
-			parentFolder.addChild(this);
+			manager.connectChild(this, parentFolder);
 		}
 		
 		for (DataBean source : sources) {
@@ -272,50 +278,42 @@ public class DataBean extends DataItemBase {
 	 * higher level accessing.
 	 * 
 	 * @see #queryFeatures(String)
-	 * 
-	 * FIXME change name, locks stream start cache
 	 */
 	public InputStream getContentByteStream() throws IOException {
 		return getRawContentByteStream();
-
-		//lock.readLock().lock();
-//		if (streamStartCache != null) {
-//			return streamStartCache.getInputStream();
-//		} else {
-//			logger.debug("using non-cached stream");
-//			return getRawContentByteStream();
-//		}
 	}
-
 
 
 	/**
 	 * A convenience method for gathering streamed binary content into
 	 * a byte array.
+	 * 
 	 * @throws IOException 
 	 * 
-	 *   @see #getContentByteStream()
+	 * @see #getContentByteStream()
 	 */
 	public byte[] getContents() throws IOException {
-		try {
-			return Files.inputStreamToBytes(this.getContentByteStream());
-		} finally {
-			// FIXME release inputstream
-		}
-		
+		return getContents(-1); // -1 means "no max length"
 	}
-	
+
+	/**
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array. Gathers only maxLength first bytes.
+	 * 
+	 * @throws IOException 
+	 * 
+	 * @see #getContentByteStream()
+	 */
 	public byte[] getContents(long maxLength) throws IOException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		InputStream in = this.getContentByteStream();
-		long readCount = 0;
 		
-		for (int b = in.read(); b != -1 && readCount < maxLength; b = in.read()) {
-			outputStream.write(b);
-			readCount++;
+		InputStream in = null;
+		try {
+			in = getContentByteStream();
+			return Files.inputStreamToBytes(in, maxLength);
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
 		}
-		
-		return outputStream.toByteArray();
 	}
 
 
@@ -324,14 +322,10 @@ public class DataBean extends DataItemBase {
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength() {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
-		}
-	
 		try {
-			return handler.getContentLength(this);
+			ContentLocation location = getClosestContentLocation();
+			return location.getHandler().getContentLength(location);
 		} catch (IOException e) {
-			// FIXME what to do?
 			throw new RuntimeException(e);
 		}
 	}
@@ -340,8 +334,10 @@ public class DataBean extends DataItemBase {
 
 	public void delete() {
 //		lock.writeLock().lock();
-		try {
-			this.handler.delete(this);
+		try {			
+			for (ContentLocation contentLocation : contentLocations) {
+				contentLocation.getHandler().markDeletable(contentLocation);
+			}
 			this.contentType = null;			
 		} finally {
 //			lock.writeLock().unlock();
@@ -351,16 +347,13 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
+	 * Puts named object to content bound cache. Content bound cache is a hashmap type cache where 
 	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
 	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
 	 * and generally, user should never assume cached values to be found.  
-	 *
-	 *	FIXME think about locking
-	 *
 	 */
-	public void putToContentCache(String name, Object value) {
-		this.contentCache.put(name, value);
+	public void putToContentBoundCache(String name, Object value) {
+		this.contentBoundCache.put(name, value);
 	}
 
 
@@ -372,80 +365,36 @@ public class DataBean extends DataItemBase {
 	 * @param name
 	 * @return
 	 */
-	public Object getFromContentCache(String name) {
-		try {
-//			this.lock.readLock().lock();
-	
-			return this.contentCache.get(name);
-		} finally {
-//			this.lock.readLock().unlock();
-		}
+	public Object getFromContentBoundCache(String name) {
+		return this.contentBoundCache.get(name);
 	}
 
 
-
-	/** 
-	 * FIXME Think about locking.
-	 */
-	protected void resetContentCache() {
-		this.contentCache.clear();
+	protected void resetContentBoundCache() {
+		this.contentBoundCache.clear();
 	}
-
-
-
-	/**
-	 *  TODO should be integrated and hidden away
-	 * @throws MicroarrayException
-	 * @throws IOException
-	 */
-	public void initialiseStreamStartCache() throws MicroarrayException, IOException {
-		try {
-//			this.lock.readLock().lock();
-			this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
-				public InputStream getInputStream() {
-					try {
-						return getRawContentByteStream();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
-			});
-		} finally {
-//			this.lock.readLock().unlock();
-		}
-	}
-	
-	
 	
 	/**
-		 * Creates a link between this and target bean. Links represent relationships
-		 * between beans. Links have hardcoded types.
-		 * 
-		 * @see Link
-		 */
-		public void addLink(Link type, DataBean target) {
-			if (target == null) {
-				return;
-			}		
-			
-			// FIXME add more internal state validation to FSDataBean
-	//		for (LinkedBean linkedBean : outgoingLinks) {
-	//			if (linkedBean.bean == target && linkedBean.link == type) {
-	//				throw new RuntimeException("duplicate link");
-	//			}
-	//		}
-	
-			// make both parties aware of the link
-			target.incomingLinks.add(new LinkedBean(type, this));
-			outgoingLinks.add(new LinkedBean(type, target));
-	
-			// dispatch events only if both visible
-			if (this.getParent() != null && target.getParent() != null) {
-				LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
-				dataManager.dispatchEvent(lce);
-			}
-	
+	 * Creates a link between this and target bean. Links represent relationships
+	 * between beans. Links have hardcoded types.
+	 * 
+	 * @see Link
+	 */
+	public void addLink(Link type, DataBean target) {
+		if (target == null) {
+			return;
+		}		
+
+		// make both parties aware of the link
+		target.incomingLinks.add(new LinkedBean(type, this));
+		outgoingLinks.add(new LinkedBean(type, target));
+
+		// dispatch events only if both visible
+		if (this.getParent() != null && target.getParent() != null) {
+			LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
+			dataManager.dispatchEvent(lce);
 		}
+	}
 
 
 
@@ -624,59 +573,63 @@ public class DataBean extends DataItemBase {
 		return false;
 	}
 	
-	
-	public URL getContentUrl() {
-		return url;
-	}
-
-
-	public void setContentUrl(URL contentUrl) {
-		this.url = contentUrl;
+	/**
+	 * Gives one (arbitrary) location for the content of this DataBean that uses
+	 * one of the given storage methods. 
+	 * 
+	 * @param methods returned ContentLocation must use one of these
+	 */
+	public ContentLocation getContentLocation(StorageMethod... methods) {
+		List<ContentLocation> locations = getContentLocations(methods);
+		return locations.isEmpty() ? null : locations.get(0);
 	}
 
 	/**
-	 * Should only be used during saving or loading.
+	 * Gives all locations for the content of this DataBean that use
+	 * one of the given storage methods. 
 	 * 
-	 * @param handler
+	 * @param methods returned ContentLocations must use one of these
 	 */
-	public DataBeanHandler getHandler() {
-		return this.handler;
-	}
-
-	/**
-	 * Should only be used during saving or loading.
-	 * 
-	 * @param handler
-	 */
-	public void setHandler(DataBeanHandler handler) {
-		this.handler = handler;
-	}
-
-
-
-	public StorageMethod getStorageMethod() {
-		return storageMethod;
-	}
-
-
-
-	public void setStorageMethod(StorageMethod storageMethod) {
-		this.storageMethod = storageMethod;
-	}
-
-
-
-	public String getRepositoryName() {
-		if (this.repositoryName == null) {
-			return "";
-		} else {
-			return this.repositoryName;
+	public List<ContentLocation> getContentLocations(StorageMethod... methods) {
+		
+		// Collect content locations with matching method
+		LinkedList<ContentLocation> locations = new LinkedList<DataBean.ContentLocation>();
+		for (ContentLocation contentLocation : contentLocations) {
+			for (StorageMethod method : methods) {
+				if (contentLocation.method == method) {
+					locations.add(contentLocation);
+				}
+			}
 		}
+
+		return locations; 
+	}
+	
+	/**
+	 * Add ContentLocations to bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * @see DataManager#addUrl(DataBean, StorageMethod, URL)
+	 * 
+	 */
+	void addContentLocation(ContentLocation contentLocation) {
+		contentLocations.add(contentLocation);
+	}
+	
+
+	public URL getUrl(StorageMethod... methods) {
+		ContentLocation contentLocation = getContentLocation(methods);
+		return contentLocation != null ? contentLocation.url : null;
+	}
+	
+	@Deprecated
+	public URL getLocalUrl() {
+		return getUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 	}
 
-
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
+	@Deprecated
+	public ContentLocation getLocalContentLocation() {
+		return getContentLocation(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
 	}
 
 	/**
@@ -694,38 +647,20 @@ public class DataBean extends DataItemBase {
 
 	/**
 	 * Set content changed status. Should be called with true every time
-	 * content is changed.
+	 * content is changed. Resets content bound cache is set to true.
 	 * 
 	 * FIXME Think about locking.
 	 * @param contentChanged
 	 */
 	public void setContentChanged(boolean contentChanged) {
+		
+		if (contentChanged) {
+			resetContentBoundCache();
+		}
+		
 		this.contentChanged = contentChanged;
 	}
 
-
-
-	/**
-	 * Get the location of the remote copy for the content file. 
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @return may be null
-	 */
-	public URL getCacheUrl() {
-		return this.cacheUrl;
-	}
-
-
-
-	/**
-	 * Set the location of the remote copy of the content file.
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @param url
-	 */
-	public void setCacheUrl(URL url) {
-		this.cacheUrl = url;
-	}
 
 	public void setCreationDate(Date date) {
 		this.date = date;
@@ -784,9 +719,33 @@ public class DataBean extends DataItemBase {
 
 
 	private InputStream getRawContentByteStream() throws IOException {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
+		ContentLocation location = getClosestContentLocation();
+		return location.getHandler().getInputStream(location);
+	}
+	
+	public ContentLocation getClosestContentLocation() {
+		
+		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+		if (plainLocal != null && isAccessible(plainLocal)) {
+			return plainLocal;
 		}
-		return handler.getInputStream(this);
+
+		
+		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
+		if (plainRemote != null && isAccessible(plainRemote)) {
+			return plainRemote;
+		}
+		
+		ContentLocation compressedLocal = getContentLocation(StorageMethod.LOCAL_SESSION);
+		if (compressedLocal != null && isAccessible(compressedLocal)) {
+			return compressedLocal;
+		}
+
+		throw new IllegalStateException("data bean has not been properly initialised with URL");
+	}
+
+
+	private boolean isAccessible(ContentLocation location) {
+		return location.getHandler().isAccessible(location);
 	}
 }
