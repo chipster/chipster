@@ -9,7 +9,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -34,12 +33,11 @@ public class ReadpartDataProvider implements AreaResultListener {
 	private LinkedList<ReadPart> readPartsR = new LinkedList<ReadPart>();
 	private boolean needsRefresh = false;
 
-	public ReadpartDataProvider(View view, DataSource readData, Class<? extends AreaRequestHandler> readDataHandler) {
+	public ReadpartDataProvider(View view, DataSource readData) {
 		this.view = view;
 		this.readData = readData;
 		
 		// start listening
-		view.getQueueManager().createQueue(readData, readDataHandler);
 		view.getQueueManager().addResultListener(readData, this);
 	}
 

@@ -11,7 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Tabix
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -105,8 +105,8 @@ public class TabixFile {
         	}
 
         	// Create two approximated response objects: one for each strand
-        	BpCoordRegion recordRegion =
-        		new BpCoordRegion(pos, pos + step, request.start.chr);
+        	Region recordRegion =
+        		new Region(pos, pos + step, request.start.chr);
 
         	// Forward
         	LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();

@@ -12,21 +12,21 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * @author Aleksi Kallio
  *
  */
-public class SAMFileResult {
+public class ParsedFileResult {
 
 	private List<RegionContent> content;
-	private SAMFileRequest fileRequest;
+	private BpCoordFileRequest fileRequest;
 	public AreaRequest areaRequest;
 	private FsfStatus status;
 
-	public SAMFileResult(List<RegionContent> content, SAMFileRequest fileRequest, AreaRequest areaRequest, FsfStatus status) {
+	public ParsedFileResult(List<RegionContent> content, BpCoordFileRequest fileRequest, AreaRequest areaRequest, FsfStatus status) {
 		this.content = content;
 		this.fileRequest = fileRequest;
 		this.areaRequest = areaRequest;
 		this.status = status;
 	}
 
-	public SAMFileRequest getFileRequest() {
+	public BpCoordFileRequest getFileRequest() {
 		return fileRequest;
 	}
 

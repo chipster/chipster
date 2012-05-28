@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 /**
- * Region of genome (similar to {@link BpCoordRegion}), but mapped to byte object (file). Used for bookkeeping
+ * Region of genome (similar to {@link Region}), but mapped to byte object (file). Used for bookkeeping
  * when searching the file for correct position.  
  *
  */

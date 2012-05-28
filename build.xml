@@ -113,6 +113,7 @@
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
         </fatjar.build>
 
 		<!-- sign it -->
@@ -268,23 +269,14 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
-
-			<!-- modules, executables separated so that permissions can be set for them -->
-			<selector id="executable.files">
-				<or>
-					<filename name="**/*.sh" />
-					<filename name="**/*.py" />
-				</or>	
-			</selector>
 			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" >
 				<exclude name="sequence/" />
-				<not><selector refid="executable.files" /></not>
-			</tarfileset>
-			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" filemode="755">
-				<selector refid="executable.files" />
 			</tarfileset>
 			
-
+				
+				
+			
+			
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
 			

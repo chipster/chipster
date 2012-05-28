@@ -3,7 +3,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 
 /**
  * <p>One source of genomic content. Abstraction hides the physical data source, that can be either 
@@ -21,29 +24,34 @@ public abstract class DataSource {
 	protected File file = null;
 	protected URL url = null;
 	protected String name;
+	protected Class<? extends AreaRequestHandler> requestHandler;
+	
 
-	public DataSource(URL url) throws FileNotFoundException {
-		this.url = url;
-		this.name = url.toString(); 
-	}
-
-	public DataSource(File file) throws FileNotFoundException {
-		this.file = file;
-		this.name = file.toString();
+	public DataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+		
+		if (url != null) {
+			if ("file".equals(url.getProtocol())) {
+				file = new File(url.toURI());
+			} else {
+				this.url = url;
+			}
+			this.name = url.toString(); 
+		}
+		
+		this.requestHandler = requestHandler;
 	}
 	
-	public DataSource(URL urlRoot, String path)
-	        throws FileNotFoundException, MalformedURLException {
-		this(new URL(urlRoot.toString() + "/" + path));
-	}
-
-	public DataSource(File fileRoot, String path)
-	        throws FileNotFoundException, MalformedURLException {
-		this(new File(fileRoot, path));
+	public DataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler2)
+	        throws FileNotFoundException, MalformedURLException, URISyntaxException {
+		this(new URL(urlRoot.toString() + "/" + path), requestHandler2);
 	}
 	
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	public Class<? extends AreaRequestHandler> getRequestHandler() {
+		return requestHandler;
 	}
 }

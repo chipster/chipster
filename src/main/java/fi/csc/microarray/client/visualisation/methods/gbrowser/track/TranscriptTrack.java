@@ -9,23 +9,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Transcript;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.constants.VisualConstants;
 
@@ -35,7 +37,7 @@ import fi.csc.microarray.constants.VisualConstants;
  */
 public class TranscriptTrack extends Track {
 
-	private Map<String, Gene> genes = new TreeMap<String, Gene>();
+	private Collection<Gene> genes = new TreeSet<Gene>();
 
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
@@ -52,10 +54,9 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file,
-	        Class<? extends AreaRequestHandler> handler, Color color, long maxBpLength) {
+	public TranscriptTrack(View view, DataSource file, Color color, long maxBpLength) {
 
-		super(view, file, handler);
+		super(view, file);
 		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}
@@ -66,26 +67,40 @@ public class TranscriptTrack extends Track {
 
 		occupiedSpace.clear();
 
+		TreeMap<Region, Transcript> sortedTranscripts = new TreeMap<Region, Transcript>();
+
 		if (genes != null) {
 
-			List<Gene> sortedGenes = new ArrayList<Gene>(genes.values());
-			Collections.sort(sortedGenes);
+			Iterator<Gene> iter = genes.iterator();
+			while (iter.hasNext()) {
 
-			for (Gene gene : sortedGenes) {
-				
-				if (!gene.region.intersects(getView().getBpRegion())) {
+				//Use iterator to be able to remove genes that are out of sight
+				Gene gene = iter.next();
 
-					genes.remove(gene.id);
+				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
+				if (!gene.getRegion().intersects(getView().getBpRegion())) {
+					iter.remove();
 					continue;
 				}
 
+				for (Transcript transcript : gene.getTranscripts()) {
+					sortedTranscripts.put(transcript.getRegion(), transcript);
+				}
+			}
+
+			List<Drawable> geneDrawables = new ArrayList<Drawable>();
+
+			//Transcript collection refers to original data from the data layer, so out-of-sight
+			//transcripts can't be removed
+			for (Transcript transcript : sortedTranscripts.values()) {
+
 				Rectangle rect = new Rectangle();
 
-				rect.x = getView().bpToTrack(gene.region.start);
+				rect.x = getView().bpToTrack(transcript.getRegion().start);
 				int x = rect.x;
-				rect.width = getView().bpToTrack(gene.region.end) - rect.x;
-				int x2 = getView().bpToTrack(gene.region.end);
-				
+				rect.width = getView().bpToTrack(transcript.getRegion().end) - rect.x;
+				int x2 = getView().bpToTrack(transcript.getRegion().end);
+
 				int i = 0;
 
 				while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x) {
@@ -103,129 +118,104 @@ public class TranscriptTrack extends Track {
 				rect.y = (int) (((i + 1) * (14)));
 				int y = rect.y + 2;
 				rect.height = 2;
-				
+
 				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
 
 				rect.height = 4;
 
 				// draw arrow
-				if (gene.first().values.get(ColumnType.STRAND) == Strand.REVERSED) {
+				if (transcript.getRegion().getStrand() == Strand.REVERSED) {
 					drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
 				} else {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
 				}
 
-				String geneId = ((String) gene.first().values.get(ColumnType.DESCRIPTION));
+				String name = transcript.getName();
 
 				if (isNameVisible(rect)) {
-					drawTextAboveRectangle(geneId, drawables, rect, 1);
+
+					if (name == null) {
+						name = "n/a";
+					}
+
+					drawTextAboveRectangle(name, drawables, rect, 1);
 				}
 
-				List<Drawable> geneDrawables = new ArrayList<Drawable>();
+				for (Exon exon : transcript.getExons()) {
 
-				for (RegionContent part : gene) {
+					//					if (part.values == null) {
+					//						drawables.add(createDrawable(part.region.start, part.region.end, color));
+					//					} else {
 
-					if (part.values == null) {
-						drawables.add(createDrawable(part.region.start, part.region.end, color));
-					} else {
+					Exon.Feature feature = exon.getFeature();
+					Color c;
 
-						String value = ((String) part.values.get(ColumnType.VALUE)).trim();
-						Color c;
-
-						if (value.equals("CDS")) {
-							c = PartColor.CDS.c;
-						} else if (value.equals("exon")) {
-							c = PartColor.UTR.c;
-						} else if (value.contains("start_codon")) {
-							c = PartColor.START_CODON.c;
-						} else if (value.equals("stop_codon")) {
-
-							// TODO Check how this should be visualised
-							c = PartColor.UTR.c;
-						} else {
-							System.out.println("Gene description not recognised: " + value);
-							c = Color.blue;
-						}
-
-						rect.x = getView().bpToTrack(part.region.start);
-						rect.width = getView().bpToTrack(part.region.end) - rect.x;
-						rect.height = 4;
-
-						geneDrawables.add(new RectDrawable(rect, c, null));
+					switch (feature) {
+					case CDS:
+						c = PartColor.CDS.c;
+						break;
+					case EXON:
+						c = PartColor.UTR.c;
+						break;
+					case START_CODON:
+						c = PartColor.START_CODON.c;
+						break;
+					case STOP_CODON:
+						// TODO Check how this should be visualised
+						c = PartColor.UTR.c;
+						break;
+					default:
+						System.err.println("Gene description not recognised: " + feature);
+						c = Color.blue;
 					}
+
+					rect.x = getView().bpToTrack(exon.getRegion().start);
+					rect.width = getView().bpToTrack(exon.getRegion().end) - rect.x;
+					rect.height = 4;
+
+					geneDrawables.add(new RectDrawable(rect, c, null));
 				}
-
-				Collections.sort(geneDrawables, new Comparator<Drawable>() {
-					public int compare(Drawable one, Drawable other) {
-
-						if (one.color.equals(PartColor.CDS.c) && other.color.equals(PartColor.UTR.c)) {
-							return 1;
-						} else if (one.color.equals(PartColor.UTR.c) && other.color.equals(PartColor.CDS.c)) {
-							return -1;
-						} else {
-							return 0;
-						}
-					}
-				});
-
-				drawables.addAll(geneDrawables);
 			}
+
+			Collections.sort(geneDrawables, new Comparator<Drawable>() {
+				public int compare(Drawable one, Drawable other) {
+
+					if (one.color.equals(PartColor.CDS.c) && other.color.equals(PartColor.UTR.c)) {
+						return 1;
+					} else if (one.color.equals(PartColor.UTR.c) && other.color.equals(PartColor.CDS.c)) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			});
+
+			drawables.addAll(geneDrawables);
+
 		}
-		
+
 		return drawables;
-	}
-
-	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, Color c) {
-		return createDrawable(startBp, endBp, 5, c);
-	}
-
-	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c) {
-		Rectangle rect = new Rectangle();
-
-		rect.x = getView().bpToTrack(startBp);
-		rect.width = getView().bpToTrack(endBp) - rect.x;
-
-		int i = 0;
-
-		while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x + 1) {
-			i++;
-		}
-
-		int end = rect.x + rect.width;
-
-		if (occupiedSpace.size() > i) {
-			occupiedSpace.set(i, end);
-		} else {
-			occupiedSpace.add(end);
-		}
-
-		rect.y = (int) ((i + 1) * (height + 2));
-		rect.height = height;
-
-		return new RectDrawable(rect, c, null);
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			// Genes and transcripts are ordered in the file, but to here they come in any order
-			// That's why we have to put them to Gene objects to sort them again
 			// Sorting is needed to draw partly overlapping genes in the same order every time
-			if (!areaResult.getStatus().concise && content.values.get(ColumnType.STRAND) == getStrand()) {
+			if (!areaResult.getStatus().concise && content.region.getStrand() == getStrand()) {
 
-				Map<ColumnType, Object> values = content.values;
-				String id = (String) values.get(ColumnType.PARENT_ID);
+				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+				
+				//Genes at edge of edge of screen may contain only visible exons, but moving should
+				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
+				//new ones with better information for the current view location.
+				this.genes.remove(gene);
 
-				if (!genes.containsKey(id)) {
-					genes.put(id, new Gene(new BpCoordRegion((Long) values.get(ColumnType.PARENT_BP_START), (Long) values.get(ColumnType.PARENT_BP_END), (Chromosome) values.get(ColumnType.CHROMOSOME)), id));
-				}
+				genes.add(gene);
 
-				genes.get(id).add(content);
-
-				getView().redraw();
 			}
 		}
+		getView().redraw();
 	}
 
 	private long maxBpLength;
@@ -237,31 +227,28 @@ public class TranscriptTrack extends Track {
 			return 0;
 		}
 	}
-	   
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
-    
-    @Override
-    public boolean isVisible() {
-        // hide if visible region is too large
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }
 
-    @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-        HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.CHROMOSOME, ColumnType.PARENT_BP_START,
-                ColumnType.PARENT_BP_END, ColumnType.STRAND,
-                ColumnType.DESCRIPTION, ColumnType.VALUE,
-                ColumnType.PARENT_ID, ColumnType.PARENT_PART })));
-        return datas;
-    }
+	@Override
+	public boolean isStretchable() {
+		// stretchable unless hidden
+		return isVisible();
+	}
+
+	@Override
+	public boolean isVisible() {
+		// hide if visible region is too large
+		return (super.isVisible() &&
+				getView().getBpRegion().getLength() <= maxBpLength);
+	}
+
+	@Override
+	public Map<DataSource, Set<ColumnType>> requestedData() {
+		HashMap<DataSource, Set<ColumnType>> datas = new
+				HashMap<DataSource, Set<ColumnType>>();
+		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+				ColumnType.VALUE })));
+		return datas;
+	}
 
 	@Override
 	public boolean isConcised() {

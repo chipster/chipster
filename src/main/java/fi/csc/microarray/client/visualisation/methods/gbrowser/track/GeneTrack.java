@@ -11,17 +11,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -30,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class GeneTrack extends Track {
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private Collection<Gene> genes = new TreeSet<Gene>();
 	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private long maxBpLength;
@@ -39,9 +40,8 @@ public class GeneTrack extends Track {
 	private Color color;
 
 
-	public GeneTrack(View view, ChunkDataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color color, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public GeneTrack(View view, DataSource file, Color color, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -52,23 +52,30 @@ public class GeneTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		occupiedSpace.clear();
+		
+		TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
+		
+		if (genes != null) {
 
-		if (reads != null) {
-
-			Iterator<RegionContent> iter = reads.iterator();
+			Iterator<Gene> iter = genes.iterator();
 			while (iter.hasNext()) {
 
-				RegionContent read = iter.next();
+				Gene gene = iter.next();
 
 				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!read.region.intersects(getView().getBpRegion())) {
+				if (!gene.getRegion().intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}
 
-				String name = ((String) read.values.get(ColumnType.DESCRIPTION));
+				sortedGenes.put(gene.getRegion(), gene);
+			}
 
-				createDrawable(read.region.start, read.region.end, 10, color, name, drawables);
+			for (Gene gene : sortedGenes.values()) {
+
+				String name = gene.getName();
+
+				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
 			}
 		}
 
@@ -100,9 +107,10 @@ public class GeneTrack extends Track {
 
 		drawables.add(new RectDrawable(rect, c, null));
 		if (isNameVisible(rect)) {
-
-			// TODO fix the extra quote mark in file
-			name = name.replaceAll("\"", "");
+			
+			if (name == null) {
+				name = "n/a";
+			}
 
 			// draw name to leftmost visible part of the gene rectangle
 			drawTextAboveRectangle(name, drawables, rect, 10);
@@ -112,11 +120,23 @@ public class GeneTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 
 		for (RegionContent content : areaResult.getContents()) {
-			if (areaResult.getStatus().concise == this.isConcised() && content.values.get(ColumnType.STRAND) == getStrand()) {
-				this.reads.add(content);
-				getView().redraw();
+			if (areaResult.getStatus().concise == this.isConcised()) {
+				
+				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+								
+				if (gene.getRegion().getStrand() == getStrand()) {
+					
+					//Genes at edge of edge of screen may contain only visible exons, but moving should
+					//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
+					//new ones with better information for the current view location.
+					this.genes.remove(gene);
+					
+					this.genes.add(gene);
+
+				}
 			}			
 		}
+		getView().redraw();
 	}
 
 	@Override
@@ -147,8 +167,6 @@ public class GeneTrack extends Track {
         HashMap<DataSource, Set<ColumnType>> datas = new
         HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.STRAND,
-                ColumnType.DESCRIPTION,
                 ColumnType.VALUE })));
         return datas;
     }

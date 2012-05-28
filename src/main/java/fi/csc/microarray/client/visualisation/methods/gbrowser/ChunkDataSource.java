@@ -1,16 +1,17 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.util.IOUtils;
 
@@ -28,26 +29,23 @@ public class ChunkDataSource extends DataSource {
 	private TsvParser fileParser;
 	private Long length = null;
 
-	public ChunkDataSource(URL url, TsvParser fileParser) throws FileNotFoundException {
-		super(url);
+	public ChunkDataSource(URL url, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+		super(url, requestHandler);
 		this.fileParser = fileParser;
+		
+		if (file != null) { //Initialized by super constructor if file is local
+			raFile = new RandomAccessFile(file.getPath(), "r");
+		}
 	}
 
-	public ChunkDataSource(File file, TsvParser fileParser) throws FileNotFoundException {
-		super(file);
-		raFile = new RandomAccessFile(file, "r");
+	public ChunkDataSource(URL urlRoot, String path, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler)
+	throws FileNotFoundException, MalformedURLException, URISyntaxException {
+		super(urlRoot, path, requestHandler);
 		this.fileParser = fileParser;
-	}
-
-	public ChunkDataSource(URL urlRoot, String path, TsvParser fileParser)
-	throws FileNotFoundException, MalformedURLException {
-		super(urlRoot, path);
-		this.fileParser = fileParser;
-	}
-
-	public ChunkDataSource(File fileRoot, String path, TsvParser fileParser)
-	throws FileNotFoundException, MalformedURLException {
-		this(new File(fileRoot, path), fileParser);
+		
+		if (file != null) { //Initialized by super constructor if file is local
+			raFile = new RandomAccessFile(file.getPath(), "r");
+		}
 	}
 
 	/**
@@ -171,10 +169,14 @@ public class ChunkDataSource extends DataSource {
 				try {
 					connection = (HttpURLConnection)url.openConnection();
 					// connection.getContentLength() returns int, which is not enough
+					String string = connection.getHeaderField("content-length");
+					if (string == null) {
+						throw new IOException("content-length unavailable for " + url);
+					}
 					length = Long.parseLong(connection.getHeaderField("content-length"));
 				} finally {
 					IOUtils.disconnectIfPossible(connection);
-				}
+				}       
 			} 
 			return length;
 		}
@@ -191,5 +193,16 @@ public class ChunkDataSource extends DataSource {
 
 	public RandomAccessFile getFile() {
 		return raFile;
+	}
+
+	public void close() {
+		if (raFile != null) {
+			try {
+				raFile.close();
+			} catch (IOException e) {
+				//No problem
+			}
+			raFile = null;
+		}
 	}
 }

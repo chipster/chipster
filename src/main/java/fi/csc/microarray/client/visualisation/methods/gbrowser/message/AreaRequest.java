@@ -8,7 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
  * A request for content from the given view area. The view layer uses these requests to get data from the processing layer.  
  *
  */
-public class AreaRequest extends BpCoordRegion {
+public class AreaRequest extends Region {
 
 	private static int MAX_RECURSION_DEPTH = 8;
 	
@@ -19,9 +19,9 @@ public class AreaRequest extends BpCoordRegion {
 	/**
 	 * Constructs a new request with max depth available (no splits done yet).
 	 *  
-	 * @see #AreaRequest(BpCoordRegion, Collection, FsfStatus, int)
+	 * @see #AreaRequest(Region, Collection, FsfStatus, int)
 	 */
-	public AreaRequest(BpCoordRegion region, Collection<ColumnType> requestedContents, FsfStatus status) {
+	public AreaRequest(Region region, Collection<ColumnType> requestedContents, FsfStatus status) {
 		this(region, requestedContents, status, MAX_RECURSION_DEPTH);
 	}
 	
@@ -33,7 +33,7 @@ public class AreaRequest extends BpCoordRegion {
 	 * @param status				status				
 	 * @param depthToGo				counter for counting tree split depth
 	 */
-	public AreaRequest(BpCoordRegion region, Collection<ColumnType> requestedContents, FsfStatus status, int depthToGo) {
+	public AreaRequest(Region region, Collection<ColumnType> requestedContents, FsfStatus status, int depthToGo) {
 		super(region.start, region.end);
 		this.requestedContents = requestedContents;
 		this.status = status;

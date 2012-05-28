@@ -21,8 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
  * The basic view of genome browser. Shows the tracks horizontally.
@@ -84,8 +83,6 @@ public class HorizontalView extends View implements KeyListener {
 		g.setFont(g.getFont().deriveFont(10f));
 		TextDrawable text = (TextDrawable) drawable;
 
-		text.text = text.text.replaceAll("\"", "");
-
 		g.drawString(text.text, text.x + x, text.y + y);
 	}
 
@@ -126,33 +123,14 @@ public class HorizontalView extends View implements KeyListener {
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
 		double bpMove = trackToBp((double) start.getX()).minus(trackToBp((double) end.getX()));
 
-		bpRegion.move(bpMove);
-		setBpRegion(bpRegion, disableDrawing);
-
-		parentPlot.redraw();
-	}
-	
-	@Override
-	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+		RegionDouble newRegion = bpRegion.clone();
 		
-		BpCoord maxBp = getMaxBp();
-		
-		if (maxBp != null && region.getLength() > maxBp.bp) {
-			region.start.bp = 0.0;
-			region.end.bp = (double)maxBp.bp;
-			
-		} else {
-			if (region.start.bp < 0 ) {
-				region.move(-region.start.bp);
-			}
+		newRegion.move(bpMove);
+		setBpRegion(newRegion, disableDrawing);
 
-			if (maxBp != null && region.end.bp > maxBp.bp) {				
-				double delta = region.end.bp - (double)maxBp.bp;
-				region.move(-delta);
-			}
+		if (!disableDrawing) {
+			parentPlot.redraw();
 		}
-		
-		super.setBpRegion(region, disableDrawing);
 	}
 
 	@Override
