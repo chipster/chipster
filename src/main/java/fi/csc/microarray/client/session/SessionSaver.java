@@ -386,8 +386,8 @@ public class SessionSaver {
 		// notes
 		dataType.setNotes(bean.getNotes());
 
-		// write all URL's that will be valid when loading
-		for (ContentLocation location : bean.getContentLocations(StorageMethod.NONTRANSIENT_METHODS)) {
+		// write all URL's
+		for (ContentLocation location : bean.getContentLocations()) {
 			LocationType locationType = new LocationType();
 			locationType.setMethod(location.getMethod().toString());
 			locationType.setUrl(location.getUrl().toString());
