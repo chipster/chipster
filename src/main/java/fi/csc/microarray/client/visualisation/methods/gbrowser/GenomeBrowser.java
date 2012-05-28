@@ -207,7 +207,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		this.annotationManager.initialize();
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
-		//		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
+		trackSwitches.put(new JCheckBox("Highlight SNPs", true), "highlightSNP");
 		//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
 		//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
 
@@ -571,7 +571,6 @@ RegionListener, ComponentListener, PropertyChangeListener {
 						track.trackGroup.showOrHide("ReadOverview", false);
 					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_TOTAL)) {
 						track.trackGroup.showOrHide("ProfileSNPTrack", true);	
-						track.trackGroup.showOrHide("highlightSNP", true);
 						track.trackGroup.showOrHide("ProfileTrack", false);
 						track.trackGroup.showOrHide("ReadOverview", true);
 					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_STRAND)) {
@@ -1324,9 +1323,6 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		if (plot != null) {
 			plot.clean();
 		}
-		// Keeping database consumes maybe 30 MB of RAM per genome, but subsequent GB visualisations start faster
-		//		gia.clean();	
-		//		this.gia = null;
 
 		application.removeClientEventListener(this);
 
