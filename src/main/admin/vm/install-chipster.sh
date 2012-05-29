@@ -215,24 +215,27 @@ pip install HTSeq==0.5.3p3
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
-  cd ${TMPDIR_PATH}/
-  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
-  cd R-${R_VER}/
-  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
-  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
-  export MAKEFLAGS=-j
-  #LIBnn=lib
-  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
-  make
-  make install
-  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
-  cd ../
-  rm -rf R-${R_VER}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s R-${R_VER} ${TOOLS_PATH}/R
-
-  ## R Libraries:
-  cd ${CHIP_PATH}/
-  echo | ./setup.sh
+        
+#  cd ${TMPDIR_PATH}/
+#  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+#  cd R-${R_VER}/
+#  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
+#  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
+#  export MAKEFLAGS=-j
+#  #LIBnn=lib
+#  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+#  make
+#  make install
+#  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+#  cd ../
+#  rm -rf R-${R_VER}/
+#  ln -s R-${R_VER} ${TOOLS_PATH}/R
+#
+#  ## R Libraries:
+#  cd ${CHIP_PATH}/
+#  echo | ./setup.sh
 
   ## R-2.14:
   R_VER=2.14.1
