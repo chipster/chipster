@@ -166,7 +166,7 @@ public class AnnotationManager {
 
 		// get annotation locations
 		
-		//this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
+		this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
 		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
 
 		// try to parse the remote contents file

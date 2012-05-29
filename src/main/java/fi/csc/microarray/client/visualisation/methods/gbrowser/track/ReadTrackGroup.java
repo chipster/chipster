@@ -45,6 +45,7 @@ public class ReadTrackGroup extends TrackGroup {
 	private ReadpartDataProvider readpartProvider;
 	private String title;
 	private boolean initialised = false;
+	private SeparatorTrack sepTrackReadOverview;
 
     public ReadTrackGroup(View view, DataSource userData,
             DataSource seqFile, String title) {
@@ -64,6 +65,8 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Overview
         addReadOverviewTrack();
+        sepTrackReadOverview = new SeparatorTrack(view, Color.gray, 1, GenomeBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
+        tracks.add(sepTrackReadOverview);
 
         // Detailed
         reads = new SeqBlockTrack(view, userData, readpartProvider, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
