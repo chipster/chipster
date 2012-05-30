@@ -3,33 +3,40 @@
 <head><title></title></head>
 <body>
 
-<h2>Utilities / Count alignments in BAM</h2>
+<h2>Exome-seq / Call SNPs and short INDELs for multiple individuals</h2>
 
 <h3>Description</h3>
 
-<p>
-Given a BAM file, this tool counts how many alignments it contains, taking the mapping quality into account if needed.
-</p>
+<p>Call SNPs and short INDELs for multiple individuals. </p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Minimum mapping quality required for counting (0-1000) [0]</li>
+<li>Platform (CAPILLARY, HELICOS, IONTORRENT, ILLUMINA, IONTORRENT, LS454, PACBIO, SOLID) [ILLUMINA]</li>
+<li>Maximum read depth (Integer) [100]</li>
 </ul>
 
 <h3>Details</h3>
 
 <p> 
-By default all alignments are counted, but users can choose to count only alignments which have the specified
-mapping quality or higher
-(note that unlike BWA, Bowtie doesn't calculate mapping quality, it just inserts 255 to the field 5 of BAM file if the read aligns, and 0 if it doesn't align).
+You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. 
+
+Individuals are identified from the SM tags in the @RG header lines. Individuals can be pooled in one alignment 
+file. One individual can also be separated into multiple files. 
+
+Platform option specifies that indel candidates should be collected only from read groups with the @RG-PL tag set 
+to that platform. Collecting indel candidates from reads sequenced by an indel-prone technology may affect the 
+performance of indel calling. 
+
+Maximum read depth should be adjusted to about twice the average read depth.
 </p>
+
 
 
 <h3>Output</h3>
 
 <p>
-Output is a text file containing the number of alignments.
+Output is a vcf file.
 </p>
 
 
