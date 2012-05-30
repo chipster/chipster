@@ -101,12 +101,12 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Profile
         
-        Color forwardColor = new Color(0,0,0, 128);
+        Color forwardColor = new Color(0,0,0, 64);
         Color reverseColor = new Color(
         		VisualConstants.COLOR_BLUE.getRed(), 
         		VisualConstants.COLOR_BLUE.getGreen(), 
         		VisualConstants.COLOR_BLUE.getBlue(), 
-        		128);
+        		64);
         
 //        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
 //        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);

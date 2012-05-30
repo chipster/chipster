@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucle
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -98,6 +99,12 @@ public class CoverageAndSNPTrack extends Track {
 
 		// prepare lines that make up the profile for drawing
 		Iterator<Base> bases = theBaseCacheThang.iterator();
+		
+		int previousValueY = 0;
+		int previousEndX = -1;
+		
+		//Line color is opaque
+		Color lineColor = new Color(color.getRGB(), false);
 
 		// draw lines for each bp region that has some items
 		while (bases.hasNext()) {
@@ -105,13 +112,39 @@ public class CoverageAndSNPTrack extends Track {
 
 			float startX = getView().bpToTrackFloat(new BpCoord(currentBase.getBpLocation(), chr));
 			//Round together with position dividends to get the same result than where next block will start
-			int endX = (int)(startX + bpWidth) - (int)startX;
+			int width = (int)(startX + bpWidth) - (int)startX;
 			int profileY = currentBase.getCoverage();
 			
-			drawables.add(new RectDrawable((int)startX, bottomlineY, endX,  (int)(bottomlineY + profileY), color, null));
+			int valueY = (int)(bottomlineY + profileY);
+			
+			drawables.add(new RectDrawable((int)startX, bottomlineY, width,  valueY, color, null));
+			
+			//Draw a line on top of profile
+
+			
+			//Check if there was a gap between profile blocks
+			if (previousEndX < (int)startX) {
+				
+				//End last block with line
+				drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
+				
+				//Start next line from the bottom
+				previousValueY = 0;
+			}
+			
+			//Draw line between height difference of previous and current block
+			drawables.add(new LineDrawable((int)startX, previousValueY, (int)startX,  valueY, lineColor));
+			//Draw line on top of the current block
+			drawables.add(new LineDrawable((int)startX, valueY, (int)startX + width,  valueY, lineColor));
 
 			drawSNPBar(drawables, (int)bpWidth, bottomlineY, currentBase, (int)startX);
+			
+			previousValueY = valueY;
+			previousEndX = (int)startX + width;
 		}
+		
+		//End last block with line
+		drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
 
 		return drawables;
 	}
