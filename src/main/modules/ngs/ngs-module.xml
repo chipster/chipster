@@ -109,6 +109,14 @@
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>		
+		<!-- 
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-single.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-multiple.R</resource>
+		</tool>
+	    -->
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
@@ -307,6 +315,8 @@
 			<resource>MEDIPS_two_samples.R</resource>
 		</tool>
 	</category>
+	
+	<!-- 
 	<category name="Exome-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
 			<resource>samtools-snp-indel-single.R</resource>
@@ -315,5 +325,5 @@
 			<resource>samtools-snp-indel-multiple.R</resource>
 		</tool>
 	</category>
-
+	-->
 </module>
