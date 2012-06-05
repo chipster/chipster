@@ -1,5 +1,5 @@
 # TOOL samtools-snp-indel-single.R: "Call SNPs and short INDELs for one diploid individual" (Call SNPs and short INDELs for one diploid individual. You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. This tool is based on the SAMtools package.)
-# INPUT alignment.bam: "sorted BAM file" TYPE GENERIC 
+# INPUT alignment.bam: "Sorted BAM file" TYPE GENERIC 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT var.flt.vcf
 # PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", rn4.fa: "Rat (rn4\)"] DEFAULT hg19.fa (Reference sequence)
