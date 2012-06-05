@@ -36,10 +36,10 @@ command2 <- paste(bcftools.binary, "view var.raw.bcf |", vcfutils.binary, "varFi
 
 # run
 #stop(paste('CHIPSTER-NOTE: ', command1))
-#system(command1)
-#system(command2)
+system(command1)
+system(command2)
 
-binary <- "ls -l > var.flt.vcf"
+#binary <- "ls -l > var.flt.vcf"
 
 # run
-system(binary)
+#system(binary)
