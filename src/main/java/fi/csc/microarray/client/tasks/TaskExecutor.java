@@ -335,7 +335,7 @@ public class TaskExecutor {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
-				DataBean bean = manager.createDataBean(name, payloadUrl);
+				DataBean bean = manager.createDataBean(name);
 				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
@@ -476,19 +476,20 @@ public class TaskExecutor {
 						
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
+						URL url = bean.getUrl(StorageMethod.REMOTE_CACHED);
 						try {
 							bean.getLock().readLock().lock();
 
-							// bean modified, upload
+							// bean modified, always upload
 							if (bean.isContentChanged()) {
-								URL url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
 								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
 								bean.setContentChanged(false);
-							} 
-
-							// bean not modified, check cache, upload if needed
-							else if (bean.getUrl(StorageMethod.REMOTE_CACHED) != null && !fileBroker.checkFile(bean.getUrl(StorageMethod.REMOTE_CACHED), bean.getContentLength())){
-								URL url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								
+							}
+							// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
+							else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
+								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
 								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 							}
 
@@ -497,8 +498,7 @@ public class TaskExecutor {
 						}
 
 						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED));
-						
+						jobMessage.addPayload(name, url);
 						
 						logger.debug("added input " + name + " to job message.");
 						i++;

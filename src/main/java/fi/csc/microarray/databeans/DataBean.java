@@ -635,8 +635,6 @@ public class DataBean extends DataItemBase {
 	 * Indicate whether the contents have been changed since the contents
 	 * were last time uploaded to file broker.
 	 * 
-	 * FIXME Think about locking.
-	 * 
 	 */
 	public boolean isContentChanged() {
 		return this.contentChanged;
@@ -646,9 +644,8 @@ public class DataBean extends DataItemBase {
 
 	/**
 	 * Set content changed status. Should be called with true every time
-	 * content is changed. Resets content bound cache is set to true.
+	 * content is changed. Resets content bound cache.
 	 * 
-	 * FIXME Think about locking.
 	 * @param contentChanged
 	 */
 	public void setContentChanged(boolean contentChanged) {

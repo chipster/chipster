@@ -745,13 +745,6 @@ public class DataManager {
 		return folders;
 	}
 
-	/**
-	 * FIXME add locking
-	 * 
-	 * @param bean
-	 * @return
-	 * @throws IOException 
-	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
 
 		bean.setContentChanged(true);
@@ -766,14 +759,6 @@ public class DataManager {
 		return location.getHandler().getOutputStream(location);
 	}
 
-	/**
-	 * FIXME locks
-	 * 
-	 * @param bean
-	 * @param out
-	 * @throws MicroarrayException
-	 * @throws IOException
-	 */
 	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
 			throws MicroarrayException, IOException {
 		try {
@@ -802,8 +787,7 @@ public class DataManager {
 	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
-		// FIXME lock bean
-		
+
 		// copy contents to new file
 		File newFile = this.createNewRepositoryFile(bean.getName());
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
