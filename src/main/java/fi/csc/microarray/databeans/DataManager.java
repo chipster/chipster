@@ -105,7 +105,6 @@ public class DataManager {
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
 	private LinkedList<Module> modules;
-	private FileBrokerClient fileBroker;
 	
 	private ZipContentHandler zipContentHandler = new ZipContentHandler();
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
@@ -116,8 +115,6 @@ public class DataManager {
 
 		// initialize repository 		
 		repositoryRoot = createRepository();
-		
-		fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 	}
 
 	public void setRootFolder(DataFolder folder) {
@@ -661,6 +658,14 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	public void saveStorageSession(File sessionFile) throws Exception {
+
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		sessionSaver.saveStorageSession();
+	}
+
+	
+	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
 	 * 
@@ -970,7 +975,7 @@ public class DataManager {
 		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
 	}
 
-	public void putToStorage(DataBean dataBean) {
+	public void putToStorage(DataBean dataBean) throws Exception {
 
 		// check if already in storage
 		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_LONGTERM); 
@@ -982,7 +987,7 @@ public class DataManager {
 		// TODO error handling
 		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
 		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-			URL storageURL = fileBroker.moveFileToStorage(cacheLocation.getUrl());
+			URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
 			dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_LONGTERM, getHandlerFor(StorageMethod.REMOTE_LONGTERM), storageURL));
 			dataBean.removeContentLocation(cacheLocation);
 			return;

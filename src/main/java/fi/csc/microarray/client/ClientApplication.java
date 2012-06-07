@@ -209,20 +209,22 @@ public abstract class ClientApplication {
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
+			
 			// Initialise data management
 			this.manager = new DataManager();
 			Session.getSession().setDataManager(manager);
 			modules.plugAll(this.manager, Session.getSession());
 			this.selectionManager = new DataSelectionManager(this);
 			Session.getSession().setClientApplication(this);
-		
+
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
+			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
-			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation(" ok", false);
+
 
 			// Check services
 			reportInitialisation("Checking remote services...", true);

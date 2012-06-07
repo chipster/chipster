@@ -1819,11 +1819,17 @@ public class SwingClientApplication extends ClientApplication {
 						// save
 						boolean saveFailed = false;
 						try {
-							if (savingMethod == SessionSavingMethod.INCLUDE_DATA_INTO_ZIP) {
+							switch (savingMethod) {
+							case INCLUDE_DATA_INTO_ZIP:
 								getDataManager().saveSession(file);
-							} else { 
+								break;
+							case UPLOAD_DATA_TO_SERVER:
+								getDataManager().saveStorageSession(file);
+								break;
+							default: 
 								getDataManager().saveLightweightSession(file);
 							}
+							
 						} catch (ValidationException e) {
 							Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 							saveFailed = true;
