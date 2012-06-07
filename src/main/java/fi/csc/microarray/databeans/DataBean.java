@@ -162,24 +162,11 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
 
-	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager) {
-		
-		this.dataManager = manager;
+	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this.name = name;
-		this.date = date;
-		this.parent = parentFolder;
-		
-		
-		// add this as parent folders child
-		if (parentFolder != null) {
-			manager.connectChild(this, parentFolder);
-		}
-		
-		for (DataBean source : sources) {
-			source.addLink(Link.DERIVATION, this);
-		}
-
 		this.contentType = contentType;
+		this.dataManager = manager;
+		this.date = new Date(); // timestamp for creation time
 	}
 
 

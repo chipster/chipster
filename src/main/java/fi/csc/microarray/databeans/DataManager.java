@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -476,7 +475,7 @@ public class DataManager {
 	public DataBean createLocalTempDataBean(String name) throws MicroarrayException {
 		try {
 			File contentFile = createNewRepositoryFile(name);
-			DataBean bean = createDataBean(name,  null, new DataBean[] {});
+			DataBean bean = createDataBean(name);
 			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
 			return bean;
 
@@ -485,23 +484,26 @@ public class DataManager {
 		}
 	}
 
+	
 	/**
-	 * Create a local temporary file DataBean with content, without a parent 
-	 * folder and without sources. If a reference to this bean
-	 * is lost it can not be accessed any more.
+	 * Creates new DataBean. Infers content type of the created DataBean from the name.
+	 * 
+	 * @param name name of the DataBean
+	 * @return new DataBean that is not connected to a DataFolder
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
-		return createDataBean(name, content, null, new DataBean[] {});
+	public DataBean createDataBean(String name) throws MicroarrayException {
+		DataBean data = new DataBean(name, guessContentType(name), this);
+		return data;
 	}
 
 	/**
-	 * Create a local file DataBean.
-	 * The file is used directly, the contents are not copied anywhere.
+	 * Convenience method for creating a local file DataBean. Initialises the DataBean with local file
+	 * location. The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
 		try {
-			DataBean bean = createDataBean(name,  null, new DataBean[] {});
+			DataBean bean = createDataBean(name);
 			addUrl(bean, StorageMethod.LOCAL_USER, contentFile.toURI().toURL());
 			return bean;
 			
@@ -509,70 +511,13 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 	}
-
-	/**
-	 * For now, only file URLs are supported.
-	 * 
-	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
-		DataBean data = createDataBean(name, null, new DataBean[] {});
-		addUrl(data, StorageMethod.LOCAL_USER, url);
-		return data;
-	}
-
-	/**
-	 * For now, only file URLs are supported.
-	 * 
-	 */
-	public DataBean createDataBean(String name) throws MicroarrayException {
-		DataBean data = createDataBean(name, null, new DataBean[] {});
-		return data;
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
-	 * be found using the zipEntryName.
-	 * 
-	 * @param name
-	 * @param zipFile
-	 * @param zipEntryName
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
-		URL url;
-		try {
-			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), new DataBean[] {}, null, this);
-		addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile.
-	 * 
-	 * @param name
-	 * @param url location of the zip file, zip entry name as the fragment
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), new DataBean[] {}, null, this);
-		addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-
 	
 	/**
-	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
+	 * Convenience method for creating a local temporary file DataBean with content.
+	 * Content stream is read into a temp file and location of the file is stored
+	 * to DataBean.
 	 */
-	private DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -589,7 +534,7 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, folder, sources);
+		DataBean bean = createDataBean(name);
 		try {
 			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
 		} catch (MalformedURLException e) {
@@ -599,17 +544,6 @@ public class DataManager {
 	}
 	
 
-	/**
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	private DataBean createDataBean(String name, DataFolder folder, DataBean[] sources) throws MicroarrayException {
-		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-	
-	
 	/**
 	 * Load session from a file.
 	 * 

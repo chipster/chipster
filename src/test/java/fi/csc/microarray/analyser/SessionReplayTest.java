@@ -206,7 +206,10 @@ public class SessionReplayTest extends MessagingTestBase {
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
 				
 				// copy imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
+				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
+				URL url = new URL(session.toURI().toURL(), "#" + dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
+				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION, url);
+
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				
 				// avoid NPE 
