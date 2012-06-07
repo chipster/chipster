@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
@@ -34,6 +35,7 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -108,7 +110,7 @@ public class DataManager {
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
-	public DataManager() throws IOException {
+	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
 		// initialize repository 		
@@ -656,6 +658,14 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	public void saveStorageSession(File sessionFile) throws Exception {
+
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		sessionSaver.saveStorageSession();
+	}
+
+	
+	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
 	 * 
@@ -947,6 +957,40 @@ public class DataManager {
 
 	public void addUrl(DataBean bean, StorageMethod method, URL url) {
 		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
+	}
+
+	public void putToStorage(DataBean dataBean) throws Exception {
+
+		// check if already in storage
+		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_LONGTERM); 
+		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
+			return;
+		}
+		
+		// move from cache to storage
+		// TODO error handling
+		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
+		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
+			URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
+			dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_LONGTERM, getHandlerFor(StorageMethod.REMOTE_LONGTERM), storageURL));
+			dataBean.removeContentLocation(cacheLocation);
+			return;
+		}
+
+		// move from elsewhere to storage
+		throw new RuntimeException("not yet supported");
+		
+//		List <ContentLocation> localLocations = dataBean.getContentLocations(StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_SESSION);
+//		if (localLocations.isEmpty()) {
+//			// TODO no content anywhere, what to do
+//			throw new RuntimeException("data bean content missing");
+//		} else {
+//			for (ContentLocation localLocation : localLocations) {
+//				
+//			}
+//		}
+//		
+		
 	}
 
 }

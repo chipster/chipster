@@ -352,4 +352,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		
 	}
 
+	@Override
+	public URL moveFileToStorage(URL url) {
+		throw new RuntimeException("not yet supported");
+	}
+
 }

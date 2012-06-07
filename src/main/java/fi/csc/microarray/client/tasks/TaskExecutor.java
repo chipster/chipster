@@ -32,7 +32,6 @@ import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
-import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -385,9 +384,9 @@ public class TaskExecutor {
 
 	}
 
-	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
+	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws Exception {
 		this.manager = manager;
-		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
+		this.fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}

@@ -7,7 +7,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -22,7 +21,7 @@ public class PhenodataTest {
 	private DataManager manager; 
 	
 	@BeforeTest(groups = {"unit"} )
-	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public void init() throws Exception {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();

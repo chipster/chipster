@@ -9,7 +9,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.TestConstants;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -23,7 +22,7 @@ public class FeatureTest {
 
 	private DataManager manager;
 
-	public FeatureTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public FeatureTest() throws Exception {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		this.manager = new DataManager();
