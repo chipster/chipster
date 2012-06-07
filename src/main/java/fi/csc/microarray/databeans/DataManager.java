@@ -965,4 +965,35 @@ public class DataManager {
 		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
 	}
 
+	public void putToStorage(DataBean dataBean) {
+
+		// check if already in storage
+		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_LONGTERM); 
+		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
+			return;
+		}
+		
+		// move from cache to storage
+		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
+		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
+			// TODO move
+			return;
+		}
+
+		// move from elsewhere to storage
+		throw new RuntimeException("not yet supported");
+		
+//		List <ContentLocation> localLocations = dataBean.getContentLocations(StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_SESSION);
+//		if (localLocations.isEmpty()) {
+//			// TODO no content anywhere, what to do
+//			throw new RuntimeException("data bean content missing");
+//		} else {
+//			for (ContentLocation localLocation : localLocations) {
+//				
+//			}
+//		}
+//		
+		
+	}
+
 }

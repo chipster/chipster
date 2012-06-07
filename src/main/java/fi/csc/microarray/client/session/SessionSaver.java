@@ -117,6 +117,22 @@ public class SessionSaver {
 		writeSessionFile(saveData);
 	}
 
+	public void saveStorageSession() throws Exception {
+
+		// move data bean contents to storage
+		for (DataBean dataBean : dataManager.databeans()) {
+			dataManager.putToStorage(dataBean);
+		}
+		
+		// save metadata
+		boolean saveData = false;
+		gatherMetadata(saveData);
+		writeSessionFile(saveData);
+
+		
+		
+	}
+	
 	
 	/**
 	 * Gather the metadata form the data beans, folders and operations.
