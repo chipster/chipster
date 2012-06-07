@@ -57,10 +57,10 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -1129,7 +1129,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void saveSession(boolean quit, boolean lightweight) {
+		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 		

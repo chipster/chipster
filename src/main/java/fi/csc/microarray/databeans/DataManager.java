@@ -50,11 +50,6 @@ public class DataManager {
 		
 		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
 		
-		/**
-		 * Methods that will be valid between session loads.
-		 */
-		public static StorageMethod[] NONTRANSIENT_METHODS = {LOCAL_USER, REMOTE_CACHED, REMOTE_LONGTERM};
-		
 		private boolean isLocal;
 		private boolean isRandomAccess;
 		

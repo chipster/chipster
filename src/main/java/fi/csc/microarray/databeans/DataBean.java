@@ -585,6 +585,14 @@ public class DataBean extends DataItemBase {
 	}
 
 	/**
+	 * Gives all locations for the content of this DataBean.
+	 */
+	public List<ContentLocation> getContentLocations() {
+		
+		return contentLocations; 
+	}
+
+	/**
 	 * Gives all locations for the content of this DataBean that use
 	 * one of the given storage methods. 
 	 * 
@@ -622,15 +630,6 @@ public class DataBean extends DataItemBase {
 		return contentLocation != null ? contentLocation.url : null;
 	}
 	
-	@Deprecated
-	public URL getLocalUrl() {
-		return getUrl(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
-	}
-
-	@Deprecated
-	public ContentLocation getLocalContentLocation() {
-		return getContentLocation(StorageMethod.LOCAL_SESSION, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
-	}
 
 	/**
 	 * Indicate whether the contents have been changed since the contents

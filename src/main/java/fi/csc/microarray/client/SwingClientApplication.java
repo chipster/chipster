@@ -1244,7 +1244,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession(false, false);
+					saveSession(false, SessionSavingMethod.LEAVE_DATA_AS_IT_IS);
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1782,7 +1782,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	
 	@Override
-	public void saveSession(final boolean quit, final boolean lightweight) {
+	public void saveSession(final boolean quit, final SessionSavingMethod savingMethod) {
 
 		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1811,28 +1811,26 @@ public class SwingClientApplication extends ClientApplication {
 
 					public void run() {
 
+						// upload data first, if needed
+						if (savingMethod == SessionSavingMethod.UPLOAD_DATA_TO_SERVER) {
+							// FIXME iterate over databeans and call FileBrokerClient to take care of them
+						}
+						
 						// save
 						boolean saveFailed = false;
-						if (lightweight) {
-							try {
-								getDataManager().saveLightweightSession(file);
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-
-						} else { 
-							try {
+						try {
+							if (savingMethod == SessionSavingMethod.INCLUDE_DATA_INTO_ZIP) {
 								getDataManager().saveSession(file);
-								
-							} catch (ValidationException e) {
-								Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-								saveFailed = true;
-								
-							} catch (Exception e) {
-								Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-								saveFailed = true;
+							} else { 
+								getDataManager().saveLightweightSession(file);
 							}
+						} catch (ValidationException e) {
+							Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							saveFailed = true;
+
+						} catch (Exception e) {
+							Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							saveFailed = true;
 						}
 						
 						if (!saveFailed) {
