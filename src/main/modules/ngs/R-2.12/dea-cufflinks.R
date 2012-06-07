@@ -23,7 +23,8 @@
 # BAM file.                                                
 #                                                          
 # MG, 21.6.2011                                            
-# EK, 11.5.2012											
+# EK, 11.5.2012
+# EK, 2.6.2012
 ############################################################
 
 # Output that is yet to be supported
@@ -48,13 +49,6 @@ if (genome == "rn4") {
 	annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
 }
 annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
-
-# Run differential expression analysis for known genes and transcript isoforms
-cufflinks.parameters <- annotation.file
-cufflinks.input.treatment <- "treatment.bam"
-cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
-system(cufflinks.command)
 
 # Run differential expression analysis for known genes and transcript isoforms
 cufflinks.parameters <- annotation.file
@@ -115,7 +109,7 @@ row_names <- 1:number_genes
 rownames(results_list) <- row_names
 write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
 
-# Also output a bed graph file for visualization and region matching tools
+# Also output a BED file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# sort according to chromosome location
@@ -137,7 +131,7 @@ if (dim(results_list)[1] > 0) {
 	cat(number_significant, "genes were found to be statistically significantly differentially expressed.")	
 } else {
 	cat("GENE TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "genes tested there were no statistically significantly differentially expressed ones found.")
+	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
 }
 
 # DE isoforms
@@ -205,7 +199,7 @@ if (dim(results_list)[1] > 0) {
 	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.")	
 } else {
 	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "transcripts tested there were no statistically significantly differentially expressed ones found.")
+	cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.")
 }
 sink()
 
