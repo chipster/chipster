@@ -37,7 +37,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	};
 	private Collection<ToolModule> modules = null;
 
-	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
+	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
 	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
 		this.taskExecutor = new TaskExecutor(endpoint, manager);
