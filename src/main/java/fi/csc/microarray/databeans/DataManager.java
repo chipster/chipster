@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
@@ -34,6 +35,7 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -103,16 +105,19 @@ public class DataManager {
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
 	private LinkedList<Module> modules;
+	private FileBrokerClient fileBroker;
 	
 	private ZipContentHandler zipContentHandler = new ZipContentHandler();
 	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
 	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
 	
-	public DataManager() throws IOException {
+	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
 		// initialize repository 		
 		repositoryRoot = createRepository();
+		
+		fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 	}
 
 	public void setRootFolder(DataFolder folder) {
@@ -974,9 +979,12 @@ public class DataManager {
 		}
 		
 		// move from cache to storage
+		// TODO error handling
 		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
 		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-			// TODO move
+			URL storageURL = fileBroker.moveFileToStorage(cacheLocation.getUrl());
+			dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_LONGTERM, getHandlerFor(StorageMethod.REMOTE_LONGTERM), storageURL));
+			dataBean.removeContentLocation(cacheLocation);
 			return;
 		}
 

@@ -1,7 +1,5 @@
 package fi.csc.microarray.databeans.fs;
 
-import java.io.IOException;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -17,7 +15,6 @@ import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
 
 public class FSDataEventTest implements DataChangeListener {
@@ -28,7 +25,7 @@ public class FSDataEventTest implements DataChangeListener {
 	}
 
 	@Test(groups = {"unit"} )
-	public void testEvents() throws IOException, MicroarrayException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public void testEvents() throws Exception {
 		DataManager manager = new DataManager();
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		moduleManager.plugAll(manager, null);

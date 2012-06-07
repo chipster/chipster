@@ -624,6 +624,15 @@ public class DataBean extends DataItemBase {
 		contentLocations.add(contentLocation);
 	}
 	
+	/**
+	 * Remove ContentLocation from bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * 
+	 */
+	void removeContentLocation(ContentLocation contentLocation) {
+		contentLocations.remove(contentLocation);
+	}
 
 	public URL getUrl(StorageMethod... methods) {
 		ContentLocation contentLocation = getContentLocation(methods);
