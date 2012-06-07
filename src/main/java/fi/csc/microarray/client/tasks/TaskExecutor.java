@@ -32,7 +32,6 @@ import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
-import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
