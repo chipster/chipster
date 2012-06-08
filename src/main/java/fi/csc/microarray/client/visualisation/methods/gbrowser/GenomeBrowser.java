@@ -70,6 +70,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -973,7 +974,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void initialiseUserData(DataBean data) throws IOException {
-		if (data != null) {
+		// In data needs to be copied out of a session ZIP file, do it now  
+		if (data != null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) == null) {
 			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
@@ -995,15 +997,24 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			throws MicroarrayException, IOException, URISyntaxException {
 		DataSource dataSource = null;
 
-		// Convert data bean into file
-		File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+		// Find how to access the data
+		URL fileUrl;
+		if (data.getContentLocation(StorageMethod.LOCAL_FILE_METHODS) == null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) != null) {
 
-		URL fileUrl = file.toURI().toURL();
+			// Remote available, no local files available, use remote
+			fileUrl = data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS).getUrl();
+		
+		} else {
+			
+			// Use local file, possibly copying data into local file if not there yet
+			File file = Session.getSession().getDataManager().getLocalFile(data);
+			fileUrl = file.toURI().toURL();
+		}
 
-		if (file.getName().contains(".bam-summary")) {
+		if (data.getName().contains(".bam-summary")) {
 			dataSource = new TabixDataSource(fileUrl);
 
-		} else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+		} else if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
 			File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);
 			URL indexFileUrl = indexFile.toURI().toURL();
 			dataSource = new SAMDataSource(fileUrl, indexFileUrl);

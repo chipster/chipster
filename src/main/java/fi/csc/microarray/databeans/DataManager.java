@@ -45,9 +45,10 @@ public class DataManager {
 		LOCAL_TEMP(true, true),
 		LOCAL_SESSION(true, false),
 		REMOTE_CACHED(false, true),
-		REMOTE_LONGTERM(false, true);
+		REMOTE_STORAGE(false, true);
 		
 		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
+		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_CACHED, REMOTE_STORAGE};
 		
 		private boolean isLocal;
 		private boolean isRandomAccess;
@@ -706,12 +707,12 @@ public class DataManager {
 
 	public File getLocalFile(DataBean bean) throws IOException {
 		
-		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_USER);
+		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
 		
 		// convert non local file beans to local file beans
 		if (location == null) {
 			this.convertToLocalTempDataBean(bean);
-			location = bean.getContentLocation(StorageMethod.LOCAL_USER);
+			location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
 		}
 		
 		// get the file
@@ -870,7 +871,7 @@ public class DataManager {
 			return localFileContentHandler;
 			
 		case REMOTE_CACHED:
-		case REMOTE_LONGTERM:
+		case REMOTE_STORAGE:
 			return remoteContentHandler;
 			
 		default:
