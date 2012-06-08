@@ -209,7 +209,9 @@ public class TableColumnProvider extends FeatureProviderBase {
 				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 				MatrixParseSettings settings = new MatrixParseSettings();
 
-				// check what kind of matrix we are dealing with TODO remove this Affymetrix CEL specific functionality here and use type tags
+				// check what kind of matrix we are dealing with 
+				// TODO remove this Affymetrix CEL specific functionality here, (type tags would not help removing "CellHeader=" etc., 
+				// must create module.inferSettings(bean) or similar
 				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
 					logger.debug("parsing cel type");
 					settings.headerTerminator = "CellHeader=";

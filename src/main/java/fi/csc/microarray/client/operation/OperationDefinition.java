@@ -10,13 +10,12 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.description.GenericInputTypes;
-import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLSyntax.InputType;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
@@ -562,7 +561,7 @@ public class OperationDefinition implements ExecutionItem {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 			
 		} else if (type == ChipsterInputTypes.PHENODATA) {
-			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			return data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			
 		} else if (type == GenericInputTypes.GENERIC) {
 			return true;
@@ -572,7 +571,7 @@ public class OperationDefinition implements ExecutionItem {
 		}
 	}
 
-	// TODO update to new type tag system
+	// TODO update to meta input type
 	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
 		return input.id.startsWith("phenodata");
 	}

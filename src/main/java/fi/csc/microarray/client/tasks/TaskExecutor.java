@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -29,23 +28,25 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.TempTopicMessagingListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
@@ -261,13 +262,14 @@ public class TaskExecutor {
 					case COMPLETED:
 						updateTaskState(pendingTask, State.TRANSFERRING_OUTPUTS, null, -1);
 						try {
-							extractPayloads(resultMessage);
+							extractOutputs(resultMessage);
 						} catch (Exception e) {
 							logger.error("Getting outputs failed", e);
+							e.printStackTrace();
 
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
+							// usually taskFinished would pick the error message from
+							// ResultMessage, but here we use the stack trace
+							pendingTask.setErrorMessage(Exceptions.getStackTrace(e));
 							taskFinished(State.ERROR, "Transferring outputs failed", null);
 							break;
 						}
@@ -329,13 +331,12 @@ public class TaskExecutor {
 			}
 		}
 
-		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
+		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
-				InputStream payload = fileBroker.getFile(payloadUrl); 
-				DataBean bean = manager.createDataBean(name, payload);
-				bean.setCacheUrl(payloadUrl);
+				DataBean bean = manager.createDataBean(name);
+				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
@@ -475,19 +476,21 @@ public class TaskExecutor {
 						
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
+						URL url = bean.getUrl(StorageMethod.REMOTE_CACHED);
 						try {
 							bean.getLock().readLock().lock();
 
-							// bean modified, upload
+							// bean modified, always upload
 							if (bean.isContentChanged()) {
-								System.out.println("task executor says content length is: " + bean.getName() + " " + bean.getContentLength());
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener)); 
+								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
 								bean.setContentChanged(false);
-							} 
-
-							// bean not modified, check cache, upload if needed
-							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener));
+								
+							}
+							// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
+							else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
+								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 							}
 
 						} finally {
@@ -495,8 +498,7 @@ public class TaskExecutor {
 						}
 
 						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getCacheUrl());
-						
+						jobMessage.addPayload(name, url);
 						
 						logger.debug("added input " + name + " to job message.");
 						i++;
@@ -718,13 +720,14 @@ public class TaskExecutor {
 			DataBean bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
-				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null)); // no progress listening on resends 
+				URL url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null);
+				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 				bean.setContentChanged(false);
 			} finally {
 				bean.getLock().readLock().unlock();
 			}
 			
-			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED)); // no progress listening on resends
 		}
 		jobMessage.setReplyTo(replyTo);
 

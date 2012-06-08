@@ -72,6 +72,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -1050,22 +1051,26 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		// Find interpretations for all primary data types
 		for (DataBean data : datas) {
 
-			if (data.isContentTypeCompatitible("text/plain")) {
-				// ELAND result / export
-				interpretations.add(new Interpretation(TrackType.READS, data));
+			// accept only datasets that are tagged to contain "ordered genomic entities"
+			if (data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
+				
+				if (data.isContentTypeCompatitible("text/plain")) {
+					// ELAND result / export
+					interpretations.add(new Interpretation(TrackType.READS, data));
 
-			} else if (data.isContentTypeCompatitible("text/bed")) {
-				// BED (ChIP-seq peaks)
-				interpretations.add(new Interpretation(TrackType.REGIONS, data));
+				} else if (data.isContentTypeCompatitible("text/bed")) {
+					// BED (ChIP-seq peaks)
+					interpretations.add(new Interpretation(TrackType.REGIONS, data));
 
-			} else if (data.isContentTypeCompatitible("text/tab")) {
-				// peaks (with header in the file)
-				interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
+				} else if (data.isContentTypeCompatitible("text/tab")) {
+					// peaks (with header in the file)
+					interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-					(data.getName().endsWith(".bam"))) {
-				// BAM file
-				interpretations.add(new Interpretation(TrackType.READS, data));
+				} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+						(data.getName().endsWith(".bam"))) {
+					// BAM file
+					interpretations.add(new Interpretation(TrackType.READS, data));
+				}
 			}
 		}
 
