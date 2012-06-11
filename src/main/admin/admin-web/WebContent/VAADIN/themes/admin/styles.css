@@ -90,3 +90,21 @@
 .empty-view {
 	background: gray;
 }
+
+.v-table-cell-content-failure {
+    color: red;
+    background-image: url("crystal/agt_action_fail1.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    background-size: 16px 16px;
+    text-indent: 20px;
+}
+
+.v-table-cell-content-success {
+    color: green;
+    background-image: url("crystal/agt_action_success.png");
+    background-repeat: no-repeat;
+    background-position: 5px;
+    background-size: 16px 16px;
+    text-indent: 20px;
+}

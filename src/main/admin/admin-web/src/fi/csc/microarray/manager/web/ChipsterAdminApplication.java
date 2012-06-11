@@ -18,6 +18,7 @@ public class ChipsterAdminApplication extends Application {
 
 	// configuration file path
 	private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
+	//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
 
 	{
 		try {
@@ -45,7 +46,13 @@ public class ChipsterAdminApplication extends Application {
 		if (serviceView == null) {
 
 			serviceView = new ServicesView(this);
-			serviceView.loadData();
+			try {
+				serviceView.loadData();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		return serviceView;
 	}
@@ -70,7 +77,7 @@ public class ChipsterAdminApplication extends Application {
 
 
 	private void buildMainLayout() {
-		setMainWindow(new Window("Chipster admin application"));
+		setMainWindow(new Window("Chipster admin web"));
 
 		horizontalSplit = new HorizontalLayout();
 		horizontalSplit.setSizeFull();
