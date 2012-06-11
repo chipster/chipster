@@ -1,0 +1,92 @@
+@import url(../runo/styles.css);
+
+.toolbar .v-button,.navigation .v-button {
+	background: transparent;
+	border: none;
+	text-align: left;
+}
+
+.navigation .v-button {
+	height: 110px;
+}
+
+
+.toolbar .v-textfield {
+	background: #BBB;
+	margin-left: 5px;
+	margin-top: 1px;
+}
+
+.toolbar .search-button img {
+	widhth: 16px;
+	height: 16px;
+}
+
+.toolbar .search-filter {
+	background: #A0A0A0;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 5px;
+	margin-righ: 5px;
+	padding-top: 5px;
+	padding-bottom: 3px;
+	padding-left: 15px;
+}
+
+.navigation .v-button img {
+	display: block;
+	margin-bottom: 5px;
+	width: 64px;
+	height: 64px;
+}
+
+.toolbar .v-button span, .navigation .v-button span {
+	text-shadow: #fafafa 1px 1px 0;
+}
+
+.toolbar .v-button .v-button-wrap,.toolbar .v-disabled.v-button .v-button-wrap,.navigation .v-button .v-button-wrap,.navigation .v-disabled.v-button .v-button-wrap
+	{
+	background: transparent;
+	border: none;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+.toolbar .v-button:active .v-button-wrap,.toolbar .v-button.v-pressed .v-button-wrap,.navigation .v-button:active .v-button-wrap,.navigation .v-button.v-pressed .v-button-wrap
+	{
+	background: transparent;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+.toolbar {
+	background: #ccc url(images/gradient.png) repeat-x bottom left;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.v-app {
+	background: grey;
+	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+	color: #222;
+}
+
+.view {
+	background: white;
+}
+
+.navigation {
+	background: #303030;
+}
+
+.empty-view {
+	background: gray;
+}
