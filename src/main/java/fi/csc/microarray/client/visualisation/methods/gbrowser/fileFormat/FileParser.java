@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
@@ -48,7 +48,7 @@ public abstract class FileParser {
 	 * @return Region where start is the start position of the first row of chunk and the end is 
 	 * the start position of the last row of chunk 
 	 */
-	public abstract BpCoordRegion getBpRegion(Chunk chunk);
+	public abstract Region getBpRegion(Chunk chunk);
 
 	/**
 	 * @return Human readable name of the file format.

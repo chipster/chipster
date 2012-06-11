@@ -31,6 +31,8 @@ public class ChunkFileFetcherThread extends Thread {
 	private ChunkDataSource dataSource;
 
 	private FileParser inputParser;
+	
+	private boolean poison = false;
 
 	public ChunkFileFetcherThread(BlockingQueue<ChunkFileRequest> fileRequestQueue,
 	        ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue,
@@ -48,7 +50,7 @@ public class ChunkFileFetcherThread extends Thread {
 
 	public void run() {
 
-		while (true) {
+		while (!poison) {
 			try {
 				processFileRequest(fileRequestQueue.take());
 				
@@ -58,6 +60,8 @@ public class ChunkFileFetcherThread extends Thread {
 				e.printStackTrace(); // FIXME fix exception handling
 			}
 		}
+		
+		dataSource.close();
 	}
 	
 	/**
@@ -74,6 +78,11 @@ public class ChunkFileFetcherThread extends Thread {
 	 * @throws IOException
 	 */
 	private void processFileRequest(ChunkFileRequest fileRequest) throws IOException {
+		
+		if (fileRequest.status.poison) {
+			poison = true;
+			return;
+		}
 		
 		Chunk chunk = new Chunk();
 		ByteRegion exactRegion = null;
@@ -182,5 +191,9 @@ public class ChunkFileFetcherThread extends Thread {
 			e.printStackTrace(); // FIXME fix exception handling 
 		}
 		return 0;
+	}
+	
+	public String toString() {
+		return this.getClass().getName() + " - " + dataSource;
 	}
 }

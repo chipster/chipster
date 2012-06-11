@@ -213,6 +213,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public void removeVisualisationComponent() {
 
 		if (lastVisualisationPanel != null) {
+			
 			// remove all references to visualisation panel
 			viewChangerPanel.remove(lastVisualisationPanel);
 			viewChangerLayout.removeLayoutComponent(lastVisualisationPanel);

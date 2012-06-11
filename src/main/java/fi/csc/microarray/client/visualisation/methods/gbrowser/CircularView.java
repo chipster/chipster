@@ -17,7 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
@@ -206,7 +206,7 @@ public class CircularView extends View {
 				startBp = 0;
 			}
 
-			setBpRegion(new BpCoordRegionDouble(startBp, endBp, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(startBp, endBp, new Chromosome("1")), false);
 		}
 	}
 

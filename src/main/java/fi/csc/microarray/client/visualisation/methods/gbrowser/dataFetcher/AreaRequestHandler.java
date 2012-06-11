@@ -19,6 +19,8 @@ public abstract class AreaRequestHandler extends Thread {
 	private Queue<AreaRequest> areaRequestQueue;
 	private AreaResultListener areaResultListener;
 
+	private boolean poison = false;
+
 	public AreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
 		super();
@@ -33,7 +35,7 @@ public abstract class AreaRequestHandler extends Thread {
 	 */
 	public synchronized void run() {
 
-		while (true) {
+		while (!poison) {
 			AreaRequest areaRequest;
 			if ((areaRequest = areaRequestQueue.poll()) != null) {
 				areaRequest.status.areaRequestCount = areaRequestQueue.size();
@@ -63,7 +65,14 @@ public abstract class AreaRequestHandler extends Thread {
 		notifyAll();
 	}
 
-	protected abstract void processAreaRequest(AreaRequest areaRequest);
+	protected void processAreaRequest(AreaRequest areaRequest) {
+
+		if (areaRequest.status.poison) {
+
+			this.areaResultListener = null;
+			this.poison = true;
+		}
+	}
 
 	/**
 	 * Pass the result to be visualised in GUI.
@@ -74,7 +83,9 @@ public abstract class AreaRequestHandler extends Thread {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				areaResultListener.processAreaResult(areaResult);
+				if (areaResultListener != null) {
+					areaResultListener.processAreaResult(areaResult);
+				}
 			}
 		});
 	}

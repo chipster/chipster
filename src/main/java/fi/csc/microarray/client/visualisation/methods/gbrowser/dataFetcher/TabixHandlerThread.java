@@ -30,6 +30,14 @@ public class TabixHandlerThread extends AreaRequestHandler {
 	 */
 	@Override
 	protected void processAreaRequest(AreaRequest areaRequest) {       
+		
+		//No other threads to poison, this one killed in parent class.
+		super.processAreaRequest(areaRequest);
+		
+		if (areaRequest.status.poison) {
+			return;
+		}
+		
 		try {
 			createAreaResult(new AreaResult(areaRequest.status, tabixData.getTabix().getReads(areaRequest)));
 			
