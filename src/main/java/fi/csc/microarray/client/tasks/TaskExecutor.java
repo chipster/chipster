@@ -480,7 +480,6 @@ public class TaskExecutor {
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								System.out.println("task executor says content length is: " + bean.getName() + " " + bean.getContentLength());
 								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
