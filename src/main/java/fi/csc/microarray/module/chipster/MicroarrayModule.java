@@ -417,11 +417,6 @@ public class MicroarrayModule implements Module {
 		return BasicModule.shortenCategoryName(categoryName);
 	}
 
-	@Override
-	public boolean countOperationResults() {
-		return true;
-	}
-
 	/**
 	 * Generates nice context link panel for quickly using genome browser. If not in standalone
 	 * mode, null is returned. 
