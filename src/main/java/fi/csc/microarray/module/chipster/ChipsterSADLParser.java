@@ -22,6 +22,7 @@ public class ChipsterSADLParser extends SADLParser {
 		addInputType(ChipsterInputTypes.GENE_EXPRS);
 		addInputType(ChipsterInputTypes.GENELIST);
 		addInputType(ChipsterInputTypes.PHENODATA);
+		addInputType(ChipsterInputTypes.BAM);
 	}
 	
 	public static class Validator {
