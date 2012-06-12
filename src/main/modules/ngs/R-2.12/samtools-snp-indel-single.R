@@ -38,6 +38,3 @@ command2 <- paste(bcftools.binary, "view var.raw.bcf |", vcfutils.binary, "varFi
 #stop(paste('CHIPSTER-NOTE: ', command1))
 system(command1)
 system(command2)
-
-
-
