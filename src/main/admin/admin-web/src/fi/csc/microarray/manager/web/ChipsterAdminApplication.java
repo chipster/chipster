@@ -17,8 +17,8 @@ import fi.csc.microarray.manager.web.ui.ServicesView;
 public class ChipsterAdminApplication extends Application {
 
 	// configuration file path
-	private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
-	//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
+	//private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
+	private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
 
 	{
 		try {
