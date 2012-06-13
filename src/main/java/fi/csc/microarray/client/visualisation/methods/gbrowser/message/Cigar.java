@@ -16,57 +16,58 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
  *
  */
 public class Cigar {
-	private List<CigarItem> elements = new ArrayList<CigarItem>();
+	private List<CigarItem> cigarItems = new ArrayList<CigarItem>();
 	private LinkedList<ReadPart> visibleElements = null;
+	private LinkedList<ReadPart> processedElements = null;
 	private RegionContent read;
 	private net.sf.samtools.Cigar samCigar;
-	
+
 	public Cigar(RegionContent read, net.sf.samtools.Cigar samCigar) {
 		this.read = read;
 		this.samCigar = samCigar;
-		
-    	for (CigarElement picardElement : samCigar.getCigarElements()) {
-    		elements.add(new CigarItem(picardElement));
-    	}
+
+		for (CigarElement picardElement : samCigar.getCigarElements()) {
+			cigarItems.add(new CigarItem(picardElement));
+		}
 	}
-	
+
 	public void addElement(CigarItem e) {
 	}
-	
+
 	@Deprecated
 	public long getReferenceIndex(long seqIndex) {
-		
+
 		long seqCounter = 0;
 		long refCounter = 0;
-		
-		for (CigarItem element : elements) {
-									
+
+		for (CigarItem element : cigarItems) {
+
 			if (element.getType().equals("M")) {
-				
+
 				seqCounter += element.getLength();
 				refCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("S")) {
-				
+
 				seqCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("D") || 
 					element.getType().equals("N") || 
 					element.getType().equals("H")) {
-				
+
 				refCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("I")) {
-				
+
 				seqCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("P")) {
-				
+
 				//Do nothing, padded element exist only in some other read, not in this sequence nor in reference
 			}
-			
+
 			if (seqCounter > seqIndex) {
-				
+
 				if (element.getType().equals("I")) {
 					//There isn't reference sequence for insertion
 					return -1; 
@@ -74,15 +75,15 @@ public class Cigar {
 					//TODO how to draw this?
 					return -1; 
 				}
-				
+
 				return seqIndex + refCounter - seqCounter;
 			}
 		}
-		
+
 		//Request out of this read
 		return -1;
 	}
-	
+
 	/* 
 	 * RegionContents are compared currently with the toString method, here we return anything
 	 * constant so that comparison doesn't care about this object.
@@ -100,50 +101,49 @@ public class Cigar {
 	 * 
 	 * @return list of ReadPart objects, one for each of the Cigar elements
 	 */
-	public static List<ReadPart> splitVisibleElements(RegionContent read) {
+	public static List<ReadPart> splitElements(RegionContent read) {
 		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
 
 		if (cigar == null) {
 			return Arrays.asList(new ReadPart[] { new ReadPart(read) });
 
 		} else {
-			return cigar.getVisibleElements();
-		}
 
+			return cigar.getElements();
+		}
 	}
-	
-	private List<ReadPart> getVisibleElements() {
-		
+
+	private List<ReadPart> getElements() {
+
 		// Regions are parsed lazily
-		if (visibleElements == null) {
-			visibleElements = new LinkedList<ReadPart>();
+		if (processedElements == null) {
+			processedElements = new LinkedList<ReadPart>();
 
 			// Split read into regions using cigar
 			long refCoord = read.region.start.bp;
 			long seqCoord = 0;
 			String seq = (String) read.values.get(ColumnType.SEQUENCE);
 
-			for (CigarItem element : elements) {
+			for (CigarItem cigarItem : cigarItems) {
 
-				if (element.isVisible()) {
-					String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + element.getLength()));
-					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, read, subSeq);
-					visibleElements.add(region);
+				String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + cigarItem.getLength()));
+				ReadPart region = new ReadPart(refCoord, refCoord + cigarItem.getLength(), read.region.start.chr, read, subSeq);
+				region.setCigarItem(cigarItem);
+				processedElements.add(region);
+
+				if (cigarItem.consumesReferenceBases()) {
+					refCoord += cigarItem.getLength();
 				}
 
-				if (element.consumesReferenceBases()) {
-					refCoord += element.getLength();
-				}
-
-				if (element.consumesReadBases()) {
-					seqCoord += element.getLength();
+				if (cigarItem.consumesReadBases()) {
+					seqCoord += cigarItem.getLength();
 				}
 
 			}
 		}
-		return visibleElements;
+		return processedElements;
 	}
-	
+
 	public String toInfoString() {
 		return "Cigar: " + samCigar.toString();
 	}

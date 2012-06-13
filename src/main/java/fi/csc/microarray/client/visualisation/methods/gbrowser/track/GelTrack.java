@@ -78,6 +78,11 @@ public class GelTrack extends Track {
         	if (!element.intersects(getView().getBpRegion())) {
         		continue;
         	}
+        	
+			// Skip invisible types
+			if (!element.isVisible()) {
+				continue;
+			}
 
         	// collect relevant data for this read
         	BpCoord startBp = element.start;
