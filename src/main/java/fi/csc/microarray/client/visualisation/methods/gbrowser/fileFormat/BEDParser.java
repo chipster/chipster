@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.util.IOUtils;
 
@@ -76,6 +81,10 @@ public class BEDParser extends TsvParser {
 	@Override
 	public Object get(String[] cols, ColumnType col) {
 		Object obj = super.get(cols, col);
+		
+		if (col == ColumnType.BP_START || col == ColumnType.BP_END) {
+			return (Long)obj + 1;
+		}
 		return obj;
 	}
 	
@@ -103,5 +112,11 @@ public class BEDParser extends TsvParser {
 		} finally {
 			IOUtils.closeIfPossible(in);
 		}
+	}
+	
+	@Override
+	public BpCoordRegion getBpRegion(Chunk chunk) {
+		BpCoordRegion reg = super.getBpRegion(chunk);
+		return new BpCoordRegion(reg.start.bp + 1, reg.start.chr, reg.end.bp + 1, reg.end.chr);
 	}
 }
