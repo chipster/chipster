@@ -72,15 +72,14 @@ public class SeqBlockTrack extends Track {
 
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
-
-		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
-		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
-		//int reads = 0;
-		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
-		List<Integer> occupiedSpace = new ArrayList<Integer>();
-
+		
 		Iterator<RegionContent> readIter = reads.iterator();
 		RegionContent read = null;
+		
+		TreeSet<RegionContent> dividedReads = new TreeSet<RegionContent>();
+	
+		Collection<CigarItemType> splitters = new HashSet<CigarItemType>();
+		splitters.add(CigarItemType.N);
 
 		while (readIter.hasNext()) {
 			read = readIter.next();
@@ -90,13 +89,33 @@ public class SeqBlockTrack extends Track {
 				readIter.remove();
 				continue;
 			}
+			
+			dividedReads.addAll(Cigar.splitRead(read, splitters));
+		}
+
+		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
+		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
+		//int reads = 0;
+		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
+		List<Integer> occupiedSpace = new ArrayList<Integer>();
+
+		Iterator<RegionContent> splittedReadIter = dividedReads.iterator();
+		RegionContent splittedRead = null;
+
+		while (splittedReadIter.hasNext()) {
+			splittedRead = splittedReadIter.next();
+
+			// Skip elements that are not in this view
+			if (!splittedRead.region.intersects(getView().getBpRegion())) {
+				continue;
+			}
 
 			// Width in basepairs
-			long widthInBps = read.region.getLength();
+			long widthInBps = splittedRead.region.getLength();
 
 			// Create rectangle covering the correct screen area (x-axis)
 			Rectangle readRect = new Rectangle();
-			readRect.x = getView().bpToTrack(read.region.start);
+			readRect.x = getView().bpToTrack(splittedRead.region.start);
 			readRect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
 
 			//			// Do not draw invisible rectangles
@@ -132,7 +151,7 @@ public class SeqBlockTrack extends Track {
 				continue;
 			}
 
-			for (ReadPart readPart : Cigar.splitElements(read)) {
+			for (ReadPart readPart : Cigar.splitElements(splittedRead)) {
 
 				// Width in basepairs
 				widthInBps = readPart.getLength();
@@ -234,22 +253,19 @@ public class SeqBlockTrack extends Track {
 					}
 				} else if (readPart.getCigarItem() != null) { //invisible cigar type
 
-					if (rect.width > seq.length()) {
+					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.D)) {
+						Color color = Color.black;
 
-						if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.D)) {
-							Color color = Color.black;
+						rect.grow(0, -1);
 
-							rect.grow(0, -2);
-
-							drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
-						}
-
-						if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
-							Color color = Color.black;
-
-							drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
-						}					
+						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
 					}
+
+					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
+						Color color = Color.black;
+
+						drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+					}					
 				}
 			}
 		}
