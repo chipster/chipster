@@ -56,6 +56,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -360,7 +361,7 @@ public class SessionReplayTest extends MessagingTestBase {
 						OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
 						InputStream sourceIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
+							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 							IOUtils.copy(sourceIn, metadataOut);
 						} finally {
 							IOUtils.closeIfPossible(sourceIn);
@@ -399,8 +400,8 @@ public class SessionReplayTest extends MessagingTestBase {
 					if (CHECK_CONTENTS) {
 						InputStream sourceIn = null, targetIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
-							targetIn = targetBean.getContentByteStream();
+							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+							targetIn = targetBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
 
 								if (sourceBean.getName().equals(targetBean.getName())) {

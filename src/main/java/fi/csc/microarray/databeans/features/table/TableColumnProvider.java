@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans.features.table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -11,11 +12,14 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
+import fi.csc.microarray.databeans.features.ConstantTableFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.databeans.features.ConstantTableFeature.ConstantTable;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.IOUtils;
@@ -195,7 +199,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		@Override
 		public Table asTable() throws MicroarrayException {
 			if (indexCollector.isEmpty()) {
-				return null;
+				return new ConstantTable(new HashMap<String, Integer>(), new Object[][] {{}});
 				
 			} else {
 				return new DynamicallyParsedTable(getDataBean(), settings, indexCollector);
@@ -205,7 +209,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
 			BufferedReader bufferedReader = null;
 			try {
-				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EMPTY_ON_NA)));
 				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 				MatrixParseSettings settings = new MatrixParseSettings();
 

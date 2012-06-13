@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -59,6 +60,7 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
@@ -662,15 +664,20 @@ public class MicroarrayModule implements Module {
 	
 	private String readFirstLine(DataBean data) {
 
-		BufferedReader in = null;
+		BufferedReader reader = null;
 		try {
-			in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-			return in.readLine();
+			InputStream stream = data.getContentStream(DataNotAvailableHandling.NULL_ON_NA);
+			if (stream != null) {
+				reader = new BufferedReader(new InputStreamReader(stream));
+				return reader.readLine();
+			} else {
+				return "";
+			}
 			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(reader);
 		}
 	}
 

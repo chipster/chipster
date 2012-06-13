@@ -17,6 +17,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -67,7 +68,7 @@ public class IntegratedSelectionManager {
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
 		BufferedReader original = null;
-		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+		original = new BufferedReader(new InputStreamReader(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
 		String line;
 
 		//For binary search

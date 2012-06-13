@@ -28,6 +28,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -481,14 +482,14 @@ public class TaskExecutor {
 
 							// bean modified, always upload
 							if (bean.isContentChanged()) {
-								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								url = fileBroker.addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
 								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
 								bean.setContentChanged(false);
 								
 							}
 							// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
 							else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
-								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+								url = fileBroker.addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
 								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 							}
 
@@ -719,7 +720,7 @@ public class TaskExecutor {
 			DataBean bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
-				URL url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null);
+				URL url = fileBroker.addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), null);
 				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 				bean.setContentChanged(false);
 			} finally {

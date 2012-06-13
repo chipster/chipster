@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
@@ -33,7 +34,7 @@ public class HierarchicalClusterProvider extends FeatureProviderBase {
 					BufferedReader reader = null;
 					String tree = "";
 					try {
-						reader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+						reader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
 						boolean first = true;
 						for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 							tree += line;

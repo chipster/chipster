@@ -70,6 +70,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
@@ -515,7 +516,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				DataBean data = interpretation.primaryData;
 				InputStream in = null;
 				try {
-					in  = data.getContentByteStream();
+					in  = data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
 				} finally {
 					IOUtils.closeIfPossible(in);

@@ -60,6 +60,7 @@ import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
@@ -658,7 +659,7 @@ public abstract class ClientApplication {
 
 					newFile.createNewFile();		
 					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(data.getContentByteStream(), out);
+					IO.copy(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), out);
 					out.close();
 				} catch (Exception e) {
 					throw new RuntimeException(e);

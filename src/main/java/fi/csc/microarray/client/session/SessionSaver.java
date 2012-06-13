@@ -35,6 +35,7 @@ import fi.csc.microarray.client.session.schema2.ParameterType;
 import fi.csc.microarray.client.session.schema2.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -529,7 +530,7 @@ public class SessionSaver {
 			String entryName = entry.getValue().getRef();
 
 			// write bean contents to zip
-			writeFile(zipOutputStream, entryName, entry.getKey().getContentByteStream());
+			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
 			zipOutputStream.closeEntry();
 		}
 	}

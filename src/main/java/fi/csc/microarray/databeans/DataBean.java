@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -38,6 +39,32 @@ import fi.csc.microarray.util.IOUtils;
  *
  */
 public class DataBean extends DataItemBase {
+	
+	
+	/**
+	 * What to return when none of the data locations are available?
+	 */
+	public static enum DataNotAvailableHandling {
+		/**
+		 * Throw an exception if data is not available.
+		 */
+		EXCEPTION_ON_NA,
+
+		/**
+		 * Return null if data is not available.
+		 */
+		NULL_ON_NA,
+		
+		/**
+		 * Return empty data if data is not available.
+		 */
+		EMPTY_ON_NA,
+		
+		/**
+		 * Return an info string describing the situation and giving details on data availability.
+		 */
+		INFOTEXT_ON_NA
+	}
 	
 	/**
 	 * Defines a location where the actual file content of the DataBean can be accessed from.
@@ -259,44 +286,38 @@ public class DataBean extends DataItemBase {
 	}
 
 
-
-	/**
-	 * Returns raw binary content of this bean. Use Feature API for 
-	 * higher level accessing.
-	 * 
-	 * @see #queryFeatures(String)
-	 */
-	public InputStream getContentByteStream() throws IOException {
-		return getRawContentByteStream();
-	}
-
-
 	/**
 	 * A convenience method for gathering streamed binary content into
-	 * a byte array.
+	 * a byte array. Returns null if none of the content locations are available. 
 	 * 
 	 * @throws IOException 
 	 * 
-	 * @see #getContentByteStream()
+	 * @see #getContentStream()
 	 */
-	public byte[] getContents() throws IOException {
-		return getContents(-1); // -1 means "no max length"
+	public byte[] getContentBytes(DataNotAvailableHandling naHandling) throws IOException {
+		return getContentBytes(-1, naHandling); // -1 means "no max length"
 	}
 
 	/**
 	 * A convenience method for gathering streamed binary content into
-	 * a byte array. Gathers only maxLength first bytes.
+	 * a byte array. Gathers only maxLength first bytes. Returns null if 
+	 * none of the content locations are available. 
 	 * 
 	 * @throws IOException 
 	 * 
-	 * @see #getContentByteStream()
+	 * @see #getContentStream()
 	 */
-	public byte[] getContents(long maxLength) throws IOException {
+	public byte[] getContentBytes(long maxLength, DataNotAvailableHandling naHandling) throws IOException {
 		
 		InputStream in = null;
 		try {
-			in = getContentByteStream();
-			return Files.inputStreamToBytes(in, maxLength);
+			in = getContentStream(naHandling);
+			if (in != null) {
+				return Files.inputStreamToBytes(in, maxLength);	
+				
+			} else {
+				return null;
+			}
 			
 		} finally {
 			IOUtils.closeIfPossible(in);
@@ -306,12 +327,17 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Returns content size in bytes.
+	 * Returns content size in bytes. Returns -1 if 
+	 * none of the content locations are available. 
 	 */
 	public long getContentLength() {
 		try {
 			ContentLocation location = getClosestContentLocation();
-			return location.getHandler().getContentLength(location);
+			if (location != null) {
+				return location.getHandler().getContentLength(location);
+			} else {
+				return -1;
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -710,30 +736,62 @@ public class DataBean extends DataItemBase {
 
 
 
-	private InputStream getRawContentByteStream() throws IOException {
+	/**
+	 * Returns raw binary content of this bean. Returns null if 
+	 * none of the content locations are available. Use Feature API for 
+	 * higher level accessing.
+	 * 
+	 * @see #queryFeatures(String)
+	 */
+	public InputStream getContentStream(DataNotAvailableHandling naHandling) throws IOException {
 		ContentLocation location = getClosestContentLocation();
-		return location.getHandler().getInputStream(location);
+		if (location != null) {
+			return location.getHandler().getInputStream(location);
+		} else {
+			switch (naHandling) {
+			case EMPTY_ON_NA:
+				return new ByteArrayInputStream(new byte[] {});
+				
+			case INFOTEXT_ON_NA:
+				return new ByteArrayInputStream("Data currently not available".getBytes());
+				
+			case NULL_ON_NA:
+				return null;
+				
+			default:
+				throw new IllegalStateException("no content locations available");	
+			
+			}
+		}
 	}
 	
+	/**
+	 * Returns the ContentLocation that is likely to be the fastest available. 
+	 * All returned ContentLocations are checked to be accessible. Returns null
+	 * if none of the locations are accessible.
+	 */
 	public ContentLocation getClosestContentLocation() {
-		
-		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_USER);
+
+		// first tier
+		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
 		if (plainLocal != null && isAccessible(plainLocal)) {
 			return plainLocal;
 		}
-
 		
-		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_CACHED);
+		// second tier
+		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_FILE_METHODS);
 		if (plainRemote != null && isAccessible(plainRemote)) {
 			return plainRemote;
 		}
 		
-		ContentLocation compressedLocal = getContentLocation(StorageMethod.LOCAL_SESSION);
-		if (compressedLocal != null && isAccessible(compressedLocal)) {
-			return compressedLocal;
+		// third tier
+		ContentLocation somethingSlow = getContentLocation(StorageMethod.OTHER_SLOW_METHODS);
+		if (somethingSlow != null && isAccessible(somethingSlow)) {
+			return somethingSlow;
 		}
 
-		throw new IllegalStateException("data bean has not been properly initialised with URL");
+		// nothing was accessible
+		return null;
 	}
 
 

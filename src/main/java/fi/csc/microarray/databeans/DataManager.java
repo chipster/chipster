@@ -25,6 +25,7 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -34,7 +35,6 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -49,8 +49,11 @@ public class DataManager {
 		REMOTE_CACHED(false, true),
 		REMOTE_STORAGE(false, true);
 		
+		// Groups that describe how fast different methods are to access.
+		// Keep these up-to-date when you add methods!
 		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
 		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_CACHED, REMOTE_STORAGE};
+		public static StorageMethod[] OTHER_SLOW_METHODS = {LOCAL_SESSION};
 		
 		private boolean isLocal;
 		private boolean isRandomAccess;
@@ -736,7 +739,7 @@ public class DataManager {
 		// copy contents to new file
 		File newFile = this.createNewRepositoryFile(bean.getName());
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-		BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+		BufferedInputStream in = new BufferedInputStream(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
 		try {
 			IOUtils.copy(in, out);
 		} finally {
