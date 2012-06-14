@@ -5,13 +5,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 /**
  * Single spliced part of a spliced read. 
 
- * @author Aleksi Kallio
+ * @author Aleksi Kallio, Petri Klemelä
  *
  */
 public class ReadPart extends BpCoordRegion {
 	
 	private String sequencePart;
 	private RegionContent read;
+	private CigarItem cigarItem;
+
 
 	public ReadPart(Long start, Long end, Chromosome chr, RegionContent read, String sequencePart) {
 		super(start, end, chr);
@@ -37,7 +39,18 @@ public class ReadPart extends BpCoordRegion {
 		this.sequencePart = sequencePart;
 	}
 
+	public CigarItem getCigarItem() {
+		return cigarItem;
+	}
 	
+	public void setCigarItem(CigarItem cigarItem) {
+		this.cigarItem = cigarItem;
+	}
 	
-
+	public boolean isVisible() {
+		if (cigarItem != null) {
+			return cigarItem.isVisible();
+		}
+		return true;
+	}
 }

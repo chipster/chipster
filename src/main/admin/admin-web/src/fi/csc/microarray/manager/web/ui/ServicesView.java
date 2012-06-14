@@ -38,8 +38,10 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		this.setSizeFull();
 	}
 	
-	public void loadData() {
-		ServiceContainer.update(this);
+	public void loadData() throws InstantiationException, IllegalAccessException {
+		dataSource = new ServiceContainer();
+		table.setContainerDataSource(dataSource);
+		dataSource.update(this);
 	}
 	
 	public ServiceContainer getDataSource() {
@@ -70,7 +72,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		final Button source = event.getButton();
 		
 		if (source == refreshButton) {
-			ServiceContainer.update(this);
+			dataSource.update(this);
 		}
 	}
 
@@ -81,20 +83,17 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		}
 	}
 
-	public void setDataSource(ServiceContainer container) {
-		this.dataSource = container;
-		table.setContainerDataSource(dataSource);
-		
+	public ChipsterAdminApplication getApp() {
+		return app;
+	}
+
+	public void dataUpdated() {
 		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
 		
 		getApp().getMainWindow().showNotification(
 				"Found "
-						+ table.getContainerDataSource().size() + " services",
+						+ table.getContainerDataSource().size() + " nodes",
 						Notification.TYPE_TRAY_NOTIFICATION);
-	}
-
-	public ChipsterAdminApplication getApp() {
-		return app;
 	}
 }
