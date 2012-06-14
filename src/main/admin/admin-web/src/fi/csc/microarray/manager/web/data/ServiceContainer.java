@@ -25,23 +25,21 @@ Serializable {
 	 * Natural property order for Service bean. Used in tables and forms.
 	 */
 	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"name", "host", "status", "count" };
+		"name", "count", "host", "status" };
 
 	/**
 	 * "Human readable" captions for properties in same order as in
 	 * NATURAL_COL_ORDER.
 	 */
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Service name", "Host", "Status", "Count" };
-
-	private static ServiceContainer container;
+		"Service name", "Service count", "Host", "Status" };
 
 	public ServiceContainer() throws InstantiationException,
 	IllegalAccessException {
 		super(Service.class);
 	}
 
-	public static void update(final ServicesView view) {
+	public void update(final ServicesView view) {
 
 		new Runnable() {
 
@@ -61,24 +59,24 @@ Serializable {
 
 								public void statusUpdated(Map<String, NodeStatus> statuses) {
 
-									try {
-										container = new ServiceContainer();
-									} catch (InstantiationException e) {
-										e.printStackTrace();
-									} catch (IllegalAccessException e) {
-										e.printStackTrace();
-									}
+									removeAllItems();
+
 
 									for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
 										NodeStatus node = entry.getValue();
-										Service service = new Service();
-										service.setName(node.name);
-										service.setHost(node.host);
-										service.setStatus(node.status);
-										service.setCount(node.count);
+										
+										String hosts[] = node.host.split(", ");
+										for (String host : hosts) {
 
-										container.addBean(service);
-									}
+											Service service = new Service();
+											service.setName(node.name);
+											service.setHost(host);
+											service.setStatus(node.status);
+											service.setCount(node.count);
+
+											addBean(service);
+										}
+									}					
 								}
 							});
 
@@ -86,10 +84,9 @@ Serializable {
 					api.areAllServicesUp(true);
 
 					endpoint.close();
-
-					synchronized(view.getApp()) {
-
-						view.setDataSource(container);
+					
+					synchronized (view.getApp()) {
+						view.dataUpdated();
 					}
 
 				} catch (MicroarrayException e) {

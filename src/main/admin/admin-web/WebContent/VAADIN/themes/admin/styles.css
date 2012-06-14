@@ -10,11 +10,11 @@
 	height: 110px;
 }
 
-
 .toolbar .v-textfield {
 	background: #BBB;
 	margin-left: 5px;
 	margin-top: 1px;
+	width: 80px;
 }
 
 .toolbar .search-button img {
@@ -43,7 +43,7 @@
 	height: 64px;
 }
 
-.toolbar .v-button span, .navigation .v-button span {
+.toolbar .v-button span,.navigation .v-button span {
 	text-shadow: #fafafa 1px 1px 0;
 }
 
@@ -89,4 +89,50 @@
 
 .empty-view {
 	background: gray;
+}
+
+.v-table-cell-content-failure, .v-table-cell-content-success {
+	background-repeat: no-repeat;
+	background-position: 5px;
+	background-size: 16px 16px;
+	text-indent: 20px;
+}
+
+.v-table-cell-content-success {
+	color: green;
+	background-image: url("crystal/agt_action_success.png");
+}
+
+.v-table-cell-content-failure {
+	color: red;
+	background-image: url("crystal/agt_action_fail1.png");
+}
+
+
+.v-table-cell-content-authenticator, .v-table-cell-content-analyser, .v-table-cell-content-filebroker, 
+.v-table-cell-content-manager, .v-table-cell-content-client {
+	background-repeat: no-repeat;
+	background-position: 5px;
+	background-size: 24px 24px;
+	text-indent: 30px;
+}
+
+.v-table-cell-content-authenticator {
+	background-image: url("crystal/password.png");
+}
+
+.v-table-cell-content-analyser {
+	background-image: url("crystal/filter.png");
+}
+
+.v-table-cell-content-filebroker {
+	background-image: url("crystal/db.png");
+}
+
+.v-table-cell-content-manager {
+	background-image: url("crystal/contents.png");
+}
+
+.v-table-cell-content-client {
+	background-image: url("crystal/log.png");
 }
