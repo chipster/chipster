@@ -185,11 +185,6 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public boolean countOperationResults() {
-		return false;
-	}
-
-	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}
