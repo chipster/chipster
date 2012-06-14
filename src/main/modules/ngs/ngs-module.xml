@@ -113,12 +113,10 @@
 		</tool>		
 		<tool runtime="R-2.12">
 			<resource>samtools-snp-indel-single.R</resource>
-		</tool>
-		<!-- 
+		</tool> 
 		<tool runtime="R-2.12">
 			<resource>samtools-snp-indel-multiple.R</resource>
 		</tool>
-	    -->
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
