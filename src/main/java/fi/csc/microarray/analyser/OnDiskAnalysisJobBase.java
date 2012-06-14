@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Exceptions;
@@ -133,7 +134,13 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	                    return;
 	                }
 	                
-	            } catch (Exception e) {
+	            } catch (NotEnoughDiskSpaceException nedse) {
+	            	logger.warn("not enough disk space for result file in filebroker");
+	            	outputMessage.setErrorMessage("There was not enough disk space for the result file in the Chipster server. Please try again later.");
+	            	updateState(JobState.FAILED_USER_ERROR, "not enough disk space for results");
+	            }
+	            
+	            catch (Exception e) {
 	                // TODO continue or return? also note the super.postExecute()
 	                logger.error("could not put file to file broker", e);
 	                outputMessage.setErrorMessage("Could not send output file.");

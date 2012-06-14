@@ -334,10 +334,20 @@ public class Files {
 		return files;
 	}
 
+	/**
+	 * Try to make space usable in partition. 
+	 * @param dir
+	 * @param percentage percentage which should be usable
+	 */
 	public static void makeSpaceInDirectoryPercentage(File dir, int percentage) {
 		makeSpaceInDirectoryPercentage(dir, percentage, 0, TimeUnit.SECONDS);
 	}
-	
+
+	/**
+	 * Try to make space usable in partition. 
+	 * @param dir
+	 * @param percentage percentage which should be usable
+	 */
 	public static void makeSpaceInDirectoryPercentage(File dir, int percentage, int minimumFileAge, TimeUnit minimumFileAgeTimeUnit) {
 
 		// check parameters
@@ -365,6 +375,42 @@ public class Files {
 			// delete ok
 			if (file.delete()) {
 				if (partitionHasUsableSpacePercentage(dir, percentage)) {
+					return;
+				} else {
+					continue;
+				}
+			}
+		}
+	}
+
+	public static void makeSpaceInDirectory(File dir, long size) {
+		makeSpaceInDirectory(dir, size, 0, TimeUnit.SECONDS);
+	}
+	
+	public static void makeSpaceInDirectory(File dir, long size, int minimumFileAge, TimeUnit minimumFileAgeTimeUnit) {
+
+		// check parameters
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException(dir.getAbsolutePath() + " is not a directory");
+		}
+		
+		// is there already enough space?
+		if (partitionHasUsableSpaceBytes(dir, size)) {
+			return;
+		}
+		
+		
+		List<File> files = listFilesRecursivelySortByDateOldestFirst(dir);
+		for (File file : files) {
+			// check minimum age
+			long minimumMilliseconds = minimumFileAgeTimeUnit.toMillis(minimumFileAge);
+			if (System.currentTimeMillis() - file.lastModified() <= minimumMilliseconds) {
+				return;
+			}
+			
+			// delete ok
+			if (file.delete()) {
+				if (partitionHasUsableSpaceBytes(dir, size)) {
 					return;
 				} else {
 					continue;

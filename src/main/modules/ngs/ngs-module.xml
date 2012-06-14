@@ -97,11 +97,13 @@
 		<tool runtime="R-2.12">
 			<resource>samtools-consensus.R</resource>
 		</tool>
+		<!--
 		<tool runtime="R-2.12">
 			<resource>bedtools-sort.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-fastafrombed.R</resource>
+		</tool>
+		-->	
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.SortBed</resource>
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>bedtools-slopbed.R</resource>
@@ -109,14 +111,17 @@
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>		
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-single.R</resource>
+		</tool> 
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-multiple.R</resource>
+		</tool>
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
         <tool runtime="R-2.12">
 			<resource>test-data-in-out.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>subset-fastq.R</resource>
 		</tool>	
 	</category>
 
@@ -310,13 +315,4 @@
 			<resource>MEDIPS_two_samples.R</resource>
 		</tool>
 	</category>
-	<category name="Exome-seq" color="#c0d2de">
-		<tool runtime="R-2.12">
-			<resource>samtools-snp-indel-single.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>samtools-snp-indel-multiple.R</resource>
-		</tool>
-	</category>
-
 </module>

@@ -35,7 +35,8 @@ public class RestServlet extends DefaultServlet {
 
 	private String userDataPath;
 	private String publicDataPath;
-	private int cleanUpFreeSpacePerentage;
+	private int cleanUpTriggerLimitPercentage;
+	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	
 	private AuthorisedUrlRepository urlRepository;
@@ -48,7 +49,8 @@ public class RestServlet extends DefaultServlet {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		userDataPath = configuration.getString("filebroker", "user-data-path");
 		publicDataPath = configuration.getString("filebroker", "public-data-path");
-		cleanUpFreeSpacePerentage = configuration.getInt("filebroker", "clean-up-free-space-percentage");
+		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
+		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
 		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
 	}
 	
@@ -116,6 +118,12 @@ public class RestServlet extends DefaultServlet {
 		if (isWelcomePage(request)) {
 			new WelcomePage(rootUrl).print(response);
 		} else {
+			
+			// touch the file
+			File file = locateFile(request);
+			file.setLastModified(System.currentTimeMillis());
+			
+			// delegate to super class
 			super.doGet(request, response);	
 		}
 		
@@ -158,19 +166,30 @@ public class RestServlet extends DefaultServlet {
 			file.delete();
 			throw(e);
 		} finally {
-			// TODO check that IO.copy and closing
 			IOUtils.closeQuietly(out);
 			IOUtils.closeQuietly(in);
 		}
 		
-		// make sure there's space left after the transfer
-		// TODO check that path
-		try {
-//			Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), cleanUpFreeSpacePerentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			Log.warn("could not clean up space after put", e);
-		}
-		
+		// make sure there's enough usable space left after the transfer
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+
+					File userDataDir = new File(getServletContext().getRealPath(userDataPath));
+					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
+
+					if (userDataDir.getUsableSpace() >= usableSpaceSoftLimit) {
+						Log.info("user data dir soft limit reached, cleaning up");
+						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+					} 
+
+				} catch (Exception e) {
+					Log.warn("could not clean up space after put", e);
+				}
+			}
+		}, "chipster-fileserver-cache-cleanup").start();
+
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
 	}
 	

@@ -163,7 +163,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -520,7 +520,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					@Override
 					public void run() {
 						try {
-							logger.info("sending offer message");
 							sendOfferMessage(job);
 						} catch (JMSException e) {
 							synchronized(jobsLock) {

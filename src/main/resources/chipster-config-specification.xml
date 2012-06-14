@@ -103,12 +103,21 @@
 			<value>3600</value>
 		</entry>
 
-		<entry entryKey="clean-up-free-space-percentage" type="int" description="how much space should be available after clean up">
-			<value>20</value>
+		<entry entryKey="clean-up-trigger-limit-percentage" type="int" description="when disk usage reaches this percentage clean up">
+			<value>90</value>
 		</entry>
+
+		<entry entryKey="clean-up-target-percentage" type="int" description="when cleaning up drop disk usage to this percentage">
+			<value>70</value>
+		</entry>
+
 
 		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
 			<value>259200</value>
+		</entry>
+
+		<entry entryKey="minimum-space-for-accept-upload" type="int" description="when client requests for free space, say no if less than this many megabytes would be available after upload, megabytes">
+			<value>100</value>
 		</entry>
 
 
