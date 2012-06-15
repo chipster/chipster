@@ -903,12 +903,14 @@ public class DataManager {
 		
 		// move from cache to storage
 		// TODO error handling
-		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
-		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-			URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
-			dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_LONGTERM, getHandlerFor(StorageMethod.REMOTE_LONGTERM), storageURL));
-			dataBean.removeContentLocation(cacheLocation);
-			return;
+		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
+			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
+				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
+				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_LONGTERM, getHandlerFor(StorageMethod.REMOTE_LONGTERM), storageURL));
+
+				// TODO remove all cache locations
+				return;
+			}
 		}
 
 		// move from elsewhere to storage
