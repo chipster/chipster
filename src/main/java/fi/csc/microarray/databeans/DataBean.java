@@ -188,7 +188,9 @@ public class DataBean extends DataItemBase {
 
 	protected ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
-
+	private long contentLength = -1;
+	private long checksum;
+	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this.name = name;
 		this.contentType = contentType;
@@ -327,20 +329,10 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Returns content size in bytes. Returns -1 if 
-	 * none of the content locations are available. 
+	 * Returns content size in bytes.  
 	 */
 	public long getContentLength() {
-		try {
-			ContentLocation location = getClosestContentLocation();
-			if (location != null) {
-				return location.getHandler().getContentLength(location);
-			} else {
-				return -1;
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		return contentLength ;
 	}
 
 
@@ -634,6 +626,28 @@ public class DataBean extends DataItemBase {
 	 * 
 	 */
 	void addContentLocation(ContentLocation contentLocation) {
+		
+		if (contentLength == -1) {
+			// we are seeing content for the first time, update content related metadata
+			try {
+				contentLength = contentLocation.getHandler().getContentLength(contentLocation);
+				
+				// do checksumming
+				
+				randomin alustus tiedostokoolla?
+						
+				haluttais erottaa pienistä tiedostoista, onko ne samoja
+				isoja ehkä vois vähän kurkata myös, mutta alusta kurkkaaminen ei ole hyvä idis
+				tietty vakiopätkä (max. bytes) tiedoston keskeltä, tai jotenkin ovelasti hajautettuna
+				
+				n kappaletta blokkeja, joiden koko riittävän pieni menemään yhteen tcp frameen http:lla?
+				
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+		
 		contentLocations.add(contentLocation);
 	}
 	
