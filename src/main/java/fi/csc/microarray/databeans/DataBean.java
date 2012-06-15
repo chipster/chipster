@@ -627,20 +627,13 @@ public class DataBean extends DataItemBase {
 	 */
 	void addContentLocation(ContentLocation contentLocation) {
 		
+		// FIXME this should be reconsidered, has many implications when calling DataManager.getContentOutputStreamAndLockDataBean 
 		if (contentLength == -1) {
 			// we are seeing content for the first time, update content related metadata
 			try {
 				contentLength = contentLocation.getHandler().getContentLength(contentLocation);
 				
-				// do checksumming
-				
-				randomin alustus tiedostokoolla?
-						
-				haluttais erottaa pienistä tiedostoista, onko ne samoja
-				isoja ehkä vois vähän kurkata myös, mutta alusta kurkkaaminen ei ole hyvä idis
-				tietty vakiopätkä (max. bytes) tiedoston keskeltä, tai jotenkin ovelasti hajautettuna
-				
-				n kappaletta blokkeja, joiden koko riittävän pieni menemään yhteen tcp frameen http:lla?
+				// do checksumming also?
 				
 			} catch (IOException e) {
 				throw new RuntimeException(e);
