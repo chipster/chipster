@@ -1,6 +1,6 @@
 # TOOL samtools-snp-indel-multiple.R: "Call SNPs and short INDELs for multiple diploid individuals" (Call SNPs and short INDELs for multiple diploid individuals. You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. This tool is based on the SAMtools package.)
-# INPUT alignment{...}.bam: "sorted BAM file" TYPE GENERIC 
-# INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
+# INPUT alignment{...}.bam: "sorted BAM file" TYPE BAM 
+# INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA
 # OUTPUT var.flt.vcf
 # PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", rn4.fa: "Rat (rn4\)", e_coli.fa: "E. coli"] DEFAULT hg19.fa (Reference sequence)
 # PARAMETER p: "Platform" TYPE [CAPILLARY, HELICOS, IONTORRENT, ILLUMINA, IONTORRENT, LS454, PACBIO, SOLID] DEFAULT ILLUMINA (Platform/technology used to produce the reads.)

@@ -96,6 +96,12 @@ public class DataFolder extends DataItemBase {
 
 			} else if (chips != null && chips.getColumnCount() > 0) {
 				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				
+			} else if (data.isContentTypeCompatitible("application/bam")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
+				
+			}  else if (data.isContentTypeCompatitible("chemical/x-fasta")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
 			} 
 			
 			if (data.queryFeatures("/identifier").exists()) {
