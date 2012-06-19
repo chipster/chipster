@@ -178,11 +178,6 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public boolean countOperationResults() {
-		return true;
-	}
-
-	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}

@@ -96,7 +96,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 			}
 
 			// Split read into continuous blocks (elements) by using the cigar
-			List<ReadPart> visibleRegions = Cigar.splitVisibleElements(read);
+			List<ReadPart> visibleRegions = Cigar.splitElements(read);
 			
 			// Pool and sort read parts by strands
 			for (ReadPart visibleRegion : visibleRegions) {

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Exome-seq / Call SNPs and short INDELs for one diploid individual</h2>
+
+<h3>Description</h3>
+
+<p>Call SNPs and short INDELs for one diploid individual. </p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Downgrading coefficient (Integer) [0]</li>
+<li>Maximum read depth (Integer) [100]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p> 
+You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. 
+
+You can provide a coefficient for downgrading mapping quality for reads containing excessive mismatches. Given a 
+read with a phred-scaled probability q of being generated from the mapped position, the new mapping quality is 
+about sqrt((INT-q)/INT)*INT. A zero value disables this functionality. Applying this option usually 
+helps BWA-short but may not other mappers. The recommended value for BWA is 50.
+
+Maximum read depth should be adjusted to about twice the average read depth.
+</p>
+
+
+
+<h3>Output</h3>
+
+<p>
+Output is a vcf file.
+</p>
+
+
+<h3>References</h3>
+
+<p>This tool is based on the <a href = "http://samtools.sourceforge.net/">SAMtools package</a>. 
+Please cite the article <a href = "http://www.ncbi.nlm.nih.gov/pubmed/19505943">The Sequence alignment/map (SAM) format and SAMtools</a> by Li H., Handsaker B., Wysoker A., Fennell T., Ruan J., Homer N., Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data Processing Subgroup (2009) Bioinformatics, 25, 2078-9. [PMID: 19505943]. 
+</p>
+
+</body>
+

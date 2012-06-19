@@ -17,11 +17,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
@@ -49,14 +51,20 @@ public class SeqBlockTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	private ReadpartDataProvider readpartProvider;
+	private DataSource readData;
+	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	//private ReadpartDataProvider readpartProvider;
+
+	private DataSource readData;
+	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+
 
 	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
 			long minBpLength, long maxBpLength) {
 		super(view, file);
+		this.readData = file;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
-		this.readpartProvider = readpartProvider;
 	}
 
 	@Override
@@ -66,39 +74,64 @@ public class SeqBlockTrack extends Track {
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
 
-		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
-		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
+		Iterator<RegionContent> readIter = reads.iterator();
+		RegionContent read = null;
+		
+		TreeSet<RegionContent> dividedReads = new TreeSet<RegionContent>();
+	
+		Collection<CigarItemType> splitters = new HashSet<CigarItemType>();
+		splitters.add(CigarItemType.N);
 
-		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
-		List<Integer> occupiedSpace = new ArrayList<Integer>();
-		for (ReadPart readPart : readParts) {
+		while (readIter.hasNext()) {
+			read = readIter.next();
 
 			// Skip elements that are not in this view
-			if (!readPart.intersects(getView().getBpRegion())) {
+			if (!read.region.intersects(getView().getBpRegion())) {
+				readIter.remove();
+				continue;
+			}
+			
+			dividedReads.addAll(Cigar.splitRead(read, splitters));
+		}
+
+		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
+		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
+		//int reads = 0;
+		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
+		List<Integer> occupiedSpace = new ArrayList<Integer>();
+
+		Iterator<RegionContent> splittedReadIter = dividedReads.iterator();
+		RegionContent splittedRead = null;
+
+		while (splittedReadIter.hasNext()) {
+			splittedRead = splittedReadIter.next();
+
+			// Skip elements that are not in this view
+			if (!splittedRead.region.intersects(getView().getBpRegion())) {
 				continue;
 			}
 
 			// Width in basepairs
-			long widthInBps = readPart.getLength();
+			long widthInBps = splittedRead.region.getLength();
 
 			// Create rectangle covering the correct screen area (x-axis)
-			Rectangle rect = new Rectangle();
-			rect.x = getView().bpToTrack(readPart.start);
-			rect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
+			Rectangle readRect = new Rectangle();
+			readRect.x = getView().bpToTrack(splittedRead.region.start);
+			readRect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
 
 			// Do not draw invisible rectangles
-			if (rect.width < 2) {
-				rect.width = 2;
+			if (readRect.width < 2) {
+				readRect.width = 2;
 			}
 
 			// Read parts are drawn in order and placed in layers
 			int layer = 0;
-			while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > rect.x + 1) {
+			while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > readRect.x + 1) {
 				layer++;
 			}
 
 			// Read part reserves the space of the layer from end to left corner of the screen
-			int end = rect.x + rect.width;
+			int end = readRect.x + readRect.width;
 			if (occupiedSpace.size() > layer) {
 				occupiedSpace.set(layer, end);
 			} else {
@@ -106,91 +139,132 @@ public class SeqBlockTrack extends Track {
 			}
 			
 			// Now we can decide the y coordinate
-			rect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
-			rect.height = GenomeBrowserConstants.READ_HEIGHT;
+			readRect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
+			readRect.height = GenomeBrowserConstants.READ_HEIGHT;
 
 			// Check if we are about to go over the edge of the drawing area
 			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) > getHeight();
 
 			// Check if we are over the edge of the drawing area
-			if (rect.y > getHeight()) {
+			if (readRect.y > getHeight()) {
 				continue;
 			}
 
-			// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
-			String seq = readPart.getSequencePart();
-			Cigar cigar = (Cigar) readPart.getRead().values.get(ColumnType.CIGAR);
-			if (rect.width < seq.length()) {
-				// Too little space - only show one rectangle for each read part
+			for (ReadPart readPart : Cigar.splitElements(splittedRead)) {
 
-				Color color = Color.gray;
+				// Width in basepairs
+				widthInBps = readPart.getLength();
 
-				// Mark last line that will be drawn
-				if (lastBeforeMaxStackingDepthCut) {
-					color = CUTOFF_COLOR;
+				// Create rectangle covering the correct screen area (x-axis)
+				Rectangle rect = new Rectangle();
+				rect.x = getView().bpToTrack(readPart.start);
+				rect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
+				rect.y = readRect.y;
+				rect.height = readRect.height;
+
+				// Do not draw invisible rectangles
+				if (rect.width < 2) {
+					rect.width = 2;
 				}
 
-				drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
+				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
+				String seq = readPart.getSequencePart();
+				Cigar cigar = (Cigar) readPart.getRead().values.get(ColumnType.CIGAR);
+				if (readPart.isVisible()) {
+					if (rect.width < seq.length()) {
+						// Too little space - only show one rectangle for each read part
 
-			} else {
-				// Enough space - show color coding for each nucleotide
+						Color color = Color.gray;
 
-				// Complement the read if on reverse strand
-				if ((Strand) readPart.getRead().values.get(ColumnType.STRAND) == Strand.REVERSED) {
+						// Mark last line that will be drawn
+						if (lastBeforeMaxStackingDepthCut) {
+							color = CUTOFF_COLOR;
+						}
 
-					StringBuffer buf = new StringBuffer(seq.toUpperCase());
+						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
 
-					// Complement
-					seq = buf.toString().replace('A', 'x'). // switch A and T
-					replace('T', 'A').replace('x', 'T').
-
-					replace('C', 'x'). // switch C and G
-					replace('G', 'C').replace('x', 'G');
-				}
-
-				// Prepare to draw single nucleotides
-				float increment = getView().bpWidth();
-				float startX = getView().bpToTrackFloat(readPart.start);
-
-				// Draw each nucleotide
-				for (int j = 0; j < seq.length(); j++) {
-
-					char letter = seq.charAt(j);
-
-					long refIndex = j;
-
-					// Choose a color depending on viewing mode
-					Color bg = Color.white;
-					long posInRef = readPart.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
-					if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
-						bg = Color.gray;
 					} else {
-						switch (letter) {
-						case 'A':
-							bg = charColors[0];
-							break;
-						case 'C':
-							bg = charColors[1];
-							break;
-						case 'G':
-							bg = charColors[2];
-							break;
-						case 'T':
-							bg = charColors[3];
-							break;
+						// Enough space - show color coding for each nucleotide
+
+						// Complement the read if on reverse strand
+						if ((Strand) readPart.getRead().values.get(ColumnType.STRAND) == Strand.REVERSED) {
+
+							StringBuffer buf = new StringBuffer(seq.toUpperCase());
+
+							// Complement
+							seq = buf.toString().replace('A', 'x'). // switch A and T
+									replace('T', 'A').replace('x', 'T').
+
+									replace('C', 'x'). // switch C and G
+									replace('G', 'C').replace('x', 'G');
+						}
+
+						// Prepare to draw single nucleotides
+						float increment = getView().bpWidth();
+						float startX = getView().bpToTrackFloat(readPart.start);
+
+						// Draw each nucleotide
+						for (int j = 0; j < seq.length(); j++) {
+
+							char letter = seq.charAt(j);
+
+							long refIndex = j;
+
+							// Choose a color depending on viewing mode
+							Color bg = Color.white;
+							Color border = null;
+							long posInRef = readPart.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
+							if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
+								bg = Color.gray;
+							} else {
+								switch (letter) {
+								case 'A':
+									bg = charColors[0];
+									break;
+								case 'C':
+									bg = charColors[1];
+									break;
+								case 'G':
+									bg = charColors[2];
+									break;
+								case 'T':
+									bg = charColors[3];
+									break;
+								case 'N':
+									bg = Color.white;
+									border = Color.gray;
+									break;
+								}
+							}
+
+							// Tell that we have reached max. stacking depth
+							if (lastBeforeMaxStackingDepthCut) {
+								bg = CUTOFF_COLOR;
+							}
+
+							// Draw rectangle
+							int x1 = Math.round(startX + ((float)refIndex) * increment);
+							int x2 = Math.round(startX + ((float)refIndex + 1f) * increment);
+							int width = Math.max(x2 - x1, 1);
+							drawables.add(new RectDrawable(x1, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, border, cigar.toInfoString()));
+
 						}
 					}
+				} else if (readPart.getCigarItem() != null) { //invisible cigar type
 
-					// Tell that we have reached max. stacking depth
-					if (lastBeforeMaxStackingDepthCut) {
-						bg = CUTOFF_COLOR;
+					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.D)) {
+						Color color = Color.black;
+
+						rect.grow(0, -1);
+
+						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
 					}
 
-					// Draw rectangle
-					int x1 = Math.round(startX + ((float)refIndex) * increment);
-					int x2 = Math.round(startX + ((float)refIndex + 1f) * increment);
-					int width = Math.max(x2 - x1, 1);
-					drawables.add(new RectDrawable(x1, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null, cigar.toInfoString()));
+					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
+						Color color = Color.black;
+
+						drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+					}					
 				}
 			}
 		}
@@ -204,8 +278,15 @@ public class SeqBlockTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
-		
+		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false ) {
+
+			for (RegionContent regCont : areaResult.getContents()) {
+				if (regCont.values.get(ColumnType.STRAND) == this.getStrand()) {
+					this.reads.add(regCont);
+				}
+			}
+		}
+
 		// "Spy" on reference sequence data, if available
 		if (areaResult.getStatus().file == refData) {
 			this.refReads.addAll(areaResult.getContents());
