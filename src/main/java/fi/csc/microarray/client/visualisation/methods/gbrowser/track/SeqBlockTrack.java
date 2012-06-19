@@ -53,10 +53,6 @@ public class SeqBlockTrack extends Track {
 
 	private DataSource readData;
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-	//private ReadpartDataProvider readpartProvider;
-
-	private DataSource readData;
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 
 	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 

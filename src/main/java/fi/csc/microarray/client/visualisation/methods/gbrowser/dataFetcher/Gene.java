@@ -88,8 +88,8 @@ public class Gene extends HashMap<String, Transcript> implements Comparable<Gene
 			this.put(transcId, transc);
 		}
 		
-		transc.addExon(exon, transcId);
 		exon.setTranscript(transc);
+		transc.addExon(exon, transcId);
 		
 		if(region == null) {
 			try {

@@ -7,14 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.util.IOUtils;
 
@@ -115,8 +111,8 @@ public class BEDParser extends TsvParser {
 	}
 	
 	@Override
-	public BpCoordRegion getBpRegion(Chunk chunk) {
-		BpCoordRegion reg = super.getBpRegion(chunk);
-		return new BpCoordRegion(reg.start.bp + 1, reg.start.chr, reg.end.bp + 1, reg.end.chr);
+	public Region getBpRegion(Chunk chunk) {
+		Region reg = super.getBpRegion(chunk);
+		return new Region(reg.start.bp + 1, reg.start.chr, reg.end.bp + 1, reg.end.chr);
 	}
 }

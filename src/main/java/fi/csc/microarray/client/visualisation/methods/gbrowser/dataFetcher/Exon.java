@@ -47,11 +47,14 @@ public class Exon implements Comparable<Exon> {
 		
 		int transcriptComparison = this.transcript.compareTo(other.transcript);
 		int exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
+		int featureComparison = this.feature.compareTo(other.feature);
 		
 		if (transcriptComparison != 0) {
 			return transcriptComparison;
-		} else {
+		} else if (exonNumberComparison != 0){
 			return exonNumberComparison;
+		} else {
+			return featureComparison;
 		}
 
 //		int featureComparison = 0;
@@ -87,7 +90,7 @@ public class Exon implements Comparable<Exon> {
 
 	@Override
 	public int hashCode() {
-		return transcript.hashCode() << 8 + exonNumber;
+		return transcript.hashCode() << 8 + exonNumber << 2 + feature.ordinal();
 	}
 
 	@Override
