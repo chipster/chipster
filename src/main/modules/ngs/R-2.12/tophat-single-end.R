@@ -17,6 +17,11 @@
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
+# AMS 19.6.2012 Added unzipping
+
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("reads1.fq")
 
 options(scipen = 10)
 # max.intron.length <- formatC(max.intron.length, "f", digits = 0)
