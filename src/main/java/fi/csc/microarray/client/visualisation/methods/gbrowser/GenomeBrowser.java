@@ -231,6 +231,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
+			tabPane.addTab("Legend", new GBrowserLegend());
 
 			GridBagConstraints c = new GridBagConstraints();
 
