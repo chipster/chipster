@@ -1320,10 +1320,21 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	public void removeVisualisation() {
 
 		super.removeVisualisation();
+		
+		plotPanel.removeComponentListener(this);
+		plotPanel.removeAll();
 
 		if (plot != null) {
 			plot.clean();
+			plot = null;
 		}
+		
+		//Remove references to tracks and data to free memory, even if the (hidden) parameter panel keeps actionListener
+		//references to this object preventing garbage collection (when visualization is changed to none)
+		if (tracks != null) {
+			tracks.clear();
+		}
+		gia = null;
 
 		application.removeClientEventListener(this);
 

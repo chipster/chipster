@@ -130,6 +130,14 @@ public class FastaFileFetcherThread extends Thread {
 
 		while (!poison) {
 			try {
+				
+				for (BpCoordFileRequest fileRequest : fileRequestQueue) {
+					if (fileRequest.getStatus().poison) {
+						poison = true;
+						return;
+					}
+				}
+				
 				processFileRequest(fileRequestQueue.take());
 
 			} catch (IOException e) {

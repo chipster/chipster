@@ -52,6 +52,13 @@ public class ChunkFileFetcherThread extends Thread {
 
 		while (!poison) {
 			try {
+				
+				for (ChunkFileRequest fileRequest : fileRequestQueue) {
+					if (fileRequest.status.poison) {
+						poison = true;
+					}
+				}
+				
 				processFileRequest(fileRequestQueue.take());
 				
 			} catch (IOException e) {
