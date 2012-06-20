@@ -31,6 +31,7 @@
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads1.fq")
 unzipIfGZipFile("reads2.fq")
+unzipIfGZipFile("genome.txt")
 
 # bowtie index building
 genome.base <- "genome"

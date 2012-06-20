@@ -31,7 +31,7 @@
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads1.txt")
 unzipIfGZipFile("reads2.txt")
-
+unzipIfGZipFile("genome.txt")
 
 ##
 # bwa settings

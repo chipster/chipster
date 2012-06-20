@@ -26,6 +26,7 @@
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads.txt")
+unzipIfGZipFile("genome.txt")
 
 # bwa settings
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
