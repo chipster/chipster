@@ -1,6 +1,8 @@
 package fi.csc.microarray.manager.web.hbncontainer;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 import org.hibernate.SessionFactory;
@@ -56,15 +58,11 @@ public class HibernateUtil {
     }
     
     private static Date getRandomDate(Random rnd) {
-    	Date date = new Date();
-    	date.setYear(rnd.nextInt(5) + 2007);
-    	date.setMonth(rnd.nextInt(12) + 1);
-    	date.setDate(rnd.nextInt(28) + 1);
-    	date.setHours(rnd.nextInt(24));
-    	date.setMinutes(rnd.nextInt(60));
-    	date.setSeconds(rnd.nextInt(60));
+    	Calendar cal = new GregorianCalendar();
     	
-    	return date;
+    	cal.set(rnd.nextInt(5) + 2007, rnd.nextInt(12) + 1, rnd.nextInt(28) + 1, rnd.nextInt(24), rnd.nextInt(60), rnd.nextInt(60));
+    	
+    	return cal.getTime();
     }
 
     public static void insertExampleData(int count) {

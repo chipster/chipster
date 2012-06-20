@@ -11,13 +11,15 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 
+import fi.csc.microarray.manager.web.data.DateContainerFilter;
+
 public class JobLogSearch extends HorizontalLayout {
 
 	private JobLogView view;
 	private TextField searchStringField;
 	private NativeSelect columnToSearch;
 
-	private StringContainerFilter containerFilter;
+	private ContainerFilter containerFilter;
 
 
 	public JobLogSearch(final JobLogView view) {
@@ -72,8 +74,15 @@ public class JobLogSearch extends HorizontalLayout {
 
 	public ContainerFilter getContainerFilter() {
 
-		containerFilter = new StringContainerFilter(
-				columnToSearch.getValue(), (String) searchStringField.getValue(), true, false);
+		if (columnToSearch.getValue().equals("startTime") || columnToSearch.getValue().equals("endTime")) {
+
+			containerFilter = new DateContainerFilter(
+					columnToSearch.getValue(), (String) searchStringField.getValue());
+		} else {
+
+			containerFilter = new StringContainerFilter(
+					columnToSearch.getValue(), (String) searchStringField.getValue(), true, false);
+		}
 
 		return containerFilter;
 	}
