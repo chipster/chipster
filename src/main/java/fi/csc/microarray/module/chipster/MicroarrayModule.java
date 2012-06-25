@@ -93,6 +93,8 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag("ordered-genomic-entities", "");
 		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values", "must have column \"cluster\"");
 		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+		public static final TypeTag BAM_FILE  = new TypeTag("bam-file", "");
+		public static final TypeTag FASTA_FILE  = new TypeTag("fasta-file", "");
 	}
 	
 	public static class VisualisationMethods {
@@ -129,6 +131,7 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
 		manager.plugContentType("application/gzip", true, true, "Gzip file", VisualConstants.ICON_TYPE_BINARY, "gz");
 		manager.plugContentType("text/vcf", true, false, "Variant Call Format", VisualConstants.ICON_TYPE_TEXT, "vcf");
+		manager.plugContentType("application/bam", true, false, "Binary sequence Alignment/Map format", VisualConstants.ICON_TYPE_TEXT, "bam");
 	}
 	
 
@@ -415,11 +418,6 @@ public class MicroarrayModule implements Module {
 		return BasicModule.shortenCategoryName(categoryName);
 	}
 
-	@Override
-	public boolean countOperationResults() {
-		return true;
-	}
-
 	/**
 	 * Generates nice context link panel for quickly using genome browser. If not in standalone
 	 * mode, null is returned. 
@@ -599,8 +597,14 @@ public class MicroarrayModule implements Module {
 
 		} else if (chips != null && chips.getColumnCount() > 0) {
 			data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-		} 
 
+		} else if (data.isContentTypeCompatitible("application/bam")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
+		
+		}  else if (data.isContentTypeCompatitible("chemical/x-fasta")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
+		} 
+		
 		if (data.queryFeatures("/identifier").exists()) {
 			data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 		} 

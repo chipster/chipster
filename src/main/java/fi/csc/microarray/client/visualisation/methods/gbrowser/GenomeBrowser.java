@@ -1005,8 +1005,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					// peaks (with header in the file)
 					interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
-				} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-						(data.getName().endsWith(".bam"))) {
+				} else if ((data.isContentTypeCompatitible("application/bam"))) {
 					// BAM file
 					interpretations.add(new Interpretation(TrackType.READS, data));
 				}

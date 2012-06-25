@@ -165,7 +165,7 @@ public class VisualisationUtilities {
 					try {
 
 						Operation annotationOperation = new Operation(application.getOperationDefinition(annotationOperationName), new DataBean[] { filterBySelection });
-						ResultBlocker opBlocker = new ResultBlocker(2);
+						ResultBlocker opBlocker = new ResultBlocker();
 						annotationOperation.setResultListener(opBlocker);
 						application.executeOperation(annotationOperation);
 

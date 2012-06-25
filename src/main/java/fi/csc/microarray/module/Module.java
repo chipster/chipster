@@ -156,14 +156,6 @@ public interface Module {
 	 */
 	public String getShortCategoryName(String categoryName);
 
-	/**
-	 * Should workflow engine check for the number of results? If the module contains tools
-	 * that produce variable amounts of results, then number of results should not be checked.
-	 * 
-	 * @return should workflow engine check for the number of results?
-	 */
-	public boolean countOperationResults();
-	
 	public boolean notesVisibleAtStartup();
 
 	/**

@@ -154,14 +154,20 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
-
+		logger.debug("usable space is: " + userDataRoot.getUsableSpace());
+		
 		long usableSpaceSoftLimit =  (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;
+		long cleanUpTargetLimit = (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
+		
 		
 		// deal with the weird config case of soft limit being smaller than hard limit
 		if (usableSpaceSoftLimit < usableSpaceHardLimit) {
 			usableSpaceSoftLimit = usableSpaceHardLimit;
 		}
+		
+		logger.debug("usable space soft limit is: " + usableSpaceSoftLimit);
+		logger.debug("usable space hard limit is: " + usableSpaceHardLimit);
 		
 		boolean spaceAvailable;
 		
@@ -173,16 +179,19 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 		// space available, clean up soft limit will be reached, hard will not be reached
 		else if (userDataRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
-			logger.debug("space available, more preferred");
+			logger.info("space available, more preferred"); 
+			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			spaceAvailable = true;
-		
+			
+			final long targetUsableSpace = size + cleanUpTargetLimit;
 			// schedule clean up
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						long cleanUpBeginTime = System.currentTimeMillis();
-						Files.makeSpaceInDirectory(userDataRoot, 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						logger.info("cache cleanup, target usable space: " + targetUsableSpace);
+						Files.makeSpaceInDirectory(userDataRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
@@ -193,23 +202,25 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 		// hard limit will be reached, try to make more immediately
 		else if (userDataRoot.getUsableSpace() - size > 0){
-			logger.debug("making space");
+			logger.debug("not enough space, trying to clean");
+			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			try {
 				long cleanUpBeginTime = System.currentTimeMillis();
-				Files.makeSpaceInDirectory(userDataRoot, 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				logger.info("cache cleanup, target usable space: " + (size + cleanUpTargetLimit));
+				Files.makeSpaceInDirectory(userDataRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 			} catch (Exception e) {
 				logger.warn("exception while cleaning cache", e);
 			}
-			logger.debug("usable after cleaning: " + userDataRoot.getUsableSpace());
-			logger.debug("minimum extra: " + minimumSpaceForAcceptUpload);
+			logger.info("usable after cleaning: " + userDataRoot.getUsableSpace());
+			logger.info("minimum extra: " + minimumSpaceForAcceptUpload);
 
 			// check if cleaned up enough 
 			if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
-				logger.debug("enough after cleaning");
+				logger.info("enough after cleaning");
 				spaceAvailable = true;
 			} else {
-				logger.debug("not enough after cleaning");
+				logger.info("not enough after cleaning");
 				spaceAvailable = false;
 			}
 		} 
