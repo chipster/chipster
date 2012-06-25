@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,8 +30,14 @@ public class GtfTabixDataSource extends DataSource {
     	//TODO use the provided index instead of guessing
         super(tabixFile, GtfTabixHandlerThread.class);
         
-        String fileString = tabixFile.toString().replaceAll("file:/", "/");
-
+        String fileString = null;
+        
+        if ("http".equals(tabixFile.getProtocol())) {
+        	fileString = tabixFile.toExternalForm();
+        } else {
+        	fileString = (new File(tabixFile.toURI()).getPath()); //Translate '%20' to space character, needed in Windows
+        }
+        
         this.reader = new TabixReader(fileString);
 
         // TODO check chromosome naming convention, see SAMDataSource

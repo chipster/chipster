@@ -25,20 +25,20 @@ public class GBrowserLegend extends JPanel {
 		c.insets = new Insets(10, 10, 10, 10);
 		c.weighty = 0;
 		
-		addIcon(VisualConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
-		addIcon(VisualConstants.GB_LEGEND_START_CODON_ICON, "Start codon", c);
 		addIcon(VisualConstants.GB_LEGEND_CDS_ICON, "Coding sequence", c);
+		addIcon(VisualConstants.GB_LEGEND_START_CODON_ICON, "Start codon", c);
+		addIcon(VisualConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
 		addIcon(VisualConstants.GB_LEGEND_INTRON_ICON, "Intron", c);
+		addIcon(VisualConstants.GB_LEGEND_END_ICON, "3' end", c);
 		
 		addIcon(VisualConstants.GB_LEGEND_READ_ICON, "Read", c);
-		addIcon(VisualConstants.GB_LEGEND_END_ICON, "3' end", c);
 		addIcon(VisualConstants.GB_LEGEND_INSERTION_ICON, "Insertion", c);
 		addIcon(VisualConstants.GB_LEGEND_DELETION_ICON, "Deletion", c);
 		
-		addIcon(VisualConstants.GB_LEGEND_A_ICON, "Adenosine", c);
-		addIcon(VisualConstants.GB_LEGEND_C_ICON, "Cytidine", c);
-		addIcon(VisualConstants.GB_LEGEND_G_ICON, "Guanosine", c);
-		addIcon(VisualConstants.GB_LEGEND_T_ICON, "Thymidine", c);
+		addIcon(VisualConstants.GB_LEGEND_A_ICON, "Adenine", c);
+		addIcon(VisualConstants.GB_LEGEND_C_ICON, "Cytosine", c);
+		addIcon(VisualConstants.GB_LEGEND_G_ICON, "Guanine", c);
+		addIcon(VisualConstants.GB_LEGEND_T_ICON, "Thymine", c);
 		addIcon(VisualConstants.GB_LEGEND_N_ICON, "N", c);
 		
 		addIcon(VisualConstants.GB_LEGEND_FORWARD_ICON, "Forward coverage", c);
