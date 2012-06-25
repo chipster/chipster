@@ -40,8 +40,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
-	private File userDataRoot;
-	private String publicDataPath;
+	private File cacheRoot;
+	private String publicPath;
 	private String host;
 	private int port;
 
@@ -74,15 +74,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
-    		this.publicDataPath = configuration.getString("filebroker", "public-data-path");
+    		this.publicPath = configuration.getString("filebroker", "public-path");
 
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
     		fileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
-    		String userDataPath = configuration.getString("filebroker", "user-data-path");
-    		userDataRoot = new File(fileRepository, userDataPath);
+    		String cachePath = configuration.getString("filebroker", "cache-path");
+    		cacheRoot = new File(fileRepository, cachePath);
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
@@ -154,11 +154,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
-		logger.debug("usable space is: " + userDataRoot.getUsableSpace());
+		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
 		
-		long usableSpaceSoftLimit =  (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
+		long usableSpaceSoftLimit =  (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;
-		long cleanUpTargetLimit = (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
+		long cleanUpTargetLimit = (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
 		
 		
 		// deal with the weird config case of soft limit being smaller than hard limit
@@ -172,15 +172,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		boolean spaceAvailable;
 		
 		// space available, clean up limit will not be reached
-		if (userDataRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
+		if (cacheRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
 			logger.debug("enough space available, no need to do anything");
 			spaceAvailable = true;
 		} 
 
 		// space available, clean up soft limit will be reached, hard will not be reached
-		else if (userDataRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
+		else if (cacheRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
 			logger.info("space available, more preferred"); 
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("requested: " + size + " usable: " + cacheRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			spaceAvailable = true;
 			
 			final long targetUsableSpace = size + cleanUpTargetLimit;
@@ -191,7 +191,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					try {
 						long cleanUpBeginTime = System.currentTimeMillis();
 						logger.info("cache cleanup, target usable space: " + targetUsableSpace);
-						Files.makeSpaceInDirectory(userDataRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Files.makeSpaceInDirectory(cacheRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
@@ -201,22 +201,22 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		} 
 		
 		// hard limit will be reached, try to make more immediately
-		else if (userDataRoot.getUsableSpace() - size > 0){
+		else if (cacheRoot.getUsableSpace() - size > 0){
 			logger.debug("not enough space, trying to clean");
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("requested: " + size + " usable: " + cacheRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			try {
 				long cleanUpBeginTime = System.currentTimeMillis();
 				logger.info("cache cleanup, target usable space: " + (size + cleanUpTargetLimit));
-				Files.makeSpaceInDirectory(userDataRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				Files.makeSpaceInDirectory(cacheRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 			} catch (Exception e) {
 				logger.warn("exception while cleaning cache", e);
 			}
-			logger.info("usable after cleaning: " + userDataRoot.getUsableSpace());
+			logger.info("usable after cleaning: " + cacheRoot.getUsableSpace());
 			logger.info("minimum extra: " + minimumSpaceForAcceptUpload);
 
 			// check if cleaned up enough 
-			if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
+			if (cacheRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
 				logger.info("enough after cleaning");
 				spaceAvailable = true;
 			} else {
@@ -249,6 +249,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	public URL getPublicUrL() throws MalformedURLException {
-		return new URL(host + ":" + port + "/" + publicDataPath);		
+		return new URL(host + ":" + port + "/" + publicPath);		
 	}
 }

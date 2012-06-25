@@ -35,14 +35,14 @@ public class AuthorisedUrlRepository {
 
 	private String host;
 	private int port;
-	private String userDataPath;
+	private String cachePath;
 	
 	public AuthorisedUrlRepository(String host, int port) {
 		this.host = host;
 		this.port = port;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		userDataPath = configuration.getString("filebroker", "user-data-path");
+		cachePath = configuration.getString("filebroker", "cache-path");
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class AuthorisedUrlRepository {
 			// create url that does not exist in the repository
 			do {
 				String filename = CryptoKey.generateRandom();
-				newUrl = new URL(host + ":" + port + "/" + userDataPath + "/" + filename + compressionSuffix);
+				newUrl = new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
 				
 			} while (repository.containsKey(newUrl));
 
