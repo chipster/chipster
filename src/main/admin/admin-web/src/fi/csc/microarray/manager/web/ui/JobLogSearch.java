@@ -1,6 +1,7 @@
 package fi.csc.microarray.manager.web.ui;
 
 import com.vaadin.data.hbnutil.ContainerFilter;
+import com.vaadin.data.hbnutil.IdContainerFilter;
 import com.vaadin.data.hbnutil.StringContainerFilter;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
@@ -10,6 +11,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.data.DateContainerFilter;
 
@@ -73,11 +75,25 @@ public class JobLogSearch extends HorizontalLayout {
 	}
 
 	public ContainerFilter getContainerFilter() {
-
-		if (columnToSearch.getValue().equals("startTime") || columnToSearch.getValue().equals("endTime")) {
+		
+		if (searchStringField.getValue() == "") {
+			containerFilter = null;
+			
+		} else if (columnToSearch.getValue().equals("startTime") || columnToSearch.getValue().equals("endTime")) {
 
 			containerFilter = new DateContainerFilter(
 					columnToSearch.getValue(), (String) searchStringField.getValue());
+			
+		} else if (columnToSearch.getValue().equals("wallclockTime")) {
+
+			try {
+			containerFilter = new IdContainerFilter(
+					columnToSearch.getValue(), Integer.parseInt((String) searchStringField.getValue()));
+			
+			} catch (NumberFormatException e) {
+				view.getApplication().getMainWindow().showNotification("Search term of " + columnToSearch.getValue() + "must be numeric", Notification.TYPE_WARNING_MESSAGE);
+				containerFilter = null;
+			}
 		} else {
 
 			containerFilter = new StringContainerFilter(

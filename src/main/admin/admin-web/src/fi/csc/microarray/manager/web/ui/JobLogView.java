@@ -26,6 +26,9 @@ import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 
 public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener, SessionManager {
+	
+	
+	
 
 	/**
 	 * Natural property order for Service bean. Used in tables and forms.

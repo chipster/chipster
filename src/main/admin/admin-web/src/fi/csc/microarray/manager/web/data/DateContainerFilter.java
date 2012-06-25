@@ -21,41 +21,42 @@ public class DateContainerFilter extends ContainerFilter {
 		Calendar endCal = new GregorianCalendar();
 
 		String[] spaceSplit = dateString.split(" ");
-		String fullDate = spaceSplit[0];
-		//Don't care about the time 
+		String date = spaceSplit[0];
 
-		String[] hyphenSplit = fullDate.split("-");
+		String[] hyphenSplit = date.split("-");
 
 		String yearString = hyphenSplit[0];
 		
 		int year = -1;
 		int month = -1;
-		int date = -1;
+		int dayOfMonth = -1;
 
 		try {
 			year = Integer.parseInt(yearString);
 			
-			startCal.set(year, 1, 1);
-			endCal.set(year, 12, 31);
+			//Month is 0-based
+			startCal.set(year, 0, 1, 0, 0, 0);
+			endCal.set(year, 11, 31, 23, 59, 59);
 
 			if (hyphenSplit.length > 1) {
 				String monthString = hyphenSplit[1];
-				month = Integer.parseInt(monthString);
+				month = Integer.parseInt(monthString) - 1;//Month is 0-based
 				
 				startCal.set(year, month, 1);
 				endCal.set(year, month, 31);
 
 				if (hyphenSplit.length > 2) {
 					String dayString = hyphenSplit[2];
-					date = Integer.parseInt(dayString);
+					dayOfMonth = Integer.parseInt(dayString);
 					
-					startCal.set(year,  month, date);
-					endCal.set(year, month, date);
+					startCal.set(year,  month, dayOfMonth);
+					endCal.set(year, month, dayOfMonth);
 				}
 			}
 		} catch (NumberFormatException e) {
 			//Parsing failed
 		}
+		
 
 		this.searchDateStart = startCal.getTime();
 		this.searchDateEnd = endCal.getTime();
