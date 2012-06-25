@@ -17,7 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -259,7 +258,9 @@ public class SeqBlockTrack extends Track {
 					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
 						Color color = Color.black;
 
-						drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+						//drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+						drawables.add(new RectDrawable(rect.x, rect.y - 2, 3, rect.height + 4, color, color));
+
 					}					
 				}
 			}
