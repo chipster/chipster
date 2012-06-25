@@ -92,6 +92,38 @@ public class ChipsterInputTypes {
 			return true;
 		}
 	};
+	
+	public static final InputType BAM = new InputType() {
+
+		public String getName() {
+			return "BAM";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("application/bam");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
+	
+	public static final InputType FASTA = new InputType() {
+
+		public String getName() {
+			return "FASTA";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("chemical/x-fasta");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
 
 	public static boolean hasRawType(DataBean data) {
 		return AFFY.isTypeOf(data) || CDNA.isTypeOf(data);

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.databeans.DataBean;
 
@@ -13,16 +12,7 @@ public class ResultBlocker implements ResultListener {
 
 	private CountDownLatch latch = new CountDownLatch(1);
 	private Iterable<DataBean> results;
-	private int enforcedResultCount;
 
-	public ResultBlocker() {
-		this(-1);
-	}
-
-	public ResultBlocker(int enforcedResultCount) {
-		this.enforcedResultCount = enforcedResultCount;
-	}
-	
 	public void resultData(Iterable<DataBean> results) {
 		this.results = results;
 		latch.countDown();		
@@ -54,12 +44,6 @@ public class ResultBlocker implements ResultListener {
 			beans.add(iter.next());
 		}
 		
-		// TODO remove the check and countOperationResults()
-		if (Session.getSession().getPrimaryModule().countOperationResults()) {
-			if (enforcedResultCount != -1 && beans.size() != enforcedResultCount) {
-				throw new IllegalStateException("there are more or less than " + enforcedResultCount + " results");
-			}
-		}
 		return beans;
 	}
 
