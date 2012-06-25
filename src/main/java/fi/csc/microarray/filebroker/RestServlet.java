@@ -181,7 +181,7 @@ public class RestServlet extends DefaultServlet {
 					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
 						Log.info("after put, user data dir soft limit " + usableSpaceSoftLimit + " reached, cleaning up");
 						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(cachePath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(userDataPath)).getUsableSpace());
+						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(cachePath)).getUsableSpace());
 					} 
 
 				} catch (Exception e) {
