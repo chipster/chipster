@@ -222,39 +222,6 @@ public class VisualConstants {
     public static final ImageIcon EXAMPLE_SESSION_ICON = 
         new ImageIcon(VisualConstants.class.getResource("/try.png"));
     
-    // Genome Browser legend
-    public static final ImageIcon GB_LEGEND_A_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/a.png"));
-    public static final ImageIcon GB_LEGEND_C_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/c.png"));
-    public static final ImageIcon GB_LEGEND_G_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/g.png"));
-    public static final ImageIcon GB_LEGEND_T_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/t.png"));
-    public static final ImageIcon GB_LEGEND_FORWARD_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/forward.png"));
-    public static final ImageIcon GB_LEGEND_REVERSE_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/reverse.png"));
-    public static final ImageIcon GB_LEGEND_UTR_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/utr.png"));
-    public static final ImageIcon GB_LEGEND_START_CODON_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/start-codon.png"));
-    public static final ImageIcon GB_LEGEND_CDS_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/cds.png"));
-    public static final ImageIcon GB_LEGEND_INTRON_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/intron.png"));
-    public static final ImageIcon GB_LEGEND_INSERTION_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/insertion.png"));
-    public static final ImageIcon GB_LEGEND_DELETION_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/deletion.png"));
-    public static final ImageIcon GB_LEGEND_N_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/n.png"));
-    public static final ImageIcon GB_LEGEND_READ_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/read.png"));
-    public static final ImageIcon GB_LEGEND_END_ICON = 
-            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/read-end.png"));
-
-    
 
     public static final int LEFT_PANEL_WIDTH = 360;
     public static final int TREE_PANEL_HEIGHT = 250;

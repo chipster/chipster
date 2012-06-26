@@ -14,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
@@ -159,7 +160,7 @@ public class CoverageAndSNPTrack extends Track {
 				int increment = currentBase.getSNPCounts()[nt.ordinal()];
 
 				if (increment > 0) {
-					Color c = SeqBlockTrack.charColors[nt.ordinal()];
+					Color c = GenomeBrowserConstants.charColors[nt.ordinal()];
 
 					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, null));
 

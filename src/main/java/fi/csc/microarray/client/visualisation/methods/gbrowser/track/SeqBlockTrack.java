@@ -32,13 +32,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  * 
  */
 public class SeqBlockTrack extends Track {
-
-	public static final Color[] charColors = new Color[] { 
-		new Color(64, 192, 64, 128), // A
-		new Color(64, 64, 192, 128), // C
-		new Color(128, 128, 128, 128), // G
-		new Color(192, 64, 64, 128) // T
-	};
 	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 	
@@ -176,7 +169,7 @@ public class SeqBlockTrack extends Track {
 							color = CUTOFF_COLOR;
 						}
 
-						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
+						drawables.add(new RectDrawable(rect, color, color, cigar.toInfoString()));
 
 					} else {
 						// Enough space - show color coding for each nucleotide
@@ -207,23 +200,28 @@ public class SeqBlockTrack extends Track {
 
 							// Choose a color depending on viewing mode
 							Color bg = Color.white;
-							Color border = null;
+							Color border = Color.white;
 							long posInRef = readPart.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 							if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
 								bg = Color.gray;
+								border = bg;
 							} else {
 								switch (letter) {
 								case 'A':
-									bg = charColors[0];
+									bg = GenomeBrowserConstants.charColors[0];
+									border = bg;
 									break;
 								case 'C':
-									bg = charColors[1];
+									bg = GenomeBrowserConstants.charColors[1];
+									border = bg;
 									break;
 								case 'G':
-									bg = charColors[2];
+									bg = GenomeBrowserConstants.charColors[2];
+									border = bg;
 									break;
 								case 'T':
-									bg = charColors[3];
+									bg = GenomeBrowserConstants.charColors[3];
+									border = bg;
 									break;
 								case 'N':
 									bg = Color.white;
@@ -235,6 +233,7 @@ public class SeqBlockTrack extends Track {
 							// Tell that we have reached max. stacking depth
 							if (lastBeforeMaxStackingDepthCut) {
 								bg = CUTOFF_COLOR;
+								border = bg;
 							}
 
 							// Draw rectangle

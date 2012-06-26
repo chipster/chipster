@@ -44,7 +44,7 @@ public class TranscriptTrack extends Track {
 	private Color color;
 
 	public enum PartColor {
-		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE), START_CODON(Color.gray);
+		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE);
 
 		//		CDS(new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
 		public Color c;
@@ -116,7 +116,7 @@ public class TranscriptTrack extends Track {
 				}
 
 				rect.y = (int) (((i + 1) * (14)));
-				int y = rect.y + 2;
+				int y = rect.y + 1;
 				rect.height = 2;
 
 				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
@@ -158,11 +158,10 @@ public class TranscriptTrack extends Track {
 						c = PartColor.UTR.c;
 						break;
 					case START_CODON:
-						c = PartColor.START_CODON.c;
+						c = PartColor.CDS.c;
 						break;
 					case STOP_CODON:
-						// TODO Check how this should be visualised
-						c = PartColor.UTR.c;
+						c = PartColor.CDS.c;
 						break;
 					default:
 						System.err.println("Gene description not recognised: " + feature);

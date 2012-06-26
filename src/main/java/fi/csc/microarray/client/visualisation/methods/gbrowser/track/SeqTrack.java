@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -30,14 +31,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
 public class SeqTrack extends Track {
 
 	private TreeMap<BpCoord, String> reads = new TreeMap<BpCoord, String>();
-
-	private Color[] charColors = new Color[] { 
-			new Color(64, 192, 64, 128), // A
-			new Color(64, 64, 192, 128), // C
-			new Color(128, 128, 128, 128), // G
-			new Color(192, 64, 64, 128), // T
-			new Color(192, 192, 192,128) //N
-	};
 
 	private long maxBpLength;
 
@@ -97,28 +90,28 @@ public class SeqTrack extends Track {
 
 		char letter = seq.charAt(0);
 
-		if (rect.width > seq.length() * CHAR_WIDTH) {
-
-			drawables.add(new TextDrawable((int) x, rect.y + 9, "" + letter, Color.black));
-		}
-
 		Color bg = Color.white;
 
 		if (letter == 'A' || letter == 'a') {
-			bg = charColors[0];
+			bg = GenomeBrowserConstants.charColors[0];
 		} else if (letter == 'C' || letter == 'c') {
-			bg = charColors[1];
+			bg = GenomeBrowserConstants.charColors[1];
 		} else if (letter == 'G' || letter == 'g') {
-			bg = charColors[2];
+			bg = GenomeBrowserConstants.charColors[2];
 		} else if (letter == 'T' || letter == 't') {
-			bg = charColors[3];
+			bg = GenomeBrowserConstants.charColors[3];
 		} else if (letter == 'N' || letter == 'n') {
-			bg = charColors[4];
+			bg = GenomeBrowserConstants.charColors[4];
 		}
 
 		nextX = x + increment;
-		drawables.add(new RectDrawable(Math.round(x), rect.y - 2,
-				Math.round(nextX) - Math.round(x), 10, bg, null));
+		drawables.add(new RectDrawable(Math.round(x), rect.y - 1,
+				Math.round(nextX) - Math.round(x), 10, bg, null));	
+		
+		if (rect.width > seq.length() * CHAR_WIDTH) {
+			
+			drawables.add(new TextDrawable((int) x + 1, rect.y + 9, "" + letter, Color.DARK_GRAY));
+		}
 		x = nextX;
 
 		return drawables;

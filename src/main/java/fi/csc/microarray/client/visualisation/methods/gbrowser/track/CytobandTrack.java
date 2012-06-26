@@ -118,7 +118,7 @@ public class CytobandTrack extends Track {
 
 				} else if (stain == Cytoband.Stain.ACEN) {
 
-					int y = (int) MARGIN + 1;
+					int y = (int) MARGIN;
 
 					int sideX = getView().bpToTrack(cband.getRegion().end);
 					int cornerX = getView().bpToTrack(cband.getRegion().start);

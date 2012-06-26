@@ -93,13 +93,13 @@ public class HorizontalView extends View implements KeyListener {
 		// Draw fill
 		if (rect.color != null) {
 			g.setPaint(rect.color);
-			g.fillRect(rect.x + x, rect.y + y, rect.width, rect.height);
+			g.fillRect(rect.x + x + 1, rect.y + y + 1, rect.width, rect.height);
 		}
 
 		// Draw outline after fill to make sure that it stays continuous
 		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
-			g.drawRect(rect.x + x, rect.y + y, rect.width-1, rect.height-1);
+			g.drawRect(rect.x + x + 1, rect.y + y + 1, rect.width - 1, rect.height - 1);
 		}
 		
 		// register tooltip, if needed
