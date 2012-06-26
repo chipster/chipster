@@ -33,6 +33,7 @@ import fi.csc.microarray.util.Files;
 public class RestServlet extends DefaultServlet {
 
 	private String cachePath;
+	private String storagePath;
 	private String publicPath;
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
@@ -47,6 +48,7 @@ public class RestServlet extends DefaultServlet {
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		cachePath = configuration.getString("filebroker", "cache-path");
+		storagePath = configuration.getString("filebroker", "storage-path");
 		publicPath = configuration.getString("filebroker", "public-path");
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
@@ -72,7 +74,7 @@ public class RestServlet extends DefaultServlet {
 			return false;
 		}
 
-		if (isWelcomePage(request) || isUserDataRequest(request) || isPublicDataRequest(request) ) {
+		if (isWelcomePage(request) || isUserDataRequest(request) || isPublicDataRequest(request)) {
 			return true;
 		}
 		
@@ -90,11 +92,12 @@ public class RestServlet extends DefaultServlet {
 			return false;
 		}
 		
-		if (!path.startsWith("/" + cachePath + "/")) {
+		if (!(path.startsWith("/" + cachePath + "/") || path.startsWith("/" + storagePath + "/"))) {
 			return false;
 		}
 
-		if (urlRepository.checkFilenameSyntax(path.substring(("/" + cachePath + "/").length()))) {
+		if (urlRepository.checkFilenameSyntax(path.substring(("/" + cachePath + "/").length())) ||
+				urlRepository.checkFilenameSyntax(path.substring(("/" + storagePath + "/").length()))	) {
 			return true;
 		}
 		

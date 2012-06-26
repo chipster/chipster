@@ -40,6 +40,8 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
 	public static final String PARAMETER_DISK_SPACE = "disk-space";
 
+	public static final String PARAMETER_URL = "url";
+
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();

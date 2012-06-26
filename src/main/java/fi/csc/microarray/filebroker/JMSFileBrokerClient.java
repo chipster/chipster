@@ -86,18 +86,20 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
 	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
+	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
+	
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
 	
 	
-	private MessagingTopic urlTopic;	
+	private MessagingTopic filebrokerTopic;	
 	private boolean useChunked;
 	private boolean useCompression;
 	private String localFilebrokerPath;
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
 
-		this.urlTopic = urlTopic;
+		this.filebrokerTopic = urlTopic;
 		this.localFilebrokerPath = localFilebrokerPath;
 		
 		// Read configs
@@ -256,7 +258,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			if (useCompression) {
 				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
 			}
-			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
+			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
@@ -280,7 +282,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		URL url;
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
-			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
+			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
@@ -339,7 +341,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		try {
 			CommandMessage spaceRequestMessage = new CommandMessage(CommandMessage.COMMAND_DISK_SPACE_REQUEST);
 			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
-			urlTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
+			filebrokerTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
 			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
@@ -353,8 +355,22 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL moveFileToStorage(URL url) {
-		throw new RuntimeException("moving to storage not yet supported");
-	}
+	public URL moveFileToStorage(URL cacheURL) throws JMSException {
+		logger.debug("moving from cache to storage: " + cacheURL);
 
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL storageURL;
+		try {
+			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE);
+			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
+
+			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
+			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+		} finally {
+			replyListener.cleanUp();
+		}
+		logger.debug("storage url is: " + storageURL);
+
+		return storageURL;	
+	}
 }

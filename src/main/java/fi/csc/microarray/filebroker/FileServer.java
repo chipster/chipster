@@ -24,7 +24,9 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
@@ -41,6 +43,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private AuthorisedUrlRepository urlRepository;
 
 	private File cacheRoot;
+	private File storageRoot;
 	private String publicPath;
 	private String host;
 	private int port;
@@ -88,7 +91,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-
+    		String storagePath = configuration.getString("filebroker", "storage-path");
+    		storageRoot = new File(fileRepository, storagePath);
+    		
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
 //    		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
@@ -141,6 +146,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
+				handleMoveRequest((CommandMessage)msg);
 
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
@@ -235,6 +243,51 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
+	
+	private void handleMoveRequest(CommandMessage requestMessage) throws JMSException, MalformedURLException {
+		// TODO omaan threadiin
+
+		
+		URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
+		logger.info("move request for: " + cacheURL);
+		
+		// check that url points to our cache dir
+		String[] urlPathParts = cacheURL.getPath().split("/"); 
+		if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
+			logger.info("not a valid cache url: " + cacheURL);
+			// TODO
+		}
+		
+		File cacheFile = new File(cacheRoot, urlPathParts[2]);
+
+		// check that file exists
+		if (!cacheFile.exists()) {
+			logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
+			// TODO
+		}
+		
+		
+		String storageFileName = CryptoKey.generateRandom();
+
+		ChipsterMessage reply = null;
+		URL storageURL = null;
+		if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
+			storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
+			reply = new UrlMessage(storageURL);
+			
+		} else {
+			logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+			// TODO
+		}
+
+		// send reply
+		endpoint.replyToMessage(requestMessage, reply);
+
+	}
+
+	
+	
+	
 	public void shutdown() {
 		logger.info("shutdown requested");
 
@@ -251,4 +304,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public URL getPublicUrL() throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + publicPath);		
 	}
+
+	private File createStorageFile() {
+		return new File(storageRoot, CryptoKey.generateRandom());
+	}
+
+
 }
+
+
+

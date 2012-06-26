@@ -112,7 +112,7 @@ public interface FileBrokerClient {
 	public abstract URL getPublicUrl() throws Exception;
 	
 	
-	public abstract URL moveFileToStorage(URL url);
+	public abstract URL moveFileToStorage(URL url) throws JMSException;
 	
 
 }
