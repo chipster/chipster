@@ -175,7 +175,8 @@ public class GelTrack extends Track {
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
         		ColumnType.ID, 
                 ColumnType.SEQUENCE,
-                ColumnType.STRAND })));
+                ColumnType.STRAND,
+                ColumnType.CIGAR})));
         return datas;
     }
 
