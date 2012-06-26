@@ -40,11 +40,14 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class DataBean extends DataItemBase {
 	
+
+	public static String DATA_NA_INFOTEXT = "Data currently not available";
 	
 	/**
 	 * What to return when none of the data locations are available?
 	 */
 	public static enum DataNotAvailableHandling {
+		
 		/**
 		 * Throw an exception if data is not available.
 		 */
@@ -760,7 +763,7 @@ public class DataBean extends DataItemBase {
 				return new ByteArrayInputStream(new byte[] {});
 				
 			case INFOTEXT_ON_NA:
-				return new ByteArrayInputStream("Data currently not available".getBytes());
+				return new ByteArrayInputStream(DATA_NA_INFOTEXT.getBytes());
 				
 			case NULL_ON_NA:
 				return null;
