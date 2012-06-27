@@ -8,7 +8,8 @@
 # OUTPUT insertions.bed
 # OUTPUT deletions.bed
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12"] DEFAULT mm9 (Genome that you would like to align your reads against.)
-# PARAMETER mate.inner.distance: "Expected inner distance between mate pairs" TYPE INTEGER FROM 10 TO 1000 DEFAULT 200 (Expected mean inner distance between mate pairs. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.)
+# PARAMETER mate.inner.distance: "Expected inner distance between mate pairs" TYPE INTEGER DEFAULT 200 (Expected mean inner distance between mate pairs. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.)
+# PARAMETER OPTIONAL mate.std.dev: "Standard deviation for the inner distances between mate pairs" TYPE INTEGER DEFAULT 20 (The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.)
 # PARAMETER OPTIONAL min.anchor.length: "Minimum anchor length" TYPE INTEGER FROM 3 TO 1000 DEFAULT 8 (TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved in spliced alignments is supported by at least one read with this many bases on each side.)
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat will ignore donor-acceptor pairs closer than this many bases apart.)
@@ -20,6 +21,7 @@
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
 # AMS 19.6.2012 Added unzipping
+# AMS 27.6.2012 Added parameter mate.std.dev, allow negative values for mate.inner.distance
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -40,7 +42,7 @@ path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
 command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
-command.parameters <- paste("-r", mate.inner.distance, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-F", min.isoform.fraction, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-F", min.isoform.fraction, "-g", max.multihits, "--library-type fr-unstranded")
 
 # optional GTF command, if a GTF file has been provided by user
 command.gtf <- ""
