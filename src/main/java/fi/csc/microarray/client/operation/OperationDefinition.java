@@ -559,6 +559,12 @@ public class OperationDefinition implements ExecutionItem {
 			
 		} else if (type == ChipsterInputTypes.GENELIST) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+		
+		} else if (type == ChipsterInputTypes.BAM) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
+			
+		} else if (type == ChipsterInputTypes.FASTA) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
 			
 		} else if (type == ChipsterInputTypes.PHENODATA) {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);

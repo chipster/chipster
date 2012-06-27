@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.UIManager;
 
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
@@ -35,7 +34,7 @@ public class GenomePlot extends Plot {
 	private View dataView = null;
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
-    public ChartPanel chartPanel;
+    public TooltipAugmentedChartPanel chartPanel;
     
     private boolean showFullHeight = false;
 	private Rectangle dirtyArea;
@@ -93,7 +92,7 @@ public class GenomePlot extends Plot {
 		}
 
 		this.views.add(dataView);
-		panel.addTooltipRequestProcessor(dataView);
+		chartPanel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
@@ -324,7 +323,9 @@ public class GenomePlot extends Plot {
     }
 
 	public void clean() {
+		chartPanel.removeTooltipRequestProcessor();
 		overviewView.clean();
 		dataView.clean();
+		dataView = null;
 	}
 }

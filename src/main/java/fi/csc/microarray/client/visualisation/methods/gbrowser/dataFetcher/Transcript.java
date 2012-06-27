@@ -1,11 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import java.util.Collection;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Transcript> {
+public class Transcript extends TreeSet<Exon> implements Comparable<Transcript> {
 	
 	private Gene gene;
 	private Region region;
@@ -19,11 +19,12 @@ public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Tra
 	}
 
 	public int compareTo(Transcript other) {
-		return this.id.compareTo(other.id);
-	}
 
-	public Gene getGene() {
-		return gene;
+		
+		return this.id.compareTo(other.id);
+//		int regionComparison = this.region.compareTo(other.region);
+//		
+//		return regionComparison;
 	}
 
 	@Override
@@ -51,7 +52,8 @@ public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Tra
 	}
 
 	public void addExon(Exon exon, String transcId) {
-		this.put(exon.getIndex(), exon);
+		
+		this.add(exon);
 		
 		if(region == null) {
 			try {
@@ -70,6 +72,6 @@ public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Tra
 	}
 
 	public Collection<Exon> getExons() {
-		return this.values();
+		return this;
 	}
 }

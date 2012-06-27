@@ -49,7 +49,15 @@ public class GtfTabixFileFetcherThread extends Thread {
 	public void run() {
 
 		while (!poison) {
+
 			try {
+				
+				for (BpCoordFileRequest fileRequest : fileRequestQueue) {
+					if (fileRequest.getStatus().poison) {
+						poison = true;
+					}
+				}
+				
 				processFileRequest(fileRequestQueue.take());
 
 			} catch (IOException e) {

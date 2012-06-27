@@ -74,7 +74,6 @@ import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -230,6 +229,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
+			tabPane.addTab("Legend", new GBrowserLegend());
 
 			GridBagConstraints c = new GridBagConstraints();
 
@@ -787,7 +787,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 						track.setTrackGroup(geneGroup);
 						break;
-
+						
 					case REFERENCE:
 						// integrated into peaks
 						break;
@@ -971,7 +971,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void initialiseUserData(DataBean data) throws IOException {
-		// In data needs to be copied out of a session ZIP file, do it now  
+		// If data needs to be copied out of a session ZIP file, do it now  
 		if (data != null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) == null) {
 			Session.getSession().getDataManager().getLocalFile(data);
 		}
@@ -1059,26 +1059,21 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		// Find interpretations for all primary data types
 		for (DataBean data : datas) {
 
-			// accept only datasets that are tagged to contain "ordered genomic entities"
-			if (data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
-				
-				if (data.isContentTypeCompatitible("text/plain")) {
-					// ELAND result / export
-					interpretations.add(new Interpretation(TrackType.READS, data));
+			if (data.isContentTypeCompatitible("text/plain")) {
+				// ELAND result / export
+				interpretations.add(new Interpretation(TrackType.READS, data));
 
-				} else if (data.isContentTypeCompatitible("text/bed")) {
-					// BED (ChIP-seq peaks)
-					interpretations.add(new Interpretation(TrackType.REGIONS, data));
+			} else if (data.isContentTypeCompatitible("text/bed")) {
+				// BED (ChIP-seq peaks)
+				interpretations.add(new Interpretation(TrackType.REGIONS, data));
 
-				} else if (data.isContentTypeCompatitible("text/tab")) {
-					// peaks (with header in the file)
-					interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+				// peaks (with header in the file)
+				interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
-				} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-						(data.getName().endsWith(".bam"))) {
-					// BAM file
-					interpretations.add(new Interpretation(TrackType.READS, data));
-				}
+			} else if ((data.isContentTypeCompatitible("application/bam"))) {
+				// BAM file
+				interpretations.add(new Interpretation(TrackType.READS, data));
 			}
 		}
 
@@ -1333,10 +1328,21 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	public void removeVisualisation() {
 
 		super.removeVisualisation();
+		
+		plotPanel.removeComponentListener(this);
+		plotPanel.removeAll();
 
 		if (plot != null) {
 			plot.clean();
+			plot = null;
 		}
+		
+		//Remove references to tracks and data to free memory, even if the (hidden) parameter panel keeps actionListener
+		//references to this object preventing garbage collection (when visualization is changed to none)
+		if (tracks != null) {
+			tracks.clear();
+		}
+		gia = null;
 
 		application.removeClientEventListener(this);
 
