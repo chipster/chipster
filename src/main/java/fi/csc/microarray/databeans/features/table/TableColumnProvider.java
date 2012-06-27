@@ -199,7 +199,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		@Override
 		public Table asTable() throws MicroarrayException {
 			if (indexCollector.isEmpty()) {
-				return null;
+				return new ConstantTable(new HashMap<String, Integer>(), new Object[][] {{}});
 				
 			} else {
 				return new DynamicallyParsedTable(getDataBean(), settings, indexCollector);

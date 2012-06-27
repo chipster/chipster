@@ -184,6 +184,9 @@ public class DataBean extends DataItemBase {
 
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
+	/**
+	 * Timestamp for creation time.
+	 */
 	protected Date date;
 	
 	private OperationRecord operationRecord;
@@ -191,14 +194,12 @@ public class DataBean extends DataItemBase {
 
 	protected ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
-	private long contentLength = -1;
-	private long checksum;
 	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this.name = name;
 		this.contentType = contentType;
 		this.dataManager = manager;
-		this.date = new Date(); // timestamp for creation time
+		this.date = new Date();
 	}
 
 
@@ -332,10 +333,20 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Returns content size in bytes.  
+	 * Returns content size in bytes. Returns -1 if 
+	 * none of the content locations are available. 
 	 */
 	public long getContentLength() {
-		return contentLength ;
+		try {
+			ContentLocation location = getClosestContentLocation();
+			if (location != null) {
+				return location.getHandler().getContentLength(location);
+			} else {
+				return -1;
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 
@@ -629,21 +640,6 @@ public class DataBean extends DataItemBase {
 	 * 
 	 */
 	void addContentLocation(ContentLocation contentLocation) {
-		
-		// FIXME this should be reconsidered, has many implications when calling DataManager.getContentOutputStreamAndLockDataBean 
-		if (contentLength == -1) {
-			// we are seeing content for the first time, update content related metadata
-			try {
-				contentLength = contentLocation.getHandler().getContentLength(contentLocation);
-				
-				// do checksumming also?
-				
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-
-		}
-		
 		contentLocations.add(contentLocation);
 	}
 	
