@@ -1302,12 +1302,18 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			IntegratedEntity sel = application.getSelectionManager().getSelectionManager(null).getPointSelection();
 
 			// Check if we can process this
-			if (sel.containsKey("chromosome") && sel.containsKey("start") && sel.containsKey("end")) {
+			if (sel.containsKey("chromosome") && sel.containsKey("start")) {
 
 				// Move to selected region 
 				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
 				long start = Long.parseLong(sel.get("start"));
-				long end = Long.parseLong(sel.get("end"));
+				
+				long end = -1;
+				if (sel.containsKey("end")) {
+					end = Long.parseLong(sel.get("end"));
+				} else {
+					end = start;
+				}
 				updateCoordinateFields((end + start) / 2, (end - start) * 2);
 			}
 
