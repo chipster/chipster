@@ -475,27 +475,11 @@ public class TaskExecutor {
 						
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
-						URL url = bean.getUrl(StorageMethod.REMOTE_CACHED);
-						try {
-							bean.getLock().readLock().lock();
-
-							// bean modified, always upload
-							if (bean.isContentChanged()) {
-								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
-								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
-								bean.setContentChanged(false);
-								
-							}
-							// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
-							else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
-								url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
-								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
-							}
-
-						} finally {
-							bean.getLock().readLock().unlock();
+						URL url = manager.getURLForCompAndUploadToCacheIfNeeded(bean, progressListener);
+						if (url == null) {
+							throw new RuntimeException("could not upload input data");
 						}
-
+						
 						// add the possibly new url to message
 						jobMessage.addPayload(name, url);
 						

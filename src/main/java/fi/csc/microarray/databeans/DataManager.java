@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.jms.JMSException;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -35,6 +36,8 @@ import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -929,25 +932,46 @@ public class DataManager {
 //		
 	}
 
-	public URL getURLForCompAndUploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) { 
+	/**
+	 * 
+	 * @param bean
+	 * @param progressListener
+	 * @return null if no valid location available
+	 * @throws NotEnoughDiskSpaceException
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public URL getURLForCompAndUploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception { 
 
 		URL url = null;
 		try {
-//			bean.getLock().readLock().lock();
-//
-//			// bean modified, always upload
-//			if (bean.isContentChanged()) {
-//				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
-//				addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
-////				bean.re
-//				bean.setContentChanged(false);
-//			}
-//
-//			// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
-//			else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
-//				url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
-//				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
-//			}
+			bean.getLock().readLock().lock();
+
+			// bean modified, always upload
+			if (bean.isContentChanged()) {
+				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+				bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+				addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
+				bean.setContentChanged(false);
+			}
+
+			// bean not modified, upload only if no valid storage or cached location is found
+			else {
+				for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_LONGTERM)) {
+					if (location.getHandler().isAccessible(location)) {
+						url = location.getUrl();
+						break;
+					}
+				}
+				// need to upload
+				if (url == null) {
+					url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+					bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+					addUrl(bean, StorageMethod.REMOTE_CACHED, url);
+				}
+			}
 
 		} finally {
 			bean.getLock().readLock().unlock();
