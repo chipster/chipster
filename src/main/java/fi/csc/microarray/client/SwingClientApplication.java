@@ -101,6 +101,7 @@ import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
@@ -112,6 +113,7 @@ import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.GeneralFileFilter;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.Strings;
 
@@ -1198,15 +1200,27 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void openURLImport() throws MicroarrayException, IOException {
+	public void openURLImport(boolean downloadURL) throws MicroarrayException, IOException {
 		URLImportDialog urlImportDlg = new URLImportDialog(this);
 		URL selectedURL = urlImportDlg.getSelectedURL();
 		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
-
-			File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
-
-			ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
+			
+			if (downloadURL) {
+				File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
+				ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
+			
+			} else {
+				
+				// TODO a bit of ImportUtils functionality is repeated here, should refactor
+				String name = IOUtils.getFilenameWithoutPath(selectedURL);
+				DataFolder folder = initializeFolderForImport(importFolder);
+				DataBean data = manager.createDataBean(name);
+				manager.addUrl(data, StorageMethod.REMOTE_STORAGE, selectedURL);
+				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+				data.setOperationRecord(new OperationRecord(importOperation));
+				manager.connectChild(data, folder);
+			}
 		}
 	}
 	
