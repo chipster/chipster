@@ -52,13 +52,6 @@ public interface Module {
 	 * @param manager data manager to plug into
 	 */
 	public void plugContentTypes(DataManager manager);
-	
-	/**
-	 * Plugs type tags of this module to given data manager.
-	 * 
-	 * @param manager data manager to plug into
-	 */
-	public void plugTypeTags(DataManager manager);
 
 	/**
 	 * Returns the name of the server module associated to this 
