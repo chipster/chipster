@@ -15,7 +15,6 @@ public class SomClusterProvider extends FeatureProviderBase {
 
 	private static class Cluster {
 		String colour;
-		int number;
 		float distanceToFirst;
 		String values = "";
 	}
@@ -52,7 +51,6 @@ public class SomClusterProvider extends FeatureProviderBase {
 				}
 
 				Cluster cluster = new Cluster();
-				cluster.number = i;
 				cluster.colour = colour;
 				cluster.distanceToFirst = distances.next();
 				clusterMap.put(i, cluster);

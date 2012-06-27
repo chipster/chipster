@@ -33,7 +33,7 @@ public class Cigar {
 	public void addElement(CigarItem e) {
 	}
 	
-	@Deprecated
+	// FIXME remove this and use instead ReadpartDataProvider
 	public long getReferenceIndex(long seqIndex) {
 		
 		long seqCounter = 0;

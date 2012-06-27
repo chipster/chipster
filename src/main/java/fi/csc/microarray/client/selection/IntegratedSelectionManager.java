@@ -45,7 +45,7 @@ public class IntegratedSelectionManager {
 	}
 
 	public IntegratedEntity getPointSelection() {
-		return this.pointSelection;
+		return IntegratedSelectionManager.pointSelection;
 	}
 
 	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
@@ -130,7 +130,7 @@ public class IntegratedSelectionManager {
 	 * Focus type of selection.
 	 */
 	public void setPointSelection(IntegratedEntity entity, Object source) {
-		this.pointSelection = entity;
+		IntegratedSelectionManager.pointSelection = entity;
 		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 

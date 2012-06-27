@@ -149,7 +149,6 @@ public class SAMHandlerThread extends AreaRequestHandler {
 		// Return one result pair for each region covered by one cache hit
 		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>(); 
 		long startPos = pos;
-		int cacheHitsPerRegion = 0;
 		for (BpCoord coord : indexedValues.keySet()) {
 
 			// Find end: either next cache hit or end of region
@@ -166,7 +165,6 @@ public class SAMHandlerThread extends AreaRequestHandler {
 			}
 
 			addConcisedRegionContents(request, responseList, startPos, endPos, indexedValues.get(coord).forwardCount, indexedValues.get(coord).reverseCount);
-			cacheHitsPerRegion++;
 
 			// Move to next region
 			startPos += endPos;

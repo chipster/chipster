@@ -19,12 +19,11 @@ public class Transcript extends TreeMap<Integer, Exon> implements Comparable<Tra
 	}
 
 	public int compareTo(Transcript other) {
-
-		
 		return this.id.compareTo(other.id);
-//		int regionComparison = this.region.compareTo(other.region);
-//		
-//		return regionComparison;
+	}
+
+	public Gene getGene() {
+		return gene;
 	}
 
 	@Override

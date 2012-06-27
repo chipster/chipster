@@ -142,10 +142,6 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		public void setTrackGroup(TrackGroup trackGroup) {
 			this.trackGroup = trackGroup;
 		}
-
-		public TrackGroup getTrackGroup() {
-			return trackGroup;
-		}
 	}
 
 	private final ClientApplication application = Session.getSession()
