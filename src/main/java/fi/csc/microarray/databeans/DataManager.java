@@ -37,6 +37,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.Strings;
 
 public class DataManager {
@@ -926,7 +927,33 @@ public class DataManager {
 //			}
 //		}
 //		
-		
+	}
+
+	public URL getURLForCompAndUploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) { 
+
+		URL url = null;
+		try {
+//			bean.getLock().readLock().lock();
+//
+//			// bean modified, always upload
+//			if (bean.isContentChanged()) {
+//				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+//				addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
+////				bean.re
+//				bean.setContentChanged(false);
+//			}
+//
+//			// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
+//			else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
+//				url = fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener);
+//				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
+//			}
+
+		} finally {
+			bean.getLock().readLock().unlock();
+		}
+		return url;
 	}
 
 }
+

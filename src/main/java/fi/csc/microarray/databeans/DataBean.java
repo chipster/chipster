@@ -621,6 +621,30 @@ public class DataBean extends DataItemBase {
 		contentLocations.remove(contentLocation);
 	}
 
+	/**
+	 * Remove all ContentLocations with given types from bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * 
+	 */
+	void removeContentLocations(StorageMethod... methods) {
+		
+		// gather
+		List<ContentLocation> locationsToBeRemoved = new LinkedList<ContentLocation>();
+		for (StorageMethod method : methods) {
+			for (ContentLocation location : contentLocations) {
+				if (method.equals(location.getMethod())) {
+					locationsToBeRemoved.add(location);
+				}
+			}
+		}
+
+		// remove
+		for (ContentLocation location : locationsToBeRemoved) {
+			contentLocations.remove(location);
+		}
+	}
+	
 	public URL getUrl(StorageMethod... methods) {
 		ContentLocation contentLocation = getContentLocation(methods);
 		return contentLocation != null ? contentLocation.url : null;
