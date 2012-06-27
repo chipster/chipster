@@ -60,6 +60,7 @@ import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
@@ -88,6 +89,12 @@ public abstract class ClientApplication {
 	// Logger for this class
 	protected static Logger logger;
 
+	public static enum SessionSavingMethod {
+		LEAVE_DATA_AS_IT_IS,
+		INCLUDE_DATA_INTO_ZIP,
+		UPLOAD_DATA_TO_SERVER;
+	}
+	
     // 
 	// ABSTRACT INTERFACE
 	//
@@ -118,9 +125,8 @@ public abstract class ClientApplication {
 	public abstract File openWorkflow();
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
-	public abstract void loadSessionFrom(File file);
 	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession();
+	public abstract void saveSession(final boolean quit, final SessionSavingMethod savingMethod);
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
@@ -204,20 +210,22 @@ public abstract class ClientApplication {
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
+			
 			// Initialise data management
 			this.manager = new DataManager();
 			Session.getSession().setDataManager(manager);
 			modules.plugAll(this.manager, Session.getSession());
 			this.selectionManager = new DataSelectionManager(this);
 			Session.getSession().setClientApplication(this);
-		
+
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
+			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
-			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation(" ok", false);
+
 
 			// Check services
 			reportInitialisation("Checking remote services...", true);
@@ -491,15 +499,8 @@ public abstract class ClientApplication {
 						output.addLink(Link.DERIVATION, source);
 					}
 
-					// initialise cache
-					try {
-						output.initialiseStreamStartCache();
-					} catch (IOException e) {
-						throw new MicroarrayException(e);
-					}
-
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(output);
+					manager.connectChild(output, folder);
 
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there
@@ -658,7 +659,7 @@ public abstract class ClientApplication {
 
 					newFile.createNewFile();		
 					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(data.getContentByteStream(), out);
+					IO.copy(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), out);
 					out.close();
 				} catch (Exception e) {
 					throw new RuntimeException(e);

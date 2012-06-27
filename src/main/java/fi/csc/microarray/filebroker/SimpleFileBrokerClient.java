@@ -55,4 +55,9 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public URL moveFileToStorage(URL url) {
+		throw new UnsupportedOperationException();
+	}
+
 }

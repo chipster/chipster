@@ -93,8 +93,6 @@ public interface FileBrokerClient {
 	 * be updated or not. 
 	 * 
 	 * TODO Check contentLength against connection.getContentLength()
-	 * TODO Checking content length may not be the best idea,
-	 * especially when using compression
 	 * 
 	 * @param url
 	 * @param contentLength
@@ -112,5 +110,9 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 */
 	public abstract URL getPublicUrl() throws Exception;
+	
+	
+	public abstract URL moveFileToStorage(URL url);
+	
 
 }

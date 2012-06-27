@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -28,6 +29,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -44,7 +46,7 @@ import fi.csc.microarray.module.basic.BasicModule;
 
 
 public class Spreadsheet extends Visualisation {
-	
+
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
 	}	
@@ -87,7 +89,7 @@ public class Spreadsheet extends Visualisation {
 	private final int COLUMNS_REQUIRES_SCROLLING = 8;
 
 	private ExtendedJXTable table;
-	
+
 	/**
 	 * Creates a new TablePanel, which is dataset specific.
 	 * 
@@ -99,58 +101,73 @@ public class Spreadsheet extends Visualisation {
 	public JComponent getVisualisation(final DataBean data) throws Exception {
 		JPanel panel = new JPanel(new BorderLayout());				
 		Module primaryModule = Session.getSession().getPrimaryModule();
-	
+
 		// Figure out column names
-		Table columns = data.queryFeatures("restrict(/column/*)").asTable();
-		String[] columnTitles = new String[columns.getColumnCount()];
-		int counter = 0;
-		for (String column : columns.getColumnNames()) {
-			columnTitles[counter] = column;
-			counter++;
-		}
-		
-		// Check which columns need hyperlinking
-		List<Boolean> linkableFlags = primaryModule.flagLinkableColumns(columns, data);
+		String[] columnTitles;
+		Object[][] rowData;
+		List<Boolean> linkableFlags;
+		int rowCount;
+		int columnCount;
+		QueryResult columnsFeature = data.queryFeatures("restrict(/column/*)");
+		Table columns = columnsFeature.asTable();
 
-		// Count data rows
-		Table rowCounter = data.queryFeatures("/column/*").asTable();
-		int rowCount = 0;
-		while (rowCounter.nextRow()) {
-			rowCount++;
-		}
+		if (columns == null) {
+			columnTitles = new String[] { "Info" };
+			rowData = new String[][] { new String[] { DataBean.DATA_NA_INFOTEXT }};
+			linkableFlags = new LinkedList<Boolean>();
+			linkableFlags.add(false);
+			rowCount = 1;
+			columnCount = 1;
 
-		// Create actual tabular data
-		Object[][] rowData =
-			new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
-		int row = 0;
-		while (columns.nextRow()) {
-			int column = 0;
-			for (String columnName : columns.getColumnNames()) {
+		} else {
 
-				Object value = columns.getValue(columnName);
-				ExtendedCellValue cell;
-				
-				IntegratedEntity linkedEntity = null;
-				if (linkableFlags.get(column)) {
-					// This cell value is linkable
-					linkedEntity = primaryModule.createLinkableEntity(columns, data);
-				}
-				
-				if (value instanceof Float) {
-					cell = new ExtendedCellValue(columns.getStringValue(columnName), (Float)value, linkedEntity);
-					
-				} else {
-					cell = new ExtendedCellValue(columns.getStringValue(columnName), null, linkedEntity);
-				}
-//				rowData[row][column] = value;
-//				rowData[row][column] = "<html><a href=\"\">test</a></html>";
-//				rowData[row][column] = new LinkModel("Link");
-				rowData[row][column] = cell;
-				column++;
+			columnTitles = new String[columns.getColumnCount()];
+			int counter = 0;
+			for (String column : columns.getColumnNames()) {
+				columnTitles[counter] = column;
+				counter++;
 			}
-			row++;
+			columnCount = columns.getColumnCount();
+
+			// Check which columns need hyperlinking
+			List<Boolean> linkableFlags = primaryModule.flagLinkableColumns(columns, data);
+
+			// Count data rows
+			Table rowCounter = data.queryFeatures("/column/*").asTable();
+			rowCount = 0;
+			while (rowCounter.nextRow()) {
+				rowCount++;
+			}
+
+			// Create actual tabular data
+			rowData = new Object[RestrictModifier.RESTRICT_TO_ROWS < rowCount ? RestrictModifier.RESTRICT_TO_ROWS : rowCount][columns.getColumnCount()];
+			int row = 0;
+			while (columns.nextRow()) {
+				int column = 0;
+				for (String columnName : columns.getColumnNames()) {
+
+					Object value = columns.getValue(columnName);
+					ExtendedCellValue cell;
+
+					IntegratedEntity linkedEntity = null;
+					if (linkableFlags.get(column)) {
+						// This cell value is linkable
+						linkedEntity = primaryModule.createLinkableEntity(columns, data);
+					}
+
+					if (value instanceof Float) {
+						cell = new ExtendedCellValue(columns.getStringValue(columnName), (Float)value, linkedEntity);
+
+					} else {
+						cell = new ExtendedCellValue(columns.getStringValue(columnName), null, linkedEntity);
+					}
+					rowData[row][column] = cell;
+					column++;
+				}
+				row++;
+			}
 		}
-  
+
 		// Create the table component
 		table = new ExtendedJXTable(data);
 		DefaultTableModel tableModel = new DefaultTableModel(rowData, columnTitles) {			
@@ -160,7 +177,7 @@ public class Spreadsheet extends Visualisation {
 			}			
 		};
 		table.setModel(tableModel);
-		
+
 		// Initialise support for hyperlinks, if needed
 		for (int i = 0; i < linkableFlags.size(); i++) {
 
@@ -179,49 +196,49 @@ public class Spreadsheet extends Visualisation {
 		// Set look and feel aspects of the table 
 		table.setColumnControlVisible(true);
 		JScrollPane tableScroller = new JScrollPane(table);
-        table.setBackground(java.awt.Color.white);
-		table.setHorizontalScrollEnabled(columns.getColumnCount() > COLUMNS_REQUIRES_SCROLLING);
-		
+		table.setBackground(java.awt.Color.white);
+		table.setHorizontalScrollEnabled(columnCount > COLUMNS_REQUIRES_SCROLLING);
+
 		// Initialise support for popups
 		table.addMouseListener(new MouseAdapter(){
 			@Override
-	        public void mousePressed(MouseEvent e) {
-	        	maybeShowPopup(e);        
-	        }
+			public void mousePressed(MouseEvent e) {
+				maybeShowPopup(e);        
+			}
 			@Override
-	        public void mouseReleased(MouseEvent e) {
-	        	maybeShowPopup(e);        
-	        }
-		    private void maybeShowPopup(MouseEvent e) {
-		        if (e.isPopupTrigger()) {
-		        	JPopupMenu popup = new SpreadsheetPopupMenu(table, Session.getSession().getPrimaryModule());
-	                popup.show(e.getComponent(), e.getX(), e.getY());
-		        }
-		    }
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);        
+			}
+			private void maybeShowPopup(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					JPopupMenu popup = new SpreadsheetPopupMenu(table, Session.getSession().getPrimaryModule());
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
 		});
-		
+
 		// Make visible and activate
 		panel.add(new JLabel("Showing " + rowData.length + " rows of " + rowCount), BorderLayout.NORTH);
 		panel.add(tableScroller, BorderLayout.CENTER);
 		table.updateSelectionsFromApplication();
 		table.sendEvents(true);
-		
+
 		return panel; 
 	}
 
-	
+
 	public static class ExtendedCellValue extends LinkModel implements Comparable {
 
 		private String value;
 		private Float numericValue;
 		private IntegratedEntity linkedEntity;
-		
+
 		public ExtendedCellValue(String value, Float numericValue, IntegratedEntity linkedEntity) {
 			this.value = value;
 			this.numericValue = numericValue;
 			this.linkedEntity = linkedEntity;
 		}
-		
+
 		public IntegratedEntity getLinkedEntity() {
 			return linkedEntity;
 		}
@@ -235,50 +252,50 @@ public class Spreadsheet extends Visualisation {
 			ExtendedCellValue other = (ExtendedCellValue)otherObj;
 			if (this.numericValue != null && other.numericValue != null) {
 				return numericValue.equals(other.numericValue);
-				
+
 			} else {
 				return value.equals(other.value);
 			}
-			
+
 		}
 
 		@Override
 		public int hashCode() {
 			return numericValue != null ? numericValue.hashCode() : value.hashCode();
 		}
-		
+
 		@Override
 		public String toString() {
 			return getText();
 		}
-		
+
 		@Override
 		public String getText() {
 			return value; // always use the String value for showing the value
 		}
-		
+
 		@Override
 		public int compareTo(Object otherObj) {
 			if (!(otherObj instanceof ExtendedCellValue)) {
 				throw new IllegalArgumentException("cannot compare to instance of " + otherObj.getClass().getSimpleName());
 			}
-			
+
 			ExtendedCellValue other = (ExtendedCellValue)otherObj;
 			if (this.numericValue != null && other.numericValue != null) {
 				return numericValue.compareTo(other.numericValue);
-				
+
 			} else {
 				return value.compareTo(other.value);
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
-	
+
 	@Override
 	public void removeVisualisation(){
 		application.removeClientEventListener(table);

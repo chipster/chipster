@@ -84,7 +84,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	
-	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
+	private static final int QUICK_REQUEST_TIMEOUT = 10; // seconds
 	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
@@ -257,7 +257,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
 			}
 			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			url = replyListener.waitForReply(QUICK_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -281,7 +281,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
 			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			url = replyListener.waitForReply(QUICK_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -340,7 +340,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			CommandMessage spaceRequestMessage = new CommandMessage(CommandMessage.COMMAND_DISK_SPACE_REQUEST);
 			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
 			urlTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
-			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			spaceAvailable = replyListener.waitForReply(QUICK_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -350,6 +350,11 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		return spaceAvailable;
 		
+	}
+
+	@Override
+	public URL moveFileToStorage(URL url) {
+		throw new RuntimeException("not yet supported");
 	}
 
 }

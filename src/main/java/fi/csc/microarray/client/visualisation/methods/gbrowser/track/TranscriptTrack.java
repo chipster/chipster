@@ -41,12 +41,9 @@ public class TranscriptTrack extends Track {
 
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
-	private Color color;
-
 	public enum PartColor {
 		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE);
 
-		//		CDS(new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
 		public Color c;
 
 		PartColor(Color c) {
@@ -54,10 +51,9 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file, Color color, long maxBpLength) {
+	public TranscriptTrack(View view, DataSource file, long maxBpLength) {
 
 		super(view, file);
-		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}
 

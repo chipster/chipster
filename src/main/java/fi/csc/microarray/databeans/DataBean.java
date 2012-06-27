@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.InputStreamSource;
-import fi.csc.microarray.util.StreamStartCache;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -41,16 +40,66 @@ import fi.csc.microarray.util.StreamStartCache;
  */
 public class DataBean extends DataItemBase {
 	
-	public enum StorageMethod {
-		LOCAL_USER,
-		LOCAL_TEMP,
-		LOCAL_SESSION;
+
+	public static String DATA_NA_INFOTEXT = "Data currently not available";
+	
+	/**
+	 * What to return when none of the data locations are available?
+	 */
+	public static enum DataNotAvailableHandling {
+		
+		/**
+		 * Throw an exception if data is not available.
+		 */
+		EXCEPTION_ON_NA,
+
+		/**
+		 * Return null if data is not available.
+		 */
+		NULL_ON_NA,
+		
+		/**
+		 * Return empty data if data is not available.
+		 */
+		EMPTY_ON_NA,
+		
+		/**
+		 * Return an info string describing the situation and giving details on data availability.
+		 */
+		INFOTEXT_ON_NA
 	}
 	
+	/**
+	 * Defines a location where the actual file content of the DataBean can be accessed from.
+	 * Location might be local, remote or contained within another file (zip). 
+	 */
+	public static class ContentLocation {
+		
+		private StorageMethod method;
+		private URL url;
+		private ContentHandler handler;
+		
+		public ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
+			this.method = method;
+			this.handler = handler;
+			this.url = url;
+		}
+		
+		public StorageMethod getMethod() {
+			return method;
+		}
+
+		public URL getUrl() {
+			return url;
+		}
+
+		public ContentHandler getHandler() {
+			return handler;
+		}
+	}
 	
 	/**
 	 * Traversal specifies the way of traversing links. 
-	 *
 	 */
 	public enum Traversal {
 		DIRECT,
@@ -68,7 +117,6 @@ public class DataBean extends DataItemBase {
 	
 	/**
 	 * Link represents a relationship between two beans.
-	 *
 	 */
 	public enum Link {
 		/**
@@ -126,10 +174,8 @@ public class DataBean extends DataItemBase {
 	}
 
 	protected DataManager dataManager;
-	protected StreamStartCache streamStartCache = null;
-	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
+	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
-	private URL cacheUrl = null;
 	private boolean contentChanged = true;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
@@ -138,42 +184,22 @@ public class DataBean extends DataItemBase {
 
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
+	/**
+	 * Timestamp for creation time.
+	 */
 	protected Date date;
 	
 	private OperationRecord operationRecord;
 	private String notes;
 
 	protected ContentType contentType;
-
+	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
 	
-	private StorageMethod storageMethod;
-	private String repositoryName;
-	private URL url;
-	private DataBeanHandler handler;
-
-
-	public DataBean(String name, StorageMethod type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
-		
-		this.dataManager = manager;
+	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this.name = name;
-		this.url = contentUrl;
-		this.storageMethod = type;
-		this.repositoryName = repositoryName;
-		this.handler = handler;
-		this.date = date;
-		this.parent = parentFolder;
-		
-		
-		// add this as parent folders child
-		if (parentFolder != null) {
-			parentFolder.addChild(this);
-		}
-		
-		for (DataBean source : sources) {
-			source.addLink(Link.DERIVATION, this);
-		}
-
 		this.contentType = contentType;
+		this.dataManager = manager;
+		this.date = new Date();
 	}
 
 
@@ -266,72 +292,59 @@ public class DataBean extends DataItemBase {
 	}
 
 
-
 	/**
-	 * Returns raw binary content of this bean. Use Feature API for 
-	 * higher level accessing.
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array. Returns null if none of the content locations are available. 
 	 * 
-	 * @see #queryFeatures(String)
+	 * @throws IOException 
 	 * 
-	 * FIXME change name, locks stream start cache
+	 * @see #getContentStream()
 	 */
-	public InputStream getContentByteStream() throws IOException {
-		return getRawContentByteStream();
-
-		//lock.readLock().lock();
-//		if (streamStartCache != null) {
-//			return streamStartCache.getInputStream();
-//		} else {
-//			logger.debug("using non-cached stream");
-//			return getRawContentByteStream();
-//		}
+	public byte[] getContentBytes(DataNotAvailableHandling naHandling) throws IOException {
+		return getContentBytes(-1, naHandling); // -1 means "no max length"
 	}
-
-
 
 	/**
 	 * A convenience method for gathering streamed binary content into
-	 * a byte array.
+	 * a byte array. Gathers only maxLength first bytes. Returns null if 
+	 * none of the content locations are available. 
+	 * 
 	 * @throws IOException 
 	 * 
-	 *   @see #getContentByteStream()
+	 * @see #getContentStream()
 	 */
-	public byte[] getContents() throws IOException {
+	public byte[] getContentBytes(long maxLength, DataNotAvailableHandling naHandling) throws IOException {
+		
+		InputStream in = null;
 		try {
-			return Files.inputStreamToBytes(this.getContentByteStream());
+			in = getContentStream(naHandling);
+			if (in != null) {
+				return Files.inputStreamToBytes(in, maxLength);	
+				
+			} else {
+				return null;
+			}
+			
 		} finally {
-			// FIXME release inputstream
+			IOUtils.closeIfPossible(in);
 		}
-		
-	}
-	
-	public byte[] getContents(long maxLength) throws IOException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		InputStream in = this.getContentByteStream();
-		long readCount = 0;
-		
-		for (int b = in.read(); b != -1 && readCount < maxLength; b = in.read()) {
-			outputStream.write(b);
-			readCount++;
-		}
-		
-		return outputStream.toByteArray();
 	}
 
 
 
 	/**
-	 * Returns content size in bytes.
+	 * Returns content size in bytes. Returns -1 if 
+	 * none of the content locations are available. 
 	 */
 	public long getContentLength() {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
-		}
-	
 		try {
-			return handler.getContentLength(this);
+			ContentLocation location = getClosestContentLocation();
+			if (location != null) {
+				return location.getHandler().getContentLength(location);
+			} else {
+				return -1;
+			}
 		} catch (IOException e) {
-			// FIXME what to do?
 			throw new RuntimeException(e);
 		}
 	}
@@ -340,8 +353,10 @@ public class DataBean extends DataItemBase {
 
 	public void delete() {
 //		lock.writeLock().lock();
-		try {
-			this.handler.delete(this);
+		try {			
+			for (ContentLocation contentLocation : contentLocations) {
+				contentLocation.getHandler().markDeletable(contentLocation);
+			}
 			this.contentType = null;			
 		} finally {
 //			lock.writeLock().unlock();
@@ -351,16 +366,13 @@ public class DataBean extends DataItemBase {
 
 
 	/**
-	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
+	 * Puts named object to content bound cache. Content bound cache is a hashmap type cache where 
 	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
 	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
 	 * and generally, user should never assume cached values to be found.  
-	 *
-	 *	FIXME think about locking
-	 *
 	 */
-	public void putToContentCache(String name, Object value) {
-		this.contentCache.put(name, value);
+	public void putToContentBoundCache(String name, Object value) {
+		this.contentBoundCache.put(name, value);
 	}
 
 
@@ -372,80 +384,36 @@ public class DataBean extends DataItemBase {
 	 * @param name
 	 * @return
 	 */
-	public Object getFromContentCache(String name) {
-		try {
-//			this.lock.readLock().lock();
-	
-			return this.contentCache.get(name);
-		} finally {
-//			this.lock.readLock().unlock();
-		}
+	public Object getFromContentBoundCache(String name) {
+		return this.contentBoundCache.get(name);
 	}
 
 
-
-	/** 
-	 * FIXME Think about locking.
-	 */
-	protected void resetContentCache() {
-		this.contentCache.clear();
+	protected void resetContentBoundCache() {
+		this.contentBoundCache.clear();
 	}
-
-
-
-	/**
-	 *  TODO should be integrated and hidden away
-	 * @throws MicroarrayException
-	 * @throws IOException
-	 */
-	public void initialiseStreamStartCache() throws MicroarrayException, IOException {
-		try {
-//			this.lock.readLock().lock();
-			this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
-				public InputStream getInputStream() {
-					try {
-						return getRawContentByteStream();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
-			});
-		} finally {
-//			this.lock.readLock().unlock();
-		}
-	}
-	
-	
 	
 	/**
-		 * Creates a link between this and target bean. Links represent relationships
-		 * between beans. Links have hardcoded types.
-		 * 
-		 * @see Link
-		 */
-		public void addLink(Link type, DataBean target) {
-			if (target == null) {
-				return;
-			}		
-			
-			// FIXME add more internal state validation to FSDataBean
-	//		for (LinkedBean linkedBean : outgoingLinks) {
-	//			if (linkedBean.bean == target && linkedBean.link == type) {
-	//				throw new RuntimeException("duplicate link");
-	//			}
-	//		}
-	
-			// make both parties aware of the link
-			target.incomingLinks.add(new LinkedBean(type, this));
-			outgoingLinks.add(new LinkedBean(type, target));
-	
-			// dispatch events only if both visible
-			if (this.getParent() != null && target.getParent() != null) {
-				LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
-				dataManager.dispatchEvent(lce);
-			}
-	
+	 * Creates a link between this and target bean. Links represent relationships
+	 * between beans. Links have hardcoded types.
+	 * 
+	 * @see Link
+	 */
+	public void addLink(Link type, DataBean target) {
+		if (target == null) {
+			return;
+		}		
+
+		// make both parties aware of the link
+		target.incomingLinks.add(new LinkedBean(type, this));
+		outgoingLinks.add(new LinkedBean(type, target));
+
+		// dispatch events only if both visible
+		if (this.getParent() != null && target.getParent() != null) {
+			LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
+			dataManager.dispatchEvent(lce);
 		}
+	}
 
 
 
@@ -624,66 +592,76 @@ public class DataBean extends DataItemBase {
 		return false;
 	}
 	
-	
-	public URL getContentUrl() {
-		return url;
-	}
-
-
-	public void setContentUrl(URL contentUrl) {
-		this.url = contentUrl;
+	/**
+	 * Gives one (arbitrary) location for the content of this DataBean that uses
+	 * one of the given storage methods. 
+	 * 
+	 * @param methods returned ContentLocation must use one of these
+	 */
+	public ContentLocation getContentLocation(StorageMethod... methods) {
+		List<ContentLocation> locations = getContentLocations(methods);
+		return locations.isEmpty() ? null : locations.get(0);
 	}
 
 	/**
-	 * Should only be used during saving or loading.
-	 * 
-	 * @param handler
+	 * Gives all locations for the content of this DataBean.
 	 */
-	public DataBeanHandler getHandler() {
-		return this.handler;
+	public List<ContentLocation> getContentLocations() {
+		
+		return contentLocations; 
 	}
 
 	/**
-	 * Should only be used during saving or loading.
+	 * Gives all locations for the content of this DataBean that use
+	 * one of the given storage methods. 
 	 * 
-	 * @param handler
+	 * @param methods returned ContentLocations must use one of these
 	 */
-	public void setHandler(DataBeanHandler handler) {
-		this.handler = handler;
-	}
-
-
-
-	public StorageMethod getStorageMethod() {
-		return storageMethod;
-	}
-
-
-
-	public void setStorageMethod(StorageMethod storageMethod) {
-		this.storageMethod = storageMethod;
-	}
-
-
-
-	public String getRepositoryName() {
-		if (this.repositoryName == null) {
-			return "";
-		} else {
-			return this.repositoryName;
+	public List<ContentLocation> getContentLocations(StorageMethod... methods) {
+		
+		// Collect content locations with matching method
+		LinkedList<ContentLocation> locations = new LinkedList<DataBean.ContentLocation>();
+		for (ContentLocation contentLocation : contentLocations) {
+			for (StorageMethod method : methods) {
+				if (contentLocation.method == method) {
+					locations.add(contentLocation);
+				}
+			}
 		}
+
+		return locations; 
+	}
+	
+	/**
+	 * Add ContentLocations to bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * @see DataManager#addUrl(DataBean, StorageMethod, URL)
+	 * 
+	 */
+	void addContentLocation(ContentLocation contentLocation) {
+		contentLocations.add(contentLocation);
+	}
+	
+	/**
+	 * Remove ContentLocation from bean. Should be used only by DataManager. Others
+	 * use DataManager to do this.
+	 * 
+	 * 
+	 */
+	void removeContentLocation(ContentLocation contentLocation) {
+		contentLocations.remove(contentLocation);
 	}
 
-
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
+	public URL getUrl(StorageMethod... methods) {
+		ContentLocation contentLocation = getContentLocation(methods);
+		return contentLocation != null ? contentLocation.url : null;
 	}
+	
 
 	/**
 	 * Indicate whether the contents have been changed since the contents
 	 * were last time uploaded to file broker.
-	 * 
-	 * FIXME Think about locking.
 	 * 
 	 */
 	public boolean isContentChanged() {
@@ -694,38 +672,19 @@ public class DataBean extends DataItemBase {
 
 	/**
 	 * Set content changed status. Should be called with true every time
-	 * content is changed.
+	 * content is changed. Resets content bound cache.
 	 * 
-	 * FIXME Think about locking.
 	 * @param contentChanged
 	 */
 	public void setContentChanged(boolean contentChanged) {
+		
+		if (contentChanged) {
+			resetContentBoundCache();
+		}
+		
 		this.contentChanged = contentChanged;
 	}
 
-
-
-	/**
-	 * Get the location of the remote copy for the content file. 
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @return may be null
-	 */
-	public URL getCacheUrl() {
-		return this.cacheUrl;
-	}
-
-
-
-	/**
-	 * Set the location of the remote copy of the content file.
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @param url
-	 */
-	public void setCacheUrl(URL url) {
-		this.cacheUrl = url;
-	}
 
 	public void setCreationDate(Date date) {
 		this.date = date;
@@ -783,10 +742,66 @@ public class DataBean extends DataItemBase {
 
 
 
-	private InputStream getRawContentByteStream() throws IOException {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
+	/**
+	 * Returns raw binary content of this bean. Returns null if 
+	 * none of the content locations are available. Use Feature API for 
+	 * higher level accessing.
+	 * 
+	 * @see #queryFeatures(String)
+	 */
+	public InputStream getContentStream(DataNotAvailableHandling naHandling) throws IOException {
+		ContentLocation location = getClosestContentLocation();
+		if (location != null) {
+			return location.getHandler().getInputStream(location);
+		} else {
+			switch (naHandling) {
+			case EMPTY_ON_NA:
+				return new ByteArrayInputStream(new byte[] {});
+				
+			case INFOTEXT_ON_NA:
+				return new ByteArrayInputStream(DATA_NA_INFOTEXT.getBytes());
+				
+			case NULL_ON_NA:
+				return null;
+				
+			default:
+				throw new IllegalStateException("no content locations available");	
+			
+			}
 		}
-		return handler.getInputStream(this);
+	}
+	
+	/**
+	 * Returns the ContentLocation that is likely to be the fastest available. 
+	 * All returned ContentLocations are checked to be accessible. Returns null
+	 * if none of the locations are accessible.
+	 */
+	public ContentLocation getClosestContentLocation() {
+
+		// first tier
+		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
+		if (plainLocal != null && isAccessible(plainLocal)) {
+			return plainLocal;
+		}
+		
+		// second tier
+		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_FILE_METHODS);
+		if (plainRemote != null && isAccessible(plainRemote)) {
+			return plainRemote;
+		}
+		
+		// third tier
+		ContentLocation somethingSlow = getContentLocation(StorageMethod.OTHER_SLOW_METHODS);
+		if (somethingSlow != null && isAccessible(somethingSlow)) {
+			return somethingSlow;
+		}
+
+		// nothing was accessible
+		return null;
+	}
+
+
+	private boolean isAccessible(ContentLocation location) {
+		return location.getHandler().isAccessible(location);
 	}
 }

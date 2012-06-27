@@ -31,7 +31,7 @@ public class GeneTrackGroup extends TrackGroup {
 		super(dataView);
 		
 		transcript = new TranscriptTrack(dataView, annotationDataSource,
-		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcript.setStrand(Strand.FORWARD);
 		
 		geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
@@ -51,7 +51,7 @@ public class GeneTrackGroup extends TrackGroup {
 		geneReversed.setStrand(Strand.REVERSED);
 		
 		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource,
-		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcriptReversed.setStrand(Strand.REVERSED);
 		
 		adds();

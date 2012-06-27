@@ -23,22 +23,24 @@ import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
-import fi.csc.microarray.client.session.schema.DataType;
-import fi.csc.microarray.client.session.schema.FolderType;
-import fi.csc.microarray.client.session.schema.InputType;
-import fi.csc.microarray.client.session.schema.LinkType;
-import fi.csc.microarray.client.session.schema.NameType;
-import fi.csc.microarray.client.session.schema.ObjectFactory;
-import fi.csc.microarray.client.session.schema.OperationType;
-import fi.csc.microarray.client.session.schema.ParameterType;
-import fi.csc.microarray.client.session.schema.SessionType;
+import fi.csc.microarray.client.session.schema2.DataType;
+import fi.csc.microarray.client.session.schema2.FolderType;
+import fi.csc.microarray.client.session.schema2.InputType;
+import fi.csc.microarray.client.session.schema2.LinkType;
+import fi.csc.microarray.client.session.schema2.LocationType;
+import fi.csc.microarray.client.session.schema2.NameType;
+import fi.csc.microarray.client.session.schema2.ObjectFactory;
+import fi.csc.microarray.client.session.schema2.OperationType;
+import fi.csc.microarray.client.session.schema2.ParameterType;
+import fi.csc.microarray.client.session.schema2.SessionType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
-import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
 
@@ -76,7 +78,6 @@ public class SessionSaver {
 
 
 	private String validationErrors;
-
 
 	/**
 	 * Create a new instance for every session to be saved.
@@ -117,6 +118,22 @@ public class SessionSaver {
 		writeSessionFile(saveData);
 	}
 
+	public void saveStorageSession() throws Exception {
+
+		// move data bean contents to storage
+		for (DataBean dataBean : dataManager.databeans()) {
+			dataManager.putToStorage(dataBean);
+		}
+		
+		// save metadata
+		boolean saveData = false;
+		gatherMetadata(saveData);
+		writeSessionFile(saveData);
+
+		
+		
+	}
+	
 	
 	/**
 	 * Gather the metadata form the data beans, folders and operations.
@@ -154,7 +171,6 @@ public class SessionSaver {
 		marshaller.setEventHandler(validationEventHandler);
 		
 		marshaller.marshal(factory.createSession(sessionType), new DefaultHandler());
-		//marshaller.marshal(factory.createSession(sessionType), System.out);
 	
 		if (!validationEventHandler.hasEvents()) {
 			 return true;
@@ -259,9 +275,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
-			bean.setContentUrl(newURLs.get(bean));
-			bean.setHandler(new ZipDataBeanHandler(dataManager));
+			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION, newURLs.get(bean));
 		}
 	}
 	
@@ -316,7 +330,7 @@ public class SessionSaver {
 
 				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = bean.getContentUrl();
+				URL newURL = null;
 				
 				if (saveData) {
 
@@ -389,29 +403,22 @@ public class SessionSaver {
 		// notes
 		dataType.setNotes(bean.getNotes());
 
-		// write storage method and URL, depending on if data is packed into zip or not
-		if (saveData) {
-
-			// all data content goes to session --> type is local session
-			dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
-
-			// url
-			dataType.setUrl("file:#" + newURL.getRef());
-			
-		} else {
-
-			// all data content goes to session --> type is local session
-			dataType.setStorageType(bean.getStorageMethod().toString());
-
-			// url
-			dataType.setUrl(bean.getContentUrl().toString());
+		// write all URL's
+		for (ContentLocation location : bean.getContentLocations()) {
+			LocationType locationType = new LocationType();
+			locationType.setMethod(location.getMethod().toString());
+			locationType.setUrl(location.getUrl().toString());
+			dataType.getLocation().add(locationType);
 		}
 		
-		// cache url
-		if (bean.getCacheUrl() != null) {
-			dataType.setCacheUrl(bean.getCacheUrl().toString());
+		// write newly created URL inside session files, if exists
+		if (newURL != null) {
+			LocationType locationType = new LocationType();
+			locationType.setMethod(StorageMethod.LOCAL_SESSION.name());
+			locationType.setUrl("file:#" + newURL.getRef());
+			dataType.getLocation().add(locationType);
 		}
-
+		
 		// for now, accept beans without operation
 		if (bean.getOperationRecord() != null) {
 			OperationRecord operationRecord = bean.getOperationRecord();
@@ -523,7 +530,7 @@ public class SessionSaver {
 			String entryName = entry.getValue().getRef();
 
 			// write bean contents to zip
-			writeFile(zipOutputStream, entryName, entry.getKey().getContentByteStream());
+			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
 			zipOutputStream.closeEntry();
 		}
 	}
