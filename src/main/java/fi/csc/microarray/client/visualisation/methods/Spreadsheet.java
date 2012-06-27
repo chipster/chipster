@@ -130,7 +130,7 @@ public class Spreadsheet extends Visualisation {
 			columnCount = columns.getColumnCount();
 
 			// Check which columns need hyperlinking
-			List<Boolean> linkableFlags = primaryModule.flagLinkableColumns(columns, data);
+			linkableFlags = primaryModule.flagLinkableColumns(columns, data);
 
 			// Count data rows
 			Table rowCounter = data.queryFeatures("/column/*").asTable();
