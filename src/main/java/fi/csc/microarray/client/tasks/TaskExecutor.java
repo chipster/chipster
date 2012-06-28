@@ -490,7 +490,6 @@ public class TaskExecutor {
 							// bean not modified, upload only if previous URL does not exist or is not valid (remote file was removed)
 							else if (url == null || !fileBroker.checkFile(url, bean.getContentLength())){
 								url = fileBroker.addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
-								manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 							}
 
 						} finally {

@@ -18,11 +18,10 @@ import org.mortbay.log.Log;
 import org.mortbay.util.IO;
 import org.mortbay.util.URIUtil;
 
+import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Files;
-
-import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
@@ -179,9 +178,10 @@ public class RestServlet extends DefaultServlet {
 					File userDataDir = new File(getServletContext().getRealPath(userDataPath));
 					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 
-					if (userDataDir.getUsableSpace() >= usableSpaceSoftLimit) {
-						Log.info("user data dir soft limit reached, cleaning up");
+					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
+						Log.info("after put, user data dir soft limit " + usableSpaceSoftLimit + " reached, cleaning up");
 						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(userDataPath)).getUsableSpace());
 					} 
 
 				} catch (Exception e) {
