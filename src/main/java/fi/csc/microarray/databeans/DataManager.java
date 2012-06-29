@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.jms.JMSException;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -35,8 +36,11 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.Strings;
 
 public class DataManager {
@@ -907,12 +911,14 @@ public class DataManager {
 		
 		// move from cache to storage
 		// TODO error handling
-		ContentLocation cacheLocation = dataBean.getContentLocation(StorageMethod.REMOTE_CACHED);
-		if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-			URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
-			dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));
-			dataBean.removeContentLocation(cacheLocation);
-			return;
+		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
+			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
+				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
+				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));
+
+				// TODO remove all cache locations
+				return;
+			}
 		}
 
 		// move from elsewhere to storage
@@ -928,7 +934,53 @@ public class DataManager {
 //			}
 //		}
 //		
-		
+	}
+
+	/**
+	 * 
+	 * @param bean
+	 * @param progressListener
+	 * @return null if no valid location available
+	 * @throws NotEnoughDiskSpaceException
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public URL getURLForCompAndUploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception { 
+
+		URL url = null;
+		try {
+			bean.getLock().readLock().lock();
+
+			// bean modified, always upload
+			if (bean.isContentChanged()) {
+				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
+				bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+				addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
+				bean.setContentChanged(false);
+			}
+
+			// bean not modified, upload only if no valid storage or cached location is found
+			else {
+				for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_STORAGE)) {
+					if (location.getHandler().isAccessible(location)) {
+						url = location.getUrl();
+						break;
+					}
+				}
+				// need to upload
+				if (url == null) {
+					url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
+					bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+					addUrl(bean, StorageMethod.REMOTE_CACHED, url);
+				}
+			}
+
+		} finally {
+			bean.getLock().readLock().unlock();
+		}
+		return url;
 	}
 
 }
