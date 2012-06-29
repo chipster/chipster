@@ -24,7 +24,9 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
@@ -40,8 +42,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
-	private File userDataRoot;
-	private String publicDataPath;
+	private File cacheRoot;
+	private File storageRoot;
+	private String publicPath;
 	private String host;
 	private int port;
 
@@ -74,21 +77,23 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
-    		this.publicDataPath = configuration.getString("filebroker", "public-data-path");
+    		this.publicPath = configuration.getString("filebroker", "public-path");
 
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
     		fileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
-    		String userDataPath = configuration.getString("filebroker", "user-data-path");
-    		userDataRoot = new File(fileRepository, userDataPath);
+    		String cachePath = configuration.getString("filebroker", "cache-path");
+    		cacheRoot = new File(fileRepository, cachePath);
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-
+    		String storagePath = configuration.getString("filebroker", "storage-path");
+    		storageRoot = new File(fileRepository, storagePath);
+    		
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
 //    		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
@@ -142,6 +147,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
 
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
+				handleMoveRequest((CommandMessage)msg);
+
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
@@ -154,11 +162,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
-		logger.debug("usable space is: " + userDataRoot.getUsableSpace());
+		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
 		
-		long usableSpaceSoftLimit =  (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
+		long usableSpaceSoftLimit =  (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 		long usableSpaceHardLimit = minimumSpaceForAcceptUpload;
-		long cleanUpTargetLimit = (long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
+		long cleanUpTargetLimit = (long) ((double)cacheRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100);
 		
 		
 		// deal with the weird config case of soft limit being smaller than hard limit
@@ -172,15 +180,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		boolean spaceAvailable;
 		
 		// space available, clean up limit will not be reached
-		if (userDataRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
+		if (cacheRoot.getUsableSpace() - size >= usableSpaceSoftLimit) {
 			logger.debug("enough space available, no need to do anything");
 			spaceAvailable = true;
 		} 
 
 		// space available, clean up soft limit will be reached, hard will not be reached
-		else if (userDataRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
+		else if (cacheRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
 			logger.info("space available, more preferred"); 
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("requested: " + size + " usable: " + cacheRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			spaceAvailable = true;
 			
 			final long targetUsableSpace = size + cleanUpTargetLimit;
@@ -191,7 +199,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					try {
 						long cleanUpBeginTime = System.currentTimeMillis();
 						logger.info("cache cleanup, target usable space: " + targetUsableSpace);
-						Files.makeSpaceInDirectory(userDataRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Files.makeSpaceInDirectory(cacheRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
@@ -201,22 +209,22 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		} 
 		
 		// hard limit will be reached, try to make more immediately
-		else if (userDataRoot.getUsableSpace() - size > 0){
+		else if (cacheRoot.getUsableSpace() - size > 0){
 			logger.debug("not enough space, trying to clean");
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("requested: " + size + " usable: " + cacheRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
 			try {
 				long cleanUpBeginTime = System.currentTimeMillis();
 				logger.info("cache cleanup, target usable space: " + (size + cleanUpTargetLimit));
-				Files.makeSpaceInDirectory(userDataRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+				Files.makeSpaceInDirectory(cacheRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
 				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
 			} catch (Exception e) {
 				logger.warn("exception while cleaning cache", e);
 			}
-			logger.info("usable after cleaning: " + userDataRoot.getUsableSpace());
+			logger.info("usable after cleaning: " + cacheRoot.getUsableSpace());
 			logger.info("minimum extra: " + minimumSpaceForAcceptUpload);
 
 			// check if cleaned up enough 
-			if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
+			if (cacheRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
 				logger.info("enough after cleaning");
 				spaceAvailable = true;
 			} else {
@@ -235,6 +243,51 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
+	
+	private void handleMoveRequest(CommandMessage requestMessage) throws JMSException, MalformedURLException {
+		// TODO omaan threadiin
+
+		
+		URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
+		logger.info("move request for: " + cacheURL);
+		
+		// check that url points to our cache dir
+		String[] urlPathParts = cacheURL.getPath().split("/"); 
+		if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
+			logger.info("not a valid cache url: " + cacheURL);
+			// TODO
+		}
+		
+		File cacheFile = new File(cacheRoot, urlPathParts[2]);
+
+		// check that file exists
+		if (!cacheFile.exists()) {
+			logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
+			// TODO
+		}
+		
+		
+		String storageFileName = CryptoKey.generateRandom();
+
+		ChipsterMessage reply = null;
+		URL storageURL = null;
+		if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
+			storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
+			reply = new UrlMessage(storageURL);
+			
+		} else {
+			logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+			// TODO
+		}
+
+		// send reply
+		endpoint.replyToMessage(requestMessage, reply);
+
+	}
+
+	
+	
+	
 	public void shutdown() {
 		logger.info("shutdown requested");
 
@@ -249,6 +302,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	public URL getPublicUrL() throws MalformedURLException {
-		return new URL(host + ":" + port + "/" + publicDataPath);		
+		return new URL(host + ":" + port + "/" + publicPath);		
 	}
+
+	private File createStorageFile() {
+		return new File(storageRoot, CryptoKey.generateRandom());
+	}
+
+
 }
+
+
+

@@ -187,11 +187,13 @@ public class DirectoryLayout {
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File fileRoot = new File(getBaseDir(), configuration.getString("filebroker", "file-root-path"));
-			File userDataRoot = new File(fileRoot, configuration.getString("filebroker", "user-data-path"));
-			File publicDataRoot = new File(fileRoot, configuration.getString("filebroker", "public-data-path"));
+			File cacheRoot = new File(fileRoot, configuration.getString("filebroker", "cache-path"));
+			File storageRoot = new File(fileRoot, configuration.getString("filebroker", "storage-path"));
+			File publicRoot = new File(fileRoot, configuration.getString("filebroker", "public-path"));
 			initialise(fileRoot);
-			initialise(userDataRoot);
-			initialise(publicDataRoot);
+			initialise(cacheRoot);
+			initialise(storageRoot);
+			initialise(publicRoot);
 			
 			return fileRoot;
 			
