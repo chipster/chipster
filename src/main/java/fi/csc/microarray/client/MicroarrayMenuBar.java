@@ -24,7 +24,6 @@ import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
-import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -246,25 +245,16 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromRemoteServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						
-						String[] repoDescription = new String[] {
-								"Institute repository/",
-								"Institute repository/username/",
-								"Institute repository/username/sample.bam",
-								"Institute repository/username/treatment.bam"
+						String prefix = "http://chipster-filebroker.csc.fi/repos/";
+						URL[] repoDescription = new URL[] {
+								new URL(prefix + "Institute repository/"),
+								new URL(prefix + "Institute repository/username/"),
+								new URL(prefix + "Institute repository/username/sample.bam"),
+								new URL(prefix + "Institute repository/username/treatment.bam")
 						};
 						
-						// not real parsing
-						String prefix = "http://chipster-filebroker.csc.fi/repos/";
-						ServerFile root = new ServerFile(new URL(prefix + repoDescription[0]));
-						ServerFile home = new ServerFile(new URL(prefix + repoDescription[1]));
-						root.addChild(home);
-						ServerFile bam1 = new ServerFile(new URL(prefix + repoDescription[2]));
-						ServerFile bam2 = new ServerFile(new URL(prefix + repoDescription[3]));
-						home.addChild(bam1);
-						home.addChild(bam2);
-						
-						JFileChooser fc = new JFileChooser(root, new ServerFileSystemView(root));
+						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+						JFileChooser fc = new JFileChooser(view.getRoot(), view);
 						fc.setMultiSelectionEnabled(true);
 						int returnVal = fc.showDialog(null, "Open");
 						if (returnVal == JFileChooser.APPROVE_OPTION) {

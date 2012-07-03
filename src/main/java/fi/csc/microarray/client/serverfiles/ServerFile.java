@@ -33,8 +33,6 @@ public class ServerFile extends File {
 		} else {
 			this.name = IOUtils.getFilenameWithoutPath(url);
 		}
-		
-		System.out.println(name);
 	}
 
 	public void addChild(ServerFile child) {
