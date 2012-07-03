@@ -52,10 +52,11 @@ public class RectDrawable extends Drawable {
     public void expand(TrackContext context) {
 
         int maxY = context.trackHeight-1;
+        int newY = (int) (this.y * context.expansionRatio);
+        int newHeight = (int) (this.height * context.expansionRatio);
         
-        int newHeight = height = (int) (this.height * context.expansionRatio);
-        
-        this.height = Math.min(newHeight, maxY);
+        this.y = Math.min(newY, maxY);
+        this.height = Math.min(newHeight, maxY - y);
     }
 
 	@Override

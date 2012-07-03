@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -30,9 +29,8 @@ public class TabixIntensityTrack extends Track {
 	private long maxBpLength;
 	private Color color;
 
-	public TabixIntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public TabixIntensityTrack(View view, DataSource file, Color c, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.color = c;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;

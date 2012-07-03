@@ -210,12 +210,12 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public List<Boolean> flagLinkableColumns(String[] columnNames) {
-		return Collections.nCopies(columnNames.length, false);
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
+		return Collections.nCopies(columns.getColumnCount(), false);
 	}
 
 	@Override
-	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
 	}
 

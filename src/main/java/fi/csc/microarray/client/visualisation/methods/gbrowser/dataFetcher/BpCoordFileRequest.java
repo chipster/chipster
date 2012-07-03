@@ -10,14 +10,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus
  * @author akallio
  *
  */
-public class SAMFileRequest {
+public class BpCoordFileRequest {
 
 	public AreaRequest areaRequest;
 	private FsfStatus status;
 	private BpCoord from;
 	private BpCoord to;
 
-	public SAMFileRequest(AreaRequest request, BpCoord from, BpCoord to, FsfStatus status) {
+	public BpCoordFileRequest(AreaRequest request, BpCoord from, BpCoord to, FsfStatus status) {
 		this.areaRequest = request;
 		this.status = status;
 		this.from = from;
