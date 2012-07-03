@@ -71,8 +71,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
-import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.util.IOUtils;
@@ -514,7 +512,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				DataBean data = interpretation.primaryData;
 				InputStream in = null;
 				try {
-					in  = data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+					in  = data.getContentByteStream();
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
 				} finally {
 					IOUtils.closeIfPossible(in);
@@ -980,8 +978,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void initialiseUserData(DataBean data) throws IOException {
-		// If data needs to be copied out of a session ZIP file, do it now  
-		if (data != null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) == null) {
+		if (data != null) {
 			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
@@ -1004,19 +1001,10 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			throws MicroarrayException, IOException, URISyntaxException {
 		DataSource dataSource = null;
 
-		// Find how to access the data
-		URL fileUrl;
-		if (data.getContentLocation(StorageMethod.LOCAL_FILE_METHODS) == null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) != null) {
+		// Convert data bean into file
+		File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
 
-			// Remote available, no local files available, use remote
-			fileUrl = data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS).getUrl();
-		
-		} else {
-			
-			// Use local file, possibly copying data into local file if not there yet
-			File file = Session.getSession().getDataManager().getLocalFile(data);
-			fileUrl = file.toURI().toURL();
-		}
+		URL fileUrl = file.toURI().toURL();
 
 		if (data.getName().contains(".bam-summary")) {
 			dataSource = new TabixDataSource(fileUrl);
