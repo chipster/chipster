@@ -179,6 +179,13 @@ echo "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2" > contents2.txt
 
 
 # Species and releases
+# Humans
+SPECIES="Human"
+VERSION="hg19 (GRCh37.66)"
+
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/homo_sapiens_core_66_37/" "Homo_sapiens.GRCh37.66."
+process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/homo_sapiens/Homo_sapiens.GRCh37.66.gtf.gz"
+download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.66.dna.chromosome." ".fa.gz" "22" "X" "Y" "MT"
 
 SPECIES="Human"
 VERSION="hg18 (NCBI36.54)"
@@ -187,27 +194,7 @@ ensembl_mysql "ftp://ftp.ensembl.org/pub/release-54/mysql/homo_sapiens_core_54_3
 process_gtf "ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-54/fasta/homo_sapiens/dna/Homo_sapiens.NCBI36.54.dna.chromosome." ".fa.gz" "22" "X" "Y" "MT"
 
-SPECIES="Human"
-VERSION="hg19 (GRCh37.66)"
-
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/homo_sapiens_core_66_37/" "Homo_sapiens.GRCh37.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/homo_sapiens/Homo_sapiens.GRCh37.66.gtf.gz"
-download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.66.dna.chromosome." ".fa.gz" "22" "X" "Y" "MT"
-
-SPECIES="Dog"
-VERSION="(BROADD2.66)"
-
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/canis_familiaris_core_66_2/" "Canis_familiaris.BROADD2.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/canis_familiaris/Canis_familiaris.BROADD2.66.gtf.gz"
-download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/canis_familiaris/dna/Canis_familiaris.BROADD2.66.dna.chromosome." ".fa.gz" "38" "X" "MT" "Un"
-
-SPECIES="Three-spined stickleback"
-VERSION="(BROADS1.66)"
-
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/gasterosteus_aculeatus_core_66_1/" "Gasterosteus_aculeatus.BROADS1."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/gasterosteus_aculeatus/Gasterosteus_aculeatus.BROADS1.66.gtf.gz"
-download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/gasterosteus_aculeatus/dna/Gasterosteus_aculeatus.BROADS1.66.dna." ".fa.gz" "nonchromosomal" "toplevel"
-
+# Other regularly used
 SPECIES="Mouse"
 VERSION="mm9 (NCBIM37.66)"
 
@@ -222,6 +209,21 @@ ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/rattus_norvegicus_core
 process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.66.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.66.dna.chromosome." ".fa.gz" "20" "X" "MT"
 
+# Other animals in alphabetical order 
+SPECIES="Dog"
+VERSION="(BROADD2.66)"
+
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/canis_familiaris_core_66_2/" "Canis_familiaris.BROADD2.66."
+process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/canis_familiaris/Canis_familiaris.BROADD2.66.gtf.gz"
+download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/canis_familiaris/dna/Canis_familiaris.BROADD2.66.dna.chromosome." ".fa.gz" "38" "X" "MT" "Un"
+
+SPECIES="Three-spined stickleback"
+VERSION="(BROADS1.66)"
+
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/gasterosteus_aculeatus_core_66_1/" "Gasterosteus_aculeatus.BROADS1."
+process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/gasterosteus_aculeatus/Gasterosteus_aculeatus.BROADS1.66.gtf.gz"
+download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/gasterosteus_aculeatus/dna/Gasterosteus_aculeatus.BROADS1.66.dna." ".fa.gz" "nonchromosomal" "toplevel"
+
 SPECIES="Wild boar"
 VERSION="(Sscrofa9.66)"
 
@@ -229,6 +231,7 @@ ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/sus_scrofa_core_66_9/"
 process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/sus_scrofa/Sus_scrofa.Sscrofa9.66.gtf.gz"
 download_chrs "Reference sequence" "ftp://ftp.ensembl.org/pub/release-66/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa9.66.dna.chromosome." ".fa.gz" "18" "X" "MT"
 
+# Plants in alphabetical order
 SPECIES="Arabidopsis lyrata"
 VERSION="(v.1.0.14)"
 
@@ -241,7 +244,7 @@ VERSION="(TAIR10.14)"
 
 ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/mysql/arabidopsis_thaliana_core_14_67_10/" "Arabidopsis_thaliana.TAIR10.14."
 process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/gtf/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.14.gtf.gz"
-download_chrs "Reference sequence" "ftp://ftp.ensemblgenomes.org/pub/plants/release-13/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.Araly1.13.dna.chromosome." ".fa.gz" "5" "Mt" "Pt"
+download_chrs "Reference sequence" "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.14.dna.chromosome." ".fa.gz" "5" "Mt" "Pt"
 
 SPECIES="Vitis vinifera"
 VERSION="(IGGP_12x.14)"
