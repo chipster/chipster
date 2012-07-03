@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,6 +24,8 @@ import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.serverfiles.ServerFile;
+import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -84,6 +87,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private boolean hasRepoWorkflows;
 
 	private JMenuItem uploadRemoteSessionMenuItem;
+
+	private JMenuItem importFromRemoteServerMenuItem;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
@@ -177,6 +182,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importRemoteMenu.setText("Import remote data from");
 			
 			importRemoteMenu.add(getImportFromRemoteURLMenuItem());
+			importRemoteMenu.add(getImportFromRemoteServerMenuItem());
 		}
 		return importRemoteMenu;
 	}
@@ -231,6 +237,52 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromRemoteURLMenuItem;
+	}
+
+	private JMenuItem getImportFromRemoteServerMenuItem() {
+		if (importFromRemoteServerMenuItem == null) {
+			importFromRemoteServerMenuItem = new JMenuItem();
+			importFromRemoteServerMenuItem.setText("Server...");
+			importFromRemoteServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						
+						String[] repoDescription = new String[] {
+								"Institute repository/",
+								"Institute repository/username/",
+								"Institute repository/username/sample.bam",
+								"Institute repository/username/treatment.bam"
+						};
+						
+						// not real parsing
+						String prefix = "http://chipster-filebroker.csc.fi/repos/";
+						ServerFile root = new ServerFile(new URL(prefix + repoDescription[0]));
+						ServerFile home = new ServerFile(new URL(prefix + repoDescription[1]));
+						root.addChild(home);
+						ServerFile bam1 = new ServerFile(new URL(prefix + repoDescription[2]));
+						ServerFile bam2 = new ServerFile(new URL(prefix + repoDescription[3]));
+						home.addChild(bam1);
+						home.addChild(bam2);
+						
+						JFileChooser fc = new JFileChooser(root, new ServerFileSystemView(root));
+						fc.setMultiSelectionEnabled(true);
+						int returnVal = fc.showDialog(null, "Open");
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File[] files = fc.getSelectedFiles();
+							
+							for (File file : files) {
+								System.out.println("Selected " + file + " (" + file.toURL() + ")");
+							}
+						}
+
+						
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromRemoteServerMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {
