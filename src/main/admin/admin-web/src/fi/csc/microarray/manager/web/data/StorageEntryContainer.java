@@ -1,24 +1,15 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Random;
 
-import javax.jms.JMSException;
-
+import com.vaadin.data.hbnutil.ContainerFilter;
+import com.vaadin.data.hbnutil.StringContainerFilter;
 import com.vaadin.data.util.BeanItemContainer;
 
-import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.manager.web.ui.ServicesView;
-import fi.csc.microarray.messaging.AdminAPI;
-import fi.csc.microarray.messaging.AdminAPI.AdminAPILIstener;
-import fi.csc.microarray.messaging.AdminAPI.NodeStatus;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.messaging.NodeBase;
-import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.manager.web.ui.StorageView;
 
-public class StorageEntryContainer extends BeanItemContainer<Service> implements
+public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements
 Serializable {
 
 	/**
@@ -36,67 +27,39 @@ Serializable {
 
 	public StorageEntryContainer() throws InstantiationException,
 	IllegalAccessException {
-		super(Service.class);
+		super(StorageEntry.class);
 	}
 
-	public void update(final ServicesView view) {
+	public void update(final StorageView view) {
+		
+		final int COUNT = 100;
+		
+		removeAllItems();
+		
+    	String[] entryName = new String[] { "ngs-session1", "ngs-session2", "ngs-session3" };
+    	
+        Random rnd = new Random();
 
-		new Runnable() {
+        StorageEntry entry;
 
-			public void run() {
+        for (int i = 0; i < COUNT; i++) {
+            entry = new StorageEntry();
+            
+            entry.setDate(RandomUtil.getRandomDate(rnd));
+            entry.setUsername(RandomUtil.getRandomUserName(rnd));
+            entry.setSize(Math.abs(rnd.nextInt(20000000)*1000l));
+            entry.setName(entryName[rnd.nextInt(entryName.length)]);
+            
+            this.addBean(entry);
+        }
+    }
 
-				try {
-
-					NodeBase nodeSupport = new NodeBase() {
-						public String getName() {
-							return "chipster-admin-web";
-						}
-					};
-
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
-					AdminAPI api = new AdminAPI(
-							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
-
-								public void statusUpdated(Map<String, NodeStatus> statuses) {
-
-									removeAllItems();
-
-
-									for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
-										NodeStatus node = entry.getValue();
-										
-										String hosts[] = node.host.split(", ");
-										for (String host : hosts) {
-
-											Service service = new Service();
-											service.setName(node.name);
-											service.setHost(host);
-											service.setStatus(node.status);
-											service.setCount(node.count);
-
-											addBean(service);
-										}
-									}					
-								}
-							});
-
-					//Wait for responses
-					api.areAllServicesUp(true);
-
-					endpoint.close();
-					
-					synchronized (view.getApp()) {
-						view.dataUpdated();
-					}
-
-				} catch (MicroarrayException e) {
-					e.printStackTrace();
-				} catch (JMSException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} 
-			}
-		}.run();
+	public void showUser(String username) {
+		
+		this.removeContainerFilters("username");
+		
+		if (username != null) {
+			this.addContainerFilter("username", username, false, true);
+		}
 	}
 }
