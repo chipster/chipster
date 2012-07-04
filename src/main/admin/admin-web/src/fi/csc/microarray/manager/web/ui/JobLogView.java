@@ -23,9 +23,12 @@ import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.ChipsterAdminApplication;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
-import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
+import fi.csc.microarray.manager.web.hbncontainer.JobLogHibernateUtil;
 
 public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener, SessionManager {
+	
+	
+	
 
 	/**
 	 * Natural property order for Service bean. Used in tables and forms.
@@ -96,7 +99,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	 * HbnContainer
 	 */
 	private void closeSession() {
-		Session sess = HibernateUtil.getSessionFactory().getCurrentSession();
+		Session sess = JobLogHibernateUtil.getSessionFactory().getCurrentSession();
 		if (sess.getTransaction().isActive()) {
 			sess.getTransaction().commit();
 		}
@@ -110,7 +113,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	 * transaction.
 	 */
 	public Session getSession() {
-		Session currentSession = HibernateUtil.getSessionFactory()
+		Session currentSession = JobLogHibernateUtil.getSessionFactory()
 				.getCurrentSession();
 		if (!currentSession.getTransaction().isActive()) {
 			currentSession.beginTransaction();
@@ -219,7 +222,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			HibernateUtil.insertExampleData(160000);
+			JobLogHibernateUtil.insertExampleData(160000);
 		} else if (source == addSearchButton) {
 			addSearch();
 		}

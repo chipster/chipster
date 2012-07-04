@@ -10,8 +10,9 @@ import org.hibernate.classic.Session;
 import org.hibernate.dialect.H2Dialect;
 
 import fi.csc.microarray.manager.web.data.JobLogEntry;
+import fi.csc.microarray.manager.web.data.RandomUtil;
 
-public class HibernateUtil {
+public class JobLogHibernateUtil {
 
     private static final SessionFactory sessionFactory;
     //private static Type defaultType;
@@ -55,17 +56,7 @@ public class HibernateUtil {
         return sessionFactory;
     }
     
-    private static Date getRandomDate(Random rnd) {
-    	Date date = new Date();
-    	date.setYear(rnd.nextInt(5) + 2007);
-    	date.setMonth(rnd.nextInt(12) + 1);
-    	date.setDate(rnd.nextInt(28) + 1);
-    	date.setHours(rnd.nextInt(24));
-    	date.setMinutes(rnd.nextInt(60));
-    	date.setSeconds(rnd.nextInt(60));
-    	
-    	return date;
-    }
+
 
     public static void insertExampleData(int count) {
         Session sess = getSessionFactory().getCurrentSession();
@@ -78,7 +69,6 @@ public class HibernateUtil {
     	int wallclockTime;
 //    	String errorMessage;
 //    	String outputText;
-    	String[] usernames = new String[] { "demo1", "demo2", "demo3" };
     	String[] compHosts = new String[] { "hippu1.csc.fi", "hippu2.csc.fi" };
     	
         Random rnd = new Random();
@@ -92,7 +82,7 @@ public class HibernateUtil {
             job.setOperation(operations[rnd.nextInt(operations.length)]);
             job.setState(states[rnd.nextInt(states.length)]);
             
-            Date start = getRandomDate(rnd);
+            Date start = RandomUtil.getRandomDate(rnd);
             job.setStartTime(start);
             int duration = rnd.nextInt(60);
             Date end = (Date) start.clone();
@@ -102,7 +92,7 @@ public class HibernateUtil {
             job.setErrorMessage("null");
             job.setOutputText("null");
             
-            job.setUsername(usernames[rnd.nextInt(usernames.length)]);
+            job.setUsername(RandomUtil.getRandomUserName(rnd));
             job.setCompHost(compHosts[rnd.nextInt(compHosts.length)]);
 
             sess.save(job);
