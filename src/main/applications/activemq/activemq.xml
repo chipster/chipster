@@ -44,8 +44,8 @@
              			<authorizationEntries>
                				<authorizationEntry admin="all" read="analysers" topic="authorised-request-topic" write="authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="request-topic" write="clients"/>
-               				<authorizationEntry admin="all" read="filebrokers" topic="authorised-url-topic" write="analysers,authenticators"/>
-               				<authorizationEntry admin="all" read="authenticators" topic="url-topic" write="clients"/>
+               				<authorizationEntry admin="all" read="filebrokers" topic="authorised-filebroker-topic" write="analysers,authenticators"/>
+               				<authorizationEntry admin="all" read="authenticators" topic="filebroker-topic" write="clients"/>
                				<authorizationEntry admin="all" read="managers" topic="job-log-topic" write="analysers,authenticators"/>
                				<authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
                				<authorizationEntry admin="all" read="all" topic="admin-topic" write="all"/>

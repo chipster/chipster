@@ -49,7 +49,6 @@ public class Files {
 		
 		if (file.isDirectory()) {
 			// dir, recurse into it and combine result lists
-			System.out.println(file.getName());
 			for (File subFile : file.listFiles()) {
 				files.addAll(listFilesRecursively(subFile));
 			}

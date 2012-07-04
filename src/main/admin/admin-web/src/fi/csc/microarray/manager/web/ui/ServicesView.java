@@ -44,11 +44,6 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		dataSource.update(this);
 	}
 	
-	public ServiceContainer getDataSource() {
-
-		return dataSource;
-	}
-	
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
