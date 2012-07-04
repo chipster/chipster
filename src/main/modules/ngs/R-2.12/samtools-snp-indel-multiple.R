@@ -8,6 +8,8 @@
 # PARAMETER c: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. Given a read with a phred-scaled probability q of being generated from the mapped position, the new mapping quality is about sqrt( (INT-q\)\/INT\)\*INT. A zero value disables this functionality. If enabled, the recommended value for BWA is 50.)
 # PARAMETER d: "Maximum read depth" TYPE INTEGER DEFAULT 2000 (Maximum read depth. Should be adjusted to about twice the average read depth.)
 
+# AMS 15.6.2012
+
 # binaries
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 bcftools.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "bcftools"))
