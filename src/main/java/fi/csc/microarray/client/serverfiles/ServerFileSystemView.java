@@ -37,17 +37,9 @@ public class ServerFileSystemView extends FileSystemView {
 				dirs.put(url.getPath(), file);
 			}
 		}
-//		
-//		ServerFile root = new ServerFile(new URL(prefix + paths[0]));
-//		ServerFile home = new ServerFile(new URL(prefix + paths[1]));
-//		root.addChild(home);
-//		ServerFile bam1 = new ServerFile(new URL(prefix + paths[2]));
-//		ServerFile bam2 = new ServerFile(new URL(prefix + paths[3]));
-//		home.addChild(bam1);
-//		home.addChild(bam2);
 		
 		if (root == null) {
-			throw new IllegalArgumentException("paths were missing root");
+			throw new IllegalArgumentException("paths were missing root path");
 		}
 		
 		return new ServerFileSystemView(root);
