@@ -34,19 +34,19 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	 * Natural property order for Service bean. Used in tables and forms.
 	 */
 	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"username", "operation", "state", "compHost", "startTime", "endTime", "wallclockTime", "errorMessage", "outputText" };
+		"username", "operation", "status", "compHost", "startTime", "endTime", "wallclockTime"}; //, "errorMessage", "outputText" };
 
 	/**
 	 * "Human readable" captions for properties in same order as in
 	 * NATURAL_COL_ORDER.
 	 */
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", "Operation", "State", "Comp host", "Start time", "End time", "Wall clock time", "Error message", "Output text" };
+		"Username", "Operation", "Status", "Comp host", "Start time", "End time", "Wall clock time"}; //, "Error message", "Output text" };
 
 
 	private HorizontalLayout toolbarLayout;
 
-	private Button refreshButton = new Button("Insert 160k rows");
+	private Button refreshButton = new Button("Insert 1k rows");
 	private Button addSearchButton = new Button();
 
 	private Table table;
@@ -171,9 +171,9 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-//			refreshButton.addListener((ClickListener)this);
-//			refreshButton.setIcon(new ThemeResource("../runo/icons/32/document-add.png"));
-//			toolbarLayout.addComponent(refreshButton);
+			refreshButton.addListener((ClickListener)this);
+			refreshButton.setIcon(new ThemeResource("../runo/icons/32/document-add.png"));
+			toolbarLayout.addComponent(refreshButton);
 			
 			searchLayout = new HorizontalLayout();
 			addSearch();
@@ -222,7 +222,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			JobLogHibernateUtil.insertExampleData(160000);
+			JobLogHibernateUtil.insertExampleData(1000);
 		} else if (source == addSearchButton) {
 			addSearch();
 		}
