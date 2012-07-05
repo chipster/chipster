@@ -179,6 +179,10 @@ sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
     ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart \
     ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager
 
+# Make update.sh script available
+cp ${CHIP_PATH}/admin/vm/update.sh ${CHIP_PATH}/update.sh
+chmod u+x ${CHIP_PATH}/update.sh
+
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
 
