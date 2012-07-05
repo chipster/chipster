@@ -8,8 +8,8 @@
 <h3>Description</h3>
 
 <p>
-his tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes
-the ones for which the count is under the user defined threshold.</p>
+Given a BAM file this tool calculates the number of times each read (=genomic region) is identified, and removes
+the ones for which the count number is under the user defined threshold.</p>
 
 <h3>Parameters</h3>
 
@@ -21,10 +21,10 @@ the ones for which the count is under the user defined threshold.</p>
 <h3>Details</h3>
 
 <p>
-The tool takes as input a BAM file with sequence reads that have been aligned to a reference genome,
-so that genomic location information for each mapped sequence is available. Depending on how the
-'Merge overlapping reads' parameter is set the counts are calculated so that only perfectly identical
-reads are summed up or all the reads that start and/or end at a certain genomic position are added together.
+The tool takes as input a BAM file with reads that have been aligned to a reference genome,
+so that genomic location information for each mapped read is available. Depending on how the
+'Merge overlapping reads' parameter is set, the counts are calculated so that all
+reads mapping to the same location are summed up, or all the reads that start and/or end at the same genomic position are summed up.
 The latter option is set by default since it greatly reduces redundancy in the counts data. 
 </p>
 <p>
@@ -33,7 +33,7 @@ The latter option is set by default since it greatly reduces redundancy in the c
 <h3>Output</h3>
 
 <p>
-edgeR-input.tsv: A text file with counts for each genomic feature, together with chromosome location info, suitable as input for tools like edgeR or DESeq.
+edgeR-input.tsv: A text file with counts for each genomic region, together with chromosome location info, suitable as input for tools like edgeR or DESeq.
 </p>
 
 

@@ -44,7 +44,5 @@ public class ServicesTable extends Table {
 				return null;
 			}
 		});
-
-		setContainerDataSource(view.getDataSource());		
 	}
 }

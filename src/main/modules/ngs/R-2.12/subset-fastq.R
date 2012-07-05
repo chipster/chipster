@@ -3,7 +3,7 @@
 # OUTPUT subset.fastq 
 # PARAMETER n.seq: "Size of subset" TYPE INTEGER DEFAULT 100000 (Number of reads to return from the start of the FASTQ file.)
 
-# AM 14.5.2012
+# AMS 14.5.2012
 # EK 15.5.2012 added unzipping
 
 # check out if the file is compressed and if so unzip it

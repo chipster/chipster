@@ -17,6 +17,8 @@
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Only report hits in B that overlap A on the same strand. By default, overlaps are reported without respect to strand.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM (i.e., having an “N” CIGAR operation\) or BED12 entries as distinct BED intervals.)
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "intersectBed"))
 

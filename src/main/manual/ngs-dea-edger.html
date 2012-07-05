@@ -28,7 +28,7 @@ This tool performs an analysis for differential expression using the edgeR Bioco
 
 <br>
 Given an input table of raw counts, 
-the edgeR package performs statistical analysis to identify differentially expressed genomic features between two experimental conditions.
+the edgeR package performs statistical analysis to identify differentially expressed genomic features (genes, miRNAs,...) between two experimental conditions.
 Note that in its current implementation, the tool only supports single-factor experiment designs. The experiment
 conditions to be compared should be defined in the phenodata.tsv file, and the appropriate column selected using
 the 'Column describing groups' parameter.
@@ -38,8 +38,8 @@ TMM method is then used to calculate the normalization factors in order to reduc
 (which can arise for example when only a small number of genes
 are very highly expressed in one experiment condition but not in the other).
 <br><br>
-Dispersion is estimated using qCML method. It can estimate a common dispersion for all the genomic features,
-or a separate dispersion for each individual feature using an empirical Bayes strategy.
+Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). It can estimate a common dispersion for all the genomic features,
+or a separate (tagwise) dispersion for each individual feature using an empirical Bayes strategy. 
 <br><br>
 It is highly recommended to always have at least two biological replicates for each experiment condition.
 If this is not possible, one can run the analysis by manually setting
@@ -47,7 +47,8 @@ the dispersion factor through the 'Dispersion estimate' parameter.
 By default the dispersion estimate is set to 0.1, which is somewhere in-between what is usually observed for technical replicates (0.01) and human data (0.4). 
 It is recommended to experiment with different values for this parameter.
 <br><br>
-Statistical testing is performed using the exact test based on qCML methods.
+Once negative binomial models are fitted and dispersion estimates are obtained, 
+edgeR proceeds with testing for differential expression using the exact test, which is based on the qCML methods.
 <br><br>
 
 <h3>Output</h3>
@@ -59,7 +60,7 @@ Statistical testing is performed using the exact test based on qCML methods.
 <li>de-list-edger.tsv:	Table containing the results of the statistical testing, including fold change estimates and p-values.<br></li>
 <li>de-list-edger.bed:  The BED version of the results table contains genomic coordinates and log fold change values.<br></li>
 <li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.<br></li>
-<li>a-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. <br></li>
+<li>ma-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. <br></li>
 <li>ma-plot-significant-edger.pdf: A scatter plot where the significantly differentially expressed features are highlighted. <br></li>
 <li>mds-plot-edger.pdf: A plot showing the results of multidimensional scaling of the data to visualize sample similarities. <br></li>
 <li>edger-log.txt: Log file. <br></li>

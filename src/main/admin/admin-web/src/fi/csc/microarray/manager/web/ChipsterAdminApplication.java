@@ -13,6 +13,7 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
+import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class ChipsterAdminApplication extends Application {
 
@@ -38,9 +39,11 @@ public class ChipsterAdminApplication extends Application {
 	private NavigationMenu navigationLayout;;
 
 	private ServicesView serviceView;
+	private StorageView storageView;
 	private JobLogView jobLogView;
 
 	private HorizontalLayout emptyView;
+
 
 	private VerticalLayout getServicesView() {
 		if (serviceView == null) {
@@ -55,6 +58,21 @@ public class ChipsterAdminApplication extends Application {
 			}
 		}
 		return serviceView;
+	}
+	
+	private Component getStorageView() {
+		if (storageView == null) {
+
+			storageView = new StorageView(this);
+			try {
+				storageView.loadData();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return storageView;
 	}
 
 	private JobLogView getJobLogView() {
@@ -123,9 +141,7 @@ public class ChipsterAdminApplication extends Application {
 
 
 	public void showStorageView() {
-		Panel panel = new Panel();
-		panel.setSizeFull();
-		setMainComponent(panel);
+		setMainComponent(getStorageView());
 	}
 
 	public void showEmtpyView() {

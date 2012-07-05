@@ -9,7 +9,7 @@
 # PARAMETER background.correction: background.correction TYPE [none: none, bgAdjust2C: bgAdjust2C, forcePositive: forcePositive] DEFAULT none (Should background adjustment be applied)
 # PARAMETER normalization: normalization TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile ()
 # PARAMETER chiptype: chiptype TYPE [HumanMethylation27: HumanMethylation27, HumanMethylation450: HumanMethylation450] DEFAULT HumanMethylation27 (Select the correct BeadChip type)
-# PARAMETER QCplots: QCplots [yes: yes, no: no] DEFAULT yes (Do you want quality control plots)
+# PARAMETER QCplots: QCplots TYPE [yes: yes, no: no] DEFAULT yes (Do you want quality control plots)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
