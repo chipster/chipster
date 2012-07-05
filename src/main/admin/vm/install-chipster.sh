@@ -138,7 +138,7 @@ cpanm Statistics::PCA Math::Cephes Math::MatrixReal
 
 ## Initialize:
 # Versions
-CHIP_VER=2.0.1
+CHIP_VER=2.0.2
 R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
