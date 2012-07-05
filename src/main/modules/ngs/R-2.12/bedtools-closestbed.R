@@ -6,6 +6,7 @@
 # PARAMETER OPTIONAL d: "Report distance" TYPE [yes, no] DEFAULT no (In addition to the closest feature in B, report its distance to A as an extra column. The reported distance for overlapping features will be 0.)
 # PARAMETER OPTIONAL t: "Approach to reporting multiple overlaps" TYPE [all, first, last] DEFAULT all (How ties for closest feature are handled. This occurs when two features in B have exactly the same overlap with A. By default, all such features in B are reported. The options are: all (Report all ties\), first (Report the first tie that occurred in the B file\) and  last (Report the last tie that occurred in the B file\).)
 
+# AMS 23.4.2012
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "closestBed"))

@@ -20,6 +20,12 @@
 # PARAMETER OPTIONAL unaligned.file: "Put unaligned reads to a separate file" TYPE [yes, no] DEFAULT no (Would you like to store unaligned reads to a new fastq file? Note that also multireads will be added to this file, unless you asked them to be put to a separate file.)
 
 # EK 20.6.2011
+# AMS 19.6.2012 Added unzipping
+
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("reads.txt")
+unzipIfGZipFile("genome.txt")
 
 # bowtie index building
 genome.base <- "genome"

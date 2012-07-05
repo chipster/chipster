@@ -8,6 +8,8 @@
 # PARAMETER OPTIONAL score: "Report the scores of the merged features" TYPE [yes, no] DEFAULT no (Report the scores of the merged features. Specify one of the following options for reporting scores: sum, min, max, mean, median, mode, antimode, collapse (i.e., print a semicolon-separated list\).)
 # PARAMETER OPTIONAL score.type: "Score report type" TYPE [sum, min, max, mean, median, mode, antimode, collapse] DEFAULT sum ()
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "mergeBed"))
 
