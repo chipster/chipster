@@ -138,7 +138,7 @@ cpanm Statistics::PCA Math::Cephes Math::MatrixReal
 
 ## Initialize:
 # Versions
-CHIP_VER=2.0.1
+CHIP_VER=2.0.2
 R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
@@ -178,6 +178,10 @@ sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
     ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver \
     ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart \
     ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager
+
+# Make update.sh script available
+cp ${CHIP_PATH}/admin/vm/update.sh ${CHIP_PATH}/update.sh
+chmod u+x ${CHIP_PATH}/update.sh
 
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
