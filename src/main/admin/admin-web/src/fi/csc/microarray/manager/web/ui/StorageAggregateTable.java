@@ -9,9 +9,8 @@ public class StorageAggregateTable extends Table {
 		setImmediate(true);
 		addListener(view);
 		setNullSelectionAllowed(false);
-
-		this.setWidth(300, UNITS_PIXELS);
-		this.setHeight("100%");
+		
+		this.setSizeFull();
 		
 		this.addGeneratedColumn("size", new HumanReadableLongColumnGenerator());
 	}
