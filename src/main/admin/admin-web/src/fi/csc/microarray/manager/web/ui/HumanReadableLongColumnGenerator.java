@@ -5,6 +5,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 
+import fi.csc.microarray.manager.web.util.StringUtils;
+
 class HumanReadableLongColumnGenerator implements Table.ColumnGenerator {
 
     public Component generateCell(Table source, Object itemId,
@@ -14,21 +16,7 @@ class HumanReadableLongColumnGenerator implements Table.ColumnGenerator {
         if (prop != null && prop.getType() != null && prop.getType().equals(Long.class)) {
         	
         	Long longSize = (Long)prop.getValue();
-        	String stringSize;
-        	
-        	
-        	if (longSize >= 1000000000000l) {
-        		stringSize = "" + (longSize / 1000000000000l) + " TB";
-        		
-        	} else if (longSize >= 1000000000) {
-        		stringSize = "" + (longSize / 1000000000) + " GB";
-        		
-        	} else if (longSize >= 1000000) {
-        		stringSize = "" + (longSize / 1000000) + " MB";
-        		
-        	} else {
-        		stringSize = "" + (longSize / 1000) + " kB";
-        	}
+        	String stringSize = StringUtils.getHumanReadable(longSize);
         	
             Label label = new Label(stringSize);
 
