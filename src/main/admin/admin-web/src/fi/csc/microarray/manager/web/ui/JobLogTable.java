@@ -8,6 +8,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.BaseTheme;
 
+import fi.csc.microarray.manager.web.data.JobLogContainer;
+
 public class JobLogTable extends Table {
 
 	private JobLogView view;
@@ -22,10 +24,10 @@ public class JobLogTable extends Table {
 		this.setSelectable(true);
 		this.setImmediate(true);
 
-		this.addGeneratedColumn("outputLink", new OutputLinkColumnGenerator());
-		this.addGeneratedColumn("errorLink", new ErrorLinkColumnGenerator());
+		this.addGeneratedColumn(JobLogContainer.OUTPUT_LINK, new OutputLinkColumnGenerator());
+		this.addGeneratedColumn(JobLogContainer.ERROR_LINK, new ErrorLinkColumnGenerator());
 		
-		this.setColumnWidth("errorLink", 100);
+		this.setColumnWidth(JobLogContainer.ERROR_LINK, 100);
 	}
 
 	class OutputLinkColumnGenerator implements Table.ColumnGenerator {
@@ -55,7 +57,7 @@ public class JobLogTable extends Table {
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
 
-			Property prop = source.getItem(itemId).getItemProperty("errorMessage");
+			Property prop = source.getItem(itemId).getItemProperty(JobLogContainer.ERROR_MESSAGE);
 			if (prop != null && prop.getType() != null && prop.getType().equals(String.class)) {
 
 				String errorMessage = (String) prop.getValue();

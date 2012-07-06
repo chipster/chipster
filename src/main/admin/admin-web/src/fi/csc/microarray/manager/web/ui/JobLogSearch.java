@@ -14,7 +14,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.data.DateContainerFilter;
-import fi.csc.microarray.manager.web.data.JobLogContainerWrapper;
+import fi.csc.microarray.manager.web.data.JobLogContainer;
 
 public class JobLogSearch extends HorizontalLayout {
 
@@ -47,13 +47,13 @@ public class JobLogSearch extends HorizontalLayout {
 		clearButton.setDescription("Remove search");
 		clearButton.addStyleName("search-button");
 
-		for (int i = 0; i < JobLogContainerWrapper.NATURAL_COL_ORDER.length; i++) {
-			columnToSearch.addItem(JobLogContainerWrapper.NATURAL_COL_ORDER[i]);
-			columnToSearch.setItemCaption(JobLogContainerWrapper.NATURAL_COL_ORDER[i],
-					JobLogContainerWrapper.COL_HEADERS_ENGLISH[i]);
+		for (int i = 0; i < JobLogContainer.NATURAL_COL_ORDER.length; i++) {
+			columnToSearch.addItem(JobLogContainer.NATURAL_COL_ORDER[i]);
+			columnToSearch.setItemCaption(JobLogContainer.NATURAL_COL_ORDER[i],
+					JobLogContainer.COL_HEADERS_ENGLISH[i]);
 		}
 
-		columnToSearch.setValue("username");
+		columnToSearch.setValue(JobLogContainer.USERNAME);
 		columnToSearch.setNullSelectionAllowed(false);
 
 		clearButton.addListener(new Button.ClickListener() {
@@ -80,12 +80,12 @@ public class JobLogSearch extends HorizontalLayout {
 		if (searchStringField.getValue() == "") {
 			containerFilter = null;
 			
-		} else if (columnToSearch.getValue().equals("startTime") || columnToSearch.getValue().equals("endTime")) {
+		} else if (columnToSearch.getValue().equals(JobLogContainer.START_TIME) || columnToSearch.getValue().equals(JobLogContainer.END_TIME)) {
 
 			containerFilter = new DateContainerFilter(
 					columnToSearch.getValue(), (String) searchStringField.getValue());
 			
-		} else if (columnToSearch.getValue().equals("wallclockTime")) {
+		} else if (columnToSearch.getValue().equals(JobLogContainer.WALLCLOCK_TIME)) {
 
 			try {
 			containerFilter = new IdContainerFilter(

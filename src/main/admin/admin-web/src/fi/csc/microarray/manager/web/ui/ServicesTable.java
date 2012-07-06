@@ -2,7 +2,8 @@ package fi.csc.microarray.manager.web.ui;
 
 import com.vaadin.ui.Table;
 
-import fi.csc.microarray.manager.web.data.Service;
+import fi.csc.microarray.manager.web.data.ServiceContainer;
+import fi.csc.microarray.manager.web.data.ServiceEntry;
 
 public class ServicesTable extends Table {
 	public ServicesTable(ServicesView view) {
@@ -18,17 +19,17 @@ public class ServicesTable extends Table {
 
 			public String getStyle(Object itemId, Object propertyId) {
 
-				if (itemId instanceof Service) {
-					Service service = (Service)itemId;
+				if (itemId instanceof ServiceEntry) {
+					ServiceEntry service = (ServiceEntry)itemId;
 
-					if ("status".equals(propertyId)) {
+					if (ServiceContainer.STATUS.equals(propertyId)) {
 
 						if ("UP".equals(service.getStatus().toString())) {
 							return "success";
 						} else {
 							return "failure";
 						}
-					} else if ("name".equals(propertyId)) {
+					} else if (ServiceContainer.NAME.equals(propertyId)) {
 
 						String name = service.getName().toString();
 

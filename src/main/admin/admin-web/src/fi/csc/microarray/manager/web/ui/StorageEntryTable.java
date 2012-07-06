@@ -6,6 +6,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.BaseTheme;
 
+import fi.csc.microarray.manager.web.data.StorageEntryContainer;
+
 public class StorageEntryTable extends Table {
 	
 	private StorageView view;
@@ -21,8 +23,8 @@ public class StorageEntryTable extends Table {
 
 		setSizeFull();
 		
-		this.addGeneratedColumn("size", new HumanReadableLongColumnGenerator());
-		this.addGeneratedColumn("deleteLink", new DeleteLinkColumnGenerator());
+		this.addGeneratedColumn(StorageEntryContainer.SIZE, new HumanReadableLongColumnGenerator());
+		this.addGeneratedColumn(StorageEntryContainer.DELETE_LINK, new DeleteLinkColumnGenerator());
 	}
 	
 	class DeleteLinkColumnGenerator implements Table.ColumnGenerator {

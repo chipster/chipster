@@ -2,7 +2,6 @@ package fi.csc.microarray.manager.web.ui;
 
 import java.util.LinkedList;
 
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -17,8 +16,9 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.ChipsterAdminApplication;
-import fi.csc.microarray.manager.web.data.JobLogContainerWrapper;
+import fi.csc.microarray.manager.web.data.JobLogContainer;
 import fi.csc.microarray.manager.web.hbncontainer.JobLogHibernateUtil;
+import fi.csc.microarray.manager.web.hbncontainer.JobLogSessionManager;
 
 public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener  {
 	
@@ -28,7 +28,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	private Button addSearchButton = new Button();
 
 	private JobLogTable table;
-	private JobLogContainerWrapper dataSourceWrapper;
+	private JobLogContainer dataSource;
 
 	private ChipsterAdminApplication app;
 
@@ -48,14 +48,14 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		//dataSourceWrapper has to be initialized here because of the transactionListener, so lets init everything else 
 		//here as well (and not in the constructor like elsewhere)
 		
-		dataSourceWrapper = new JobLogContainerWrapper(this); 
-		dataSourceWrapper.init();
+		dataSource = new JobLogContainer(this, new JobLogSessionManager(app)); 
+		dataSource.init();
 				
 		table = new JobLogTable(this);
-		table.setContainerDataSource(dataSourceWrapper.getDataSource());
+		table.setContainerDataSource(dataSource);
 
-		table.setVisibleColumns(JobLogContainerWrapper.NATURAL_COL_ORDER);
-		table.setColumnHeaders(JobLogContainerWrapper.COL_HEADERS_ENGLISH);
+		table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
+		table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
 		
 		this.addComponent(getToolbar());
 		this.addComponent(table);
@@ -153,11 +153,11 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	}
 	
 	private void updateContainerFilters() {
-		dataSourceWrapper.removeAllContainerFilters();
+		dataSource.removeAllContainerFilters();
 
 		for (JobLogSearch iteratedSearch : searches) {
 			if (iteratedSearch.getContainerFilter() != null) {
-				dataSourceWrapper.addContainerFilter(iteratedSearch.getContainerFilter());
+				dataSource.addContainerFilter(iteratedSearch.getContainerFilter());
 			}
 		}
 	}
@@ -178,7 +178,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	public void showOutput(Object itemId) {
 		
 		String output = "";
-		Property outputProperty = dataSourceWrapper.getContainerProperty(itemId, "outputText");
+		Property outputProperty = dataSource.getContainerProperty(itemId, JobLogContainer.OUTPUT_TEXT);
 		
 		if (outputProperty != null) {
 			output = (String) outputProperty.getValue();
@@ -189,7 +189,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 
 	public void showErrorOutput(Object itemId) {
 		String error = "";
-		Property errorProperty = dataSourceWrapper.getContainerProperty(itemId, "errorMessage");
+		Property errorProperty = dataSource.getContainerProperty(itemId, JobLogContainer.ERROR_MESSAGE);
 		
 		if (errorProperty != null) {
 			error = (String) errorProperty.getValue();
@@ -211,14 +211,5 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		subWindow.center();
 		
 		this.getWindow().addWindow(subWindow);
-	}
-
-	/**
-	 * getApplication() doesn't work in the initialization phase method, but this does
-	 * 
-	 * @return
-	 */
-	public Application getApp() {
-		return app;
 	}
 }

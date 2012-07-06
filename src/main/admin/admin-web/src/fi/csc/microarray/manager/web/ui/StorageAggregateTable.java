@@ -2,6 +2,8 @@ package fi.csc.microarray.manager.web.ui;
 
 import com.vaadin.ui.Table;
 
+import fi.csc.microarray.manager.web.data.StorageAggregateContainer;
+
 public class StorageAggregateTable extends Table {
 	public StorageAggregateTable(StorageView view) {
 
@@ -12,6 +14,6 @@ public class StorageAggregateTable extends Table {
 		
 		this.setSizeFull();
 		
-		this.addGeneratedColumn("size", new HumanReadableLongColumnGenerator());
+		this.addGeneratedColumn(StorageAggregateContainer.SIZE, new HumanReadableLongColumnGenerator());
 	}
 }
