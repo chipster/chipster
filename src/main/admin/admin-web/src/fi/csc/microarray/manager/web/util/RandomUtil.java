@@ -16,6 +16,14 @@ public class RandomUtil {
 
 		return cal.getTime();
 	}
+	
+	public static Date getRandomDateToday(Random rnd) {
+		Calendar cal = new GregorianCalendar();
+
+		cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), rnd.nextInt(cal.get(Calendar.HOUR)), rnd.nextInt(60), rnd.nextInt(60));
+
+		return cal.getTime();
+	}
 
 
 	private static final String[] usernames = new String[] { "korhone", "virtane", "makine", "niemine", "makela", "hamalai", "laine", "heikkin", "koskine", "jarvine" };
@@ -38,6 +46,14 @@ public class RandomUtil {
 		}
 		return name;
 	}
+	
+	private static final String[] compHosts = new String[] { "hippu1.csc.fi", "hippu2.csc.fi" };
+	
+	public static String getRandomComp(Random rnd) {
+
+		return compHosts[rnd.nextInt(compHosts.length)];
+	}
+
 
 	private static final String[] operations = new String[] { 
 		"acgh-plot-combined-expression.R", 

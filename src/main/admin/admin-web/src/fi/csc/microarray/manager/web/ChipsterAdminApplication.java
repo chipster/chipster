@@ -5,13 +5,13 @@ import java.io.IOException;
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.manager.web.ui.JobLogView;
+import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
 import fi.csc.microarray.manager.web.ui.StorageView;
 
@@ -40,9 +40,11 @@ public class ChipsterAdminApplication extends Application {
 
 	private ServicesView serviceView;
 	private StorageView storageView;
+	private JobsView jobsView;
 	private JobLogView jobLogView;
 
 	private HorizontalLayout emptyView;
+
 
 
 	private VerticalLayout getServicesView() {
@@ -81,6 +83,14 @@ public class ChipsterAdminApplication extends Application {
 			jobLogView = new JobLogView(this);
 		}
 		return jobLogView;
+	}
+	
+	private JobsView getJobsView() {
+		if (jobsView == null) {
+
+			jobsView = new JobsView(this);
+		}
+		return jobsView;
 	}
 
 
@@ -134,9 +144,7 @@ public class ChipsterAdminApplication extends Application {
 
 
 	public void showJobsView() {
-		Panel panel = new Panel();
-		panel.setSizeFull();
-		setMainComponent(panel);
+		setMainComponent(getJobsView());
 	}
 
 
