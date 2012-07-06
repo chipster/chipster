@@ -2,6 +2,44 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 6.7.2012: What is new in Chipster 2.0.2</h2>
+
+<br>Chipster 2.0.2 contains new analysis tools for variant calling (SAMtools) and quality control, trimming and filtering of reads (PRINSEQ). 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li> <a href="samtools-snp-indel-single.htmll">Call SNPs and short INDELs from one diploid individual </a> </li>
+<li> <a href="samtools-snp-indel-multiple.html">Call SNPs and short INDELs from multiple diploid individuals </a> </li>
+<li> <a href="prinseq-statistics.html">Read quality statistics with PRINSEQ </a> </li>
+<li> <a href="prinseq-length-filter.html">Filter reads for length (PRINSEQ)</a> </li>
+<li> <a href="prinseq-N-filter.html">Filter reads for Ns (PRINSEQ)</a> </li>
+<li> <a href="prinseq-complexity-filter.html">Filter reads for low complexity (PRINSEQ)</a> </li>
+<li> <a href="prinseq-duplicate-filter.html">Filter reads for duplicates (PRINSEQ)</a> </li>
+<li> <a href="prinseq-filter.html">Filter reads for several criteria (PRINSEQ)</a>. This tool combines the above mentioned filters, and also includes a possibility to filter paired reads so that the filtered files contain the paired reads in matching order.</li>
+<li> <a href="prinseq-quality-trimmer.html">Trim reads by quality (PRINSEQ) </a> </li>
+<li> <a href="prinseq-AT-trimmer.html">Trim reads for poly-A/T tails (PRINSEQ) </a> </li>
+<li> <a href="prinseq-trimmer.html">Trim reads for several criteria (PRINSEQ) </a> </li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li>All aligners: Unzipping has been added, so you can give zipped FASTQ as input.</li>
+<li>Bowtie: Genomes for Dog (UCSC canFam2) and Gasterosteus aculeatus (BROADS1.67) have been added.</li>
+<li>TopHat: Parameter for the standard deviation of inner distance has been added.</li>
+</ul>	
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li>Annotation / Add genomic location to data. Adds chr, start and end location to the data.</li>
+</ul>
+<li><b>Updated microarray analysis tools</b></li>
+<ul>
+<li>Pathways / Hypergeometric test for GO. If the data was normalized using custom chiptype (altCDF) for chips hgu133a or hgu133a2, the same mapping is used in testing.</li>
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 24.1.2012: What is new in Chipster 2.0</h2>
 
 <br>Chipster 2.0 contains a comprehensive collection of analysis tools for next generation sequencing (NGS) data. 
