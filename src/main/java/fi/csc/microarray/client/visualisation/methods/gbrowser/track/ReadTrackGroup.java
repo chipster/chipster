@@ -107,6 +107,7 @@ public class ReadTrackGroup extends TrackGroup {
         		VisualConstants.COLOR_BLUE.getGreen(), 
         		VisualConstants.COLOR_BLUE.getBlue(), 
         		64);
+        Color totalColor = Color.gray;
         
 //        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
 //        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
@@ -125,7 +126,7 @@ public class ReadTrackGroup extends TrackGroup {
     	tracks.add(sepTrackProfile);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, Color.BLACK, null, 0, 
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, totalColor, null, 0, 
         		GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setName("ProfileSNPTrack");
         tracks.add(profileSNPTrack);
