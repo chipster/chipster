@@ -11,6 +11,7 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
+	<property name="admin-src" location="src/main/admin" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
@@ -39,7 +40,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.0.1" />
+	<property name="release-version" value="2.0.2" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -215,6 +216,7 @@
 			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
+			<tarfileset file="${src-admin}/vm/update.sh" filemode="755" prefix="chipster/admin/vm" />
 			<!-- (Upgrade and migrate not available for 2.0, fresh install is required)
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
@@ -269,14 +271,23 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
+
+			<!-- modules, executables separated so that permissions can be set for them -->
+			<selector id="executable.files">
+				<or>
+					<filename name="**/*.sh" />
+					<filename name="**/*.py" />
+				</or>	
+			</selector>
 			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" >
 				<exclude name="sequence/" />
+				<not><selector refid="executable.files" /></not>
+			</tarfileset>
+			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" filemode="755">
+				<selector refid="executable.files" />
 			</tarfileset>
 			
-				
-				
-			
-			
+
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
 			

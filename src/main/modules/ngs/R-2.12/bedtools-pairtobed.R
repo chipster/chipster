@@ -19,6 +19,8 @@
 # notispan: Report A if ispan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.
 # notospan: Report A if ospan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.)
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToBed"))
 

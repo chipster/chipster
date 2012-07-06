@@ -25,7 +25,13 @@
 # PARAMETER OPTIONAL max.occurrence: "Maximum occurrences for one end" TYPE INTEGER DEFAULT 100000 (Maximum occurrences of a read for pairing. A read with more occurrneces will be treated as a single-end read. Reducing this parameter helps faster pairing. The default value is 100000. For reads shorter than 30bp, applying a smaller value is recommended to get a sensible speed at the cost of pairing accuracy. Corresponds to the command line parameter bwa sampe -o.)
 
 # KM 26.8.2011
+# AMS 19.6.2012 Added unzipping
 
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("reads1.txt")
+unzipIfGZipFile("reads2.txt")
+unzipIfGZipFile("genome.txt")
 
 ##
 # bwa settings

@@ -21,6 +21,12 @@
 # PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to report. Corresponds to the samse command line parameter -n.)
 
 # KM 24.8.2011
+# AMS 19.6.2012 Added unzipping
+
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("reads.txt")
+unzipIfGZipFile("genome.txt")
 
 # bwa settings
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")

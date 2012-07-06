@@ -1,8 +1,6 @@
 package fi.csc.microarray.manager.web.hbncontainer;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Random;
 
 import org.hibernate.SessionFactory;
@@ -12,8 +10,9 @@ import org.hibernate.classic.Session;
 import org.hibernate.dialect.H2Dialect;
 
 import fi.csc.microarray.manager.web.data.JobLogEntry;
+import fi.csc.microarray.manager.web.util.RandomUtil;
 
-public class HibernateUtil {
+public class JobLogHibernateUtil {
 
     private static final SessionFactory sessionFactory;
     //private static Type defaultType;
@@ -57,26 +56,18 @@ public class HibernateUtil {
         return sessionFactory;
     }
     
-    private static Date getRandomDate(Random rnd) {
-    	Calendar cal = new GregorianCalendar();
-    	
-    	cal.set(rnd.nextInt(5) + 2007, rnd.nextInt(12) + 1, rnd.nextInt(28) + 1, rnd.nextInt(24), rnd.nextInt(60), rnd.nextInt(60));
-    	
-    	return cal.getTime();
-    }
+
 
     public static void insertExampleData(int count) {
         Session sess = getSessionFactory().getCurrentSession();
         sess.beginTransaction();
 
-       	String[] operations = new String[] { "importseq.sadl", "blastp.sadl", "blastx.sadl", "needle.acd", "dottup.acd", "water.acd", "emma.acd", "getorf.acd", "plotorf.acd"};
     	String[] states = new String[] { "COMPLETED", "FAILED" };
     	Date startTime;
     	Date endTime;
     	int wallclockTime;
 //    	String errorMessage;
 //    	String outputText;
-    	String[] usernames = new String[] { "demo1", "demo2", "demo3" };
     	String[] compHosts = new String[] { "hippu1.csc.fi", "hippu2.csc.fi" };
     	
         Random rnd = new Random();
@@ -87,20 +78,26 @@ public class HibernateUtil {
             job = new JobLogEntry();
             
             job.setId("8f99dsdf7a-5c38-439f-8f7b-15f8bed" + Math.abs(rnd.nextLong()));
-            job.setOperation(operations[rnd.nextInt(operations.length)]);
-            job.setState(states[rnd.nextInt(states.length)]);
+            job.setOperation(RandomUtil.getRandomOperation(rnd));
             
-            Date start = getRandomDate(rnd);
+            Date start = RandomUtil.getRandomDate(rnd, 2009);
             job.setStartTime(start);
-            int duration = rnd.nextInt(60);
+            int duration = rnd.nextInt(rnd.nextInt(600));
             Date end = (Date) start.clone();
             end.setMinutes(start.getMinutes() + duration);
             job.setEndTime(end);
             job.setWallclockTime(duration);
-            job.setErrorMessage("null");
-            job.setOutputText("null");
             
-            job.setUsername(usernames[rnd.nextInt(usernames.length)]);
+            if (rnd.nextDouble() < 0.02) {
+            	job.setStatus(states[1]);
+            	job.setErrorMessage(RandomUtil.getRandomError(rnd));
+            } else {
+            	job.setStatus(states[0]);
+            }
+            
+            job.setOutputText(RandomUtil.getRandomOutputtext(rnd));
+            
+            job.setUsername(RandomUtil.getRandomUserName(rnd));
             job.setCompHost(compHosts[rnd.nextInt(compHosts.length)]);
 
             sess.save(job);

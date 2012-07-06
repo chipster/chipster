@@ -1,6 +1,7 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 
@@ -8,7 +9,7 @@ public class StorageEntry implements Serializable {
 	
 	private String username;
 	private String name;
-	private Status date;
+	private Date date;
 	private long size;
 	
 	public String getUsername() {
@@ -23,10 +24,10 @@ public class StorageEntry implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Status getDate() {
+	public Date getDate() {
 		return date;
 	}
-	public void setDate(Status date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	public long getSize() {

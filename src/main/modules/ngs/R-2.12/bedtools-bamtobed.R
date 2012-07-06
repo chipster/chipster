@@ -7,6 +7,8 @@
 # PARAMETER OPTIONAL color: "Color string" TYPE STRING DEFAULT "255,0,0" (An R,G,B string for the color used with BED12 format. Default is (255,0,0\).)
 # PARAMETER OPTIONAL cigar: "Add the CIGAR string" TYPE [yes,no] DEFAULT no (Add the CIGAR string to the BED entry as a 7th column.)
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "bamToBed"))
 
