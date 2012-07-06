@@ -14,6 +14,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.data.DateContainerFilter;
+import fi.csc.microarray.manager.web.data.JobLogContainerWrapper;
 
 public class JobLogSearch extends HorizontalLayout {
 
@@ -46,10 +47,10 @@ public class JobLogSearch extends HorizontalLayout {
 		clearButton.setDescription("Remove search");
 		clearButton.addStyleName("search-button");
 
-		for (int i = 0; i < JobLogView.NATURAL_COL_ORDER.length; i++) {
-			columnToSearch.addItem(JobLogView.NATURAL_COL_ORDER[i]);
-			columnToSearch.setItemCaption(JobLogView.NATURAL_COL_ORDER[i],
-					JobLogView.COL_HEADERS_ENGLISH[i]);
+		for (int i = 0; i < JobLogContainerWrapper.NATURAL_COL_ORDER.length; i++) {
+			columnToSearch.addItem(JobLogContainerWrapper.NATURAL_COL_ORDER[i]);
+			columnToSearch.setItemCaption(JobLogContainerWrapper.NATURAL_COL_ORDER[i],
+					JobLogContainerWrapper.COL_HEADERS_ENGLISH[i]);
 		}
 
 		columnToSearch.setValue("username");
