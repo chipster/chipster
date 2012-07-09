@@ -29,7 +29,7 @@ Serializable {
 		super(JobsEntry.class);
 	}
 	
-	private static final String[] status = new String[] { "RUNNING", "WAITING", "TRANSFERING FILES" }; 
+	private static final String[] status = new String[] { "RUNNING", "WAITING", "TRANSFERRING FILES" }; 
 
 	public void update() {
 		
