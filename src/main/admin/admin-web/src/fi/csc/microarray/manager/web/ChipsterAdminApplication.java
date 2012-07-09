@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -105,7 +106,7 @@ public class ChipsterAdminApplication extends Application {
 
 
 	private void buildMainLayout() {
-		setMainWindow(new Window("Chipster admin web"));
+		setMainWindow(new Window("Chipster admin"));
 
 		horizontalSplit = new HorizontalLayout();
 		horizontalSplit.setSizeFull();
@@ -159,5 +160,12 @@ public class ChipsterAdminApplication extends Application {
 			emptyView.setStyleName("empty-view");
 		}
 		setMainComponent(emptyView);
+	}
+	
+	public Component getTitle() {
+		Label label = new Label("Chipster admin");
+		label.addStyleName("title");
+		label.setWidth(250, Component.UNITS_PIXELS);
+		return label;
 	}
 }

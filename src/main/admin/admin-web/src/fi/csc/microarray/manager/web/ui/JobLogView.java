@@ -71,9 +71,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			
 			toolbarLayout = new HorizontalLayout();
 			
-			Label spaceEater = new Label(" ");
-			toolbarLayout.addComponent(spaceEater);
-			toolbarLayout.setExpandRatio(spaceEater, 1);
+
 			
 			refreshButton.addListener((ClickListener)this);
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/document-add.png"));
@@ -105,7 +103,13 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 					performSearch();
 				}
 			});
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
 
+			toolbarLayout.addComponent(app.getTitle());	
+			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
 		}

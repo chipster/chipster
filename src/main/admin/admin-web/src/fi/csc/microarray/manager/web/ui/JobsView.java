@@ -23,12 +23,16 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 	private JobsTable table;
 	private JobsContainer dataSource;
 
+	private ChipsterAdminApplication app;
+
 	public JobsView(ChipsterAdminApplication app) {
 		
+		this.app = app;
 		dataSource = new JobsContainer(); 
 				
 		table = new JobsTable(this);
 		table.setContainerDataSource(dataSource);
+		dataSource.update();
 
 		table.setVisibleColumns(JobsContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(JobsContainer.COL_HEADERS_ENGLISH);
@@ -46,13 +50,15 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 			
 			toolbarLayout = new HorizontalLayout();
 			
+			refreshButton.addListener((ClickListener)this);
+			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
+			toolbarLayout.addComponent(refreshButton);
+			
 			Label spaceEater = new Label(" ");
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
-			refreshButton.addListener((ClickListener)this);
-			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
-			toolbarLayout.addComponent(refreshButton);
+			toolbarLayout.addComponent(app.getTitle());	
 			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");

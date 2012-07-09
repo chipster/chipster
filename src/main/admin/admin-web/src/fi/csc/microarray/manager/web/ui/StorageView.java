@@ -8,6 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
@@ -123,6 +124,12 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			//diskUsageBar.setEnabled(false);
 			diskUsageBar.setWidth(300, UNITS_PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+			
+			toolbarLayout.addComponent(app.getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
