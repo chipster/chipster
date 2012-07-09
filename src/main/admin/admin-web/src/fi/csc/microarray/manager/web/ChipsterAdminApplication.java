@@ -44,7 +44,9 @@ public class ChipsterAdminApplication extends Application {
 	private JobsView jobsView;
 	private JobLogView jobLogView;
 
-	private HorizontalLayout emptyView;
+	private VerticalLayout emptyView;
+
+	private HorizontalLayout toolbarLayout;
 
 
 
@@ -155,11 +157,34 @@ public class ChipsterAdminApplication extends Application {
 
 	public void showEmtpyView() {
 		if (emptyView == null) {
-			emptyView = new HorizontalLayout();
+			emptyView = new VerticalLayout();
+			
+			emptyView.addComponent(getToolbar());
+			
 			emptyView.setSizeFull();
 			emptyView.setStyleName("empty-view");
 		}
 		setMainComponent(emptyView);
+	}
+	
+	public HorizontalLayout getToolbar() {
+
+		if (toolbarLayout == null) {
+			
+			toolbarLayout = new HorizontalLayout();
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+			
+			toolbarLayout.addComponent(getTitle());	
+			
+			toolbarLayout.setWidth("100%");
+			toolbarLayout.setHeight(40, Component.UNITS_PIXELS);
+			toolbarLayout.setStyleName("toolbar");
+		}
+
+		return toolbarLayout;
 	}
 	
 	public Component getTitle() {

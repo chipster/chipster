@@ -26,8 +26,6 @@ public class JobLogTable extends Table {
 
 		this.addGeneratedColumn(JobLogContainer.OUTPUT_LINK, new OutputLinkColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.ERROR_LINK, new ErrorLinkColumnGenerator());
-		
-		this.setColumnWidth(JobLogContainer.ERROR_LINK, 100);
 	}
 
 	class OutputLinkColumnGenerator implements Table.ColumnGenerator {

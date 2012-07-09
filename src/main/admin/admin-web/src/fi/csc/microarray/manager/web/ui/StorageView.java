@@ -118,17 +118,18 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
 			
-			diskUsageBar = new ProgressIndicator(0f);
-			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
-			diskUsageBar.setStyleName("big");
-			//diskUsageBar.setEnabled(false);
-			diskUsageBar.setWidth(300, UNITS_PIXELS);
-			toolbarLayout.addComponent(diskUsageBar);
-			
 			Label spaceEater = new Label(" ");
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
 			
+			diskUsageBar = new ProgressIndicator(0f);
+			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
+			diskUsageBar.setStyleName("big");
+			
+			diskUsageBar.setWidth(300, UNITS_PIXELS);
+			toolbarLayout.addComponent(diskUsageBar);
+			toolbarLayout.setExpandRatio(diskUsageBar, 1);
+					
 			toolbarLayout.addComponent(app.getTitle());	
 
 			toolbarLayout.setWidth("100%");

@@ -14,7 +14,7 @@ public class DateContainerFilter extends ContainerFilter {
 	private final Date searchDateStart;
 	private final Date searchDateEnd;
 
-	public DateContainerFilter(Object propertyId, String dateString) {
+	public DateContainerFilter(Object propertyId, String dateString) throws NumberFormatException {
 		super(propertyId);
 
 		Calendar startCal = new GregorianCalendar();
@@ -54,7 +54,11 @@ public class DateContainerFilter extends ContainerFilter {
 				}
 			}
 		} catch (NumberFormatException e) {
-			//Parsing failed
+			throw new NumberFormatException(
+					"Search term parsing failed. Use following format: <br>" +
+					"<table><tr><td>2010</td><td>Search for year</td></tr>" +
+					"<tr><td>2010-03</td><td>Search for month</td></tr>" +
+					"<tr><td>2010-03-12</td><td>Search for date</td></tr></table>");
 		}
 		
 

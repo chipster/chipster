@@ -1,5 +1,8 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.vaadin.data.hbnutil.ContainerFilter;
 import com.vaadin.data.hbnutil.IdContainerFilter;
 import com.vaadin.data.hbnutil.StringContainerFilter;
@@ -17,7 +20,14 @@ import fi.csc.microarray.manager.web.data.DateContainerFilter;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
 
 public class JobLogSearch extends HorizontalLayout {
-
+	
+	
+	private static final Collection<String> SEARCH_COLUMNS = Arrays.asList(
+			new String[] { 
+					JobLogContainer.USERNAME, JobLogContainer.OPERATION, JobLogContainer.COMPHOST, 
+					JobLogContainer.START_TIME, JobLogContainer.END_TIME, JobLogContainer.WALLCLOCK_TIME, 
+					JobLogContainer.STATUS });
+	
 	private JobLogView view;
 	private TextField searchStringField;
 	private NativeSelect columnToSearch;
@@ -48,9 +58,13 @@ public class JobLogSearch extends HorizontalLayout {
 		clearButton.addStyleName("search-button");
 
 		for (int i = 0; i < JobLogContainer.NATURAL_COL_ORDER.length; i++) {
-			columnToSearch.addItem(JobLogContainer.NATURAL_COL_ORDER[i]);
-			columnToSearch.setItemCaption(JobLogContainer.NATURAL_COL_ORDER[i],
-					JobLogContainer.COL_HEADERS_ENGLISH[i]);
+
+			//Do not search from generated columns
+			if (SEARCH_COLUMNS.contains(JobLogContainer.NATURAL_COL_ORDER[i])) {
+				columnToSearch.addItem(JobLogContainer.NATURAL_COL_ORDER[i]);
+				columnToSearch.setItemCaption(JobLogContainer.NATURAL_COL_ORDER[i],
+						JobLogContainer.COL_HEADERS_ENGLISH[i]);
+			}
 		}
 
 		columnToSearch.setValue(JobLogContainer.USERNAME);
@@ -82,9 +96,15 @@ public class JobLogSearch extends HorizontalLayout {
 			
 		} else if (columnToSearch.getValue().equals(JobLogContainer.START_TIME) || columnToSearch.getValue().equals(JobLogContainer.END_TIME)) {
 
-			containerFilter = new DateContainerFilter(
-					columnToSearch.getValue(), (String) searchStringField.getValue());
-			
+			try {
+				containerFilter = new DateContainerFilter(
+						columnToSearch.getValue(), (String) searchStringField.getValue());
+			} catch (NumberFormatException e) {
+				view.getApplication().getMainWindow().showNotification("Search<br>",
+						e.getMessage(), Notification.TYPE_WARNING_MESSAGE);
+				containerFilter = null;
+			}
+
 		} else if (columnToSearch.getValue().equals(JobLogContainer.WALLCLOCK_TIME)) {
 
 			try {
@@ -92,7 +112,8 @@ public class JobLogSearch extends HorizontalLayout {
 					columnToSearch.getValue(), Integer.parseInt((String) searchStringField.getValue()));
 			
 			} catch (NumberFormatException e) {
-				view.getApplication().getMainWindow().showNotification("Search term of " + columnToSearch.getValue() + "must be numeric", Notification.TYPE_WARNING_MESSAGE);
+				view.getApplication().getMainWindow().showNotification("Search<br>",
+						"Search term "+ columnToSearch.getValue() + " must be numeric", Notification.TYPE_WARNING_MESSAGE);
 				containerFilter = null;
 			}
 		} else {
