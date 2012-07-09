@@ -904,7 +904,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				chartPanel.addMouseWheelListener(view);
 			}
 
-			// Add selection listener
+			// Add selection listener (but try to remove first old one that would prevent removal of the visualization) 
+			application.removeClientEventListener(this);
 			application.addClientEventListener(this);
 
 			// Put panel on top of card layout
