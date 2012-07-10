@@ -22,10 +22,10 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	public static final String ERROR_LINK = "errorLink";
 
 	public static final Object[] NATURAL_COL_ORDER  = new String[] {
-		USERNAME, 		OPERATION, 		COMPHOST, 		START_TIME, 	END_TIME, 	WALLCLOCK_TIME, 	OUTPUT_LINK, 	ERROR_LINK, 	STATUS	};
+		USERNAME, 		OPERATION, 		COMPHOST, 		START_TIME, 	WALLCLOCK_TIME, 	OUTPUT_LINK, 	ERROR_LINK, 	STATUS	};
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", 	"Operation", 	"Comp host", 	"Start time", 	"End time", "Wall clock time", 	"", 			"Error", 		"Status" };
+		"Username", 	"Operation", 	"Comp host", 	"Start time", 	"Wall clock time", 	"", 			"Error", 		"Status" };
 
 
 	private JobLogSessionManager sessionManager;

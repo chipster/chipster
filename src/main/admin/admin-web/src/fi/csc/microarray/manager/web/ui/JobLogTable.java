@@ -5,10 +5,12 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.BaseTheme;
 
 import fi.csc.microarray.manager.web.data.JobLogContainer;
+import fi.csc.microarray.manager.web.util.StringUtils;
 
 public class JobLogTable extends Table {
 
@@ -24,8 +26,28 @@ public class JobLogTable extends Table {
 		this.setSelectable(true);
 		this.setImmediate(true);
 
+		this.addGeneratedColumn(JobLogContainer.START_TIME, new DateColumnGenerator());
+		this.addGeneratedColumn(JobLogContainer.WALLCLOCK_TIME, new WallClockColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.OUTPUT_LINK, new OutputLinkColumnGenerator());
 		this.addGeneratedColumn(JobLogContainer.ERROR_LINK, new ErrorLinkColumnGenerator());
+	}
+	
+	class WallClockColumnGenerator implements Table.ColumnGenerator {
+
+		public Component generateCell(Table source, final Object itemId,
+				Object columnId) {
+
+			Property prop = source.getItem(itemId).getItemProperty(columnId);
+			if (prop != null && prop.getType() != null && prop.getType().equals(Integer.class)) {
+
+				Integer wallClockTime = (Integer) prop.getValue();
+
+				Label label = new Label(StringUtils.formatMinutes(wallClockTime));
+				
+				return label;
+			}
+			return null;
+		}
 	}
 
 	class OutputLinkColumnGenerator implements Table.ColumnGenerator {

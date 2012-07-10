@@ -24,7 +24,10 @@ public class StorageEntryTable extends Table {
 		setSizeFull();
 		
 		this.addGeneratedColumn(StorageEntryContainer.SIZE, new HumanReadableLongColumnGenerator());
+		this.addGeneratedColumn(StorageEntryContainer.DATE, new DateColumnGenerator());
 		this.addGeneratedColumn(StorageEntryContainer.DELETE_LINK, new DeleteLinkColumnGenerator());
+		
+		this.setColumnWidth(StorageEntryContainer.DATE, 200);
 	}
 	
 	class DeleteLinkColumnGenerator implements Table.ColumnGenerator {

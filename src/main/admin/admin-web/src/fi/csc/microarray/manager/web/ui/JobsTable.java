@@ -22,6 +22,7 @@ public class JobsTable extends Table {
 		this.setSelectable(true);
 		this.setImmediate(true);
 
+		this.addGeneratedColumn(JobsContainer.START_TIME, new DateColumnGenerator());
 		this.addGeneratedColumn(JobsContainer.CANCEL_LINK, new CancelLinkColumnGenerator());
 	}
 
