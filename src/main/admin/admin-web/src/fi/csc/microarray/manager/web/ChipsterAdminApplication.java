@@ -114,6 +114,7 @@ public class ChipsterAdminApplication extends Application {
 		horizontalSplit.setSizeFull();
 
 		getMainWindow().setContent(horizontalSplit);
+		getMainWindow().getContent().setHeight(100, Component.UNITS_PERCENTAGE);
 		showEmtpyView();
 
 		setTheme("admin");

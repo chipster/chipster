@@ -9,8 +9,6 @@ public class ServicesTable extends Table {
 	public ServicesTable(ServicesView view) {
 
 		setSelectable(true);
-		setImmediate(true);
-		addListener(view);
 		setNullSelectionAllowed(false);
 
 		setSizeFull();

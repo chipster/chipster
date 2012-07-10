@@ -20,7 +20,7 @@ public class RandomUtil {
 	public static Date getRandomDateToday(Random rnd) {
 		Calendar cal = new GregorianCalendar();
 
-		cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), rnd.nextInt(cal.get(Calendar.HOUR)), rnd.nextInt(60), rnd.nextInt(60));
+		cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), rnd.nextInt(24), rnd.nextInt(60));
 
 		return cal.getTime();
 	}
