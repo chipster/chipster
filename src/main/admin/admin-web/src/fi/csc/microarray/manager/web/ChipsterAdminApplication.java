@@ -14,6 +14,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
+import fi.csc.microarray.manager.web.ui.StatView;
 import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class ChipsterAdminApplication extends Application {
@@ -43,10 +44,12 @@ public class ChipsterAdminApplication extends Application {
 	private StorageView storageView;
 	private JobsView jobsView;
 	private JobLogView jobLogView;
+	private StatView statView;
 
 	private VerticalLayout emptyView;
 
 	private HorizontalLayout toolbarLayout;
+
 
 
 
@@ -94,6 +97,14 @@ public class ChipsterAdminApplication extends Application {
 			jobsView = new JobsView(this);
 		}
 		return jobsView;
+	}
+	
+	private StatView getStatView() {
+		if (statView == null) {
+
+			statView = new StatView(this);
+		}
+		return statView;
 	}
 
 
@@ -154,6 +165,10 @@ public class ChipsterAdminApplication extends Application {
 
 	public void showStorageView() {
 		setMainComponent(getStorageView());
+	}
+	
+	public void showStatView() {
+		setMainComponent(getStatView());
 	}
 
 	public void showEmtpyView() {

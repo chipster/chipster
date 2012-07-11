@@ -3,8 +3,6 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
-
 public class StorageEntry implements Serializable {
 	
 	private String username;
