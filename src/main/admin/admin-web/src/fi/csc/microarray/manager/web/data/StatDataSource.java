@@ -63,12 +63,13 @@ public class StatDataSource {
 			        	    "year, month", 
 			        	    new String[]{"year","month"}, 
 			        	    new Type[] {Hibernate.INTEGER}), 
-			        	    "projectionAlias")	        
+			        	    "yearAndMonth")	        
 			    )
-			    .addOrder(Order.asc("projectionAlias"))
+			    .addOrder(Order.asc("yearAndMonth"))
 			    .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 			    .list();
 		
+		//TODO does this include month?
 		return results;
 	}
 }
