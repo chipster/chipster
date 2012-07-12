@@ -1,5 +1,6 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -35,14 +36,6 @@ public class StatView extends HorizontalLayout implements ClickListener {
 			
 			StatDataSource dataSource = new StatDataSource();
 			
-//			String resultsString = "";
-//			
-//			for (JobLogEntryRowCount entry : dataSource.getTopUsers(session)) {
-//				
-//				resultsString += entry.getStartTime() + " " + entry.getRowCount() + "<br>";
-//			}
-//			
-//			app.getMainWindow().showNotification("Results<br>", resultsString);
 			
 			String resultsString = "";
 			

@@ -6,13 +6,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
-import org.hibernate.type.Type;
 
 public class StatDataSource {
 	
@@ -52,24 +50,12 @@ public class StatDataSource {
 		return results;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Map> getJobsByMonth(Session session) {
 		
-		@SuppressWarnings("unchecked")
-		List<Map> results = session.createCriteria(JobLogEntry.class)
-			    .setProjection( Projections.projectionList()
-			        .add(Projections.rowCount(), ROW_COUNT)
-			        .add(Projections.sqlGroupProjection(
-			        		"year({alias}.startTime) as year, month({alias}.startTime) as month", 
-			        	    "year, month", 
-			        	    new String[]{"year","month"}, 
-			        	    new Type[] {Hibernate.INTEGER}), 
-			        	    "yearAndMonth")	        
-			    )
-			    .addOrder(Order.asc("yearAndMonth"))
-			    .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
-			    .list();
-		
-		//TODO does this include month?
-		return results;
+		return session.createQuery("select new map(year(startTime) as year, month(startTime) as month, count(*) as count) " +
+				"from JobLogEntry " + 
+						"group by year(startTime), month(startTime) " +
+						"order by year(startTime) asc, month(startTime) asc").list();
 	}
 }
