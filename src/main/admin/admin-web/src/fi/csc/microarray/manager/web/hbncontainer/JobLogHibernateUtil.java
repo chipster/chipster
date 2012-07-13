@@ -81,7 +81,7 @@ public class JobLogHibernateUtil {
             
             Date start = RandomUtil.getRandomDate(rnd, 2009);
             job.setStartTime(start);
-            int duration = rnd.nextInt(rnd.nextInt(600));
+            int duration = rnd.nextInt(rnd.nextInt(600) + 1);
             Date end = (Date) start.clone();
             end.setMinutes(start.getMinutes() + duration);
             job.setEndTime(end);
