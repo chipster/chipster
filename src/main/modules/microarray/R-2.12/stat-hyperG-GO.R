@@ -62,14 +62,8 @@ myids<-unique(alleg[rownames(dat),])
 #CHOOSE THE ANNOTATION PACKAGE
 annotpkg<-lib
 
-#Account for the fact that updated alternative CDF annotation packages for some Affymetrix
+#Account for the fact that alternative CDF annotation packages for some Affymetrix
 #arrays are no longer supported and should be replaced with their Bioconductor counterpart 
-if (annotpkg=="hgu133a2hsentrezg.db") {
-	annotpkg <- "hgu133a2.db"
-}
-if (annotpkg=="hgu133ahsentrezg.db") {
-	annotpkg <- "hgu133a.db"
-}
 if (annotpkg=="ath1121501hsentrezg.db") {
 	annotpkg <- "ath1121501.db"
 }
@@ -83,14 +77,6 @@ if (annotpkg=="yeast2scentrezg.db") {
 	annotpkg <- "yeast2.db"
 }
 
-# check for conditional testing and multiple testing correction
-if (conditional.testing == 'no') {
-  if (p.adjust.method != 'none')
-    stop('CHIPSTER-NOTE: Multiple testing correction can be applied only when performing unconditional testing. Please set conditional.testing to no, or p.adjust.method to none. Usually the preferred method is to use conditional testing.')
-  conditional <- FALSE
-} else {
-  conditional <- TRUE
-}
 
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {
