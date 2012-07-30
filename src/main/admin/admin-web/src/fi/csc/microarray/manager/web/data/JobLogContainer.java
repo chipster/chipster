@@ -26,6 +26,9 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Operation", 	"Comp host", 	"Start time", 	"Wall clock time", 	"", 			"Error", 		"Status" };
+	
+	
+	public static final String STATUS_FAIL_VALUE = "FAILED";
 
 
 	private JobLogSessionManager sessionManager;
