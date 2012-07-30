@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 
-public class Service implements Serializable {
+public class ServiceEntry implements Serializable {
 	
 	private String name;
 	private String host;
