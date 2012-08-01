@@ -8,11 +8,18 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -213,5 +220,24 @@ public class ChunkDataSource extends DataSource {
 			}
 			raFile = null;
 		}
+	}
+
+	public void checkSorting() throws IOException, MicroarrayException, UnsortedDataException {
+		byte[] bytes = new byte[100000];
+		this.read(getHeaderLength(), bytes);
+		Chunk chunk = new Chunk(new String(bytes));
+		List<RegionContent> regions = fileParser.getAll(chunk, new LinkedList<ColumnType>());
+		
+		Region previousRegion = null;
+		for (RegionContent region : regions) {
+			if (previousRegion != null) {
+				if (previousRegion.compareTo(region.region) > 0) {
+					throw new UnsortedDataException("File " + file + " isn't sorted correctly. " +
+							"Please sort the file first.");
+				}
+			}
+			previousRegion = region.region;
+		}
+		
 	}
 }

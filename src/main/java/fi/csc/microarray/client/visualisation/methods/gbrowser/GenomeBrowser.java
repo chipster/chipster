@@ -610,16 +610,20 @@ RegionListener, ComponentListener, PropertyChangeListener {
 								@Override
 								public void run() {
 
-									// Show visualisation
-									showVisualisation();
-									
-									updateLocation();
+									try {
+										// Show visualisation
+										showVisualisation();
 
-									// Create tracks only once
-									initialised = true;
+										updateLocation();
 
-									// Set track visibility
-									updateVisibilityForTracks();
+										// Create tracks only once
+										initialised = true;
+
+										// Set track visibility
+										updateVisibilityForTracks();
+									} catch (Exception e) {
+										application.reportException(e);
+									}
 								}
 							});
 
@@ -640,8 +644,14 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			showFullHeightBox.setSelected(false);
 			setFullHeight(false);
 
-			showVisualisation();
-			updateVisibilityForTracks();	        	        
+			try {
+				showVisualisation();
+
+				updateVisibilityForTracks();
+
+			} catch (Exception e1) {
+				application.reportException(e1);
+			}
 
 		} else if ((trackSwitches.keySet().contains(source) || source == coverageTypeBox) && this.initialised) {
 			updateVisibilityForTracks();
@@ -730,221 +740,216 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		return plotPanel;
 	}
 
-	private void showVisualisation() {
+	private void showVisualisation() throws URISyntaxException, IOException, MicroarrayException, UnsortedDataException {
 
 		//Clean old data layers
 		if (plot != null) {
 			plot.clean();
 		}
 
-		try {
+		// Create the chart panel with tooltip support				
+		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
+		this.plot = new GenomePlot(chartPanel, true);
+		((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
 
-			// Create the chart panel with tooltip support				
-			TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
-			this.plot = new GenomePlot(chartPanel, true);
-			((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
+		// Set scale of profile track containing reads information
+		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
 
-			// Set scale of profile track containing reads information
-			this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
+		Genome genome = (Genome) genomeBox.getSelectedItem();
+		initGeneIndex(genome);
 
-			Genome genome = (Genome) genomeBox.getSelectedItem();
-			initGeneIndex(genome);
+		// Add selected annotation tracks
+		for (Track track : tracks) {
+			if (track.checkBox.isSelected()) {
+				switch (track.interpretation.type) {
+				case CYTOBANDS:
 
-			// Add selected annotation tracks
-			for (Track track : tracks) {
-				if (track.checkBox.isSelected()) {
-					switch (track.interpretation.type) {
-					case CYTOBANDS:
+					URL cytobandUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
 
-						URL cytobandUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
+					CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl);
 
-						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl);
+					TrackFactory.addCytobandTracks(plot, cytobandDataSource);
 
-						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
+					this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
+							cytobandDataSource, plot.getOverviewView());
+					this.plot.getDataView().setViewLimiter(viewLimiter);
+					this.plot.getOverviewView().setViewLimiter(viewLimiter);
 
-						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
-								cytobandDataSource, plot.getOverviewView());
-						this.plot.getDataView().setViewLimiter(viewLimiter);
-						this.plot.getOverviewView().setViewLimiter(viewLimiter);
+					break;
 
-						break;
+				case GENES:
+					// Start 3D effect
+					plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
 
-					case GENES:
-						// Start 3D effect
-						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
-						
-						URL gtfUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
-						
-						URL gtfIndexUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
-						
-						URL repeatUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.REPEAT).getUrl();
-						
-						URL repeatIndexUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.REPEAT_INDEX).getUrl();
+					URL gtfUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
 
-						TabixDataSource gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, 
-								GtfTabixHandlerThread.class);
-						
-						TabixDataSource repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
+					URL gtfIndexUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
 
-						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
+					URL repeatUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.REPEAT).getUrl();
 
-						track.setTrackGroup(geneGroup);
-						break;
+					URL repeatIndexUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.REPEAT_INDEX).getUrl();
 
-					case REFERENCE:
-						// integrated into peaks
-						break;
+					TabixDataSource gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, 
+							GtfTabixHandlerThread.class);
 
-					case TRANSCRIPTS:
-						// integrated into genes
-						break;
-					}
+					TabixDataSource repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
+
+					TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
+
+					track.setTrackGroup(geneGroup);
+					break;
+
+				case REFERENCE:
+					// integrated into peaks
+					break;
+
+				case TRANSCRIPTS:
+					// integrated into genes
+					break;
 				}
 			}
-
-			// Add selected read tracks
-			for (Track track : tracks) {
-				if (track.checkBox.isSelected()) {
-
-					File file = track.interpretation.primaryData == null ? null : Session
-							.getSession().getDataManager().getLocalFile(
-									track.interpretation.primaryData);
-					DataSource treatmentData;
-					if (track.interpretation.type == TrackType.READS) {
-
-						FastaDataSource refSeqDataSource = new FastaDataSource();
-
-						for (GenomeAnnotation annotation : annotationManager.getAnnotations(
-								genome, AnnotationManager.AnnotationType.REFERENCE)) {
-
-							refSeqDataSource.put(annotation.chr, annotation.getUrl());
-						}
-
-						if (track.interpretation.summaryDatas.size() == 0) {
-							// No precomputed summary data
-							TrackFactory.addThickSeparatorTrack(plot);
-							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-
-							TrackGroup readGroup = TrackFactory.addReadTracks(
-									plot, treatmentData, 
-									refSeqDataSource, 
-									track.interpretation.primaryData.getName());
-
-							track.setTrackGroup(readGroup);
-
-						} else { 
-							// Has precomputed summary data
-							TrackFactory.addThickSeparatorTrack(plot);
-							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
-									plot, treatmentData, refSeqDataSource, 
-									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
-							track.setTrackGroup(readGroupWithSummary);
-						}
-					}
-				}
-			}
-
-			// Add selected peak tracks
-			for (Track track : tracks) {
-				if (track.checkBox.isSelected()) {
-
-					URL fileUrl = null;
-
-					if (track.interpretation.primaryData != null) {
-						File file = Session.getSession().getDataManager().getLocalFile(
-								track.interpretation.primaryData);
-						fileUrl = file.toURI().toURL();
-					}
-
-					DataSource regionData;
-					switch (track.interpretation.type) {
-					case REGIONS:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
-						TrackFactory.addPeakTrack(plot, regionData);
-						break;
-					case REGIONS_WITH_HEADER:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-						regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
-						TrackFactory.addPeakTrack(plot, regionData);
-						break;
-					case VCF:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
-						TrackFactory.addPeakTrack(plot, regionData);
-						break;
-
-					}
-				}
-			}
-
-			// End 3D effect
-			plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
-
-			//resetLocationFields();
-
-			// Initialise the plot
-			plot.addDataRegionListener(this);
-
-			//updateLocation();
-			move();
-
-			// Remember chromosome
-			visibleChromosome = chrBox.getSelectedItem();
-
-			// Wrap GenomePlot in a panel
-			chartPanel.setChart(new JFreeChart(plot));
-			chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-			// Add mouse listeners
-			for (View view : plot.getViews()) {
-				chartPanel.addMouseListener(view);
-				chartPanel.addMouseMotionListener(view);
-				chartPanel.addMouseWheelListener(view);
-			}
-
-			// Add selection listener (but try to remove first old one that would prevent removal of the visualization) 
-			application.removeClientEventListener(this);
-			application.addClientEventListener(this);
-
-			// Put panel on top of card layout
-			if (plotPanel.getComponentCount() == 2) {
-				plotPanel.remove(1);
-			}
-
-			verticalScroller = new JScrollPane(chartPanel);
-
-			setFullHeight(showFullHeightBox.isSelected());
-
-			plotPanel.add(verticalScroller, PLOTPANEL);
-			plotPanel.addComponentListener(this);
-			CardLayout cl = (CardLayout) (plotPanel.getLayout());
-			cl.show(plotPanel, PLOTPANEL);
-
-		} catch (Exception e) {
-			application.reportException(e);
 		}
+
+		// Add selected read tracks
+		for (Track track : tracks) {
+			if (track.checkBox.isSelected()) {
+
+				File file = track.interpretation.primaryData == null ? null : Session
+						.getSession().getDataManager().getLocalFile(
+								track.interpretation.primaryData);
+				DataSource treatmentData;
+				if (track.interpretation.type == TrackType.READS) {
+
+					FastaDataSource refSeqDataSource = new FastaDataSource();
+
+					for (GenomeAnnotation annotation : annotationManager.getAnnotations(
+							genome, AnnotationManager.AnnotationType.REFERENCE)) {
+
+						refSeqDataSource.put(annotation.chr, annotation.getUrl());
+					}
+
+					if (track.interpretation.summaryDatas.size() == 0) {
+						// No precomputed summary data
+						TrackFactory.addThickSeparatorTrack(plot);
+						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+
+						TrackGroup readGroup = TrackFactory.addReadTracks(
+								plot, treatmentData, 
+								refSeqDataSource, 
+								track.interpretation.primaryData.getName());
+
+						track.setTrackGroup(readGroup);
+
+					} else { 
+						// Has precomputed summary data
+						TrackFactory.addThickSeparatorTrack(plot);
+						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
+								plot, treatmentData, refSeqDataSource, 
+								track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
+						track.setTrackGroup(readGroupWithSummary);
+					}
+				}
+			}
+		}
+
+		// Add selected peak tracks
+		for (Track track : tracks) {
+			if (track.checkBox.isSelected()) {
+
+				URL fileUrl = null;
+
+				if (track.interpretation.primaryData != null) {
+					File file = Session.getSession().getDataManager().getLocalFile(
+							track.interpretation.primaryData);
+					fileUrl = file.toURI().toURL();
+				}
+
+				DataSource regionData;
+				switch (track.interpretation.type) {
+				case REGIONS:
+					TrackFactory.addThickSeparatorTrack(plot);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
+					((ChunkDataSource)regionData).checkSorting();
+					TrackFactory.addPeakTrack(plot, regionData);
+					break;
+				case REGIONS_WITH_HEADER:
+					TrackFactory.addThickSeparatorTrack(plot);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
+					TrackFactory.addPeakTrack(plot, regionData);
+					break;
+				case VCF:
+					TrackFactory.addThickSeparatorTrack(plot);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
+					TrackFactory.addPeakTrack(plot, regionData);
+					break;
+
+				}
+			}
+		}
+
+		// End 3D effect
+		plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
+
+		//resetLocationFields();
+
+		// Initialise the plot
+		plot.addDataRegionListener(this);
+
+		//updateLocation();
+		move();
+
+		// Remember chromosome
+		visibleChromosome = chrBox.getSelectedItem();
+
+		// Wrap GenomePlot in a panel
+		chartPanel.setChart(new JFreeChart(plot));
+		chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+		// Add mouse listeners
+		for (View view : plot.getViews()) {
+			chartPanel.addMouseListener(view);
+			chartPanel.addMouseMotionListener(view);
+			chartPanel.addMouseWheelListener(view);
+		}
+
+		// Add selection listener (but try to remove first old one that would prevent removal of the visualization) 
+		application.removeClientEventListener(this);
+		application.addClientEventListener(this);
+
+		// Put panel on top of card layout
+		if (plotPanel.getComponentCount() == 2) {
+			plotPanel.remove(1);
+		}
+
+		verticalScroller = new JScrollPane(chartPanel);
+
+		setFullHeight(showFullHeightBox.isSelected());
+
+		plotPanel.add(verticalScroller, PLOTPANEL);
+		plotPanel.addComponentListener(this);
+		CardLayout cl = (CardLayout) (plotPanel.getLayout());
+		cl.show(plotPanel, PLOTPANEL);
 	}
 
 	private void resetLocationFieldsIfEmpty() {
-		
+
 		// Fill in initial position if not filled in
 		if (locationField.getText().trim().isEmpty()) {
-			
+
 			updateCoordinateFields(DEFAULT_LOCATION, null);
 		}
-		
+
 		if (viewsizeField.getText().trim().isEmpty()) {
-			
+
 			updateCoordinateFields(null, DEFAULT_VIEWSIZE);
 			lastViewsize = DEFAULT_VIEWSIZE;
 		}
@@ -958,13 +963,13 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 			URL gtfUrl = annotationManager.getAnnotation(
 					genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
-			
+
 			URL gtfIndexUrl = annotationManager.getAnnotation(
 					genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
-			
+
 			URL geneUrl = annotationManager.getAnnotation(
 					genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
-			
+
 
 			TabixDataSource gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, GtfTabixHandlerThread.class);
 			LineDataSource geneDataSource = new LineDataSource(geneUrl, GeneSearchHandler.class);
@@ -1081,7 +1086,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			} else if ((data.isContentTypeCompatitible("application/bam"))) {
 				// BAM file
 				interpretations.add(new Interpretation(TrackType.READS, data));
-				
+
 			} else if ((data.isContentTypeCompatitible("text/vcf"))) {
 				// Vcf file
 				interpretations.add(new Interpretation(TrackType.VCF, data));
@@ -1162,7 +1167,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				}
 				updateLocationField();
 				move(); //Init view.bpRegion if necesssary
-				
+
 			} else {
 
 				// Check how large the update in location was 
@@ -1183,7 +1188,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void updateLocationField() {
-		
+
 		if (lastLocation != null && lastViewsize != null) {
 			updateCoordinateFields(lastLocation, lastViewsize);
 		} else {
@@ -1192,17 +1197,17 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void requestGeneSearch() {
-		
+
 		application.runBlockingTask("searching gene", new Runnable() {
-			
+
 			@Override
 			public void run() {
-				
+
 				int TIME_OUT = 60*1000;
 				int INTERVAL = 100;
-				
+
 				for (int i = 0; i < TIME_OUT/INTERVAL; i++) {
-			
+
 					if (!geneSearchDone) {
 						try {
 							Thread.sleep(INTERVAL);
@@ -1222,11 +1227,11 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 			@Override
 			public void geneLocation(Region geneLocation) {
-				
+
 				geneSearchDone = true;
 
 				if (geneLocation == null) {
-					
+
 					// Move to last known location
 					updateLocation();
 
@@ -1239,11 +1244,11 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				} else {
 
 					// Update coordinate controls with gene's location
-					
+
 					Chromosome resultChr = new Chromosome(geneLocation.start.chr);
-					
+
 					chrBox.setSelectedItem(resultChr);
-					
+
 					if (chrBox.getSelectedItem().equals(resultChr)) {
 
 						updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
@@ -1269,7 +1274,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		if (location != null) {
 			locationField.setText(location.toString());
 		}
-		
+
 		if (viewsize != null) {
 			if (viewsize > 1000000) {
 				viewsizeField.setText(Math.round(((float)viewsize) / 1000000f) + " Mb");
@@ -1283,7 +1288,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 
 	private void move() {
-		
+
 		resetLocationFieldsIfEmpty();
 
 		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
@@ -1326,7 +1331,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				// Move to selected region 
 				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
 				long start = Long.parseLong(sel.get("start"));
-				
+
 				long end = -1;
 				if (sel.containsKey("end")) {
 					end = Long.parseLong(sel.get("end"));
@@ -1345,7 +1350,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	public void removeVisualisation() {
 
 		super.removeVisualisation();
-		
+
 		plotPanel.removeComponentListener(this);
 		plotPanel.removeAll();
 
@@ -1353,7 +1358,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			plot.clean();
 			plot = null;
 		}
-		
+
 		//Remove references to tracks and data to free memory, even if the (hidden) parameter panel keeps actionListener
 		//references to this object preventing garbage collection (when visualization is changed to none)
 		if (tracks != null) {

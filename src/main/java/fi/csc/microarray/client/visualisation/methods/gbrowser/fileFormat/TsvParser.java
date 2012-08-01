@@ -144,8 +144,9 @@ public abstract class TsvParser extends FileParser {
 			Long end = (Long)get(cols, ColumnType.BP_END);
 			Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
 
-			rows.add(new RegionContent(new Region(start, end, chr), values));
-
+			if (start != null && end != null && chr != null) {
+				rows.add(new RegionContent(new Region(start, end, chr), values));
+			}
 		}
 
 		return rows;

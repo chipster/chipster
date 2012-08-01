@@ -28,7 +28,7 @@ public class BEDParserWithCoordinateConversion extends BEDParser {
 	public Object get(String[] cols, ColumnType col) {
 		Object obj = super.get(cols, col);
 		
-		if (col == ColumnType.BP_START || col == ColumnType.BP_END) {
+		if ((col == ColumnType.BP_START || col == ColumnType.BP_END) && obj != null) {
 			return (Long)obj + 1;
 		}
 		return obj;
