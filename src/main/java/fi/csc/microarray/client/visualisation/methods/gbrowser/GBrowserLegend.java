@@ -32,6 +32,7 @@ public class GBrowserLegend extends JPanel {
 		addIcon(GenomeBrowserConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
 		addIcon(GenomeBrowserConstants.GB_LEGEND_INTRON_ICON, "Intron", c);
 		addIcon(GenomeBrowserConstants.GB_LEGEND_END_ICON, "Transcript end", c);
+		addIcon(GenomeBrowserConstants.GB_LEGEND_REPEAT_ICON, "Low complexity region", c);
 		
 		addIcon(GenomeBrowserConstants.GB_LEGEND_READ_ICON, "Read", c);
 		addIcon(GenomeBrowserConstants.GB_LEGEND_MORE_READS_ICON, "More reads to show", c);

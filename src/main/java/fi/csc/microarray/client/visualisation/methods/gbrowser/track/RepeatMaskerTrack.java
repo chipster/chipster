@@ -32,7 +32,7 @@ public class RepeatMaskerTrack extends Track{
 	public RepeatMaskerTrack(View view, TabixDataSource file, long minBpLength, long maxBpLength){
 
 		super(view, file);
-		this.color = Color.gray;
+		this.color = Color.lightGray;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
