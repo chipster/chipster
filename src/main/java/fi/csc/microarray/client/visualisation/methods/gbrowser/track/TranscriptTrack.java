@@ -116,7 +116,7 @@ public class TranscriptTrack extends Track {
 				}
 
 				rect.y = (int) (((i + 1) * (14)));
-				int y = rect.y + 1;
+				int y = rect.y + 2;
 				rect.height = 2;
 
 				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
