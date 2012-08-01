@@ -54,8 +54,11 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParserWithCoordinateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
@@ -211,7 +214,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-		//trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
+		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
 		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
@@ -755,12 +758,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 						URL cytobandUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
-						URL regionsUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.CYTOBANDS_SEQ_REGION).getUrl();
-						URL coordUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.CYTOBANDS_COORD_SYSTEM).getUrl();
 
-						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl, regionsUrl, coordUrl);
+						CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl);
 
 						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
 
@@ -780,10 +779,19 @@ RegionListener, ComponentListener, PropertyChangeListener {
 						
 						URL gtfIndexUrl = annotationManager.getAnnotation(
 								genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
+						
+						URL repeatUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.REPEAT).getUrl();
+						
+						URL repeatIndexUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.REPEAT_INDEX).getUrl();
 
-						GtfTabixDataSource gtfDataSource = new GtfTabixDataSource(gtfUrl, gtfIndexUrl);
+						TabixDataSource gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, 
+								GtfTabixHandlerThread.class);
+						
+						TabixDataSource repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
 
-						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource);
+						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
 
 						track.setTrackGroup(geneGroup);
 						break;
@@ -835,7 +843,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
 									plot, treatmentData, refSeqDataSource, 
-									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL()));
+									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
 							track.setTrackGroup(readGroupWithSummary);
 						}
 					}
@@ -958,7 +966,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 					genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
 			
 
-			GtfTabixDataSource gtfDataSource = new GtfTabixDataSource(gtfUrl, gtfIndexUrl);
+			TabixDataSource gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, GtfTabixHandlerThread.class);
 			LineDataSource geneDataSource = new LineDataSource(geneUrl, GeneSearchHandler.class);
 
 			gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource, geneDataSource);
@@ -1008,7 +1016,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		URL fileUrl = file.toURI().toURL();
 
 		if (data.getName().contains(".bam-summary")) {
-			dataSource = new TabixDataSource(fileUrl);
+			dataSource = new TabixSummaryDataSource(fileUrl);
 
 		} else if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
 			File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);

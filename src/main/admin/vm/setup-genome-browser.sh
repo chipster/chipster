@@ -106,13 +106,13 @@ process_gtf () # parameters 1:url
 {
 	FILE_BODY=$(basename $1 .gtf.gz)
 
-	if [ ! -e "$FILE_BODY-tabix.gtf.gz.tbi" ] # if doesn't exist
+	if [ ! -e "$FILE_BODY.tabix.gtf.gz.tbi" ] # if doesn't exist
 	then	
 		download_and_rename "$1" # no rename needed
 
 		#generate list of chromosomes of genes
 		#Read file  		Take only chr and name columns     	Filter out other names    	Remove duplicates   Replace useless chars with tab Or remove        And write to file
-		cat "$FILE_BODY.gtf" | 	cut -f 1,9 --output-delimiter=';' | 	cut -d ';' -f 1,5      | 	uniq              | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > "$FILE_BODY-gene.tsv"
+		cat "$FILE_BODY.gtf" | 	cut -f 1,9 --output-delimiter=';' | 	cut -d ';' -f 1,5      | 	uniq              | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > "$FILE_BODY.gene.tsv"
 
 		#tabix installation folder hast to be in $PATH to find bgzip and tabix programs
 		#don't exit even if grep exits with error (when there isn't any comments)
@@ -122,23 +122,23 @@ process_gtf () # parameters 1:url
 
 		grep -v "^#" "$FILE_BODY.gtf" >> "$FILE_BODY-1.gtf"
 		cat $FILE_BODY-1.gtf | sort -k1,1 -k4,4n > "$FILE_BODY-sorted.gtf"		
-		cat "$FILE_BODY-sorted.gtf" | bgzip > "$FILE_BODY-tabix.gtf.gz"
+		cat "$FILE_BODY-sorted.gtf" | bgzip > "$FILE_BODY.tabix.gtf.gz"
 
 		rm "$FILE_BODY.gtf"
 		rm "$FILE_BODY-1.gtf"
 		rm "$FILE_BODY-sorted.gtf"
 
 		#generate index
-		tabix -p gff "$FILE_BODY-tabix.gtf.gz"; 
+		tabix -p gff "$FILE_BODY.tabix.gtf.gz"; 
 
 	
 	else 
-		echo "   Existing files $FILE_BODY.gtf* skipped"
+		echo "   Existing files $FILE_BODY.tabix.gtf* skipped"
 	fi
 	
-	contents_append "Gene name" "*" "$FILE_BODY-gene.tsv"
-	contents_append "Transcript" "*" "$FILE_BODY-tabix.gtf.gz"
-	contents_append "Transcript index" "*" "$FILE_BODY-tabix.gtf.gz.tbi"	
+	contents_append "Gene name" "*" "$FILE_BODY.gene.tsv"
+	contents_append "Transcript" "*" "$FILE_BODY.tabix.gtf.gz"
+	contents_append "Transcript index" "*" "$FILE_BODY.tabix.gtf.gz.tbi"	
 }
 
 # process ensembl mysql files
@@ -146,7 +146,7 @@ process_gtf () # parameters 1:url
 ensembl_mysql () # parameters 1:url 2:new-name
 {
 
-	if [ ! -e "$2repeat-tabix.bed.gz.tbi" ] || [ ! -e "$2cytoband.txt" ] # if doesn't exist
+	if [ ! -e "$2repeat-tabix.bed.gz.tbi" ] || [ ! -e "$2cytoband-chr.txt" ] # if doesn't exist
 	then 
 
 		# Download database dump files
@@ -190,20 +190,22 @@ ensembl_mysql () # parameters 1:url 2:new-name
 
 		# search for RepeatMasker analysis id, actually we should grep only from column 3
 		# ignore case is required, because at least Vitis vinifera and Human have different forms
-		cat "$2analysis.txt" | grep -i "	RepeatMask	" > repeat-masker-row.txt
-	
+		#cat "$2analysis.txt" | grep -i "	RepeatMask	" > repeat-masker-row.txt
+
 		# keep only the RepeatMasker id
-		cut -f 1 repeat-masker-row.txt > repeat-masker-id.txt
-	
+		#cut -f 1 repeat-masker-row.txt > repeat-masker-id.txt
+
 		# only one row in repeat-masker-id.txt, no need to sort it
 		# sort the actual data
-		LANG=en_EN sort -k 9 "$2repeat_feature.txt" > repeat-sorted.txt
+		#LANG=en_EN sort -k 9 "$2repeat_feature.txt" > repeat-sorted.txt
 
 		# join data with RepeatMasker id to filter out data of any other analysis tools
-		LANG=en_EN join -t '	' -1 9 -2 1 repeat-sorted.txt repeat-masker-id.txt > repeat-masker-join.txt
+		#LANG=en_EN join -t '	' -1 9 -2 1 repeat-sorted.txt repeat-masker-id.txt > repeat-masker-join.txt
 
 		# remove extra columns
-		cat repeat-masker-join.txt | cut -f 3,4,5 > repeat-masker.txt
+		#cat repeat-masker-join.txt | cut -f 3,4,5 > repeat-masker.txt		
+		cat "$2repeat_feature.txt" | cut -d '	' -f 2,3,4 > repeat-masker.txt
+		
 
 		# join requires sorted input
 		LANG=en_EN sort -k 1 repeat-masker.txt > repeat-masker-sorted.txt
@@ -224,7 +226,7 @@ ensembl_mysql () # parameters 1:url 2:new-name
 
 		# clean
 		rm "$2analysis.txt" "$2repeat_feature.txt"
-		rm repeat-masker-row.txt repeat-masker-id.txt repeat-sorted.txt repeat-masker-join.txt
+		#rm repeat-masker-row.txt repeat-masker-id.txt repeat-sorted.txt repeat-masker-join.txt
 		rm repeat-masker.txt  repeat-masker-sorted.txt repeat-join.txt
 		rm repeat.bed repeat-sorted.bed
 
@@ -239,17 +241,17 @@ ensembl_mysql () # parameters 1:url 2:new-name
 		LANG=en_EN join -t '	' -1 1 -2 2 chr_map-sorted.txt cytoband-sorted.txt > cytoband-join.txt
 
 		# remove extra columns
-		cat cytoband-join.txt | cut -d '	' -f 2,3,4,5,6,7 > "$2cytoband.txt"
+		cat cytoband-join.txt | cut -d '	' -f 2,3,4,5,6,7 > "$2cytoband-chr.txt"
 
 		# clean
-		rm cytoband-sorted.txt cytoband-join.txt
+		rm cytoband-sorted.txt cytoband-join.txt "$2cytoband-tmp.txt"
 		rm chr_map-sorted.txt
 
 	else 
 		echo "   Existing cytoband and repeat files ($2) skipped"
 	fi
 
-	contents_append "Cytoband" "*" "$2cytoband.txt"
+	contents_append "Cytoband" "*" "$2cytoband-chr.txt"
 	contents_append "Repeat" "*" "$2repeat-tabix.bed.gz"
 	contents_append "Repeat index" "*" "$2repeat-tabix.bed.gz.tbi"
 }

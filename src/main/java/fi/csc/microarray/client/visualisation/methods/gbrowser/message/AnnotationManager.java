@@ -138,8 +138,9 @@ public class AnnotationManager {
 	}
 
 	public enum AnnotationType {
-		CYTOBANDS("Cytoband"), CYTOBANDS_SEQ_REGION("Cytoband seq_region"), CYTOBANDS_COORD_SYSTEM("Cytoband coord_system"), 
-		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REFERENCE("Reference sequence"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name");
+		CYTOBANDS("Cytoband"), 
+		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
+		REFERENCE("Reference sequence"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name");
 
 		String id;
 
@@ -165,7 +166,6 @@ public class AnnotationManager {
 	public void initialize() throws Exception {
 
 		// get annotation locations
-		
 		this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
 		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
 

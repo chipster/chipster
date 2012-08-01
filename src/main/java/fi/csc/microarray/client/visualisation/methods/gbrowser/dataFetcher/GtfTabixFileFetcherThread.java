@@ -8,9 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.broad.tribble.readers.TabixReader;
-import org.broad.tribble.readers.TabixReader.Iterator;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GtfTabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -22,22 +21,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * @author Aleksi Kallio, Petri Klemelä
  *
  */
-public class GtfTabixFileFetcherThread extends Thread {
-
-	private BlockingQueue<BpCoordFileRequest> fileRequestQueue;
-	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue;
-
-	private GtfTabixDataSource dataSource;
+public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 
 	private GtfTabixHandlerThread areaRequestThread;
-
-	private boolean poison = false;
-
 
 	public GtfTabixFileFetcherThread(
 			BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
 			ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, 
-			GtfTabixHandlerThread areaRequestThread, GtfTabixDataSource dataSource) {
+			GtfTabixHandlerThread areaRequestThread, TabixDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
@@ -46,30 +37,9 @@ public class GtfTabixFileFetcherThread extends Thread {
 		this.setDaemon(true);
 	}
 
-	public void run() {
-
-		while (!poison) {
-
-			try {
-				
-				for (BpCoordFileRequest fileRequest : fileRequestQueue) {
-					if (fileRequest.getStatus().poison) {
-						poison = true;
-					}
-				}
-				
-				processFileRequest(fileRequestQueue.take());
-
-			} catch (IOException e) {
-				e.printStackTrace(); // FIXME fix exception handling
-			} catch (InterruptedException e) {
-				e.printStackTrace(); // FIXME fix exception handling
-			}
-		}
-	}
-
-	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
-
+	@Override
+	protected void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
+		
 		if (fileRequest.getStatus().poison) {
 			poison = true;
 			return;
@@ -156,43 +126,6 @@ public class GtfTabixFileFetcherThread extends Thread {
 		return genes;
 	}
 
-	private Iterator getTabixIterator(Region request) {
-		String chromosome = request.start.chr.toNormalisedString();
-
-		//limit to integer range
-		int start = (int) Math.min(Integer.MAX_VALUE, request.start.bp);
-		int end = (int) Math.min(Integer.MAX_VALUE, request.end.bp);
-		
-		//Extend area to be able to draw introns at screen edge, but don't go over MAX_VALUE, or below 1
-		//TODO Be more clever to avoid getting so much useless data
-		int EXTRA = 500000; //O,5M should be enought for the longest human introns http://www.bioinfo.de/isb/2004040032/
-		
-		start = (int) Math.max((long)start - EXTRA, 1);
-		end = (int) Math.min((long)end + EXTRA, Integer.MAX_VALUE);
-
-		//Check that region is below max bin size of Tabix
-		int MAX_BIN_SIZE = 512*1024*1024 - 2;
-
-		start = (int) Math.min(MAX_BIN_SIZE, start);
-		end = (int) Math.min(MAX_BIN_SIZE, end);
-
-		start = (int) Math.max(1, start);
-		end = (int) Math.max(1, end);
-
-		String queryRegion = chromosome + ":" + start + "-" + end;
-
-		TabixReader.Iterator iter = null;
-		
-		try {
-			iter = dataSource.getReader().query(queryRegion);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			//No such chromosome
-		}
-			
-		return iter;
-	}
-
-
 	private void parseGtfLine(String line, GeneSet genes) {
 
 		String[] cols;
@@ -266,14 +199,9 @@ public class GtfTabixFileFetcherThread extends Thread {
 		return result;
 	}
 
-	public String toString() {
-		return this.getClass().getName() + " - " + dataSource;
-	}
-
 	public class Transcript {
 
 		Region region;
 		List<Exon> exons;
-
 	}
 }

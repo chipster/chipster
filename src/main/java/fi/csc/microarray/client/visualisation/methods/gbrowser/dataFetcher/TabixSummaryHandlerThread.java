@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Queue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixSummaryDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
@@ -14,15 +14,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  * @author Aleksi Kallio
  *
  */
-public class TabixHandlerThread extends AreaRequestHandler {
+public class TabixSummaryHandlerThread extends AreaRequestHandler {
 
-	TabixDataSource tabixData;
+	TabixSummaryDataSource tabixData;
 
-	public TabixHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+	public TabixSummaryHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
 			AreaResultListener areaResultListener) {
 
 		super(areaRequestQueue, areaResultListener);
-		tabixData = (TabixDataSource) file;
+		tabixData = (TabixSummaryDataSource) file;
 	}
 
 	/**
