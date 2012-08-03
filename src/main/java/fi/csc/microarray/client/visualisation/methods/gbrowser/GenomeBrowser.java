@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -40,6 +41,7 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.jdesktop.swingx.JXHyperlink;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
@@ -64,6 +66,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandP
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -76,6 +79,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -96,7 +100,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private static final String COVERAGE_NONE = "none";
 	private static final String COVERAGE_TOTAL = "total";
 	private static final String COVERAGE_STRAND = "strand-specific";
-
+	
 	private static class Interpretation {
 
 		public TrackType type;
@@ -161,6 +165,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private JPanel datasetsPanel;
 	private JPanel datasetSwitchesPanel;
 	private JPanel optionsPanel;
+	private JPanel linksPanel;
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
 	private JButton goButton = new JButton("Go");
@@ -198,6 +203,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private JCheckBox showFullHeightBox;
 	private ViewLimiter viewLimiter;
 	protected boolean geneSearchDone;
+	private JXHyperlink ensemblLink;
+	private JXHyperlink ucscLink;
 
 
 	public void initialise(VisualisationFrame frame) throws Exception {
@@ -214,7 +221,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
+		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
 		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
@@ -379,6 +386,84 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		}
 		return optionsPanel;
 	}
+	
+	private JPanel getExternalLinkPanel() {
+		if (linksPanel == null) { 
+			linksPanel = new JPanel(new GridBagLayout());
+			linksPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("External links"));
+
+			ensemblLink = new JXHyperlink();
+			ucscLink = new JXHyperlink();
+			
+			ensemblLink.setAction(new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {			
+					openExternalBrowser(AnnotationType.ENSEMBL_BROWSER_URL);
+				}
+			});
+			ucscLink.setAction(new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {			
+					openExternalBrowser(AnnotationType.UCSC_BROWSER_URL);
+				}
+			});
+			
+			ensemblLink.setText("Ensembl genome browser");
+			ucscLink.setText("UCSC Genome Browser");
+			
+			ensemblLink.setEnabled(false);
+			ucscLink.setEnabled(false);
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.anchor = GridBagConstraints.NORTHWEST;
+			c.weightx = 1.0;
+			
+			linksPanel.add(ensemblLink, c);
+			c.gridy++;
+			linksPanel.add(ucscLink, c);
+		}
+
+		return linksPanel;
+	}
+	
+
+	private void setExternalLinksEnabled() {
+		
+		boolean hasLocation = plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null;
+		
+		ensemblLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
+		ucscLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
+	}
+	
+	private String getExternalLinkUrl(AnnotationType browser) {
+		Genome genome = (Genome) genomeBox.getSelectedItem();
+		URL url = annotationManager.getAnnotation(genome, browser).getUrl();
+		
+		if (url != null) {
+			return url.toString();
+		} else {
+			return "";
+		}
+		
+	}
+	
+	public void openExternalBrowser(AnnotationType browser) {
+		
+		String url = getExternalLinkUrl(browser);	
+		Region region = this.plot.getDataView().getBpRegion();
+		url = url.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
+		url = url.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
+		url = url.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
+		
+		try {
+			BrowserLauncher.openURL(url);
+		} catch (Exception e) {
+			application.reportException(e);
+		}
+	}
 
 	public JPanel createSettingsPanel() {
 
@@ -409,9 +494,13 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		c.gridy++;
 
 		// datasets
-		c.weighty = 0.5;
 		c.insets.set(0, 5, 5, 5);
 		settingsPanel.add(getDatasetsPanel(), c);
+		
+		// external links
+		c.weighty = 0.5;
+		c.gridy++;
+		settingsPanel.add(getExternalLinkPanel(), c);
 
 		return settingsPanel;
 	}
@@ -621,6 +710,9 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 										// Set track visibility
 										updateVisibilityForTracks();
+										
+										setExternalLinksEnabled();
+										
 									} catch (Exception e) {
 										application.reportException(e);
 									}
@@ -637,6 +729,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 				// Move to correct location
 				updateLocation();
+				
+				this.setExternalLinksEnabled();
 			}
 
 		} else if ((datasetSwitches.contains(source) || source == coverageScaleBox) && this.initialised) {

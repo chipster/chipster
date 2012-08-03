@@ -37,6 +37,11 @@ public class AnnotationManager {
 	private static final String ANNOTATIONS_PATH = "annotations";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
+	
+	//Location parts of the external genome browser urls are replaced with these strings in the contents file
+	public static final String CHR_LOCATION = "[CHR]";
+	public static final String START_LOCATION = "[START]";
+	public static final String END_LOCATION = "[END]";
 
 	private URL remoteAnnotationsRoot;
 	private File localAnnotationsRoot;
@@ -140,7 +145,8 @@ public class AnnotationManager {
 	public enum AnnotationType {
 		CYTOBANDS("Cytoband"), 
 		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
-		REFERENCE("Reference sequence"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name");
+		REFERENCE("Reference sequence"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name"), 
+		ENSEMBL_BROWSER_URL("Ensembl"), UCSC_BROWSER_URL("UCSC");
 
 		String id;
 
@@ -155,11 +161,6 @@ public class AnnotationManager {
 
 	/**
 	 * Get and parse the contents.txt, which describes available annotations.
-	 * 
-	 * 
-	 * TODO Check local annotations dir for files which don't exist in the
-	 * contents.txt and remove them. Don't accidentally remove contents.txt
-	 * while removing.
 	 * 
 	 * @throws Exception
 	 */
@@ -233,7 +234,7 @@ public class AnnotationManager {
 		for (String file : allFiles) {
 			if (!this.contains(file)) {
 				File fileToRemove = new File(localAnnotationsRoot, file);
-				//Check that we file removing 
+				//Just one more check, in case something is horribly wrong 
 				if (fileToRemove.getPath().contains(".chipster")) {
 					fileToRemove.delete();
 				} 
@@ -248,11 +249,13 @@ public class AnnotationManager {
 		}
 		
 		for (GenomeAnnotation annotation : annotations) {
-			String path = annotation.url.getPath();
-			String fileName = path.substring(path.lastIndexOf("/") + 1);
+			if (annotation.url != null) {
+				String path = annotation.url.getPath();
+				String fileName = path.substring(path.lastIndexOf("/") + 1);
 
-			if (fileName.equals(file)) {
-				return true;
+				if (fileName.equals(file)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -401,13 +404,15 @@ public class AnnotationManager {
 	 * 
 	 */
 	private boolean checkLocalFile(GenomeAnnotation annotation) {
-		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
-		File localFile = new File(this.localAnnotationsRoot, fileName);
-		if (localFile.exists() ) {
-			if (localFile.length() == annotation.getContentLength()) {
-				return true;
-			} else {
-				throw new IllegalStateException("File size of the local file " + fileName + " isn't equivalent to information in annotation contents");
+		if (annotation.url != null) {
+			String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
+			File localFile = new File(this.localAnnotationsRoot, fileName);
+			if (localFile.exists() ) {
+				if (localFile.length() == annotation.getContentLength()) {
+					return true;
+				} else {
+					throw new IllegalStateException("File size of the local file " + fileName + " isn't equivalent to information in annotation contents");
+				}
 			}
 		}
 		return false;
@@ -438,7 +443,15 @@ public class AnnotationManager {
 			// Existence of the local is checked later every time it is needed.
 			URL url;
 			String fileName = splitted[4];
-			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
+			
+			if ("".equals(fileName)) {
+				url = null;
+			} else if (fileName.startsWith("http://")) {
+				//Not a real filename, but a full url
+				url = new URL(fileName);
+			} else {
+				url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
+			}
 
 			long contentLength = Long.parseLong(splitted[5]);
 

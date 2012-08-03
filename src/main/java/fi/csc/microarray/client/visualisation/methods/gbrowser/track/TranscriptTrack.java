@@ -130,14 +130,19 @@ public class TranscriptTrack extends Track {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
 				}
 
-				String name = transcript.getName();
-
 				if (isNameVisible(rect)) {
 
-					if (name == null) {
+					
+					String name = null;
+					
+					if (transcript.getName() != null) {
+						name = transcript.getName();
+					} else if (transcript.getId() != null) {
+						name = transcript.getId();
+					} else {
 						name = "n/a";
 					}
-
+					
 					drawTextAboveRectangle(name, drawables, rect, 1);
 				}
 

@@ -70,6 +70,10 @@ public class Transcript extends TreeSet<Exon> implements Comparable<Transcript> 
 	public String getName() {
 		return name;
 	}
+	
+	public String getId() {
+		return id;
+	}
 
 	public Collection<Exon> getExons() {
 		return this;
