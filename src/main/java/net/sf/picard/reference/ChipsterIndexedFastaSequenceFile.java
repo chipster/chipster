@@ -47,7 +47,6 @@ public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequence
         super();
         this.index = index;
         channel = file;
-        reset();
     }
 
     public ChipsterIndexedFastaSequenceFile(ChunkDataSource data, LineDataSource index) throws FileNotFoundException {
