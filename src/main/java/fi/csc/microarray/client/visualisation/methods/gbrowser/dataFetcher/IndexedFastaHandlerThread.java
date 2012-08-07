@@ -6,34 +6,36 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 
-public abstract class TabixHandlerThread extends AreaRequestHandler {
-    
-	protected TabixDataSource dataSource;
-	protected BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
-	protected ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
 
-    public TabixHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+public class IndexedFastaHandlerThread extends AreaRequestHandler {
+    
+	private IndexedFastaDataSource data;
+	private IndexedFastaFileFetcherThread fileFetcher;
+	private BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
+	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
+
+    public IndexedFastaHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
             AreaResultListener areaResultListener) {
         
         super(areaRequestQueue, areaResultListener);
-        dataSource = (TabixDataSource) file;
+        data = (IndexedFastaDataSource) file;
     }
 
-//	@Override
-//	public synchronized void run() {
-//
-//		// Start file processing layer thread
-//		fileFetcher = new BedTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, tabixData);
-//		fileFetcher.start();
-//		
-//		// Start this thread
-//		super.run();
-//	}
+	@Override
+	public synchronized void run() {
+
+		// Start file processing layer thread
+		fileFetcher = new IndexedFastaFileFetcherThread(fileRequestQueue, fileResultQueue, this, data);
+		fileFetcher.start();
+		
+		// Start this thread
+		super.run();
+	}
 
 	protected boolean checkOtherQueues() {
 		ParsedFileResult fileResult = null;
@@ -43,11 +45,14 @@ public abstract class TabixHandlerThread extends AreaRequestHandler {
 		return fileResult != null;
 	}
 
-	protected void processFileResult(ParsedFileResult fileResult) {
+    private void processFileResult(ParsedFileResult fileResult) {
 
-		createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContents()));
+      		createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContents()));
 	}
 
+	/**
+     * Handles normal and concised area requests by using SAMFile.
+     */
     @Override
     protected void processAreaRequest(AreaRequest areaRequest) {
     	

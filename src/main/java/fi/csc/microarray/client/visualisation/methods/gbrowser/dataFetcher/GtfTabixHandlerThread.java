@@ -25,7 +25,7 @@ public class GtfTabixHandlerThread extends TabixHandlerThread {
 	public synchronized void run() {
 
 		// Start file processing layer thread
-		fileFetcher = new GtfTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, tabixData);
+		fileFetcher = new GtfTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, dataSource);
 		fileFetcher.start();
 		
 		// Start this thread

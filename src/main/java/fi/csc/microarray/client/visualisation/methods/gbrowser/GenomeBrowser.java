@@ -60,6 +60,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParserWithCoordinateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
@@ -68,7 +69,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -918,14 +918,14 @@ RegionListener, ComponentListener, PropertyChangeListener {
 								track.interpretation.primaryData);
 				DataSource treatmentData;
 				if (track.interpretation.type == TrackType.READS) {
+					
+					URL fastaUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.REFERENCE).getUrl();
 
-					FastaDataSource refSeqDataSource = new FastaDataSource();
+					URL fastaIndexUrl = annotationManager.getAnnotation(
+							genome, AnnotationManager.AnnotationType.REFERENCE_INDEX).getUrl();
 
-					for (GenomeAnnotation annotation : annotationManager.getAnnotations(
-							genome, AnnotationManager.AnnotationType.REFERENCE)) {
-
-						refSeqDataSource.put(annotation.chr, annotation.getUrl());
-					}
+					IndexedFastaDataSource refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
 
 					if (track.interpretation.summaryDatas.size() == 0) {
 						// No precomputed summary data

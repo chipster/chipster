@@ -22,7 +22,7 @@ public class BedTabixHandlerThread extends TabixHandlerThread {
 	public synchronized void run() {
 
 		// Start file processing layer thread
-		fileFetcher = new BedTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, tabixData);
+		fileFetcher = new BedTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, dataSource);
 		fileFetcher.start();
 		
 		// Start this thread
