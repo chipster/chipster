@@ -150,8 +150,8 @@ ensembl_mysql () # parameters 1:url 2:new-name
 		# Prepare chromosome name and identifier mapping
 
 
-		# search for chomosome coordinate systems (
-		cat "$2coord_system.txt" | grep chromosome > coord_system-chr.txt
+		# search for chomosome (or group) coordinate systems (group for stickleback)
+		cat "$2coord_system.txt" | grep "chromosome\|group" > coord_system-chr.txt
 
 		# join requires sorted input
 		LANG=en_EN sort -k 1 coord_system-chr.txt > coord_system-sorted.txt
@@ -273,96 +273,96 @@ echo "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2" > contents2.txt
 # Species and releases
 # Humans
 SPECIES="Human"
-VERSION="hg19 (GRCh37.66)"
+VERSION="hg19 (GRCh37.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/homo_sapiens_core_66_37/" "Homo_sapiens.GRCh37.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/homo_sapiens/Homo_sapiens.GRCh37.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.66.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/homo_sapiens/Homo_sapiens.GRCh37.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/homo_sapiens_core_68_37/" "Homo_sapiens.GRCh37.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.68.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Homo_sapiens/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg19&position=chr[CHR]%3A[START]-[END]"
 
 SPECIES="Human"
 VERSION="hg18 (NCBI36.54)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-54/mysql/homo_sapiens_core_54_36p/" "Homo_sapiens.NCBI36.54."
 process_gtf "ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-54/mysql/homo_sapiens_core_54_36p/" "Homo_sapiens.NCBI36.54."
 download_fasta "ftp://ftp.ensembl.org/pub/release-54/fasta/homo_sapiens/dna/Homo_sapiens.NCBI36.54.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://may2009.archive.ensembl.org/Homo_sapiens/Location/View?db=core;r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg18&position=chr[CHR]%3A[START]-[END]"
 
 # Regularly used animals
 SPECIES="Mouse"
-VERSION="mm9 (NCBIM37.66)"
+VERSION="mm10 (GRCm38.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/mus_musculus_core_66_37/" "Mus_musculus.NCBIM37.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/mus_musculus/Mus_musculus.NCBIM37.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.66.dna.toplevel.fa.gz"
-contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
-contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/mus_musculus/Mus_musculus.GRCm38.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/mus_musculus_core_68_38/" "Mus_musculus.GRCm38.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_musculus.GRCm38.68.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://www.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm10&position=chr[CHR]%3A[START]-[END]"
 
 SPECIES="Rat"
-VERSION="rn4 (RGSC3.4.66)"
+VERSION="rn4 (RGSC3.4.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/rattus_norvegicus_core_66_34/" "Rattus_norvegicus.RGSC3.4.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.66.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/rattus_norvegicus_core_68_34/" "Rattus_norvegicus.RGSC3.4.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.68.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn4&position=chr[CHR]%3A[START]-[END]"
 
 
 # Other animals in alphabetical order 
 SPECIES="Dog"
-VERSION="(BROADD2.66)"
+VERSION="(CanFam3.1.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/canis_familiaris_core_66_2/" "Canis_familiaris.BROADD2.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/canis_familiaris/Canis_familiaris.BROADD2.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/canis_familiaris/dna/Canis_familiaris.BROADD2.66.dna.toplevel.fa.gz"
-contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
-contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/canis_familiaris/Canis_familiaris.CanFam3.1.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/canis_familiaris_core_68_31/" "Canis_familiaris.CanFam3.1.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/canis_familiaris/dna/Canis_familiaris.CanFam3.1.68.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://www.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam3&position=chr[CHR]%3A[START]-[END]"
 
 SPECIES="Stickleback"
-VERSION="(BROADS1.66)"
+VERSION="(BROADS1.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/gasterosteus_aculeatus_core_66_1/" "Gasterosteus_aculeatus.BROADS1."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/gasterosteus_aculeatus/Gasterosteus_aculeatus.BROADS1.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/gasterosteus_aculeatus/dna/Gasterosteus_aculeatus.BROADS1.66.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/gasterosteus_aculeatus/Gasterosteus_aculeatus.BROADS1.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/gasterosteus_aculeatus_core_68_1/" "Gasterosteus_aculeatus.BROADS1.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/gasterosteus_aculeatus/dna/Gasterosteus_aculeatus.BROADS1.68.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Gasterosteus_aculeatus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" ""
 
 SPECIES="Pig"
-VERSION="(Sscrofa9.66)"
+VERSION="(Sscrofa10.2.68)"
 
-ensembl_mysql "ftp://ftp.ensembl.org/pub/release-66/mysql/sus_scrofa_core_66_9/" "Sus_scrofa.Sscrofa9.66."
-process_gtf "ftp://ftp.ensembl.org/pub/release-66/gtf/sus_scrofa/Sus_scrofa.Sscrofa9.66.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-66/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa9.66.dna.toplevel.fa.gz"
-contents_append_url "Ensembl" "http://feb2012.archive.ensembl.org/Sus_scrofa/Location/View?r=[CHR]%3A[START]-[END]"
+process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/sus_scrofa/Sus_scrofa.Sscrofa10.2.68.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/sus_scrofa_core_68_102/" "Sus_scrofa.Sscrofa10.2.68."
+download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/sus_scrofa/dna/Sus_scrofa.Sscrofa10.2.68.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://www.ensembl.org/Sus_scrofa/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Pig&db=susScr2&position=chr[CHR]%3A[START]-[END]"
 
 # Plants in alphabetical order
 SPECIES="Arabidopsis lyrata"
-VERSION="(v.1.0.14)"
+VERSION="(v.1.0.15)"
 
-ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/mysql/arabidopsis_lyrata_core_14_67_10/" "Arabidopsis_lyrata.v.1.0.14."
-process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.v.1.0.14.gtf.gz"
-download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.v.1.0.14.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.v.1.0.15.gtf.gz"
+ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/mysql/arabidopsis_lyrata_core_15_68_10/" "Arabidopsis_lyrata.v.1.0.15."
+download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.v.1.0.15.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://plants.ensembl.org/Arabidopsis_lyrata/Location/View?db=core;r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" ""
 
 SPECIES="Arabidopsis thaliana"
-VERSION="(TAIR10.14)"
+VERSION="(TAIR10.15)"
 
-ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/mysql/arabidopsis_thaliana_core_14_67_10/" "Arabidopsis_thaliana.TAIR10.14."
-process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/gtf/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.14.gtf.gz"
-download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.14.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/gtf/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.15.gtf.gz"
+ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/mysql/arabidopsis_thaliana_core_15_68_10/" "Arabidopsis_thaliana.TAIR10.15."
+download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.15.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://plants.ensembl.org/Arabidopsis_thaliana/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" ""
 
 SPECIES="Vitis vinifera"
-VERSION="(IGGP_12x.14)"
+VERSION="(IGGP_12x.15)"
 
-ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/mysql/vitis_vinifera_core_14_67_3/" "Vitis_vinifera.IGGP_12x.14."
-process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/gtf/vitis_vinifera/Vitis_vinifera.IGGP_12x.14.gtf.gz"
-download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-14/fasta/vitis_vinifera/dna/Vitis_vinifera.IGGP_12x.14.dna.toplevel.fa.gz"
+process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/gtf/vitis_vinifera/Vitis_vinifera.IGGP_12x.15.gtf.gz"
+ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/mysql/vitis_vinifera_core_15_68_3/" "Vitis_vinifera.IGGP_12x.15."
+download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/fasta/vitis_vinifera/dna/Vitis_vinifera.IGGP_12x.15.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://plants.ensembl.org/Vitis_vinifera/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" ""
 

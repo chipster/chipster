@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import net.sf.picard.PicardException;
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
@@ -101,25 +102,30 @@ public class IndexedFastaFileFetcherThread extends Thread {
 
 		ChipsterIndexedFastaSequenceFile picard = new ChipsterIndexedFastaSequenceFile(data, index);
 
-		ReferenceSequence seq = picard.getSubsequenceAt(request.start.chr.toNormalisedString(), request.start.bp, request.end.bp);
-
 		List<RegionContent> responseList = new LinkedList<RegionContent>();
 
-		Region recordRegion = new Region(request.start.bp, request.end.bp, request.start.chr);
+		try {
+			ReferenceSequence seq = picard.getSubsequenceAt(request.start.chr.toNormalisedString(), request.start.bp, request.end.bp);
 
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 
-		RegionContent regCont = new RegionContent(recordRegion, values);
+			Region recordRegion = new Region(request.start.bp, request.end.bp, request.start.chr);
 
-		values.put(ColumnType.SEQUENCE, new String(seq.getBases()));
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 
-		/*
-		 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
-		 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
-		 * the same reads to their read sets again and again.
-		 */
-		responseList.add(regCont);
+			RegionContent regCont = new RegionContent(recordRegion, values);
 
+			values.put(ColumnType.SEQUENCE, new String(seq.getBases()));
+
+			/*
+			 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
+			 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
+			 * the same reads to their read sets again and again.
+			 */
+			responseList.add(regCont);
+
+		} catch (PicardException e) {
+			e.printStackTrace(); //Catch "Query asks for data past end of contig" to prevent this thread from ending
+		}
 
 		// Send result
 		ParsedFileResult result = new ParsedFileResult(responseList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());

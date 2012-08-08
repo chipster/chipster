@@ -90,7 +90,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 
 		for (Gene gene : genes.values()) {
 
-			if (gene.getName().toLowerCase().equals(searchString)) {
+			if (gene.getName() != null && gene.getName().toLowerCase().equals(searchString)) {
 
 				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 
