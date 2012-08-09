@@ -10,19 +10,17 @@ import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements
 Serializable {
+	
+	public static final String USERNAME = "username";
+	public static final String SIZE = "size";
 
-	/**
-	 * Natural property order for Service bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"username", "size" };
+	public static final Object[] NATURAL_COL_ORDER  = new String[] {
+		USERNAME, 		SIZE };
 
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", "Total size" };
+		"Username", 	"Total size" };
+	
+	
 
 	public final String TOTAL_USERNAME = "TOTAL";
 

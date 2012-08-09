@@ -21,4 +21,17 @@ public class StringUtils {
     	
     	return stringValue;
 	}
+	
+	/**
+	 * Converts minutes to hours and minutes separated by colon, i.e. H:MM
+	 * 
+	 * @param minutes
+	 * @return hours and minutes separated by colon, i.e. H:MM
+	 */
+	public static String formatMinutes(int minutes) {
+		int hours = minutes / 60;
+		int minuteRemainder = minutes % 60;
+		
+		return String.format("%d:%02d", hours, minuteRemainder);
+	}
 }

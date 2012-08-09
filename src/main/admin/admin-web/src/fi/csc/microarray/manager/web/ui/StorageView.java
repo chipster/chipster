@@ -8,6 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
@@ -33,6 +34,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	private ChipsterAdminApplication app;
 	private ProgressIndicator diskUsageBar;
+	private HorizontalLayout storagePanels;
 
 
 	public StorageView(ChipsterAdminApplication app) {
@@ -41,30 +43,44 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 		this.addComponent(getToolbar());
 
-		HorizontalLayout storagePanels = new HorizontalLayout();
 		
 		entryTable = new StorageEntryTable(this);
 		aggregateTable = new StorageAggregateTable(this);
 
-		Panel entryPanel = new Panel("Stored sessions");
+		
+		HorizontalLayout aggregatePanelLayout = new HorizontalLayout();
+		HorizontalLayout entryPanelLayout = new HorizontalLayout();
+		
+		aggregatePanelLayout.setSizeFull();
+		entryPanelLayout.setSizeFull();
+		
+		aggregatePanelLayout.addComponent(aggregateTable);
+		entryPanelLayout.addComponent(entryTable);
+		
+		aggregatePanelLayout.setExpandRatio(aggregateTable, 1);
+		entryPanelLayout.setExpandRatio(entryTable, 1);
+		
 		Panel aggregatePanel = new Panel("Disk usage by user");
-		
-		entryPanel.addComponent(entryTable);
-		aggregatePanel.addComponent(aggregateTable);
-		
-		entryPanel.setHeight("100%");
+		Panel entryPanel = new Panel("Stored sessions");
 		
 		aggregatePanel.setWidth(300, UNITS_PIXELS);
-		aggregatePanel.setHeight("100%");
+		aggregatePanel.setHeight(100, UNITS_PERCENTAGE);
+		entryPanel.setSizeFull();
 		
+		aggregatePanel.setContent(aggregatePanelLayout);
+		entryPanel.setContent(entryPanelLayout);
+		
+		storagePanels = new HorizontalLayout();
+		storagePanels.setSizeFull();
+					
 		storagePanels.addComponent(aggregatePanel);
 		storagePanels.addComponent(entryPanel);
+		
+		//storagePanels.setExpandRatio(aggregatePanel, 1);
 		storagePanels.setExpandRatio(entryPanel, 1);
-		storagePanels.setSizeFull();
 		
-		this.addComponent(storagePanels);
-		
-		storagePanels.setHeight("100%");
+		this.setSizeFull();
+		this.addComponent(storagePanels);		
 		this.setExpandRatio(storagePanels, 1);
 	}
 
@@ -117,12 +133,19 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
 			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+			
 			diskUsageBar = new ProgressIndicator(0f);
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
-			//diskUsageBar.setEnabled(false);
+			
 			diskUsageBar.setWidth(300, UNITS_PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
+			toolbarLayout.setExpandRatio(diskUsageBar, 1);
+					
+			toolbarLayout.addComponent(app.getTitle());	
 
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");

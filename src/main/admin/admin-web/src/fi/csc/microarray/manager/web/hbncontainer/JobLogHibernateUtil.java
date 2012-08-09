@@ -68,7 +68,6 @@ public class JobLogHibernateUtil {
     	int wallclockTime;
 //    	String errorMessage;
 //    	String outputText;
-    	String[] compHosts = new String[] { "hippu1.csc.fi", "hippu2.csc.fi" };
     	
         Random rnd = new Random();
 
@@ -82,7 +81,7 @@ public class JobLogHibernateUtil {
             
             Date start = RandomUtil.getRandomDate(rnd, 2009);
             job.setStartTime(start);
-            int duration = rnd.nextInt(rnd.nextInt(600));
+            int duration = rnd.nextInt(rnd.nextInt(600) + 1);
             Date end = (Date) start.clone();
             end.setMinutes(start.getMinutes() + duration);
             job.setEndTime(end);
@@ -98,7 +97,7 @@ public class JobLogHibernateUtil {
             job.setOutputText(RandomUtil.getRandomOutputtext(rnd));
             
             job.setUsername(RandomUtil.getRandomUserName(rnd));
-            job.setCompHost(compHosts[rnd.nextInt(compHosts.length)]);
+            job.setCompHost(RandomUtil.getRandomComp(rnd));
 
             sess.save(job);
         }

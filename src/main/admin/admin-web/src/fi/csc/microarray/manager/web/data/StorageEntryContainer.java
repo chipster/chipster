@@ -11,18 +11,18 @@ import fi.csc.microarray.manager.web.util.RandomUtil;
 public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements
 Serializable {
 
-	/**
-	 * Natural property order for Service bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"username", "name", "size", "date", "deleteLink" };
+	public static final String USERNAME = "username";
+	public static final String NAME = "name";
+	public static final String SIZE = "size";
+	public static final String DATE = "date";
+	public static final String DELETE_LINK = "deleteLink";
 
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
+
+	public static final Object[] NATURAL_COL_ORDER  = new String[] {
+		USERNAME, 		NAME, 			SIZE, 	DATE, 		DELETE_LINK };
+
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", "Session name", "Size", "Date", " "};
+		"Username", 	"Session name", "Size", "Date", 	" " };
 
 	public StorageEntryContainer() throws InstantiationException,
 	IllegalAccessException {
@@ -54,10 +54,10 @@ Serializable {
 
 	public void showUser(String username) {
 		
-		this.removeContainerFilters("username");
+		this.removeContainerFilters(USERNAME);
 		
 		if (username != null) {
-			this.addContainerFilter("username", username, false, true);
+			this.addContainerFilter(USERNAME, username, false, true);
 		}
 	}
 }
