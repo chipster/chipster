@@ -337,7 +337,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_nochr.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-	
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 	
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
