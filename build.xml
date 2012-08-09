@@ -39,7 +39,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.0.2" />
+	<property name="release-version" value="3.0.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
