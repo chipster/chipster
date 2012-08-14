@@ -1,34 +1,41 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TabixFile;
+import org.broad.tribble.readers.TabixReader;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 
 /**
- * Experimental data source for indexed Tabix files.
  * 
  * @author Petri Klemelä
  *
  */
 public class TabixDataSource extends DataSource {
-    
-    private TabixFile tabixFile = null;
-    
-    
-    /**
-     * Generally we would like to have both data and index files,
-     * because otherwise we could not access random locations.
-     * 
-     * @param file
-     * @throws FileNotFoundException
-     */
-    public TabixDataSource(File file) throws FileNotFoundException {
-        super(file);
-        tabixFile = new TabixFile(file);
+
+	private TabixReader reader;
+
+    public TabixDataSource(URL tabixFile, URL tabixIndexFile, Class<? extends AreaRequestHandler> requestHandler) throws URISyntaxException, IOException {
+    	//TODO use the provided index instead of guessing
+        super(tabixFile, requestHandler);
+        
+        String fileString = null;
+        
+        if ("http".equals(tabixFile.getProtocol())) {
+        	fileString = tabixFile.toExternalForm();
+        } else {
+        	fileString = (new File(tabixFile.toURI()).getPath()); //Translate '%20' to space character, required in Windows
+        }
+        
+        this.reader = new TabixReader(fileString);
+
+        // TODO check chromosome naming convention, see SAMDataSource
     }
-    
-    public TabixFile getTabix() {
-        return tabixFile;
-    }
+
+	public TabixReader getReader() {
+		return reader;
+	}
 }

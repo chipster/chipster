@@ -16,9 +16,7 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -34,16 +32,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  * 
  */
 public class SeqBlockTrack extends Track {
-
-	public static final Color[] charColors = new Color[] { 
-		new Color(64, 192, 64, 128), // A
-		new Color(64, 64, 192, 128), // C
-		new Color(128, 128, 128, 128), // G
-		new Color(192, 64, 64, 128) // T
-	};
-
+	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
-
+	
 	private long maxBpLength;
 	private long minBpLength;
 
@@ -52,18 +43,16 @@ public class SeqBlockTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	//private ReadpartDataProvider readpartProvider;
-
 	private DataSource readData;
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 
-	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, Color fontColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
+			long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.readData = file;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
-		//this.readpartProvider = readpartProvider;
 	}
 
 	@Override
@@ -72,7 +61,7 @@ public class SeqBlockTrack extends Track {
 
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
-		
+
 		Iterator<RegionContent> readIter = reads.iterator();
 		RegionContent read = null;
 		
@@ -118,10 +107,10 @@ public class SeqBlockTrack extends Track {
 			readRect.x = getView().bpToTrack(splittedRead.region.start);
 			readRect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
 
-			//			// Do not draw invisible rectangles
-			//			if (rect.width < 2) {
-			//				rect.width = 2;
-			//			}
+			// Do not draw invisible rectangles
+			if (readRect.width < 2) {
+				readRect.width = 2;
+			}
 
 			// Read parts are drawn in order and placed in layers
 			int layer = 0;
@@ -136,9 +125,7 @@ public class SeqBlockTrack extends Track {
 			} else {
 				occupiedSpace.add(end);
 			}
-
-			//reads++;
-
+			
 			// Now we can decide the y coordinate
 			readRect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
 			readRect.height = GenomeBrowserConstants.READ_HEIGHT;
@@ -182,7 +169,7 @@ public class SeqBlockTrack extends Track {
 							color = CUTOFF_COLOR;
 						}
 
-						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
+						drawables.add(new RectDrawable(rect, color, color, cigar.toInfoString()));
 
 					} else {
 						// Enough space - show color coding for each nucleotide
@@ -213,23 +200,28 @@ public class SeqBlockTrack extends Track {
 
 							// Choose a color depending on viewing mode
 							Color bg = Color.white;
-							Color border = null;
+							Color border = Color.white;
 							long posInRef = readPart.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 							if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
 								bg = Color.gray;
+								border = bg;
 							} else {
 								switch (letter) {
 								case 'A':
-									bg = charColors[0];
+									bg = GenomeBrowserConstants.charColors[0];
+									border = bg;
 									break;
 								case 'C':
-									bg = charColors[1];
+									bg = GenomeBrowserConstants.charColors[1];
+									border = bg;
 									break;
 								case 'G':
-									bg = charColors[2];
+									bg = GenomeBrowserConstants.charColors[2];
+									border = bg;
 									break;
 								case 'T':
-									bg = charColors[3];
+									bg = GenomeBrowserConstants.charColors[3];
+									border = bg;
 									break;
 								case 'N':
 									bg = Color.white;
@@ -241,6 +233,7 @@ public class SeqBlockTrack extends Track {
 							// Tell that we have reached max. stacking depth
 							if (lastBeforeMaxStackingDepthCut) {
 								bg = CUTOFF_COLOR;
+								border = bg;
 							}
 
 							// Draw rectangle
@@ -264,7 +257,9 @@ public class SeqBlockTrack extends Track {
 					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
 						Color color = Color.black;
 
-						drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+						//drawables.add(new LineDrawable(rect.x, rect.y - 1, rect.x, rect.y + rect.height + 2, color));
+						drawables.add(new RectDrawable(rect.x, rect.y - 2, 3, rect.height + 4, color, color));
+
 					}					
 				}
 			}
@@ -338,13 +333,12 @@ public class SeqBlockTrack extends Track {
 	 * @param highlightSNP
 	 * @see SeqBlockTrack.setReferenceSeq
 	 */
-	public void enableSNPHighlight(DataSource file, Class<? extends AreaRequestHandler> handler) {
+	public void enableSNPHighlight(DataSource file) {
 		// turn on highlighting mode
 		highlightSNP = true;
 
 		// set reference data
 		refData = file;
-		view.getQueueManager().createQueue(file, handler);
 		view.getQueueManager().addResultListener(file, this);
 	}
 
@@ -353,7 +347,7 @@ public class SeqBlockTrack extends Track {
 	 * 
 	 * @param file
 	 */
-	public void disableSNPHiglight(DataSource file) {
+	public void disableSNPHiglight() {
 		// turn off highlighting mode
 		highlightSNP = false;
 	}

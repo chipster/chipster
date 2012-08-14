@@ -114,6 +114,7 @@
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
         </fatjar.build>
 
 		<!-- sign it -->

@@ -1,111 +1,72 @@
 package fi.csc.microarray.gbrowser.index;
 
 /**
- * Gene indexing tools. For a single genome, inserts gene names into 
- * an indexed database with their coordinates. Database is stored
- * in memory. Gene coordinates can be queried from the database via
- * this tool.
+ * Gene indexing tools. 
  * 
- * @author zukauska, Aleksi Kallio
+ * @author Petri Klemelä
  */
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class GeneIndexActions {
+/**
+ * This class does gene search in two steps: first use custom gene-chr file to find the chromosome 
+ * of the searched gene and then find the exact location from the Gtf file. The first step is needed 
+ * to keep the amount of Gtf-reading reasonably small.
+ * 
+ * 
+ * @author klemela
+ *
+ */
+public class GeneIndexActions implements AreaResultListener {
 
-	private static HashMap<String, GeneIndexActions> instances = new HashMap<String, GeneIndexActions>();
-	private PreparedStatement insertGeneStatement;
-	private PreparedStatement selectStatement;
-
-	protected GeneIndexActions(ChunkDataSource dataSource, String id) throws ClassNotFoundException, SQLException {
-		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:mem:" + id, "", "");
-		initialise(conn);
-		
-		if (dataSource != null) {
-			GetGeneIndexData data = new GetGeneIndexData(dataSource);
-			updateTable(data.read());
-		}
+	public interface GeneLocationListener {
+		public void geneLocation(Region geneRegion);
 	}
 
-	private void initialise(Connection conn) throws SQLException {
-		
-		// Initialise the database 
-		PreparedStatement createTableStatements = conn.prepareStatement(
-				"DROP TABLE gene IF EXISTS;"
-				+ "CREATE TABLE gene ("  
-				+ "ID INT PRIMARY KEY AUTO_INCREMENT, chromosome VARCHAR(255),"
-				+ "bp_start INT, bp_end INT, name VARCHAR(255));"
-				+ "DROP INDEX gene_name_index IF EXISTS;"
-				+ "CREATE INDEX gene_name_index ON gene(name);");
+	private QueueManager queueManager;
+	private TabixDataSource gtfDataSource;
+	private LineDataSource geneDataSource;
+	private Map<String, GeneLocationListener> listenerMap = new HashMap<String, GeneLocationListener>();
 
-		createTableStatements.execute();
+	public GeneIndexActions(QueueManager queueManager, TabixDataSource gtfDataSource, LineDataSource geneDataSource) {
 
-		// Initialise statement for inserting genes
-		this.insertGeneStatement = conn.prepareStatement("INSERT INTO gene VALUES (NULL, ?, ?, ?, ?);");
+		this.queueManager = queueManager;
+		this.gtfDataSource = gtfDataSource;
+		this.geneDataSource = geneDataSource;
 
-		// Initialise statement for finding gene locations
-		this.selectStatement = conn.prepareStatement("SELECT chromosome, bp_start, bp_end FROM gene WHERE name = ?");
-
-	}
-
-	/**
-	 * Returns gene index for given genome. If index has not yet been initialised, initialises it with
-	 * given dataSource.
-	 */
-	public static GeneIndexActions getInstance(Genome genome, ChunkDataSource dataSource) throws ClassNotFoundException, SQLException {
-
-		String genomeString = genome.toString();
-		
-		if (!instances.containsKey(genomeString)) {
-			instances.put(genomeString, new GeneIndexActions(dataSource, genomeString.replace(" ", "")));
-		}
-
-		return instances.get(genomeString);
-	}
-
-	private void updateTable(List<RegionContent> indexList) throws SQLException {
-		for (RegionContent id : indexList) {
-			String chromosome = id.values.get(ColumnType.CHROMOSOME).toString();
-			String bpStart = id.values.get(ColumnType.BP_START).toString();
-			String bpEnd = id.values.get(ColumnType.BP_END).toString();
-			String name = id.values.get(ColumnType.DESCRIPTION).toString();
-			insertGene(chromosome, bpStart, bpEnd, name);
-		}
-	}
-
-	protected void insertGene(String chromosome, String bpStart, String bpEnd, String name) throws SQLException {
-		insertGeneStatement.setString(1, chromosome);
-		insertGeneStatement.setString(2, bpStart);
-		insertGeneStatement.setString(3, bpEnd);
-		insertGeneStatement.setString(4, name.toUpperCase());
-		insertGeneStatement.executeUpdate();
+		queueManager.addResultListener(gtfDataSource, this);
+		queueManager.addResultListener(geneDataSource, this);
 	}
 
 	/**
 	 * getting location of a gene
 	 * @throws SQLException 
 	 */
-	public BpCoordRegion getLocation(String name) throws SQLException {
-		selectStatement.setString(1, name.toUpperCase());
-		ResultSet rs = selectStatement.executeQuery();
-		if (rs.next()) {
-			return new BpCoordRegion(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
-		} else {
-			return null;
-		}
+	public void requestLocation(String gene, GeneLocationListener listener) {
+
+		// Listener is called later when we have both two search results
+		listenerMap.put(gene, listener);
+		
+		// Search for the chromosome of the gene
+		queueManager.addAreaRequest(geneDataSource, new GeneRequest(gene, null), false);
+	}
+
+
+	private void requestLocation(String gene, Chromosome chr) {
+		
+		// We know the chromosome, but search for location of the gene
+		queueManager.addAreaRequest(gtfDataSource, new GeneRequest(gene, chr), false);
 	}
 
 	public static boolean checkIfNumber(String name) {
@@ -118,6 +79,27 @@ public class GeneIndexActions {
 				return true;
 			} catch (NumberFormatException e1) {
 				return false;
+			}
+		}
+	}
+
+
+	@Override
+	public void processAreaResult(AreaResult areaResult) {
+		if (areaResult instanceof GeneResult) {
+			GeneResult geneResult = (GeneResult) areaResult;
+			
+			if (geneResult.getGeneLocation() == null) {
+				// There isn't such gene, return after first search
+				listenerMap.get(geneResult.getSearchString()).geneLocation(geneResult.getGeneLocation());
+				listenerMap.remove(geneResult.getSearchString());
+			} else if (geneResult.getGeneLocation().start.bp != null) {
+				// We have the location, both two searches are done
+				listenerMap.get(geneResult.getSearchString()).geneLocation(geneResult.getGeneLocation());
+				listenerMap.remove(geneResult.getSearchString());
+			} else {
+				// We have the chromosome, but no location, search for the latter
+				requestLocation(geneResult.getSearchString(), geneResult.getGeneLocation().start.chr);
 			}
 		}
 	}

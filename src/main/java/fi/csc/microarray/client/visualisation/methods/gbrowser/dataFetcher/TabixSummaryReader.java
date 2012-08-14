@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -18,7 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * @author Aleksi Kallio
  *
  */
-public class TabixReader {
+public class TabixSummaryReader {
 
 	
 	private static final String TABIX_EXECUTABLE = "tabix";
@@ -92,7 +92,7 @@ public class TabixReader {
 			values.put(ColumnType.VALUE, new Float(value));
 
 			RegionContent reg = new RegionContent(
-					new BpCoordRegion(start, end, lineChr), values);
+					new Region(start, end, lineChr), values);
 			results.add(reg);
 		}
 

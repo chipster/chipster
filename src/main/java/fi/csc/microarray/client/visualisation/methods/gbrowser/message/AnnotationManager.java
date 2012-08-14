@@ -5,12 +5,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -35,17 +33,21 @@ import fi.csc.microarray.util.IOUtils;
  * 
  */
 public class AnnotationManager {
-	private static final String CONTENTS_FILE = "contents.txt";
+	private static final String CONTENTS_FILE = "contents2.txt";
 	private static final String ANNOTATIONS_PATH = "annotations";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
+	
+	//Location parts of the external genome browser urls are replaced with these strings in the contents file
+	public static final String CHR_LOCATION = "[CHR]";
+	public static final String START_LOCATION = "[START]";
+	public static final String END_LOCATION = "[END]";
 
 	private URL remoteAnnotationsRoot;
 	private File localAnnotationsRoot;
 
-	private final File contentsFile = new File("contents.txt");
-
-	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 1";
+	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2";
+	private final String CHR_UNSPECIFIED =  "*";
 
 	private LinkedList<GenomeAnnotation> annotations = new LinkedList<GenomeAnnotation>();
 
@@ -58,13 +60,15 @@ public class AnnotationManager {
 		public String species;
 		public String version;
 		public AnnotationType type;
+		public Chromosome chr;
 
 		private URL url;
 		private long contentLength;
 
-		public GenomeAnnotation(String species, String version, String annotationType, URL url, long contentLength) {
+		public GenomeAnnotation(String species, String version, String annotationType, Chromosome chr, URL url, long contentLength) {
 			this.species = species;
 			this.version = version;
+			this.chr = chr;
 			this.contentLength = contentLength;
 			this.url = url;
 
@@ -119,7 +123,7 @@ public class AnnotationManager {
 
 		@Override
 		public String toString() {
-			return species + version;
+			return species + " " + version;
 		}
 
 		@Override
@@ -139,8 +143,10 @@ public class AnnotationManager {
 	}
 
 	public enum AnnotationType {
-		CYTOBANDS("Cytobands"), TRANSCRIPTS("ENSEMBL Transcripts"), GENES("ENSEMBL Genes"), MIRNA("ENSEMBL miRNA Genes"), REFERENCE(
-				"Reference sequence"), SNP("ENSEMBL SNP");
+		CYTOBANDS("Cytoband"), 
+		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
+		REFERENCE("Reference sequence"), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name"), 
+		ENSEMBL_BROWSER_URL("Ensembl"), UCSC_BROWSER_URL("UCSC");
 
 		String id;
 
@@ -155,11 +161,6 @@ public class AnnotationManager {
 
 	/**
 	 * Get and parse the contents.txt, which describes available annotations.
-	 * 
-	 * 
-	 * TODO Check local annotations dir for files which don't exist in the
-	 * contents.txt and remove them. Don't accidentally remove contents.txt
-	 * while removing.
 	 * 
 	 * @throws Exception
 	 */
@@ -192,7 +193,7 @@ public class AnnotationManager {
 		if (remoteContentsOk) {
 			logger.info("using remote annotation contents file");
 			OutputStream localContentsStream = null;
-			
+
 			try {
 				remoteContentsStream = remoteContents.openStream();
 				localContentsStream = new FileOutputStream(localContents);
@@ -214,26 +215,78 @@ public class AnnotationManager {
 				parseFrom(localContentsStream);
 			} catch (Exception e) {
 				// also local contents file failed
-				throw e;
+				throw new Exception("Cannot access genome browser annotations from the server or from the local cache.", e);
 			} finally {
 				IOUtils.closeIfPossible(localContentsStream);
 			}
 		}
+
+		//if (remoteContentsOk) {
+		removeUnnecessaryFiles(localAnnotationsRoot);
+		//}
+	}
+
+	private void removeUnnecessaryFiles(File localAnnotationsRoot) {
+		File annotationFolder = localAnnotationsRoot;
+
+		String[] allFiles = annotationFolder.list();
+
+		for (String file : allFiles) {
+			if (!this.contains(file)) {
+				File fileToRemove = new File(localAnnotationsRoot, file);
+				//Just one more check, in case something is horribly wrong 
+				if (fileToRemove.getPath().contains(".chipster")) {
+					fileToRemove.delete();
+				} 
+			}
+		}
+	}
+
+	private boolean contains(String file) {
+		
+		if (file.equals(CONTENTS_FILE)) {
+			return true;
+		}
+		
+		for (GenomeAnnotation annotation : annotations) {
+			if (annotation.url != null) {
+				String path = annotation.url.getPath();
+				String fileName = path.substring(path.lastIndexOf("/") + 1);
+
+				if (fileName.equals(file)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public List<GenomeAnnotation> getAnnotations() {
 		return annotations;
 	}
 
-	public GenomeAnnotation getAnnotation(Genome genome, AnnotationType annotationType) {
-
+	public List<GenomeAnnotation> getAnnotations(Genome genome, AnnotationType annotationType) {
+		List<GenomeAnnotation> filteredAnnotations = new LinkedList<GenomeAnnotation>();
 		for (GenomeAnnotation annotation : annotations) {
+
 			if (annotation.getGenome().equals(genome) && annotation.type == annotationType) {
-				return annotation;
+				filteredAnnotations.add(annotation);
 			}
 		}
-		return null;
+		return filteredAnnotations;
 	}
+
+	public GenomeAnnotation getAnnotation(Genome genome, AnnotationType annotationType) {
+
+		List<GenomeAnnotation> filteredList =  getAnnotations(genome, annotationType);
+
+		if (filteredList.size() > 0) {
+			return filteredList.get(0);
+		} else {
+			return null;
+		}
+	}
+
 
 	public List<Genome> getGenomes() {
 		List<Genome> genomes = new LinkedList<Genome>();
@@ -313,24 +366,24 @@ public class AnnotationManager {
 
 	public void openDownloadAnnotationsDialog(final Genome genome) {
 		Session.getSession().getApplication().showDialog(
-						"Download annotations for " + genome + "?",
-						"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
-						"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+				"Download annotations for " + genome + "?",
+				"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
+				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
-							@Override
-							public void actionPerformed() {
-								try {
-									downloadAnnotations(genome);
-								} catch (IOException e) {
-									throw new RuntimeException(e);
-								}
-							}
+					@Override
+					public void actionPerformed() {
+						try {
+							downloadAnnotations(genome);
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
 
-							@Override
-							public String getText() {
-								return "Download ";
-							}
-						});
+					@Override
+					public String getText() {
+						return "Download ";
+					}
+				});
 
 	}
 
@@ -351,10 +404,16 @@ public class AnnotationManager {
 	 * 
 	 */
 	private boolean checkLocalFile(GenomeAnnotation annotation) {
-		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
-		File localFile = new File(this.localAnnotationsRoot, fileName);
-		if (localFile.exists() && localFile.length() == annotation.getContentLength()) {
-			return true;
+		if (annotation.url != null) {
+			String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
+			File localFile = new File(this.localAnnotationsRoot, fileName);
+			if (localFile.exists() ) {
+				if (localFile.length() == annotation.getContentLength()) {
+					return true;
+				} else {
+					throw new IllegalStateException("File size of the local file " + fileName + " isn't equivalent to information in annotation contents");
+				}
+			}
 		}
 		return false;
 	}
@@ -383,45 +442,39 @@ public class AnnotationManager {
 			// Try to always store the remote url even if a local file exists.
 			// Existence of the local is checked later every time it is needed.
 			URL url;
-			String fileName = splitted[3];
-			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
+			String fileName = splitted[4];
+			
+			if ("".equals(fileName)) {
+				url = null;
+			} else if (fileName.startsWith("http://")) {
+				//Not a real filename, but a full url
+				url = new URL(fileName);
+			} else {
+				url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
+			}
 
-			long contentLength = Long.parseLong(splitted[4]);
+			long contentLength = Long.parseLong(splitted[5]);
 
-			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], url, contentLength));
+			Chromosome chr = null;
+			if (!splitted[3].equals(CHR_UNSPECIFIED)) {
+				chr = new Chromosome(splitted[3]);
+			}
+
+			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], chr, url, contentLength));
 		}
 	}
 
 	public void addAnnotation(GenomeAnnotation annotation) {
 		annotations.add(annotation);
 	}
-	
+
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		if (fileBroker.getPublicUrl() != null) {
 			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
-			
+
 		} else {
 			return null;
-		}
-	}
-
-	/**
-	 * Needed when generating the contents file.
-	 * 
-	 * @throws IOException
-	 */
-	public void write() throws IOException {
-		contentsFile.delete();
-		Writer writer = null;
-		try {
-			writer = new FileWriter(contentsFile, true);
-			writer.write(FILE_ID + "\n");
-			for (GenomeAnnotation row : annotations) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.type.getId() + "\t" + row.url.getFile() + "\n" + row.contentLength);
-			}
-		} finally {
-			IOUtils.closeIfPossible(writer);
 		}
 	}
 }
