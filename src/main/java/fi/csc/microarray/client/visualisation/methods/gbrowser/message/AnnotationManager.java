@@ -346,7 +346,9 @@ public class AnnotationManager {
 			@Override
 			public void run() {
 				for (AnnotationType c : AnnotationType.values()) {
-					if (!c.equals(AnnotationType.REFERENCE)) {
+					if (!c.equals(AnnotationType.REFERENCE) && 
+							!c.equals(AnnotationType.ENSEMBL_BROWSER_URL) &&
+							!c.equals(AnnotationType.UCSC_BROWSER_URL)) {
 						GenomeAnnotation annotation = getAnnotation(genome, c);
 						if (annotation != null && !checkLocalFile(annotation)) {
 
