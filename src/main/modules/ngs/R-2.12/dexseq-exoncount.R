@@ -26,7 +26,6 @@ samtools.view <- paste(samtools.binary, "view -")
 #gtf <- file.path(chipster.tools.path, "genomes", organism)
 #htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
 
-
 # exoncount
 dexseq.binary <- file.path(chipster.tools.path, "dexseq-exoncount", "dexseq_count.py")
 gff <- file.path(chipster.tools.path, "genomes", organism)
