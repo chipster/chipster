@@ -300,6 +300,16 @@ download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_
 contents_append_url "Ensembl" "http://www.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm10&position=chr[CHR]%3A[START]-[END]"
 
+SPECIES="Mouse"
+VERSION="mm9 (NCBIM37.67)"
+
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-67/mysql/mus_musculus_core_67_37/" "Mus_musculus.NCBIM37.67."
+process_gtf "ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz"
+download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.67.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]"
+
+
 SPECIES="Rat"
 VERSION="rn4 (RGSC3.4.68)"
 
@@ -319,6 +329,15 @@ ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/canis_familiaris_core_
 download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/canis_familiaris/dna/Canis_familiaris.CanFam3.1.68.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam3&position=chr[CHR]%3A[START]-[END]"
+
+SPECIES="Dog"
+VERSION="(BROADD2.67)"
+
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-67/mysql/canis_familiaris_core_67_2/" "Canis_familiaris.BROADD2.67."
+process_gtf "ftp://ftp.ensembl.org/pub/release-67/gtf/canis_familiaris/Canis_familiaris.BROADD2.67.gtf.gz"
+download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/canis_familiaris/dna/Canis_familiaris.BROADD2.67.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]"
 
 SPECIES="Stickleback"
 VERSION="(BROADS1.68)"
