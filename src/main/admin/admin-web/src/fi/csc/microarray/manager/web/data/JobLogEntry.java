@@ -32,7 +32,7 @@ public class JobLogEntry implements Serializable {
 	
 	//Hibernate takes database column names from field names by default, use @Column(name="EXAMPLE_COLUMN") to override
 	private String operation;
-	private String state;
+	private String status;
 	private Date startTime;
 	private Date endTime;
 	private int wallclockTime;
@@ -55,11 +55,11 @@ public class JobLogEntry implements Serializable {
 	public void setOperation(String operation) {
 		this.operation = operation;
 	}
-	public String getState() {
-		return state;
+	public String getStatus() {
+		return status;
 	}
-	public void setState(String state) {
-		this.state = state;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	public Date getStartTime() {
 		return startTime;
