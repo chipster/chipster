@@ -432,6 +432,14 @@ then
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
+  # DEXSeq
+  cd ${TMPDIR_PATH}/
+  curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.0.tar.gz | tar -xz
+  mkdir ${TOOLS_PATH}/dexseq-exoncounts
+  cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+  cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+  rm -rf DEXSeq	
+ 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
