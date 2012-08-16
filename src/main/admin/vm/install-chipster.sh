@@ -423,11 +423,11 @@ then
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.17.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
-  mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
-  ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
 
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
