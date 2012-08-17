@@ -699,16 +699,24 @@ public class DataManager {
 
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
 
-		bean.setContentChanged(true);
-		
-		// Only local temp beans support output, so convert to local temp bean if needed
-		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
-		if (location == null) {
+		// only local temp beans support output, so convert to local temp bean if needed
+		ContentLocation tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		if (tempLocalLocation == null) {
 			this.convertToLocalTempDataBean(bean);
-			location = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+			tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		}
+
+		// remove all other locations, as they will become obsolete when OutputStream is written to
+		while (bean.getContentLocations().size() > 1) {
+			for (ContentLocation location : bean.getContentLocations()) {
+				if (location != tempLocalLocation) {
+					bean.removeContentLocation(location);
+					break; // remove outside of the iterator, cannot continue 
+				}
+			}
 		}
 		
-		return location.getHandler().getOutputStream(location);
+		return tempLocalLocation.getHandler().getOutputStream(tempLocalLocation); 
 	}
 
 	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
@@ -750,11 +758,10 @@ public class DataManager {
 			IOUtils.closeIfPossible(in);
 			IOUtils.closeIfPossible(out);
 		}
+
 		// update url, type and handler in the bean
 		URL newURL = newFile.toURI().toURL();
-		
 		addUrl(bean, StorageMethod.LOCAL_TEMP, newURL);
-		bean.setContentChanged(true);
 	}
 	
 	
@@ -953,28 +960,18 @@ public class DataManager {
 		try {
 			bean.getLock().readLock().lock();
 
-			// bean modified, always upload
-			if (bean.isContentChanged()) {
+			// upload only if no valid storage or cached location is found
+			for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_STORAGE)) {
+				if (location.getHandler().isAccessible(location)) {
+					url = location.getUrl();
+					break;
+				}
+			}
+			// need to upload
+			if (url == null) {
 				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
 				bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
-				addUrl(bean, StorageMethod.REMOTE_CACHED, url); 
-				bean.setContentChanged(false);
-			}
-
-			// bean not modified, upload only if no valid storage or cached location is found
-			else {
-				for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_STORAGE)) {
-					if (location.getHandler().isAccessible(location)) {
-						url = location.getUrl();
-						break;
-					}
-				}
-				// need to upload
-				if (url == null) {
-					url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
-					bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
-					addUrl(bean, StorageMethod.REMOTE_CACHED, url);
-				}
+				addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 			}
 
 		} finally {
