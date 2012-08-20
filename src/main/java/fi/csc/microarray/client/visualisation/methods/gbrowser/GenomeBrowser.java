@@ -47,6 +47,7 @@ import org.jfree.chart.JFreeChart;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -60,7 +61,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParserWithCoordinateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
@@ -100,7 +100,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private static final String COVERAGE_NONE = "none";
 	private static final String COVERAGE_TOTAL = "total";
 	private static final String COVERAGE_STRAND = "strand-specific";
-	
+
 	private static class Interpretation {
 
 		public TrackType type;
@@ -386,78 +386,102 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		}
 		return optionsPanel;
 	}
-	
+
 	private JPanel getExternalLinkPanel() {
 		if (linksPanel == null) { 
 			linksPanel = new JPanel(new GridBagLayout());
 			linksPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("External links"));
 
-			ensemblLink = new JXHyperlink();
-			ucscLink = new JXHyperlink();
-			
-			ensemblLink.setAction(new AbstractAction() {
+			ensemblLink = LinkUtil.createLink("Ensembl", new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {			
 					openExternalBrowser(AnnotationType.ENSEMBL_BROWSER_URL);
 				}
 			});
-			ucscLink.setAction(new AbstractAction() {
+
+
+			ucscLink = LinkUtil.createLink("UCSC", new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {			
 					openExternalBrowser(AnnotationType.UCSC_BROWSER_URL);
 				}
 			});
-			
-			ensemblLink.setText("Ensembl genome browser");
-			ucscLink.setText("UCSC Genome Browser");
-			
+
 			ensemblLink.setEnabled(false);
 			ucscLink.setEnabled(false);
 
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridx = 0;
 			c.gridy = 0;
+			//c.gridwidth = 3;
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.anchor = GridBagConstraints.NORTHWEST;
-			c.weightx = 1.0;
-			
-			linksPanel.add(ensemblLink, c);
+			c.weightx = 0;
+			c.weighty = 0;
+
+			List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
+			importLinks.add(ensemblLink);
+			importLinks.add(ucscLink);
+
+			final int MAX_ROW_CHARS = 33;
+
+			LinkUtil.addLinks("View this region in *** or *** genome browser.", 
+					importLinks, null, c, linksPanel, MAX_ROW_CHARS, null);
+
+			// Panels to take rest of space
+			JPanel bottomPanel = new JPanel();
+			JPanel rightPanel = new JPanel();
+
+			c.weightx = 0.0;
+			c.weighty = 1.0;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.gridx = 1;
 			c.gridy++;
-			linksPanel.add(ucscLink, c);
+			linksPanel.add(bottomPanel, c);
+			c.weightx = 1.0;
+			c.weighty = 0.0;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.gridx = 2;
+			c.gridy = 1;
+			linksPanel.add(rightPanel, c);
+			
+			// linksPanel.setMinimumSize(new Dimension(0, 0));
+			//			this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
+
 		}
 
 		return linksPanel;
 	}
-	
+
 
 	private void setExternalLinksEnabled() {
-		
+
 		boolean hasLocation = plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null;
-		
+
 		ensemblLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
 		ucscLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
 	}
-	
+
 	private String getExternalLinkUrl(AnnotationType browser) {
 		Genome genome = (Genome) genomeBox.getSelectedItem();
 		URL url = annotationManager.getAnnotation(genome, browser).getUrl();
-		
+
 		if (url != null) {
 			return url.toString();
 		} else {
 			return "";
 		}
-		
+
 	}
-	
+
 	public void openExternalBrowser(AnnotationType browser) {
-		
+
 		String url = getExternalLinkUrl(browser);	
 		Region region = this.plot.getDataView().getBpRegion();
 		url = url.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
 		url = url.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
 		url = url.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
-		
+
 		try {
 			BrowserLauncher.openURL(url);
 		} catch (Exception e) {
@@ -487,7 +511,6 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		settingsPanel.add(getLocationPanel(), c);
 		c.gridy++;
 
-		c.fill = GridBagConstraints.BOTH;
 
 		// options
 		settingsPanel.add(getOptionsPanel(), c);
@@ -496,10 +519,11 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		// datasets
 		c.insets.set(0, 5, 5, 5);
 		settingsPanel.add(getDatasetsPanel(), c);
-		
-		// external links
-		c.weighty = 0.5;
 		c.gridy++;
+
+		// external links
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1;
 		settingsPanel.add(getExternalLinkPanel(), c);
 
 		return settingsPanel;
@@ -710,9 +734,9 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 										// Set track visibility
 										updateVisibilityForTracks();
-										
+
 										setExternalLinksEnabled();
-										
+
 									} catch (Exception e) {
 										application.reportException(e);
 									}
@@ -729,7 +753,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 				// Move to correct location
 				updateLocation();
-				
+
 				this.setExternalLinksEnabled();
 			}
 
@@ -918,7 +942,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 								track.interpretation.primaryData);
 				DataSource treatmentData;
 				if (track.interpretation.type == TrackType.READS) {
-					
+
 					URL fastaUrl = annotationManager.getAnnotation(
 							genome, AnnotationManager.AnnotationType.REFERENCE).getUrl();
 
