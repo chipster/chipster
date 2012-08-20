@@ -145,17 +145,27 @@ public class AnnotationManager {
 	public enum AnnotationType {
 		CYTOBANDS("Cytoband"), 
 		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
-		REFERENCE("Reference sequence"), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name"), 
-		ENSEMBL_BROWSER_URL("Ensembl"), UCSC_BROWSER_URL("UCSC");
+		REFERENCE("Reference sequence", false), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name"), 
+		ENSEMBL_BROWSER_URL("Ensembl", false), UCSC_BROWSER_URL("UCSC", false);
 
-		String id;
+		private String id;
+		private boolean clientCacheable;
 
 		AnnotationType(String id) {
+			this(id, true);
+		}
+		
+		AnnotationType(String id, boolean clientCacheable) {
 			this.id = id;
+			this.clientCacheable = clientCacheable;
 		}
 
 		public String getId() {
 			return id;
+		}
+
+		public boolean isClientCacheable() {
+			return clientCacheable;
 		}
 	}
 
@@ -307,7 +317,7 @@ public class AnnotationManager {
 	 */
 	public boolean hasLocalAnnotations(Genome genome) {
 		for (AnnotationType c : AnnotationType.values()) {
-			if (!c.equals(AnnotationType.REFERENCE)) {
+			if (c.isClientCacheable()) {
 				GenomeAnnotation annotation = getAnnotation(genome, c);
 				if (annotation != null && !checkLocalFile(annotation)) {
 					return false;
@@ -315,22 +325,6 @@ public class AnnotationManager {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Returns local if there is no reference. In such as case there is nothing
-	 * to be downloaded.
-	 * 
-	 * @param genome
-	 * @return
-	 */
-	public boolean hasLocalReference(Genome genome) {
-		GenomeAnnotation reference = getAnnotation(genome, AnnotationType.REFERENCE);
-		if (reference != null && !checkLocalFile(reference)) {
-			return false;
-		} else {
-			return true;
-		}
 	}
 
 	/**
@@ -346,9 +340,7 @@ public class AnnotationManager {
 			@Override
 			public void run() {
 				for (AnnotationType c : AnnotationType.values()) {
-					if (!c.equals(AnnotationType.REFERENCE) && 
-							!c.equals(AnnotationType.ENSEMBL_BROWSER_URL) &&
-							!c.equals(AnnotationType.UCSC_BROWSER_URL)) {
+					if (c.isClientCacheable()) {
 						GenomeAnnotation annotation = getAnnotation(genome, c);
 						if (annotation != null && !checkLocalFile(annotation)) {
 
