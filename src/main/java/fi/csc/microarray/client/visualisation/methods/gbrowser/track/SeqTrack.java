@@ -128,7 +128,7 @@ public class SeqTrack extends Track {
 			for ( int i = 0; i < seq.length(); i++ ) {
 				
 				BpCoord bp = new BpCoord(rc.region.start.bp + i, rc.region.start.chr);
-				
+								
 				reads.put(bp, "" + seq.charAt(i));
 			}
 		}

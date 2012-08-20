@@ -86,7 +86,7 @@ public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequence
             	startOffset += channel.read(indexEntry.getLocation()+startOffset, channelBuffer.array());
             }
             catch(IOException ex) {
-                throw new PicardException("Unable to load " + contig + "(" + start + ", " + stop + ") from " + channel.toString());
+                throw new PicardException("Unable to load " + contig + "(" + start + ", " + stop + ") from " + channel.toString(), ex);
             }
 
             // Reset the buffer for outbound transfers.

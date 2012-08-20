@@ -10,11 +10,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.sf.picard.PicardException;
-import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.IndexedFastaDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
@@ -23,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class IndexedFastaFileFetcherThread extends Thread {
 
+	private static final Long BUFFER_EXTRA = 1000l;
 	private BlockingQueue<BpCoordFileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue;
 
@@ -31,6 +29,7 @@ public class IndexedFastaFileFetcherThread extends Thread {
 	private IndexedFastaHandlerThread areaRequestThread;
 
 	private boolean poison = false;
+	private SequenceBuffer buffer;
 
 	public IndexedFastaFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, IndexedFastaHandlerThread areaRequestThread, IndexedFastaDataSource dataSource) {
 
@@ -73,8 +72,6 @@ public class IndexedFastaFileFetcherThread extends Thread {
 		}
 
 
-		// Process only new part of the requested area
-		// FIXME We rely on other layers to cache previous results, which is not very clean.
 		AreaRequest request = fileRequest.areaRequest;
 
 		fetchSequence(fileRequest);
@@ -97,24 +94,29 @@ public class IndexedFastaFileFetcherThread extends Thread {
 
 		AreaRequest request = fileRequest.areaRequest;
 
-		ChunkDataSource data = new ChunkDataSource(dataSource.getUrl(), null, null);
-		LineDataSource index = new LineDataSource(dataSource.getIndex(), null);
-
-		ChipsterIndexedFastaSequenceFile picard = new ChipsterIndexedFastaSequenceFile(data, index);
-
 		List<RegionContent> responseList = new LinkedList<RegionContent>();
 
 		try {
-			ReferenceSequence seq = picard.getSubsequenceAt(request.start.chr.toNormalisedString(), request.start.bp, request.end.bp);
 
+			if (buffer == null  || !buffer.contains(request.start.bp, request.end.bp, request.start.chr)) {
 
+				long bufferStart = Math.max(request.start.bp - BUFFER_EXTRA, 0);
+				long bufferEnd = request.end.bp + BUFFER_EXTRA;
+				
+				ReferenceSequence seq = dataSource.getPicard().getSubsequenceAt(request.start.chr.toNormalisedString(), bufferStart, bufferEnd);
+				
+				buffer = new SequenceBuffer(new String(seq.getBases()), bufferStart, request.start.chr);
+			}
+
+			String seqString = buffer.get(request.start.bp, request.end.bp, request.start.chr);
+			
 			Region recordRegion = new Region(request.start.bp, request.end.bp, request.start.chr);
 
 			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+			values.put(ColumnType.SEQUENCE, seqString);
 
 			RegionContent regCont = new RegionContent(recordRegion, values);
 
-			values.put(ColumnType.SEQUENCE, new String(seq.getBases()));
 
 			/*
 			 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types

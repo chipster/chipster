@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 
 /**
@@ -15,20 +15,30 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Index
 public class IndexedFastaDataSource extends DataSource {
 
 	private URL dataUrl;
-    private URL index;
+    private URL indexUrl;
+	private ChipsterIndexedFastaSequenceFile picard;
 
 	public IndexedFastaDataSource(URL data, URL index) throws URISyntaxException, IOException {
         super(data, IndexedFastaHandlerThread.class);
         
         this.dataUrl = data;
-        this.index = index;
+        this.indexUrl = index;
+        
+		ChunkDataSource dataSource = new ChunkDataSource(dataUrl, null, null);
+		LineDataSource indexSource = new LineDataSource(indexUrl, null);
+
+		picard = new ChipsterIndexedFastaSequenceFile(dataSource, indexSource);
     }
 	
 	public URL getIndex() {
-		return index;
+		return indexUrl;
 	}
 
 	public URL getUrl() {
 		return dataUrl;
+	}
+
+	public ChipsterIndexedFastaSequenceFile getPicard() {
+		return picard;
 	}
 }
