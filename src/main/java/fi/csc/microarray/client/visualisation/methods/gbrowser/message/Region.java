@@ -103,11 +103,12 @@ public class Region implements Comparable<Region> {
 	}
 
 	public boolean intersects(Region other) {
+	
 		BpCoord intersectionStart = start.max(other.start);
 		BpCoord intersectionEnd = end.min(other.end);
 		
 		// Intersection has negative length <=> there is no intersection
-		return intersectionStart.compareTo(intersectionEnd) <= 0;
+		return intersectionStart.compareTo(intersectionEnd) <= 0 && this.start.chr.equals(other.start.chr);
 	}
 
 	public Region intersect(Region other) {

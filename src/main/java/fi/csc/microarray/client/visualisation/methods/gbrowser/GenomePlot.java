@@ -3,8 +3,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,7 +63,7 @@ public class GenomePlot extends Plot {
         }
     }    
 
-	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) {
 		
 	    // set chart panel
 	    this.chartPanel = panel;
@@ -286,6 +284,7 @@ public class GenomePlot extends Plot {
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
+        this.dataView.redraw();
     }
     
     /**
