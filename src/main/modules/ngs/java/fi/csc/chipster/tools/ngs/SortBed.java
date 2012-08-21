@@ -46,6 +46,7 @@ public class SortBed extends JavaAnalysisJobBase {
 			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID()); 
 
 			// run sort
+			//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 			new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 
 		} catch (Exception e) {

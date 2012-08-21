@@ -153,7 +153,7 @@ public class Cigar {
 
 		String combinedSeq = "";
 		List<CigarItem> combinedCigar = new LinkedList<CigarItem>();
-		BpCoordRegion region = new BpCoordRegion(-1l, -1l, read.region.start.chr);
+		Region region = new Region(-1l, -1l, read.region.start.chr);
 
 
 		for (CigarItem cigarItem : cigarItems) {
@@ -178,7 +178,7 @@ public class Cigar {
 
 				combinedCigar = new LinkedList<CigarItem>();
 				combinedSeq = "";
-				region = new BpCoordRegion(-1l, -1l, read.region.start.chr);
+				region = new Region(-1l, -1l, read.region.start.chr);
 			}
 
 			if (cigarItem.consumesReferenceBases()) {

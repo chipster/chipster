@@ -38,8 +38,8 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-xml.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/picard-1.32.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/sam-1.32.jar"/>
+	<classpathentry kind="lib" path="ext/lib/picard-1.75.jar" sourcepath="/home/klemela/chipster/src/picard-trunk.zip"/>
+	<classpathentry kind="lib" path="ext/lib/sam-1.75.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
@@ -47,8 +47,9 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/h2-1.3.163.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-io-2.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="ext/lib/tribble_2012-05-25.jar"/>
+	<classpathentry kind="lib" path="ext/lib/h2-1.3.163.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

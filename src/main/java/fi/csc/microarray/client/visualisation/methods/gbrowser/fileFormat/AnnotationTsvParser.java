@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -29,7 +29,7 @@ public abstract class AnnotationTsvParser extends TsvParser{
 		Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
 		Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
 
-		Long readLength =  (new BpCoordRegion(start, end, chr)).getLength();
+		Long readLength =  (new Region(start, end, chr)).getLength();
 
 		if(readLength != null) {
 

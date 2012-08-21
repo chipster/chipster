@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -32,13 +32,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * similar to {@link IntensityTrack}, but is exact. Also shows where there are
  * large amounts of SNP's as bars chart.
  * 
+ * If reverseColor is not null, then strands are visualised separately and
+ * SNPs are disabled.
+ * 
  */
-public class CoverageAndSNPTrack extends Track {
+public class CoverageAndSNPTrack extends Track { 
 
 	private long maxBpLength;
 	private long minBpLength;
 
 	private Color forwardColor;
+	private Color reverseColor;
 
 	private boolean highlightSNP = false;
 
@@ -47,10 +51,11 @@ public class CoverageAndSNPTrack extends Track {
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 
-	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, DataSource refFile, Class<? extends AreaRequestHandler> refHandler, 
-			Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, DataSource refFile, 
+			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.forwardColor = forwardColor;
+		this.reverseColor = reverseColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.readpartProvider = readpartProvider;
@@ -58,7 +63,6 @@ public class CoverageAndSNPTrack extends Track {
 		setStrand(Strand.BOTH);
 		
 		this.refFile = refFile;
-		view.getQueueManager().createQueue(refFile, refHandler);
 	}
 
 	@Override	
@@ -66,7 +70,7 @@ public class CoverageAndSNPTrack extends Track {
 		super.initializeListener();
 		
 		// Add listener for reference file
-		if (file != null) {
+		if (file != null && refFile != null) {
 			view.getQueueManager().addResultListener(refFile, this);
 		}
 	}
@@ -76,80 +80,72 @@ public class CoverageAndSNPTrack extends Track {
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Color color) {
+	private Collection<Drawable> getDrawableReads(Strand dataStrand, Color color) {
+		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		Chromosome chr = getView().getBpRegion().start.chr;
-
+		
 		// If SNP highlight mode is on, we need reference sequence data
-		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, strand);
+		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, Strand.FORWARD);
 
 		// Count nucleotides for each location
-		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(getStrand()), view, refSeq); 
+		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(dataStrand), view, refSeq); 
 
 		// Count width of a single bp in pixels
-		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
+		float bpWidth = (float) (getView().getWidth() / getView().getBpRegionDouble().getLength());
 
 		// Count maximum y coordinate (the bottom of the track)
 		int bottomlineY = 0;
 
 		// prepare lines that make up the profile for drawing
 		Iterator<Base> bases = theBaseCacheThang.iterator();
-		if (bases.hasNext()) {
+		
+		int previousValueY = 0;
+		int previousEndX = -1;
+		
+		//Line color is opaque
+		Color lineColor = new Color(color.getRGB(), false);
 
-			Base previousBase = bases.next();
+		// draw lines for each bp region that has some items
+		while (bases.hasNext()) {
+			Base currentBase = bases.next();
 
-			// draw a line from the beginning of the graph to the first location
-			int startX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
-			long startY = previousBase.getCoverage();
-			drawables.add(new LineDrawable(0, bottomlineY,
-					(int)(startX - bpWidth), bottomlineY, color));
-			drawables.add(new LineDrawable((int)(startX - bpWidth), bottomlineY,
-					startX, (int)(bottomlineY + startY), color));
+			float startX = getView().bpToTrackFloat(new BpCoord(currentBase.getBpLocation(), chr));
+			//Round together with position dividends to get the same result than where next block will start
+			int width = (int)(startX + bpWidth) - (int)startX;
+			int profileY = currentBase.getCoverage();
+			
+			int valueY = (int)(bottomlineY + profileY);
+			
+			drawables.add(new RectDrawable((int)startX, bottomlineY, width,  valueY, color, null));
+			
+			//Draw a line on top of profile
 
-			// Draw bar for the first base
-			drawSNPBar(drawables, bpWidth, bottomlineY, previousBase, startX);
-
-			// draw lines for each bp region that has some items
-			while (bases.hasNext()) {
-				Base currentBase = bases.next();
+			
+			//Check if there was a gap between profile blocks
+			if (previousEndX < (int)startX) {
 				
-				startX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
-				startY = previousBase.getCoverage();
-				int endX = getView().bpToTrack(new BpCoord(currentBase.getBpLocation(), chr));
-				long endY = currentBase.getCoverage();
-
-				drawSNPBar(drawables, bpWidth, bottomlineY, currentBase, endX);
-
-				if (currentBase.getBpLocation() - previousBase.getBpLocation() == 1) {
-					// join adjacent bp locations with a line
-					drawables.add(new LineDrawable(startX, (int)(bottomlineY + startY),
-							endX, (int)(bottomlineY + endY), color));
-				} else {
-					// Join locations that are more than one bp apart using 3 lines
-					// 1. Slope down
-					drawables.add(new LineDrawable((int)startX, (int)(bottomlineY + startY),
-							(int)(startX + bpWidth), bottomlineY, color));
-					// 2. Bottomline level for the empty area
-					drawables.add(new LineDrawable((int)(startX + bpWidth), bottomlineY,
-							(int)(endX - bpWidth), bottomlineY, color));
-					// 3. Slope up
-					drawables.add(new LineDrawable((int)(endX - bpWidth), bottomlineY,
-							(int)endX, (int)(bottomlineY + endY), color));
-				}
+				//End last block with line
+				drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
 				
-
-				previousBase = currentBase;
+				//Start next line from the bottom
+				previousValueY = 0;
 			}
+			
+			//Draw line between height difference of previous and current block
+			drawables.add(new LineDrawable((int)startX, previousValueY, (int)startX,  valueY, lineColor));
+			//Draw line on top of the current block
+			drawables.add(new LineDrawable((int)startX, valueY, (int)startX + width,  valueY, lineColor));
 
-			// Draw a line from the last location to the end of the graph
-			int endX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
-			long endY = previousBase.getCoverage();
-			drawables.add(new LineDrawable(endX, (int)(bottomlineY + endY),
-					(int)(endX + bpWidth), bottomlineY, color));
-			drawables.add(new LineDrawable((int)(endX + bpWidth), bottomlineY,
-					getView().getWidth(), bottomlineY, color));
+			drawSNPBar(drawables, (int)bpWidth, bottomlineY, currentBase, (int)startX);
+			
+			previousValueY = valueY;
+			previousEndX = (int)startX + width;
 		}
+		
+		//End last block with line
+		drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
 
 		return drawables;
 	}
@@ -164,9 +160,9 @@ public class CoverageAndSNPTrack extends Track {
 				int increment = currentBase.getSNPCounts()[nt.ordinal()];
 
 				if (increment > 0) {
-					Color c = SeqBlockTrack.charColors[nt.ordinal()];
+					Color c = GenomeBrowserConstants.charColors[nt.ordinal()];
 
-					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, c));
+					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, null));
 
 					y += increment;
 				}
@@ -178,9 +174,19 @@ public class CoverageAndSNPTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
+		if (reverseColor == null) {
 
-		// add drawables from both reads (if present)
-		drawables.addAll(getDrawableReads(forwardColor));
+			// add drawables according to sum of both strands
+			drawables.addAll(getDrawableReads(Strand.BOTH, forwardColor));
+			
+		} else {
+			
+			// add drawables of both strands separately
+			drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
+			drawables.addAll(getDrawableReads(Strand.REVERSED, reverseColor));
+
+		}
 
 		return drawables;
 	}
@@ -247,11 +253,6 @@ public class CoverageAndSNPTrack extends Track {
 	@Override
 	public boolean canExpandDrawables() {
 		return true;
-	}
-
-	@Override
-	public String getName() {
-		return "ProfileSNPTrack";
 	}
 
 	public void enableSNPHighlight() {
