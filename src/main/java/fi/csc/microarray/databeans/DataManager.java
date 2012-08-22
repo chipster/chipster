@@ -600,6 +600,17 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	/**
+	 * Returns debug print out of current session state.
+	 * 
+	 * @return print out of session state
+	 */
+	public String printSession() {
+		StringBuffer buffer = new StringBuffer();
+		SessionSaver.dumpSession(rootFolder, buffer);
+		return buffer.toString();
+	}
+
 	public void saveStorageSession(File sessionFile) throws Exception {
 
 		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
