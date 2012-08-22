@@ -3,13 +3,13 @@ package fi.csc.microarray.webstart;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.thread.QueuedThreadPool;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -54,7 +54,7 @@ public class WebstartJettyServer implements ShutdownCallback {
 			connector.setPort(configuration.getInt("webstart", "port"));
 			jettyInstance.setConnectors(new Connector[]{ connector });
 
-			Context wsRoot = new Context(jettyInstance, "/", false, false);
+			ServletContextHandler wsRoot = new ServletContextHandler(jettyInstance, "/", false, false);
 			wsRoot.setResourceBase(DirectoryLayout.WEB_ROOT + "/");
 			wsRoot.addServlet(new ServletHolder(new DefaultServlet()), "/*");
 
