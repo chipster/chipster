@@ -102,13 +102,23 @@ public class Region implements Comparable<Region> {
 		return start.chr.equals(point.chr) && point.compareTo(start) >= 0 && point.compareTo(end) < 0;
 	}
 
+	/**
+	 * Return true if this region intersects with the other. Handles chromosomes as sequential. i.e. if the region ends are in different chromosomes, is 
+	 * region interpreted to include:
+	 *  - everything after the start position in the chromosome of start position
+	 *  - everything before the end position in the chromosome of end position
+	 *  - all chromosomes that are between these chromosomes in the order defined by Chromosome.compareTo method
+	 * 
+	 * @param other
+	 * @return
+	 */
 	public boolean intersects(Region other) {
 	
 		BpCoord intersectionStart = start.max(other.start);
 		BpCoord intersectionEnd = end.min(other.end);
 		
 		// Intersection has negative length <=> there is no intersection
-		return intersectionStart.compareTo(intersectionEnd) <= 0 && this.start.chr.equals(other.start.chr);
+		return intersectionStart.compareTo(intersectionEnd) <= 0;
 	}
 
 	public Region intersect(Region other) {
