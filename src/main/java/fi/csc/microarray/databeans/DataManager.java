@@ -18,7 +18,7 @@ import java.util.Map;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
+import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;

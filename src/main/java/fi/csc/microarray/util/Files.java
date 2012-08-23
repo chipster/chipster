@@ -26,7 +26,7 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
-import org.mortbay.util.IO;
+import org.eclipse.jetty.util.IO;
 
 /**
  * @author Taavi Hupponen, Aleksi Kallio
