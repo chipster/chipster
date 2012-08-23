@@ -4,9 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
 
 /**
@@ -27,15 +30,16 @@ public class SAMDataSource extends DataSource {
      * 
      * @param file
      * @throws FileNotFoundException
+     * @throws URISyntaxException 
      */
-    public SAMDataSource(File samFile, File indexFile) throws FileNotFoundException {
-        super(samFile);
+    public SAMDataSource(URL samFile, URL indexFile) throws FileNotFoundException, URISyntaxException {
+        super(samFile, SAMHandlerThread.class);
 
     	// BAMFileReader emits useless warning to System.err that can't be turned off,
     	// so we direct it to other stream and discard. 
     	PrintStream originalErr = System.err;
     	System.setErr(new PrintStream(new ByteArrayOutputStream()));
-        this.reader = new SAMFileReader(samFile, indexFile);
+        this.reader = new SAMFileReader(this.file, new File(indexFile.toURI()));
 
         // Iterate chromosomes to check naming convention
         for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {

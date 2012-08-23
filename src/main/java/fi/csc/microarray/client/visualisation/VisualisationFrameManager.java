@@ -112,6 +112,13 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
+			
+			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
+			if(((VisualisationMethodChangedEvent) event).getNewMethod() == VisualisationMethod.NONE){
+				if (toolBar.isMaximised) {
+					toolBar.maximiseOrRestoreVisualisation();
+				}
+			}
 			visualisationTaskManager.visualise(e);
 		}
 	}

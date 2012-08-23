@@ -121,7 +121,10 @@ public class TrackGroup {
         
         // Add side menu
         menu = new SideMenu();
-        this.view.parentPlot.chartPanel.add(menu);
+        
+        //Memory leak, the reference isn't removed when the visualization is changed to none.
+        //Fix if the side panel is needed
+        //this.view.parentPlot.chartPanel.add(menu);
     }
     
     /**
