@@ -244,12 +244,16 @@ public class AnnotationManager {
 		for (String file : allFiles) {
 			if (!this.contains(file)) {
 				File fileToRemove = new File(localAnnotationsRoot, file);
-				//Just one more check, in case something is horribly wrong 
-				if (fileToRemove.getPath().contains(".chipster")) {
-					fileToRemove.delete();
-				} 
+				removeFile(fileToRemove);
 			}
 		}
+	}
+	
+	private void removeFile(File fileToRemove) {
+		//Just one more check, in case something is horribly wrong 
+		if (fileToRemove.getPath().contains(".chipster")) {
+			fileToRemove.delete();
+		} 
 	}
 
 	private boolean contains(String file) {
@@ -405,7 +409,10 @@ public class AnnotationManager {
 				if (localFile.length() == annotation.getContentLength()) {
 					return true;
 				} else {
-					throw new IllegalStateException("File size of the local file " + fileName + " isn't equivalent to information in annotation contents");
+					//There was a file with same name than the annotation, but the size differs.
+					//Propably it's just some old version of the annotation, so let's just remove it to 
+					//make space for downloading a new version.
+					removeFile(localFile);
 				}
 			}
 		}
