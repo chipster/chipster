@@ -64,17 +64,17 @@ if [ $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 
 	# Remove old libs to avoid conflicts when lib names change
 	rm -rf shared
+	rm -rf webstart/web-root/lib
 
 	# Unpack libs
 	echo "Updating libs: shared/libs (local changes will be overridden)"
-	tar -C .. -xzf chipster-2.0.3.tar.gz chipster/shared
+	tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
+	echo "Updating libs: webstart/web-root/lib (local changes will be overridden)"
+	tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
 
 	# Unpack and possibly override tool scripts
 	echo "Updating tool scripts: comp/modules (conflicting local changes will be overridden)"
-	tar -C .. --overwrite -xzf chipster-2.0.3.tar.gz chipster/comp/modules
-	
-	# Update client libs
-	# TODODODODODO
+	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
 	# Clean up
 	rm chipster-$LATEST_VERSION.tar.gz
