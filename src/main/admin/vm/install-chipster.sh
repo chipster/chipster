@@ -276,7 +276,6 @@ then
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
 
 
-
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
