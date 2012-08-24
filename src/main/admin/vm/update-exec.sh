@@ -29,7 +29,14 @@ fi
 
 # Start update
 echo Will update to version $LATEST_VERSION
+INST_PATH=/opt
+CHIP_PATH=${INST_PATH}/chipster
+TOOLS_PATH=${CHIP_PATH}/tools
+TMPDIR_PATH=/tmp/chipster-install-temp
 
+# create temp dir
+rm -rf ${TMPDIR_PATH}/
+mkdir ${TMPDIR_PATH}/
 
 #
 # VERSION SPECIFIC ENTRIES START HERE
@@ -38,7 +45,8 @@ echo Will update to version $LATEST_VERSION
 
 # 2.0.3: Updated mouse genome
 if [ $CURRENT_MINOR_VERSION -lt 3 ] ; then
-	echo "MOUSE SHOULD BE UPDATED"
+	echo "Installing mm10 bowtie indexes"
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 
@@ -49,22 +57,31 @@ fi
 # Update Chipster itself (incl. tool scripts), unless already at latest
 if [ $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 
-	echo "Updating Chipster installation to $LATEST_VERSION..."
+	echo "Updating Chipster installation to $LATEST_VERSION"
 
-	# Get install package
-	wget -q http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz .
+	# Get install package (override, if exists)
+	wget -Nq http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz .
 
 	# Remove old libs to avoid conflicts when lib names change
 	rm -rf shared
 
 	# Unpack libs
-	echo "Updating libs: shared/libs (local changes will be overridden)..."
+	echo "Updating libs: shared/libs (local changes will be overridden)"
 	tar -C .. -xzf chipster-2.0.3.tar.gz chipster/shared
 
 	# Unpack and possibly override tool scripts
-	echo "Updating tool scripts: comp/modules (conflicting local changes will be overridden)..."
+	echo "Updating tool scripts: comp/modules (conflicting local changes will be overridden)"
 	tar -C .. --overwrite -xzf chipster-2.0.3.tar.gz chipster/comp/modules
+	
+	# Update client libs
+	# TODODODODODO
+
+	# Clean up
+	rm chipster-$LATEST_VERSION.tar.gz
 fi
+
+# remove temp dir
+rm -rf ${TMPDIR_PATH}/
 
 # We are done
 echo "Update completed successfully"
