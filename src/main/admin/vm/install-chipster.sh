@@ -260,6 +260,23 @@ then
   rm -rf R-${R_VER}/
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
 
+
+  ## R-2.15:
+  R_VER=2.15.1
+  cd ${TMPDIR_PATH}/
+  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+  cd R-${R_VER}/
+  export MAKEFLAGS=-j
+  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+  make
+  make install
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  cd ../
+  rm -rf R-${R_VER}/
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
+
+
+
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
