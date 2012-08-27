@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script updates to latest minor version of the same major version (e.g. 2.0.1 -> 2.0.3)
-LATEST_VERSION=2.0.3
+LATEST_VERSION=2.0.4
 
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
@@ -43,10 +43,23 @@ mkdir ${TMPDIR_PATH}/
 # (ADD NEW ENTRIES TO THE END)
 #
 
-# 2.0.3: Updated mouse genome
+# 2.0.3
 if [ $CURRENT_MINOR_VERSION -lt 3 ] ; then
 	echo "Installing mm10 bowtie indexes"
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+fi
+
+# 2.0.4 
+if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
+	echo "Updating prinseq"
+	cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
+  rm ${TOOLS_PATH}/prinseq
+  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
+	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
 fi
 
 
