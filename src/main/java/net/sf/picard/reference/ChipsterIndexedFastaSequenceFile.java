@@ -34,13 +34,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 
 /**
- * Copy of Picard class modified to support urls  
+ * Copy of Picard class modified to support urls (and smaller buffer size to avoid downloading useless extra bytes)
  */
 public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequenceFile {
  
 	private final ChunkDataSource channel;
 
     private final FastaSequenceIndex index;
+    
+    /**
+     * Size of the read buffer.
+     */
+    protected static final int BUFFER_SIZE = 1 * 1024;
 
      public ChipsterIndexedFastaSequenceFile(final ChunkDataSource file, final FastaSequenceIndex index) {
 

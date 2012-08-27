@@ -98,6 +98,8 @@ public class IndexedFastaFileFetcherThread extends Thread {
 
 		try {
 
+			//A few thousand byte buffer eliminates the need for downloading data on every frame. 
+			//Buffer has to be refreshed relatively rarely, maybe in 1 second intervals during heavy scrolling
 			if (buffer == null  || !buffer.contains(request.start.bp, request.end.bp, request.start.chr)) {
 
 				long bufferStart = Math.max(request.start.bp - BUFFER_EXTRA, 0);
@@ -109,7 +111,7 @@ public class IndexedFastaFileFetcherThread extends Thread {
 			}
 
 			String seqString = buffer.get(request.start.bp, request.end.bp, request.start.chr);
-			
+
 			Region recordRegion = new Region(request.start.bp, request.end.bp, request.start.chr);
 
 			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
