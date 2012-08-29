@@ -1,9 +1,12 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -24,7 +27,6 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
-import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -52,6 +54,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	private long minimumSpaceForAcceptUpload;
+	
+	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool(); 
 
 	public static void main(String[] args) {
 		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
@@ -244,48 +248,69 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	
-	private void handleMoveRequest(CommandMessage requestMessage) throws JMSException, MalformedURLException {
-		// TODO omaan threadiin
+	private void handleMoveRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		
-		URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
+		final URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
 		logger.info("move request for: " + cacheURL);
-		
-		// check that url points to our cache dir
-		String[] urlPathParts = cacheURL.getPath().split("/"); 
-		if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
-			logger.info("not a valid cache url: " + cacheURL);
-			// TODO
-		}
-		
-		File cacheFile = new File(cacheRoot, urlPathParts[2]);
 
-		// check that file exists
-		if (!cacheFile.exists()) {
-			logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
-			// TODO
-		}
-		
-		
-		String storageFileName = CryptoKey.generateRandom();
+		longRunningTaskExecutor.execute(new Runnable() {
 
-		ChipsterMessage reply = null;
-		URL storageURL = null;
-		if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
-			storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
-			reply = new UrlMessage(storageURL);
-			
-		} else {
-			logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
-			// TODO
-		}
+			@Override
+			public void run() {
 
-		// send reply
-		endpoint.replyToMessage(requestMessage, reply);
+				ChipsterMessage reply = null;
+				try {
+					// check that url points to our cache dir
+					String[] urlPathParts = cacheURL.getPath().split("/"); 
+					if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
+						logger.info("not a valid cache url: " + cacheURL);
+						throw new IllegalArgumentException("not a valid cache url: " + cacheURL);
+					}
+
+					File cacheFile = new File(cacheRoot, urlPathParts[2]);
+
+					// check that file exists
+					if (!cacheFile.exists()) {
+						logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
+						throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
+					}
+
+					// check quota here also and throw IOException if not enough
+
+					// move the file
+					String storageFileName = CryptoKey.generateRandom();
+					URL storageURL = null;
+					if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
+						storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
+						reply = new UrlMessage(storageURL);
+
+					} else {
+						logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+						throw new IllegalArgumentException("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+					}
+
+				} catch (IllegalArgumentException e) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_FAILED); // TODO could add message from exception
+
+				} catch (IOException e) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+				}
+
+				// send reply
+				try {
+					endpoint.replyToMessage(requestMessage, reply);
+					
+				} catch (JMSException e) {
+					logger.error(e);
+				}
+
+			}
+
+		});
+
 
 	}
-
-	
 	
 	
 	public void shutdown() {
@@ -304,11 +329,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public URL getPublicUrL() throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + publicPath);		
 	}
-
-	private File createStorageFile() {
-		return new File(storageRoot, CryptoKey.generateRandom());
-	}
-
 
 }
 
