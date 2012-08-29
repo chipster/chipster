@@ -21,7 +21,7 @@ public class BpCoord implements Comparable<BpCoord> {
 	}
 
 	public BpCoord clone() {
-		return new BpCoord(bp, chr);
+		return new BpCoord(bp, chr.clone());
 	}
 
 	public int compareTo(BpCoord o) {

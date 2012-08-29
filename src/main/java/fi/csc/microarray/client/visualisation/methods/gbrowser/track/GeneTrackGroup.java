@@ -3,11 +3,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.constants.VisualConstants;
 
@@ -15,7 +14,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * Track group containing information about genes: transcript, intensity, gene, snp
  * repeat masker.
  * 
- * @author Vilius Zukauskas
+ * @author Vilius Zukauskas, Petri Klemelä
  *
  */
 public class GeneTrackGroup extends TrackGroup {
@@ -30,42 +29,31 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(View dataView, ChunkDataSource geneAnnotationFile,
-	        DataSource transcriptAnnotationFile, ChunkDataSource refSource, DataSource snpFile) {
+	public GeneTrackGroup(View dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
 		super(dataView);
 		
-		transcript = new TranscriptTrack(dataView, transcriptAnnotationFile, ChunkTreeHandlerThread.class,
-		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		transcript = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcript.setStrand(Strand.FORWARD);
 		
-		geneOverview = new IntensityTrack(dataView, geneAnnotationFile, ChunkTreeHandlerThread.class, 
-				VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+		geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+				GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 		geneOverview.setStrand(Strand.FORWARD);
 		
-		gene = new GeneTrack(dataView, geneAnnotationFile,
-		        ChunkTreeHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+		gene = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		gene.setStrand(Strand.FORWARD);
 		
-		if (snpFile != null) {
-			snpTrack = new ReferenceSNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, GenomeBrowserConstants.SHOW_SNP_AT);
-			snpTrack.setStrand(Strand.FORWARD);
+		repeatMasker = new RepeatMaskerTrack(dataView, repeatDataSource, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 
-			snpTrackReversed = new ReferenceSNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, GenomeBrowserConstants.SHOW_SNP_AT);
-			snpTrackReversed.setStrand(Strand.REVERSED);
-		}
-		
-		repeatMasker = new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-		
-		geneOverviewReversed = new IntensityTrack(dataView,
-		        geneAnnotationFile, ChunkTreeHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+		geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+				GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 		geneOverviewReversed.setStrand(Strand.REVERSED);
 		
-		geneReversed = new GeneTrack(dataView, geneAnnotationFile,
-		        ChunkTreeHandlerThread.class, VisualConstants.COLOR_BLUE_BRIGHTER, GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+		geneReversed = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		geneReversed.setStrand(Strand.REVERSED);
 		
-		transcriptReversed = new TranscriptTrack(dataView, transcriptAnnotationFile, ChunkTreeHandlerThread.class,
-		        Color.DARK_GRAY, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcriptReversed.setStrand(Strand.REVERSED);
 		
 		adds();
@@ -99,7 +87,7 @@ public class GeneTrackGroup extends TrackGroup {
 			// SNP track Reversed
 			tracks.add(snpTrackReversed);
 		}
-		  
+		
         // Repeat masker track
         tracks.add(repeatMasker);
 		
@@ -123,8 +111,8 @@ public class GeneTrackGroup extends TrackGroup {
 	
 	private void setChangeSNP(boolean change) {
 		if (change) {
-			snpTrack.changeSNPView(ChunkTreeHandlerThread.class);
-			snpTrackReversed.changeSNPView(ChunkTreeHandlerThread.class);
+			snpTrack.changeSNPView();
+			snpTrackReversed.changeSNPView();
 		} else {
 			snpTrack.returnSNPView();
 			snpTrackReversed.returnSNPView();

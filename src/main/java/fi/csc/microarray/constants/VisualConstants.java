@@ -221,6 +221,7 @@ public class VisualConstants {
         new ImageIcon(VisualConstants.class.getResource("/table.png"));
     public static final ImageIcon EXAMPLE_SESSION_ICON = 
         new ImageIcon(VisualConstants.class.getResource("/try.png"));
+    
 
     public static final int LEFT_PANEL_WIDTH = 360;
     public static final int TREE_PANEL_HEIGHT = 250;

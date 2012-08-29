@@ -22,6 +22,12 @@ public abstract class Drawable {
 		this.y = y;
 		this.color = color;
 	}
+	
+	public Drawable(Color color) {
+		this.x = -1;
+		this.y = -1;
+		this.color = color;
+	}
 
 	public void upsideDown() {
 		y = -y;
