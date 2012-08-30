@@ -241,6 +241,12 @@ then
 #  cd ${CHIP_PATH}/
 #  echo | ./setup.sh
 
+  # Add R package outside of setup.sh/environment.xml
+  cd ${TMPDIR_PATH}/
+  wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
+  ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
+  rm nz131a520662fcdf.tar.gz
+  
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/
