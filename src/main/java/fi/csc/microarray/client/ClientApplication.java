@@ -106,7 +106,6 @@ public abstract class ClientApplication {
 	public abstract DataFolder initializeFolderForImport(String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
-    public abstract void showDetailsFor(DataBean data);
     public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
     public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
     public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	

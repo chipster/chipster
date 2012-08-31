@@ -223,10 +223,9 @@ public class VisualConstants {
         new ImageIcon(VisualConstants.class.getResource("/try.png"));
     
 
-    public static final int LEFT_PANEL_WIDTH = 360;
-    public static final int TREE_PANEL_HEIGHT = 250;
+    public static final int LEFT_PANEL_WIDTH = 400;
+    public static final int TREE_PANEL_HEIGHT = 270;
     public static final int GRAPH_PANEL_HEIGHT = 240;
-    public static final int DETAILS_PANEL_HEIGHT = 135;
         
     // for some child screens
     public static final Dimension DEFAULT_SCREEN_DIMENSION = new Dimension(640,480); 
@@ -236,7 +235,7 @@ public class VisualConstants {
     public static final Color TOOL_LIST_BORDER_COLOR = new Color(128,128,128);
     public static final Color PHENODATA_TABLE_UNEDITABLE_CELL_BACKGROUND = new Color(245, 245, 245);
     
-    public static final float DEFAULT_FONT_SIZE = 11f;
+    public static final float DEFAULT_FONT_SIZE = 12f;
     /**
      * Color for uneditable JTextArea background. Used in details pane and 
      * ErrorScreen for example. 
@@ -327,10 +326,6 @@ public class VisualConstants {
 		new Color(192,210,222),
 		new Color(71,139,140)
 	};
-    
-	public static final Color DETAILS_NAME_FOREGROUND_COLOR = new Color(80, 80, 150);
-
-	public static final Color DETAILS_ATTRIBUTES_FOREGROUND_COLOR = new Color(80, 80, 150);
 	
 	//Used for the selection rectangles in Scatterplots
 	public static final Stroke dashLine = 

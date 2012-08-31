@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,7 +52,6 @@ import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.dataimport.ImportUtils.FileLoaderProcess;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
-import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
@@ -77,7 +74,6 @@ import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
-import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -136,7 +132,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFrame mainFrame = null;
 	private JPanel rightSideViewChanger = null;
-	private JPanel leftSideContentPane = null;
 	private JSplitPane rightSplit = null;
 	private JSplitPane leftSplit = null;
 	private JSplitPane mainSplit = null;
@@ -148,11 +143,9 @@ public class SwingClientApplication extends ClientApplication {
 	private SimpleInternalFrame graphFrame;
 	private SimpleInternalFrame operationsFrame;
 	private JPanel visualisationArea;
-	private SimpleInternalFrame detailsFrame;
 
 	private ChildScreenPool childScreens;
 	private TreePanel tree;
-	private DetailsPanel details;
 	private GraphPanel graphPanel;
 	private ToolPanel toolPanel;
 	private VisualisationFrameManager visualisationFrameManager;
@@ -277,11 +270,6 @@ public class SwingClientApplication extends ClientApplication {
 		rightSplit.setDividerLocation(VisualConstants.TREE_PANEL_HEIGHT);
 		rightSplit.setResizeWeight(0.1);
 
-		// initialise left side
-		leftSideContentPane = new JPanel(new BorderLayout());
-		details = new DetailsPanel(leftSideContentPane);
-		leftSideContentPane.setBorder(BorderFactory.createEmptyBorder());
-
 		/* Initialize tree and graph */
 		
 		//moved to getTreeFrame
@@ -295,10 +283,6 @@ public class SwingClientApplication extends ClientApplication {
 		leftSplit.setDividerLocation(VisualConstants.TREE_PANEL_HEIGHT);
 		leftSplit.setResizeWeight(0.1);
 
-		detailsFrame = getDetailsFrame();
-
-		leftSideContentPane.add(leftSplit, BorderLayout.CENTER);
-		leftSideContentPane.add(detailsFrame, BorderLayout.SOUTH);
 
 		rightSideViewChanger = new JPanel(new BorderLayout());
 
@@ -310,7 +294,7 @@ public class SwingClientApplication extends ClientApplication {
 		rightSideViewChanger.setBorder(BorderFactory.createEmptyBorder());
 
 		// construct the whole main content pane
-		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSideContentPane, rightSideViewChanger);
+		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplit, rightSideViewChanger);
 		mainSplit.setDividerLocation(VisualConstants.LEFT_PANEL_WIDTH);
 		mainSplit.setResizeWeight(0.1);
 
@@ -457,38 +441,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public SimpleInternalFrame getDetailsFrame() throws MicroarrayException {
-		if (detailsFrame == null) {
 
-			class DetailsFrame extends SimpleInternalFrame implements PropertyChangeListener {
-				public DetailsFrame() {
-					super("Notes for dataset");
-				}
-
-				public void propertyChange(PropertyChangeEvent evt) {
-					if (evt instanceof DatasetChoiceEvent) {
-						DatasetChoiceEvent dce = (DatasetChoiceEvent) evt;
-						if (dce.getNewValue() != null) {
-							this.setTitle("Notes for dataset " + dce.getNewValue());
-						} else {
-							this.setTitle("Notes for dataset");
-						}
-					}
-				}
-			}
-
-			DetailsFrame detailsFrameWithListener = new DetailsFrame();
-			addClientEventListener(detailsFrameWithListener);
-
-			this.detailsFrame = detailsFrameWithListener;
-
-			detailsFrame.add(details);
-			return detailsFrame;
-
-		} else {
-			return detailsFrame;
-		}
-	}
 
 	/**
 	 * ExperienceBlue is very nice color theme, but it has ugly orange borders
@@ -614,9 +567,6 @@ public class SwingClientApplication extends ClientApplication {
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
-
-
-
 
 	/**
 	 * Sets the folder with given name selected or creates a new folder if it
@@ -877,10 +827,6 @@ public class SwingClientApplication extends ClientApplication {
 	public void showHistoryScreenFor(DataBean data) {
 		historyScreen.setData(data);
 		childScreens.show("History", true);
-	}
-
-	public void showDetailsFor(DataBean data) {
-		details.setViewedData(data);
 	}
 
 	public Icon getIconFor(DataItem element) {

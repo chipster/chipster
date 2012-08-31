@@ -62,7 +62,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	private JButton detachButton = ToolBarComponentFactory.createButton("Detach", VisualConstants.TO_WINDOW_ICON, true, false);
 
 	JPanel buttonPanel;
-	
+
 	private JComboBox methodChoiceBox = ToolBarComponentFactory.createComboBox();
 
 	private String helpAddress;
@@ -151,7 +151,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			buttonPanel.add(button);
 		}
 	}
-	
+
 	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
 
 		// update maximise button
@@ -160,14 +160,14 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		// update method list
 		fillMethodsFor(datas);
 		methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
-		
+
 		// redraw button
 		redrawButton.setEnabled(method != VisualisationMethod.NONE);
 		// add missing redraw button
 		if (method != VisualisationMethod.NONE && method != MicroarrayModule.VisualisationMethods.GBROWSER && 
 				redrawButton.getParent() != buttonPanel) {
-				buttonPanel.removeAll();
-				addButtons(helpButton, redrawButton, maximiseButton, detachButton);
+			buttonPanel.removeAll();
+			addButtons(helpButton, redrawButton, maximiseButton, detachButton);
 		}
 		// remove redraw button for NONE and GBROWSER
 		else if ((method == VisualisationMethod.NONE || method == MicroarrayModule.VisualisationMethods.GBROWSER) && 
@@ -179,7 +179,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		// other buttons
 		splitButton.setEnabled(method != VisualisationMethod.NONE || isSplit);
 		detachButton.setEnabled(method != VisualisationMethod.NONE);
-	
+
 	}
 
 	/**
@@ -231,12 +231,12 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 	public void maximiseOrRestoreVisualisation() {
 		application.setMaximisedVisualisationMode(isMaximised = !isMaximised); // flips
-																				// isMaximised
-																				// and
-																				// uses
-																				// the
-																				// new
-																				// value
+		// isMaximised
+		// and
+		// uses
+		// the
+		// new
+		// value
 		maximiseButton.setText(getMaximiseButtonText());
 		maximiseButton.setIcon(getMaximiseButtonIcon());
 	}
@@ -293,10 +293,10 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			// FIXME multiple window compatibility
 			if (e.getTarget() == FrameType.MAIN) {
-				
+
 				// update help button
 				setHelpAddress(e.getNewMethod().getHelpAddress());
-				
+
 				refreshVisualisationList(e.getNewMethod(), e.getDatas());
 				try {
 
@@ -328,7 +328,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		}
 	}
 
-	public void fillMethodsFor(List<DataBean> datas) {
+	public static List<VisualisationMethod> getMethodsFor(List<DataBean> datas) {
 		// Arrays.asList doesn't support removing, so we need a new one
 		List<VisualisationMethod> applicableVisualisations = new ArrayList<VisualisationMethod>();
 		applicableVisualisations.addAll(Session.getSession().getVisualisations().getVisualisationMethods());
@@ -354,25 +354,24 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 					}
 
 				} catch (Exception e) {
-					application.reportException(new MicroarrayException("Unable to check applicable visualisations for the dataset", e));
+					Session.getSession().getApplication().reportException(new MicroarrayException("Unable to check applicable visualisations for the dataset", e));
 
 					applicableVisualisations = onlyNoneList;
 					break;
 				}
 			}
-
-			userComboAction = false;
-			methodChoiceBox.removeAllItems();
-			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
-			userComboAction = true;
-
 		} else {
 			applicableVisualisations = onlyNoneList;
-
-			userComboAction = false;
-			methodChoiceBox.removeAllItems();
-			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
-			userComboAction = true;
 		}
+
+		return applicableVisualisations;
+	}
+
+	public void fillMethodsFor(List<DataBean> datas) {
+
+		userComboAction = false;
+		methodChoiceBox.removeAllItems();
+		Visualisation.fillComboBox(methodChoiceBox, getMethodsFor(datas).toArray());
+		userComboAction = true;
 	}
 }

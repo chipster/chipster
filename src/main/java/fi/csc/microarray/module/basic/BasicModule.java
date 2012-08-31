@@ -19,6 +19,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
@@ -48,6 +49,7 @@ public class BasicModule implements Module {
 	}
 	
 	public static class VisualisationMethods {
+		public static VisualisationMethod DATA_DETAILS = new VisualisationMethod("Dataset", DataDetails.class, VisualConstants.TEXT_MENUICON, -1, 0);
 		public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
 		public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
 		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
@@ -122,6 +124,7 @@ public class BasicModule implements Module {
 		
 		return new VisualisationMethod[] {
 				VisualisationMethod.NONE,
+				VisualisationMethods.DATA_DETAILS,
 				VisualisationMethods.SPREADSHEET,
 				VisualisationMethods.SHOW_IMAGE, 
 				VisualisationMethods.WEBVIEW, 
