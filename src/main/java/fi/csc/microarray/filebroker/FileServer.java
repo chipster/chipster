@@ -1,9 +1,12 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -13,6 +16,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -24,7 +28,6 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
-import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -52,6 +55,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	private long minimumSpaceForAcceptUpload;
+	
+	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool(); 
 
 	public static void main(String[] args) {
 		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
@@ -73,10 +78,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// initialise url repository
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
+    		String cachePath = configuration.getString("filebroker", "cache-path");
+    		String storagePath = configuration.getString("filebroker", "storage-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");
     		
-    		this.urlRepository = new AuthorisedUrlRepository(host, port);
+    		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
     		this.publicPath = configuration.getString("filebroker", "public-path");
 
     		// boot up file server
@@ -84,14 +91,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		fileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
-    		String cachePath = configuration.getString("filebroker", "cache-path");
     		cacheRoot = new File(fileRepository, cachePath);
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-    		String storagePath = configuration.getString("filebroker", "storage-path");
     		storageRoot = new File(fileRepository, storagePath);
     		
     		// disable periodic clean up for now
@@ -131,12 +136,24 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				
+				// parse request
 				CommandMessage requestMessage = (CommandMessage) msg;
 				boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
-				URL url = urlRepository.createAuthorisedUrl(useCompression);
-				UrlMessage reply = new UrlMessage(url);
+				FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
+				
+				// check quota, if needed
+				ChipsterMessage reply;
+				if (area == FileBrokerArea.STORAGE && !checkQuota(msg.getUsername(), Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE)))) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+				} else {
+					URL url = urlRepository.createAuthorisedUrl(useCompression, area);
+					reply = new UrlMessage(url);
+					managerClient.urlRequest(msg.getUsername(), url);
+				}
+				
+				// send reply
 				endpoint.replyToMessage(msg, reply);
-				managerClient.urlRequest(msg.getUsername(), url);
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				URL url = getPublicUrL();
@@ -244,50 +261,78 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	
-	private void handleMoveRequest(CommandMessage requestMessage) throws JMSException, MalformedURLException {
-		// TODO omaan threadiin
+	private void handleMoveRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		
-		URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
+		final URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
 		logger.info("move request for: " + cacheURL);
-		
-		// check that url points to our cache dir
-		String[] urlPathParts = cacheURL.getPath().split("/"); 
-		if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
-			logger.info("not a valid cache url: " + cacheURL);
-			// TODO
-		}
-		
-		File cacheFile = new File(cacheRoot, urlPathParts[2]);
 
-		// check that file exists
-		if (!cacheFile.exists()) {
-			logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
-			// TODO
-		}
-		
-		
-		String storageFileName = CryptoKey.generateRandom();
+		longRunningTaskExecutor.execute(new Runnable() {
 
-		ChipsterMessage reply = null;
-		URL storageURL = null;
-		if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
-			storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
-			reply = new UrlMessage(storageURL);
-			
-		} else {
-			logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
-			// TODO
-		}
+			@Override
+			public void run() {
 
-		// send reply
-		endpoint.replyToMessage(requestMessage, reply);
+				ChipsterMessage reply = null;
+				try {
+					// check that url points to our cache dir
+					String[] urlPathParts = cacheURL.getPath().split("/"); 
+					if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
+						logger.info("not a valid cache url: " + cacheURL);
+						throw new IllegalArgumentException("not a valid cache url: " + cacheURL);
+					}
+
+					File cacheFile = new File(cacheRoot, urlPathParts[2]);
+
+					// check that file exists
+					if (!cacheFile.exists()) {
+						logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
+						throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
+					}
+
+					// check quota here also
+					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
+						throw new IOException("quota exceeded");
+					}
+
+					// move the file
+					String storageFileName = CryptoKey.generateRandom();
+					URL storageURL = null;
+					if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
+						storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
+						reply = new UrlMessage(storageURL);
+
+					} else {
+						logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+						throw new IllegalArgumentException("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+					}
+
+				} catch (IllegalArgumentException e) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_FAILED); // TODO could add message from exception
+
+				} catch (IOException e) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+				}
+
+				// send reply
+				try {
+					endpoint.replyToMessage(requestMessage, reply);
+					
+				} catch (JMSException e) {
+					logger.error(e);
+				}
+
+			}
+
+		});
+
 
 	}
+	
+	
+	private boolean checkQuota(String username, long additionalBytes) {
+		return true;
+	}
 
-	
-	
-	
 	public void shutdown() {
 		logger.info("shutdown requested");
 
@@ -304,11 +349,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public URL getPublicUrL() throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + publicPath);		
 	}
-
-	private File createStorageFile() {
-		return new File(storageRoot, CryptoKey.generateRandom());
-	}
-
 
 }
 

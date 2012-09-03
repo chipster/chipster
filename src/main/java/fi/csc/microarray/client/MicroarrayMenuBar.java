@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,6 +24,7 @@ import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -46,6 +48,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu fileMenu = null;
 	private JMenu importMenu = null;
 	private JMenu importRemoteMenu = null;
+	private JMenuItem importFromRemoteServerMenuItem;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromRemoteURLMenuItem = null;
@@ -82,8 +85,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu openRepoWorkflowsMenu;
 
 	private boolean hasRepoWorkflows;
-
-	private JMenuItem uploadRemoteSessionMenuItem;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
@@ -145,7 +146,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
-			fileMenu.add(getUploadRemoteSessionMenuItem());
 			fileMenu.add(getArchiveSessionMenuItem());
 			
 			fileMenu.add(getClearSessionMenuItem());
@@ -177,6 +177,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importRemoteMenu.setText("Import remote data from");
 			
 			importRemoteMenu.add(getImportFromRemoteURLMenuItem());
+			importRemoteMenu.add(getImportFromRemoteServerMenuItem());
 		}
 		return importRemoteMenu;
 	}
@@ -231,6 +232,43 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromRemoteURLMenuItem;
+	}
+
+	private JMenuItem getImportFromRemoteServerMenuItem() {
+		if (importFromRemoteServerMenuItem == null) {
+			importFromRemoteServerMenuItem = new JMenuItem();
+			importFromRemoteServerMenuItem.setText("Server...");
+			importFromRemoteServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						String prefix = "http://chipster-filebroker.csc.fi/repos/";
+						URL[] repoDescription = new URL[] {
+								new URL(prefix + "Institute repository/"),
+								new URL(prefix + "Institute repository/username/"),
+								new URL(prefix + "Institute repository/username/sample.bam"),
+								new URL(prefix + "Institute repository/username/treatment.bam")
+						};
+						
+						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+						JFileChooser fc = new JFileChooser(view.getRoot(), view);
+						fc.setMultiSelectionEnabled(true);
+						int returnVal = fc.showDialog(null, "Open");
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File[] files = fc.getSelectedFiles();
+							
+							for (File file : files) {
+								System.out.println("Selected " + file + " (" + file.toURL() + ")");
+							}
+						}
+
+						
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromRemoteServerMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {
@@ -748,34 +786,21 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save session...");
+			saveSessionMenuItem.setText("Save session to server...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.LEAVE_DATA_AS_IT_IS);
+					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 				}
 			});
 		}
 		return saveSessionMenuItem;
 	}
 
-	private JMenuItem getUploadRemoteSessionMenuItem() {
-		if (uploadRemoteSessionMenuItem == null) {
-			uploadRemoteSessionMenuItem = new JMenuItem();
-			uploadRemoteSessionMenuItem.setText("Upload session to server...");
-			uploadRemoteSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
-				}
-			});
-		}
-		return uploadRemoteSessionMenuItem;
-	}
-
 	private JMenuItem getArchiveSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
-			archiveSessionMenuItem.setText("Archive session...");
+			archiveSessionMenuItem.setText("Save session locally...");
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);

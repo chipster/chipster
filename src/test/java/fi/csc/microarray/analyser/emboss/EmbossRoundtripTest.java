@@ -19,6 +19,7 @@ import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
@@ -73,8 +74,8 @@ public class EmbossRoundtripTest {
         // User uploads two files for input
         InputStream firstInput = new FileInputStream(path + "sequences/human_adh6.fasta");
         InputStream secondInput = new FileInputStream(path + "sequences/funghi_adh6.fasta");
-        URL firstUrl = resultCallback.getFileBrokerClient().addFile(firstInput, -1, null);
-        URL secondUrl = resultCallback.getFileBrokerClient().addFile(secondInput, -1, null);
+        URL firstUrl = resultCallback.getFileBrokerClient().addFile(FileBrokerArea.CACHE, firstInput, -1, null);
+        URL secondUrl = resultCallback.getFileBrokerClient().addFile(FileBrokerArea.CACHE, secondInput, -1, null);
         jobMessage.addPayload("asequence", firstUrl);
         jobMessage.addPayload("bsequence", secondUrl);
         
