@@ -952,8 +952,8 @@ public class DataManager {
 		
 		// move from elsewhere to storage
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
-		Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
-		
+		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
+		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		
 	}
 
 	/**
