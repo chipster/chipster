@@ -34,6 +34,7 @@
 # OUTPUT de-promoters.tsv
 
 # Cufflinks tools setup
+source(file.path(chipster.common.path, "bed-utils.R")) # bed sort
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cuffdiff"))
 command.start <- cufflinks.binary
 
@@ -113,9 +114,7 @@ write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=TRU
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# sort according to chromosome location
-	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
-	# add chr to the chromosome name for genome browser compability
-#	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
+	bed_output <- sort.bed(bed_output)
 	write.table(bed_output, file="de-genes-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -182,9 +181,7 @@ write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# sort according to chromosome location
-	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
-	# add chr to the chromosome name for genome browser compatibility
-#	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
+	bed_output <- sort.bed(bed_output)
 	write.table(bed_output, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
