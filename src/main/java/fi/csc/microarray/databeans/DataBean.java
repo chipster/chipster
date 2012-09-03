@@ -598,6 +598,12 @@ public class DataBean extends DataItemBase {
 	 * @param methods returned ContentLocation must use one of these
 	 */
 	public ContentLocation getContentLocation(StorageMethod... methods) {
+		
+		if (methods.length == 0) {
+			// does not make sense if no methods are specified, check here to avoid programming mistakes
+			throw new IllegalArgumentException("must specify at least one method"); 
+		}
+		
 		List<ContentLocation> locations = getContentLocations(methods);
 		return locations.isEmpty() ? null : locations.get(0);
 	}

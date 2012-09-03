@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -77,10 +78,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// initialise url repository
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
+    		String cachePath = configuration.getString("filebroker", "cache-path");
+    		String storagePath = configuration.getString("filebroker", "storage-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");
     		
-    		this.urlRepository = new AuthorisedUrlRepository(host, port);
+    		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
     		this.publicPath = configuration.getString("filebroker", "public-path");
 
     		// boot up file server
@@ -88,14 +91,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		fileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
-    		String cachePath = configuration.getString("filebroker", "cache-path");
     		cacheRoot = new File(fileRepository, cachePath);
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-    		String storagePath = configuration.getString("filebroker", "storage-path");
     		storageRoot = new File(fileRepository, storagePath);
     		
     		// disable periodic clean up for now
@@ -135,12 +136,24 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				
+				// parse request
 				CommandMessage requestMessage = (CommandMessage) msg;
 				boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
-				URL url = urlRepository.createAuthorisedUrl(useCompression);
-				UrlMessage reply = new UrlMessage(url);
+				FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
+				
+				// check quota, if needed
+				ChipsterMessage reply;
+				if (area == FileBrokerArea.STORAGE && !checkQuota(msg.getUsername(), Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE)))) {
+					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+				} else {
+					URL url = urlRepository.createAuthorisedUrl(useCompression, area);
+					reply = new UrlMessage(url);
+					managerClient.urlRequest(msg.getUsername(), url);
+				}
+				
+				// send reply
 				endpoint.replyToMessage(msg, reply);
-				managerClient.urlRequest(msg.getUsername(), url);
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				URL url = getPublicUrL();
@@ -276,7 +289,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 						throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
 					}
 
-					// check quota here also and throw IOException if not enough
+					// check quota here also
+					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
+						throw new IOException("quota exceeded");
+					}
 
 					// move the file
 					String storageFileName = CryptoKey.generateRandom();
@@ -313,6 +329,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 	
 	
+	private boolean checkQuota(String username, long additionalBytes) {
+		return true;
+	}
+
 	public void shutdown() {
 		logger.info("shutdown requested");
 

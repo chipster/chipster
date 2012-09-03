@@ -48,6 +48,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu fileMenu = null;
 	private JMenu importMenu = null;
 	private JMenu importRemoteMenu = null;
+	private JMenuItem importFromRemoteServerMenuItem;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromRemoteURLMenuItem = null;
@@ -84,10 +85,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu openRepoWorkflowsMenu;
 
 	private boolean hasRepoWorkflows;
-
-	private JMenuItem uploadRemoteSessionMenuItem;
-
-	private JMenuItem importFromRemoteServerMenuItem;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
@@ -149,7 +146,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
-			fileMenu.add(getUploadRemoteSessionMenuItem());
 			fileMenu.add(getArchiveSessionMenuItem());
 			
 			fileMenu.add(getClearSessionMenuItem());
@@ -790,34 +786,21 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save session...");
+			saveSessionMenuItem.setText("Save session to server...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.LEAVE_DATA_AS_IT_IS);
+					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 				}
 			});
 		}
 		return saveSessionMenuItem;
 	}
 
-	private JMenuItem getUploadRemoteSessionMenuItem() {
-		if (uploadRemoteSessionMenuItem == null) {
-			uploadRemoteSessionMenuItem = new JMenuItem();
-			uploadRemoteSessionMenuItem.setText("Upload session to server...");
-			uploadRemoteSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
-				}
-			});
-		}
-		return uploadRemoteSessionMenuItem;
-	}
-
 	private JMenuItem getArchiveSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
-			archiveSessionMenuItem.setText("Archive session...");
+			archiveSessionMenuItem.setText("Save session locally...");
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
