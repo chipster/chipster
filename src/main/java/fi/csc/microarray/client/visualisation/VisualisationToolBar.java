@@ -318,12 +318,18 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			List<DataBean> currentDatas = application.getSelectionManager().getSelectedDataBeans();
 			List<DataBean> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
 
-			// If same
+			VisualisationMethod method = null;
+			if (currentDatas.size() > 0) {
+				method = VisualisationMethod.getDefault();
+			} else {
+				method = VisualisationMethod.NONE;
+			}
+			
 			if (currentDatas == null || newDatas == null || !(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
 
-				application.setVisualisationMethod(VisualisationMethod.NONE, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				application.setVisualisationMethod(method, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 
-				refreshVisualisationList(VisualisationMethod.NONE, application.getSelectionManager().getSelectedDataBeans());
+				refreshVisualisationList(method, application.getSelectionManager().getSelectedDataBeans());
 			}
 		}
 	}

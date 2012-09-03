@@ -9,13 +9,17 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -38,22 +42,23 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class DataDetails extends Visualisation implements FocusListener, DocumentListener{
 
 	private final String PLEASE_ADD_NOTES = "Add your notes here...";
 
-	private JTextArea attributesField = new JTextArea();  // not editable by user
-	private JTextArea datasetField = new JTextArea();  // not editable by user
 	private JTextArea notesField = new JTextArea();
 	private JPanel panel = new JPanel();
 
 	private static final Color BG = Color.white;
-
-	private static final Dimension DATASET_SIZE = new Dimension(300, 100);
-	private static final Dimension VISUALIZATION_SIZE = new Dimension(200, 100);
+	
+	final int LEFT_WIDTH = 400;
+	final int INDENTION = 20;
 
 	private List<DataBean> datas;
+
+	private JPanel cachePanel;
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -70,7 +75,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(titleLabel, BorderLayout.NORTH);
 			//panel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder(caption));
 		}
-		panel.add(new JLabel("     "), BorderLayout.WEST);
+		JPanel indention = new JPanel();
+		indention.setBackground(BG);
+		indention.setPreferredSize(new Dimension(INDENTION, 1));
+		panel.add(indention, BorderLayout.WEST);
 		return panel;
 	}
 
@@ -80,7 +88,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		// notes visible?
 		if (Session.getSession().getPrimaryModule().notesVisibleAtStartup()) {
 
-			JPanel notesPanel = getPanelBase("Notes");
+			JPanel notesPanel = getPanelBase(null);
 			
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.setBackground(BG);
@@ -89,10 +97,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			notesField.setLineWrap(true);
 			notesField.setWrapStyleWord(true);
 			notesField.addFocusListener(this);
-			notesField.setBorder(new javax.swing.border.LineBorder(Color.gray));
+			notesField.setBorder(new javax.swing.border.LineBorder(Color.lightGray));
 			notesField.getDocument().addDocumentListener(this);
-			notesField.setColumns(40);
-			notesField.setRows(2);
+			notesField.setColumns(LEFT_WIDTH / notesField.getFont().getSize()); //not accurate
+			notesField.setRows(1);
 			panel.add(notesField, BorderLayout.CENTER);
 			panel.add(new JLabel(" "), BorderLayout.SOUTH);
 			notesPanel.add(panel, BorderLayout.CENTER);
@@ -108,7 +116,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	}
 
 	private Component createVisualisations() {
-		JPanel visualisationsPanel = getPanelBase("Visualisations");
+		JPanel visualisationsPanel = getPanelBase(" ");
 
 		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBackground(BG);
@@ -116,11 +124,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		c.gridx = 0;
 		c.gridy = 0;
-		c.anchor = GridBagConstraints.NORTHWEST;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weighty = 0;
+		c.ipadx = 10;
 		
 		List<VisualisationMethod> visualisations = VisualisationToolBar.getMethodsFor(datas);
+		visualisations.remove(VisualisationMethod.NONE);
+		visualisations.remove(VisualisationMethods.DATA_DETAILS);
 		
 		for (VisualisationMethod method : visualisations) {
 			
@@ -143,7 +153,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	
     private Icon resizeImage(Icon in)  
     {  
-    	final int SIZE = 32;
+    	final int SIZE = 48;
         double scale = SIZE / Math.max(in.getIconHeight(), in.getIconWidth());  
         int w = (int)(in.getIconWidth() * scale);  
         int h = (int)(in.getIconHeight() * scale);  
@@ -168,53 +178,82 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 	private Component createParameters() {
 
-		JPanel parametersPanel = getPanelBase("Parameters");
-
-		// create static part of details field
-//		attributesField.setEditable(false);
-//		attributesField.setLineWrap(true);
-//		attributesField.setWrapStyleWord(true);
-//		parametersPanel.add(attributesField, BorderLayout.CENTER);
-//
-//		attributesField.setText(getParameterTable());
+		JPanel parametersPanel = getPanelBase(getNameText());
 		
 		parametersPanel.add(getParameterTable(), BorderLayout.CENTER);
 
 		return parametersPanel;
 	}
 
-	private Component createActions() {
-
-		JPanel actionsPanel = getPanelBase("Actions");
-
-		//actionsPanel.add(new JPanel(), BorderLayout.CENTER);
-
-		return actionsPanel;
-
-	}
-
 	private Component createDatasetDetails() {
-
+		
 		JPanel datasetPanel = getPanelBase(null);
+		
 		JLabel title = new JLabel(datas.get(0).getName());
 		title.setFont(title.getFont().deriveFont(title.getFont().getSize2D() * 1.5f));
 		
 		datasetPanel.add(title, BorderLayout.NORTH);
-
-		datasetField.setEditable(false);
-		datasetField.setLineWrap(true);
-		datasetField.setWrapStyleWord(true);
-		datasetPanel.add(datasetField, BorderLayout.CENTER);
-
-		datasetField.setText(
-				getNameText() + "\n" + 	
-				datas.get(0).getDate().toString() + "\n" + 
-				"Local file");
-				//"Remote file (chipster.csc.fi)");
-				//"Remote file (chipster.csc.fi) with local copy");
 		
-		datasetField.setColumns(40);
+		JPanel panel = new JPanel(new GridBagLayout());
+		panel.setBackground(BG);
+		
+		JLabel dateLabel = new JLabel(datas.get(0).getDate().toString());
+		JLabel locationLabel = new JLabel("Location: chipster.csc.fi (");
+		
+		JXHyperlink link = new JXHyperlink();
+		link.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				cachePanel.removeAll();
+				cachePanel.add(new JLabel("cached locally"));
+				cachePanel.validate();
+			}
+		});
+		link.setText("Get local copy");
+		
+		cachePanel = new JPanel(new BorderLayout());
+		cachePanel.setBackground(BG);
+		cachePanel.add(link, BorderLayout.CENTER);
+		
+		JLabel locationEndLabel = new JLabel(")");
+		
+		//"Local file"
+		//"Remote file (chipster.csc.fi)"
+		//"Remote file (chipster.csc.fi) with local copy"
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 4;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weightx = 0;
+		c.weighty = 0;
+		
+		panel.add(dateLabel, c);
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 1;
+		panel.add(locationLabel, c);
+		c.gridx++;
+		panel.add(cachePanel, c);
+		c.gridx++;
+		panel.add(locationEndLabel, c);
+		
+		c.gridx++;
+		c.weightx = 1.0;
+		JPanel xSpaceFiller = new JPanel();
+		xSpaceFiller.setBackground(BG);
+		panel.add(xSpaceFiller, c);
+		c.gridx = 0;
+		c.gridy++;
+		c.weighty = 1.0;
+		c.weightx = 0;
+		JPanel ySpaceFiller = new JPanel();
+		ySpaceFiller.setBackground(BG);
+		panel.add(ySpaceFiller, c);
 
+		datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
+		datasetPanel.add(panel, BorderLayout.CENTER);
 		return datasetPanel;
 	}
 
@@ -225,29 +264,29 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		panel.setLayout(new GridBagLayout());
 		panel.setBackground(BG);
 		
+		final int TOP_MARGIN = 10;
+		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0;
 		c.weighty = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.NONE;
 		c.ipady = 10;
 		
 		addEmptyColumn(panel, c, 20);
 
 		c.gridx++;
 		
-		addEmptyRow(panel, c, 10);
+		addEmptyRow(panel, c, TOP_MARGIN);
 		
 		c.gridy++;
 		panel.add(emptyIfMultipleDatas(createDatasetDetails()), c);
 		
 		c.gridy++;
-		//c.fill = GridBagConstraints.NONE;
 		panel.add(emptyIfMultipleDatas(createNotes()), c);
-		//c.fill = GridBagConstraints.BOTH;
-
+		
 		c.gridy++;
 		panel.add(emptyIfMultipleDatas(createParameters()), c);
 		
@@ -260,16 +299,14 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 		c.gridy = 0;
 		c.gridx++;
-		//empty row
+		//addEmptyRow(panel, c, TOP_MARGIN);
 		
 		c.gridy++;
-		panel.add(emptyIfMultipleDatas(createActions()), c);
-
-		c.gridy++;
-		c.gridheight = 2;
+		c.gridheight = 3;
 		panel.add(createVisualisations(), c);
+		c.gridy += c.gridheight;
+		c.gridheight = 1;
 		
-		c.gridy++;
 		addEmptyRow(panel, c, -1);
 		
 		c.gridy = 0;
@@ -285,6 +322,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		} else {
 			JPanel empty = new JPanel();
 			empty.setBackground(BG);
+			empty.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, 1));
 			return empty;
 		}
 	}
@@ -319,12 +357,12 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return true;
+		return bean != null;
 	}
 
 	@Override
 	public boolean canVisualise(List<DataBean> datas) throws MicroarrayException {
-		return true;
+		return datas.size() > 0;
 	}
 
 	private String getNameText() {
@@ -345,6 +383,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		JPanel panel = new JPanel();
 		panel.setBackground(BG);
 		panel.setLayout(new GridBagLayout());
+		
+		final int TOOL_WIDTH = 300;
+		final int VALUE_WIDTH = LEFT_WIDTH - TOOL_WIDTH;
+		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
@@ -370,9 +412,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 						JLabel value = new JLabel(parameterRecord.getValue());
 						
 						if (defaultValue.equals(parameterRecord.getValue())) {
-							name.setForeground(Color.gray);
 							value.setForeground(Color.gray);
 						}
+						
+						int height = name.getFont().getSize() + 8;
+						
+						name.setPreferredSize(new Dimension(TOOL_WIDTH, height));
+						value.setPreferredSize(new Dimension(VALUE_WIDTH, height));
 						
 						c.gridx = 0;
 						panel.add(name, c);
