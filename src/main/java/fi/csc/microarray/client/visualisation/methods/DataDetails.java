@@ -16,10 +16,8 @@ import java.awt.event.FocusListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -32,12 +30,14 @@ import javax.swing.event.DocumentListener;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
@@ -136,6 +136,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			
 			JLabel icon = new JLabel(resizeImage(method.getIcon()));
 			JXHyperlink link = new JXHyperlink();
+			link.addActionListener(new VisualisationStarter(method, Session.getSession().getApplication()));
 			link.setText(method.getName());
 			c.gridx = 0;
 			c.weightx = 0;
@@ -500,5 +501,21 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private class VisualisationStarter implements ActionListener {
+		
+		private VisualisationMethod method;
+		private ClientApplication application;
+
+		private VisualisationStarter(VisualisationMethod method, ClientApplication clientApplication) {
+			this.method = method;
+			this.application = clientApplication;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			application.setVisualisationMethod(method, null, datas, getFrame().getType());
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -16,8 +15,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -35,7 +32,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 /**
  * This panel contains the options for different data visualizations. It is a
@@ -55,21 +52,22 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 	private ClientApplication application = Session.getSession().getApplication();
 
-	private JButton redrawButton = ToolBarComponentFactory.createButton("Redraw", VisualConstants.REDRAW_ICON, true, false);
+	//private JButton redrawButton = ToolBarComponentFactory.createButton("Redraw", VisualConstants.REDRAW_ICON, true, false);
 	private JButton helpButton = ToolBarComponentFactory.createButton("Help", VisualConstants.QUESTION_MARK_ICON, true, false);
 	private JButton maximiseButton = ToolBarComponentFactory.createButton("Maximise", VisualConstants.MAXIMISE_ICON, true, false);
-	private JButton splitButton = ToolBarComponentFactory.createButton("Duplicate", VisualConstants.SPLIT_ICON, true, false);
+	//private JButton splitButton = ToolBarComponentFactory.createButton("Duplicate", VisualConstants.SPLIT_ICON, true, false);
 	private JButton detachButton = ToolBarComponentFactory.createButton("Detach", VisualConstants.TO_WINDOW_ICON, true, false);
+	private JButton closeButton = ToolBarComponentFactory.createButton("Close", VisualConstants.CLOSE_ICON, true, false);
 
 	JPanel buttonPanel;
 
-	private JComboBox methodChoiceBox = ToolBarComponentFactory.createComboBox();
+//	private JComboBox methodChoiceBox = ToolBarComponentFactory.createComboBox();
 
 	private String helpAddress;
 
-	private boolean userComboAction;
+//	private boolean userComboAction;
 
-	private boolean isSplit;
+//	private boolean isSplit;
 
 	public VisualisationToolBar() {
 
@@ -81,40 +79,44 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 		Dimension ZERO_SIZE = new Dimension(0, 0);
 
-		redrawButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
+//		redrawButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
 		helpButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
 		maximiseButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
-		splitButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
+//		splitButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
 		detachButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
+		closeButton.setMinimumSize((Dimension) ZERO_SIZE.clone());
 
-		methodChoiceBox.setBackground(Color.WHITE);
-		methodChoiceBox.addActionListener(this);
-		// methodChoiceBox.setPreferredSize(ToolBarComponentFactory.COMBOBOX_SIZE);
-		methodChoiceBox.setRenderer(new ComboBoxRenderer());
+
+//		methodChoiceBox.setBackground(Color.WHITE);
+//		methodChoiceBox.addActionListener(this);
+//		// methodChoiceBox.setPreferredSize(ToolBarComponentFactory.COMBOBOX_SIZE);
+//		methodChoiceBox.setRenderer(new ComboBoxRenderer());
 
 		buttonPanel = new JPanel(new GridLayout(1, 4));
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(helpButton);
-		buttonPanel.add(redrawButton);
+//		buttonPanel.add(redrawButton);
 		buttonPanel.add(maximiseButton);
 		// buttonPanel.add(splitButton); // splitting disabled, needs more
 		// thinking
 		buttonPanel.add(detachButton);
+		buttonPanel.add(closeButton);
 
-		JLabel titleLabel = new JLabel("Method: ");
-
-		this.add(titleLabel);
-		this.add(methodChoiceBox);
+//		JLabel titleLabel = new JLabel("Method: ");
+//
+//		this.add(titleLabel);
+//		this.add(methodChoiceBox);
 		this.add(Box.createHorizontalStrut(3));
 		this.add(Box.createHorizontalGlue());
 		this.add(buttonPanel);
 
-		redrawButton.setEnabled(false);
-		redrawButton.addActionListener(this);
+//		redrawButton.setEnabled(false);
+//		redrawButton.addActionListener(this);
 		helpButton.addActionListener(this);
 		maximiseButton.addActionListener(this);
-		splitButton.addActionListener(this);
+//		splitButton.addActionListener(this);
 		detachButton.addActionListener(this);
+		closeButton.addActionListener(this);
 
 		helpButton.setVisible(false);
 
@@ -126,7 +128,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 	public Vector<Component> getFocusComponents() {
 		Vector<Component> order = new Vector<Component>();
-		order.add(methodChoiceBox);
+//		order.add(methodChoiceBox);
 		return order;
 	}
 
@@ -146,11 +148,11 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		});
 	}
 
-	private void addButtons(JButton... buttons) {
-		for (JButton button : buttons) {
-			buttonPanel.add(button);
-		}
-	}
+//	private void addButtons(JButton... buttons) {
+//		for (JButton button : buttons) {
+//			buttonPanel.add(button);
+//		}
+//	}
 
 	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
 
@@ -158,28 +160,28 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		maximiseButton.setEnabled(datas != null && datas.size() > 0);
 
 		// update method list
-		fillMethodsFor(datas);
-		methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
+//		fillMethodsFor(datas);
+//		methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
 
-		// redraw button
-		redrawButton.setEnabled(method != VisualisationMethod.NONE);
-		// add missing redraw button
-		if (method != VisualisationMethod.NONE && method != MicroarrayModule.VisualisationMethods.GBROWSER && 
-				redrawButton.getParent() != buttonPanel) {
-			buttonPanel.removeAll();
-			addButtons(helpButton, redrawButton, maximiseButton, detachButton);
-		}
-		// remove redraw button for NONE and GBROWSER
-		else if ((method == VisualisationMethod.NONE || method == MicroarrayModule.VisualisationMethods.GBROWSER) && 
-				redrawButton.getParent() == buttonPanel) {
-			buttonPanel.removeAll();
-			addButtons(helpButton, maximiseButton, detachButton);
-		}
+//		// redraw button
+//		redrawButton.setEnabled(method != VisualisationMethod.NONE);
+//		// add missing redraw button
+//		if (method != VisualisationMethod.NONE && method != MicroarrayModule.VisualisationMethods.GBROWSER && 
+//				redrawButton.getParent() != buttonPanel) {
+//			buttonPanel.removeAll();
+//			addButtons(helpButton, redrawButton, maximiseButton, detachButton);
+//		}
+//		// remove redraw button for NONE and GBROWSER
+//		else if ((method == VisualisationMethod.NONE || method == MicroarrayModule.VisualisationMethods.GBROWSER) && 
+//				redrawButton.getParent() == buttonPanel) {
+//			buttonPanel.removeAll();
+//			addButtons(helpButton, maximiseButton, detachButton);
+//		}
 
 		// other buttons
-		splitButton.setEnabled(method != VisualisationMethod.NONE || isSplit);
+//		splitButton.setEnabled(method != VisualisationMethod.NONE || isSplit);
 		detachButton.setEnabled(method != VisualisationMethod.NONE);
-
+		closeButton.setEnabled(method != VisualisationMethod.NONE && method != VisualisationMethods.DATA_DETAILS);
 	}
 
 	/**
@@ -199,33 +201,36 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			return;
 		}
 
-		if (source == methodChoiceBox) {
-			if (userComboAction) {
-
-				VisualisationMethod method = (VisualisationMethod) methodChoiceBox.getSelectedItem();
-				if (method == null) {
-					method = VisualisationMethod.NONE;
-				}
-
-				if (visualisation.getMethod() != method) {
-					application.setVisualisationMethod(method, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
-				}
-				redrawButton.setEnabled(method != VisualisationMethod.NONE);
-			}
-
-		} else if (source == maximiseButton) {
+//		if (source == methodChoiceBox) {
+//			if (userComboAction) {
+//
+//				VisualisationMethod method = (VisualisationMethod) methodChoiceBox.getSelectedItem();
+//				if (method == null) {
+//					method = VisualisationMethod.NONE;
+//				}
+//
+//				if (visualisation.getMethod() != method) {
+//					application.setVisualisationMethod(method, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+//				}
+//				redrawButton.setEnabled(method != VisualisationMethod.NONE);
+//			}
+//
+//		} else 
+			if (source == maximiseButton) {
 			maximiseOrRestoreVisualisation();
 
-		} else if (source == redrawButton) {
-			application.setVisualisationMethod(visualisation.getMethod(), visualisation.getVariables(), visualisation.getDatas(), visualisation.getType());
-			// FIXME redraw second visualisation if present
+//		} else if (source == redrawButton) {
+//			application.setVisualisationMethod(visualisation.getMethod(), visualisation.getVariables(), visualisation.getDatas(), visualisation.getType());
+//			// FIXME redraw second visualisation if present
 		} else if (source == helpButton) {
 			viewHelp();
-		} else if (source == splitButton) {
-			split();
+//		} else if (source == splitButton) {
+//			split();
 
 		} else if (source == detachButton) {
 			detach();
+		} else if (source == closeButton) {
+			application.setVisualisationMethod(VisualisationMethods.DATA_DETAILS, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 		}
 	}
 
@@ -259,30 +264,30 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		application.setVisualisationMethod(visualisation.getMethod(), visualisation.getVariables(), visualisation.getDatas(), FrameType.WINDOW);
 	}
 
-	public void split() {
-
-		VisualisationFrame visualisation = application.getVisualisationFrameManager().getFrame(FrameType.MAIN);
-
-		if (isSplit = !isSplit) {
-			application.setVisualisationMethod(visualisation.getMethod(), visualisation.getVariables(), visualisation.getDatas(), FrameType.SIDE);
-
-		} else {
-			application.getVisualisationFrameManager().closeAllByType(FrameType.SIDE);
-
-			splitButton.setEnabled(!methodChoiceBox.getSelectedItem().equals(VisualisationMethod.NONE));
-		}
-
-		splitButton.setText(getSplitText());
-		splitButton.setIcon(getSplitIcon());
-	}
-
-	public String getSplitText() {
-		return isSplit ? "Close second" : "Duplicate";
-	}
-
-	public Icon getSplitIcon() {
-		return isSplit ? VisualConstants.CLOSE_ICON : VisualConstants.SPLIT_ICON;
-	}
+//	public void split() {
+//
+//		VisualisationFrame visualisation = application.getVisualisationFrameManager().getFrame(FrameType.MAIN);
+//
+//		if (isSplit = !isSplit) {
+//			application.setVisualisationMethod(visualisation.getMethod(), visualisation.getVariables(), visualisation.getDatas(), FrameType.SIDE);
+//
+//		} else {
+//			application.getVisualisationFrameManager().closeAllByType(FrameType.SIDE);
+//
+//			splitButton.setEnabled(!methodChoiceBox.getSelectedItem().equals(VisualisationMethod.NONE));
+//		}
+//
+//		splitButton.setText(getSplitText());
+//		splitButton.setIcon(getSplitIcon());
+//	}
+//
+//	public String getSplitText() {
+//		return isSplit ? "Close second" : "Duplicate";
+//	}
+//
+//	public Icon getSplitIcon() {
+//		return isSplit ? VisualConstants.CLOSE_ICON : VisualConstants.SPLIT_ICON;
+//	}
 
 	public void propertyChange(PropertyChangeEvent event) {
 
@@ -298,21 +303,21 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 				setHelpAddress(e.getNewMethod().getHelpAddress());
 
 				refreshVisualisationList(e.getNewMethod(), e.getDatas());
-				try {
-
-					if (e.getNewMethod() != null) {
-						logger.debug("updating GUI to method " + e.getNewMethod());
-
-						userComboAction = false;
-						methodChoiceBox.setSelectedItem(e.getNewMethod());
-						userComboAction = true;
-
-						// Make sure the selected visualisation is shown
-						methodChoiceBox.repaint();
-					}
-				} catch (Exception exc) {
-					application.reportException(exc);
-				}
+//				try {
+//
+//					if (e.getNewMethod() != null) {
+//						logger.debug("updating GUI to method " + e.getNewMethod());
+//
+//						userComboAction = false;
+//						methodChoiceBox.setSelectedItem(e.getNewMethod());
+//						userComboAction = true;
+//
+//						// Make sure the selected visualisation is shown
+//						methodChoiceBox.repaint();
+//					}
+//				} catch (Exception exc) {
+//					application.reportException(exc);
+//				}
 			}
 		} else if (event instanceof DatasetChoiceEvent) {
 			List<DataBean> currentDatas = application.getSelectionManager().getSelectedDataBeans();
@@ -373,11 +378,11 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		return applicableVisualisations;
 	}
 
-	public void fillMethodsFor(List<DataBean> datas) {
-
-		userComboAction = false;
-		methodChoiceBox.removeAllItems();
-		Visualisation.fillComboBox(methodChoiceBox, getMethodsFor(datas).toArray());
-		userComboAction = true;
-	}
+//	public void fillMethodsFor(List<DataBean> datas) {
+//
+//		userComboAction = false;
+//		methodChoiceBox.removeAllItems();
+//		Visualisation.fillComboBox(methodChoiceBox, getMethodsFor(datas).toArray());
+//		userComboAction = true;
+//	}
 }
