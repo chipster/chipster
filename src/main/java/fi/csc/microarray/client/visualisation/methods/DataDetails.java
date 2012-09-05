@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -33,6 +35,7 @@ import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -127,7 +130,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		visualisations.remove(VisualisationMethod.NONE);
 		visualisations.remove(VisualisationMethods.DATA_DETAILS);
 		
-		for (VisualisationMethod method : visualisations) {
+		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(visualisations);
+		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
+		
+		for (VisualisationMethod method : orderedMethods) {
 			
 //			JLabel icon = new JLabel(resizeImage(method.getIcon()));
 			JLabel icon = new JLabel(method.getIcon());
