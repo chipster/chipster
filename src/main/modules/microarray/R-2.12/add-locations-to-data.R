@@ -1,4 +1,4 @@
-# TOOL add-locations-to-data.R: "Add genomic location information to data" (Annotates the genes with information about chromosomal location, and adds the results to the datafile. The result file can be visualized using the Genome browser.)
+# TOOL add-locations-to-data.R: "Add genomic location to data" (Annotates genes with chromosomal location information, and adds the results to the datafile. The result file can be visualized using the Genome browser.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT data-with-locations.tsv: data-with-locations.tsv 

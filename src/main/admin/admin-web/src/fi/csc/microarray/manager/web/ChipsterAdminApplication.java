@@ -5,13 +5,14 @@ import java.io.IOException;
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.manager.web.ui.JobLogView;
+import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
 import fi.csc.microarray.manager.web.ui.StorageView;
 
@@ -40,9 +41,13 @@ public class ChipsterAdminApplication extends Application {
 
 	private ServicesView serviceView;
 	private StorageView storageView;
+	private JobsView jobsView;
 	private JobLogView jobLogView;
 
-	private HorizontalLayout emptyView;
+	private VerticalLayout emptyView;
+
+	private HorizontalLayout toolbarLayout;
+
 
 
 	private VerticalLayout getServicesView() {
@@ -82,6 +87,14 @@ public class ChipsterAdminApplication extends Application {
 		}
 		return jobLogView;
 	}
+	
+	private JobsView getJobsView() {
+		if (jobsView == null) {
+
+			jobsView = new JobsView(this);
+		}
+		return jobsView;
+	}
 
 
 	@Override
@@ -95,12 +108,13 @@ public class ChipsterAdminApplication extends Application {
 
 
 	private void buildMainLayout() {
-		setMainWindow(new Window("Chipster admin web"));
+		setMainWindow(new Window("Chipster admin"));
 
 		horizontalSplit = new HorizontalLayout();
 		horizontalSplit.setSizeFull();
 
 		getMainWindow().setContent(horizontalSplit);
+		getMainWindow().getContent().setHeight(100, Component.UNITS_PERCENTAGE);
 		showEmtpyView();
 
 		setTheme("admin");
@@ -134,9 +148,7 @@ public class ChipsterAdminApplication extends Application {
 
 
 	public void showJobsView() {
-		Panel panel = new Panel();
-		panel.setSizeFull();
-		setMainComponent(panel);
+		setMainComponent(getJobsView());
 	}
 
 
@@ -146,10 +158,40 @@ public class ChipsterAdminApplication extends Application {
 
 	public void showEmtpyView() {
 		if (emptyView == null) {
-			emptyView = new HorizontalLayout();
+			emptyView = new VerticalLayout();
+			
+			emptyView.addComponent(getToolbar());
+			
 			emptyView.setSizeFull();
 			emptyView.setStyleName("empty-view");
 		}
 		setMainComponent(emptyView);
+	}
+	
+	public HorizontalLayout getToolbar() {
+
+		if (toolbarLayout == null) {
+			
+			toolbarLayout = new HorizontalLayout();
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+			
+			toolbarLayout.addComponent(getTitle());	
+			
+			toolbarLayout.setWidth("100%");
+			toolbarLayout.setHeight(40, Component.UNITS_PIXELS);
+			toolbarLayout.setStyleName("toolbar");
+		}
+
+		return toolbarLayout;
+	}
+	
+	public Component getTitle() {
+		Label label = new Label("Chipster admin");
+		label.addStyleName("title");
+		label.setWidth(250, Component.UNITS_PIXELS);
+		return label;
 	}
 }

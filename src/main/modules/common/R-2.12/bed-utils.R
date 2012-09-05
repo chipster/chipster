@@ -18,7 +18,7 @@ pad.with.zeroes <- function(str.vector) {
 #
 # Usage:
 #  bed <- read.table(file="sortme.bed", header=TRUE, sep="\t")
-#  sort.bed(bed)
+#  sorted.bed <- sort.bed(bed)
 # 
 sort.bed <- function(bed) {
 
@@ -32,11 +32,11 @@ sort.bed <- function(bed) {
 	
 	# Normalise chromosome names
 	chr.without.postfix <- gsub('(.*)\\..*', '\\1', bed$chr)
-	chr.stripped <- gsub('chr(.*)', '\\1', chr.without.postfix)
+	chr.normalised <- gsub('chr(.*)', '\\1', chr.without.postfix)
 
 	# Convert all fields to right format
-	chr.is.nonnumeric <- ifelse(is.na(as.numeric(chr.without.prefix)), '1', '0')
-	chr.padded <- pad.with.zeroes(chr.stripped)
+	chr.is.nonnumeric <- ifelse(is.na(as.numeric(chr.normalised)), '1', '0')
+	chr.padded <- pad.with.zeroes(chr.normalised)
 	start.padded <- pad.with.zeroes(bed$start)
 	
 	# Create the strings to be sorted
