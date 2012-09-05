@@ -27,8 +27,8 @@ import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.UrlTransferUtil;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * Client interface for the file broker. Used by client and computing service or
@@ -88,7 +88,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
-	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
 	
 	
@@ -118,13 +117,18 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public URL addFile(FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+		
+		if (area != FileBrokerArea.CACHE) {
+			throw new UnsupportedOperationException();
+		}
+		
 		if (file.length() > 0 && !this.requestDiskSpace(file.length())) {
 			throw new NotEnoughDiskSpaceException();
 		}
 		
 		// Get new url
-		URL url = getNewUrl(useCompression);
+		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
 			throw new FileBrokerException("New URL is null.");
 		}
@@ -156,15 +160,27 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public URL addFile(InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
-		if (contentLength > 0  && !this.requestDiskSpace(contentLength)) {
-			throw new NotEnoughDiskSpaceException();
-		}
+	public URL addFile(FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
-		// Get new url
-		URL url = getNewUrl(useCompression);
-		if (url == null) {
-			throw new FileBrokerException("New URL is null.");
+		URL url;
+		if (area == FileBrokerArea.CACHE) {
+			if (contentLength > 0  && !this.requestDiskSpace(contentLength)) {
+				throw new NotEnoughDiskSpaceException();
+			}
+
+			// Get new url
+			url = getNewUrl(useCompression, FileBrokerArea.CACHE, contentLength);
+			if (url == null) {
+				throw new FileBrokerException("New URL is null.");
+			}
+			
+		} else {
+			// Get new url
+			url = getNewUrl(useCompression, FileBrokerArea.STORAGE, contentLength);
+			if (url == null) {
+				throw new FileBrokerException("New URL is null.");
+			}
+			
 		}
 
 		// Upload the stream into a file at filebroker
@@ -248,13 +264,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * 
 	 * @throws JMSException
 	 */
-	private URL getNewUrl(boolean useCompression) throws JMSException {
+	private URL getNewUrl(boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException {
 		logger.debug("getting new url");
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_URL_REQUEST);
+			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
+			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
+
 			if (useCompression) {
 				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
 			}
@@ -282,6 +301,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		URL url;
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
+			
 			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
@@ -355,7 +375,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL moveFileToStorage(URL cacheURL) throws JMSException {
+	public URL moveFileToStorage(URL cacheURL, long contentLength) throws JMSException {
 		logger.debug("moving from cache to storage: " + cacheURL);
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
@@ -363,7 +383,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		try {
 			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE);
 			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
-
+			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
+			
 			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
 			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
 		} finally {

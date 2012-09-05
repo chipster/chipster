@@ -576,4 +576,24 @@ public class SessionSaver {
 	public String getValidationErrors() {
 		return this.validationErrors;
 	}
+	
+	public static void dumpSession(DataFolder folder, StringBuffer buffer) {
+
+		for (DataItem data : folder.getChildren()) {
+			
+			if (data instanceof DataFolder) {
+				dumpSession((DataFolder)data, buffer);
+				
+			} else {
+				DataBean bean = (DataBean)data;
+				buffer.append("\nBean: " + bean.getName() + "\n");
+				
+				for (ContentLocation locations : bean.getContentLocations()) {
+					buffer.append("  " + locations.getMethod() + ": \t" + locations.getUrl() + "\n");
+				}
+
+			}
+		}
+		
+	}
 }

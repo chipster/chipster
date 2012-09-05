@@ -36,6 +36,7 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.module.Module;
@@ -600,6 +601,17 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	/**
+	 * Returns debug print out of current session state.
+	 * 
+	 * @return print out of session state
+	 */
+	public String printSession() {
+		StringBuffer buffer = new StringBuffer();
+		SessionSaver.dumpSession(rootFolder, buffer);
+		return buffer.toString();
+	}
+
 	public void saveStorageSession(File sessionFile) throws Exception {
 
 		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
@@ -910,37 +922,38 @@ public class DataManager {
 
 	public void putToStorage(DataBean dataBean) throws Exception {
 
+		// check if content is still available
+		if (dataBean.getContentLocations().size() == 0) {
+			return; // no content, nothing to put to storage
+		}
+		
 		// check if already in storage
 		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_STORAGE); 
 		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
 			return;
 		}
 		
-		// move from cache to storage
-		// TODO error handling
+		// move from cache to storage, if in cache
 		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
 			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl());
+				
+				// move file in filebroker
+				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl(), dataBean.getContentLength());
 				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));
 
-				// TODO remove all cache locations
+				// remove cache location(s), because it is now obsolete  
+				dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
 				return;
 			}
 		}
 
-		// move from elsewhere to storage
-		throw new RuntimeException("not yet supported");
+		// if not in cache, upload to storage
 		
-//		List <ContentLocation> localLocations = dataBean.getContentLocations(StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP, StorageMethod.LOCAL_SESSION);
-//		if (localLocations.isEmpty()) {
-//			// TODO no content anywhere, what to do
-//			throw new RuntimeException("data bean content missing");
-//		} else {
-//			for (ContentLocation localLocation : localLocations) {
-//				
-//			}
-//		}
-//		
+		
+		// move from elsewhere to storage
+		ContentLocation closestLocation = dataBean.getClosestContentLocation();
+		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
+		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		
 	}
 
 	/**
@@ -969,7 +982,7 @@ public class DataManager {
 			}
 			// need to upload
 			if (url == null) {
-				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
+				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.CACHE, bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
 				bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
 				addUrl(bean, StorageMethod.REMOTE_CACHED, url);
 			}

@@ -22,6 +22,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
 
 /**
@@ -139,7 +140,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                     application.getDataManager().saveSession(tmpSession);
                     // save it with the file broker
                 	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-                    sessionURL = fileBroker.addFile(new FileInputStream(tmpSession), tmpSession.length(), null).toString();
+                    sessionURL = fileBroker.addFile(FileBrokerArea.CACHE, new FileInputStream(tmpSession), tmpSession.length(), null).toString();
                     // delete temp file
                     tmpSession.delete();
                 } else {
@@ -158,7 +159,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                     for (File logFile : logDir.listFiles()) {
                         // save it with the file broker
                     	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-                        String logURL = fileBroker.addFile(new FileInputStream(logFile), logFile.length(), null).toString();
+                        String logURL = fileBroker.addFile(FileBrokerArea.CACHE, new FileInputStream(logFile), logFile.length(), null).toString();
                         message.addLog(logFile.getName(), logURL);
                     }
                 }
