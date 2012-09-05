@@ -79,11 +79,6 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void showDetailsFor(DataBean data) {
-			// do nothing
-		}
-
-		@Override
 		public void showPopupMenuFor(MouseEvent e, DataItem data) {
 			// do nothing
 		}

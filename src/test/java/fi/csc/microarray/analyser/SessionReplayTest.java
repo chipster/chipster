@@ -1068,11 +1068,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void showDetailsFor(DataBean data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void showDialog(String title, String message, String details, Severity severity, boolean modal) {
 			showDialog(title, message, details, severity, modal, DetailsVisibility.DETAILS_VISIBLE, null);
 		}
