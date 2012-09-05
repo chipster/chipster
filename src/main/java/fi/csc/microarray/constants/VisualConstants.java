@@ -137,43 +137,55 @@ public class VisualConstants {
 		new ImageIcon(VisualConstants.class.getResource("/XZPlane.png"));
     public static ImageIcon YZ_PLANE = 
 		new ImageIcon(VisualConstants.class.getResource("/YZPlane.png"));
-    
-    public static ImageIcon SPREADSHEET_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/spredsheet.png"));
-    public static ImageIcon HISTOGRAM_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/histogram.png"));
-    public static ImageIcon SCATTER_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/scatter.png"));
-    public static ImageIcon VOLCANO_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/volcano.png"));
-    public static ImageIcon SCATTER3D_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/3dScatter.png"));
-    public static ImageIcon SCATTER3DPCA_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/3dScatterSplitted.png"));
-    public static ImageIcon PHENODATA_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/phenodata.png"));
-    public static ImageIcon IMAGE_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/image.png"));
-    public static ImageIcon HC_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/hc.png"));
-    public static ImageIcon PROFILE_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/profile.png"));
-    public static ImageIcon PROFILES_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/profiles.png"));
-    public static ImageIcon SOM_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/som.png"));
-    public static ImageIcon TEXT_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/text.png"));
-    public static ImageIcon ARRAY_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/array.png"));
-    public static ImageIcon HTML_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/html.png"));
-    public static ImageIcon EMPTY_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/empty.png"));
-    public static ImageIcon VENN_MENUICON = 
-		new ImageIcon(VisualConstants.class.getResource("/listicons/venndi.png"));
-    
 
+    
+//Crystal icons, LGPL, http://www.everaldo.com/crystal/
+    public static ImageIcon SCATTER3D_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/blockdevice.png"));
+    public static ImageIcon PHENODATA_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/kate.png"));
+    public static ImageIcon TEXT_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/txt.png"));
+    public static ImageIcon IMAGE_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/no3D.png"));
+    
+//Modified icons based on the Crystal icons, LGPL, http://www.everaldo.com/crystal/   
+    public static ImageIcon PDF_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/man.png"));
+    public static ImageIcon HISTOGRAM_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/histogram.png"));
+    public static ImageIcon EXT_BROWSER_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/ext-browser.png"));
+    public static ImageIcon HTML_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/agt_web.png"));
+    public static ImageIcon HC_MENUICON = 
+		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/hc.png"));
+    public static ImageIcon SCATTER3DPCA_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/pca.png"));
+    public static ImageIcon SPREADSHEET_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/spreadsheet.png"));
+    public static ImageIcon ARRAY_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/array.png"));
+    public static ImageIcon GB_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/gb-48.png"));
+    public static ImageIcon PROFILE_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/profile.png"));
+    public static ImageIcon PROFILES_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/profiles.png"));
+    public static ImageIcon SCATTER_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/scatterplot.png"));
+    public static ImageIcon VOLCANO_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/volcano.png"));
+    public static ImageIcon SOM_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/som.png"));
+    
+// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
+    public static ImageIcon VENN_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/venndi-48.png"));
+    public static ImageIcon EMPTY_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/empty.png"));
+    
+    
     public static final ImageIcon SPLASH_SCREEN =
         new ImageIcon(VisualConstants.class.getResource("/splash.png"));
     public static final Color SPLASH_BORDER_COLOR =

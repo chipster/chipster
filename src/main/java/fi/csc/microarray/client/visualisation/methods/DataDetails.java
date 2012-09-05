@@ -5,21 +5,16 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.RenderingHints;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,7 +32,6 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
@@ -127,6 +121,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.ipadx = 10;
+		c.insets = new Insets(5, 5, 5, 5);
 		
 		List<VisualisationMethod> visualisations = VisualisationToolBar.getMethodsFor(datas);
 		visualisations.remove(VisualisationMethod.NONE);
@@ -134,7 +129,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		for (VisualisationMethod method : visualisations) {
 			
-			JLabel icon = new JLabel(resizeImage(method.getIcon()));
+//			JLabel icon = new JLabel(resizeImage(method.getIcon()));
+			JLabel icon = new JLabel(method.getIcon());
 			JXHyperlink link = new JXHyperlink();
 			link.addActionListener(new VisualisationStarter(method, Session.getSession().getApplication()));
 			link.setText(method.getName());
@@ -152,30 +148,30 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		return visualisationsPanel;
 	}
 	
-    private Icon resizeImage(Icon in)  
-    {  
-    	final int SIZE = 48;
-        double scale = SIZE / Math.max(in.getIconHeight(), in.getIconWidth());  
-        int w = (int)(in.getIconWidth() * scale);  
-        int h = (int)(in.getIconHeight() * scale);  
-
-        BufferedImage inBuf = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = inBuf.createGraphics();  
-        in.paintIcon(null, g2, 0, 0);
-        g2.dispose();  
-
-        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        
-        g2 = out.createGraphics();  
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,  
-                            RenderingHints.VALUE_INTERPOLATION_BICUBIC); 
-//        g2.setPaint(buttons[0].getBackground());  
-//        g2.fillRect(0, 0, w, h);  
-        AffineTransform at = AffineTransform.getScaleInstance(scale, scale);
-        g2.drawRenderedImage(inBuf, at);  
-        g2.dispose();  
-        return new ImageIcon(out);  
-    }  
+//    private Icon resizeImage(Icon in)  
+//    {  
+//    	final int SIZE = 48;
+//        double scale = SIZE / Math.max(in.getIconHeight(), in.getIconWidth());  
+//        int w = (int)(in.getIconWidth() * scale);  
+//        int h = (int)(in.getIconHeight() * scale);  
+//
+//        BufferedImage inBuf = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g2 = inBuf.createGraphics();  
+//        in.paintIcon(null, g2, 0, 0);
+//        g2.dispose();  
+//
+//        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//        
+//        g2 = out.createGraphics();  
+//        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,  
+//                            RenderingHints.VALUE_INTERPOLATION_BICUBIC); 
+////        g2.setPaint(buttons[0].getBackground());  
+////        g2.fillRect(0, 0, w, h);  
+//        AffineTransform at = AffineTransform.getScaleInstance(scale, scale);
+//        g2.drawRenderedImage(inBuf, at);  
+//        g2.dispose();  
+//        return new ImageIcon(out);  
+//    }  
 
 	private Component createParameters() {
 
