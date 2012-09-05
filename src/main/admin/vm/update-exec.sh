@@ -51,17 +51,23 @@ fi
 
 # 2.0.4 
 if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
-	echo "Updating prinseq"
-	cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
-  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
-  rm ${TOOLS_PATH}/prinseq
-  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
-	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
-fi
 
+    echo "Updating prinseq"
+	cd ${TMPDIR_PATH}/
+    curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+    chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
+    chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+    mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
+    rm ${TOOLS_PATH}/prinseq
+    ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
+	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
+
+    echo "Adding nz131a520662fcdf"
+    cd ${TMPDIR_PATH}/
+    wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
+    ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
+    rm nz131a520662fcdf.tar.gz
+fi
 
 #
 # VERSION SPECIFIC ENTRIES END HERE
