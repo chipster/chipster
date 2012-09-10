@@ -764,7 +764,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void clean() {
 		
-		queueManager.poisonAll();
+		if (queueManager != null) {
+			queueManager.poisonAll();
+		}
 		trackGroups.clear();
 		//Queue manager holds references to track data through the data listener references preventing gc
 		queueManager = null;

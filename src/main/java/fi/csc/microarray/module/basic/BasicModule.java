@@ -101,7 +101,6 @@ public class BasicModule implements Module {
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/phenodata", new PhenodataProvider()); // FIXME should be in microarray module, but phenodata checks must be fixed first
 		manager.plugFeatureFactory("/column", new TableColumnProvider());
-		manager.plugFeatureFactory("/rowcount", new RowCountProvider());
 	}
 
 	@Override

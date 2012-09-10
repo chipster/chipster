@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -144,8 +145,7 @@ public class MicroarrayModule implements Module {
 
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
-		manager.plugFeatureFactory("/identifier", new IdentifierProvider());
-		manager.plugFeatureFactory("/embedded-binary-content", new EmbeddedBinaryProvider());
+		manager.plugFeatureFactory("/identifier", new IdentifierProvider());;
 		manager.plugFeatureFactory("/clusters/som", new SomClusterProvider());
 		manager.plugFeatureFactory("/clusters/hierarchical", new HierarchicalClusterProvider());
 	}
