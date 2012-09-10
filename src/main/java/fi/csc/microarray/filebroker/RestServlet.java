@@ -13,16 +13,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.log.Log;
-import org.mortbay.util.IO;
-import org.mortbay.util.URIUtil;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.util.URIUtil;
 
-import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Files;
 
+import sun.net.www.protocol.http.HttpURLConnection;
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
 * DELETE methods. Also adds Chipster authentication and security checks.</p>
@@ -32,9 +32,8 @@ import fi.csc.microarray.util.Files;
 */
 public class RestServlet extends DefaultServlet {
 
-	private String cachePath;
-	private String storagePath;
-	private String publicPath;
+	private String userDataPath;
+	private String publicDataPath;
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;

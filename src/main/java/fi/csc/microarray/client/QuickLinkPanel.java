@@ -2,20 +2,17 @@ package fi.csc.microarray.client;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -37,8 +34,6 @@ public class QuickLinkPanel extends JPanel {
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
-	private static final String LINK_WORD = "***";
-
 	public QuickLinkPanel() {
 		super(new GridBagLayout());
 
@@ -59,7 +54,7 @@ public class QuickLinkPanel extends JPanel {
 			if (urls != null) {
 
 				if (urls.length == 1) {
-					exampleLink = createLink("Example session ", new AbstractAction() {
+					exampleLink = LinkUtil.createLink("Example session ", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -72,7 +67,7 @@ public class QuickLinkPanel extends JPanel {
 				}
 				
 				if (urls.length == 2) {
-					exampleLink = createLink("microarray", new AbstractAction() {
+					exampleLink = LinkUtil.createLink("microarray", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -83,7 +78,7 @@ public class QuickLinkPanel extends JPanel {
 						}
 					});
 					
-					exampleLinkAlternative = createLink("NGS", new AbstractAction() {
+					exampleLinkAlternative = LinkUtil.createLink("NGS", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -99,7 +94,7 @@ public class QuickLinkPanel extends JPanel {
 			// ignore and let exampleLink be null
 		}
 		
-		importLink = createLink("Import files ", new AbstractAction() {
+		importLink = LinkUtil.createLink("Import files ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -109,13 +104,13 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		importFolderLink = createLink("Import folder ", new AbstractAction() {
+		importFolderLink = LinkUtil.createLink("Import folder ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.openDirectoryImportDialog();
 			}
 		});
-		importURLLink = createLink("Import from URL ", new AbstractAction() {
+		importURLLink = LinkUtil.createLink("Import from URL ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -125,13 +120,14 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		sessionLink = createLink("Open session ", new AbstractAction() {
+		sessionLink = LinkUtil.createLink("Open session ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.loadSession();
 			}
 		});
 
+		
 		
 		// Draw panel
 		GridBagConstraints c = new GridBagConstraints();
@@ -152,7 +148,7 @@ public class QuickLinkPanel extends JPanel {
 			if (exampleLinkAlternative == null) {
 				
 				exampleLink.setText("Open example session ");
-				addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". " , exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
+				addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". " , exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 
 			} else {
 
@@ -160,12 +156,12 @@ public class QuickLinkPanel extends JPanel {
 				exampleLinks.add(exampleLink);
 				exampleLinks.add(exampleLinkAlternative);
 
-				addLinks("Open example session (*** or ***) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c);
+				addLinks("Open example session (*** or ***) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 			}			
 		}
 	
 		
-		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
+		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
 
 		
 		// common links
@@ -181,7 +177,7 @@ public class QuickLinkPanel extends JPanel {
 		}
 		
 		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
-		addLinks("Import new data to " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
+		addLinks("Import new data to " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c, this);
 
 		// Panels to take rest of space
 		JPanel bottomPanel = new JPanel();
@@ -206,101 +202,17 @@ public class QuickLinkPanel extends JPanel {
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
 	}
 	
-	private void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c) {
-		List<JXHyperlink> list = new LinkedList<JXHyperlink>();
-		list.add(link);
-		addLinks(description, list, icon, c);
+	
+	private final static int MAX_ROW_CHARS = 42;
+
+	public static void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c, JComponent component) {
+	
+		LinkUtil.addLink(description, link, icon, c, component, MAX_ROW_CHARS, Color.white);
 	}
 
-	private void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {
-
-		String[] words = description.split(" ");
-		
-		//Split links to separate words to be able to handle links that aren't separated by space character
-		List<String> linkSeparatedWords = new LinkedList<String>();
-		for (String word : words) {
-			if (!word.contains(LINK_WORD)) {
-				linkSeparatedWords.add(word + " ");
-			} else {
-				String wordTail = word + " ";
-				
-				while (wordTail.length() > 0) {
-					int linkWordIndex = wordTail.indexOf(LINK_WORD);
-					
-					if (linkWordIndex > 0) {
-						String wordHead = word.substring(0, linkWordIndex);	
-						linkSeparatedWords.add(wordHead);
-						wordTail = wordTail.substring(linkWordIndex);
-					}
-					
-					if (linkWordIndex >= 0) {
-						String linkWord = wordTail.substring(0, LINK_WORD.length());
-						linkSeparatedWords.add(linkWord);
-						wordTail = wordTail.substring(LINK_WORD.length());
-					}
-								
-					if (linkWordIndex == -1) {
-						linkSeparatedWords.add(wordTail);
-						wordTail = "";
-					}
-				}
-			}
-		}
-				
-		int rowChars = 0;
-		final int MAX_ROW_CHARS = 42;
-		Iterator<JXHyperlink> linkIterator = links.iterator();
-		int rowCount = 0;
-
-		c.gridx = 1;
-		c.insets.top = 10;
-		JPanel row = null;
-
-		for (int i = 0; i < linkSeparatedWords.size(); i++) {
-			if (row == null || rowChars + linkSeparatedWords.get(i).length() > MAX_ROW_CHARS || linkSeparatedWords.get(i).equals("\n ")) {
-
-				FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
-				flow.setVgap(0);
-				flow.setHgap(0);
-				row = new JPanel(flow);
-				row.setBackground(Color.white);
-
-				c.gridy++;
-				this.add(row, c);
-				c.insets.top = 0; // After first row
-
-				rowChars = 0;
-				rowCount++;
-			}
-
-			if (linkSeparatedWords.get(i).equals(LINK_WORD)) {
-
-				JXHyperlink link = linkIterator.next();
-				rowChars += link.getText().length();
-				row.add(link);
-				
-			} else if (!linkSeparatedWords.get(i).equals("\n")) {
-				JLabel text = new JLabel(linkSeparatedWords.get(i));
-				row.add(text);
-				rowChars += linkSeparatedWords.get(i).length();
-			}
-		}
-
-		c.gridy -= (rowCount - 1);
-		c.gridheight = rowCount;
-		c.gridx = 0;
-		c.insets.top = 15;
-		this.add(new JLabel(icon), c);
-		c.gridy += (rowCount - 1);
-		c.gridheight = 1;
+	
+	public static void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c, JComponent component) {
+		LinkUtil.addLinks(description, links, icon, c, component, MAX_ROW_CHARS, Color.white);
 	}
 
-	public JXHyperlink createLink(String text, Action action) {
-		JXHyperlink link = new JXHyperlink();
-		link.setBorder(null);
-		link.setMargin(new Insets(0, 0, 0, 0));
-		link.setAction(action);
-		link.setText(text); // must be after setAction
-		return link;
-	}
 }

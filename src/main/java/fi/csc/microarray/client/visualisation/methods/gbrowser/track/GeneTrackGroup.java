@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.constants.VisualConstants;
@@ -22,16 +23,16 @@ public class GeneTrackGroup extends TrackGroup {
 	protected IntensityTrack geneOverview;
 	protected Track gene;
 	protected ReferenceSNPTrack snpTrack = null;
+	protected RepeatMaskerTrack repeatMasker;
 	protected IntensityTrack geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(View dataView, DataSource annotationDataSource) {
+	public GeneTrackGroup(View dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
 		super(dataView);
 		
-		transcript = new TranscriptTrack(dataView, annotationDataSource,
-		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		transcript = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcript.setStrand(Strand.FORWARD);
 		
 		geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
@@ -42,6 +43,8 @@ public class GeneTrackGroup extends TrackGroup {
 				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		gene.setStrand(Strand.FORWARD);
 
+		repeatMasker = new RepeatMaskerTrack(dataView, repeatDataSource, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+
 		geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
 				GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 		geneOverviewReversed.setStrand(Strand.REVERSED);
@@ -50,8 +53,7 @@ public class GeneTrackGroup extends TrackGroup {
 				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		geneReversed.setStrand(Strand.REVERSED);
 		
-		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource,
-		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		transcriptReversed.setStrand(Strand.REVERSED);
 		
 		adds();
@@ -85,6 +87,9 @@ public class GeneTrackGroup extends TrackGroup {
 			// SNP track Reversed
 			tracks.add(snpTrackReversed);
 		}
+		
+        // Repeat masker track
+        tracks.add(repeatMasker);
 		
 		// Gene, overview, reverse
         tracks.add(geneOverviewReversed);

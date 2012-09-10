@@ -72,8 +72,16 @@ public class GeneTrack extends Track {
 			}
 
 			for (Gene gene : sortedGenes.values()) {
-
-				String name = gene.getName();
+				
+				String name = null;
+				
+				if (gene.getName() != null) {
+					name = gene.getName();
+				} else if (gene.getId() != null) {
+					name = gene.getId();
+				} else {
+					name = "n/a";
+				}
 
 				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
 			}
@@ -107,10 +115,6 @@ public class GeneTrack extends Track {
 
 		drawables.add(new RectDrawable(rect, c, null));
 		if (isNameVisible(rect)) {
-			
-			if (name == null) {
-				name = "n/a";
-			}
 
 			// draw name to leftmost visible part of the gene rectangle
 			drawTextAboveRectangle(name, drawables, rect, 10);

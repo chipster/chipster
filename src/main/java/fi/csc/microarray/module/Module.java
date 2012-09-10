@@ -52,7 +52,7 @@ public interface Module {
 	 * @param manager data manager to plug into
 	 */
 	public void plugContentTypes(DataManager manager);
-
+	
 	/**
 	 * Returns the name of the server module associated to this 
 	 * this client side module, or null if not available.

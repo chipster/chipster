@@ -26,11 +26,11 @@ import fi.csc.microarray.constants.VisualConstants;
  */
 public class TrackFactory {
 	
-    public static TrackGroup addGeneTracks(GenomePlot genomePlot, DataSource annotationDataSource) throws FileNotFoundException {
+    public static TrackGroup addGeneTracks(GenomePlot genomePlot, DataSource annotationDataSource, TabixDataSource repeatDataSource) throws FileNotFoundException {
         
 		View dataView = genomePlot.getDataView();
 		
-		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource);
+		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource, repeatDataSource);
 		
 		// Add gene group to data view
 	    addGroup(dataView, geneGroup);
@@ -81,13 +81,6 @@ public class TrackFactory {
 	}
 	
 	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
-		View dataView = plot.getDataView();
-
-		PeakTrack annotation = new PeakTrack(dataView, peaks, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
-		addTrack(dataView, annotation);
-	}
-
-	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
 		View dataView = plot.getDataView();
 
 		PeakTrack annotation = new PeakTrack(dataView, peaks, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);

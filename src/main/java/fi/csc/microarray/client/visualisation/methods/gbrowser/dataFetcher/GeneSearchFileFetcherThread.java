@@ -70,10 +70,12 @@ public class GeneSearchFileFetcherThread extends Thread {
 
 			String[] cols = line.split("\t");
 
-			String chr = cols[0];
-			String geneName = cols[1];
+			if (cols.length == 2) {
+				String chr = cols[0];
+				String geneName = cols[1];
 
-			geneNameMap.put(geneName.toLowerCase(), new Chromosome(chr));
+				geneNameMap.put(geneName.toLowerCase(), new Chromosome(chr));
+			}
 		}
 	}
 

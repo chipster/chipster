@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixReader;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryReader;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -38,7 +38,7 @@ public class TabixFile {
      */
     public List<RegionContent> getReads(AreaRequest request) throws IOException {
 
-        return TabixReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
+        return TabixSummaryReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
                 request.start.bp.toString(), request.end.bp.toString());
     }
     
@@ -65,6 +65,9 @@ public class TabixFile {
         int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
         int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger then step size 
         
+        int cacheHits = 0;
+        int cacheMisses = 0;
+        
         for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
         	
         	BpCoord from = new BpCoord(pos, request.start.chr);
@@ -78,6 +81,8 @@ public class TabixFile {
         	Collection<Counts> indexedValues = cache.subMap(from, to).values();
         	if (!indexedValues.isEmpty()) {
         		
+        		cacheHits++;
+
         		// sum all
         		for (Counts value : indexedValues) {
         			countForward += value.forwardCount;
@@ -88,7 +93,9 @@ public class TabixFile {
         		
         	} else {
         		
-                Collection<RegionContent> queryResult = TabixReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
+        		cacheMisses++;
+        		
+                Collection<RegionContent> queryResult = TabixSummaryReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
                 		"" + (stepMiddlepoint - SAMPLE_SIZE/2), "" + (stepMiddlepoint + SAMPLE_SIZE/2));
 
    				countForward += queryResult.size();
@@ -108,6 +115,7 @@ public class TabixFile {
         	responseList.add(new RegionContent(recordRegion, values));
         }	
         
+//      System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }

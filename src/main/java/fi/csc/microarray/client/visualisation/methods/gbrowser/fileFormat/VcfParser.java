@@ -40,7 +40,20 @@ public class VcfParser extends TsvParser {
 
 	@Override
 	public long getDefaulChunkLength() {
-		return 128;
+		return 256;
+	}
+	
+	@Override
+	public Object get(String[] cols, ColumnType col) {
+		
+		if (col == ColumnType.BP_END) {
+			Object obj = super.get(cols, ColumnType.BP_START);
+			return obj;
+			
+		} else {
+			Object obj = super.get(cols, col);
+			return obj;
+		}
 	}
 
 	@Override
@@ -58,10 +71,12 @@ public class VcfParser extends TsvParser {
 		long bytes = 0;
 		while (line != null && line.startsWith(VCF_HEADER_START)) {
 			
-			bytes += line.length() + 1; //plus one is the new line character
+			bytes += line.length() + 1; //plus one for the new line character
+			
+			line = reader.readLine();
 		} 
 
-		return bytes;
+		return bytes - 1; //TODO find out why we have to subtract one to avoid losing first line of the real content
 	}
 
 	@Override

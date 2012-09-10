@@ -63,8 +63,12 @@ public class GenomeBrowserConstants {
             new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/n.png"));
     public static final ImageIcon GB_LEGEND_READ_ICON = 
             new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/read.png"));
+    public static final ImageIcon GB_LEGEND_MORE_READS_ICON = 
+            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/more-reads.png"));
     public static final ImageIcon GB_LEGEND_END_ICON = 
             new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/read-end.png"));
+    public static final ImageIcon GB_LEGEND_REPEAT_ICON = 
+            new ImageIcon(VisualConstants.class.getResource("/gbrowserLegend/repeat.png"));
 
 
 }

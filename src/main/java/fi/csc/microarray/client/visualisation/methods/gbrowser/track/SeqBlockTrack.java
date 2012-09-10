@@ -315,7 +315,7 @@ public class SeqBlockTrack extends Track {
 		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
 
 		// We might also need reference sequence data
-		if (highlightSNP) {
+		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
 			datas.put(refData, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
 		}
 

@@ -43,13 +43,13 @@ public class GenomePlot extends Plot {
 	 * Scale for visualising reads as profiles, gel etc.
 	 */
     public enum ReadScale {
-        XS("0..10", 10),
-        SMALL("0..50", 50),
-        MEDIUM("0..100", 100),
-        LARGE("0..500", 500),        
-        XL("0..1000", 1000),
-        XXL("0..5000", 5000),
-        XXXL("0..10000", 10000),
+        XS("10", 10),
+        SMALL("50", 50),
+        MEDIUM("100", 100),
+        LARGE("500", 500),        
+        XL("1000", 1000),
+        XXL("5000", 5000),
+        XXXL("10000", 10000),
         AUTO("Automatic", 0);
         
         private String name;
@@ -65,7 +65,7 @@ public class GenomePlot extends Plot {
         }
     }    
 
-	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) {
 		
 	    // set chart panel
 	    this.chartPanel = panel;
@@ -286,6 +286,7 @@ public class GenomePlot extends Plot {
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
+        this.dataView.redraw();
     }
     
     /**
