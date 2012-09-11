@@ -79,6 +79,10 @@ public class Gene extends HashMap<String, Transcript> implements Comparable<Gene
 	public String getName() {
 		return name;
 	}
+	
+	public String getId() {
+		return id;
+	}
 
 	public void addExon(Exon exon, String geneId, String transcId, String transcName) {
 		Transcript transc;

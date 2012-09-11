@@ -27,6 +27,8 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_DISK_SPACE_REQUEST ="disk-space-request";
 
 	public static final String COMMAND_MOVE_FROM_CACHE_TO_STORAGE = "move-from-cache-to-storage";
+	public static final String COMMAND_MOVE_DENIED = "move-denied";
+	public static final String COMMAND_MOVE_FAILED = "move-failed";
 
 	
 	private String command;

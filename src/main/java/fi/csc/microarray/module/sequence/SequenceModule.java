@@ -17,6 +17,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
@@ -96,14 +97,14 @@ public class SequenceModule implements Module {
 
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
-		importLinks.add(quickLinkPanel.createLink("Import from UniProt, EMBL, PDB... ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from UniProt, EMBL, PDB... ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportSequence();
 			}
 		}));
 		
-		importLinks.add(quickLinkPanel.createLink("Create dataset from text ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Create dataset from text ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doCreateFromText();

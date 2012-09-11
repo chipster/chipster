@@ -63,7 +63,7 @@ public class QueueManager implements AreaResultListener {
 	public void removeQueue(DataSource file) {
 	    queues.remove(file);
 	}
-
+	
 	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
 		req.status.file = file;
 		QueueContext context = queues.get(file);

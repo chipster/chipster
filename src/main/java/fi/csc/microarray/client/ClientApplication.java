@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
+import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;

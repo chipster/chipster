@@ -101,7 +101,7 @@ public class SeqTrack extends Track {
 		} else if (letter == 'T' || letter == 't') {
 			bg = GenomeBrowserConstants.charColors[3];
 		} else if (letter == 'N' || letter == 'n') {
-			bg = GenomeBrowserConstants.charColors[4];
+			bg = Color.white;
 		}
 
 		nextX = x + increment;
@@ -128,7 +128,7 @@ public class SeqTrack extends Track {
 			for ( int i = 0; i < seq.length(); i++ ) {
 				
 				BpCoord bp = new BpCoord(rc.region.start.bp + i, rc.region.start.chr);
-				
+								
 				reads.put(bp, "" + seq.charAt(i));
 			}
 		}

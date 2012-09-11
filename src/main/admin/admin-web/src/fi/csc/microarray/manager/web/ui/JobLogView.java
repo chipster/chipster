@@ -2,55 +2,33 @@ package fi.csc.microarray.manager.web.ui;
 
 import java.util.LinkedList;
 
-import org.hibernate.Session;
-
-import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.hbnutil.HbnContainer;
-import com.vaadin.data.hbnutil.HbnContainer.SessionManager;
-import com.vaadin.service.ApplicationContext.TransactionListener;
 import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.ChipsterAdminApplication;
-import fi.csc.microarray.manager.web.data.JobLogEntry;
+import fi.csc.microarray.manager.web.data.JobLogContainer;
 import fi.csc.microarray.manager.web.hbncontainer.JobLogHibernateUtil;
+import fi.csc.microarray.manager.web.hbncontainer.JobLogSessionManager;
 
-public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener, SessionManager {
+public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener  {
 	
-	
-	
-
-	/**
-	 * Natural property order for Service bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"username", "operation", "state", "compHost", "startTime", "endTime", "wallclockTime", "errorMessage", "outputText" };
-
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
-	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", "Operation", "State", "Comp host", "Start time", "End time", "Wall clock time", "Error message", "Output text" };
-
-
 	private HorizontalLayout toolbarLayout;
 
-	private Button refreshButton = new Button("Insert 160k rows");
+	private Button refreshButton = new Button("Insert 1k rows");
 	private Button addSearchButton = new Button();
 
-	private Table table;
-	private HbnContainer<JobLogEntry> dataSource;
+	private JobLogTable table;
+	private JobLogContainer dataSource;
 
 	private ChipsterAdminApplication app;
 
@@ -63,101 +41,27 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	public JobLogView(ChipsterAdminApplication app) {
 
 		this.app = app;
-
-		buildView();
 	}
 
 	public void init() {
-		attachVaadinTransactionListener();
-	}
+		
+		//dataSourceWrapper has to be initialized here because of the transactionListener, so lets init everything else 
+		//here as well (and not in the constructor like elsewhere)
+		
+		dataSource = new JobLogContainer(this, new JobLogSessionManager(app)); 
+		dataSource.init();
+				
+		table = new JobLogTable(this);
+		table.setContainerDataSource(dataSource);
 
-
-	/**
-	 * HbnContainer: We are using session-per-request pattern with Hibernate. By using
-	 * Vaadin's transaction listener we can easily ensure that session is closed
-	 * on each request without polluting our program code with extra logic.
-	 */
-	public void attachVaadinTransactionListener() {
-		app.getContext().addTransactionListener(new TransactionListener() {
-			public void transactionEnd(Application application,
-					Object transactionData) {
-				// Transaction listener gets fired for all (Http) sessions
-				// of Vaadin applications, checking to be this one.
-				if (application == app) {
-					closeSession();
-				}
-			}
-
-			public void transactionStart(Application application,
-					Object transactionData) {
-
-			}
-		});
-	}
-
-	/**
-	 * HbnContainer
-	 */
-	private void closeSession() {
-		Session sess = JobLogHibernateUtil.getSessionFactory().getCurrentSession();
-		if (sess.getTransaction().isActive()) {
-			sess.getTransaction().commit();
-		}
-		if (sess.isOpen()) {
-			sess.close();
-		}
-	}
-
-	/**
-	 * HbnContainer: Used to get current Hibernate session. Also ensures an open Hibernate
-	 * transaction.
-	 */
-	public Session getSession() {
-		Session currentSession = JobLogHibernateUtil.getSessionFactory()
-				.getCurrentSession();
-		if (!currentSession.getTransaction().isActive()) {
-			currentSession.beginTransaction();
-		}
-		return currentSession;
-	}
-
-	/**
-	 * Builds a simple view for application with Table and a row of buttons
-	 * below it.
-	 */
-	private void buildView() {
-
-		populateAndConfigureTable();
-
+		table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
+		table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
+		
 		this.addComponent(getToolbar());
 		this.addComponent(table);
 
 		setSizeFull();
-		table.setSizeFull();
 		this.setExpandRatio(table, 1);
-	}
-
-	protected void populateAndConfigureTable() {
-		table = new Table();
-
-		table.setWidth("100%");
-		table.setSelectable(true);
-		table.setImmediate(true);
-
-		loadJobLog();
-
-		table.setVisibleColumns(NATURAL_COL_ORDER);
-		table.setColumnHeaders(COL_HEADERS_ENGLISH);
-	}
-
-	/**
-	 * Loads container to Table
-	 */
-	protected void loadJobLog() { 
-
-		dataSource = new HbnContainer<JobLogEntry>(JobLogEntry.class, this);
-
-		table.setContainerDataSource(dataSource);
 	}
 
 
@@ -167,13 +71,11 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			
 			toolbarLayout = new HorizontalLayout();
 			
-			Label spaceEater = new Label(" ");
-			toolbarLayout.addComponent(spaceEater);
-			toolbarLayout.setExpandRatio(spaceEater, 1);
+
 			
-//			refreshButton.addListener((ClickListener)this);
-//			refreshButton.setIcon(new ThemeResource("../runo/icons/32/document-add.png"));
-//			toolbarLayout.addComponent(refreshButton);
+			refreshButton.addListener((ClickListener)this);
+			refreshButton.setIcon(new ThemeResource("../runo/icons/32/document-add.png"));
+			toolbarLayout.addComponent(refreshButton);
 			
 			searchLayout = new HorizontalLayout();
 			addSearch();
@@ -201,7 +103,13 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 					performSearch();
 				}
 			});
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
 
+			toolbarLayout.addComponent(app.getTitle());	
+			
 			toolbarLayout.setWidth("100%");
 			toolbarLayout.setStyleName("toolbar");
 		}
@@ -222,7 +130,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			JobLogHibernateUtil.insertExampleData(160000);
+			JobLogHibernateUtil.insertExampleData(1000);
 		} else if (source == addSearchButton) {
 			addSearch();
 		}
@@ -269,5 +177,43 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 
 		//It's not possible to remove just one filter, so let's do it in the hard way
 		updateContainerFilters();
+	}
+
+	public void showOutput(Object itemId) {
+		
+		String output = "";
+		Property outputProperty = dataSource.getContainerProperty(itemId, JobLogContainer.OUTPUT_TEXT);
+		
+		if (outputProperty != null) {
+			output = (String) outputProperty.getValue();
+		}
+		
+		showTextWindow("Job output", output);
+	}
+
+	public void showErrorOutput(Object itemId) {
+		String error = "";
+		Property errorProperty = dataSource.getContainerProperty(itemId, JobLogContainer.ERROR_MESSAGE);
+		
+		if (errorProperty != null) {
+			error = (String) errorProperty.getValue();
+		}
+
+		showTextWindow("Error message", error);
+	}
+	
+	private void showTextWindow(String caption, String content) {
+		
+		Label textComponent = new Label(content);
+		textComponent.setContentMode(Label.CONTENT_PREFORMATTED);
+		
+		Window subWindow = new Window(caption);
+		subWindow.addComponent(textComponent);
+		
+		subWindow.setWidth(70, UNITS_PERCENTAGE);
+		subWindow.setHeight(90, UNITS_PERCENTAGE);
+		subWindow.center();
+		
+		this.getWindow().addWindow(subWindow);
 	}
 }

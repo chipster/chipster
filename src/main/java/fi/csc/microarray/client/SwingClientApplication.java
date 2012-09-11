@@ -3,6 +3,10 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,12 +16,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -28,6 +35,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
@@ -234,16 +242,44 @@ public class SwingClientApplication extends ClientApplication {
 		childScreens = new ChildScreenPool(mainFrame);
 		Frames frames = new Frames(mainFrame);
 		Session.getSession().setFrames(frames);
+		
+		// add application wide keyboard shortcuts
+		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();
+		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), 
+				new AbstractAction("DEBUG_PRINT_SESSION") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showDebugDialog(1);
+			}
+		});
+		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+				if (shortcutActionMap.containsKey(keyStroke) ) {
+					final Action a = shortcutActionMap.get(keyStroke);
+					final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), null );
+					SwingUtilities.invokeLater( new Runnable() {
+						@Override
+						public void run() {
+							a.actionPerformed(ae);
+						}
+					}); 
+					return true;
+				}
+				return false;
+			}
+		});
 
-		// Sets look 'n' feel
+		// set look'n'feel
 		setPlastic3DLookAndFeel(mainFrame);
 
 		// set location
 		mainFrame.setLocationByPlatform(true);
 
 		// initialise joblist popup menu
-		// do this method before getStatusBar to avoid null pointer exception
-		this.taskManagerScreen = this.getTaskManagerScreen();
+		this.taskManagerScreen = this.getTaskManagerScreen(); // call this method before getStatusBar to avoid null pointer exception
 
 		// initialise child screens
 		historyScreen = new HistoryScreen();
@@ -358,6 +394,15 @@ public class SwingClientApplication extends ClientApplication {
 			
 			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);
 			new SessionRestoreDialog(this, sessionFile).setVisible(true);
+		}
+	}
+
+	protected void showDebugDialog(int type) {
+		
+		switch (type) {
+		default:
+			String dump = manager.printSession();
+			ChipsterDialog.showDialog(this, new DialogInfo(Severity.INFO, "Session URL dump", "See details for URL's of data beans.", dump), DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
 		}
 	}
 
@@ -567,6 +612,9 @@ public class SwingClientApplication extends ClientApplication {
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
+
+
+
 
 	/**
 	 * Sets the folder with given name selected or creates a new folder if it
@@ -1200,11 +1248,11 @@ public class SwingClientApplication extends ClientApplication {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved to server before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 			if (returnValue == 0) {
 				try {
-					saveSession(false, SessionSavingMethod.LEAVE_DATA_AS_IT_IS);
+					saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1771,11 +1819,6 @@ public class SwingClientApplication extends ClientApplication {
 
 					public void run() {
 
-						// upload data first, if needed
-						if (savingMethod == SessionSavingMethod.UPLOAD_DATA_TO_SERVER) {
-							// FIXME iterate over databeans and call FileBrokerClient to take care of them
-						}
-						
 						// save
 						boolean saveFailed = false;
 						try {
