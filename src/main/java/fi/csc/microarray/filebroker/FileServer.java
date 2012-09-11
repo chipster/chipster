@@ -1,10 +1,16 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +39,9 @@ import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.Strings;
 
 public class FileServer extends NodeBase implements MessagingListener, ShutdownCallback {
 	/**
@@ -135,6 +143,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 
+			System.out.println(msg.getClass().getSimpleName());
+			
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				
 				// parse request
@@ -145,7 +155,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				// check quota, if needed
 				ChipsterMessage reply;
 				if (area == FileBrokerArea.STORAGE && !checkQuota(msg.getUsername(), Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE)))) {
-					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
 				} else {
 					URL url = urlRepository.createAuthorisedUrl(useCompression, area);
 					reply = new UrlMessage(url);
@@ -166,6 +176,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
 				handleMoveRequest((CommandMessage)msg);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_SESSION.equals(((CommandMessage)msg).getCommand())) {
+				handleStoreSessionRequest((CommandMessage)msg);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
+				handleRemoveSessionRequest((CommandMessage)msg);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
+				handleListSessionsRequest((CommandMessage)msg);
 
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
@@ -260,7 +279,119 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	
+
+	private void handleListSessionsRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+		String username = requestMessage.getUsername();
+		CommandMessage reply;
+		
+		try {
+			List<String> names = listSessionsInDatabase(username);
+			reply = new CommandMessage();
+			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(names, "\t"));
+			
+		} catch (Exception e) {
+			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED);
+		}
+		
+		endpoint.replyToMessage(requestMessage, reply);
+		
+	}
+
+	private void handleStoreSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+
+		String username = requestMessage.getUsername();
+		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);
+		URL url = urlRepository.createAuthorisedUrl(false, FileBrokerArea.STORAGE);
+		
+		ChipsterMessage reply; 
+		try {
+			addSessionToDatabase(username, name, url);
+			reply = new UrlMessage(url);
+			
+		} catch (Exception e) {
+			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED);
+		}
+		
+		endpoint.replyToMessage(requestMessage, reply);
+	}
+
+	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);
+		removeSessionFromDatabase(requestMessage.getUsername(), name);
+		CommandMessage reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
+		endpoint.replyToMessage(requestMessage, reply);
+	}
+
+	private List<String> listSessionsInDatabase(String username) throws IOException {
+		File database = openDatabase();
+		
+		LinkedList<String> names = new LinkedList<String>();
+		BufferedReader in = null;
+		try {
+
+			// check that session name is not a duplicate (in future, we could overwrite)
+			in = new BufferedReader(new FileReader(database));
+			String line = in.readLine();
+			while (line != null) {
+				String[] fields = line.split("\t");
+				
+				if (fields[0].equals(username)) {
+					names.add(fields[1]);
+				}
+				line = in.readLine();
+			}
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+		
+		return names;
+	}
+
+
+	private void addSessionToDatabase(String username, String name, URL url) throws IOException {
+		File database = openDatabase();
+		
+		BufferedReader in = null;
+		BufferedWriter out = null;
+		try {
+
+			// check that session name is not a duplicate (in future, we could overwrite)
+			in = new BufferedReader(new FileReader(database));
+			String line = in.readLine();
+			while (line != null) {
+				String[] fields = line.split("\t");
+				
+				if (fields[0].equals(username) && fields[1].equals(name)) {
+					throw new IllegalArgumentException("duplicate session name");
+				}
+				line = in.readLine();
+			}
+			in.close();
+
+			// save name to database
+			out = new BufferedWriter(new FileWriter(database, true));
+			out.write(username.replace("\t", "") + "\t" + name.replace("\t", "") + "\t" + IOUtils.getFilenameWithoutPath(url) + "\n");
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(out);
+		}
+		
+	}
+
+	private File openDatabase() throws IOException {
+		File database = new File(storageRoot, "database.txt");
+		if (!database.exists()) {
+			database.createNewFile();
+		}
+		return database;
+	}
+
+	private void removeSessionFromDatabase(String username, String name) {
+		throw new UnsupportedOperationException();
+	}
+
 	private void handleMoveRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		
@@ -307,10 +438,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					}
 
 				} catch (IllegalArgumentException e) {
-					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_FAILED); // TODO could add message from exception
+					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED); // TODO could add message from exception
 
 				} catch (IOException e) {
-					reply = new CommandMessage(CommandMessage.COMMAND_MOVE_DENIED);
+					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
 				}
 
 				// send reply

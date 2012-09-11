@@ -1878,7 +1878,7 @@ public class SwingClientApplication extends ClientApplication {
 								getDataManager().saveSession(file);
 								break;
 							case UPLOAD_DATA_TO_SERVER:
-								getDataManager().saveStorageSession(file);
+								getDataManager().saveStorageSession(file.getName());
 								break;
 							default: 
 								getDataManager().saveLightweightSession(file);
