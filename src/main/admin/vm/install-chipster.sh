@@ -463,7 +463,16 @@ then
   cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
   cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
   rm -rf DEXSeq	
- 	 
+
+ 	# vcftools, GPLv3
+  cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+  cd vcftools_0.1.9/
+  make
+  cd ../
+  mv vcftools_0.1.9/ ${TOOLS_PATH}/
+  ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+ 	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
