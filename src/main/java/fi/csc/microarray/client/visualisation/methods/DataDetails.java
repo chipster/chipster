@@ -61,7 +61,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		super.initialise(frame);
 	}
 
-	private JPanel getPanelBase(String title) {
+	private JPanel getPanelBase(String title, boolean indent) {
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBackground(BG); 
 		if (title != null) {
@@ -72,11 +72,18 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(titleLabel, BorderLayout.NORTH);
 			//panel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder(caption));
 		}
-		JPanel indention = new JPanel();
-		indention.setBackground(BG);
-		indention.setPreferredSize(new Dimension(INDENTION, 1));
-		panel.add(indention, BorderLayout.WEST);
+		if (indent) {
+			JPanel indention = new JPanel();
+			indention.setBackground(BG);
+			indention.setPreferredSize(new Dimension(INDENTION, 1));
+			panel.add(indention, BorderLayout.WEST);
+		}
 		return panel;
+	}
+	
+
+	private JPanel getPanelBase(String title) {
+		return getPanelBase(title, true);
 	}
 
 	private Component createNotes() {
@@ -179,85 +186,149 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 //        return new ImageIcon(out);  
 //    }  
 
-	private Component createParameters() {
+	private Component createParameters(DataBean data, boolean isSingle) {
 
-		JPanel parametersPanel = getPanelBase(getNameText());
+		JPanel parametersPanel = getPanelBase(getNameText(data));
 		
-		parametersPanel.add(getParameterTable(), BorderLayout.CENTER);
+		if (isSingle) {
+			parametersPanel.add(getParameterTable(), BorderLayout.CENTER);
+		}
 
 		return parametersPanel;
 	}
 
-	private Component createDatasetDetails() {
+	private Component createDatasetDetails(DataBean data, boolean isSingle) {
 		
 		JPanel datasetPanel = getPanelBase(null);
-		
-		JLabel title = new JLabel(datas.get(0).getName());
+
+		JLabel title = new JLabel(data.getName());
 		title.setFont(title.getFont().deriveFont(title.getFont().getSize2D() * 1.5f));
-		
+
 		datasetPanel.add(title, BorderLayout.NORTH);
+
+		if (isSingle) {
+			JPanel panel = new JPanel(new GridBagLayout());
+			panel.setBackground(BG);
+
+			JLabel dateLabel = new JLabel(data.getDate().toString());
+			JLabel locationLabel = new JLabel("Location: chipster.csc.fi ");
+
+			cachePanel = new JPanel(new BorderLayout());
+			cachePanel.setBackground(BG);
+
+
+			JLabel cacheStartLabel = new JLabel("(");
+			cachePanel.add(cacheStartLabel, BorderLayout.WEST);
+
+			JXHyperlink link = new JXHyperlink();
+			link.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					cachePanel.removeAll();
+					cachePanel.add(new JLabel("(cached locally)"));
+					cachePanel.validate();
+				}
+			});
+			link.setText("Get local copy");
+			cachePanel.add(link, BorderLayout.CENTER);
+
+			JLabel cacheEndLabel = new JLabel(")");
+			cachePanel.add(cacheEndLabel, BorderLayout.EAST);
+
+			//"Local file"
+			//"Remote file (chipster.csc.fi)"
+			//"Remote file (chipster.csc.fi) with local copy"
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridx = 0;
+			c.gridy = 0;
+			c.gridwidth = 3;
+			c.anchor = GridBagConstraints.NORTHWEST;
+			c.weightx = 0;
+			c.weighty = 0;
+
+			panel.add(dateLabel, c);
+
+			c.gridy++;
+			c.gridx = 0;
+			c.gridwidth = 1;
+			panel.add(locationLabel, c);
+
+			c.gridx++;
+			panel.add(cachePanel, c);
+
+			c.gridx++;
+			c.weightx = 1.0;
+			JPanel xSpaceFiller = new JPanel();
+			xSpaceFiller.setBackground(BG);
+			panel.add(xSpaceFiller, c);
+			c.gridx = 0;
+			c.gridy++;
+			c.weighty = 1.0;
+			c.weightx = 0;
+			JPanel ySpaceFiller = new JPanel();
+			ySpaceFiller.setBackground(BG);
+			panel.add(ySpaceFiller, c);
+
+			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
+			datasetPanel.add(panel, BorderLayout.CENTER);
+		}
+		return datasetPanel;
+	}
+	
+	private Component createDatasetPanel(List<DataBean> datas) {
 		
-		JPanel panel = new JPanel(new GridBagLayout());
-		panel.setBackground(BG);
-		
-		JLabel dateLabel = new JLabel(datas.get(0).getDate().toString());
-		JLabel locationLabel = new JLabel("Location: chipster.csc.fi (");
-		
-		JXHyperlink link = new JXHyperlink();
-		link.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				cachePanel.removeAll();
-				cachePanel.add(new JLabel("cached locally"));
-				cachePanel.validate();
-			}
-		});
-		link.setText("Get local copy");
-		
-		cachePanel = new JPanel(new BorderLayout());
-		cachePanel.setBackground(BG);
-		cachePanel.add(link, BorderLayout.CENTER);
-		
-		JLabel locationEndLabel = new JLabel(")");
-		
-		//"Local file"
-		//"Remote file (chipster.csc.fi)"
-		//"Remote file (chipster.csc.fi) with local copy"
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.setBackground(Color.red);
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 4;
-		c.anchor = GridBagConstraints.NORTHWEST;
 		c.weightx = 0;
 		c.weighty = 0;
-		
-		panel.add(dateLabel, c);
-		c.gridy++;
-		c.gridx = 0;
-		c.gridwidth = 1;
-		panel.add(locationLabel, c);
-		c.gridx++;
-		panel.add(cachePanel, c);
-		c.gridx++;
-		panel.add(locationEndLabel, c);
-		
-		c.gridx++;
-		c.weightx = 1.0;
-		JPanel xSpaceFiller = new JPanel();
-		xSpaceFiller.setBackground(BG);
-		panel.add(xSpaceFiller, c);
-		c.gridx = 0;
-		c.gridy++;
-		c.weighty = 1.0;
-		c.weightx = 0;
-		JPanel ySpaceFiller = new JPanel();
-		ySpaceFiller.setBackground(BG);
-		panel.add(ySpaceFiller, c);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.NONE;
+		c.ipady = 10;
 
-		datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
-		datasetPanel.add(panel, BorderLayout.CENTER);
-		return datasetPanel;
+		if (datas.size() == 1) {
+
+			DataBean data = datas.get(0);
+
+			panel.add(createDatasetDetails(data, true), c);
+			c.gridy++;
+
+			panel.add(emptyIfMultipleDatas(createNotes()), c);
+			c.gridy++;
+
+			panel.add(emptyIfMultipleDatas(createParameters(data, true)), c);
+			c.gridy++;
+			
+		} else {
+
+			for (DataBean data : datas) {
+				Component datasetDetails = createDatasetDetails(data, false);
+				panel.add(datasetDetails, c);
+				c.gridy++;
+				
+				panel.add(createParameters(data, false), c);
+				c.gridy++;
+				
+				panel.setPreferredSize(new Dimension(
+						INDENTION + LEFT_WIDTH, 
+						//multiply by 3 leave some space for the tool name
+						(int) (datasetDetails.getPreferredSize().getHeight() * 3 + panel.getPreferredSize().getHeight())));
+			}
+		}
+		
+		c.gridy++;
+		addEmptyRow(panel, c, -1);
+		
+		c.gridy = 0;
+		c.gridx++;
+		addEmptyColumn(panel, c, -1);
+						
+		return panel;
 	}
 
 	@Override
@@ -285,13 +356,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		addEmptyRow(panel, c, TOP_MARGIN);
 		
 		c.gridy++;
-		panel.add(emptyIfMultipleDatas(createDatasetDetails()), c);
-		
-		c.gridy++;
-		panel.add(emptyIfMultipleDatas(createNotes()), c);
-		
-		c.gridy++;
-		panel.add(emptyIfMultipleDatas(createParameters()), c);
+		panel.add(createDatasetPanel(datas), c);
 		
 		c.gridy++;
 		addEmptyRow(panel, c, -1);
@@ -368,9 +433,9 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		return datas.size() > 0;
 	}
 
-	private String getNameText() {
-		if (datas != null) {
-			return datas.get(0).getOperationRecord().getFullName();
+	private String getNameText(DataBean data) {
+		if (data != null) {
+			return data.getOperationRecord().getFullName();
 
 		} else {			
 			return null;
