@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately after failing command
+set -e
+
 # This script updates to latest minor version of the same major version (e.g. 2.0.1 -> 2.0.3)
 LATEST_VERSION=2.0.4
 
@@ -34,9 +37,10 @@ CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
 TMPDIR_PATH=/tmp/chipster-install-temp
 
-# create temp dir
+# Create temp dir
 rm -rf ${TMPDIR_PATH}/
 mkdir ${TMPDIR_PATH}/
+
 
 #
 # VERSION SPECIFIC ENTRIES START HERE
@@ -53,14 +57,14 @@ fi
 if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
 
     echo "Updating prinseq"
-		cd ${TMPDIR_PATH}/
+	cd ${TMPDIR_PATH}/
     curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
     chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
     mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
     rm ${TOOLS_PATH}/prinseq
     ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
-		rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
+	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
 
     echo "Adding nz131a520662fcdf"
     cd ${TMPDIR_PATH}/
@@ -69,13 +73,13 @@ if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
     rm nz131a520662fcdf.tar.gz
     
     echo "Installing vcftools"
-		cd ${TMPDIR_PATH}/
-		curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
-		cd vcftools_0.1.9/
-		make
-		cd ../
-		mv vcftools_0.1.9/ ${TOOLS_PATH}/
-		ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+    cd ${TMPDIR_PATH}/
+    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+    cd vcftools_0.1.9/
+    make
+    cd ../
+    mv vcftools_0.1.9/ ${TOOLS_PATH}/
+    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
 fi
 
@@ -109,7 +113,7 @@ if [ $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 	rm chipster-$LATEST_VERSION.tar.gz
 fi
 
-# remove temp dir
+# Remove temp dir
 rm -rf ${TMPDIR_PATH}/
 
 # We are done
