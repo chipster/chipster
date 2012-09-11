@@ -19,3 +19,9 @@ biocLite("hdrcde")
 biocLite(c("lumi", "methylumi")) # install hdrcde dependencies manually
 biocLite("IlluminaHumanMethylation450k.db") # annotation package, not needed if all annotation packages from the repository are installed
 biocLite("IlluminaHumanMethylation27k.db") # annotation package, not needed if all annotation packages from the repository are installed
+
+biocLite("VariantAnnotation")
+biocLite("edgeR")
+biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
+
+biocLite("DEXSeq")
