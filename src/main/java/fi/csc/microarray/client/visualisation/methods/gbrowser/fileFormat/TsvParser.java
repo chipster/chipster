@@ -27,7 +27,8 @@ public abstract class TsvParser extends FileParser {
 		}
 		
 		public String[] getFirstRow(Chunk chunk) {
-			return chunk.getContent().substring(0, chunk.getContent().indexOf("\n")).split("\t");
+		int newLineIndex = chunk.getContent().indexOf("\n");
+		return chunk.getContent().substring(0, newLineIndex).split("\t");
 		}
 		
 		public String[] getLastRow(Chunk chunk) {
@@ -39,11 +40,17 @@ public abstract class TsvParser extends FileParser {
 				lineStartIndex = 0;
 			}
 			
-			return chunk.getContent().substring(lineStartIndex+1, chunk.getContent().length()).split("\t");
+		int skipNewLine = 0;
+		if ("\n".equals(chunk.getContent().substring(lineStartIndex, lineStartIndex + 1))) {
+			skipNewLine = 1;
+		}
+
+		return chunk.getContent().substring(lineStartIndex+skipNewLine, chunk.getContent().length()).split("\t");
 		}
 		
 		@Override
 		public Region getBpRegion(Chunk chunk) {
+			
 		    String[] firstRow = getFirstRow(chunk);
 		    String[] lastRow = getLastRow(chunk);
 			Long start = (Long)get(firstRow, ColumnType.BP_START);
@@ -137,8 +144,9 @@ public abstract class TsvParser extends FileParser {
 				Long end = (Long)get(cols, ColumnType.BP_END);
 				Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
 		
-				rows.add(new RegionContent(new Region(start, end, chr), values));
-
+				if (start != null && end != null && chr != null) {
+					rows.add(new RegionContent(new Region(start, end, chr), values));
+				}
 			}
 			
 			return rows;

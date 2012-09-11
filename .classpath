@@ -16,8 +16,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-pool-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-daemon.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-6.1.12.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-6.1.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/looks-2.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/eclipse-icons.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/geronimo-servlet_2.5_spec-1.1.jar"/>
@@ -38,8 +36,8 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-xml.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/picard-1.32.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/sam-1.32.jar"/>
+	<classpathentry kind="lib" path="ext/lib/picard-1.75.jar" sourcepath="/home/klemela/chipster/src/picard-trunk.zip"/>
+	<classpathentry kind="lib" path="ext/lib/sam-1.75.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
@@ -48,8 +46,30 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-io-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-ajp-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-annotations-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-client-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-continuation-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-deploy-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-http-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-io-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jmx-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-jndi-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-overlay-deployer-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-plus-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-policy-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-rewrite-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-security-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-websocket-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-8.1.5.v20120716.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="ext/lib/tribble_2012-05-25.jar"/>
-	<classpathentry kind="lib" path="ext/lib/h2-1.3.163.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/tribble_2012-05-25.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/h2-1.3.163.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/servlet-api-3.0.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

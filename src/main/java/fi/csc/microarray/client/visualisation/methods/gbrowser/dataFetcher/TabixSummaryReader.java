@@ -18,7 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * @author Aleksi Kallio
  *
  */
-public class TabixReader {
+public class TabixSummaryReader {
 
 	
 	private static final String TABIX_EXECUTABLE = "tabix";

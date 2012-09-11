@@ -1,50 +1,65 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.IOException;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
-/**
- * Experimental Tabix support.
- * 
- * @author Aleksi Kallio
- *
- */
-public class TabixHandlerThread extends AreaRequestHandler {
 
-	TabixDataSource tabixData;
+public abstract class TabixHandlerThread extends AreaRequestHandler {
+    
+	protected TabixDataSource dataSource;
+	protected BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
+	protected ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
 
-	public TabixHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
-			AreaResultListener areaResultListener) {
+    public TabixHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+            AreaResultListener areaResultListener) {
+        
+        super(areaRequestQueue, areaResultListener);
+        dataSource = (TabixDataSource) file;
+    }
 
-		super(areaRequestQueue, areaResultListener);
-		tabixData = (TabixDataSource) file;
+//	@Override
+//	public synchronized void run() {
+//
+//		// Start file processing layer thread
+//		fileFetcher = new BedTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, tabixData);
+//		fileFetcher.start();
+//		
+//		// Start this thread
+//		super.run();
+//	}
+
+	protected boolean checkOtherQueues() {
+		ParsedFileResult fileResult = null;
+		if ((fileResult = fileResultQueue.poll()) != null) {
+			processFileResult(fileResult);
+		}
+		return fileResult != null;
 	}
 
-	/**
-	 * Handles normal and concised area requests by using TabixFile.
-	 */
-	@Override
-	protected void processAreaRequest(AreaRequest areaRequest) {       
-		
-		//No other threads to poison, this one killed in parent class.
+	protected void processFileResult(ParsedFileResult fileResult) {
+
+		createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContents()));
+	}
+
+    @Override
+    protected void processAreaRequest(AreaRequest areaRequest) {
+    	
 		super.processAreaRequest(areaRequest);
 		
 		if (areaRequest.status.poison) {
+			
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			fileRequestQueue.add(fileRequest);
 			return;
 		}
-		
-		try {
-			createAreaResult(new AreaResult(areaRequest.status, tabixData.getTabix().getReads(areaRequest)));
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
+    	
+		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+    }
 }

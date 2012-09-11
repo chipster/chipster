@@ -16,7 +16,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
-import org.mortbay.io.WriterOutputStream;
+import org.eclipse.jetty.io.WriterOutputStream;
 import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;

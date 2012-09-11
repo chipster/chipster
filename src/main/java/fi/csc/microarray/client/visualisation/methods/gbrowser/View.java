@@ -56,7 +56,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
 	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
-	private QueueManager queueManager = new QueueManager();
+	private QueueManager queueManager;
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
 
@@ -389,7 +389,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		this.isStatic = isStatic;
 	}
 
-	public QueueManager getQueueManager() {
+	public QueueManager getQueueManager() {	
+		if (queueManager == null) {
+			queueManager = new QueueManager();
+		}
 		return queueManager;
 	}
 
@@ -461,7 +464,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		if (viewLimiter != null && viewLimiter.getLimit() != null) {
 			BpCoord maxBp = viewLimiter.getLimit();
 
-			if (maxBp != null && maxBp.bp != 0) {
+			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {
 				
 				//Little bit extra space to the end
 				maxBp.bp += 100000;
@@ -761,7 +764,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void clean() {
 		
-		queueManager.poisonAll();
+		if (queueManager != null) {
+			queueManager.poisonAll();
+		}
 		trackGroups.clear();
 		//Queue manager holds references to track data through the data listener references preventing gc
 		queueManager = null;

@@ -14,6 +14,7 @@ import javax.swing.JSplitPane;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
 	
@@ -108,13 +109,15 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			
 			//Special case: the empty  visualisation is so fast, that showing wait 
 			//panel causes only irritating flickering
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() != VisualisationMethod.NONE){
+			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
+						
+			if(method != VisualisationMethod.NONE && method != VisualisationMethods.DATA_DETAILS){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
 			
 			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() == VisualisationMethod.NONE){
+			if(method == VisualisationMethod.NONE){
 				if (toolBar.isMaximised) {
 					toolBar.maximiseOrRestoreVisualisation();
 				}

@@ -13,16 +13,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.log.Log;
-import org.mortbay.util.IO;
-import org.mortbay.util.URIUtil;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.log.Log;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Files;
-
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
 * DELETE methods. Also adds Chipster authentication and security checks.</p>
@@ -32,9 +31,8 @@ import fi.csc.microarray.util.Files;
 */
 public class RestServlet extends DefaultServlet {
 
-	private String cachePath;
-	private String storagePath;
-	private String publicPath;
+	private String userDataPath;
+	private String publicDataPath;
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
@@ -47,9 +45,8 @@ public class RestServlet extends DefaultServlet {
 		this.rootUrl = rootUrl;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		cachePath = configuration.getString("filebroker", "cache-path");
-		storagePath = configuration.getString("filebroker", "storage-path");
-		publicPath = configuration.getString("filebroker", "public-path");
+		userDataPath = configuration.getString("filebroker", "user-data-path");
+		publicDataPath = configuration.getString("filebroker", "public-data-path");
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
 		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
@@ -92,12 +89,11 @@ public class RestServlet extends DefaultServlet {
 			return false;
 		}
 		
-		if (!(path.startsWith("/" + cachePath + "/") || path.startsWith("/" + storagePath + "/"))) {
+		if (!path.startsWith("/" + userDataPath + "/")) {
 			return false;
 		}
 
-		if (urlRepository.checkFilenameSyntax(path.substring(("/" + cachePath + "/").length())) ||
-				urlRepository.checkFilenameSyntax(path.substring(("/" + storagePath + "/").length()))	) {
+		if (urlRepository.checkFilenameSyntax(path.substring(("/" + userDataPath + "/").length()))) {
 			return true;
 		}
 		
@@ -106,7 +102,7 @@ public class RestServlet extends DefaultServlet {
 	
 	private boolean isPublicDataRequest(HttpServletRequest request) {
 		String path = request.getPathInfo();
-		return (path != null && path.startsWith("/" + publicPath + "/"));
+		return (path != null && path.startsWith("/" + publicDataPath + "/"));
 	}
 
 	
@@ -178,13 +174,13 @@ public class RestServlet extends DefaultServlet {
 			public void run() {
 				try {
 
-					File userDataDir = new File(getServletContext().getRealPath(cachePath));
+					File userDataDir = new File(getServletContext().getRealPath(userDataPath));
 					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 
 					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
 						Log.info("after put, user data dir soft limit " + usableSpaceSoftLimit + " reached, cleaning up");
-						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(cachePath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(cachePath)).getUsableSpace());
+						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(userDataPath)).getUsableSpace());
 					} 
 
 				} catch (Exception e) {

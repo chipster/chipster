@@ -10,29 +10,38 @@ import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements
 Serializable {
+	
+	public static final String USERNAME = "username";
+	public static final String SIZE = "size";
 
-	/**
-	 * Natural property order for Service bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"username", "size" };
+	public static final Object[] NATURAL_COL_ORDER  = new String[] {
+		USERNAME, 		SIZE };
 
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", "Total size" };
+		"Username", 	"Total size" };
+	
+	
 
 	public final String TOTAL_USERNAME = "TOTAL";
 
-	private StorageEntryContainer enryContainer;
+	private StorageEntryContainer entryContainer;
+
+	public long getDiskUsage() {
+		return diskUsage;
+	}
+
+	public long getDiskAvailable() {
+		return diskAvailable;
+	}
+
+	private long diskUsage = 0;
+	private long diskAvailable = 0;
 
 	public StorageAggregateContainer(StorageEntryContainer entryContainer) throws InstantiationException,
 	IllegalAccessException {
 		super(StorageAggregate.class);
 		
-		this.enryContainer = entryContainer;
+		this.entryContainer = entryContainer;
 	}
 
 	public StorageAggregate update(final StorageView view) {
@@ -42,8 +51,10 @@ Serializable {
 		long totalSize = 0;
 
 		HashMap<String, Long> aggregateMap = new HashMap<String, Long>();
-
-		for (StorageEntry entry : enryContainer.getItemIds()) {
+		
+		entryContainer.removeAllContainerFilters();
+		
+		for (StorageEntry entry : entryContainer.getItemIds()) {
 			
 			String username = entry.getUsername();
 			if (!aggregateMap.containsKey(username)) {
@@ -51,7 +62,14 @@ Serializable {
 			} else {
 				aggregateMap.put(username, aggregateMap.get(username) + entry.getSize());
 			}
+			
+			totalSize += entry.getSize();
 		}
+		
+		StorageAggregate totalBean = new StorageAggregate();
+		totalBean.setUsername(TOTAL_USERNAME);
+		totalBean.setSize(totalSize);
+		this.addBean(totalBean);
 		
 		for (Entry<String, Long> aggregate : aggregateMap.entrySet()) {
 			
@@ -60,15 +78,10 @@ Serializable {
 			bean.setSize(aggregate.getValue());
 			
 			this.addBean(bean);
-			
-			totalSize += bean.getSize();
 		}
-		
-		StorageAggregate totalBean = new StorageAggregate();
-		totalBean.setUsername(TOTAL_USERNAME);
-		totalBean.setSize(totalSize);
-		
-		this.addBean(totalBean);
+				
+		this.diskUsage = totalSize;
+		this.diskAvailable = 500000000000l;
 		
 		return totalBean;
 	}

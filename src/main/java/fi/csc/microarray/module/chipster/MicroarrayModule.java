@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -117,7 +118,7 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
 		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
-		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.GB_MENUICON, 1, -1);
 		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 1, -1);
 		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
 	}
@@ -144,7 +145,7 @@ public class MicroarrayModule implements Module {
 
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
-		manager.plugFeatureFactory("/identifier", new IdentifierProvider());
+		manager.plugFeatureFactory("/identifier", new IdentifierProvider());;
 		manager.plugFeatureFactory("/clusters/som", new SomClusterProvider());
 		manager.plugFeatureFactory("/clusters/hierarchical", new HierarchicalClusterProvider());
 	}
@@ -202,14 +203,14 @@ public class MicroarrayModule implements Module {
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 
-		importLinks.add(quickLinkPanel.createLink("Import from ArrayExpress ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from ArrayExpress ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromArrayExpress();
 			}
 		}));
 
-		importLinks.add(quickLinkPanel.createLink("Import from GEO ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from GEO ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromGEO();
@@ -559,9 +560,10 @@ public class MicroarrayModule implements Module {
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		LinkedList<Boolean> flags = new LinkedList<Boolean>();
 		
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN));
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN));
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN));
+		//flags.add(false); //0
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); //1
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)); //2
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)); //3
 		
 		for (int i = 3; i < columns.getColumnCount(); i++) {
 			flags.add(false);

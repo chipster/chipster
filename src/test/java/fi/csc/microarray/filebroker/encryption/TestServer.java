@@ -8,17 +8,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.log.Log;
-import org.mortbay.thread.QueuedThreadPool;
-import org.mortbay.util.IO;
-import org.mortbay.util.URIUtil;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.util.URIUtil;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -38,7 +38,7 @@ public class TestServer {
 		sslConnector.setKeyPassword("microarray");
 		jettyInstance.setConnectors(new Connector[]{ connector, sslConnector });
 
-		Context root = new Context(jettyInstance, "/", false, false);
+		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
 		root.setResourceBase("/tmp/test-root");
 		root.addServlet(new ServletHolder(new UploadServlet()), "/*");
 		jettyInstance.start();
