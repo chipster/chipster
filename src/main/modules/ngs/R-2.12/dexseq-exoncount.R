@@ -13,6 +13,14 @@
 # TH and EK 18.1.2012
 # EK changed to use Ensembl GTFs 17.4.2012
 
+# gtf 
+gtf <-
+
+# convert
+convert.binary <- file.path(chipster.tools.path, "dexseq-exoncount", "dexseq_prepare_annotation.py")
+gff <- "converted.gff"
+convert.command <- paste("python", convert.binary, gtf, gff)
+system(convert.command)
 
 # sort bam if the data is paired-end
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
@@ -28,7 +36,6 @@ samtools.view <- paste(samtools.binary, "view -")
 
 # exoncount
 dexseq.binary <- file.path(chipster.tools.path, "dexseq-exoncount", "dexseq_count.py")
-gff <- file.path(chipster.tools.path, "genomes", organism)
 dexseq.command <- paste("python", dexseq.binary, gff, "- exon-counts.tsv")
 
 # run 
