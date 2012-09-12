@@ -1,7 +1,7 @@
-# TOOL annotate-variant.R: "Annotate variants from a VCF file" (Annotate variants listed in a single VCF file.)
+# TOOL annotate-variant.R: "Annotate variants" (Annotate variants listed in a VCF file.)
 # INPUT input.vcf: "Sorted or unsorted VCF file" TYPE GENERIC
 # OUTPUT all-variants.tsv
-# OUTPUT coding-variant.tsv
+# OUTPUT coding-variants.tsv
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)"] DEFAULT hg19 (Reference sequence)
 
 
@@ -67,8 +67,9 @@ library(BSgenome.Hsapiens.UCSC.hg19)
 coding <- predictCoding(vcf2, txdb, seqSource=Hsapiens)
 cod<-elementMetadata(coding)
 cod2<-as.list(cod)
+names(cod2)<-toupper(names(cod2))
 #cod3<-data.frame(cod2$GENEID, cod2$CDSID, cod2$TXID, cod2$CONSEQUENCE, as.data.frame(cod2$PROTEINLOC), as.data.frame(cod2$CDSLOC)[1], as.data.frame(cod2$CDSLOC)[2], as.data.frame(cod2$CDSLOC)[3], as.data.frame(cod2$varAllele), as.data.frame(cod2$REFCODON), as.data.frame(cod2$VARCODON))
-cod3<-data.frame(geneID=cod2$GENEID, cdsID=cod2$CDSID, txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$varAllele)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
+cod3<-data.frame(geneID=cod2$GENEID, cdsID=cod2$CDSID, txID=cod2$TXID, consequence=cod2$CONSEQUENCE, cdsStart=as.data.frame(cod2$CDSLOC)[,1], cdsEnd=as.data.frame(cod2$CDSLOC)[,2], width=as.data.frame(cod2$CDSLOC)[,3], varAllele=as.data.frame(cod2$VARALLELE)[,1], refCodon=as.data.frame(cod2$REFCODON)[,1], varCodon=as.data.frame(cod2$VARCODON)[,1], refAA=as.data.frame(cod2$REFAA)[,1], varAA=as.data.frame(cod2$VARAA)[,1])
 symbol <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="SYMBOL")
 genename <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="GENENAME")
 ensg <- select(org.Hs.eg.db, keys=unique(cod3$geneID), keytype="ENTREZID", cols="ENSEMBL")
