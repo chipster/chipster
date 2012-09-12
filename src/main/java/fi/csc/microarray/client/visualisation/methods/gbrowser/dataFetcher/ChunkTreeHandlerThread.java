@@ -79,6 +79,16 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 	}
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
+		
+		super.processAreaRequest(areaRequest);
+		
+		if (areaRequest.status.poison) {
+			
+			ChunkFileRequest fileRequest = new ChunkFileRequest(areaRequest, null, null, areaRequest.status);
+			fileRequestQueue.add(fileRequest);
+			return;
+		}
+		
 		if (DEBUG) {
 			System.out.println("Tree: Got area request " + areaRequest);
 		}
@@ -103,5 +113,9 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 
 	public ChunkDataSource getFile() {
 		return file;
+	}
+	
+	public String toString() {
+		return this.getClass().getName() + " - " + file;
 	}
 }

@@ -105,4 +105,8 @@ public class Chromosome implements Comparable<Chromosome> {
 	public String toNormalisedString() {
 		return chrNormalised;
 	}
+	
+	public Chromosome clone() {
+		return new Chromosome(this.chr);
+	}
 }

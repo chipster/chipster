@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
 
-import org.mortbay.util.IO;
+import org.eclipse.jetty.util.IO;
 import org.testng.Assert;
 
 public class FileServerTest {

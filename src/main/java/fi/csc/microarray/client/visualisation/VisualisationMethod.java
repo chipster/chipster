@@ -78,7 +78,8 @@ public class VisualisationMethod {
 			return visualisation;
 		} catch (Exception e) {
 			e.printStackTrace();
-			application.reportException(e);
+			//field 'application' not always initialised
+			Session.getSession().getApplication().reportException(e);
 			return null;
 		}
 	}

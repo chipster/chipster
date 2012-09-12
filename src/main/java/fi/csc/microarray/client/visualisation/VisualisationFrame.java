@@ -43,7 +43,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private CardLayout viewChangerLayout = new CardLayout();
 	private JPanel viewChangerPanel = new JPanel(viewChangerLayout);
-	private JComponent lastVisualisationPanel;
 	private JSplitPane paramSplit;
 
 	private VisualisationMethod method;
@@ -55,6 +54,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	protected FrameType type;
 
 	private Visualisation visualiser;
+
+	private JPanel waitPanel;
 
 	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
@@ -70,7 +71,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		viewChangerPanel.setBackground(BG);
 
 		// initialise wait panel
-		JPanel waitPanel = new JPanel(new BorderLayout());
+		waitPanel = new JPanel(new BorderLayout());
 		JLabel waitLabel = new JLabel("Visualising, please wait...");
 		waitLabel.setFont(waitLabel.getFont().deriveFont(Font.BOLD));
 		waitLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -106,6 +107,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			this.method = e.getNewMethod();
 
 			removeVisualiser();
+			
 			visualiser = method.getVisualiser(this);
 		}
 		this.variables = e.getVariables();
@@ -125,6 +127,11 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 			SplitSizeHandler sizeHandler = new SplitSizeHandler();
 			paramSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, sizeHandler);
+		} else {
+			//Do not keep references to old visualization to avoid memory leak
+			if (paramSplit != null) {
+				paramSplit.removeAll();
+			}
 		}
 
 		JComponent visualisationComponent = null;
@@ -174,8 +181,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			}
 		}
 
-		this.lastVisualisationPanel = panel;
-
 		String title = "Visualisation";
 		if (datas != null && datas.size() > 0) {
 			title += " of ";
@@ -211,13 +216,15 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	 * from EDT.
 	 */
 	public void removeVisualisationComponent() {
-
-		if (lastVisualisationPanel != null) {
-			// remove all references to visualisation panel
-			viewChangerPanel.remove(lastVisualisationPanel);
-			viewChangerLayout.removeLayoutComponent(lastVisualisationPanel);
-
-			lastVisualisationPanel = null;
+		
+		for (Component component : viewChangerPanel.getComponents()) {
+			if (!(component == waitPanel)) {
+				
+				// remove all references to visualisation panel
+				viewChangerPanel.remove(component);
+				viewChangerLayout.removeLayoutComponent(component);
+			}
+			
 		}
 	}
 

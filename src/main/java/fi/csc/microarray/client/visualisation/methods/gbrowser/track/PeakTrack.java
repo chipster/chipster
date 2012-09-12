@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -39,8 +38,8 @@ public class PeakTrack extends Track {
 	private Color color;
 
 
-	public PeakTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, Color color, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public PeakTrack(View view, DataSource file, Color color, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;

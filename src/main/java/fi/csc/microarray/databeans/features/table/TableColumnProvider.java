@@ -18,6 +18,7 @@ import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
 
@@ -223,6 +224,17 @@ public class TableColumnProvider extends FeatureProviderBase {
 					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
 						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
+					}
+					
+					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
+						//TODO this will fail if the last row of header isn't unique
+						String line = null;
+						int i = 1;
+						while (line == null || source.peekLine(i).startsWith("##")) {
+							line = source.peekLine(i);
+							i++;
+						}
+						settings.headerTerminator = line;
 					}
 					
 					// note: it is safe to call tokeniseRow with null input				
