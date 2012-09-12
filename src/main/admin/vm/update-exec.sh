@@ -116,7 +116,6 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
 	# Move away old libs to avoid conflicts when lib names change
     mv shared ${BACKUPDIR_PATH}/
     mv webstart/web-root/lib ${BACKUPDIR_PATH}/
-    cp -r comp/modules ${BACKUPDIR_PATH}/
 
 	# Unpack libs
     echo "Updating libs: shared/libs"
@@ -124,7 +123,10 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
     echo "Updating libs: webstart/web-root/lib"
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
 
-	# Unpack and possibly override tool scripts
+	# Copy away tool scripts in case there were important local changes
+    cp -r comp/modules ${BACKUPDIR_PATH}/
+
+	# Unpack tool scripts
     echo "Updating tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
