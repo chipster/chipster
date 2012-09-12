@@ -1,30 +1,24 @@
 #!/bin/bash
 
+# This script updates to latest version. Updates between minor versions should be smooth and
+# automatic, where as updates between major versions can require some manual steps afterwards
+# if some specific local customisations were in place. 
+LATEST_VERSION=2.0.4
+
 # Exit immediately after failing command
 set -e
 
-# This script updates to latest minor version of the same major version (e.g. 2.0.1 -> 2.0.3)
-LATEST_VERSION=2.0.4
-
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
-CURRENT_MAJOR_VERSION=`echo $CURRENT_VERSION | gawk 'match($0, "([0-9]*.[0-9]*).[0-9]*", g) {print g[1]}'`
+CURRENT_MAIN_VERSION=`echo $CURRENT_VERSION | gawk 'match($0, "([0-9]*).[0-9]*.[0-9]*", g) {print g[1]}'`
+CURRENT_MAJOR_VERSION=`echo $CURRENT_VERSION | gawk 'match($0, "[0-9]*.([0-9]*).[0-9]*", g) {print g[1]}'`
 CURRENT_MINOR_VERSION=`echo $CURRENT_VERSION | gawk 'match($0, "[0-9]*.[0-9]*.([0-9]*)", g) {print g[1]}'`
-LATEST_MAJOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "([0-9]*.[0-9]*).[0-9]*", g) {print g[1]}'`
+LATEST_MAIN_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "([0-9]*).[0-9]*.[0-9]*", g) {print g[1]}'`
+LATEST_MAJOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.([0-9]*).[0-9]*", g) {print g[1]}'`
 LATEST_MINOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.[0-9]*.([0-9]*)", g) {print g[1]}'`
 
-
 # Check if versions match
-echo Detected version $CURRENT_VERSION
-if [ ! "$CURRENT_MAJOR_VERSION" = "$LATEST_MAJOR_VERSION" ]; then
-	echo "Error! Will work only for major version $LATEST_MAJOR_VERSION!"
-	exit
-fi
-if [ $CURRENT_MINOR_VERSION -gt $LATEST_MINOR_VERSION ]; then
-	echo "Error! Current $CURRENT_VERSION is greater than latest $LATEST_VERSION. Corrupted installation?"
-	exit
-fi
-if [ $CURRENT_MINOR_VERSION -eq $LATEST_MINOR_VERSION ]; then
+if [ $CURRENT_MAIN_VERSION -ge $LATEST_MAIN_VERSION -a $CURRENT_MAJOR_VERSION -ge $LATEST_MAJOR_VERSION -a $CURRENT_MINOR_VERSION -ge $LATEST_MINOR_VERSION ]; then
 	echo "Already at latest version, nothing needs to be updated"
 	exit
 fi
