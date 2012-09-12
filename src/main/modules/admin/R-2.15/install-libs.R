@@ -25,3 +25,5 @@ biocLite("edgeR")
 biocLite("TxDb.Hsapiens.UCSC.hg19.knownGene")
 
 biocLite("DEXSeq")
+
+biocLite("BSgenome.Hsapiens.UCSC.hg19")
