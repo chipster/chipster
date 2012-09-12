@@ -2,8 +2,11 @@
 
 # This script updates to latest version. Updates between minor versions should be smooth and
 # automatic, where as updates between major versions can require some manual steps afterwards
-# if some specific local customisations were in place. 
-LATEST_VERSION=2.0.4
+# if some specific local customisations were in place.
+# This update mechanism has been available since 2.0.1.
+
+# Latest version, matching tar-packages must be available 
+LATEST_VERSION=2.1.0
 
 # Exit immediately after failing command
 set -e
@@ -48,7 +51,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MI
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
-# 2.0.4 
+# 2.1.0 
 if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 4 ] ; then
 
     echo "Updating prinseq"
