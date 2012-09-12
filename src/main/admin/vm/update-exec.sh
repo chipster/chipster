@@ -52,7 +52,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MI
 fi
 
 # 2.1.0 
-if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 4 ] ; then
+if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MINOR_VERSION -lt 0 ] ; then
 
     echo "Updating prinseq"
 	cd ${TMPDIR_PATH}/
