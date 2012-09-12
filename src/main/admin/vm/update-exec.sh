@@ -3,7 +3,7 @@
 # This script updates to latest version. Updates between minor versions should be smooth and
 # automatic, where as updates between major versions can require some manual steps afterwards
 # if some specific local customisations were in place.
-# This update mechanism has been available since 2.0.1.
+# This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
 LATEST_VERSION=2.1.0
