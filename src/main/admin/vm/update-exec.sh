@@ -18,6 +18,7 @@ LATEST_MAJOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.([0-9]*).[0
 LATEST_MINOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.[0-9]*.([0-9]*)", g) {print g[1]}'`
 
 # Check if versions match
+echo Detected version $CURRENT_VERSION
 if [ $CURRENT_MAIN_VERSION -ge $LATEST_MAIN_VERSION -a $CURRENT_MAJOR_VERSION -ge $LATEST_MAJOR_VERSION -a $CURRENT_MINOR_VERSION -ge $LATEST_MINOR_VERSION ]; then
 	echo "Already at latest version, nothing needs to be updated"
 	exit
@@ -36,19 +37,19 @@ rm -rf ${TMPDIR_PATH}/
 mkdir ${TMPDIR_PATH}/
 
 
-#
-# VERSION SPECIFIC ENTRIES START HERE
-# (ADD NEW ENTRIES TO THE END)
-#
+#######################################
+# VERSION SPECIFIC ENTRIES START HERE #
+# (ADD NEW ENTRIES TO THE END)        #
+#######################################
 
 # 2.0.3
-if [ $CURRENT_MINOR_VERSION -lt 3 ] ; then
+if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 3 ] ; then
 	echo "Installing mm10 bowtie indexes"
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 # 2.0.4 
-if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
+if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 4 ] ; then
 
     echo "Updating prinseq"
 	cd ${TMPDIR_PATH}/
@@ -77,12 +78,12 @@ if [ $CURRENT_MINOR_VERSION -lt 4 ] ; then
     
 fi
 
-#
-# VERSION SPECIFIC ENTRIES END HERE
-#
+#####################################
+# VERSION SPECIFIC ENTRIES END HERE #
+#####################################
 
 # Update Chipster itself (incl. tool scripts), unless already at latest
-if [ $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
+if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -lt $LATEST_MAJOR_VERSION -o $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 
 	echo "Updating Chipster installation to $LATEST_VERSION"
 
