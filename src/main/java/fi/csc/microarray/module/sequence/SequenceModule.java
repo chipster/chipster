@@ -12,7 +12,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -159,12 +158,6 @@ public class SequenceModule implements Module {
 		return new String[0][0];
 	}
 	
-	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-		};
-	}
-
 	@Override
 	public boolean isMetadata(DataBean data) {
 		return false; // we don't use metadata
