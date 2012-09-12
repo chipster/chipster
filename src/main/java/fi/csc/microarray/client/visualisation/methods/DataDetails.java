@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -22,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -41,9 +44,9 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
-public class DataDetails extends Visualisation implements FocusListener, DocumentListener{
+public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
 
-	private final String PLEASE_ADD_NOTES = "Add your notes here...";
+	private final String PLEASE_ADD_NOTES = "(Add your notes here)";
 
 	private JTextArea notesField = new JTextArea();
 	private JPanel panel = new JPanel();
@@ -56,6 +59,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	private List<DataBean> datas;
 
 	private JPanel cachePanel;
+
+	private JTextArea titleField;
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -101,7 +106,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			notesField.setLineWrap(true);
 			notesField.setWrapStyleWord(true);
 			notesField.addFocusListener(this);
-			notesField.setBorder(new javax.swing.border.LineBorder(Color.lightGray));
 			notesField.getDocument().addDocumentListener(this);
 			notesField.setColumns(LEFT_WIDTH / notesField.getFont().getSize()); //not accurate
 			notesField.setRows(1);
@@ -110,6 +114,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			notesPanel.add(panel, BorderLayout.CENTER);
 
 			setNotes(datas.get(0).getNotes());
+			setNotesActive(false);
 			notesField.setEnabled(true);
 			return notesPanel;
 		}
@@ -201,10 +206,20 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		JPanel datasetPanel = getPanelBase(null);
 
-		JLabel title = new JLabel(data.getName());
-		title.setFont(title.getFont().deriveFont(title.getFont().getSize2D() * 1.5f));
+//		JLabel title = new JLabel(data.getName());
+		titleField = new JTextArea(data.getName());
+		titleField.setFont(titleField.getFont().deriveFont(titleField.getFont().getSize2D() * 1.5f));
+		
+		if (isSingle) {
+			titleField.addFocusListener(this);
+			titleField.getDocument().putProperty("filterNewlines", Boolean.TRUE);
+			titleField.getDocument().addDocumentListener(this);
+			setTitleActive(false);
+		} else {
+			titleField.setEditable(false);
+		}
 
-		datasetPanel.add(title, BorderLayout.NORTH);
+		datasetPanel.add(titleField, BorderLayout.NORTH);
 
 		if (isSingle) {
 			JPanel panel = new JPanel(new GridBagLayout());
@@ -280,7 +295,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
-		panel.setBackground(Color.red);
+		panel.setBackground(BG);
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -380,6 +395,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		c.gridy = 0;
 		c.gridx++;
 		addEmptyColumn(panel, c, -1);
+		
+		panel.addMouseListener(this);
 
 		return new JScrollPane(panel);
 	}
@@ -531,31 +548,84 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	}
 
 	public void focusGained(FocusEvent e) {
-		// user starts writing notes, so remove "please add notes" if needed
-		if (PLEASE_ADD_NOTES.equals(notesField.getText())) {
-			notesField.setText("");
-		}		
+		if (e.getComponent() == notesField) {
+			setNotesActive(true);
+			// user starts writing notes, so remove "please add notes" if needed
+			if (PLEASE_ADD_NOTES.equals(notesField.getText())) {
+				//notesField.setText("");
+				notesField.setSelectionStart(0);
+				notesField.setSelectionEnd(notesField.getText().length());
+				notesField.setBorder(new LineBorder(Color.gray));
+			}
+		} else if (e.getComponent() == titleField) {
+			setTitleActive(true);
+		}
 	}
 
 	public void focusLost(FocusEvent e) {
-		// do nothing, content is stored already 
+		// do nothing, content is stored already
+		
+		if (e.getComponent() == notesField) {
+			setNotes(datas.get(0).getNotes());
+			setNotesActive(false);
+
+		} else if (e.getComponent() == titleField) {
+			setTitleActive(false);
+			
+			if ("".equals(titleField.getText().trim())) {
+				titleField.setText(datas.get(0).getName());
+			}
+		}
 	}
+	
+	private void setNotesActive(boolean active) {
+		if (active) {
+			notesField.setBorder(new LineBorder(Color.gray));
+		} else {
+			notesField.setBorder(new LineBorder(BG));
+			notesField.setEnabled(false);
+			notesField.setEnabled(true);
+			notesField.setSelectionStart(0);
+			notesField.setSelectionEnd(0);
+		}
+	}
+	
+	private void setTitleActive(boolean active) {
+		if (active) {
+			titleField.setBorder(new LineBorder(Color.gray));
+		} else {
+			titleField.setBorder(new LineBorder(BG));
+			titleField.setEnabled(false);
+			titleField.setEnabled(true);
+			titleField.setSelectionStart(0);
+			titleField.setSelectionEnd(0);
+		}
+	}
+	
 
 	public void changedUpdate(DocumentEvent e) {
-		notesFieldUpdated();		
+		fieldUpdated(e);		
 	}
 
 	public void insertUpdate(DocumentEvent e) {
-		notesFieldUpdated();		
+		fieldUpdated(e);		
 	}
 
 	public void removeUpdate(DocumentEvent e) {
-		notesFieldUpdated();		
+		fieldUpdated(e);		
 	}
 
-	private void notesFieldUpdated() {
-		if (this.datas != null) {
-			this.datas.get(0).setNotes(getNotesContent()); // update notes
+	private void fieldUpdated(DocumentEvent e) {
+		if (e.getDocument() == notesField.getDocument()) {
+			setNotesActive(true);
+			if (this.datas != null) {
+				this.datas.get(0).setNotes(getNotesContent()); // update notes
+			}
+		} else if (e.getDocument() == titleField.getDocument()) {
+			setTitleActive(true);
+			if (!"".equals(titleField.getText().trim())) {
+				application.renameDataItem(datas.get(0), titleField.getText().trim());
+			}
 		}
 	}
 	
@@ -584,5 +654,28 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		public void actionPerformed(ActionEvent e) {
 			application.setVisualisationMethod(method, null, datas, getFrame().getType());
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		
+		setNotesActive(false);
+		setTitleActive(false);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {	
 	}
 }
