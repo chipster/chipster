@@ -59,21 +59,28 @@ if (input.mode == "fq") {
 input_files <- dir()
 is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 if (is_paired_end) {
+	#check if the fastqfomat is hiseq or old
+	first_row_1 <- read.table(file="fastqfile", nrow=1, header=FALSE, sep=" ", check.names=FALSE, comment.char="")
+	first_row_2 <- read.table(file="matepair_fastqfile", nrow=1, header=FALSE, sep=" ", check.names=FALSE, comment.char="")
+	if ( ncol(first_row_1) == 2 ) { fq.hiseq <- "yes" } else { fq.hiseq <- "no" }
 	
+
 	# check that the input files are truly matepairs by comparing
 	# sequence ID, discarding the last character
-	first_row_1 <- read.table(file="fastqfile", nrow=1, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
-	first_row_2 <- read.table(file="matepair_fastqfile", nrow=1, header=FALSE, sep="\t", check.names=FALSE, comment.char="")
 	name_length <- nchar(as.character(first_row_1[1,1]))
 	id_1 <- substr(as.character(first_row_1[1,1]), start=1, stop=name_length-1)
 	id_2 <- substr(as.character(first_row_2[1,1]), start=1, stop=name_length-1)
 	if (id_1 != id_2) {
-		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please check that the correct input files were selected.")
+		  stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please check that the correct input files were selected.")
 	}
 	
-	# figure out which file is the first and second matepair, and issue
-	# the python script call accordingly
-	mate_number <- substr(as.character(first_row_1[1,1]), start=name_length, stop=name_length)
+	   # figure out which file is the first and second matepair, and issue
+	   # the python script call accordingly
+	if ( fq.hiseq == "no"){		
+	   mate_number <- substr(as.character(first_row_1[1,1]), start=name_length, stop=name_length)
+    } else {
+		mate_number <- substr(as.character(first_row_1[1,2]), start=1, stop=1)
+	}	
 	if (mate_number == "1") {
 		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "interleave-fastq.py")
 		system_command <- paste("python", binary_python_scripts, "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
@@ -217,10 +224,15 @@ system("rm -f fastqfile")
 # If filtering on paired-end data, perform matching of
 # mate pairs using python script and then de-interlace them to two files
 if (is_paired_end) {
-	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs.py")
-	system_command <- paste("python", binary_python_scripts, "accepted.fastq", "matched_fastqfile")
-	system(system_command)
+	if ( fq.hiseq == "no"){	
+	   binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs.py")
+    } else{
+	   binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs-hiseq.py")
+    }
 	
+	system_command <- paste("python", binary_python_scripts, "accepted.fastq", "matched_fastqfile >> filter.log")
+	system(system_command)
+
 	system("echo Executed match_pair python script with: >> filter.log")
 	echo.command <- paste("echo '", system_command, "'>> filter.log")
 	system(echo.command)
@@ -235,7 +247,7 @@ if (is_paired_end) {
 	system("echo Executed deinterleave python script with: >> filter.log")
 	echo.command <- paste("echo '", system_command, "'>> filter.log")
 	system(echo.command)
-
+	
 	# remove input files to clear up disk space
 	system("rm -f matched_fastqfile")
 }

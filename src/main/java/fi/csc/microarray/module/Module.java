@@ -198,21 +198,23 @@ public interface Module {
 	/**
 	 * Flags spreadsheet columns that support linking by this module.
 	 *  
-	 * @param columnNames spreadsheet column names
+	 * @param data 
 	 * 
 	 * @return Boolean list with the same size as columnNames
+	 * @throws MicroarrayException 
 	 */
-	public List<Boolean> flagLinkableColumns(String[] columnNames);
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data);
 
 	/**
 	 * Converts spreadshoot cell into linkable {@link IntegratedEntity}.
 	 * 
 	 * @param columns current row 
 	 * @param column index of cell 
+	 * @param data 
 	 * 
 	 * @return {@link IntegratedEntity} that is point selected when link is clicked
 	 */
-	public IntegratedEntity createLinkableEntity(Table columns, int column);
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data);
 
 	/**
 	 * Converts server module name into GUI friendly name.

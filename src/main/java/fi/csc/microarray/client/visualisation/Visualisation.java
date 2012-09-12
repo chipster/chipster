@@ -22,7 +22,7 @@ import fi.csc.microarray.module.basic.BasicModule;
 
 public abstract class Visualisation {
 
-	public static final Dimension PARAMETER_SIZE = new Dimension(200, 500);
+	public static final Dimension PARAMETER_SIZE = new Dimension(240, 500);
 
 	private VisualisationFrame frame;
 

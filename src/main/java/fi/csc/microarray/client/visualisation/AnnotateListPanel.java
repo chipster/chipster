@@ -83,11 +83,9 @@ public class AnnotateListPanel extends JPanel {
 		if (showAnnotations) {
 			List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
 			try {
-				int i = 0;
 				for(DataBean data : indexes.keySet()){
 					annotationProviders.add(new TableAnnotationProvider(data));
-				}
-				i++;			
+				}			
 			} catch (MicroarrayException me) {
 				throw new RuntimeException(me);
 			}
