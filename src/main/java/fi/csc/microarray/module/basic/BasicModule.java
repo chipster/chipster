@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -37,7 +36,6 @@ import fi.csc.microarray.databeans.features.table.RowCountProvider;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.util.GeneralFileFilter;
 
 public class BasicModule implements Module {
 
@@ -146,13 +144,6 @@ public class BasicModule implements Module {
 	@Override
 	public String[][] getRepositoryWorkflows() {
 		return new String[0][0];
-	}
-
-	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-				new GeneralFileFilter("Tab or comma separated tables", new String[] {"csv", "tsv"}),
-		};
 	}
 
 	@Override

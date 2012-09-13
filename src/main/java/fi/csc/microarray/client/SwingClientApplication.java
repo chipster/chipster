@@ -58,16 +58,16 @@ import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
@@ -80,32 +80,31 @@ import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -1531,13 +1530,6 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
-		for (Module module : Session.getSession().getModules()) {
-			for (FileFilter filter : module.getImportFileFilter()) {
-				importExportFileChooser.addChoosableFileFilter(filter);
-				importExportFileChooser.setFileFilter(filter);
-			}
-		}
 		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 
 		ImportSettingsAccessory access = new ImportSettingsAccessory(importExportFileChooser);

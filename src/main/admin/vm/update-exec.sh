@@ -2,10 +2,13 @@
 
 # This script updates to latest version. Updates between minor versions should be smooth and
 # automatic, where as updates between major versions can require some manual steps afterwards
-# if some specific local customisations were in place. 
-LATEST_VERSION=2.0.4
+# if some specific local customisations were in place.
+# This update mechanism has been available since 2.0.2.
 
-# Exit immediately after failing command
+# Latest version, matching tar-packages must be available 
+LATEST_VERSION=2.1.0
+
+# Exit immediately if some command fails
 set -e
 
 # Detect current version
@@ -24,9 +27,18 @@ if [ $CURRENT_MAIN_VERSION -ge $LATEST_MAIN_VERSION -a $CURRENT_MAJOR_VERSION -g
 	exit
 fi
 
+# Confirm update
+echo "Will update to version $LATEST_VERSION"
+echo "Update will start next. It can take several hours, depending on your network connection"
+echo "Do you wish to proceed?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) echo "Update started"; break;;
+        No ) echo "Update aborted"; exit;;
+    esac
+done
 
 # Start update
-echo Will update to version $LATEST_VERSION
 INST_PATH=/opt
 CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
@@ -36,6 +48,10 @@ TMPDIR_PATH=/tmp/chipster-install-temp
 rm -rf ${TMPDIR_PATH}/
 mkdir ${TMPDIR_PATH}/
 
+# Create backup dir
+TIMESTAMP=$(date +"%Y%m%d%H%M")
+BACKUPDIR_PATH=/tmp/$TIMESTAMP
+mkdir ${BACKUPDIR_PATH}/
 
 #######################################
 # VERSION SPECIFIC ENTRIES START HERE #
@@ -48,8 +64,8 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MI
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
-# 2.0.4 
-if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 4 ] ; then
+# 2.1.0 
+if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MINOR_VERSION -lt 0 ] ; then
 
     echo "Updating prinseq"
 	cd ${TMPDIR_PATH}/
@@ -77,6 +93,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MI
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
     echo "Updating genome browser annotations"
+    mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
     curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
     echo "Installing R-2.15"
@@ -94,28 +111,48 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
 	echo "Updating Chipster installation to $LATEST_VERSION"
 
 	# Get install package (override, if exists)
-	wget -Nq http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz .
+    wget -Nq http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
-	# Remove old libs to avoid conflicts when lib names change
-	rm -rf shared
-	rm -rf webstart/web-root/lib
+	# Move away old libs to avoid conflicts when lib names change
+    mv shared ${BACKUPDIR_PATH}/
+    mv webstart/web-root/lib ${BACKUPDIR_PATH}/
 
 	# Unpack libs
-	echo "Updating libs: shared/libs (local changes will be overridden)"
-	tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
-	echo "Updating libs: webstart/web-root/lib (local changes will be overridden)"
-	tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
+    echo "Updating libs: shared/libs"
+    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
+    echo "Updating libs: webstart/web-root/lib"
+    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
 
-	# Unpack and possibly override tool scripts
-	echo "Updating tool scripts: comp/modules (conflicting local changes will be overridden)"
-	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
+	# Copy away tool scripts in case there were important local changes
+    cp -r comp/modules ${BACKUPDIR_PATH}/
+
+	# Unpack tool scripts
+    echo "Updating tool scripts: comp/modules"
+    tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
+
+	# Update runtimes.xml
+    cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
+	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
 	# Clean up
-	rm chipster-$LATEST_VERSION.tar.gz
+    rm chipster-$LATEST_VERSION.tar.gz
 fi
 
 # Remove temp dir
 rm -rf ${TMPDIR_PATH}/
 
+# Check backup dir
+if [ $(ls -A ${BACKUPDIR_PATH}) ] ; then
+
+   SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
+   echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
+   echo "It is recommended to inspect the directory and then to remove it"
+
+else
+
+   rmdir  ${BACKUPDIR_PATH}
+
+fi
+   
 # We are done
 echo "Update completed successfully"

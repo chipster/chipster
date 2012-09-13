@@ -314,7 +314,10 @@
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
 
+			<!-- temprary fix
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
+			-->
+			<tarfileset file="ext/applications/wrapper/wrapper-linux-x86-64-3.2.3/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 
 			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/macosx" />
