@@ -130,6 +130,10 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
     echo "Updating tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
+	# Update runtimes.xml
+    cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
+	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
+
 	# Clean up
     rm chipster-$LATEST_VERSION.tar.gz
 fi
