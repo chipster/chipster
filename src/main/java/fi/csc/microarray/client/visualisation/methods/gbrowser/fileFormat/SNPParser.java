@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -48,7 +48,7 @@ public class SNPParser extends TsvParser{
 	}
 	
 	@Override
-	public BpCoordRegion getBpRegion(Chunk chunk) {
+	public Region getBpRegion(Chunk chunk) {
 		String[] firstRow = getFirstRow(chunk);
 	    String[] lastRow = getLastRow(chunk);
 		Long start = (Long)get(firstRow, ColumnType.POSITION);
@@ -57,7 +57,7 @@ public class SNPParser extends TsvParser{
         
 		Chromosome startChr = (Chromosome)get(firstRow, ColumnType.CHROMOSOME);
 		Chromosome endChr = (Chromosome)get(lastRow, ColumnType.CHROMOSOME);
-		return new BpCoordRegion(start, startChr, end, endChr);
+		return new Region(start, startChr, end, endChr);
 	}
 	
 	@Override
@@ -79,7 +79,7 @@ public class SNPParser extends TsvParser{
 			Long end = (Long)get(cols, ColumnType.POSITION);
 			Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
 	
-			rows.add(new RegionContent(new BpCoordRegion(start, end, chr), values));
+			rows.add(new RegionContent(new Region(start, end, chr), values));
 
 		}
 		return rows;

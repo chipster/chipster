@@ -12,10 +12,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
@@ -100,14 +100,14 @@ public class SequenceModule implements Module {
 
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
-		importLinks.add(quickLinkPanel.createLink("Import from UniProt, EMBL, PDB... ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from UniProt, EMBL, PDB... ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportSequence();
 			}
 		}));
 		
-		importLinks.add(quickLinkPanel.createLink("Create dataset from text ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Create dataset from text ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doCreateFromText();
@@ -159,12 +159,6 @@ public class SequenceModule implements Module {
 	}
 	
 	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-		};
-	}
-
-	@Override
 	public boolean isMetadata(DataBean data) {
 		return false; // we don't use metadata
 	}
@@ -210,12 +204,12 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public List<Boolean> flagLinkableColumns(String[] columnNames) {
-		return Collections.nCopies(columnNames.length, false);
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
+		return Collections.nCopies(columns.getColumnCount(), false);
 	}
 
 	@Override
-	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
 	}
 

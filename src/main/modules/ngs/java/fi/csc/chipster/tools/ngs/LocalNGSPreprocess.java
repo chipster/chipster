@@ -162,6 +162,7 @@ public class LocalNGSPreprocess implements Runnable {
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
+		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 		
 		// Create outputs in the client

@@ -3,29 +3,20 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.UIManager;
 
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 
 /**
@@ -35,13 +26,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
  * @author Petri Klemelä, Aleksi Kallio
  * @see View
  */
-public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
+public class GenomePlot extends Plot {
 
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
-    public ChartPanel chartPanel;
+    public TooltipAugmentedChartPanel chartPanel;
     
     private boolean showFullHeight = false;
 	private Rectangle dirtyArea;
@@ -50,13 +41,13 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	 * Scale for visualising reads as profiles, gel etc.
 	 */
     public enum ReadScale {
-        XS("0..10", 10),
-        SMALL("0..50", 50),
-        MEDIUM("0..100", 100),
-        LARGE("0..500", 500),        
-        XL("0..1000", 1000),
-        XXL("0..5000", 5000),
-        XXXL("0..10000", 10000),
+        XS("10", 10),
+        SMALL("50", 50),
+        MEDIUM("100", 100),
+        LARGE("500", 500),        
+        XL("1000", 1000),
+        XXL("5000", 5000),
+        XXXL("10000", 10000),
         AUTO("Automatic", 0);
         
         private String name;
@@ -72,8 +63,8 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         }
     }    
 
-	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
-	    
+	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) {
+		
 	    // set chart panel
 	    this.chartPanel = panel;
 	    this.chartPanel.setLayout(null);
@@ -99,22 +90,24 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		this.views.add(dataView);
-		panel.addTooltipRequestProcessor(dataView);
+		chartPanel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
-			public void regionChanged(BpCoordRegion bpRegion) {
+			public void regionChanged(Region bpRegion) {
 				overviewView.highlight = bpRegion;
-				overviewView.setBpRegion(new BpCoordRegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
+				overviewView.setBpRegion(new RegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
 			}
 		});
 		
 		overviewView.addOverviewRegionListener(new RegionListener() {
 
 			@Override
-			public void regionChanged(BpCoordRegion bpRegion) {
-				dataView.setBpRegion(new BpCoordRegionDouble(bpRegion), false);
+			public void regionChanged(Region bpRegion) {
+				dataView.setBpRegion(new RegionDouble(bpRegion), false);
 			}		
 		});
+		
+		
 	}
 
 	public View getDataView() {
@@ -134,7 +127,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	 * @param length number of visible base pairs (zoom)
 	 */
 	public void start(String chromosome, Double chromosomeSizeBp, Long position, Long length) {
-		overviewView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		overviewView.setBpRegion(new RegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
 		moveDataBpRegion(new Chromosome(chromosome), position, length);
 	}
 
@@ -146,7 +139,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
      * @param length
      */
 	public void moveDataBpRegion(Chromosome moveToChr, Long moveToBp, Long length) {
-		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
+		RegionDouble bpCoordRegion = new RegionDouble(
 				new Double(moveToBp - (length/2)),
 				new Double(moveToBp + (length/2)), 
 				moveToChr
@@ -258,18 +251,6 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	}
 
 	/**
-	 * Implements the ChartMouseListener interface. This method does nothing.
-	 * 
-	 * @param event
-	 *            the mouse event.
-	 */
-	public void chartMouseMoved(ChartMouseEvent event) {
-	}
-
-	public void chartMouseClicked(ChartMouseEvent e) {
-	}
-
-	/**
 	 * Tests this plot for equality with an arbitrary object. Note that the plot's dataset is NOT included in the test for equality.
 	 * 
 	 * @param obj
@@ -289,38 +270,6 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		return true;
 	}
 
-	/**
-	 * Provides serialization support.
-	 * 
-	 * @param stream
-	 *            the output stream.
-	 * 
-	 * @throws IOException
-	 *             if there is an I/O error.
-	 * @throws NullPointerException
-	 *             if stream is null.
-	 */
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-		stream.defaultWriteObject();
-	}
-
-	/**
-	 * Provides serialization support.
-	 * 
-	 * @param stream
-	 *            the input stream.
-	 * 
-	 * @throws IOException
-	 *             if there is an I/O error.
-	 * @throws ClassNotFoundException
-	 *             if there is a classpath problem.
-	 * @throws NullPointerException
-	 *             if stream is null.
-	 */
-	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-	}
-
 	public void redraw() {
 		this.datasetChanged(new DatasetChangeEvent(this, null));		
 	}
@@ -335,6 +284,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
+        this.dataView.redraw();
     }
     
     /**
@@ -370,4 +320,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
     public void setFullHeight(boolean b) {
     	showFullHeight = b;
     }
+
+	public void clean() {
+		chartPanel.removeTooltipRequestProcessor();
+		overviewView.clean();
+		dataView.clean();
+		dataView = null;
+	}
 }
