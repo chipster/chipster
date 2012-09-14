@@ -110,7 +110,8 @@ fi
 if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -lt $LATEST_MAJOR_VERSION -o $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 
 	echo "Updating Chipster installation to $LATEST_VERSION"
-
+	cd ${CHIP_PATH}/
+	
 	# Get install package (override, if exists)
 	rm -f chipster-$LATEST_VERSION.tar.gz
     wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
@@ -149,17 +150,9 @@ fi
 rm -rf ${TMPDIR_PATH}/
 
 # Check backup dir
-if [ $(ls -A ${BACKUPDIR_PATH}) ] ; then
-
-   SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
-   echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
-   echo "It is recommended to inspect the directory and then to remove it"
-
-else
-
-   rmdir  ${BACKUPDIR_PATH}
-
-fi
+SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
+echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
+echo "It is recommended to inspect the directory and then to remove it"
    
 # We are done
 echo "Update completed successfully"
