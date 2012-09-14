@@ -72,10 +72,9 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
     curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
     chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+    rm -rf ${TOOLS_PATH}/prinseq*
     mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
-    rm ${TOOLS_PATH}/prinseq
     ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
-	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
 
     echo "Adding nz131a520662fcdf"
     cd ${TMPDIR_PATH}/
@@ -89,6 +88,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
     cd vcftools_0.1.9/
     make
     cd ../
+    rm -rf ${TOOLS_PATH}/vcftools*
     mv vcftools_0.1.9/ ${TOOLS_PATH}/
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
