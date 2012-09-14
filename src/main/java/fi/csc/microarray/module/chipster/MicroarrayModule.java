@@ -461,7 +461,7 @@ public class MicroarrayModule implements Module {
 				List<DataBean> selection = application.getSelectionManager().getSelectedDataBeans();
 				currentSelectionVisualisable = visualisation.canVisualise(selection);
 			}
-		} catch (MicroarrayException e2) {
+		} catch (Exception e2) {
 			// ignore
 		}
 
@@ -489,7 +489,7 @@ public class MicroarrayModule implements Module {
 					boolean canVisualise = false;
 					try {
 						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
-					} catch (MicroarrayException e1) {
+					} catch (Exception e1) {
 						// ignore
 					}
 
