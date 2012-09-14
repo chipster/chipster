@@ -61,7 +61,7 @@ mkdir ${BACKUPDIR_PATH}/
 # 2.0.3
 if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 3 ] ; then
 	echo "Installing mm10 bowtie indexes"
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 # 2.1.0 
@@ -69,13 +69,12 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
 
     echo "Updating prinseq"
 	cd ${TMPDIR_PATH}/
-    curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+    curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
     chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+    rm -rf ${TOOLS_PATH}/prinseq*
     mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
-    rm ${TOOLS_PATH}/prinseq
     ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
-	rm -rf ${TOOLS_PATH}/prinseq-lite-0.17.3
 
     echo "Adding nz131a520662fcdf"
     cd ${TMPDIR_PATH}/
@@ -85,19 +84,21 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
     
     echo "Installing vcftools"
     cd ${TMPDIR_PATH}/
-    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+    curl -L http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download | tar -xz
     cd vcftools_0.1.9/
     make
     cd ../
+    rm -rf ${TOOLS_PATH}/vcftools*
     mv vcftools_0.1.9/ ${TOOLS_PATH}/
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
     echo "Updating genome browser annotations"
     mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
-    curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+    mkdir ${TOOLS_PATH}/genomebrowser/annotations # not typically needed, but the tar package is a bit stupid in this case
+    curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
     echo "Installing R-2.15"
-    curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
+    curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
         
 fi
 
@@ -109,9 +110,11 @@ fi
 if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -lt $LATEST_MAJOR_VERSION -o $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
 
 	echo "Updating Chipster installation to $LATEST_VERSION"
-
+	cd ${CHIP_PATH}/
+	
 	# Get install package (override, if exists)
-    wget -Nq http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
+	rm -f chipster-$LATEST_VERSION.tar.gz
+    wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
 	# Move away old libs to avoid conflicts when lib names change
     mv shared ${BACKUPDIR_PATH}/
@@ -130,6 +133,11 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
     echo "Updating tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
+	# Update manuals
+	echo "Updating manuals"
+	mv webstart/web-root/manual ${BACKUPDIR_PATH}/
+	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/manual
+
 	# Update runtimes.xml
     cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
 	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
@@ -142,17 +150,9 @@ fi
 rm -rf ${TMPDIR_PATH}/
 
 # Check backup dir
-if [ $(ls -A ${BACKUPDIR_PATH}) ] ; then
-
-   SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
-   echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
-   echo "It is recommended to inspect the directory and then to remove it"
-
-else
-
-   rmdir  ${BACKUPDIR_PATH}
-
-fi
+SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
+echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
+echo "It is recommended to inspect the directory and then to remove it"
    
 # We are done
 echo "Update completed successfully"
