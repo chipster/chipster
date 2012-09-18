@@ -1,9 +1,9 @@
-# TOOL DEXSeq.R: "Differential exon usage in RNA-seq" (Infer differential exon usage from RNA-seq data. Input is an NGS experiment defined by the tool in the utilities category.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file by the tool Utilities - Define NGS experiment.)
 # INPUT countfile.tsv: countfile.tsv TYPE GENERIC 
 # INPUT phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT DEXSeq-exons.pdf: DEXSeq-exons.pdf
 # OUTPUT DEXSeq-result-table.tsv: DEXSeq-result-table.tsv
-# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.62.chr.gtf: "Human (hg19.62)", Mus_musculus.NCBIM37.62.chr.gtf: "Mouse (mm9.62)", Rattus_norvegicus.RGSC3.4.62.chr.gtf: "Rat (rn4.62)"] DEFAULT Homo_sapiens.GRCh37.62.chr.gtf (Which organism is your data from.)
+# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf: "Human (hg19.68)", Mus_musculus.GRCm38.68.chr.DEXSeq.gtf: "Mouse (mm10.68)", Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf (Which organism is your data from.)
 
 
 # JTT 14.8.2012

@@ -1,4 +1,4 @@
-# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings, Cufflinks filters out unsuccessfully tested loci, as well as those with a q-value less than 0.05.)
+# TOOL dea-cufflinks.R: "Differential expression using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings, Cufflinks filters out unsuccessfully tested loci, as well as those with a q-value less than 0.05.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt

@@ -1,4 +1,4 @@
-# TOOL edgeR-multivariate.R: "Differential expression analysis using edgeR for multivariate experiments" (Differential expression analysis of genes from multivariate designs using the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment.)
+# TOOL edgeR-multivariate.R: "Differential gene expression using edgeR for multivariate experiments" (Differential expression analysis of genes from multivariate designs using the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
