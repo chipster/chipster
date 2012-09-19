@@ -336,12 +336,12 @@ then
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.13/samtools-0.1.13.tar.bz2/download | tar -xj
-  cd samtools-0.1.13/
+  curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.13.tar.bz2/download | tar -xj
+  cd samtools-0.1.18/
   make
   cd ../
-  mv samtools-0.1.13/ ${TOOLS_PATH}
-  ln -s samtools-0.1.13 ${TOOLS_PATH}/samtools
+  mv samtools-0.1.18/ ${TOOLS_PATH}
+  ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
@@ -350,6 +350,14 @@ then
   mv bowtie-0.12.7/ ${TOOLS_PATH}
   ln -s bowtie-0.12.7 ${TOOLS_PATH}/bowtie
   rm bowtie-0.12.7-linux-x86_64.zip
+
+  # Bowtie 2, Artistic License
+  cd ${TMPDIR_PATH}/
+  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
+  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
+  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
+  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
 
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -363,7 +371,20 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 
-	
+	# Bowtie2 indexes, built for Chipster
+  cd ${TMPDIR_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		
+				
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip
@@ -389,6 +410,11 @@ then
   curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
   mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
   ln -s tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/tophat
+
+  # Tophat 2, The Artistic License
+  cd ${TMPDIR_PATH}/
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
@@ -457,12 +483,13 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
   # DEXSeq
-  cd ${TMPDIR_PATH}/
-  curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.0.tar.gz | tar -xz
-  mkdir ${TOOLS_PATH}/dexseq-exoncounts
-  cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
-  cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
-  rm -rf DEXSeq	
+	cd ${TMPDIR_PATH}/
+	#	curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.1.tar.gz | tar -xz
+	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
+	mkdir ${TOOLS_PATH}/dexseq-exoncounts
+	cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+	cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+	rm -rf DEXSeq	
 
  	# vcftools, GPLv3
   cd ${TMPDIR_PATH}/

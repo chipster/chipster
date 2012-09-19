@@ -99,15 +99,73 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
   
     echo "Installing R-2.15"
     curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
- 
- 	# Cufflinks, Boost License
+        
+fi
+
+
+# 2.1.1 
+if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MINOR_VERSION -lt 1 ] ; then
+
+		echo "Updating mm10 bowtie index files
+  	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+
+		echo "Updating samtools
+		cd ${TMPDIR_PATH}/
+  	curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download | tar -xj
+  	cd samtools-0.1.18/
+  	make
+  	cd ../
+  	mv samtools-0.1.18/ ${TOOLS_PATH}
+  	mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
+  	rm ${TOOLS_PATH}/samtools
+  	ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
+
+		echo "Installing bowtie2"
+  	cd ${TMPDIR_PATH}/
+  	wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
+  	unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
+  	mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
+  	ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
+  	rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+
+		echo "Installing bowtie2 indexes"
+  	cd ${TMPDIR_PATH}/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	
+		echo "Installing tophat2
+  	cd ${TMPDIR_PATH}/
+  	curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  	ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
+
+    echo "Installing DEXSeq"
+    # DEXSeq
+		cd ${TMPDIR_PATH}/
+		curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
+		mkdir ${TOOLS_PATH}/dexseq-exoncounts
+		cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+		cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+		rm -rf DEXSeq	
+
+	echo "Updating cufflinks" 
 	cd ${TMPDIR_PATH}/
 	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	rm ${TOOLS_PATH}/cufflinks
 	rm -rf ${TOOLS_PATH}/cufflinks-1.0.3.Linux_x86_64
 	ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks
-        
+
+                        
 fi
+
+
 
 #####################################
 # VERSION SPECIFIC ENTRIES END HERE #
