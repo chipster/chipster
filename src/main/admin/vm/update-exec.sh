@@ -99,6 +99,13 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
   
     echo "Installing R-2.15"
     curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
+ 
+ 	# Cufflinks, Boost License
+	cd ${TMPDIR_PATH}/
+	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	rm ${TOOLS_PATH}/cufflinks
+	rm -rf ${TOOLS_PATH}/cufflinks-1.0.3.Linux_x86_64
+	ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks
         
 fi
 
