@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -22,7 +23,7 @@ import org.testng.log4testng.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -53,9 +54,11 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	protected FrameType type;
 
-	private Visualisation visualiser;
+	private VisualisationFactory visualiser;
 
 	private JPanel waitPanel;
+
+	private Vector<Component> focusComponents;
 
 	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
@@ -92,7 +95,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private class SplitSizeHandler implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			int leftLimit = (int) paramSplit.getWidth() - (int) Visualisation.PARAMETER_SIZE.getWidth();
+			int leftLimit = (int) paramSplit.getWidth() - (int) VisualisationFactory.PARAMETER_SIZE.getWidth();
 			if (paramSplit.getDividerLocation() < leftLimit) {
 				paramSplit.setDividerLocation(leftLimit);
 			}
@@ -102,7 +105,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public JComponent createVisualisation(VisualisationMethodChangedEvent e) {
 
 		// Create new visualiser only if needed to keep the settings made in settings panel
-		if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
+		if (!(this.datas != null && e.getDatas() != null && this.datas.containsAll(e.getDatas()) && e.getDatas().containsAll(e.getDatas())) || 
+				this.method != e.getNewMethod()) {
 			this.datas = e.getDatas();
 			this.method = e.getNewMethod();
 
@@ -151,7 +155,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			} else {
 				componentToReturn = visualisationComponent;
 			}
-
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("visualisationpanel contains following components:");
 				for (Component component : paramSplit.getComponents()) {
@@ -200,6 +204,9 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		// Split obeys divider locations only after it's shown, else side visualisations hide parameters
 		if (paramSplit != null) {
 			paramSplit.setDividerLocation(0.5);
+		}
+		if (visualiser != null) {
+			visualiser.visualisationShown();
 		}
 	}
 
@@ -284,5 +291,9 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	
 	void setTitle(String title) {
 		return;
+	}
+	
+	public Vector<Component> getFocusComponents() {
+		return focusComponents;
 	}
 }

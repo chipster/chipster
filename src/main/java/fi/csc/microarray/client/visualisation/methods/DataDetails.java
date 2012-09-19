@@ -12,12 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -31,11 +34,12 @@ import javax.swing.event.DocumentListener;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.ClientFocusTraversalPolicy;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
@@ -44,14 +48,17 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
-public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
+public class DataDetails extends VisualisationFactory implements FocusListener, DocumentListener, MouseListener{
 
 	private final String PLEASE_ADD_NOTES = "(Add your notes here)";
 
-	private JTextArea notesField = new JTextArea();
-	private JPanel panel = new JPanel();
+	private JTextArea notesField;
+	private JPanel panel;
 
 	private static final Color BG = Color.white;
+
+	public static final String COMMAND = "command";
+	public static final String RENAME_COMMAND = "rename";
 	
 	final int LEFT_WIDTH = 400;
 	final int INDENTION = 20;
@@ -61,6 +68,14 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	private JPanel cachePanel;
 
 	private JTextArea titleField;
+
+	private JScrollPane scroller;
+
+	private Vector<JComponent> focusableLinks = new Vector<JComponent>();
+
+	private String originalDatasetName;
+
+	protected String originalNotes;;
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -101,7 +116,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.setBackground(BG);
-			// created dynamic (user editable) part
+			
+			notesField = new JTextArea();
 			notesField.setEditable(true);
 			notesField.setLineWrap(true);
 			notesField.setWrapStyleWord(true);
@@ -113,9 +129,30 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(new JLabel(" "), BorderLayout.SOUTH);
 			notesPanel.add(panel, BorderLayout.CENTER);
 
+			originalNotes = datas.get(0).getNotes();
 			setNotes(datas.get(0).getNotes());
 			setNotesActive(false);
 			notesField.setEnabled(true);
+			
+			notesField.addKeyListener(new KeyListener() {
+				
+				@Override
+				public void keyTyped(KeyEvent e) {
+					if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {
+						notesField.setText(originalNotes);
+						endEditing();
+					}
+				}
+				
+
+				@Override
+				public void keyReleased(KeyEvent e) {
+				}
+				
+				@Override
+				public void keyPressed(KeyEvent e) {	
+				}
+			});
 			return notesPanel;
 		}
 		else {
@@ -159,37 +196,14 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			c.weightx = 1.0;
 			panel.add(link, c);
 			c.gridy++;
+			
+			focusableLinks.add(link);
 		}
 		
 		visualisationsPanel.add(panel, BorderLayout.CENTER);
 		
 		return visualisationsPanel;
 	}
-	
-//    private Icon resizeImage(Icon in)  
-//    {  
-//    	final int SIZE = 48;
-//        double scale = SIZE / Math.max(in.getIconHeight(), in.getIconWidth());  
-//        int w = (int)(in.getIconWidth() * scale);  
-//        int h = (int)(in.getIconHeight() * scale);  
-//
-//        BufferedImage inBuf = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-//        Graphics2D g2 = inBuf.createGraphics();  
-//        in.paintIcon(null, g2, 0, 0);
-//        g2.dispose();  
-//
-//        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-//        
-//        g2 = out.createGraphics();  
-//        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,  
-//                            RenderingHints.VALUE_INTERPOLATION_BICUBIC); 
-////        g2.setPaint(buttons[0].getBackground());  
-////        g2.fillRect(0, 0, w, h);  
-//        AffineTransform at = AffineTransform.getScaleInstance(scale, scale);
-//        g2.drawRenderedImage(inBuf, at);  
-//        g2.dispose();  
-//        return new ImageIcon(out);  
-//    }  
 
 	private Component createParameters(DataBean data, boolean isSingle) {
 
@@ -206,21 +220,45 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		JPanel datasetPanel = getPanelBase(null);
 
-//		JLabel title = new JLabel(data.getName());
+		originalDatasetName = data.getName();
 		titleField = new JTextArea(data.getName());
 		titleField.setFont(titleField.getFont().deriveFont(titleField.getFont().getSize2D() * 1.5f));
-		
+
 		if (isSingle) {
 			titleField.addFocusListener(this);
-			titleField.getDocument().putProperty("filterNewlines", Boolean.TRUE);
+			//titleField.getDocument().putProperty("filterNewlines", Boolean.TRUE);
 			titleField.getDocument().addDocumentListener(this);
 			setTitleActive(false);
+			
+			titleField.addKeyListener(new KeyListener() {
+				
+				@Override
+				public void keyTyped(KeyEvent e) {
+					if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+						titleField.setText(titleField.getText().replace("\n", ""));
+						endEditing();
+					} else 	if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {
+						titleField.setText(originalDatasetName);
+						endEditing();
+					}
+				}
+				
+
+				@Override
+				public void keyReleased(KeyEvent e) {
+				}
+				
+				@Override
+				public void keyPressed(KeyEvent e) {	
+				}
+			});
+
 		} else {
 			titleField.setEditable(false);
 		}
-
+		
 		datasetPanel.add(titleField, BorderLayout.NORTH);
-
+		
 		if (isSingle) {
 			JPanel panel = new JPanel(new GridBagLayout());
 			panel.setBackground(BG);
@@ -291,6 +329,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		return datasetPanel;
 	}
 	
+	private void endEditing() {
+		scroller.requestFocusInWindow();
+	}
+	
 	private Component createDatasetPanel(List<DataBean> datas) {
 		
 		JPanel panel = new JPanel();
@@ -350,6 +392,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	public JComponent getVisualisation(List<DataBean> datas) throws Exception {
 		this.datas = datas;
 
+		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
 		panel.setBackground(BG);
 		
@@ -397,8 +440,11 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		addEmptyColumn(panel, c, -1);
 		
 		panel.addMouseListener(this);
+		
+		scroller = new JScrollPane(panel);
+		updateFocusTraversal(scroller);
 
-		return new JScrollPane(panel);
+		return scroller;
 	}
 	
 	private Component emptyIfMultipleDatas(Component c) {
@@ -568,9 +614,11 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		if (e.getComponent() == notesField) {
 			setNotes(datas.get(0).getNotes());
 			setNotesActive(false);
+			originalNotes = notesField.getText();
 
 		} else if (e.getComponent() == titleField) {
 			setTitleActive(false);
+			originalDatasetName = titleField.getText();
 			
 			if ("".equals(titleField.getText().trim())) {
 				titleField.setText(datas.get(0).getName());
@@ -659,8 +707,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		
-		setNotesActive(false);
-		setTitleActive(false);
+		endEditing();
 	}
 
 	@Override
@@ -677,5 +724,41 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 	@Override
 	public void mouseReleased(MouseEvent e) {	
+	}
+	
+	public void updateFocusTraversal(JComponent base){
+		
+		Vector<Component> order = new Vector<Component>();
+		order.addAll(focusableLinks);
+		
+		base.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				if (focusableLinks.size() > 0) {
+					focusableLinks.get(0).requestFocusInWindow();
+				}
+			}
+		});
+	
+		base.setFocusCycleRoot(true);
+		base.setFocusTraversalPolicy(new ClientFocusTraversalPolicy(order));
+	}
+	
+	@Override
+	public void visualisationShown() {
+		if (getFrame().getVariables() != null) {
+			for (Variable variable : getFrame().getVariables()) {
+				//These are set by rename menu command
+				if (COMMAND.equals(variable.getName()) && RENAME_COMMAND.equals(variable.getExpression())) {
+					titleField.requestFocusInWindow();
+					titleField.getCaret().setDot(titleField.getText().length());
+				}
+			}
+		}
 	}
 }

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,9 +88,10 @@ import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
@@ -112,6 +114,7 @@ import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -385,7 +388,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// final touches
-		customiseFocusTraversal();
+		updateFocusTraversal();
 		restoreDefaultView();
 		
 		// check for session restore need
@@ -406,11 +409,11 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private void customiseFocusTraversal() throws MicroarrayException {
+	public void updateFocusTraversal() {
 		Vector<Component> order = new Vector<Component>();
+		order.addAll(visualisationFrameManager.getFocusComponents());
 		order.addAll(tree.getFocusComponents());
 		order.addAll(toolPanel.getFocusComponents());
-		order.addAll(visualisationFrameManager.getFocusComponents());
 
 		getMainFrame().setFocusTraversalPolicy(new ClientFocusTraversalPolicy(order));
 
@@ -1917,5 +1920,14 @@ public class SwingClientApplication extends ClientApplication {
 
 	public Screen getTaskListScreen() {
 		return childScreens.get("TaskList");
+	}
+
+	public void showRenameView() {
+		Variable renameVariable = new Variable(DataDetails.COMMAND, DataDetails.RENAME_COMMAND);
+		
+		setVisualisationMethod(
+				VisualisationMethods.DATA_DETAILS, Arrays.asList(new Variable[] {renameVariable}), 
+				getSelectionManager().getSelectedDataBeans(), 
+				FrameType.MAIN); 
 	}
 }

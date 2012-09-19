@@ -29,7 +29,7 @@ import org.jfree.chart.JFreeChart;
 import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
@@ -38,7 +38,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
+public class VennDiagram extends VisualisationFactory implements PropertyChangeListener, ActionListener {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -57,7 +57,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPane1l();
@@ -76,7 +76,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	private JPanel createSettingsPane1l() {
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+		settingsPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 
 		colBox = new JComboBox();
 
@@ -322,7 +322,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			commonCols.retainAll(colsC);
 		}
 							
-		Visualisation.fillComboBox(colBox, commonCols.toArray());
+		VisualisationFactory.fillComboBox(colBox, commonCols.toArray());
 	}
 	
 	@Override

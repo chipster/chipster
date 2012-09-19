@@ -13,7 +13,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.tasks.ResultBlocker;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;

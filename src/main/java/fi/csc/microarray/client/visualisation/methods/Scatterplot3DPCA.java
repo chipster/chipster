@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
@@ -61,7 +61,7 @@ public class Scatterplot3DPCA extends Scatterplot3D {
 			phenoCols.add(new Variable("No phenodata", ""));
 		}
 
-		Visualisation.fillComboBox(colorBox, phenoCols.toArray(new Variable[0]));
+		VisualisationFactory.fillComboBox(colorBox, phenoCols.toArray(new Variable[0]));
 	}
 
 	@Override

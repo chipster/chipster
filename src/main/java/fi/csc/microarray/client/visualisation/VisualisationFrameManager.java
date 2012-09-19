@@ -14,6 +14,7 @@ import javax.swing.JSplitPane;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
@@ -29,6 +30,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	private SimpleInternalFrame frameComponent;
 
 	private VisualisationToolBar toolBar;
+
+	private JComponent focusComponent;
 	
 	public enum FrameType { MAIN, SIDE, WINDOW };
 	
@@ -55,7 +58,12 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	
 	public Vector<Component> getFocusComponents(){
 		Vector<Component> order = new Vector<Component>();
-		order.addAll(toolBar.getFocusComponents());		
+
+		if (focusComponent != null) {
+			order.add(focusComponent);
+		}
+		order.addAll(toolBar.getFocusComponents());
+		
 		return order;
 	}
 	
@@ -160,6 +168,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 		case MAIN:
 			mainFrame.showVisualisationComponent(visualisation);
 			updateInternalContent();
+			this.focusComponent = visualisation;
+			((SwingClientApplication)Session.getSession().getApplication()).updateFocusTraversal();
 			break;
 		case SIDE:
 			twinView = true;

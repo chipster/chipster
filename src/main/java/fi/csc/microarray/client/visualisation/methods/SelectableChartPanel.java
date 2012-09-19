@@ -26,7 +26,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.OverlayLayout;
 import org.jfree.ui.RectangleEdge;
 
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -75,9 +75,9 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		this.selectionListener = selectionListener;
 		
 		if(scalable){
-			chartPanel = Visualisation.makePanel(chart);
+			chartPanel = VisualisationFactory.makePanel(chart);
 		} else {
-			chartPanel = Visualisation.makenNonScalablePanel(chart);
+			chartPanel = VisualisationFactory.makenNonScalablePanel(chart);
 		}
 		transparentPanel = new TransparentPanel();
 		

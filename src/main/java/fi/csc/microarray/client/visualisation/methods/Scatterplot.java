@@ -34,7 +34,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
@@ -70,7 +70,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPanel();
@@ -89,7 +89,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+		settingsPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 
 		xBox = new JComboBox();
 		yBox = new JComboBox();
@@ -129,8 +129,8 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillComboBox(xBox, this.getVariablesFor(data));
-		Visualisation.fillComboBox(yBox, this.getVariablesFor(data));
+		VisualisationFactory.fillComboBox(xBox, this.getVariablesFor(data));
+		VisualisationFactory.fillComboBox(yBox, this.getVariablesFor(data));
 	}
 
 	/**

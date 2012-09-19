@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -109,7 +109,7 @@ public class VisualiserTest {
 		DataBean dataBean = manager.createDataBean("Hist. data", this.getClass().getResourceAsStream(TestConstants.FOUR_CHIPS_RESOURCE));		
 		Variable[] variables = MicroarrayModule.VisualisationMethods.HISTOGRAM.getHeadlessVisualiser().getVariablesFor(dataBean);
 		Assert.assertEquals(variables.length, 4);
-		Visualisation visualiser = MicroarrayModule.VisualisationMethods.HISTOGRAM.getHeadlessVisualiser();
+		VisualisationFactory visualiser = MicroarrayModule.VisualisationMethods.HISTOGRAM.getHeadlessVisualiser();
 		visualiser.getParameterPanel();		
 		JComponent visualisation = visualiser.getVisualisation(dataBean);
 		makeFrame(visualisation);

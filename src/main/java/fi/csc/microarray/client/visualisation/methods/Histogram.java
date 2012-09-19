@@ -32,7 +32,7 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.TextAnchor;
 
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
@@ -101,7 +101,7 @@ public class Histogram extends ChipVisualisation {
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 
 			chipBox = new JComboBox();
 
@@ -152,7 +152,7 @@ public class Histogram extends ChipVisualisation {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillComboBox(chipBox, this.getVariablesFor(data));
+		VisualisationFactory.fillComboBox(chipBox, this.getVariablesFor(data));
 
 		List<Variable> variables = getFrame().getVariables();
 		if (variables != null && variables.size() > 0) {

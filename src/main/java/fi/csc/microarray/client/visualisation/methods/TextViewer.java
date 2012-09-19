@@ -6,13 +6,13 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class TextViewer extends Visualisation {
+public class TextViewer extends VisualisationFactory {
 
 	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
 	

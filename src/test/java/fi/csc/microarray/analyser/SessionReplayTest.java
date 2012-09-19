@@ -1143,7 +1143,5 @@ public class SessionReplayTest extends MessagingTestBase {
 		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
-		
 	}
-
 }

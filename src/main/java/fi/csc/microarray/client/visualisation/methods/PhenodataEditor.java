@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.visualisation.ExtendedJXTable;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentChangedEvent;
@@ -57,7 +57,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  * @author Aleksi Kallio, Petri Klemelä
  *
  */
-public class PhenodataEditor extends Visualisation implements DataChangeListener {
+public class PhenodataEditor extends VisualisationFactory implements DataChangeListener {
 	
 	public static final String PHENODATA_SAMPLE_COLUMN = "sample";
 	public static final String PHENODATA_NAME_COLUMN = "original_name";
@@ -206,7 +206,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 			logger.debug("in PhenodataEditor.getParameterPanel() paramPanel is null");
 			paramPanel =  new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 			
 			columnNameField = new JTextField("new_column");
 			columnsCombo = new JComboBox();

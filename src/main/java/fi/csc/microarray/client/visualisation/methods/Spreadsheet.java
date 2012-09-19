@@ -25,7 +25,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.ExtendedJXTable;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
@@ -45,7 +45,7 @@ import fi.csc.microarray.module.basic.BasicModule;
  */
 
 
-public class Spreadsheet extends Visualisation {
+public class Spreadsheet extends VisualisationFactory {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

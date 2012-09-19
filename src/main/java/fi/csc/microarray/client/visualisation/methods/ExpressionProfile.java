@@ -35,7 +35,7 @@ import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
-import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFactory;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
@@ -67,7 +67,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
 			list = new AnnotateListPanel();

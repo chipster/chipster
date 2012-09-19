@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication.SessionSavingMethod;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
@@ -33,6 +32,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -80,6 +80,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem historyMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
 	private JMenuItem visualiseMenuItem;
+	private JMenuItem closeVisualisationMenuItem;
 	private JMenuItem detachMenuItem;
 	private JMenu visualisationMenu;
 	private JMenu openRepoWorkflowsMenu;
@@ -108,6 +109,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (selectedDataBean != null) {
 			workflowCompatibleDataSelected = Session.getSession().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
 		}
+		
+		renameMenuItem.setEnabled(selectionManager.getSelectedDataBeans().size() == 1);
 
 		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
 
@@ -115,6 +118,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
+		
+		closeVisualisationMenuItem.setEnabled(method != null && method != VisualisationMethods.DATA_DETAILS);
 
 		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
 		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
@@ -448,7 +453,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			renameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
 			renameMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					new RenameDialog(application, application.getSelectionManager().getSelectedItem());
+	
+					application.showRenameView();
 				}
 			});
 		}
@@ -561,6 +567,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			viewMenu.add(getRestoreViewMenuItem());
 			viewMenu.addSeparator();
 			viewMenu.add(getVisualiseMenutItem());
+			viewMenu.add(getCloseVisualisationMenutItem());
 			viewMenu.add(getVisualisationwMenu());
 			viewMenu.addSeparator();
 			viewMenu.add(getFontSize());
@@ -634,6 +641,22 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return visualiseMenuItem;
+	}
+	
+	private JMenuItem getCloseVisualisationMenutItem() {
+		if (closeVisualisationMenuItem == null) {
+			closeVisualisationMenuItem = new JMenuItem();
+			closeVisualisationMenuItem.setText("Close visualisation");
+			closeVisualisationMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+			closeVisualisationMenuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					application.setVisualisationMethod(VisualisationMethods.DATA_DETAILS, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				}
+
+			});
+		}
+		return closeVisualisationMenuItem;
 	}
 
 	private JMenuItem getRestoreViewMenuItem() {

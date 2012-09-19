@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
 
