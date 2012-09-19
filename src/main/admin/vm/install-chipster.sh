@@ -359,17 +359,38 @@ then
   ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
   rm bowtie2-2.0.0-beta7-linux-x86_64.zip
 
+	# Fasta files
+  cd ${TMPDIR_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+	# Fasta files, nochr
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
-  # switched to organism specific packages and non-bomb tars from here on
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/  
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase18_mmu_matureT.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_nochr.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase18_mmu_matureT.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 
 	# Bowtie2 indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -378,6 +399,7 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
