@@ -8,12 +8,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
  * @author Aleksi Kallio, Petri Klemelä
  *
  */
-public class ReadPart extends BpCoordRegion {
+public class ReadPart extends Region {
 	
 	private String sequencePart;
 	private RegionContent read;
 	private CigarItem cigarItem;
-
 
 	public ReadPart(Long start, Long end, Chromosome chr, RegionContent read, String sequencePart) {
 		super(start, end, chr);

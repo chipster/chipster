@@ -14,7 +14,6 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -28,7 +27,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class IntensityTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 100;
+    final public static int SAMPLING_GRANULARITY = 200;
+
+	private static final int MAX_VALUE_COUNT = SAMPLING_GRANULARITY * 2;
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
@@ -37,9 +38,8 @@ public class IntensityTrack extends Track {
 	private boolean doLog;
 	private boolean removeTooWide;
 
-	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
-		super(view, file, handler);
+	public IntensityTrack(View view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
+		super(view, file);
 		this.color = c;
 		this.doLog = doLog;
 		this.minBpLength = maxBpLength;
@@ -50,6 +50,13 @@ public class IntensityTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
+		
+		// remove values when they get "too big"
+		while (values.size() > MAX_VALUE_COUNT) {
+			RegionContent oldest = valueStorageOrder.pop();
+			values.remove(oldest);
+		}
 
 		Iterator<RegionContent> iterator = values.iterator();
 		while (iterator.hasNext()) {
@@ -63,10 +70,16 @@ public class IntensityTrack extends Track {
 			}
 			
 			// remove values that are too wide for this view (when zooming in)
-			if (removeTooWide && regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
+			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
 				iterator.remove();
 				continue;
 			}
+			
+//			// remove values that are too narrow to show (when zooming out)
+//			if (regCont.region.getLength() < (getView().getBpRegion().getLength() / (SAMPLING_GRANULARITY * 4))) {
+//				iterator.remove();
+//				continue;
+//			}
 			
 			// do the plotting for this concised value
 			int x1 = getView().bpToTrack(regCont.region.start);
@@ -83,13 +96,6 @@ public class IntensityTrack extends Track {
 			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 
 		}
-
-		// FIXME move this to "gone out of view" place?
-		// remove values when they get "too big"
-//		while (values.size() > MAX_VALUE_COUNT) {
-//			RegionContent oldest = valueStorageOrder.pop();
-//			values.remove(oldest);
-//		}
 		
 		return drawables;
 	}
@@ -101,7 +107,7 @@ public class IntensityTrack extends Track {
 					content.values.get(ColumnType.STRAND) == getStrand() && 
 					content.values.get(ColumnType.VALUE) != null &&
 					content.region.intersects(getView().getBpRegion())) { 
-
+				
 				values.add(content);
 				valueStorageOrder.add(content);
 			}

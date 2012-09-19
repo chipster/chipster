@@ -8,7 +8,6 @@ import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -145,14 +144,6 @@ public interface Module {
 	public String[][] getRepositoryWorkflows();
 
 	/**
-	 * Returns file filters that user can choose from when importing data.
-	 * File types are those that are relevant for the current module.
-	 * 
-	 * @return array of file filters
-	 */
-	public FileFilter[] getImportFileFilter();
-
-	/**
 	 * Read the name of the operation and return a short version suitable for 
 	 * small UI components.
 	 * 
@@ -198,21 +189,23 @@ public interface Module {
 	/**
 	 * Flags spreadsheet columns that support linking by this module.
 	 *  
-	 * @param columnNames spreadsheet column names
+	 * @param data 
 	 * 
 	 * @return Boolean list with the same size as columnNames
+	 * @throws MicroarrayException 
 	 */
-	public List<Boolean> flagLinkableColumns(String[] columnNames);
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data);
 
 	/**
 	 * Converts spreadshoot cell into linkable {@link IntegratedEntity}.
 	 * 
 	 * @param columns current row 
 	 * @param column index of cell 
+	 * @param data 
 	 * 
 	 * @return {@link IntegratedEntity} that is point selected when link is clicked
 	 */
-	public IntegratedEntity createLinkableEntity(Table columns, int column);
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data);
 
 	/**
 	 * Converts server module name into GUI friendly name.

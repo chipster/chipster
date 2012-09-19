@@ -112,7 +112,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -241,6 +241,12 @@ then
 #  cd ${CHIP_PATH}/
 #  echo | ./setup.sh
 
+  # Add R package outside of setup.sh/environment.xml
+  cd ${TMPDIR_PATH}/
+  wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
+  ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
+  rm nz131a520662fcdf.tar.gz
+  
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/
@@ -259,6 +265,23 @@ then
   cd ../
   rm -rf R-${R_VER}/
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
+
+
+  ## R-2.15:
+  # could also use the package from nic
+  R_VER=2.15.1
+  cd ${TMPDIR_PATH}/
+  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+  cd R-${R_VER}/
+  export MAKEFLAGS=-j
+  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+  make
+  make install
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  cd ../
+  rm -rf R-${R_VER}/
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
+
 
   ## External apps:
 
@@ -336,8 +359,10 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase18_mmu_matureT.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_nochr.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
-	
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+
 	
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
@@ -421,17 +446,34 @@ then
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.17.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
-  mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
-  ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
 
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
+  # DEXSeq
+  cd ${TMPDIR_PATH}/
+  curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.0.tar.gz | tar -xz
+  mkdir ${TOOLS_PATH}/dexseq-exoncounts
+  cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+  cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+  rm -rf DEXSeq	
+
+ 	# vcftools, GPLv3
+  cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+  cd vcftools_0.1.9/
+  make
+  cd ../
+  mv vcftools_0.1.9/ ${TOOLS_PATH}/
+  ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+ 	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum

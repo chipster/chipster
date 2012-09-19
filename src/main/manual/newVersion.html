@@ -2,6 +2,35 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 12.9.2012: What is new in Chipster 2.1.0</h2>
+
+<br>Chipster 2.1.0 contains major improvements in the genome browser and important new NGS data analysis functionality (see below). 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+<li><b>Genome browser improvements</b></li>
+<ul>
+<li>Several new genomes added.</li>
+<li>Support for VCF files: You can view variant positions in the browser as a separate track. You can also use a VCF file for rapidly navigating through a list of variants in the browser: Open VCF file as a spreadsheet and detach it. Clicking on chromosome position in the spreadsheet navigates the browser to that position in the genome.</li>
+<li>Improved visualization of INDELs.</li>
+<li>Improved visualization of automatically calculated coverage.</li>
+<li>Links to Ensembl and UCSC genome browser.</li>
+</ul>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><u>RNA-seq / Differential expression analysis using edgeR for multivariate experiments</u>. This tool complements the existing edgeR by allowing you to analyze data from more complex experimental designs.</li>
+<li><u>Utilities / Annotate variants</u>. This R/Bioconductor-based tool allows you to annotate human variants in a VCF file.</li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li>PRINSEQ QC, filtering and trimming tools have been updated to use PRINSEQ version 0.19.3, which makes them run faster.</li>
+<li>Paired-end support of the tool "Filter reads for several criteria" has been updated to support HiSeq FASTQ format.</li>
+<li>Bowtie: Mouse genome mm10 has been added.</li>
+<li>TopHat: Mouse genome mm10 has been added.</li>
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 6.7.2012: What is new in Chipster 2.0.2</h2>
 
 <br>Chipster 2.0.2 contains new analysis tools for variant calling (SAMtools) and quality control, trimming and filtering of reads (PRINSEQ). 
@@ -12,7 +41,6 @@ The full list of NGS analysis tools is available <a href="tools-ngs.html">here</
 <li><b>New NGS analysis tools</b></li>
 <ul>
 <li> <a href="samtools-snp-indel-single.htmll">Call SNPs and short INDELs from one diploid individual </a> </li>
-<li> <a href="samtools-snp-indel-multiple.html">Call SNPs and short INDELs from multiple diploid individuals </a> </li>
 <li> <a href="prinseq-statistics.html">Read quality statistics with PRINSEQ </a> </li>
 <li> <a href="prinseq-length-filter.html">Filter reads for length (PRINSEQ)</a> </li>
 <li> <a href="prinseq-N-filter.html">Filter reads for Ns (PRINSEQ)</a> </li>
