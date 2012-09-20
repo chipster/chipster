@@ -1,4 +1,4 @@
-# TOOL dea-cufflinks.R: "Differential expression using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings, Cufflinks filters out unsuccessfully tested loci, as well as those with a q-value less than 0.05.)
+# TOOL dea-cufflinks.R: "Differential expression using Cufflinks"  (Analysis for finding differentially expressed known genes and transcript isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings, Cufflinks filters out unsuccessfully tested loci, as well as those with a q-value less than 0.05. Replicates need to be merged into one BAM file.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
@@ -6,26 +6,15 @@
 # OUTPUT de-isoforms-cufflinks.tsv
 # OUTPUT OPTIONAL de-genes-cufflinks.bed
 # OUTPUT OPTIONAL de-isoforms-cufflinks.bed
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (Genome that your reads were aligned against.)
 # PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1000000 DEFAULT 0 (The cutoff for differential expression. Note that fold changes are reported using the natural logarithmic scale.)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction, the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMETER q.value.threshold: "Q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Note that q-values are adjusted to account for multiple testing correction.)
+# PARAMETER q.value.threshold: "Q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Note that q-values are adjusted to account for multiple testing correction.)                                                         
 
-
-############################################################
-#                                                          
-# Analysis workflow using Cufflinks for normalization and 
-# statistical testing for finding differentially expressed 
-# known genes and transcript isoforms.                     
-#                                                          
-# The tool assumes that all samples belonging to each      
-# experiment condition have been merged into one single    
-# BAM file.                                                
-#                                                          
 # MG, 21.6.2011                                            
 # EK, 11.5.2012
 # EK, 2.6.2012
-############################################################
+# EK, 19.9.2012 Added mm10, updated GTFs
 
 # Output that is yet to be supported
 # OUTPUT de-cds.tsv
@@ -38,17 +27,19 @@ cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cuffdiff"))
 command.start <- cufflinks.binary
 
 # Annotation file setup
-annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
+	annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
 }
 if (genome == "mm9") {
 	annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
 }
-if (genome == "rn4") {
-	annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
+if (genome == "mm10") {
+	annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
 }
-annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
+if (genome == "rn4") {
+	annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
+}
+annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 
 # Run differential expression analysis for known genes and transcript isoforms
 cufflinks.parameters <- annotation.file
@@ -82,7 +73,7 @@ dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 # Rename gene to symbol for compatibility with venn diagram
 colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
-colnames (dat2) [13] <- "ln(fold_change)"
+colnames (dat2) [13] <- "log2(fold_change)"
 
 # Filter the gene output based on user defined cutoffs
 dat2 <- dat2[dat2$status=="OK",]
