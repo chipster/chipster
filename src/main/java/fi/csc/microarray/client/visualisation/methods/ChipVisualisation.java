@@ -2,14 +2,14 @@ package fi.csc.microarray.client.visualisation.methods;
 
 import java.util.Arrays;
 
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-public abstract class ChipVisualisation extends VisualisationFactory {
+public abstract class ChipVisualisation extends Visualisation {
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

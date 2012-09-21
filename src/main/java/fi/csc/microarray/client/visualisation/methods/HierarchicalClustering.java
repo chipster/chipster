@@ -49,7 +49,7 @@ import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.client.visualisation.methods.hc.OrderSuperviser;
@@ -66,7 +66,7 @@ import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-public class HierarchicalClustering extends VisualisationFactory implements PropertyChangeListener, SelectionChangeListener {
+public class HierarchicalClustering extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -150,7 +150,7 @@ public class HierarchicalClustering extends VisualisationFactory implements Prop
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
-			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPanel();
@@ -169,7 +169,7 @@ public class HierarchicalClustering extends VisualisationFactory implements Prop
 
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 		zoomCheckBox = new JCheckBox("Fit to screen", false);
 

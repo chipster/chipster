@@ -13,7 +13,7 @@ import org.jfree.chart.MultiChartPanel;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileRow;
 import fi.csc.microarray.databeans.DataBean;
@@ -21,7 +21,7 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-public class ClusteredProfiles extends VisualisationFactory {
+public class ClusteredProfiles extends Visualisation {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

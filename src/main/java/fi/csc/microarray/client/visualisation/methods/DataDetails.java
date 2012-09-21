@@ -39,7 +39,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
@@ -48,7 +48,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
-public class DataDetails extends VisualisationFactory implements FocusListener, DocumentListener, MouseListener{
+public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
 
 	private final String PLEASE_ADD_NOTES = "(Add your notes here)";
 

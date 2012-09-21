@@ -42,7 +42,7 @@ public class VisualisationMethod {
 	private final ClientApplication application = Session.getSession().getApplication();
 
 	private String name;
-	private Class<? extends VisualisationFactory> visualiser;
+	private Class<? extends Visualisation> visualiser;
 	private ImageIcon icon;
 	private int orderNumber;
 	/**
@@ -51,7 +51,7 @@ public class VisualisationMethod {
 	private double durationEstimationFactor;
 	private String helpAddress = null;
 
-	public VisualisationMethod(String name, Class<? extends VisualisationFactory> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
 		this.name = name;
 		this.visualiser = visualiser;
 		this.icon = icon;
@@ -59,7 +59,7 @@ public class VisualisationMethod {
 		this.durationEstimationFactor = durationEstimationFactor;
 	}
 
-	public VisualisationMethod(String name, Class<? extends VisualisationFactory> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
 		this(name, visualiser, icon, orderNumber, durationEstimationFactor);
 		this.helpAddress = helpAddress;
 	}
@@ -68,13 +68,13 @@ public class VisualisationMethod {
 		return this.name;
 	}
 
-	public Class<? extends VisualisationFactory> getVisualiserClass() {
+	public Class<? extends Visualisation> getVisualiserClass() {
 		return visualiser;
 	}
 
-	public VisualisationFactory getVisualiser(VisualisationFrame frame) {
+	public Visualisation getVisualiser(VisualisationFrame frame) {
 		try {
-			VisualisationFactory visualisation = visualiser.getConstructor().newInstance();
+			Visualisation visualisation = visualiser.getConstructor().newInstance();
 			visualisation.initialise(frame);
 			return visualisation;
 		} catch (Exception e) {
@@ -91,7 +91,7 @@ public class VisualisationMethod {
 	 * e.g. finding out the applicability for particular dataset.
 	 * 
 	 */
-	public VisualisationFactory getHeadlessVisualiser() {
+	public Visualisation getHeadlessVisualiser() {
 		try {
 			return visualiser.getConstructor().newInstance();
 		} catch (Exception e) {

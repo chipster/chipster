@@ -9,14 +9,14 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.common.views.DocumentViewControllerImpl;
 
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class PDFViewer extends VisualisationFactory {
+public class PDFViewer extends Visualisation {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

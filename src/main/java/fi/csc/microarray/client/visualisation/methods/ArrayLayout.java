@@ -6,14 +6,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.FloatArrayList;
 
-public class ArrayLayout extends VisualisationFactory {
+public class ArrayLayout extends Visualisation {
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

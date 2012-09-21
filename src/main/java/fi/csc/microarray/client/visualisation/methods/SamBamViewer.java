@@ -7,13 +7,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class SamBamViewer extends VisualisationFactory {
+public class SamBamViewer extends Visualisation {
 
 	private static int MAX_RECORD_LIMIT = 1024;
 	

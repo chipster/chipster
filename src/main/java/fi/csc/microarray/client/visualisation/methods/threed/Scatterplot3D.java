@@ -28,7 +28,7 @@ import javax.swing.JToggleButton;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.ChipVisualisation;
@@ -96,7 +96,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
-			paramPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
+			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 			rotateTool.addActionListener(this);
 			rotateTool.setToolTipText("Rotate by dragging, zoom with scroll wheel or with " + "Shift-button");
@@ -177,7 +177,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 		xBox = new JComboBox();
 		yBox = new JComboBox();
@@ -255,11 +255,11 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		this.updateCombo(xBox, data);
 		this.updateCombo(yBox, data);
 		this.updateCombo(zBox, data);
-		VisualisationFactory.fillComboBox(colorBox, this.getVariablesMore(data));
+		Visualisation.fillComboBox(colorBox, this.getVariablesMore(data));
 	}
 
 	protected void updateCombo(JComboBox box, DataBean data) {
-		VisualisationFactory.fillComboBox(box, this.getVariablesFor(data));
+		Visualisation.fillComboBox(box, this.getVariablesFor(data));
 	}
 
 	public Tool getTool() {

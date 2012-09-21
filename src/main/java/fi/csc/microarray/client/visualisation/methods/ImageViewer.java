@@ -19,14 +19,14 @@ import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class ImageViewer extends VisualisationFactory implements MouseListener {
+public class ImageViewer extends Visualisation implements MouseListener {
 	private static final Logger logger = Logger.getLogger(ImageViewer.class);
 	
 	private class ImagePanel extends JPanel{

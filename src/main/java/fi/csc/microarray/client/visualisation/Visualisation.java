@@ -20,7 +20,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 
-public abstract class VisualisationFactory {
+public abstract class Visualisation {
 
 	public static final Dimension PARAMETER_SIZE = new Dimension(240, 500);
 

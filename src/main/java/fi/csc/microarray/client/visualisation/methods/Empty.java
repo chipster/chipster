@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 
@@ -17,7 +17,7 @@ import fi.csc.microarray.databeans.DataBean;
  * when they aren't present. This is the easiest found way to keep things
  * steady.
  */
-public class Empty extends VisualisationFactory {
+public class Empty extends Visualisation {
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);

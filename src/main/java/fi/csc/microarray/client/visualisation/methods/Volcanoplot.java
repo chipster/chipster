@@ -28,7 +28,7 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
@@ -56,7 +56,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(VisualisationFactory.PARAMETER_SIZE);
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 		xBox = new JComboBox();
 		yBox = new JComboBox();
@@ -96,8 +96,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		VisualisationFactory.fillComboBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
-		VisualisationFactory.fillComboBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import org.testng.log4testng.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.VisualisationFactory.Variable;
+import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -54,7 +54,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	protected FrameType type;
 
-	private VisualisationFactory visualiser;
+	private Visualisation visualiser;
 
 	private JPanel waitPanel;
 
@@ -95,7 +95,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private class SplitSizeHandler implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent e) {
-			int leftLimit = (int) paramSplit.getWidth() - (int) VisualisationFactory.PARAMETER_SIZE.getWidth();
+			int leftLimit = (int) paramSplit.getWidth() - (int) Visualisation.PARAMETER_SIZE.getWidth();
 			if (paramSplit.getDividerLocation() < leftLimit) {
 				paramSplit.setDividerLocation(leftLimit);
 			}
@@ -295,5 +295,9 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	
 	public Vector<Component> getFocusComponents() {
 		return focusComponents;
+	}
+	
+	public Visualisation getVisualisation() {
+		return visualiser;
 	}
 }

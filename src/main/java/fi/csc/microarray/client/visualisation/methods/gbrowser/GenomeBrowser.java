@@ -55,7 +55,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
-import fi.csc.microarray.client.visualisation.VisualisationFactory;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
@@ -93,7 +93,7 @@ import fi.csc.microarray.util.IOUtils;
  * @author Petri Klemelä, Aleksi Kallio
  * @see GenomePlot
  */
-public class GenomeBrowser extends VisualisationFactory implements ActionListener,
+public class GenomeBrowser extends Visualisation implements ActionListener,
 RegionListener, ComponentListener, PropertyChangeListener {
 
 
