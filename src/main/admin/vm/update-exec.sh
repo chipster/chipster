@@ -128,7 +128,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/rn4.fa
 	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
-
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 	echo "Installing bowtie2"
   	cd ${TMPDIR_PATH}/
