@@ -73,9 +73,6 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 
 	private Vector<JComponent> focusableLinks = new Vector<JComponent>();
 
-	private String originalDatasetName;
-
-	protected String originalNotes;;
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -129,7 +126,6 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 			panel.add(new JLabel(" "), BorderLayout.SOUTH);
 			notesPanel.add(panel, BorderLayout.CENTER);
 
-			originalNotes = datas.get(0).getNotes();
 			setNotes(datas.get(0).getNotes());
 			setNotesActive(false);
 			notesField.setEnabled(true);
@@ -139,7 +135,6 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 				@Override
 				public void keyTyped(KeyEvent e) {
 					if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {
-						notesField.setText(originalNotes);
 						endEditing();
 					}
 				}
@@ -220,7 +215,6 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 		
 		JPanel datasetPanel = getPanelBase(null);
 
-		originalDatasetName = data.getName();
 		titleField = new JTextArea(data.getName());
 		titleField.setFont(titleField.getFont().deriveFont(titleField.getFont().getSize2D() * 1.5f));
 
@@ -234,11 +228,8 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 				
 				@Override
 				public void keyTyped(KeyEvent e) {
-					if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+					if (e.getKeyChar() == KeyEvent.VK_ENTER || e.getKeyChar() == KeyEvent.VK_ESCAPE) {
 						titleField.setText(titleField.getText().replace("\n", ""));
-						endEditing();
-					} else 	if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {
-						titleField.setText(originalDatasetName);
 						endEditing();
 					}
 				}
@@ -614,11 +605,9 @@ public class DataDetails extends VisualisationFactory implements FocusListener, 
 		if (e.getComponent() == notesField) {
 			setNotes(datas.get(0).getNotes());
 			setNotesActive(false);
-			originalNotes = notesField.getText();
-
+ 
 		} else if (e.getComponent() == titleField) {
 			setTitleActive(false);
-			originalDatasetName = titleField.getText();
 			
 			if ("".equals(titleField.getText().trim())) {
 				titleField.setText(datas.get(0).getName());
