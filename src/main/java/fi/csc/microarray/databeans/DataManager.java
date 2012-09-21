@@ -612,9 +612,11 @@ public class DataManager {
 		return buffer.toString();
 	}
 
-	public void saveStorageSession(File sessionFile) throws Exception {
-
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+	public void saveStorageSession(String name) throws Exception {
+		System.out.println("url haetaan");
+		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name);
+		System.out.println(sessionUrl);
+		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
 		sessionSaver.saveStorageSession();
 	}
 
@@ -948,9 +950,6 @@ public class DataManager {
 		}
 
 		// if not in cache, upload to storage
-		
-		
-		// move from elsewhere to storage
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
 		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
 		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		

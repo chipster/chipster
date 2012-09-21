@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -43,6 +45,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * @author hupponen
@@ -56,6 +59,7 @@ public class SessionSaver {
 	private final int DATA_BLOCK_SIZE = 2048;
 	
 	private File sessionFile;
+	private URL sessionUrl;
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
 	private int entryCounter = 0;
@@ -70,22 +74,35 @@ public class SessionSaver {
 	private HashMap<OperationRecord, String> reversedOperationRecordIdMap = new HashMap<OperationRecord, String>();
 	private HashMap<String, OperationType> operationRecordTypeMap = new HashMap<String, OperationType>();
 	
-	
 	private DataManager dataManager;
 
 	private ObjectFactory factory;
 	private SessionType sessionType;
 
-
 	private String validationErrors;
+
+
 
 	/**
 	 * Create a new instance for every session to be saved.
 	 * 
-	 * @param sessionFile
+	 * @param sessionFile file to write out metadata and possible data
 	 */
 	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
+		this.sessionUrl = null;
+		this.dataManager = dataManager;
+
+	}
+
+	/**
+	 * Create a new instance for every session to be saved.
+	 * 
+	 * @param sessionUrl url to write out metadata
+	 */
+	public SessionSaver(URL sessionUrl, DataManager dataManager) {
+		this.sessionFile = null;
+		this.sessionUrl = sessionUrl;
 		this.dataManager = dataManager;
 
 	}
@@ -128,10 +145,7 @@ public class SessionSaver {
 		// save metadata
 		boolean saveData = false;
 		gatherMetadata(saveData);
-		writeSessionFile(saveData);
-
-		
-		
+		writeSessionUrl(saveData);
 	}
 	
 	
@@ -182,7 +196,29 @@ public class SessionSaver {
 	}
 
 	/**
-	 * Write the metadata file and data bean contents to the zip file.
+	 * Write metadata over URL. 
+	 * 
+	 * @param saveData if true, also actual contents of databeans are saved 
+	 * 
+	 */
+	private void writeSessionUrl(boolean saveData) throws Exception {
+		// write data to zip file
+		HttpURLConnection conn = UrlTransferUtil.prepareForUpload(sessionUrl);
+		OutputStream out = conn.getOutputStream();
+		
+		try {
+			writeSessionXmlOut(saveData, out);
+		} finally {
+			IOUtils.closeIfPossible(out);
+			IOUtils.disconnectIfPossible(conn);
+			System.out.println(conn.getResponseCode());
+			System.out.println(conn.getResponseMessage());
+		}
+		
+	}
+
+	/**
+	 * Write the metadata file and possibly data bean contents to the zip file.
 	 * 
 	 * @param saveData if true, also actual contents of databeans are saved 
 	 * 
@@ -201,42 +237,18 @@ public class SessionSaver {
 		}
 
 		// write data to zip file 
-		ZipOutputStream zipOutputStream = null;
-		try {	
-			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
-			zipOutputStream.setLevel(1); // quite slow with bigger values														
-
-			// save meta data
-			ZipEntry sessionDataZipEntry = new ZipEntry(UserSession.SESSION_DATA_FILENAME);
-			zipOutputStream.putNextEntry(sessionDataZipEntry);
-			Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			// TODO disable validation
-			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
-			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
-			zipOutputStream.closeEntry() ;							
-
-			// save data bean contents
-			if (saveData) {
-				writeDataBeanContentsToZipFile(zipOutputStream);
-			}
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(newSessionFile);
+			writeSessionXmlOut(saveData, out);
 			
-			// save source codes
-			writeSourceCodesToZip(zipOutputStream);
-			
-			// close the zip stream
-			zipOutputStream.close();
-		} 
-		
-		catch (Exception e) {
-			IOUtils.closeIfPossible(zipOutputStream);
-			
+		} finally {
 			// don't leave the new session file lying around if something went wrong
 			newSessionFile.delete();
-			
-			throw e;
+			IOUtils.closeIfPossible(out);
 		}
-
+		
+		
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
@@ -264,6 +276,41 @@ public class SessionSaver {
 				}
 			}
 		} 
+	}
+
+	private void writeSessionXmlOut(boolean saveData, OutputStream out) throws Exception {
+
+		ZipOutputStream zipOutputStream = null;
+		try {	
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(out));
+			zipOutputStream.setLevel(1); // quite slow with bigger values														
+
+			// save meta data
+			ZipEntry sessionDataZipEntry = new ZipEntry(UserSession.SESSION_DATA_FILENAME);
+			zipOutputStream.putNextEntry(sessionDataZipEntry);
+			Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			// TODO disable validation
+			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
+			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
+			zipOutputStream.closeEntry() ;							
+
+			// save data bean contents
+			if (saveData) {
+				writeDataBeanContentsToZipFile(zipOutputStream);
+			}
+			
+			// save source codes
+			writeSourceCodesToZip(zipOutputStream);
+			
+			// close the zip stream
+			zipOutputStream.close();
+		} 
+		
+		catch (Exception e) {
+			IOUtils.closeIfPossible(zipOutputStream);
+			throw e;
+		}
 	}
 
 

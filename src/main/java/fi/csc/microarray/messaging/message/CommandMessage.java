@@ -27,8 +27,13 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_DISK_SPACE_REQUEST ="disk-space-request";
 
 	public static final String COMMAND_MOVE_FROM_CACHE_TO_STORAGE = "move-from-cache-to-storage";
-	public static final String COMMAND_MOVE_DENIED = "move-denied";
-	public static final String COMMAND_MOVE_FAILED = "move-failed";
+	public static final String COMMAND_STORE_SESSION = "store-session";
+	public static final String COMMAND_REMOVE_SESSION = "remove-session";
+	public static final String COMMAND_LIST_SESSIONS = "list-sessions";
+
+	public static final String COMMAND_FILE_OPERATION_SUCCESSFUL = "file-operation-successful";
+	public static final String COMMAND_FILE_OPERATION_FAILED = "file-operation-failed";
+	public static final String COMMAND_FILE_OPERATION_DENIED = "file-operation-denied";
 
 	
 	private String command;

@@ -375,6 +375,24 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
+	public URL saveRemoteSession(String sessionName) throws JMSException {
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL url;
+		try {
+			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
+			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
+			
+			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
+			url = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+
+		return url;	
+	}
+
+	@Override
 	public URL moveFileToStorage(URL cacheURL, long contentLength) throws JMSException {
 		logger.debug("moving from cache to storage: " + cacheURL);
 

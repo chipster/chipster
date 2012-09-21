@@ -42,7 +42,8 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_AREA = "area";
 	public static final String PARAMETER_DISK_SPACE = "disk-space";
 	public static final String PARAMETER_URL = "url";
-
+	public static final String PARAMETER_SESSION_NAME = "session-name";
+	public static final String PARAMETER_SESSION_NAME_LIST = "session-name-list";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();
