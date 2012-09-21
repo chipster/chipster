@@ -18,7 +18,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/looks-2.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/eclipse-icons.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/geronimo-servlet_2.5_spec-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/commons-logging-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/saaj-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/saaj-impl.jar"/>

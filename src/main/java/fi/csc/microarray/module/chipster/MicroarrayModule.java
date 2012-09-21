@@ -19,7 +19,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -27,16 +26,16 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
@@ -56,9 +55,9 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
@@ -70,7 +69,6 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
-import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
@@ -336,17 +334,6 @@ public class MicroarrayModule implements Module {
 		return list.toArray(new DataBean[0]);
 	}	
 
-
-	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-				new GeneralFileFilter("Affymetrix CEL", new String[] {"cel"}),
-				new GeneralFileFilter("Spot files", new String[] {"spot"}),
-				new GeneralFileFilter("GenePix", new String[] {"gpr"}),
-				new GeneralFileFilter("Illumina", new String[] {"txt", "csv"}),
-				new GeneralFileFilter("SAM and BAM", new String[] {"sam", "bam"}),
-		};
-	}
 
 	@Override
 	public boolean isMetadata(DataBean data) {

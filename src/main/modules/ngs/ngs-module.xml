@@ -114,8 +114,8 @@
 		<tool runtime="R-2.12">
 			<resource>samtools-snp-indel-single.R</resource>
 		</tool> 
-		<tool runtime="R-2.12">
-			<resource>samtools-snp-indel-multiple.R</resource>
+		<tool runtime="R-2.15">
+			<resource>annotate-variant.R</resource>
 		</tool>
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
@@ -216,14 +216,17 @@
 		<tool runtime="R-2.12">
 			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
+		<tool runtime="R-2.14">
+			<resource>dea-deseq.R</resource>
+		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
+		<tool runtime="R-2.15">
+			<resource>edgeR-multivariate.R</resource>
+		</tool>
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
-		</tool>
-		<tool runtime="R-2.14">
-			<resource>dea-deseq.R</resource>
 		</tool>
 	</category>
 
