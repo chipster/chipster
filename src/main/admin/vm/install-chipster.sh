@@ -336,11 +336,12 @@ then
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.13.tar.bz2/download | tar -xj
-  cd samtools-0.1.18/
-  make
-  cd ../
-  mv samtools-0.1.18/ ${TOOLS_PATH}
+  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download | tar -xj
+  #cd samtools-0.1.18/
+  #make
+  #cd ../
+  #mv samtools-0.1.18/ ${TOOLS_PATH}
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
   # Bowtie, Artistic License

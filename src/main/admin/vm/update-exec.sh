@@ -108,13 +108,9 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 
 	echo "Updating samtools"
 	cd ${TMPDIR_PATH}/
-  	curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download | tar -xj
-  	cd samtools-0.1.18/
-  	make
-  	cd ../
-  	mv samtools-0.1.18/ ${TOOLS_PATH}
   	mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
   	rm ${TOOLS_PATH}/samtools
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   	ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
 	echo "Relocating fasta files"
