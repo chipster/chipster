@@ -43,10 +43,10 @@ if (is_own) {
 
 
 # mpileup otions
-if (mpileup.r != "all"){
-	mpileup.options <- paste(mpileup.options, "-r",mpileup.r)
-}
 mpileup.options <- paste("mpileup -u")
+if (mpileup.r != "all"){
+	mpileup.options <- paste(mpileup.options, "-r", mpileup.r)
+}
 if (mpileup.ub == "yes") {
 	mpileup.options <- paste(mpileup.options, "-B")
 }
@@ -79,7 +79,7 @@ vcfutils.options <- paste("varFilter -D", vcfutils.ud)
 
 
 # commands
-command1 <- paste(samtools.binary, mpileup.options, "-f", ref.seq, "alignment.bam", "|", bcftools.binary, bcftools.options, "- > var.raw.bcf")
+command1 <- paste(samtools.binary, mpileup.options, "-f", ref.seq, "*.bam", "|", bcftools.binary, bcftools.options, "- > var.raw.bcf")
 command2 <- paste(bcftools.binary, "view var.raw.bcf |", vcfutils.binary, vcfutils.options, "> variants.vcf")
 
 # run
