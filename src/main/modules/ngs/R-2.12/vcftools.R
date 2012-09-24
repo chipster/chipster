@@ -1,4 +1,4 @@
-# TOOL vcftools.R: "Analyze VCF file" (Filters and analyses VCF files. This tool is based on the VCFtools package.)
+# TOOL vcftools.R: "Filter and analyse variants in VFC" (Filters and analyses variants in VCF files. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
 # OUTPUT vcftools.log
 # OUTPUT OPTIONAL vcftools.filtered.vcf
