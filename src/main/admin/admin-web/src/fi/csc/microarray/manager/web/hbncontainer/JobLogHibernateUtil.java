@@ -25,7 +25,8 @@ public class JobLogHibernateUtil {
             //insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 JOBS 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
             
             cnf.setProperty(Environment.DRIVER, "org.h2.Driver");
-            cnf.setProperty(Environment.URL, "jdbc:h2:~/test");
+            //cnf.setProperty(Environment.URL, "jdbc:h2:~/test");
+            cnf.setProperty(Environment.URL, "jdbc:h2:tcp://localhost/test");
             cnf.setProperty(Environment.USER, "sa");
             cnf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
             cnf.setProperty(Environment.SHOW_SQL, "true");
