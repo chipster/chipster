@@ -5,17 +5,18 @@
 	<category name="Normalisation" color="#d5c796">
 		<tool runtime="R-2.12"><resource>norm-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-affy-exon.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-affy-gene.R</resource></tool>
+		<tool runtime="R-2.12"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-2.14"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
+		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-chip-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-gene-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-specific-samples.R</resource></tool>
@@ -26,10 +27,10 @@
 		<tool runtime="R-2.12"><resource>qc-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-cdna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
+		<tool runtime="R-2.12"><resource>qc-cdna.R</resource></tool>
 	</category>
 	
 	<category name="Preprocessing" color="#d59f45">
