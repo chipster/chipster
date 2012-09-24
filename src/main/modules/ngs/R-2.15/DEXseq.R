@@ -1,21 +1,25 @@
-# TOOL DEXSeq.R: "Differential exon usage in RNA-seq" (Infer differential exon usage from RNA-seq data. Input is an NGS experiment defined by the tool in the utilities category.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment. In it highly recommended that all the groups defined by the phenodata group column have replicates.  If they do not, you have to estimate the dispersion manually by defining the parameter dispersion.)
 # INPUT countfile.tsv: countfile.tsv TYPE GENERIC 
 # INPUT phenodata.tsv: phenodata.tsv TYPE GENERIC
-# OUTPUT DEXSeq-exons.pdf: DEXSeq-exons.pdf
+# OUTPUT OPTIONAL DEXSeq-exons.pdf: DEXSeq-exons.pdf
 # OUTPUT DEXSeq-result-table.tsv: DEXSeq-result-table.tsv
-# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.62.chr.gtf: "Human (hg19.62)", Mus_musculus.NCBIM37.62.chr.gtf: "Mouse (mm9.62)", Rattus_norvegicus.RGSC3.4.62.chr.gtf: "Rat (rn4.62)"] DEFAULT Homo_sapiens.GRCh37.62.chr.gtf (Which organism is your data from.)
+# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf: "Human (hg19.68)", Mus_musculus.GRCm38.68.chr.DEXSeq.gtf: "Mouse (mm10.68)", Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf (Which organism is your data from.)
+# PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 1 (The common dispersion used automatically for all transcripts, if there are no replicates, or if the correct way to estimate the dispersions runs into problem. If the dispersions can not be estimated, no graphical output is generated.)
 
+# JTT 23.9.2012
 
-# JTT 14.8.2012
+# setwd("C:/Users/Jarno Tuimala/Desktop/dexseq")
+
 
 # Loads the library 
 library(DEXSeq)
 
 # Reads the phenodata
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+phenodata$condition<-phenodata$group
 
 # Path to the gff file
-gtf <- file.path(chipster.tools.path, "genomes", organism)
+gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
 
 # Reads the data
 d<-read.table("countfile.tsv", header=TRUE, sep="\t")
@@ -34,10 +38,17 @@ sampleNames(ecs)<-phenodata$original_name
 ecs<-estimateSizeFactors(ecs)
 
 # Estimate dispersion
-phenodata$condition<-phenodata$group
 formuladispersion <- count ~ sample + group * exon
 ecs<-estimateDispersions(ecs, formula = formuladispersion)
-ecs<-fitDispersionFunction(ecs)
+ecs.fdf<-try(fitDispersionFunction(ecs), silent=TRUE)
+
+if(class(ecs.fdf)=="try-error") {
+   fData(ecs)$dispersion <- dispersion 
+   doplot<-FALSE
+} else {
+   ecs<-ecs.fdf
+   doplot<-TRUE
+}
 
 # Testing for differential exon usage
 formula0<-count ~ sample + group + exon
@@ -48,10 +59,17 @@ res <- DEUresultTable(ecs)
 write.table(res, "DEXSeq-result-table.tsv", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)
 
 # Visualization
-genes<-unique(as.character(na.omit(res[res$padjust<=0.05,])$geneID))
-
-pdf("DEXSeq-exons.pdf",)
-for(i in 1:length(genes)) {
-   plotDEXSeq(ecs, genes[i], displayTranscripts = TRUE, cex.axis = 1.2, cex = 1.3, lwd = 2, legend = TRUE)
+if(doplot) {
+   genes<-unique(as.character(res[which(res$padjust<=0.05),]$geneID))
+   pdf("DEXSeq-exons.pdf",)
+   for(i in 1:length(genes)) {
+      plottry<-try(plotDEXSeq(ecs, genes[i], displayTranscripts = TRUE, cex.axis = 1.2, cex = 1.3, lwd = 2, legend = TRUE))
+      if(class(plottry)=="try-error") {
+         plot(x=1, y=1, xlab="", ylab="", axes=F, type="")
+         title(main=genes[i])
+         text(x=1, y=1, "No results to plot for this transcript")
+      }
+   }
+   dev.off()
 }
-dev.off()
+

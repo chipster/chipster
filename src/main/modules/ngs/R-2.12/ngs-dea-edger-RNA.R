@@ -1,4 +1,4 @@
-# TOOL ngs-dea-edger-RNA.R: "Differential expression analysis using edgeR" (Differential expression analysis of genes using the edgeR Bioconductor package. You can create the input count table and phenodata file by the tool Utilities - Define NGS experiment.)
+# TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential expression analysis of genes using the edgeR Bioconductor package. You can create the input count table and phenodata file by the tool Utilities - Define NGS experiment.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
