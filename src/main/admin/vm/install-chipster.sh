@@ -4,7 +4,7 @@
 # This script will install Chipster 2, w/ dependencies
 #
 # Notice! This script needs super-user rights!!
-# e.g. sudo bash chipster.sh 2>&1 | tee chipster.log
+# e.g. sudo bash install-chipster.sh 2>&1 | tee chipster.log
 #
 
 # Set execution trace
@@ -47,33 +47,7 @@ set -o pipefail
 aptitude update
 aptitude -y full-upgrade
 
-## Clean /etc/apt/
-#rm /etc/apt/sources.list~
-rm /etc/apt/trusted.gpg~
-
-## /etc/apt/sources.list
-# Uncomment '# deb http://archive.canonical.com/ubuntu natty partner'
-#sed -i'~' '/deb .*partner$/ s/^# //' /etc/apt/sources.list
-#echo 'deb http://archive.canonical.com/ubuntu natty partner' >> /etc/apt/sources.list
-#aptitude update
-
-## Keyboard layout
-#echo 'keyboard-configuration keyboard-configuration/layout select Finnish' | /usr/bin/debconf-set-selections
-#echo 'keyboard-configuration keyboard-configuration/variant select Finnish' | /usr/bin/debconf-set-selections
-#dpkg-reconfigure -f noninteractive keyboard-configuration
-
 ## Install packages:
-
-## Base:
-aptitude -y --without-recommends install bash-completion curl man-db unzip dnsutils dstat chkconfig apt-file
-# manpages (not installed yet)
-# update-manager-core (do-release-upgrade comes from this)
-
-## Text Editors
-aptitude -y install nano vim emacs23-nox
-
-## NFS support
-aptitude -y install nfs-common
 
 ## Pre-requesites:
 
@@ -103,7 +77,12 @@ aptitude -y install fastx-toolkit
 ## OpenMPI
 #aptitude -y --without-recommends install openmpi-bin
 
-# Python 2.6
+## Python
+# !! Anything from PyPI should/shall be installed with pip !!
+# python-virtualenv
+# virtualenvwrapper
+aptitude -y --without-recommends install python-pip
+# 2.6
 # Needed for MACS?!?, IF REALLY THE CASE IT SHOULD BE RECOMPILED FOR 2.7
 aptitude -y install python2.6
 
@@ -111,19 +90,6 @@ aptitude -y install python2.6
 # python-numpy, for HTSeq
 # python-matplotlib, for HTSeq
 aptitude -y --without-recommends install python-numpy python-matplotlib
-
-## Perl Libraries:
-# libjson-perl, for prinseq-graph
-# libcairo-perl, for prinseq-graph
-# libtext-simpletable-perl, for prinseq-graph
-# libcontextual-return-perl, for prinseq-graph
-# libwant-perl, for prinseq-graph
-# cpanminus, for prinseq-graph
-# Statistics::PCA, for prinseq-graph
-# Math::Cephes, for prinseq-graph
-# Math::MatrixReal, for prinseq-graph
-aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
-cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
 
 ## Libraries:
 # build-essential (only devel)
@@ -140,14 +106,13 @@ cpanm Statistics::PCA Math::Cephes Math::MatrixReal
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
-
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -158,9 +123,22 @@ else
   exit 1
 fi
 
+## Perl Libraries:
+# libjson-perl, for prinseq-graph
+# libcairo-perl, for prinseq-graph
+# libtext-simpletable-perl, for prinseq-graph
+# libcontextual-return-perl, for prinseq-graph
+# libwant-perl, for prinseq-graph
+# cpanminus, for prinseq-graph
+# Statistics::PCA, for prinseq-graph
+# Math::Cephes, for prinseq-graph
+# Math::MatrixReal, for prinseq-graph
+aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
+cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
+
 ## Initialize:
 # Versions
-CHIP_VER=2.0.1
+CHIP_VER=2.0.2
 R_VER=2.12.1
 # Paths
 EXEC_PATH=${PWD}
@@ -201,6 +179,10 @@ sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
     ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart \
     ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager
 
+# Make update.sh script available
+cp ${CHIP_PATH}/admin/vm/update.sh ${CHIP_PATH}/update.sh
+chmod u+x ${CHIP_PATH}/update.sh
+
 # Symlink to tools
 ln -s /mnt/tools ${TOOLS_PATH}
 
@@ -219,29 +201,52 @@ touch ${CHIP_PATH}/auto-config-to-be-run
 # Install external applications and datasets #
 ##############################################
 
+## In root:
+
+# MACS, Artistic license
+# part 1
+cd ${TMPDIR_PATH}/
+wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
+dpkg -i macs_1.4.1.deb
+rm macs_1.4.1.deb
+
+# HTSeq, GPL v3 or later
+# part 1
+pip install HTSeq==0.5.3p3
+
+## In tools:
+ 
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
-  cd ${TMPDIR_PATH}/
-  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
-  cd R-${R_VER}/
-  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
-  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
-  export MAKEFLAGS=-j
-  #LIBnn=lib
-  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
-  make
-  make install
-  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
-  cd ../
-  rm -rf R-${R_VER}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s R-${R_VER} ${TOOLS_PATH}/R
+        
+#  cd ${TMPDIR_PATH}/
+#  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+#  cd R-${R_VER}/
+#  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
+#  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
+#  export MAKEFLAGS=-j
+#  #LIBnn=lib
+#  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+#  make
+#  make install
+#  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+#  cd ../
+#  rm -rf R-${R_VER}/
+#  ln -s R-${R_VER} ${TOOLS_PATH}/R
+#
+#  ## R Libraries:
+#  cd ${CHIP_PATH}/
+#  echo | ./setup.sh
 
-  ## R Libraries:
-  cd ${CHIP_PATH}/
-  echo | ./setup.sh
-
-
+  # Add R package outside of setup.sh/environment.xml
+  cd ${TMPDIR_PATH}/
+  wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
+  ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
+  rm nz131a520662fcdf.tar.gz
+  
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/
@@ -262,13 +267,29 @@ then
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
 
 
+  ## R-2.15:
+  # could also use the package from nic
+  R_VER=2.15.1
+  cd ${TMPDIR_PATH}/
+  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
+  cd R-${R_VER}/
+  export MAKEFLAGS=-j
+  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+  make
+  make install
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  cd ../
+  rm -rf R-${R_VER}/
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
+
+
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
   mkdir ${TOOLS_PATH}/admin/
   ln -s ${CHIP_PATH}/comp/modules/ngs/admin ${TOOLS_PATH}/admin/ngs
   
-   # Weeder, custom license, according to developers VM bundling is ok
+  # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
   curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
@@ -307,22 +328,20 @@ then
   mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
   ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
 
-  # MACS, Artistic licence
+  # MACS, Artistic license
+  # part 2
   cd ${TMPDIR_PATH}/
-  wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
-  sudo dpkg -i macs_1.4.1.deb
   mkdir -p ${TOOLS_PATH}/macs/
   ln -s /usr/bin/macs14 ${TOOLS_PATH}/macs/macs14
-  rm macs_1.4.1.deb
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.13/samtools-0.1.13.tar.bz2/download | tar -xj
-  cd samtools-0.1.13/
+  curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.13.tar.bz2/download | tar -xj
+  cd samtools-0.1.18/
   make
   cd ../
-  mv samtools-0.1.13/ ${TOOLS_PATH}
-  ln -s samtools-0.1.13 ${TOOLS_PATH}/samtools
+  mv samtools-0.1.18/ ${TOOLS_PATH}
+  ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
@@ -332,10 +351,62 @@ then
   ln -s bowtie-0.12.7 ${TOOLS_PATH}/bowtie
   rm bowtie-0.12.7-linux-x86_64.zip
 
+  # Bowtie 2, Artistic License
+  cd ${TMPDIR_PATH}/
+  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
+  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
+  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
+  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+
+	# Fasta files
+  cd ${TMPDIR_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+	# Fasta files, nochr
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.67.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase18_mmu_matureT.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 
+	# Bowtie2 indexes, built for Chipster
+  cd ${TMPDIR_PATH}/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+		
+				
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip
@@ -344,38 +415,28 @@ then
   mv FastQC/ ${TOOLS_PATH}/
   rm fastqc_v0.10.0.zip
 
-  # !! ANYTHING FROM PYPI SHOULD/SHALL BE INSTALLED WITH EASY_INSTALL OR PIP !!
-  # python-virtualenv
-  # virtualenvwrapper
-  # python-pip
-  #
   # HTSeq, GPL v3 or later
+  # part 2
   cd ${TMPDIR_PATH}/
-  curl -s http://pypi.python.org/packages/source/H/HTSeq/HTSeq-0.5.3p3.tar.gz#md5=624ef2a50b07bf62b979802f1b114762 | tar -xz
-  cd HTSeq-0.5.3p3/
-  python setup.py install
-  cd ../
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
-  rm -rf HTSeq-0.5.3p3/
-
-  # HTseq GTFs
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/htseq/gtfs/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq_gtfs/All_htseq_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/htseq/gtfs/
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
-  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz
-  mv cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/
-  ln -s cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/cufflinks
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks
 
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.0.Linux_x86_64.tar.gz | tar -xz
-  mv tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/
-  ln -s tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/tophat
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
+  mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
+  ln -s tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/tophat
+
+  # Tophat 2, The Artistic License
+  cd ${TMPDIR_PATH}/
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
@@ -386,10 +447,10 @@ then
   mv bwa-0.6.1/ ${TOOLS_PATH}/
   ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
-	# BWA index check
-	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
-	
+  # BWA index check
+  curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/check_bwa_index.sh > ${TOOLS_PATH}/bwa/check_bwa_index.sh
+  chmod 755 ${TOOLS_PATH}/bwa/check_bwa_index.sh
+
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
   ln -s /usr/bin/fasta_* ${TOOLS_PATH}/fastx/bin/
@@ -408,7 +469,7 @@ then
 
   # GTF gene data for tools
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
 
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
@@ -427,24 +488,40 @@ then
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/MPScall/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  mkdir ${TOOLS_PATH}/FREEC_Linux64/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.17.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
-  mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
-  ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
+  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
 
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
+  # DEXSeq
+	cd ${TMPDIR_PATH}/
+	#	curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.1.tar.gz | tar -xz
+	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
+	mkdir ${TOOLS_PATH}/dexseq-exoncounts
+	cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+	cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+	rm -rf DEXSeq	
+
+ 	# vcftools, GPLv3
+  cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+  cd vcftools_0.1.9/
+  make
+  cd ../
+  mv vcftools_0.1.9/ ${TOOLS_PATH}/
+  ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+ 	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
@@ -475,8 +552,3 @@ ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipste
 #update-rc.d chipster-fileserver defaults
 #update-rc.d chipster-webstart defaults
 #update-rc.d chipster-manager defaults
-
-## First boot
-#cd ${EXEC_PATH}/
-chmod 755 /etc/init.d/firstboot.sh
-update-rc.d firstboot.sh start 20 2 .

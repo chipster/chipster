@@ -7,16 +7,16 @@
 
 <h3>Description</h3>
 
-<p>This tool removes poly-A/T tails from nucleotide sequences.f. 
+<p>This tool removes poly-A/T tails from nucleotide sequences. The input data can be in FASTQ or in FASTA format.
 </p>
 
 
 <h3>Details</h3>
 
 <p> Poly-A/T tails can be trimmed from either end specifying a minimum tail length. 
-All repeats of As or Ts with at least this length will be trimmed from the sequence ends. 
+All repeats of As or Ts with at least this length will be trimmed from the read ends. 
 A small number of tails can occur even after trimming poly-A/T tails. For example, 
-a sequence that ends with AAAAATTTTT and that has been trimmed for the poly-T will still contain the poly-A.
+a read that ends with AAAAATTTTT and that has been trimmed for the poly-T will still contain the poly-A.
 </p>
 <p>
 Trimming poly-A/T tails can reduce the number of false positives during database searches, 
@@ -24,14 +24,14 @@ as long tails tend to align well to sequences with low complexity or sequences w
 poly-A tails in the database.
 <p><p>
 This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
-The filtering is calculated with PRIONSEQ options <i>-trim_tail_left</i> and <i>-trim_tail_right</i>.
+The trimming is calculated with PRINSEQ options <i>-trim_tail_left</i> and <i>-trim_tail_right</i>.
 </p>
 <h3>Output</h3>
 
 <p>
-The trimmed reads are saved to file called <b>trimmed.fastq</b> or <a>trimmed.fasta</a>.
-You can also print out a log file that contains information about the filtering task and
-statistics about how many reads were accepted and rejected.
+The trimmed reads are saved to file called trimmed.fastq or trimmed.fasta.
+You can also request a log file that contains information about the filtering task and
+statistics about how many reads were rejected.
 </p>
 	
 

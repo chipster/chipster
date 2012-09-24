@@ -19,7 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
@@ -35,8 +35,8 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 	private SAMDataSource samData;
 	private SAMFileFetcherThread fileFetcher;
-	private BlockingQueue<SAMFileRequest> fileRequestQueue = new LinkedBlockingQueue<SAMFileRequest>();
-	private ConcurrentLinkedQueue<SAMFileResult> fileResultQueue = new ConcurrentLinkedQueue<SAMFileResult>();
+	private BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
+	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
 
     public SAMHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
             AreaResultListener areaResultListener) {
@@ -57,14 +57,14 @@ public class SAMHandlerThread extends AreaRequestHandler {
 	}
 
 	protected boolean checkOtherQueues() {
-		SAMFileResult fileResult = null;
+		ParsedFileResult fileResult = null;
 		if ((fileResult = fileResultQueue.poll()) != null) {
 			processFileResult(fileResult);
 		}
 		return fileResult != null;
 	}
 
-    private void processFileResult(SAMFileResult fileResult) {
+    private void processFileResult(ParsedFileResult fileResult) {
 
     	if (fileResult.getStatus().concise) {
 
@@ -88,11 +88,21 @@ public class SAMHandlerThread extends AreaRequestHandler {
      */
     @Override
     protected void processAreaRequest(AreaRequest areaRequest) {
+    	
+		super.processAreaRequest(areaRequest);
+		
+		if (areaRequest.status.poison) {
+			
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			fileRequestQueue.add(fileRequest);
+			return;
+		}
+    	
 		if (areaRequest.status.concise) {
 			processConcisedAreaRequest(areaRequest);
 
 		} else {
-			fileRequestQueue.add(new SAMFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
 		}
 		
     }
@@ -125,7 +135,10 @@ public class SAMHandlerThread extends AreaRequestHandler {
 				convertCacheHitsToConcisedRegions(request, step, pos, indexedValues);
 
 			} else {
-				fileRequestQueue.add(new SAMFileRequest(request, from, to, request.status));
+				
+				request.status.maybeClearQueue(fileRequestQueue);
+				
+				fileRequestQueue.add(new BpCoordFileRequest(request, from, to, request.status));
 			}
 
 		}
@@ -164,7 +177,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 	private void addConcisedRegionContents(AreaRequest request, List<RegionContent> responseList, long startPos, long endPos, int countForward, int countReverse) {
 		// Create two approximated response objects: one for each strand
-		BpCoordRegion recordRegion = new BpCoordRegion(startPos, endPos, request.start.chr);
+		Region recordRegion = new Region(startPos, endPos, request.start.chr);
 
 		// Forward
 		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();

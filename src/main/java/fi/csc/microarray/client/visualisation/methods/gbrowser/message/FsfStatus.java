@@ -36,11 +36,13 @@ public class FsfStatus implements Cloneable {
 	public TreeNode bpSearchSource;
 
 
-	public void maybeClearQueue(Object fileResultQueue) {
-		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
+	public void maybeClearQueue(Object requestQueue) {
+		
+		if (clearQueues && !clearedAlready.contains(requestQueue)) {
+		
+			clearedAlready.add(requestQueue);
 			
-			clearedAlready.add(fileResultQueue);
-			((Queue<?>) fileResultQueue).clear();
+			((Queue<?>) requestQueue).clear();
 		}
 	}
 	

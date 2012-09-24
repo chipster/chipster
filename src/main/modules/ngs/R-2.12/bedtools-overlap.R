@@ -3,6 +3,7 @@
 # OUTPUT overlap.bed 
 # PARAMETER cols: "Columns to use" TYPE STRING DEFAULT "2,3,6,7" (Specify the columns (1-based\) for the starts and ends of the features for which you'd like to compute the overlap/distance. The columns must be listed in the following order: start1,end1,start2,end2.)
 
+# AMS 23.4.2012
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "overlap"))

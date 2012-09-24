@@ -18,6 +18,7 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
@@ -83,7 +84,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	
-	private static final int URL_REQUEST_TIMEOUT = 5; // seconds
+	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
 	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
@@ -93,16 +94,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChunked;
 	private boolean useCompression;
 	private String localFilebrokerPath;
-	private URL publicUrl;
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
 
 		this.urlTopic = urlTopic;
 		this.localFilebrokerPath = localFilebrokerPath;
 		
-		// Fetch filebroker public URL and cache it
-		this.publicUrl = fetchPublicUrl();
-
 		// Read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
@@ -120,6 +117,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+		if (file.length() > 0 && !this.requestDiskSpace(file.length())) {
+			throw new NotEnoughDiskSpaceException();
+		}
 		
 		// Get new url
 		URL url = getNewUrl(useCompression);
@@ -149,11 +149,15 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 
+
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public URL addFile(InputStream file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public URL addFile(InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+		if (contentLength > 0  && !this.requestDiskSpace(contentLength)) {
+			throw new NotEnoughDiskSpaceException();
+		}
 		
 		// Get new url
 		URL url = getNewUrl(useCompression);
@@ -253,7 +257,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
 			}
 			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -267,7 +271,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public URL getPublicUrl() throws JMSException {
-		return publicUrl;
+		return fetchPublicUrl();
 	}
 
 	private URL fetchPublicUrl() throws JMSException {
@@ -277,7 +281,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
 			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -325,6 +329,27 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				IOUtils.closeIfPossible(fileStream);
 			}
 		}
+	}
+
+	@Override
+	public boolean requestDiskSpace(long size) throws JMSException {
+
+		BooleanMessageListener replyListener = new BooleanMessageListener();  
+		Boolean spaceAvailable;
+		try {
+			CommandMessage spaceRequestMessage = new CommandMessage(CommandMessage.COMMAND_DISK_SPACE_REQUEST);
+			spaceRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, String.valueOf(size));
+			urlTopic.sendReplyableMessage(spaceRequestMessage, replyListener);
+			spaceAvailable = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+
+		if (spaceAvailable == null) {
+			return false;
+		}
+		return spaceAvailable;
+		
 	}
 
 }

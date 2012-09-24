@@ -41,7 +41,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
 	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
 		this.taskExecutor = new TaskExecutor(endpoint, manager);
-		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	}
 
 	public TaskExecutor getTaskExecutor() {

@@ -3,127 +3,55 @@
 
 <html>
 <head>
-	<title>Chipster</title>
-	<link href="styles.css" rel="stylesheet" type="text/css" />
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-15" />
-
- 	<!-- This initializes the navigator.family object -->
-       <script type="text/javascript" src="/products/javawebstart/1.2/docs/xbDetectBrowser.js"></script>
-
-       <script type="text/javascript">
-       //<![CDATA[  
-		 var javawsInstalled = 0;
-          isIE = "false";
-
-          if (navigator.mimeTypes && navigator.mimeTypes.length) {
-             x = navigator.mimeTypes['application/x-java-jnlp-file'];
-             if (x) javawsInstalled = 1;
-          } else {
-             isIE = "true";
-          }
-
-          function isJavaOk() {
-          <!-- Developers should be aware that for Gecko-based browsers (NS 6.x) -->
-          <!-- Java Web Start might not be installed -->
-          if (javawsInstalled || navigator.family == 'gecko') {
-                document.write('(<span style="color: green">detected OK</span>)');
-             } else {
-                document.write('(<span style="color: red">NOT DETECTED</span>)');
-             }
-          }
-		//]]>
-      </script>
-
-      <script type="text/vbscript">
-  		//<![CDATA[    
-      on error resume next
-          If isIE = "true" Then
-            If Not(IsObject(CreateObject("JavaWebStart.IsInstalled"))) Then
-                  javawsInstalled = 0
-            Else
-                  javawsInstalled = 1 
-            End If
-          End If
-		//]]>
-      </script> 
-
+<title>Chipster</title>
+<link href="styles.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-15" />
 </head>
 
 <body>
 
-<div id="container">
-	<div id="top">
-		<h1 id="csc-link"><a href="http://www.csc.fi"><span>CSC</span></a></h1>
-		<h1 id="chipster-title"><span>Chipster</span></h1>
-		<h2 id="software"><span>Software for life science data analysis</span></h2>
-	</div>
-	<div id="main-left">
-		<ul id="navigation-links">
-		<li><a href="#getting-started">Getting started</a></li>
-		<li><a href="#instructions">Instructions</a></li>
-		<li><a href="#troubleshooting">Troubleshooting</a></li>
-	</div>
-	<div id="main-right">
+	<div id="container">
+		<div id="top">
+			
+			<h1 id="csc-link">
+				<a href="http://www.csc.fi"><span>CSC</span>
+				</a>
+			</h1>
+			<h1 id="chipster-title">
+				<span>Chipster</span>
+			</h1>
+			<h2 id="software">
+				<span>Software for life science data analysis</span>
+			</h2>
+		</div>
+		<div id="main-left">
+			<ul id="navigation-links">
+				<li><a href="http://chipster.csc.fi">Chipster main site</a></li>
+				<li><a href="http://chipster.sourceforge.net">Chipster open source site</a></li>
+		</div>
+		<div id="main-right">
+
+			<h3 id="getting-started">Welcome to Chipster</h3>
+
+			<p>Chipster is a user-friendly analysis software for
+				high-throughput data. It contains over 200 analysis tools for next
+				generation sequencing (NGS), microarray and proteomics data. Users
+				can visualize data interactively, and save and share automatic
+				analysis workflows. Chipster's client software uses Java Web Start
+				to install itself automatically, and it connects to computing
+				servers for the actual analysis. Please see the <a href="http://chipster.csc.fi">Chipster main site</a> for courses, updates
+				and other information.</p>
+				
+
+			<div id="launch">
+				<a href="chipster.jnlp"><img id="launch-button"
+					alt="Launch Chipster" src="images/launch_button.png" /><span
+					id="launch-text">Launch Chipster</span>
+				</a>
+			</div>
 
 
-
-<h3 id="getting-started">Getting started with Chipster</h3>
-
-<p>Chipster allows you to perform life science data analysis through an intuitive graphical user interface. 
-Chipster client is compatible with Windows, Linux and MacOS.</p> 
-
-
-<div id="launch"><a href="chipster.jnlp"><img id="launch-button" alt="Launch Chipster" src="images/launch_button.png" /><span id="launch-text">Launch Chipster</span></a></div>
-
- 
-<h3 id="instructions">Instructions</h3>
-
-<p>Java WebStart installs Chipster automatically. During the installation you will be asked if Chipster should be given permissions of a normal application. You have to answer "yes" in order for Chipster to start. If you find any problems during installation, see the troubleshooting section below. Prior to installation please check below that your system meets the following requirements:</p>
-
-<ul>
-<li>Java Runtime Environment (JRE)
-<script type="text/javascript">
-   <!--
-   isJavaOk();
-   // -->
-</script><br />
-</li>
-<li>Java WebStart configured to your browser
-<script type="text/javascript">
-   <!--
-   isJavaOk();
-   // -->
-</script><br />
-</li>
-</ul>
-
-
-<h3 id="troubleshooting">Troubleshooting</h3>
-
-
-<strong>1. When clicking on the start-up link, the browser asks if the file "chipster.jnlp" should be saved or opened with an application</strong>
-<p>Choose application "Java WebStart" (or "javaws").</p>
-
-<strong>2. Java Webstart is not among the applications in the browser's prompt.</strong>
-
-<p>You don't have Java Web Start properly installed. You can either contact your administrator or use the following tips to fix the problem yourself.</p>
-
-<p>1) Check that you have Java Runtime Environment (JRE) properly installed. You can do it by entering "java -version" at the command line. It should output installed Java version. If not, install JRE (1.6 or newer). JRE can be found from <a href="http://java.com/getjava">Java download page</a>.</p>
-
-<p>2) If you have properly functioning JRE, then Java Web Start is not properly configured to your browser (during the JRE installation Java Web Start is configured automatically to Internet Explorer, Mozilla and other Netscape family browsers). Please see <a href="http://java.sun.com/products/javawebstart/1.2/docs/installguide.html">Java Web Start installation guide</a> for configuration help.</p>
-
-<strong>3. Java Web Start tries to update Java runtime environment (JRE), but fails.</strong>
-
-<p>In some systems the automatical JRE update does not work. For example, the working directory for the JRE installation might be the browser's directory, where the user is not allowed to install anything. Installing JRE 1.5 or newer manually solves the problem.</p>
-
-<strong>4. Application crashes when selecting "yes" to "create shortcut(s)" (on Mac OS X)</strong>
-
-<p>Due to some issue with Java and/or Mac OS X, creating shortcuts fails on some environments. Choosing "no" should allow you to start Chipster normally. As this happens before our application starts, we unfortunately cannot do anything about it.</p>
-
-
-
-</div>
-
+		</div>
 </body>
 
 </html>

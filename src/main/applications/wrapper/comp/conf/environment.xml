@@ -86,11 +86,6 @@
       <package>Matrix</package>
     </item>
 
-	<item installed="false" name="lme4" type="r-package">
-      <repository>http://cran.r-project.org</repository>
-      <package>lme4</package>
-    </item>
-
 	<item installed="false" name="amap" type="r-package">
       <repository>http://cran.r-project.org</repository>
       <package>amap</package>
@@ -274,6 +269,29 @@
       <bioconductor-package>biomaRt</bioconductor-package>
       <mirror>http://www.bioconductor.org</mirror>
     </item>
+
+	<!-- required by hdrcde -->
+    <item installed="false" name="locfit" type="r-package"> 
+      <bioconductor-package>locfit</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
+    </item>
+
+	<!-- required by hdrcde -->
+    <item installed="false" name="ash" type="r-package"> 
+      <bioconductor-package>ash</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
+    </item>
+    
+	<!-- required by hdrcde -->
+    <item installed="false" name="ks" type="r-package"> 
+      <bioconductor-package>ks</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
+    </item>
+
+	<!-- install manually because correct version is needed for R-2.12 -->     
+   	<item installed="false" name="hdrcde" type="r-package">
+    	<url>http://cran.r-project.org/src/contrib/00Archive/hdrcde/hdrcde_2.15.tar.gz</url>
+    </item>    
       
     <item installed="false" name="lumi" type="r-package"> 
       <bioconductor-package>lumi</bioconductor-package>
