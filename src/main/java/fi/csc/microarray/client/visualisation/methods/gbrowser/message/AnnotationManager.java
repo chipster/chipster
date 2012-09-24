@@ -471,8 +471,10 @@ public class AnnotationManager {
 
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-		if (fileBroker.getPublicUrl() != null) {
-			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
+		
+		URL publicURL = fileBroker.getPublicUrl();
+		if (publicURL != null) {
+			return new URL(publicURL + "/" + ANNOTATIONS_PATH);
 
 		} else {
 			return null;

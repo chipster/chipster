@@ -222,7 +222,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
 		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
-		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
+		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view		
 	}
 
 	@Override
@@ -252,9 +252,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			c.insets.set(5, 0, 0, 0);
 
 			paramPanel.add(tabPane, c);
-
 		}
-
+		
 		return paramPanel;
 	}
 
@@ -852,6 +851,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+		
+
 
 		this.interpretations = interpretUserDatas(datas);
 
@@ -1276,6 +1277,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 		// Find interpretations for all primary data types
 		for (DataBean data : datas) {
+			
+
 
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// ELAND result / export
