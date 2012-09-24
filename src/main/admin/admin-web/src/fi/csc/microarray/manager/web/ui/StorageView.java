@@ -76,7 +76,6 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		storagePanels.addComponent(aggregatePanel);
 		storagePanels.addComponent(entryPanel);
 		
-		//storagePanels.setExpandRatio(aggregatePanel, 1);
 		storagePanels.setExpandRatio(entryPanel, 1);
 		
 		this.setSizeFull();

@@ -7,10 +7,10 @@ import com.vaadin.terminal.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 
 import fi.csc.microarray.manager.web.ChipsterAdminApplication;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
