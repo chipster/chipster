@@ -11,7 +11,7 @@ samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
 samtools.view <- paste(samtools.binary, "view alignment.bam")
 
 # gtf
-gtf <- file.path(chipster.tools.path, "genomes", organism)
+gtf <- file.path(chipster.tools.path, "genomes", "gft", organism)
 
 # exoncount
 dexseq.binary <- file.path(chipster.tools.path, "dexseq-exoncounts", "dexseq_count.py")
