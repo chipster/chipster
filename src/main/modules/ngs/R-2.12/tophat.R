@@ -7,7 +7,7 @@
 # OUTPUT junctions.bed
 # OUTPUT insertions.bed
 # OUTPUT deletions.bed
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT mm9 (Genome that you would like to align your reads against.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT hg19 (Genome that you would like to align your reads against.)
 # PARAMETER mate.inner.distance: "Expected inner distance between mate pairs" TYPE INTEGER DEFAULT 200 (Expected mean inner distance between mate pairs. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.)
 # PARAMETER OPTIONAL mate.std.dev: "Standard deviation for the inner distances between mate pairs" TYPE INTEGER DEFAULT 20 (The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.)
 # PARAMETER OPTIONAL min.anchor.length: "Minimum anchor length" TYPE INTEGER FROM 3 TO 1000 DEFAULT 8 (TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved in spliced alignments is supported by at least one read with this many bases on each side.)
@@ -22,6 +22,7 @@
 # MG 24.4.2012 added ability to use gtf files from Chipster server
 # AMS 19.6.2012 Added unzipping
 # AMS 27.6.2012 Added parameter mate.std.dev, allow negative values for mate.inner.distance
+# EK 19.9.2012 added mm10 and new GTFs (Ensembl 68)
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -58,20 +59,23 @@ if (is_gtf) {
 
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
-if (genome == "hg19" ||	genome == "mm9" || genome == "rn4") genome_available <- TRUE
+if (genome == "hg19" ||	genome == "mm9" || genome == "rn4" || genome == "mm10") genome_available <- TRUE
 if (!is_gtf && genome_available) {
-
+	
 	# annotation file setup
 	if (genome == "hg19") {
-		annotation.file <- "Homo_sapiens.GRCh37.62.chr.gtf"
+		annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
 	}
 	if (genome == "mm9") {
 		annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
 	}
-	if (genome == "rn4") {
-		annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
+	if (genome == "mm10") {
+		annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
 	}
-	annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
+	if (genome == "rn4") {
+		annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
+	}
+	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 	
 	if (no.novel.juncs == "yes") {
 		command.gtf <- paste("-G", annotation.file, "--no-novel-juncs")
