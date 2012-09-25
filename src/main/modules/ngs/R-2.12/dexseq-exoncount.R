@@ -1,4 +1,4 @@
-# TOOL dexseq-exoncount.R: "Map aligned reads to exons for DEXSeq" (Calculates how many reads in a BAM file map to each exon. This tool is based on the HTSeq package. In order to use the output in DEXSeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
+# TOOL dexseq-exoncount.R: "Map aligned reads to exons for DEXSeq" (Given mapped reads in a BAM file, this tool counts the reads that fall into each non-overlapping exonic part using the script dexseq-count.py. In order to use the output in DEXSeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT exon-counts.tsv
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
