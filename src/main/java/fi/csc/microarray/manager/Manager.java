@@ -11,12 +11,26 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.UserIdentity;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Password;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -29,9 +43,9 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
@@ -93,6 +107,8 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		"username VARCHAR(200), " +
 		"compHost VARCHAR(500)" +
 		");";
+
+	private static final String ADMIN_ROLE = "admin_role";
 	
 	
 	/**
@@ -198,18 +214,41 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		}
 		
 		// start manager web console
-//		org.eclipse.jetty.server.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
-//		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
-//		Connector connector = new SelectChannelConnector();
-//		connector.setServer(managerWebConsoleServer);
-//		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
-//		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
-//        WebAppContext webapp = new WebAppContext();
-//        webapp.setContextPath("/");
-//        webapp.setWar("webapps/chipster-manager-console.war");
-//        managerWebConsoleServer.setHandler(webapp);
-//        managerWebConsoleServer.start();
-        
+		org.eclipse.jetty.server.Server adminServer = new org.eclipse.jetty.server.Server();
+		adminServer.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
+		connector.setServer(adminServer);
+		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
+		adminServer.setConnectors(new Connector[]{ connector });
+		
+		Constraint constraint = new Constraint();
+		constraint.setName(Constraint.__BASIC_AUTH);
+		constraint.setRoles(new String[] {ADMIN_ROLE});
+		constraint.setAuthenticate(true);
+		
+		ConstraintMapping cm = new ConstraintMapping();
+		cm.setConstraint(constraint);
+		cm.setPathSpec("/*");
+		
+		HashLoginService loginService = new HashLoginService("Please enter Chipster Admin web username and password");
+		loginService.update(configuration.getString("manager", "manager-web-console-username"), 
+				new Password(configuration.getString("manager", "manager-web-console-password")), 
+				new String[] {ADMIN_ROLE});
+		
+		ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
+		sh.setLoginService(loginService);
+		sh.addConstraintMapping(cm);
+		
+		WebAppContext webapp = new WebAppContext();
+		webapp.setContextPath("/");
+		webapp.setWar("webapps/admin-web.war");
+		webapp.setHandler(sh);
+		
+		HandlerCollection handlers = new HandlerCollection();
+		handlers.setHandlers(new Handler[] {webapp, new DefaultHandler()});
+				
+		adminServer.setHandler(handlers);
+        adminServer.start();
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -217,7 +256,6 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
-	
 
 	public String getName() {
 		return "manager";

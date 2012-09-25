@@ -1,6 +1,9 @@
 package fi.csc.microarray.manager.web;
 
 import java.io.IOException;
+import java.util.Arrays;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
@@ -11,6 +14,7 @@ import com.vaadin.ui.Window;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
@@ -22,21 +26,21 @@ public class ChipsterAdminApplication extends Application {
 	// configuration file path
 	//private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
 	//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
-	private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
+	//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
 
+//	{	
+//		try {
+//			if (!DirectoryLayout.isInitialised()) {
+//				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (IllegalConfigurationException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
-	{
-		try {
-			if (!DirectoryLayout.isInitialised()) {
-				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IllegalConfigurationException e) {
-			e.printStackTrace();
-		}
-	}
-
+	private final Logger logger = Logger.getLogger(Manager.class);
 
 	private HorizontalLayout horizontalSplit;
 
@@ -51,9 +55,23 @@ public class ChipsterAdminApplication extends Application {
 	private VerticalLayout emptyView;
 
 	private HorizontalLayout toolbarLayout;
-
-
-
+	
+	public ChipsterAdminApplication() {
+		
+		// initialise dir and logging
+		try {
+			//FIXME should obey manager config file given in manager command line parameter
+			if (!DirectoryLayout.isInitialised()) {				
+				DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IllegalConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		//
+	}
 
 	private VerticalLayout getServicesView() {
 		if (serviceView == null) {
@@ -113,6 +131,7 @@ public class ChipsterAdminApplication extends Application {
 	@Override
 	public void init() {
 
+		
 		getJobLogView().init();
 
 		buildMainLayout();

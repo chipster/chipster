@@ -58,11 +58,11 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-plus-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-policy-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-rewrite-8.1.5.v20120716.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-security-8.1.5.v20120716.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-security-8.1.5.v20120716.jar" sourcepath="ext/lib-src/org.eclipse.jetty.security.source_8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-server-8.1.5.v20120716.jar" sourcepath="ext/lib-src/org.eclipse.jetty.server.source_8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-8.1.5.v20120716.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-8.1.5.v20120716.jar" sourcepath="ext/lib-src/org.eclipse.jetty.util.source_8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-websocket-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-8.1.5.v20120716.jar"/>
