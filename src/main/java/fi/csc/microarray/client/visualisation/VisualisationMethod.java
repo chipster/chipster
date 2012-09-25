@@ -71,17 +71,11 @@ public class VisualisationMethod {
 		return visualiser;
 	}
 
-	public Visualisation getVisualiser(VisualisationFrame frame) {
-		try {
+	public Visualisation getVisualiser(VisualisationFrame frame) throws Exception {
+		
 			Visualisation visualisation = visualiser.getConstructor().newInstance();
 			visualisation.initialise(frame);
 			return visualisation;
-		} catch (Exception e) {
-			e.printStackTrace();
-			//field 'application' not always initialised
-			Session.getSession().getApplication().reportException(e);
-			return null;
-		}
 	}
 
 	/**

@@ -1,22 +1,22 @@
-# TOOL norm-illumina-methylumi.R: "Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology. TO USE THIS, YOU NEED TO IMPORT THE FinalReport FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
+# TOOL norm-illumina-methylumi.R: "Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology. You need to import the FinalReport file DIRECTLY, not using the Import tool.)
 # INPUT chip.tsv: chip.tsv TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT unmethylated.tsv: unmethylated.tsv 
 # OUTPUT methylated.tsv: methylated.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# OUTPUT OPTIONAL QC-plot.pdf: QC-plot.pdf 
-# PARAMETER color.balance.adjustment: color.balance.adjustment TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile (Adjustment of color balance)
-# PARAMETER background.correction: background.correction TYPE [none: none, bgAdjust2C: bgAdjust2C, forcePositive: forcePositive] DEFAULT none (Should background adjustment be applied)
-# PARAMETER normalization: normalization TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile ()
-# PARAMETER chiptype: chiptype TYPE [HumanMethylation27: HumanMethylation27, HumanMethylation450: HumanMethylation450] DEFAULT HumanMethylation27 (Select the correct BeadChip type)
-# PARAMETER QCplots: QCplots TYPE [yes: yes, no: no] DEFAULT yes (Do you want quality control plots)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
+# OUTPUT OPTIONAL QC-plot.pdf: QC-plot.pdf
+# PARAMETER chiptype: Chiptype TYPE [HumanMethylation27: HumanMethylation27, HumanMethylation450: HumanMethylation450] DEFAULT HumanMethylation27 (Select the correct BeadChip type)
+# PARAMETER OPTIONAL normalization: Normalization TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile ()
+# PARAMETER OPTIONAL color.balance.adjustment: "Color balance adjustment" TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile (Adjustment of color balance)
+# PARAMETER OPTIONAL background.correction: "Background correction" TYPE [none: none, bgAdjust2C: bgAdjust2C, forcePositive: forcePositive] DEFAULT none (Should background adjustment be applied)
+# PARAMETER OPTIONAL QCplots: QCplots TYPE [yes: yes, no: no] DEFAULT yes (Do you want quality control plots)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
 
 # Illumina methylation array data preprocessing and normalization for FinalReport file
 # JTT 2.2.2011
-# Modified 18.5.2012 by JTT
+# Modified 25.9.2012 by JTT
 
 
 # color.balance.adjustment<-c("quantile")

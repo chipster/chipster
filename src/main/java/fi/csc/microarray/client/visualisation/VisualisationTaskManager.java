@@ -1,10 +1,8 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -24,26 +22,31 @@ public class VisualisationTaskManager {
 	private class VisualisationRunnable implements Runnable {
 
 		private VisualisationMethodChangedEvent event;
+		private boolean abandonedThread = false;
 
 		public VisualisationRunnable(VisualisationMethodChangedEvent event) {
 			this.event = event;
 		}
+		
+		public void abandonThread() {
+			abandonedThread = true;
+		}
 
 		public void run() {
-				
-//				long startTime = System.currentTimeMillis();
-				
-				// do the actual work (if needed)
+
+			// do the actual work (if needed)
+			try {
 				final JComponent visualisation = event.getNewMethod() != null ? frameManager.createVisualisation(event) : null;
 
 				// update GUI in EDT (and wait for it to happen)
-				try {
+				if (!abandonedThread) {
 					SwingUtilities.invokeAndWait(new UpdateGuiRunnable(visualisation, event));
-				} catch (InterruptedException e) {
-					application.reportException(e);
-				} catch (InvocationTargetException e) {
-					application.reportException(e);
-				}				
+				}
+			} catch (InterruptedException e) {
+				application.reportException(e);
+			} catch (InvocationTargetException e) {
+				application.reportException(e);
+			} 
 		}
 	};
 
@@ -59,69 +62,44 @@ public class VisualisationTaskManager {
 		}
 
 		public void run() {
-
 			frameManager.showVisualisationComponent(visualisation, event);
 		}
 	};
-
-	private class GuiWorker implements Runnable {
-
-		public void run() {
-			if (!Thread.currentThread().isDaemon()) {
-				throw new IllegalThreadStateException("GuiWorker must be run on daemon thread");
-			}
-			
-			// this is daemon thread so looping forever does not block JVM exit
-			while (true) {
-				Runnable visualisationRunnable = null;
-				workQueueLock.lock();
-				try {
-					if (!workQueue.isEmpty()) {
-						visualisationRunnable = workQueue.getFirst();
-						workQueue.clear(); // pending runnables are cleared
-					}
-				} finally {
-					workQueueLock.unlock();
-				}
-
-				if (visualisationRunnable != null) {
-					// we had a job to do
-					visualisationRunnable.run();
-					
-				} else {
-					// nothing to do, wait for signals
-					workQueueLock.lock();
-					try {
-						guiWorkAvailable.awaitUninterruptibly();
-					} finally {
-						workQueueLock.unlock();
-					}
-				}
-			}
-		}		
-	}
 	
-	private LinkedList<Runnable> workQueue = new LinkedList<Runnable>();
-	private Lock workQueueLock = new ReentrantLock();
-	private Condition guiWorkAvailable = workQueueLock.newCondition();
+
+	private LinkedList<VisualisationRunnable> visualisationRunnables = new LinkedList<VisualisationRunnable>();
+
 	private ClientApplication application = Session.getSession().getApplication();
 	private VisualisationFrameManager frameManager;
 
 	public VisualisationTaskManager(VisualisationFrameManager frameManager) {
 		this.frameManager = frameManager;
-		Thread thread = ThreadUtils.getLowPriorityBackgroundThread(new GuiWorker());
-		thread.start();
 	}
 
 	public void visualise(VisualisationMethodChangedEvent e) {
 		
-		workQueueLock.lock();
-		try {
-			workQueue.add(new VisualisationRunnable(e));
-			guiWorkAvailable.signalAll();
+		/**
+		 * When a new visualisation is requested, the old visualisation thread may still be running. Because it isn't
+		 * possible to stop those old visualisation threads, we just flag them abandoned. If the old thread finishes later,
+		 * this flag prevents it form updating the gui, where the user is already using the new visualisation. If
+		 * the thread is really stuck, there isn't much we can do, it will be ended when the application is closed.
+		 * 
+		 * This list visualisationRunnables contains the threads (or actually the runnables that run in the threads) that 
+		 * have been started, but aren't yet flagged abandoned. Usually the thread should have finished already when 
+		 * the next visualisation is started, but those threads are flagged anyway. Flagged threads are removed from the list.
+		 */
+		Iterator<VisualisationRunnable> iter = visualisationRunnables.iterator();	
+		while (iter.hasNext()) {
 			
-		} finally {
-			workQueueLock.unlock();
+			VisualisationRunnable vr = iter.next();
+			vr.abandonThread();
+			iter.remove();
 		}
+		
+		VisualisationRunnable runnable = new VisualisationRunnable(e);
+		visualisationRunnables.add(runnable);
+		
+		Thread thread = ThreadUtils.getLowPriorityBackgroundThread(runnable);
+		thread.start();
 	}
 }

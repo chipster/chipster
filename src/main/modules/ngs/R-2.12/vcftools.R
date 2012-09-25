@@ -1,4 +1,4 @@
-# TOOL vcftools.R: "Analyze VCF file" (Filters and analyses VCF files. This tool is based on the VCFtools package.)
+# TOOL vcftools.R: "Filter and analyse variants" (Filters and analyses variants in VCF files. This tool is based on the VCFtools package.)
 # INPUT input.vcf: "VCF file" TYPE GENERIC 
 # OUTPUT vcftools.log
 # OUTPUT OPTIONAL vcftools.filtered.vcf
@@ -11,7 +11,7 @@
 # OUTPUT OPTIONAL vcftools.removed.sites.tsv
 # PARAMETER OPTIONAL filter.keepindels: "Keep only indels" TYPE [yes, no] DEFAULT no (Keep only indels.)
 # PARAMETER OPTIONAL filter.removeindels: "Remove indels" TYPE [yes, no] DEFAULT no (Remove indels.)
-# PARAMETER OPTIONAL filter.minalleles: "Minumun number of alleles" TYPE INTEGER DEFAULT 0 (Minumun number of alleles. 0 value means option is ignored.)
+# PARAMETER OPTIONAL filter.minalleles: "Minimum number of alleles" TYPE INTEGER DEFAULT 0 (Minumun number of alleles. 0 value means option is ignored.)
 # PARAMETER OPTIONAL filter.maxalleles: "Maximum number of alleles" TYPE INTEGER DEFAULT 0 (Maximum number of alleles. 0 value means option is ignored.)
 # PARAMETER OPTIONAL statistics.freq: "Report per-site frequency information" TYPE [yes, no] DEFAULT no (Reports per-site frequency information.)
 # PARAMETER OPTIONAL statistics.pvalue: "Report p-value" TYPE [yes, no] DEFAULT no (Reports a p-value for each site from a Hardy-Weinberg Equilibrium test.)

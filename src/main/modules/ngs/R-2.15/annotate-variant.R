@@ -1,4 +1,4 @@
-# TOOL annotate-variant.R: "Annotate variants" (Annotate variants listed in a VCF file.)
+# TOOL annotate-variant.R: "Annotate variants" (Annotate variants listed in a VCF file using the Bioconductor package VariantAnotation.)
 # INPUT input.vcf: "Sorted or unsorted VCF file" TYPE GENERIC
 # OUTPUT all-variants.tsv
 # OUTPUT coding-variants.tsv
