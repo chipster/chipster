@@ -12,7 +12,7 @@
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
-		<tool runtime="R-2.14"><resource>norm-illumina-methylumi.R</resource></tool>
+		<tool runtime="R-2.15"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
