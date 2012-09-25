@@ -63,7 +63,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlet-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-servlets-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-util-8.1.5.v20120716.jar" sourcepath="ext/lib-src/org.eclipse.jetty.util.source_8.1.5.v20120716.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-8.1.5.v20120716.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-webapp-8.1.5.v20120716.jar" sourcepath="ext/lib-src/org.eclipse.jetty.webapp.source_8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-websocket-8.1.5.v20120716.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jetty-xml-8.1.5.v20120716.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

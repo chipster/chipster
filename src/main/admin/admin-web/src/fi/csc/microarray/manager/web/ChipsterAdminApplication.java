@@ -1,9 +1,6 @@
 package fi.csc.microarray.manager.web;
 
 import java.io.IOException;
-import java.util.Arrays;
-
-import org.apache.log4j.Logger;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Component;
@@ -14,7 +11,6 @@ import com.vaadin.ui.Window;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
@@ -22,25 +18,6 @@ import fi.csc.microarray.manager.web.ui.StatView;
 import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class ChipsterAdminApplication extends Application {
-
-	// configuration file path
-	//private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
-	//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
-	//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
-
-//	{	
-//		try {
-//			if (!DirectoryLayout.isInitialised()) {
-//				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (IllegalConfigurationException e) {
-//			e.printStackTrace();
-//		}
-//	}
-
-	private final Logger logger = Logger.getLogger(Manager.class);
 
 	private HorizontalLayout horizontalSplit;
 
@@ -58,19 +35,24 @@ public class ChipsterAdminApplication extends Application {
 	
 	public ChipsterAdminApplication() {
 		
-		// initialise dir and logging
-		try {
-			//FIXME should obey manager config file given in manager command line parameter
-			if (!DirectoryLayout.isInitialised()) {				
-				DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+		try {	
+			if (DirectoryLayout.isInitialised()) {
+				//already initialised by the Manager, run in same JVM
+				//DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+			} else {
+				
+				// Not a real server, use any development server config (and show it's data)
+				String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
+				//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
+				//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
+				
+				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalConfigurationException e) {
 			e.printStackTrace();
 		}
-		
-		//
 	}
 
 	private VerticalLayout getServicesView() {

@@ -20,45 +20,55 @@ public class JobLogHibernateUtil {
     //private static Type defaultType;
 
     static {
-        try {
-            AnnotationConfiguration cnf = new AnnotationConfiguration();
-            
-            
-            Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+    	AnnotationConfiguration cnf = new AnnotationConfiguration();
 
-            String dbDriver = configuration.getString("manager", "jdbc-driver");
-            String dbUrl = configuration.getString("manager", "database-url");
-            String dbUsername = configuration.getString("manager", "database-username");
-            String dbPassword = configuration.getString("manager", "database-password");
+    	Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 
-            cnf.setProperty(Environment.DRIVER, dbDriver);
-            cnf.setProperty(Environment.URL, dbUrl);
-            cnf.setProperty(Environment.USER, dbUsername);
-            cnf.setProperty(Environment.PASS, dbPassword);
-            cnf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
-            cnf.setProperty(Environment.SHOW_SQL, "true");
-            cnf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+    	String dbDriver;
+    	String dbUrl;
+    	String dbUsername;
+    	String dbPassword;
 
-            //CREATE TABLE IF NOT EXISTS jobs (id VARCHAR(100) PRIMARY KEY, operation VARCHAR(200), status VARCHAR(200), starttime DATETIME DEFAULT NULL, endtime DATETIME DEFAULT NULL, 	wallclockTime INT DEFAULT NULL, errorMessage TEXT DEFAULT NULL, outputText TEXT DEFAULT NULL, username VARCHAR(200), compHost VARCHAR(500));
-            //insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 JOBS 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
-            
-//            cnf.setProperty(Environment.DRIVER, "org.h2.Driver");
-//            //cnf.setProperty(Environment.URL, "jdbc:h2:~/test");
-//            cnf.setProperty(Environment.URL, "jdbc:h2:tcp://localhost/test");
-//            cnf.setProperty(Environment.USER, "sa");
-//            cnf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
-//            cnf.setProperty(Environment.SHOW_SQL, "true");
-//            cnf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-            
-            cnf.addAnnotatedClass(JobLogEntry.class);
+    	try {
+    		dbDriver = configuration.getString("manager", "jdbc-driver");
+    		dbUrl = configuration.getString("manager", "database-url");
+    		dbUsername = configuration.getString("manager", "database-username");
+    		dbPassword = configuration.getString("manager", "database-password");
 
-            sessionFactory = cnf.buildSessionFactory();
+    	} catch (Exception e) {
 
-        } catch (Throwable ex) {
-            // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
-            throw new ExceptionInInitializerError(ex);
-        }
+    		// Not a real server
+
+    		//CREATE TABLE IF NOT EXISTS jobs (id VARCHAR(100) PRIMARY KEY, operation VARCHAR(200), status VARCHAR(200), starttime DATETIME DEFAULT NULL, endtime DATETIME DEFAULT NULL, 	wallclockTime INT DEFAULT NULL, errorMessage TEXT DEFAULT NULL, outputText TEXT DEFAULT NULL, username VARCHAR(200), compHost VARCHAR(500));
+    		//insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 JOBS 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
+
+    		dbDriver = "org.h2.Driver";
+    		dbUrl = "jdbc:h2:tcp://localhost/test";
+    		dbUsername = "sa";
+    		dbPassword = "";
+
+    		System.err.println("Chipster configuration unavailable, " +
+    				"trying to use development database at " + dbUrl);
+    	}
+
+    	try {
+    		cnf.setProperty(Environment.DRIVER, dbDriver);
+    		cnf.setProperty(Environment.URL, dbUrl);
+    		cnf.setProperty(Environment.USER, dbUsername);
+    		cnf.setProperty(Environment.PASS, dbPassword);
+    		cnf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
+    		cnf.setProperty(Environment.SHOW_SQL, "true");
+    		cnf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+
+    		cnf.addAnnotatedClass(JobLogEntry.class);
+
+    		sessionFactory = cnf.buildSessionFactory();
+
+    	} catch (Throwable ex) {
+    		// Make sure you log the exception, as it might be swallowed
+    		System.err.println("Initial SessionFactory creation failed." + ex);
+    		throw new ExceptionInInitializerError(ex);
+    	}
     }
 
     public static SessionFactory getSessionFactory() {

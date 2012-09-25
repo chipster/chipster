@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.exception.GenericJDBCException;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -44,7 +45,13 @@ public class StatView extends HorizontalLayout implements ClickListener {
 //
 //		this.addComponent(testButton);
 		
-		Session session = new JobLogSessionManager(app).getSession();
+		Session session = null;
+		try {
+			session = new JobLogSessionManager(app).getSession();
+		} catch (GenericJDBCException e) {
+			//FIXME Show exception message and hide or disable all database based content 
+			return;
+		}
 
 		StatDataSource dataSource = new StatDataSource();
 

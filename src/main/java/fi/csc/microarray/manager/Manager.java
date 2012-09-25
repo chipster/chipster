@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,7 +22,6 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -32,6 +30,7 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -239,13 +238,19 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		sh.setLoginService(loginService);
 		sh.addConstraintMapping(cm);
 		
-		WebAppContext webapp = new WebAppContext();
-		webapp.setContextPath("/");
-		webapp.setWar("webapps/admin-web.war");
-		webapp.setHandler(sh);
+		WebAppContext context = new WebAppContext();
 		
+        context.setDescriptor(new ClassPathResource("WebContent/WEB-INF/web.xml").getURI().toString());
+        context.setResourceBase(new ClassPathResource("WebContent").getURI().toString());
+        context.setContextPath("/");
+        context.setParentLoaderPriority(true);
+				
+//		context.setContextPath("/");
+//		context.setWar("webapps/admin-web.war");
+		
+        context.setHandler(sh);
 		HandlerCollection handlers = new HandlerCollection();
-		handlers.setHandlers(new Handler[] {webapp, new DefaultHandler()});
+		handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
 				
 		adminServer.setHandler(handlers);
         adminServer.start();

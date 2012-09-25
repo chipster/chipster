@@ -25,19 +25,19 @@
 	<property name="data" location="src/main/resources" />
 	<property name="manual" location="src/main/manual" />
 	<property name="workflows" location="src/main/workflows" />
-	<property name="build" location="bin/ant" />	
+	<property name="build" location="bin/ant" />
 	<property name="dist" location="dist" />
 
-    <!-- import FatJAR -->
-    <property name="fjepPath" value="${lib-ext}/fatjar.jar"/>
-    <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+	<!-- import FatJAR -->
+	<property name="fjepPath" value="${lib-ext}/fatjar.jar"/>
+	<taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 	<typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
-    <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
-    <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
-    <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+	<typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+	<typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+	<typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
-    
-    <!-- import TestNG -->
+
+	<!-- import TestNG -->
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
@@ -57,7 +57,7 @@
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
-    <property name="keyalias" value="csc" />
+	<property name="keyalias" value="csc" />
 	<property name="keystorepass" value="chipster" />
 	<property name="default-keystore" value="keystore.ks" />
 
@@ -65,96 +65,95 @@
 		<delete dir="${build}" />
 		<mkdir dir="${build}" />
 	</target>
-	
+
 	<!-- separate client jar will be removed in future, but while waiting for it... -->
 	<target name="package-client-jar" depends="compile, is-alt-keystore-available, load-alt-keystore-path, use-default-keystore-path, is-keystore-available, warn-about-keystore" description="Creates one fat client jar">
 
 		<!-- build one fat jar -->
-		    <fatjar.build output="${client-jar}">
-            <fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
-        	<fatjar.filesource path="${build}" relpath=""/>
-        	<fatjar.filesource path="${data}" relpath=""/>
-	    	<fatjar.filesource path="${workflows}" relpath=""/>
+		<fatjar.build output="${client-jar}">
+			<fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
+			<fatjar.filesource path="${build}" relpath=""/>
+			<fatjar.filesource path="${data}" relpath=""/>
+			<fatjar.filesource path="${workflows}" relpath=""/>
 
-        	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>
-            <fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
-        	<!-- Viski has to be before jfreechart (maybe also before jcommon) 
+			<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
+			<!-- Viski has to be before jfreechart (maybe also before jcommon) 
         	to make it's files override ones from JFreeChart. -->
-            <fatjar.jarsource file="${lib}/viski-chipster-1.0.1.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/commons-pool-1.3.jar" relpath=""/>
-            <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/swingx-1.0.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
-            <fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>   
-            <fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/commons-io-2.2.jar" relpath=""/>
-           	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-	    	<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
-	    	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/icepdf-core.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/icepdf-viewer.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/batik-awt-util.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/batik-svg-dom.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/batik-svggen.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/viski-chipster-1.0.1.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/commons-pool-1.3.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/swingx-1.0.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/commons-io-2.2.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/icepdf-core.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/icepdf-viewer.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/batik-awt-util.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/batik-svg-dom.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/batik-svggen.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-annotations-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-client-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-continuation-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-deploy-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-http-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-io-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-jmx-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-jndi-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-overlay-deployer-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-plus-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-policy-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-rewrite-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-security-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-server-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-servlet-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-servlets-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-util-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
-		    
-		    </fatjar.build>
+			<fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-annotations-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-client-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-continuation-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-deploy-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-http-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-io-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-jmx-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-jndi-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-overlay-deployer-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-plus-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-policy-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-rewrite-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-security-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-server-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-servlet-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-servlets-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-util-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
+		</fatjar.build>
 
 		<!-- sign it -->
-		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
+		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}" />
 		<verifyjar jar="${client-jar}" />
 
-    </target>
+	</target>
 
 	<target name="warn-about-keystore" unless="keystore-exists">
 		<fail message="Keystore file ${keystore} not found. You need to generate a key for signing the client JAR." />
 	</target>
 
 	<target name="is-keystore-available">
-		<available file="${keystore}" property="keystore-exists"/>
+		<available file="${keystore}" property="keystore-exists" />
 	</target>
 
 	<target name="is-alt-keystore-available">
 		<available file="alternative-keystore-path.txt" property="alt-keystore-exists"/>
 	</target>
-	
+
 	<target name="load-alt-keystore-path" if="alt-keystore-exists">
 		<loadfile srcfile="alternative-keystore-path.txt" property="keystore" />
 	</target>
@@ -179,8 +178,12 @@
 			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />
 			<src path="${modules-src-ngs}" />
+			<src path="${admin-web}/src" />
 			<classpath>
 				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -198,6 +201,7 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
+			<fileset dir="${admin-web}/" />
 		</jar>
 	</target>
 
@@ -223,14 +227,14 @@
 			<tarfileset file="${wrapper-linux-x86-32}/lib/wrapper.jar" prefix="chipster/shared/lib" />
 			<tarfileset file="${wrapper-linux-x86-32}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-32.so" />
 			<tarfileset file="${wrapper-linux-x86-64}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-64.so" />
-			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />	
+			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />
 			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
 			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
 			<tarfileset file="${ext-src}/wrapper/chipster" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/readme.txt" prefix="chipster" />
-			
+
 			<!-- config tool -->
 			<tarfileset file="${ext-src}/wrapper/setup.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
@@ -245,7 +249,7 @@
 			-->
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
-			
+
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
 
@@ -265,14 +269,15 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
-			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" />
+			<!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/auth/security" prefix="chipster/auth/security" />
 
-			
-			
+
+
 			<!-- comp -->
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp-generic" filemode="755" fullpath="chipster/comp/bin/chipster-comp" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
 
@@ -289,7 +294,8 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/comp/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
-			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" />
+			<!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
 
 			<!-- modules, executables separated so that permissions can be set for them -->
@@ -297,20 +303,22 @@
 				<or>
 					<filename name="**/*.sh" />
 					<filename name="**/*.py" />
-				</or>	
+				</or>
 			</selector>
 			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" >
 				<exclude name="sequence/" />
-				<not><selector refid="executable.files" /></not>
+				<not>
+					<selector refid="executable.files" />
+				</not>
 			</tarfileset>
 			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" filemode="755">
 				<selector refid="executable.files" />
 			</tarfileset>
-			
+
 
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
 
@@ -325,15 +333,16 @@
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
-			
+
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
-			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" />
+			<!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/fileserver/security" prefix="chipster/fileserver/security" />
 
 
 			<!-- client -->
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client-generic" filemode="755" fullpath="chipster/client/bin/chipster-client" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
 
@@ -350,13 +359,13 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/client/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/client/conf" prefix="chipster/client/conf" />
-			<tarfileset dir="${ext-src}/wrapper/client/logs" prefix="chipster/client/logs" />			
+			<tarfileset dir="${ext-src}/wrapper/client/logs" prefix="chipster/client/logs" />
 
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/client/conf/chipster-config.xml" />
-			
+
 			<!-- web start -->
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
 
@@ -379,12 +388,13 @@
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
-			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
-			
-			
+			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" />
+			<!-- must exist for wrapper -->
+
+
 			<!-- manager -->
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
 
@@ -401,12 +411,13 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/manager/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
-			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" />
+			<!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
-		
-			
+
+
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->
 			<tarfileset dir="${activemq-dist}" prefix="chipster/activemq" />
@@ -421,62 +432,43 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
-			<!-- <tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> --> <!-- ActiveMQ has a separate distribution for Windows -->
-			
+			<!-- <tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> -->
+			<!-- ActiveMQ has a separate distribution for Windows -->
+
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/activemq/wrapper/macosx/wrapper.conf" prefix="chipster/activemq/bin/macosx" />
-			
+
 		</tar>
 
 	</target>
-	
+
 	<target name="package-zip" depends="package-tar" description="Create chipster zip">
 		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
-		  <tarfileset src="${release-tar}" />
+		<zip destfile="${release-zip}" compress="false" duplicate="fail" >
+			<property name="release-version" value="2.0" />
+			<tarfileset src="${release-tar}" />
 		</zip>
 
 	</target>
-	
+
 	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
 
-	
 	<target name="generate-session-classes" description="">
 		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
 
 		<java classname="com.sun.tools.internal.xjc.XJCFacade">
-	            <arg value="-p" />
-	            <arg value="fi.csc.microarray.client.session.schema"/>
-            	<arg value="-d" />
-            	<arg value="src/main/java"/>
-	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
-	    </java>
+			<arg value="-p" />
+			<arg value="fi.csc.microarray.client.session.schema"/>
+			<arg value="-d" />
+			<arg value="src/main/java"/>
+			<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+		</java>
 	</target>
-	
-	<target name="package-admin-war" description="Package admin web application into war file">
-		<path id="compile.classpath">
-			<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
-				<include name="*.jar" />
-			</fileset>
-		</path>
-		<mkdir dir="${admin-web}/ant-build/classes" />
-		<javac destdir="${admin-web}/ant-build/classes"
-			debug="true" srcdir="${admin-web}/src">
-			<classpath refid="compile.classpath" />
-		</javac>
-		<war destfile="${dist}/admin-web.war"
-			webxml="${admin-web}/WebContent/WEB-INF/web.xml">
-			<fileset dir="${admin-web}/WebContent" />
-			<lib dir="${admin-web}/WebContent/WEB-INF/lib" />
-			<classes dir="${admin-web}/ant-build/classes" />
-		</war>
-		<delete dir="${admin-web}/ant-build" />
-	</target>
-	
+
 	<!--
     <path id="testngpath">
       <pathelement location="${test-src}"/>
