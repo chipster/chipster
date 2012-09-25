@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.1.0
+LATEST_VERSION=2.2.0
 
 # Exit immediately if some command fails
 set -e
