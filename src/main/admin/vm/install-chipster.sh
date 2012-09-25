@@ -428,7 +428,8 @@ then
   cd ${TMPDIR_PATH}/
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/cufflinks
-
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+ 
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
   curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
@@ -517,13 +518,13 @@ then
 	rm -rf DEXSeq	
 
  	# vcftools, GPLv3
-  cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
-  cd vcftools_0.1.9/
-  make
-  cd ../
-  mv vcftools_0.1.9/ ${TOOLS_PATH}/
-  ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+    cd ${TMPDIR_PATH}/
+    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
+    cd vcftools_0.1.9/
+    make
+    cd ../
+    mv vcftools_0.1.9/ ${TOOLS_PATH}/
+    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
  	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/

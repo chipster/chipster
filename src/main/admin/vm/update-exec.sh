@@ -177,6 +177,13 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	echo "Install new cufflinks" 
 	cd ${TMPDIR_PATH}/
 	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+    echo "Fix vcftools"
+    cd ${TMPDIR_PATH}/
+    rm -rf ${TOOLS_PATH}/vcftools*
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+
                         
 fi
 
