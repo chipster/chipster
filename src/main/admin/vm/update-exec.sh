@@ -155,13 +155,9 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MI
 		cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
 		rm -rf DEXSeq	
 
-	echo "Updating cufflinks" 
+	echo "Install new cufflinks" 
 	cd ${TMPDIR_PATH}/
 	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-	rm ${TOOLS_PATH}/cufflinks
-	rm -rf ${TOOLS_PATH}/cufflinks-1.0.3.Linux_x86_64
-	ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks
-
                         
 fi
 
