@@ -1,9 +1,9 @@
-# TOOL import-soft2.R: "Import from GEO" (Import a SOFT-formatted datafile directly from GEO. Be sure to specify the chiptype as an Affymetrix chip name, or either Illumina or cDNA.)
+# TOOL import-soft2.R: "Import from GEO" (Import a data set directly from GEO. Be sure to specify the chiptype as an Affymetrix chip name, or either Illumina or cDNA.)
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER GDS.name: GDS.name TYPE STRING DEFAULT GDS858 (GDS or GSE number of the experiment.)
+# PARAMETER GDS.name: accession TYPE STRING DEFAULT GDS858 (GDS or GSE number of the experiment.)
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA ()
+# PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package, Illumina for Illumina arrays, or cDNA for everything else.)
 
 # 2012-09-26
 # Ilari Scheinin <firstname.lastname@gmail.com>
