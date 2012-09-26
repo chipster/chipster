@@ -244,7 +244,7 @@
 			<resource>dea-cufflinks.R</resource>
 		</tool>
 		<tool runtime="R-2.15">
-			<resource>DEXSeq.R</resource>
+			<resource>DEXseq.R</resource>
 		</tool>
 	</category>
 
