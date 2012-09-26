@@ -10,15 +10,18 @@
 
 # JTT 9.8.2007
 
-# Loads the libraries
+# check for valid accession
+GDS.name <- toupper(GDS.name)
+if (length(grep('^(GDS|GSE|)[0-9]+$', GDS.name)) == 0)
+  stop('CHIPSTER-NOTE: Not a valid accession: ', GDS.name)
+
+# load data
 library(GEOquery)
 
-# Loads and parses the SOFT file
-if(GDS.name == 'empty' || GDS.name == '')
-  stop('CHIPSTER-NOTE: You need to specify a valid GDS/GSE!')
-
 gds <- getGEO(GDS.name)
-if (length(gds) == 1) {
+if (class(gds) == 'GDS') {
+  eset <- GDS2eSet(gds)
+} else if (length(gds) == 1) {
   eset <- gds[[1]]
 } else {
   w <- grep(platform, names(gds))
@@ -28,12 +31,24 @@ if (length(gds) == 1) {
 }
 
 # generate phenodata
-sample <- pData(eset)$geo_accession
-group <- c(rep('', nrow(pData(eset))))
+if ('geo_accession' %in% colnames(pData(eset))) {
+  sample <- pData(eset)$geo_accession
+} else if ('sample' %in% colnames(pData(eset))) {
+  sample <- pData(eset)$sample
+} else {
+  sample <- sprintf('microarray%.3i', 1:ncol(eset))
+}
+group <- rep('', length(sample))
 phenodata <- data.frame(sample=sample, original_name=sample, chiptype=chiptype, group=group, description=sample, pData(eset))
 
 dat <- data.frame(chromosome=NA, start=NA, end=NA, cytoband=NA, symbol=NA, description=NA, exprs(eset))
 colnames(dat)[-(1:6)] <- paste('chip.', sample, sep='')
+
+# GDS annotation columns
+if ('Gene symbol' %in% colnames(eset@featureData@data))
+  dat$symbol <- eset@featureData@data[, 'Gene symbol']
+if ('Gene title' %in% colnames(eset@featureData@data))
+  dat$description <- eset@featureData@data[, 'Gene title']
 
 # Agilent annotation columns
 if ('CHROMOSOMAL_LOCATION' %in% colnames(eset@featureData@data)) {
@@ -41,19 +56,21 @@ if ('CHROMOSOMAL_LOCATION' %in% colnames(eset@featureData@data)) {
   dat$start <- as.integer(gsub('.*:|-.*','', eset@featureData@data$CHROMOSOMAL_LOCATION))
   dat$end <- as.integer(gsub('.*-|','', eset@featureData@data$CHROMOSOMAL_LOCATION))
 }
-if ('CYTOBAND' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(eset@featureData@data))
   dat$cytoband <- gsub('hs\\|', '', eset@featureData@data$CYTOBAND)
-if ('GENE_SYMBOL' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(eset@featureData@data))
   dat$symbol <- eset@featureData@data$GENE_SYMBOL
-if ('GENE_NAME' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$description)) && 'GENE_NAME' %in% colnames(eset@featureData@data))
   dat$description <- eset@featureData@data$GENE_NAME
+if (all(is.na(dat$description)) && 'DESCRIPTION' %in% colnames(eset@featureData@data))
+  dat$description <- eset@featureData@data$DESCRIPTION
 
 # Nimblegen annotation columns
-if ('CHROMOSOME' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$chromosome)) && 'CHROMOSOME' %in% colnames(eset@featureData@data))
   dat$chromosome <- eset@featureData@data$CHROMOSOME
-if ('RANGE_START' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$start)) && 'RANGE_START' %in% colnames(eset@featureData@data))
   dat$start <- as.integer(eset@featureData@data$RANGE_START)
-if ('RANGE_END' %in% colnames(eset@featureData@data))
+if (all(is.na(dat$end)) && 'RANGE_END' %in% colnames(eset@featureData@data))
   dat$end <- as.integer(eset@featureData@data$RANGE_END)
 
 # remove empty annotation columns
