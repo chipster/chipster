@@ -203,7 +203,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.viewHelp("chipster-manual/workflows.html#ready");
+						application.viewHelp("workflows.html#ready");
 						
 					} catch (Exception me) {
 						application.reportException(me);
@@ -612,7 +612,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			startedMenuItem.setText("Getting started");
 			startedMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("chipster-manual/basic-functionality.html");
+					application.viewHelp("basic-functionality.html");
 				}
 			});
 		}
@@ -625,7 +625,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			aboutMenuItem.setText("About");
 			aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("chipster-manual/about.html");
+					application.viewHelp("about.html");
 				}
 			});
 		}

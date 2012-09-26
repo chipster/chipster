@@ -1,9 +1,9 @@
-# TOOL cna-pool-bins.R: "Pool binned read counts" (This tool compares binned read counts of a test sample to binned read counts of a reference sample by taking a ratio between the two.)
+# TOOL cna-pool-bins.R: "Pool binned read counts" (Pools binned read counts together from two or more files.)
 # INPUT binned-hits-{...}.tsv: "Individual files with binned hits" TYPE GENERIC
 # OUTPUT binned-hits-pooled.tsv: "Pooled read counts"
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-02-29
+# 2012-06-07
 
 filenames <- list.files(pattern='^binned-hits-[0-9]*\\.tsv$')
 

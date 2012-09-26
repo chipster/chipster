@@ -9,17 +9,17 @@
 
 <h3>Description</h3>
 
-<p>Normalization for Illumina Infinium human methylation 27k arrays using the <a href="http://www.bioconductor.org/packages/2.7/bioc/vignettes/lumi/inst/doc/methylationAnalysis.pdf">lumi methodology</a>.
+<p>Normalization for Illumina Infinium human methylation 27k and 450k arrays using the <a href="http://www.bioconductor.org/packages/2.7/bioc/vignettes/lumi/inst/doc/methylationAnalysis.pdf">lumi methodology</a>.
 Please note that this tool requires your raw data to be in one FinalReport file. The filename must end with ".txt", and you should NOT use the Import tool 
 when bringing the data into Chipster (in the Import files -window change the action to "Import directly").</p>
 
 <h3>Parameters</h3>
 
 <ul>
+<li>Chiptype (Human methylation 27k, Human methylation 450k) [Human methylation 27k]</li>
+<li>Normalization (none, quantile, ssn) [quantile]</li>
 <li>Color balance adjustment (none, quantile, ssn) [quantile]</li>
 <li>Background correction (none, bgAdjust2C, forcePositive) [none]</li>
-<li>Normalization (none, quantile, ssn) [quantile]</li>
-<li>Chiptype (human) [human]</li>
 <li>Image width (200-3200) [600]</li>
 <li>Image height (200-3200) [600]</li>
 </ul>

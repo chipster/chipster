@@ -15,7 +15,7 @@
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-06-30
+# 2012-05-03
 
 # check for valid accession
 accession <- toupper(accession)
@@ -30,7 +30,7 @@ if (session != 'empty' && session != '') {
 } else auth <- ''
 
 # fetch list of arrays from CanGEM
-cangem.samples <- read.table(paste('http://www.cangem.org/scripts/listhybs.php?accession=', accession, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+cangem.samples <- read.table(paste('http://www.cangem.org/scripts/listhybs.php?accession=', accession, auth, sep=''), header=TRUE, sep='\t', quote='', as.is=TRUE, comment.char='')
 cangem.samples$GUID <- NULL
 
 # check that we did get some results
@@ -265,6 +265,7 @@ if (ncol(dat)==1)
   colnames(dat2)[ncol(dat2)] <- chips[1]
 dat2$probe <- NULL
 
+options(scipen=10)
 write.table(dat2, file='normalized.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 write.table(phenodata, file='phenodata.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=FALSE)
 

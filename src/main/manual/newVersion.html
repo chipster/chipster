@@ -2,6 +2,31 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 27.9.2012: What is new in Chipster 2.2.0</h2>
+
+<br>Chipster 2.2.0 contains a new tool category Variants with tools for analyzing VCF files. Visualization of these files is supported already (see the 12.9.2012 release notes).
+There are also new tools for RNA-seq analysis, and many tools have been updated to use Ensembl v68 annotations. 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="dexseq-exoncount.html">RNA-seq / Map aligned reads to exons for DEXSeq</a>. This tool counts the reads that fall into each non-overlapping exonic part.</li>
+<li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a>. This Bioconductor-based tool infers differential exon usage.</li>
+<li><a href="samtools-snp-indel-single.html"> Variants / Call SNPs and short INDELs</a>. This SAMtools and bcftools -based tool combines the old variant calling tools, allowing you to call variants from one or multiple individuals.</li>
+<li><a href="vcftools.html">Variants / Filter and analyze variants</a>. This VCFtools-based tool allows you to filter and analyze variants in a VCF file.</li>
+<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>. This tools uses TopHat 2.0.4. and Bowtie 2. We will TopHat 1.3.0 is still available for a while, but we encourage you to use TopHat 2 for new analysis sessions. </li>
+<li><a href="tophat2-single-end.html">Alignment / TopHat2 for single end reads</a>. As above.</li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but this will be updated to 2.0.2 in October.</li>
+<li><u>RNA-seq / Map aligned reads to genes using HTSeq</u>. Added mouse genome mm10, updated GTFs to Ensembl 68.</li>
+<li><u>Alignment / TopHat for paired end reads and single end reads</u>. Updated GTFs to Ensembl 68.</li>
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 12.9.2012: What is new in Chipster 2.1.0</h2>
 
 <br>Chipster 2.1.0 contains major improvements in the genome browser and important new NGS data analysis functionality (see below). 
@@ -18,7 +43,7 @@ The full list of NGS analysis tools is available <a href="tools-ngs.html">here</
 </ul>
 <li><b>New NGS analysis tools</b></li>
 <ul>
-<li><u>RNA-seq / Differential expression analysis using edgeR for multivariate experiments</u>. This tool complements the existing edgeR by allowing you to analyze data from more complex experimental designs.</li>
+<li><u>RNA-seq / Differential expression using edgeR for multivariate experiments</u>. This tool complements the existing edgeR by allowing you to analyze data from more complex experimental designs.</li>
 <li><u>Utilities / Annotate variants</u>. This R/Bioconductor-based tool allows you to annotate human variants in a VCF file.</li>
 </ul>
 <li><b>Updated NGS analysis tools</b></li>

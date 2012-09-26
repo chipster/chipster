@@ -109,9 +109,9 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
 		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
-		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1, "genomeBrowser.html");
 		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 1, -1);
-		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
+		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "visualisation-phenodata.html");
 	}
 	
 	public static final String SERVER_MODULE_NAME = "microarray";
@@ -448,7 +448,7 @@ public class MicroarrayModule implements Module {
 				List<DataBean> selection = application.getSelectionManager().getSelectedDataBeans();
 				currentSelectionVisualisable = visualisation.canVisualise(selection);
 			}
-		} catch (MicroarrayException e2) {
+		} catch (Exception e2) {
 			// ignore
 		}
 
@@ -476,7 +476,7 @@ public class MicroarrayModule implements Module {
 					boolean canVisualise = false;
 					try {
 						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
-					} catch (MicroarrayException e1) {
+					} catch (Exception e1) {
 						// ignore
 					}
 

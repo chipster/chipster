@@ -111,12 +111,6 @@
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>		
-		<tool runtime="R-2.12">
-			<resource>samtools-snp-indel-single.R</resource>
-		</tool> 
-		<tool runtime="R-2.15">
-			<resource>annotate-variant.R</resource>
-		</tool>
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
@@ -202,19 +196,40 @@
 			<resource>bwa-paired-end-with-index-building.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>tophat2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>tophat2-single-end.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>tophat.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>tophat-single-end.R</resource>
+		</tool>	
+	</category>
+	
+	<category name="Variants" color="#80a3b7">
+		<tool runtime="R-2.12">
+			<resource>samtools-snp-indel-single.R</resource>
+		</tool> 
+		<tool runtime="R-2.12">
+			<resource>vcftools.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>annotate-variant.R</resource>
 		</tool>
 	</category>
-
-	<category name="RNA-seq" color="#80a3b7">
+	
+	<category name="RNA-seq" color="#0177b7">
 		<tool runtime="R-2.12">
 			<resource>htseq-count.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>htseq-count-own-gtf.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>dexseq-exoncount.R</resource>
 		</tool>
 		<tool runtime="R-2.14">
 			<resource>dea-deseq.R</resource>
@@ -228,9 +243,12 @@
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
 		</tool>
+		<tool runtime="R-2.15">
+			<resource>DEXseq.R</resource>
+		</tool>
 	</category>
 
-	<category name="miRNA-seq" color="#0177b7">
+	<category name="miRNA-seq" color="#629a9b">
 		<tool runtime="R-2.12">
 			<resource>convert-bam-to-edger.R</resource>
 		</tool>
@@ -265,7 +283,7 @@
 		</tool>
 	</category>
 
-	<category name="ChIP-seq" color="#629a9b">
+	<category name="ChIP-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
@@ -286,7 +304,7 @@
 		</tool>
 	</category>
 
-	<category name="CNA-seq" color="#c0d2de">
+	<category name="CNA-seq" color="#a49900">
 		<tool runtime="R-2.12">
 			<resource>cna-bin-hits.R</resource>
 		</tool>
@@ -304,7 +322,7 @@
 		</tool>
 	</category>
 
-	<category name="Methyl-seq" color="#c0d2de">
+	<category name="Methyl-seq" color="#83010b">
 		<tool runtime="R-2.12">
 			<resource>convertBAMtoMEDIPS.R</resource>
 		</tool>
