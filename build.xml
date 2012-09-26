@@ -200,8 +200,10 @@
 				<attribute name="Main-Class" value="fi.csc.microarray.MicroarrayMain" />
 			</manifest>
 			<fileset dir="${build}/" />
-			<fileset dir="${data}/" />
-			<fileset dir="${admin-web}/" />
+			<fileset dir="${data}/" />			
+			<fileset dir="${admin-web}/">
+				<include name="WebContent/**/*" />
+			</fileset>
 		</jar>
 	</target>
 
