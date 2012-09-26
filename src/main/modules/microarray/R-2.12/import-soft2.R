@@ -2,43 +2,68 @@
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER GDS.name: GDS.name TYPE STRING DEFAULT GDS858 (GDS or GSE number of the experiment.)
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT hgu133a ()
-# PARAMETER log2.transform: log2.transform TYPE [yes: yes, no: no] DEFAULT yes (log2 transform the data)
+# PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
+# PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA ()
 
+# 2012-09-26
+# Ilari Scheinin <firstname.lastname@gmail.com>
 
 # JTT 9.8.2007
-
-# Parameter settings (default) for testing purposes
-#GDS.name<-"GDS858"
-#chiptype<-"hgu133a"
-#log2.transform<-"yes"
 
 # Loads the libraries
 library(GEOquery)
 
 # Loads and parses the SOFT file
-if(GDS.name!="empty") {
-   gds<-getGEO(GDS.name)
-   if(log2.transform=="yes") {
-      eset<-GDS2eSet(gds, do.log2=T)
-   } else {
-      eset<-GDS2eSet(gds, do.log2=F)
-   }      
-   dat<-exprs(eset)
-   colnames(dat)<-paste("chip.", colnames(dat), sep="")
+if(GDS.name == 'empty' || GDS.name == '')
+  stop('CHIPSTER-NOTE: You need to specify a valid GDS/GSE!')
+
+gds <- getGEO(GDS.name)
+if (length(gds) == 1) {
+  eset <- gds[[1]]
+} else {
+  w <- grep(platform, names(gds))
+  if (length(w) != 1)
+    stop('CHIPSTER-NOTE: Please use the platform argument (currently set to "', platform, '") to specify which data set to load. Available data sets:\n', paste(names(gds), collapse='\n')) 
+  eset <- gds[[w]]
 }
 
-if(GDS.name=="empty") {
-   stop("You need to specify a valid GDS!")
+# generate phenodata
+sample <- pData(eset)$geo_accession
+group <- c(rep('', nrow(pData(eset))))
+phenodata <- data.frame(sample=sample, original_name=sample, chiptype=chiptype, group=group, description=sample, pData(eset))
+
+dat <- data.frame(chromosome=NA, start=NA, end=NA, cytoband=NA, symbol=NA, description=NA, exprs(eset))
+colnames(dat)[-(1:6)] <- paste('chip.', sample, sep='')
+
+# Agilent annotation columns
+if ('CHROMOSOMAL_LOCATION' %in% colnames(eset@featureData@data)) {
+  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', eset@featureData@data$CHROMOSOMAL_LOCATION)
+  dat$start <- as.integer(gsub('.*:|-.*','', eset@featureData@data$CHROMOSOMAL_LOCATION))
+  dat$end <- as.integer(gsub('.*-|','', eset@featureData@data$CHROMOSOMAL_LOCATION))
 }
+if ('CYTOBAND' %in% colnames(eset@featureData@data))
+  dat$cytoband <- gsub('hs\\|', '', eset@featureData@data$CYTOBAND)
+if ('GENE_SYMBOL' %in% colnames(eset@featureData@data))
+  dat$symbol <- eset@featureData@data$GENE_SYMBOL
+if ('GENE_NAME' %in% colnames(eset@featureData@data))
+  dat$description <- eset@featureData@data$GENE_NAME
 
-# Writes out a phenodata
-sample<-colnames(exprs(eset))
-group<-c(rep("", nrow(pData(eset))))
-training<-c(rep("", nrow(pData(eset))))
-time<-c(rep("", nrow(pData(eset))))
-random<-c(rep("", nrow(pData(eset))))
-write.table(data.frame(sample=sample, group=group, training=training, chiptype=chiptype), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+# Nimblegen annotation columns
+if ('CHROMOSOME' %in% colnames(eset@featureData@data))
+  dat$chromosome <- eset@featureData@data$CHROMOSOME
+if ('RANGE_START' %in% colnames(eset@featureData@data))
+  dat$start <- as.integer(eset@featureData@data$RANGE_START)
+if ('RANGE_END' %in% colnames(eset@featureData@data))
+  dat$end <- as.integer(eset@featureData@data$RANGE_END)
 
-# Writes out a normalized datafile
-write.table(as.data.frame(dat), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+# remove empty annotation columns
+for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description'))
+  if (all(is.na(dat[,x])))
+    dat[,x] <- NULL
+
+# write output files
+options(scipen=10)
+write.table(dat, file='normalized.tsv', quote=FALSE, sep='\t')
+write.table(phenodata, file='phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+
+# EOF
