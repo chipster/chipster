@@ -431,13 +431,6 @@
 
 	</target>
 	
-	<target name="package-zip" depends="package-tar" description="Create chipster zip">
-		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
-		  <tarfileset src="${release-tar}" />
-		</zip>
-
-	</target>
 	
 	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
