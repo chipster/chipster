@@ -6,10 +6,49 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.0
+LATEST_VERSION=2.0.2
 
 # Exit immediately if some command fails
 set -e
+
+# Helper function
+function compare_to_current()
+{
+  VERSION_ARR=( `echo $1 | tr "." "\n"` )
+  CURRENT_VERSION_ARR=( `echo $CURRENT_VERSION | tr "." "\n"`)
+
+  # Check main version  
+  if [ ${VERSION_ARR[0]} -lt ${CURRENT_VERSION_ARR[0]} ] ; then
+    CURRENT_COMPARED=1
+    return
+  fi
+  if [ ${VERSION_ARR[0]} -gt ${CURRENT_VERSION_ARR[0]} ] ; then
+    CURRENT_COMPARED=-1
+    return
+  fi
+
+  # Check major version  
+  if [ ${VERSION_ARR[1]} -lt ${CURRENT_VERSION_ARR[1]} ] ; then
+    CURRENT_COMPARED=1
+    return
+  fi
+  if [ ${VERSION_ARR[1]} -gt ${CURRENT_VERSION_ARR[1]} ] ; then
+    CURRENT_COMPARED=-1
+    return
+  fi
+  
+  # Check minor version
+  if [ ${VERSION_ARR[2]} -lt ${CURRENT_VERSION_ARR[2]} ] ; then
+    CURRENT_COMPARED=1
+    return
+  fi
+  if [ ${VERSION_ARR[2]} -gt ${CURRENT_VERSION_ARR[2]} ] ; then
+    CURRENT_COMPARED=-1
+    return
+  fi
+  
+  CURRENT_COMPARED=0
+}
 
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
@@ -20,9 +59,14 @@ LATEST_MAIN_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "([0-9]*).[0-9]*.[0-
 LATEST_MAJOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.([0-9]*).[0-9]*", g) {print g[1]}'`
 LATEST_MINOR_VERSION=`echo $LATEST_VERSION | gawk 'match($0, "[0-9]*.[0-9]*.([0-9]*)", g) {print g[1]}'`
 
-# Check if versions match
+# Check current version
 echo Detected version $CURRENT_VERSION
-if [ $CURRENT_MAIN_VERSION -ge $LATEST_MAIN_VERSION -a $CURRENT_MAJOR_VERSION -ge $LATEST_MAJOR_VERSION -a $CURRENT_MINOR_VERSION -ge $LATEST_MINOR_VERSION ]; then
+compare_to_current "$LATEST_VERSION"
+if [ $CURRENT_COMPARED -gt 0 ] ; then 
+	echo "Update error: current version $CURRENT_VERSION is newer than latest $LATEST_VERSION"
+	exit 1
+fi
+if [ $CURRENT_COMPARED -eq 0 ] ; then 
 	echo "Already at latest version, nothing needs to be updated"
 	exit
 fi
@@ -33,8 +77,8 @@ echo "Update will start next. It can take several hours, depending on your netwo
 echo "Do you wish to proceed?"
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) echo "Update started"; break;;
-        No ) echo "Update aborted"; exit;;
+        Yes ) echo "** Update started"; break;;
+        No ) echo "** Update aborted"; exit;;
     esac
 done
 
@@ -45,13 +89,16 @@ TOOLS_PATH=${CHIP_PATH}/tools
 TMPDIR_PATH=/tmp/chipster-install-temp
 
 # Create temp dir
-rm -rf ${TMPDIR_PATH}/
-mkdir ${TMPDIR_PATH}/
+rm -rf ${TMPDIR_PATH}
+mkdir ${TMPDIR_PATH}
 
 # Create backup dir
 TIMESTAMP=$(date +"%Y%m%d%H%M")
-BACKUPDIR_PATH=/tmp/$TIMESTAMP
-mkdir ${BACKUPDIR_PATH}/
+BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
+while [ -d "$BACKUPDIR_PATH" ] ; do
+	BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
+done
+mkdir ${BACKUPDIR_PATH}
 
 #######################################
 # VERSION SPECIFIC ENTRIES START HERE #
@@ -59,15 +106,18 @@ mkdir ${BACKUPDIR_PATH}/
 #######################################
 
 # 2.0.3
-if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 0 -o $CURRENT_MINOR_VERSION -lt 3 ] ; then
-	echo "Installing mm10 bowtie indexes"
+compare_to_current "2.0.3"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+	echo "** Installing mm10 bowtie indexes"
 	curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 # 2.1.0 
-if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 1 -o $CURRENT_MINOR_VERSION -lt 0 ] ; then
+compare_to_current "2.1.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-    echo "Updating prinseq"
+    echo "** Updating prinseq"
 	cd ${TMPDIR_PATH}/
     curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
@@ -104,9 +154,10 @@ fi
 
 
 # 2.2.0 
-if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MINOR_VERSION -lt 0 ] ; then
+compare_to_current "2.2.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-	echo "Updating samtools"
+	echo "** Updating samtools"
 	cd ${TMPDIR_PATH}/
   mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
   rm ${TOOLS_PATH}/samtools
@@ -130,7 +181,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-	echo "Installing bowtie2"
+	echo "** Installing bowtie2"
   cd ${TMPDIR_PATH}/
   wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
   unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
@@ -138,7 +189,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
   ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
   rm bowtie2-2.0.0-beta7-linux-x86_64.zip
 
-	echo "Installing bowtie2 indexes"
+	echo "** Installing bowtie2 indexes"
   cd ${TMPDIR_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
@@ -152,12 +203,12 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
 	
-	echo "Installing tophat2"
+	echo "** Installing tophat2"
   cd ${TMPDIR_PATH}/
   curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
-  echo "Installing DEXSeq"
+  echo "** Installing DEXSeq"
 	cd ${TMPDIR_PATH}/
 	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
 	mkdir ${TOOLS_PATH}/dexseq-exoncounts
@@ -165,7 +216,7 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
 	rm -rf DEXSeq	
 
-	echo "Updating gtf files"
+	echo "** Updating gtf files"
 	mkdir -p ${BACKUPDIR_PATH}/genomes
 	mv ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
 	mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
@@ -174,11 +225,11 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-	echo "Install new cufflinks" 
+	echo "** Installing new cufflinks" 
 	cd ${TMPDIR_PATH}/
 	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-  echo "Fix vcftools"
+  echo "** Fixing vcftools"
   cd ${TMPDIR_PATH}/
   rm -rf ${TOOLS_PATH}/vcftools*
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -193,9 +244,10 @@ fi
 #####################################
 
 # Update Chipster itself (incl. tool scripts), unless already at latest
-if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -lt $LATEST_MAJOR_VERSION -o $CURRENT_MINOR_VERSION -lt $LATEST_MINOR_VERSION ] ; then
+compare_to_current "$LATEST_VERSION"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-	echo "Updating Chipster installation to $LATEST_VERSION"
+	echo "** Updating Chipster installation to $LATEST_VERSION"
 	cd ${CHIP_PATH}/
 	
 	# Get install package (override, if exists)
@@ -207,24 +259,25 @@ if [ $CURRENT_MAIN_VERSION -lt $LATEST_MAIN_VERSION -o  $CURRENT_MAJOR_VERSION -
     mv webstart/web-root/lib ${BACKUPDIR_PATH}/
 
 	# Unpack libs
-    echo "Updating libs: shared/libs"
+    echo "** Updating Chipster libs: shared/libs"
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
-    echo "Updating libs: webstart/web-root/lib"
+    echo "** Updating Chipster libs: webstart/web-root/lib"
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
 
 	# Copy away tool scripts in case there were important local changes
     cp -r comp/modules ${BACKUPDIR_PATH}/
 
 	# Unpack tool scripts
-    echo "Updating tool scripts: comp/modules"
+    echo "** Updating Chipster tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
 	# Update manuals
-	echo "Updating manuals"
+	echo "** Updating Chipster manuals: webstart/web-root/manual"
 	mv webstart/web-root/manual ${BACKUPDIR_PATH}/
 	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/manual
 
 	# Update runtimes.xml
+	echo "** Updating Chipster runtimes: comp/conf/runtimes.xml"
     cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
 	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
