@@ -232,6 +232,7 @@
 			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />
 			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
+			<tarfileset dir="${admin-web}/WebContent/WEB-INF/lib" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
 			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
 			<tarfileset file="${ext-src}/wrapper/chipster" filemode="755" prefix="chipster" />
