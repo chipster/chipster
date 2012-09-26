@@ -108,10 +108,10 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 
 	echo "Updating samtools"
 	cd ${TMPDIR_PATH}/
-  	mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
-  	rm ${TOOLS_PATH}/samtools
+  mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
+  rm ${TOOLS_PATH}/samtools
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  	ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
+  ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
 	echo "Relocating fasta files"
 	mkdir ${TOOLS_PATH}/genomes/fasta
@@ -131,15 +131,15 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 	echo "Installing bowtie2"
-  	cd ${TMPDIR_PATH}/
-  	wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
-  	unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
-  	mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
-  	ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
-  	rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+  cd ${TMPDIR_PATH}/
+  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
+  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
+  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
+  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
 
 	echo "Installing bowtie2 indexes"
-  	cd ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
@@ -153,11 +153,11 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
 	
 	echo "Installing tophat2"
-  	cd ${TMPDIR_PATH}/
-  	curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  	ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
+  cd ${TMPDIR_PATH}/
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
-    echo "Installing DEXSeq"
+  echo "Installing DEXSeq"
 	cd ${TMPDIR_PATH}/
 	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
 	mkdir ${TOOLS_PATH}/dexseq-exoncounts
@@ -171,19 +171,18 @@ if [ $CURRENT_MAIN_VERSION -lt 2 -o  $CURRENT_MAJOR_VERSION -lt 2 -o $CURRENT_MI
 	mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
 	mv ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 	echo "Install new cufflinks" 
 	cd ${TMPDIR_PATH}/
 	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-    echo "Fix vcftools"
-    cd ${TMPDIR_PATH}/
-    rm -rf ${TOOLS_PATH}/vcftools*
+  echo "Fix vcftools"
+  cd ${TMPDIR_PATH}/
+  rm -rf ${TOOLS_PATH}/vcftools*
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
-    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
-
+  ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
                         
 fi
 
