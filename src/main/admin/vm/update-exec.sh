@@ -158,7 +158,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
-	echo "Relocating fasta files"
+	echo "** Relocating fasta files"
 	mkdir ${TOOLS_PATH}/genomes/fasta
 	rm -f ${TOOLS_PATH}/bowtie/indexes/nochr/*.fai
 	mv ${TOOLS_PATH}/bowtie/indexes/*.fa ${TOOLS_PATH}/genomes/fasta/
