@@ -236,12 +236,6 @@
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${admin-src}/vm/update.sh" filemode="755" prefix="chipster/admin/vm" />
-			<!-- (Upgrade and migrate not available for 2.0, fresh install is required)
-			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/migrate.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/migrate.bat" filemode="755" prefix="chipster" />
-			-->
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			
