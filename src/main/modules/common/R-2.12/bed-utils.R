@@ -17,8 +17,10 @@ pad.with.zeroes <- function(str.vector) {
 # We create alphabetic presentation of the values and use that for sorting.    
 #
 # Usage:
-#  bed <- read.table(file="sortme.bed", header=TRUE, sep="\t")
+#  bed <- read.table(file="sortme.bed", skip=1, sep="\t") # assume file has 1 line header
+#  colnames(bed)[1:2] <- c("chr", "start")  # these named columns are required for sorting 
 #  sorted.bed <- sort.bed(bed)
+#  write.table(sorted.bed, file="sorted.bed", sep="\t", row.names=F, col.names=F, quote=F)
 # 
 sort.bed <- function(bed) {
 
