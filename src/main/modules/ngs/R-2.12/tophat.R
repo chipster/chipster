@@ -59,7 +59,6 @@ if (is_gtf) {
 
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
-genome_available <- FALSE
 if (genome == "hg19" ||	genome == "mm9" || genome == "rn4" || genome == "mm10") genome_available <- TRUE
 if (!is_gtf && genome_available) {
 	
@@ -101,7 +100,31 @@ system(paste(samtools.binary, "sort tophat_out/accepted_hits.bam tophat"))
 # index bam
 system(paste(samtools.binary, "index tophat.bam"))
 
-system("mv tophat_out/junctions.bed junctions.bed")
-system("mv tophat_out/insertions.bed insertions.bed")
-system("mv tophat_out/deletions.bed deletions.bed")
+system("mv tophat_out/junctions.bed junctions.u.bed")
+system("mv tophat_out/insertions.bed insertions.u.bed")
+system("mv tophat_out/deletions.bed deletions.u.bed")
 
+# sorting BEDs
+source(file.path(chipster.common.path, "bed-utils.R"))
+input_files <- dir()
+
+#exists <- (length(grep("junctions.u.bed", input_files))>0)
+if (file.exists("junctions.u.bed")) {
+	bed <- read.table(file="junctions.u.bed", header=TRUE, sep="\t") 
+	sorted.bed <- sort.bed(bed) 
+	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
+#exists <- (length(grep("insertions.u.bed", input_files))>0)
+if (file.exists("insertions.u.bed")) {
+	bed <- read.table(file="insertions.u.bed", header=TRUE, sep="\t") 
+	sorted.bed <- sort.bed(bed) 
+	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
+exists <- (length(grep("deletions.u.bed", input_files))>0)
+if (exists) {
+	bed <- read.table(file="deletions.u.bed", header=TRUE, sep="\t") 
+	sorted.bed <- sort.bed(bed) 
+	write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
