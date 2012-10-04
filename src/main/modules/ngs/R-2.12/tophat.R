@@ -59,6 +59,7 @@ if (is_gtf) {
 
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
+genome_available <- FALSE
 if (genome == "hg19" ||	genome == "mm9" || genome == "rn4" || genome == "mm10") genome_available <- TRUE
 if (!is_gtf && genome_available) {
 	
