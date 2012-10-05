@@ -6,9 +6,6 @@
 # OUTPUT OPTIONAL junctions.bed
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
-# OUTPUT OPTIONAL junctions.u.bed
-# OUTPUT OPTIONAL insertions.u.bed
-# OUTPUT OPTIONAL deletions.u.bed
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT hg19 (Genome that you would like to align your reads against.)
 # PARAMETER OPTIONAL min.anchor.length: "Minimum anchor length" TYPE INTEGER FROM 3 TO 1000 DEFAULT 8 (TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved in spliced alignments is supported by at least one read with this many bases on each side.)
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
@@ -22,6 +19,7 @@
 # MG 24.4.2012 added ability to use GTF files from Chipster server
 # AMS 19.6.2012 added unzipping
 # EK 19.9.2012 added mm10 and new GTFs (Ensembl 68)
+# AMS 4.10.2012 added BED sorting
 
 
 # check out if the file is compressed and if so unzip it
@@ -109,18 +107,23 @@ system("mv tophat_out/deletions.bed deletions.u.bed")
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
 
-bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
-colnames(bed)[1:2] <- c("chr", "start")
-sorted.bed <- sort.bed(bed)
-write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+if (system("cat junctions.u.bed | wc -l") > 1){	
+	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
 
-bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
-colnames(bed)[1:2] <- c("chr", "start")
-sorted.bed <- sort.bed(bed)
-write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+if (system("cat insertions.u.bed | wc -l") > 1){
+	bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
 
-bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
-colnames(bed)[1:2] <- c("chr", "start")
-sorted.bed <- sort.bed(bed)
-write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
-
+if (system("cat deletions.u.bed | wc -l") > 1){
+	bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}

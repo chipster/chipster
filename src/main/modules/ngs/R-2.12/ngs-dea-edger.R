@@ -27,6 +27,7 @@
 # MG, 30.1.2012 updated to allow analysis without biological replicates 
 # MG, 22.2.2012, prettified plots, added p-value distribution plot
 # EK, 6.5.2012, clarified texts
+# AMS, 5.10.2012, added sorting to BED
 ############################################################
 
 # Loads the libraries
@@ -197,6 +198,7 @@ if (dim(significant_results)[1] > 0) {
 	bed_output <- output_table [,c("chr","start","end")]
 	bed_output <- cbind(bed_output,empty_column)
 	bed_output <- cbind(bed_output, output_table[,"logFC"])
+	bed_output <- sort.bed(bed_output)
 	write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 

@@ -107,6 +107,7 @@ if(analtype==1 & repltype==1) {
 		export(wig, "output.bed", format="bed")
 		wig<-read.table("output.bed", header=F, sep="\t")
 		wig<-wig[wig[,5]>0,]
+		wig <- sort.bed(wig)
 		write.table(wig, "output.bed", col.names=F, row.names=F, sep="\t", quote=F)
 	}
 	

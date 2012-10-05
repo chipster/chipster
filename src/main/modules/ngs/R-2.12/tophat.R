@@ -4,9 +4,9 @@
 # INPUT OPTIONAL genes.gtf: "Optional GTF file" TYPE GENERIC
 # OUTPUT tophat.bam
 # OUTPUT tophat.bam.bai
-# OUTPUT junctions.bed
-# OUTPUT insertions.bed
-# OUTPUT deletions.bed
+# OUTPUT OPTIONAL junctions.bed
+# OUTPUT OPTIONAL insertions.bed
+# OUTPUT OPTIONAL deletions.bed
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT hg19 (Genome that you would like to align your reads against.)
 # PARAMETER mate.inner.distance: "Expected inner distance between mate pairs" TYPE INTEGER DEFAULT 200 (Expected mean inner distance between mate pairs. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.)
 # PARAMETER OPTIONAL mate.std.dev: "Standard deviation for the inner distances between mate pairs" TYPE INTEGER DEFAULT 20 (The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.)
@@ -23,6 +23,7 @@
 # AMS 19.6.2012 Added unzipping
 # AMS 27.6.2012 Added parameter mate.std.dev, allow negative values for mate.inner.distance
 # EK 19.9.2012 added mm10 and new GTFs (Ensembl 68)
+# AMS 4.10.2012 added BED sorting
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -107,25 +108,24 @@ system("mv tophat_out/deletions.bed deletions.u.bed")
 
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
-input_files <- dir()
 
-#exists <- (length(grep("junctions.u.bed", input_files))>0)
-if (file.exists("junctions.u.bed")) {
-	bed <- read.table(file="junctions.u.bed", header=TRUE, sep="\t") 
-	sorted.bed <- sort.bed(bed) 
+if (system("cat junctions.u.bed | wc -l") > 1){	
+	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
-#exists <- (length(grep("insertions.u.bed", input_files))>0)
-if (file.exists("insertions.u.bed")) {
-	bed <- read.table(file="insertions.u.bed", header=TRUE, sep="\t") 
-	sorted.bed <- sort.bed(bed) 
+if (system("cat insertions.u.bed | wc -l") > 1){
+	bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
-exists <- (length(grep("deletions.u.bed", input_files))>0)
-if (exists) {
-	bed <- read.table(file="deletions.u.bed", header=TRUE, sep="\t") 
-	sorted.bed <- sort.bed(bed) 
+if (system("cat deletions.u.bed | wc -l") > 1){
+	bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
