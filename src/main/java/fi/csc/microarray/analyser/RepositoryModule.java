@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
 import fi.csc.microarray.util.XmlUtil;
@@ -169,7 +170,7 @@ public class RepositoryModule {
 	    HashMap<String, String> params = new HashMap<String, String>();
 		ToolDescription newDescription;
 		try {
-			newDescription = oldDescription.getHandler().handle(moduleDir, oldDescription.getToolFile().getName(), params);
+			newDescription = oldDescription.getHandler().handle(oldDescription.getModuleDir(), oldDescription.getToolFile().getName(), params);
 			
 		} catch (AnalysisException e) {
 			// update failed, continue using the old one
@@ -317,6 +318,15 @@ public class RepositoryModule {
 		    		continue;
 		    	}
 
+		    	// Tool module
+		    	File toolModuleDir;
+		    	String nonDefaultModuleName = toolElement.getAttribute("module");
+		    	if (nonDefaultModuleName != null && !nonDefaultModuleName.equals("")) {
+		    		toolModuleDir = new File(DirectoryLayout.getInstance().getModulesDir(), nonDefaultModuleName);
+		    	} else {
+		    		toolModuleDir = moduleDir;
+		    	}
+		    	
 		    	// Tool parameters
 		    	boolean parametersOk = true;
 		    	HashMap<String, String> parameters = new HashMap<String, String>();
@@ -346,7 +356,7 @@ public class RepositoryModule {
 		    	// Create the analysis description
 		    	ToolDescription description;
 		    	try {
-		            description = runtime.getHandler().handle(moduleDir, resource, parameters);
+		            description = runtime.getHandler().handle(toolModuleDir, resource, parameters);
 		    	    
 		    	} catch (AnalysisException e) {
 		    		logger.warn("loading " + resource + " failed, could not create description", e);
@@ -412,5 +422,4 @@ public class RepositoryModule {
 			}
 		}
 	}
-
 }

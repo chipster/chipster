@@ -77,6 +77,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             description.setSADL(sadlString);
             description.setSourceCode(sadlString);
             description.setToolFile(toolFile);
+            description.setModuleDir(moduleDir);
             
             // Command to be executed is stored in configuration file
             description.setCommand(params.get("executable"));
