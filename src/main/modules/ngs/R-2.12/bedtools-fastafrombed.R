@@ -6,6 +6,8 @@
 # PARAMETER OPTIONAL tab: "Write output in TAB delimited format" TYPE [yes, no] DEFAULT no (Write output in TAB delimited format. Default is FASTA format.)
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness. If the feature occupies the antisense strand, the sequence will be reverse complemented. By default, strand information is ignored.) 
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "fastaFromBed"))
 

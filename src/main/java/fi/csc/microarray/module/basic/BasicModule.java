@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -37,7 +36,6 @@ import fi.csc.microarray.databeans.features.table.RowCountProvider;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.util.GeneralFileFilter;
 
 public class BasicModule implements Module {
 
@@ -139,20 +137,13 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
 		return null;
 	}
 
 	@Override
 	public String[][] getRepositoryWorkflows() {
 		return new String[0][0];
-	}
-
-	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-				new GeneralFileFilter("Tab or comma separated tables", new String[] {"csv", "tsv"}),
-		};
 	}
 
 	@Override
@@ -175,11 +166,6 @@ public class BasicModule implements Module {
 			return "file";
 		}
 		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
-	}
-
-	@Override
-	public boolean countOperationResults() {
-		return true;
 	}
 
 	@Override
@@ -208,12 +194,12 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public List<Boolean> flagLinkableColumns(String[] columnNames) {
-		return Collections.nCopies(columnNames.length, false);
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
+		return Collections.nCopies(columns.getColumnCount(), false);
 	}
 
 	@Override
-	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
 	}
 }

@@ -38,6 +38,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_AS_ID = "as-id";
 	public static final String PARAMETER_JOB_ID = "job-id";
 	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
+	public static final String PARAMETER_DISK_SPACE = "disk-space";
 
 	
 	private List<String> parameters = new LinkedList<String>();

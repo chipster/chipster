@@ -71,16 +71,11 @@ public class VisualisationMethod {
 		return visualiser;
 	}
 
-	public Visualisation getVisualiser(VisualisationFrame frame) {
-		try {
+	public Visualisation getVisualiser(VisualisationFrame frame) throws Exception {
+		
 			Visualisation visualisation = visualiser.getConstructor().newInstance();
 			visualisation.initialise(frame);
 			return visualisation;
-		} catch (Exception e) {
-			e.printStackTrace();
-			application.reportException(e);
-			return null;
-		}
 	}
 
 	/**

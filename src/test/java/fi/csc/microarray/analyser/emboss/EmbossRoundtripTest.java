@@ -72,8 +72,8 @@ public class EmbossRoundtripTest {
         // User uploads two files for input
         InputStream firstInput = new FileInputStream(path + "sequences/human_adh6.fasta");
         InputStream secondInput = new FileInputStream(path + "sequences/funghi_adh6.fasta");
-        URL firstUrl = resultCallback.getFileBrokerClient().addFile(firstInput, null);
-        URL secondUrl = resultCallback.getFileBrokerClient().addFile(secondInput, null);
+        URL firstUrl = resultCallback.getFileBrokerClient().addFile(firstInput, -1, null);
+        URL secondUrl = resultCallback.getFileBrokerClient().addFile(secondInput, -1, null);
         jobMessage.addPayload("asequence", firstUrl);
         jobMessage.addPayload("bsequence", secondUrl);
         

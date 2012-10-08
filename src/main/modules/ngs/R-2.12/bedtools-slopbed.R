@@ -9,6 +9,8 @@
 # PARAMETER OPTIONAL lf: "The fraction to subtract from the start coordinate" TYPE DECIMAL DEFAULT 0 ()
 # PARAMETER OPTIONAL rf: "The fraction to add to the end coordinate" TYPE DECIMAL DEFAULT 0 ()
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "slopBed"))
 

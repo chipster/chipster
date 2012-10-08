@@ -216,6 +216,11 @@ public class BaseStorage {
 				if (!readPart.intersects(view.getBpRegion())) {
 					continue;
 				}
+				
+				// Skip invisible types
+				if (!readPart.isVisible()) {
+					continue;
+				}
 
 				Base base = null;
 

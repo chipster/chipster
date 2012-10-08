@@ -110,7 +110,7 @@ public class Spreadsheet extends Visualisation {
 		}
 		
 		// Check which columns need hyperlinking
-		List<Boolean> linkableFlags = primaryModule.flagLinkableColumns(columns.getColumnNames());
+		List<Boolean> linkableFlags = primaryModule.flagLinkableColumns(columns, data);
 
 		// Count data rows
 		Table rowCounter = data.queryFeatures("/column/*").asTable();
@@ -133,7 +133,7 @@ public class Spreadsheet extends Visualisation {
 				IntegratedEntity linkedEntity = null;
 				if (linkableFlags.get(column)) {
 					// This cell value is linkable
-					linkedEntity = primaryModule.createLinkableEntity(columns, column);
+					linkedEntity = primaryModule.createLinkableEntity(columns, data);
 				}
 				
 				if (value instanceof Float) {
@@ -150,7 +150,7 @@ public class Spreadsheet extends Visualisation {
 			}
 			row++;
 		}
-
+  
 		// Create the table component
 		table = new ExtendedJXTable(data);
 		DefaultTableModel tableModel = new DefaultTableModel(rowData, columnTitles) {			

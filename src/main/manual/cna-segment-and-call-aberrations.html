@@ -9,7 +9,7 @@
 	<h2>CNA-seq / Segment and call copy number aberrations</h2>
 	
 	<h3>Description</h3>
-	<p>CNA-seq binned read counts and segmented and called to identify copy number aberrations.</p>
+	<p>CNA-seq binned read counts are segmented and called to identify copy number aberrations.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
@@ -23,8 +23,8 @@
 	</ul>
 	
 	<h3>Details</h3>
-	<p>The input should be original (not GC corrected, normalized, or filtered for mappability) read counts. They are processed with the FREEC algorithm, which includes GC correction, mappability filtering, segmentation, and calling copy number aberrations. Parameters are explained in the <a href"http://bioinfo-out.curie.fr/projects/freec/tutorial.html">tutorial</a> for the algorithm.</p>
-	<p>After running, copy number profiles can be plotted both with the NGS / CNA-seq / Plot copy number profiles, or the Microarrays / aCGH / Plot copy number profiles tools. For more downstream analyses, tools in the Microarrays / aCGH category are recommended starting from the Identify common regions from called copy number data. Alternative, calling can also be done with the aCGH / Call copy number aberrations tool.</p>
+	<p>The input should be original read counts (not GC corrected, normalized, or filtered for mappability). They are processed with the FREEC algorithm, which includes GC correction, mappability filtering, segmentation, and calling copy number aberrations. Parameters are explained in the <a href="http://bioinfo-out.curie.fr/projects/freec/tutorial.html">tutorial</a> for the algorithm.</p>
+	<p>After running, copy number profiles can be plotted both with the tools "NGS / CNA-seq / Plot copy number profiles" or "Microarrays / aCGH / Plot copy number profiles". For more downstream analyses, tools in the category "Microarrays / aCGH" are recommended starting from the "Identify common regions from called copy number data". Alternative, calling can also be done with the tool "aCGH / Call copy number aberrations".</p>
 	
 	<h3>Output</h3>
 	<p>Log ratios, segmented log ratios, copy number calls (-1 = loss, 0 = normal, 1 = gain), and the estimated copy numbers.</p>

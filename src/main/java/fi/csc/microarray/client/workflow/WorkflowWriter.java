@@ -140,8 +140,7 @@ public class WorkflowWriter {
 			}
 		}
 
-		int resultCount = toolDefinition.getOutputCount();
-		script.append("opBlocker = new WfResultBlocker(" + resultCount + ");\n");
+		script.append("opBlocker = new WfResultBlocker();\n");
 		script.append("op.setResultListener(opBlocker);\n");
 		script.append("app.executeOperation(op);\n");
 		script.append("opBlocker.blockUntilDone();\n");

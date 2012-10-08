@@ -12,10 +12,6 @@ public class WfResultBlocker extends ResultBlocker {
 		super();
 	}
 
-	public WfResultBlocker(int enforcedResultCount) {
-		super(enforcedResultCount);
-	}
-
 	public List<WfDataBean> getWorkflowResults() {
 		List<DataBean> results = getResults();
 		LinkedList<WfDataBean> wfResults = new LinkedList<WfDataBean>();

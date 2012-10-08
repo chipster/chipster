@@ -44,7 +44,7 @@ public class CoverageTrack extends Track {
 
 	public CoverageTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
 	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+		super(view, file);
 		this.forwardColor = forwardColor;
 		this.backwardColor = backwardColor;
 		this.minBpLength = minBpLength;
@@ -69,6 +69,11 @@ public class CoverageTrack extends Track {
 
 			// Skip elements that are not in this view
 			if (!element.intersects(getView().getBpRegion())) {
+				continue;
+			}
+			
+			// Skip invisible types
+			if (!element.isVisible()) {
 				continue;
 			}
 

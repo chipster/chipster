@@ -10,6 +10,8 @@
 # PARAMETER OPTIONAL slop: "The amount of slop in bp to be added to each footprint" TYPE INTEGER DEFAULT 0 (The amount of slop in bp to be added to each footprint.)
 # PARAMETER OPTIONAL ss: "Add slop based to each BEDPE footprint based on strand" TYPE [yes, no] DEFAULT no (Add slop based to each BEDPE footprint based on strand. If strand is +, slop is only added to the end coordinates. If strand is -, slop is only added to the start coordinates. By default, slop is added in both directions.) 
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToPair"))
 

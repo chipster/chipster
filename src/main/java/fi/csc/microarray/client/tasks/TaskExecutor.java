@@ -33,6 +33,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -385,7 +386,7 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
-		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
@@ -479,13 +480,13 @@ public class TaskExecutor {
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
 
 							// bean not modified, check cache, upload if needed
 							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener));
 							}
 
 						} finally {
@@ -505,6 +506,12 @@ public class TaskExecutor {
 					logger.debug("sending job message, jobId: " + jobMessage.getJobId());
 
 					requestTopic.sendReplyableMessage(jobMessage, replyListener);
+					
+				} catch (NotEnoughDiskSpaceException nedse) {
+					logger.warn("received not enough disk space when uploading input", nedse);
+					updateTaskState(task, State.FAILED_USER_ERROR, "Not enough disk space", -1);
+					task.setErrorMessage("There was not enough disk space in Chipster server to run the task. Please try again later.");
+					removeFromRunningTasks(task);
 					
 				} catch (Exception e) {
 					// could not send job message --> task fails
@@ -710,7 +717,7 @@ public class TaskExecutor {
 			DataBean bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
-				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null)); // no progress listening on resends 
 				bean.setContentChanged(false);
 			} finally {
 				bean.getLock().readLock().unlock();

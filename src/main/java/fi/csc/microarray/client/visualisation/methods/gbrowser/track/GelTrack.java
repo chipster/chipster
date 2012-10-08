@@ -12,9 +12,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -48,9 +47,9 @@ public class GelTrack extends Track {
     private Color BACKGROUND = Color.WHITE;
 	private ReadpartDataProvider readpartProvider;
 
-    public GelTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
-            Color color, long minBpLength, long maxBpLength) {
-        super(view, file, handler);
+    public GelTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, 
+    		Color color, long minBpLength, long maxBpLength) {
+        super(view, file);
         this.color = color;
         this.minBpLength = minBpLength;
         this.maxBpLength = maxBpLength;
@@ -78,6 +77,11 @@ public class GelTrack extends Track {
         	if (!element.intersects(getView().getBpRegion())) {
         		continue;
         	}
+        	
+			// Skip invisible types
+			if (!element.isVisible()) {
+				continue;
+			}
 
         	// collect relevant data for this read
         	BpCoord startBp = element.start;
@@ -171,7 +175,8 @@ public class GelTrack extends Track {
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
         		ColumnType.ID, 
                 ColumnType.SEQUENCE,
-                ColumnType.STRAND })));
+                ColumnType.STRAND,
+                ColumnType.CIGAR})));
         return datas;
     }
 

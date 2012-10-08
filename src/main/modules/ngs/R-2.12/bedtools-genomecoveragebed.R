@@ -9,6 +9,8 @@
 # PARAMETER OPTIONAL max: "Combine positions by depth" TYPE [yes, no] DEFAULT no (Combine all positions with a depth >= max depth into a single bin in the histogram. Option is relevant only for histogram output.)
 # PARAMETER OPTIONAL maxdepth: "Max depth" TYPE INTEGER DEFAULT 1 ()
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "genomeCoverageBed"))
 

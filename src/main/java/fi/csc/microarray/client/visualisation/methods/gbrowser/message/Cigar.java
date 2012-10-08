@@ -2,71 +2,80 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.samtools.CigarElement;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 
 /**
  * Represents the CIGAR string, as supported by the SAM standard. CIGAR string is used to
  * store the information on what parts of the read matched the genome. 
  * 
- * @author Aleksi Kallio
+ * @author Aleksi Kallio, Petri Klemelä
  *
  */
 public class Cigar {
-	private List<CigarItem> elements = new ArrayList<CigarItem>();
+	private List<CigarItem> cigarItems = new ArrayList<CigarItem>();
 	private LinkedList<ReadPart> visibleElements = null;
+	private LinkedList<ReadPart> processedElements = null;
 	private RegionContent read;
 	private net.sf.samtools.Cigar samCigar;
-	
+
+	public Cigar(RegionContent read, List<CigarItem> cigarItems) {
+		this.read = read;
+		this.cigarItems = cigarItems;
+	}
+
 	public Cigar(RegionContent read, net.sf.samtools.Cigar samCigar) {
 		this.read = read;
 		this.samCigar = samCigar;
-		
-    	for (CigarElement picardElement : samCigar.getCigarElements()) {
-    		elements.add(new CigarItem(picardElement));
-    	}
+
+		for (CigarElement picardElement : samCigar.getCigarElements()) {
+			cigarItems.add(new CigarItem(picardElement));
+		}
 	}
-	
+
 	public void addElement(CigarItem e) {
 	}
-	
+
 	@Deprecated
 	public long getReferenceIndex(long seqIndex) {
-		
+
 		long seqCounter = 0;
 		long refCounter = 0;
-		
-		for (CigarItem element : elements) {
-									
+
+		for (CigarItem element : cigarItems) {
+
 			if (element.getType().equals("M")) {
-				
+
 				seqCounter += element.getLength();
 				refCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("S")) {
-				
+
 				seqCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("D") || 
 					element.getType().equals("N") || 
 					element.getType().equals("H")) {
-				
+
 				refCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("I")) {
-				
+
 				seqCounter += element.getLength();
-				
+
 			} else if (element.getType().equals("P")) {
-				
+
 				//Do nothing, padded element exist only in some other read, not in this sequence nor in reference
 			}
-			
+
 			if (seqCounter > seqIndex) {
-				
+
 				if (element.getType().equals("I")) {
 					//There isn't reference sequence for insertion
 					return -1; 
@@ -74,15 +83,15 @@ public class Cigar {
 					//TODO how to draw this?
 					return -1; 
 				}
-				
+
 				return seqIndex + refCounter - seqCounter;
 			}
 		}
-		
+
 		//Request out of this read
 		return -1;
 	}
-	
+
 	/* 
 	 * RegionContents are compared currently with the toString method, here we return anything
 	 * constant so that comparison doesn't care about this object.
@@ -100,51 +109,141 @@ public class Cigar {
 	 * 
 	 * @return list of ReadPart objects, one for each of the Cigar elements
 	 */
-	public static List<ReadPart> splitVisibleElements(RegionContent read) {
+	public static List<ReadPart> splitElements(RegionContent read) {
 		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
 
 		if (cigar == null) {
 			return Arrays.asList(new ReadPart[] { new ReadPart(read) });
 
 		} else {
-			return cigar.getVisibleElements();
+
+			return cigar.getElements();
+		}
+	}
+
+	/**
+	 * Method for splitting a read according to defined CigarItemTypes. Sequence, cigar and region
+	 * are splitted and only relevant parts are stored into result reads. Collection of all other
+	 * values is cloned for each result read. Results don't include the splitters and corresponding 
+	 * parts of the sequence and region. Returns the original read if there is no cigar. 
+	 * 
+	 * @param read
+	 * @param splitters
+	 * @return
+	 */
+	public static List<RegionContent> splitRead(RegionContent read, Collection<CigarItemType> splitters) {
+		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
+
+		if (cigar == null) {
+			return Arrays.asList(new RegionContent[] { read });
+
+		} else {
+
+			return cigar.splitReadWithCigar(read, splitters);
+		}
+	}
+
+	private List<RegionContent> splitReadWithCigar(RegionContent read, Collection<CigarItemType> splitters) {
+
+		List<RegionContent> splittedReads = new LinkedList<RegionContent>();
+
+		long refCoord = read.region.start.bp;
+		long seqCoord = 0;
+		String seq = (String) read.values.get(ColumnType.SEQUENCE);
+
+		String combinedSeq = "";
+		List<CigarItem> combinedCigar = new LinkedList<CigarItem>();
+		Region region = new Region(-1l, -1l, read.region.start.chr);
+
+
+		for (CigarItem cigarItem : cigarItems) {
+			String subSeq = "";
+			if (cigarItem.consumesReadBases()) {
+				subSeq = seq.substring((int)seqCoord, (int)(seqCoord + cigarItem.getLength()));
+			}
+
+			if (!splitters.contains(cigarItem.getCigarItemType())) {
+				combinedSeq += subSeq;
+				combinedCigar.add(cigarItem);
+				if (region.start.bp == -1) {
+					region.start.bp = refCoord;
+				}
+				region.end.bp = refCoord + cigarItem.getLength();
+			} else {
+				LinkedHashMap<ColumnType, Object> values = (LinkedHashMap<ColumnType, Object>) read.values.clone();
+				RegionContent splittedRead = new RegionContent(region, values);
+				values.put(ColumnType.CIGAR, new Cigar(splittedRead, combinedCigar));
+				values.put(ColumnType.SEQUENCE, combinedSeq);
+				splittedReads.add(splittedRead);
+
+				combinedCigar = new LinkedList<CigarItem>();
+				combinedSeq = "";
+				region = new Region(-1l, -1l, read.region.start.chr);
+			}
+
+			if (cigarItem.consumesReferenceBases()) {
+				refCoord += cigarItem.getLength();
+			}
+
+			if (cigarItem.consumesReadBases()) {
+				seqCoord += cigarItem.getLength();
+			}
 		}
 
+		LinkedHashMap<ColumnType, Object> values = (LinkedHashMap<ColumnType, Object>) read.values.clone();
+		RegionContent splittedRead = new RegionContent(region, values);
+		values.put(ColumnType.CIGAR, new Cigar(splittedRead, combinedCigar));
+		values.put(ColumnType.SEQUENCE, combinedSeq);
+		splittedReads.add(splittedRead);
+
+		return splittedReads;
 	}
-	
-	private List<ReadPart> getVisibleElements() {
-		
+
+	private List<ReadPart> getElements() {
+
 		// Regions are parsed lazily
-		if (visibleElements == null) {
-			visibleElements = new LinkedList<ReadPart>();
+		if (processedElements == null) {
+			processedElements = new LinkedList<ReadPart>();
 
 			// Split read into regions using cigar
 			long refCoord = read.region.start.bp;
 			long seqCoord = 0;
 			String seq = (String) read.values.get(ColumnType.SEQUENCE);
 
-			for (CigarItem element : elements) {
+			for (CigarItem cigarItem : cigarItems) {
+				String subSeq = null;
+				if (cigarItem.consumesReadBases()) {
+					subSeq = seq.substring((int)seqCoord, (int)(seqCoord + cigarItem.getLength()));
+				}
+				ReadPart region = new ReadPart(refCoord, refCoord + cigarItem.getLength(), read.region.start.chr, read, subSeq);
+				region.setCigarItem(cigarItem);
+				processedElements.add(region);
 
-				if (element.isVisible()) {
-					String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + element.getLength()));
-					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, read, subSeq);
-					visibleElements.add(region);
+				if (cigarItem.consumesReferenceBases()) {
+					refCoord += cigarItem.getLength();
 				}
 
-				if (element.consumesReferenceBases()) {
-					refCoord += element.getLength();
-				}
-
-				if (element.consumesReadBases()) {
-					seqCoord += element.getLength();
+				if (cigarItem.consumesReadBases()) {
+					seqCoord += cigarItem.getLength();
 				}
 
 			}
 		}
-		return visibleElements;
+		return processedElements;
 	}
-	
+
 	public String toInfoString() {
-		return "Cigar: " + samCigar.toString();
+		String str = "";
+
+		if (samCigar != null) {
+			str = samCigar.toString();
+		} else {
+
+			for (CigarItem item : cigarItems) {
+				str += item.getLength() + item.getType();
+			}
+		}
+
+		return "Cigar: " + str;
 	}
 }

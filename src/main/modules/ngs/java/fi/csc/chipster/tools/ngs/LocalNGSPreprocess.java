@@ -24,12 +24,8 @@ public class LocalNGSPreprocess implements Runnable {
 	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
 		public String normaliseChromosome(String chromosomeName) {
-			
-			// Add prefix, if it is missing
-			String CHROMOSOME_NAME_PREFIX = "chr";
-			if (!chromosomeName.startsWith(CHROMOSOME_NAME_PREFIX)) {
-				chromosomeName = CHROMOSOME_NAME_PREFIX + chromosomeName;
-			}
+
+			// Leave prefix as it is
 			
 			// Remove postfix, if present
 			String SEPARATOR = ".";
@@ -166,6 +162,7 @@ public class LocalNGSPreprocess implements Runnable {
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
+		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 		
 		// Create outputs in the client
