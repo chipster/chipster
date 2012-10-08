@@ -107,21 +107,25 @@ system("mv tophat_out/deletions.bed deletions.u.bed")
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
 
-if (system("cat junctions.u.bed | wc -l") > 1){	
+size <- file.info("junctions.u.bed")$size
+if (size > 100){	
+#if (file.info("juctions.u.bed")$size > 100) {
 	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
 	colnames(bed)[1:2] <- c("chr", "start")
 	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
-if (system("cat insertions.u.bed | wc -l") > 1){
+size <- file.info("insertions.u.bed")$size
+if (size > 100){
 	bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
 	colnames(bed)[1:2] <- c("chr", "start")
 	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
-if (system("cat deletions.u.bed | wc -l") > 1){
+size <- file.info("deletions.u.bed")$size
+if (size > 100){
 	bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
 	colnames(bed)[1:2] <- c("chr", "start")
 	sorted.bed <- sort.bed(bed)

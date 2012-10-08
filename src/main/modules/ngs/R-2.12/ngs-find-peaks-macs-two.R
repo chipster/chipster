@@ -388,7 +388,7 @@ system("mv results.log analysis-log.txt")
 source(file.path(chipster.common.path, "bed-utils.R"))
 #if (system("cat results_peaks.bed | wc -l") > 1){	
 if (file.exists("results_peaks.bed")){
-	bed <- read.table(file="results_peaks.bed", skip=1, sep="\t")
+	bed <- read.table(file="results_peaks.bed", skip=0, sep="\t")
 	colnames(bed)[1:2] <- c("chr", "start")
 	sorted.bed <- sort.bed(bed)
 	write.table(sorted.bed, file="positive-peaks.bed", sep="\t", row.names=F, col.names=F, quote=F)
