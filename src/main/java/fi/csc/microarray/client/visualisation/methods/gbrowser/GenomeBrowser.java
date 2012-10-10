@@ -70,6 +70,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -901,19 +902,21 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				switch (track.interpretation.type) {
 				case CYTOBANDS:
 
-					URL cytobandUrl = annotationManager.getAnnotation(
-							genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl();
+					URL cytobandUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.CYTOBANDS);
 
 					try {
-						CytobandDataSource cytobandDataSource;
-						cytobandDataSource = new CytobandDataSource(cytobandUrl);
+						
+						if (cytobandUrl != null) {
+							CytobandDataSource cytobandDataSource;
+							cytobandDataSource = new CytobandDataSource(cytobandUrl);
 
-						TrackFactory.addCytobandTracks(plot, cytobandDataSource);
+							TrackFactory.addCytobandTracks(plot, cytobandDataSource);
 
-						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
-								cytobandDataSource, plot.getOverviewView());
-						this.plot.getDataView().setViewLimiter(viewLimiter);
-						this.plot.getOverviewView().setViewLimiter(viewLimiter);
+							this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
+									cytobandDataSource, plot.getOverviewView());
+							this.plot.getDataView().setViewLimiter(viewLimiter);
+							this.plot.getOverviewView().setViewLimiter(viewLimiter);
+						}
 
 					} catch (FileNotFoundException e) {
 						application.reportException(e);
@@ -927,28 +930,28 @@ RegionListener, ComponentListener, PropertyChangeListener {
 					// Start 3D effect
 					plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
 
-					URL gtfUrl = annotationManager.getAnnotation(
-							genome, AnnotationManager.AnnotationType.GTF_TABIX).getUrl();
+					URL gtfUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
 
-					URL gtfIndexUrl = annotationManager.getAnnotation(
-							genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX).getUrl();
+					URL gtfIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
 
-					URL repeatUrl = annotationManager.getAnnotation(
-							genome, AnnotationManager.AnnotationType.REPEAT).getUrl();
+					URL repeatUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
 
-					URL repeatIndexUrl = annotationManager.getAnnotation(
-							genome, AnnotationManager.AnnotationType.REPEAT_INDEX).getUrl();
+					URL repeatIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
 
-					TabixDataSource gtfDataSource;
+					TabixDataSource gtfDataSource = null;
+					TabixDataSource repeatDataSource = null;
 
 					try {
-						gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, 
-								GtfTabixHandlerThread.class);
+						if (gtfUrl != null && gtfIndexUrl != null) {
+							gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, GtfTabixHandlerThread.class);
+						}
 
-						TabixDataSource repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
+						if (repeatUrl != null && repeatIndexUrl != null) {
+							repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
+						}
 
+						//Show ruler track even if there are now data sources
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
-
 						track.setTrackGroup(geneGroup);
 
 					} catch (URISyntaxException e) {
@@ -981,13 +984,14 @@ RegionListener, ComponentListener, PropertyChangeListener {
 					DataSource treatmentData;
 					if (track.interpretation.type == TrackType.READS) {
 
-						URL fastaUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.REFERENCE).getUrl();
+						URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
+						URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
 
-						URL fastaIndexUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.REFERENCE_INDEX).getUrl();
-
-						IndexedFastaDataSource refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
+						IndexedFastaDataSource refSeqDataSource = null;
+						
+						if (fastaUrl != null && fastaIndexUrl != null) {
+							refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
+						}
 
 						if (track.interpretation.summaryDatas.size() == 0) {
 							// No precomputed summary data
@@ -1100,6 +1104,16 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 		// Set track visibility
 		updateVisibilityForTracks();
+	}
+	
+	private URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
+		GenomeAnnotation annotation = annotationManager.getAnnotation(
+				genome, type);
+		if (annotation != null) {
+			return annotation.getUrl();					
+		} else {
+			return null;
+		}
 	}
 
 	private void showVisualisation() {
