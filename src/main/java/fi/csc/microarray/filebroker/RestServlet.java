@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.log.Log;
@@ -180,9 +181,10 @@ public class RestServlet extends DefaultServlet {
 					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 
 					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
-						Log.info("after put, user data dir soft limit " + usableSpaceSoftLimit + " reached, cleaning up");
+						Log.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
+								" (" + (100-cleanUpTriggerLimitPercentage) + "%) reached, cleaning up");
 						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						Log.info("after clean up, usable space is: " + new File(getServletContext().getRealPath(userDataPath)).getUsableSpace());
+						Log.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(userDataPath)).getUsableSpace()));
 					} 
 
 				} catch (Exception e) {
