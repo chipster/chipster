@@ -40,7 +40,7 @@ public class HorizontalView extends View implements KeyListener {
 	}
 
 	@Override
-	protected void drawView(Graphics2D g, boolean isAnimation) {
+	protected void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
 
 		// Clear previous tooltip mappings
 		drawableMap.clear();
@@ -49,7 +49,7 @@ public class HorizontalView extends View implements KeyListener {
 		this.clip = g.getClip();
 		
 		// Do the actual drawing
-		super.drawView(g, isAnimation);
+		super.drawView(g, isAnimation, viewPort);
 
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {

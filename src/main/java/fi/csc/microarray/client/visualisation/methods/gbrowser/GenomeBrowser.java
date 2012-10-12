@@ -841,6 +841,10 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	private void setTrackSwitchesEnabled(boolean enabled) {
 		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 			trackSwitch.setEnabled(enabled);
+			
+			if (enabled && "RepeatMaskerTrack".equals(trackSwitches.get(trackSwitch))) {
+				trackSwitch.setEnabled(getAnnotationUrl(getGenome(), AnnotationType.REPEAT) != null);
+			}
 		}
 	}
 
@@ -1163,6 +1167,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 		}
 
 		verticalScroller = new JScrollPane(chartPanel);
+		verticalScroller.getVerticalScrollBar().setUnitIncrement(30);
 
 		setFullHeight(showFullHeightBox.isSelected());
 

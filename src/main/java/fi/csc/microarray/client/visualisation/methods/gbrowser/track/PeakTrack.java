@@ -78,7 +78,7 @@ public class PeakTrack extends Track {
 			rect.width = MIN_VISIBLE_PEAK_SIZE;
 		}
 
-		rect.y = (int) (getView().getTrackHeight() / 2);
+		rect.y = (int) (getView().getStretchableTrackHeight() / 2);
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, c.darker()));
