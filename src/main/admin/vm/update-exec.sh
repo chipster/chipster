@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.0
+LATEST_VERSION=2.2.1
 
 # Exit immediately if some command fails
 set -e
@@ -229,6 +229,12 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
                         
+fi
+
+# 2.2.1
+compare_to_current "2.2.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "** Tools image is uptodate"                      
 fi
 
 
