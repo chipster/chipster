@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +53,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private MessagingEndpoint endpoint;	
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
-
+	private DerbyMetadataServer metadataServer;
+	
 	private File cacheRoot;
 	private File storageRoot;
 	private String publicPath;
@@ -285,7 +287,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		CommandMessage reply;
 		
 		try {
-			List<String> names = listSessionsInDatabase(username);
+			List<String> names = metadataServer.listSessionsInDatabase(username);
 			reply = new CommandMessage();
 			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(names, "\t"));
 			
@@ -305,7 +307,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 		ChipsterMessage reply; 
 		try {
-			addSessionToDatabase(username, name, url);
+			metadataServer.addSessionToDatabase(username, name, url);
 			reply = new UrlMessage(url);
 			
 		} catch (Exception e) {
@@ -315,15 +317,15 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException, SQLException {
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);
-		removeSessionFromDatabase(requestMessage.getUsername(), name);
+		metadataServer.removeSessionFromDatabase(requestMessage.getUsername(), name);
 		CommandMessage reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private List<String> listSessionsInDatabase(String username) throws IOException {
-		File database = openDatabase();
+	private List<String> _listSessionsInDatabase(String username) throws IOException {
+		File database = _openDatabase();
 		
 		LinkedList<String> names = new LinkedList<String>();
 		BufferedReader in = null;
@@ -349,8 +351,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 
-	private void addSessionToDatabase(String username, String name, URL url) throws IOException {
-		File database = openDatabase();
+	private void _addSessionToDatabase(String username, String name, URL url) throws IOException {
+		File database = _openDatabase();
 		
 		BufferedReader in = null;
 		BufferedWriter out = null;
@@ -380,7 +382,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 	}
 
-	private File openDatabase() throws IOException {
+	private File _openDatabase() throws IOException {
 		File database = new File(storageRoot, "database.txt");
 		if (!database.exists()) {
 			database.createNewFile();
@@ -388,7 +390,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		return database;
 	}
 
-	private void removeSessionFromDatabase(String username, String name) {
+	private void _removeSessionFromDatabase(String username, String name) {
 		throw new UnsupportedOperationException();
 	}
 
