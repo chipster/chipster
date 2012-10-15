@@ -128,4 +128,9 @@ public class RulerTrack extends Track {
 	public boolean isConcised() {
 		return false;
 	}
+	
+	@Override
+	public String getName() {
+		return "ruler";
+	}
 }

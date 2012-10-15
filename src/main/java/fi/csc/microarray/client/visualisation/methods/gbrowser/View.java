@@ -72,7 +72,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
-	protected Float trackHeight;
+	protected Float stretchableTrackHeight;
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
 	private Iterator<Track> trackIter;
@@ -87,7 +87,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	private static boolean showFullHeight = true;
-	private static final int Y_MARGIN = 20;
+	private static final int FULL_HEIGHT_MARGIN = 20;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
@@ -133,7 +133,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return tracks;
 	}
 
-	protected void drawView(Graphics2D g, boolean isAnimation) {
+	protected void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
 
 		if (bpRegion == null) {
 			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
@@ -146,33 +146,56 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		viewArea = g.getClipBounds();
 				
-		int drawBufferWidth = (int) (viewArea.getX() + viewArea.getWidth());
-		int drawBufferHeight = (int) (viewArea.getY() + viewArea.getHeight());
+		int drawBufferWidth = (int) (viewArea.getWidth());
+		int drawBufferHeight = (int) (viewArea.getHeight());
 
 		if (drawBuffer == null || 
 				drawBuffer.getWidth() != drawBufferWidth || 
-				drawBuffer.getHeight() != drawBufferHeight) {
-			
-			drawBuffer = new BufferedImage(drawBufferWidth,
-					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
+				drawBuffer.getHeight() != drawBufferHeight) {		
 
-			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-			bufG2.setPaint(Color.white);
-			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+			/* drawBuffer contains only this view. Plot coordinates have to be shifted by the size of the other views
+			 * (viewArea.x and viewArea.y)
+			 */
+			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		/* In full height mode we draw always also the content that isn't shown in current vertical
-		 * scrolling position. Setting the original clip to the drawing buffer should
-		 * at least prevent actual pixel manipulating when drawing outside of the view.
+		/* The JScrollPane doesn't clip the content properly, but it is drawn outside JScrollPane when the window is resized.
+		 * Probably this has something to do with our custom use of clip areas or maybe the JFreeChart uses some ancient AWT 
+		 * components. Nevertheless, making the content transparent and drawing only the JViewPort area solves the problem, 
+		 * as the drawing transparent pixels elsewhere doesn't have any effect. 
 		 */
-		bufG2.setClip(g.getClip());
+		bufG2.setBackground(new Color(0, 0, 0, 0));			
+		
+		if (showFullHeight && !hasStaticHeight()) {
+			
+			//bufG2.setClip(null);
+			bufG2.clearRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
 
+			
+			/* In full height mode we draw always also the content that isn't shown in current vertical
+			 * scrolling position. Setting the original clip to the drawing buffer should
+			 * at least prevent actual pixel manipulating when drawing outside of the view.
+			 */
+			Rectangle clipRectangle = new Rectangle(viewPort.x - viewArea.x, viewPort.y - viewArea.y, viewPort.width, viewPort.height);
+			bufG2.setClip(clipRectangle);
+						
+			bufG2.setPaint(Color.white);
+			bufG2.fill(clipRectangle);
+			
+		} else {
+			bufG2.setClip(null);
+			
+			bufG2.setPaint(Color.white);
+			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		}
+		
+		
+
+		
 		// prepare context object
 		TrackContext trackContext = null;
 
@@ -249,7 +272,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 							}
 						}
 						
-						track.setHeight(maxY + Y_MARGIN);						
+						track.setHeight(maxY + FULL_HEIGHT_MARGIN);						
 					}
 					
 					y += track.getHeight();
@@ -291,12 +314,30 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		}
 		
-		g.drawImage(drawBuffer, 
-				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight,
-				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight, null);				
-
-		bufG2.setPaint(Color.white);
-		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		//drawBuffer has different coordinates in normal and fullHeight modes
+		if (showFullHeight && !hasStaticHeight()) {
+			
+			//copy only the visible area of the JScrollPane
+			g.drawImage(drawBuffer, 
+					(int) viewPort.getX(), 
+					(int) viewPort.getY(), 
+					(int) (viewPort.getX() + viewPort.getWidth()), 
+					(int) (viewPort.getY() + viewPort.getHeight()),
+					(int) viewPort.getX() - viewArea.x, 
+					(int) viewPort.getY() - viewArea.y, 
+					(int) (viewPort.getX() - viewArea.x + viewPort.getWidth()), 
+					(int) (viewPort.getY() - viewArea.y + viewPort.getHeight()), null);
+			
+		} else {
+			//copy everything from the drawBuffer (this view) 
+			g.drawImage(drawBuffer, 
+					(int) viewArea.getX(), (int) viewArea.getY(), 
+					(int) (viewArea.getX() + drawBufferWidth), (int) (viewArea.getY() + drawBufferHeight),
+					0, 0, drawBufferWidth, drawBufferHeight, null);
+		}
+		//bufG2.setPaint(Color.white);
+//		bufG2.setPaint(new Color(0, 0, 0, 0));
+//		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
 		trackIter = null;
 		drawableIter = null;
 	}
@@ -315,21 +356,21 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				if (showFullHeight) {
 					t.setHeight(Integer.MAX_VALUE);
 				} else {
-					t.setHeight(Math.round(getTrackHeight()));
+					t.setHeight(Math.round(getStretchableTrackHeight()));
 				}
 			}
 		}
 	}
 
-	public float getTrackHeight() {
-		trackHeight = (getHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
-		return trackHeight;
+	public float getStretchableTrackHeight() {
+		stretchableTrackHeight = (getStaticHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
+		return stretchableTrackHeight;
 	}
 
 	/**
 	 * @return sum of heights of tracks with static heights.
 	 */
-	protected int getStaticTrackHeightTotal() {
+	private int getStaticTrackHeightTotal() {
 		int staticHeightTotal = 0;
 
 		for (Track track : getTracks()) {
@@ -340,7 +381,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return staticHeightTotal;
 	}
 
-	protected int getTrackHeightTotal() {
+	protected int getFullHeight() {
+			
 		int heightTotal = 0;
 
 		for (Track track : getTracks()) {
@@ -353,7 +395,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		// Avoid problems in initialisation by having some fixed value
 		if (heightTotal == 0) {
-			heightTotal = getHeight();
+			heightTotal = getStaticHeight();
 		}
 		return heightTotal;
 	}
@@ -373,11 +415,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return this.viewArea.width;
 	}
 
-	public int getHeight() {
+	public int getStaticHeight() {
 		return this.viewArea.height;
 	}
 
-	public void setHeight(int height) {
+	public void setStaticHeight(int height) {
 		this.viewArea.height = height;
 	}
 
@@ -484,7 +526,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		this.bpRegion = limitedRegion;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
-		trackHeight = null;
+		stretchableTrackHeight = null;
 
 		fireAreaRequests();
 		
