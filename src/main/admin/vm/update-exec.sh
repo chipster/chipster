@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.1
+LATEST_VERSION=2.3.0
 
 # Exit immediately if some command fails
 set -e
@@ -235,6 +235,18 @@ fi
 compare_to_current "2.2.1"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
   echo "** Tools image is uptodate"                      
+fi
+
+# 2.3.0
+compare_to_current "2.3.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "** Removing obsolete link"                      
+  rm -f ${TOOLS_PATH}/admin/ngs
+  
+  echo "** Adding sheep to genome browser"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_Ovis_aries.Oar_v3.1.dna.toplevel_fasta.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/contents2.txt
+  
 fi
 
 
