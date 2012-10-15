@@ -1,5 +1,6 @@
 package fi.csc.microarray.client;
 
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,12 +10,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
@@ -87,6 +90,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private boolean hasRepoWorkflows;
 
+	private JMenuItem manageSessionsMenuItem;
+
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
 		add(getFileMenu());
@@ -151,6 +156,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
+			fileMenu.add(getManageSessionsMenuItem());
 			fileMenu.add(getArchiveSessionMenuItem());
 			
 			fileMenu.add(getClearSessionMenuItem());
@@ -819,6 +825,51 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return saveSessionMenuItem;
 	}
+
+	private JMenuItem getManageSessionsMenuItem() {
+		if (manageSessionsMenuItem == null) {
+			manageSessionsMenuItem = new JMenuItem();
+			manageSessionsMenuItem.setText("Manage sessions...");
+			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						String prefix = "http://chipster-filebroker.csc.fi/";
+						URL[] repoDescription = new URL[] {
+								new URL(prefix + "Remote sessions/"),
+						};
+						
+						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+						JFileChooser fc = new JFileChooser(view.getRoot(), view);
+						fc.setApproveButtonText("Remove");
+						fc.setMultiSelectionEnabled(true);
+						System.out.println(Arrays.toString(((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()));
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[0].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[1].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[2].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[4].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[5].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[6].setVisible(false);
+						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[7].setVisible(false);
+//						components[3].setVisible(false);
+						int returnVal = fc.showDialog(null, "Remove");
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File[] files = fc.getSelectedFiles();
+							
+							for (File file : files) {
+								System.out.println("Selected " + file + " (" + file.toURL() + ")");
+							}
+						}
+
+						
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return manageSessionsMenuItem;
+	}
+
 
 	private JMenuItem getArchiveSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
