@@ -244,7 +244,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/admin/ngs
   
   echo "** Adding sheep to genome browser"
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_Ovis_aries.Oar_v3.1.dna.toplevel_fasta.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_fasta_Ovis_aries.Oar_v3.1.dna.toplevel.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/contents2.txt
   
 fi
