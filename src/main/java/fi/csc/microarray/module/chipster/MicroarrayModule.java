@@ -90,6 +90,7 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
 		public static final TypeTag BAM_FILE  = new TypeTag("bam-file", "");
 		public static final TypeTag FASTA_FILE  = new TypeTag("fasta-file", "");
+		public static final TypeTag TABLE_WITH_HASH_HEADER = new TypeTag("table-with-hash-header", "header rows start with #");
 		public static final TypeTag TABLE_WITH_DOUBLE_HASH_HEADER = new TypeTag("table-with-double-hash-header", "header rows start with ##");
 		public static final TypeTag CHROMOSOME_IN_FIRST_TABLE_COLUMN = new TypeTag("chromosome-in-first-table-column", "first column of table is chromosome");
 		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
