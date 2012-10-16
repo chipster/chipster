@@ -852,4 +852,8 @@ public class DataManager {
 	public void flushSession() {
 		zipDataBeanHandler.closeZipFiles();
 	}
+	
+	public ZipDataBeanHandler getZipDataBeanHandler() {
+		return this.zipDataBeanHandler;
+	}
 }
