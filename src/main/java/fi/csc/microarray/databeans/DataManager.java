@@ -9,12 +9,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.jms.JMSException;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -22,28 +22,75 @@ import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
-import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
+import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
+import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
+import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.Exceptions;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.Strings;
 
 public class DataManager {
 
+	public static enum StorageMethod {
+		
+		LOCAL_USER(true, true),
+		LOCAL_TEMP(true, true),
+		LOCAL_SESSION(true, false),
+		REMOTE_CACHED(false, true),
+		REMOTE_STORAGE(false, true);
+		
+		// Groups that describe how fast different methods are to access.
+		// Keep these up-to-date when you add methods!
+		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
+		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_CACHED, REMOTE_STORAGE};
+		public static StorageMethod[] OTHER_SLOW_METHODS = {LOCAL_SESSION};
+		
+		private boolean isLocal;
+		private boolean isRandomAccess;
+		
+		StorageMethod(boolean isLocal, boolean isRandomAccess) {
+			this.isLocal = isLocal;
+			this.isRandomAccess = isRandomAccess;
+		}
+
+		public boolean isLocal() {
+			return isLocal;
+		}
+
+		public boolean isRandomAccess() {
+			return isRandomAccess;
+		}
+	}
+
 	private static final String TEMP_DIR_PREFIX = "chipster";
 	private static final int MAX_FILENAME_LENGTH = 256;
 	private static final Logger logger = Logger.getLogger(DataManager.class);
+
+	/**
+	 * Reports session validation related problems.
+	 */
+	public static class ValidationException extends Exception {
+
+		public ValidationException(String validationDetails) {
+			// TODO Auto-generated constructor stub
+		}
+		
+	}
 
 	/**
 	 * The initial name for the root folder.
@@ -58,7 +105,6 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
-	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
@@ -66,11 +112,13 @@ public class DataManager {
 
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
-
-	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
-	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	private LinkedList<Module> modules;
 	
-	public DataManager() throws IOException {
+	private ZipContentHandler zipContentHandler = new ZipContentHandler();
+	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
+	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
+	
+	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
 		// initialize repository 		
@@ -116,7 +164,7 @@ public class DataManager {
 	 */
 	public DataFolder createFolder(DataFolder root, String name) {
 		DataFolder folder = new DataFolder(this, name);
-		root.addChild(folder); // events are dispatched from here
+		connectChild(folder, root); // events are dispatched from here
 		return folder;
 	}
 
@@ -435,92 +483,52 @@ public class DataManager {
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name) throws MicroarrayException {
-		File contentFile;
+	public DataBean createLocalTempDataBean(String name) throws MicroarrayException {
 		try {
-			contentFile = createNewRepositoryFile(name);
+			File contentFile = createNewRepositoryFile(name);
+			DataBean bean = createDataBean(name);
+			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+			return bean;
+
 		} catch (IOException e) {
 			throw new MicroarrayException(e);
 		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * Create a local temporary file DataBean with content, without a parent 
-	 * folder and without sources. If a reference to this bean
-	 * is lost it can not be accessed any more.
-	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
-		return createDataBean(name, content, null, new DataBean[] {});
-	}
-
-	/**
-	 * Create a local file DataBean.
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * For now, only file URLs are supported.
-	 * 
-	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
-		File contentFile;
-		try {
-			contentFile = new File(url.toURI());
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not convert " + url + " to a file");
-		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
-	 * be found using the zipEntryName.
-	 * 
-	 * @param name
-	 * @param zipFile
-	 * @param zipEntryName
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
-		URL url;
-		try {
-			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile.
-	 * 
-	 * @param name
-	 * @param url location of the zip file, zip entry name as the fragment
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
 	}
 
 	
 	/**
-	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
+	 * Creates new DataBean. Infers content type of the created DataBean from the name.
+	 * 
+	 * @param name name of the DataBean
+	 * @return new DataBean that is not connected to a DataFolder
 	 */
-	private DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	public DataBean createDataBean(String name) throws MicroarrayException {
+		DataBean data = new DataBean(name, guessContentType(name), this);
+		return data;
+	}
+
+	/**
+	 * Convenience method for creating a local file DataBean. Initialises the DataBean with local file
+	 * location. The file is used directly, the contents are not copied anywhere.
+	 * 
+	 */
+	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
+		try {
+			DataBean bean = createDataBean(name);
+			addUrl(bean, StorageMethod.LOCAL_USER, contentFile.toURI().toURL());
+			return bean;
+			
+		} catch (IOException e) {
+			throw new MicroarrayException(e);
+		}
+	}
+	
+	/**
+	 * Convenience method for creating a local temporary file DataBean with content.
+	 * Content stream is read into a temp file and location of the file is stored
+	 * to DataBean.
+	 */
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -537,44 +545,24 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, StorageMethod.LOCAL_TEMP, folder, sources, contentFile);
+		DataBean bean = createDataBean(name);
+		try {
+			addUrl(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+		} catch (MalformedURLException e) {
+			throw new MicroarrayException(e);
+		}
 		return bean;
 	}
 	
 
 	/**
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	private DataBean createDataBean(String name, StorageMethod type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
-		URL url;
-		try {
-			 url = contentFile.toURI().toURL();
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, localFileDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-	
-	
-	/**
 	 * Load session from a file.
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean restoreData) {
-		SessionLoader sessionLoader;
-		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
-			sessionLoader.loadSession();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			logger.error("loading session failed", e);
-		}
+	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
+		sessionLoader.loadSession();
 	}
 
 	/**
@@ -582,28 +570,21 @@ public class DataManager {
 	 * File is a zip file with all the data files and one metadata file.
 	 * 
 	 * @return true if the session was saved perfectly
+	 * @throws Exception 
 	 */
-	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+	public void saveSession(File sessionFile) throws Exception {
+
+		// save session file
 		boolean metadataValid = false;
-		try {
-			// save
-			metadataValid = sessionSaver.saveSession();
-		} catch (Exception e) {
-			// save failed, warn about it
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		}
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		metadataValid = sessionSaver.saveSession();
 
-		// check validation, warn if not valid, return false
+		// check validation
 		if (!metadataValid) {
-			// save was successful but metadata validation failed, warn about it
+			// save was successful but metadata validation failed, file might be usable
 			String validationDetails = sessionSaver.getValidationErrors();
-			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
+			throw new ValidationException(validationDetails);
 		}
-
-		return true;
 	}
 
 	
@@ -620,6 +601,27 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	/**
+	 * Returns debug print out of current session state.
+	 * 
+	 * @return print out of session state
+	 */
+	public String printSession() {
+		StringBuffer buffer = new StringBuffer();
+		SessionSaver.dumpSession(rootFolder, buffer);
+		return buffer.toString();
+	}
+
+	public void saveStorageSession(String name) throws Exception {
+		System.out.println("url haetaan");
+		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name);
+		System.out.println(sessionUrl);
+		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
+		sessionSaver.saveStorageSession();
+	}
+
+	
+	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
 	 * 
@@ -668,7 +670,7 @@ public class DataManager {
 		// remove bean
 		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(bean);
+			disconnectChild(bean, folder);
 		}
 		
 		// remove physical file
@@ -709,33 +711,28 @@ public class DataManager {
 		return folders;
 	}
 
-	/**
-	 * FIXME add locking
-	 * 
-	 * @param bean
-	 * @return
-	 * @throws IOException 
-	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
 
-		bean.setContentChanged(true);
-		
-		// Only local temp beans support output, so convert to local temp bean if needed
-		if (!bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
+		// only local temp beans support output, so convert to local temp bean if needed
+		ContentLocation tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		if (tempLocalLocation == null) {
 			this.convertToLocalTempDataBean(bean);
+			tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		}
+
+		// remove all other locations, as they will become obsolete when OutputStream is written to
+		while (bean.getContentLocations().size() > 1) {
+			for (ContentLocation location : bean.getContentLocations()) {
+				if (location != tempLocalLocation) {
+					bean.removeContentLocation(location);
+					break; // remove outside of the iterator, cannot continue 
+				}
+			}
 		}
 		
-		return bean.getHandler().getOutputStream(bean);
+		return tempLocalLocation.getHandler().getOutputStream(tempLocalLocation); 
 	}
 
-	/**
-	 * FIXME locks
-	 * 
-	 * @param bean
-	 * @param out
-	 * @throws MicroarrayException
-	 * @throws IOException
-	 */
 	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
 			throws MicroarrayException, IOException {
 		try {
@@ -748,38 +745,37 @@ public class DataManager {
 	}
 
 	public File getLocalFile(DataBean bean) throws IOException {
+		
+		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
+		
 		// convert non local file beans to local file beans
-		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
+		if (location == null) {
 			this.convertToLocalTempDataBean(bean);
+			location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
 		}
 		
 		// get the file
-		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler) bean.getHandler();
-		return handler.getFile(bean);
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
 	}
 	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
-		// FIXME lock bean
-		
-		// TODO think about that name
+
 		// copy contents to new file
 		File newFile = this.createNewRepositoryFile(bean.getName());
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-		BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+		BufferedInputStream in = new BufferedInputStream(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
 		try {
 			IOUtils.copy(in, out);
 		} finally {
 			IOUtils.closeIfPossible(in);
 			IOUtils.closeIfPossible(out);
 		}
+
 		// update url, type and handler in the bean
 		URL newURL = newFile.toURI().toURL();
-		
-		bean.setContentUrl(newURL);
-		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
-		bean.setHandler(localFileDataBeanHandler);
-		bean.setContentChanged(true);
+		addUrl(bean, StorageMethod.LOCAL_TEMP, newURL);
 	}
 	
 	
@@ -802,7 +798,7 @@ public class DataManager {
 		// remove this folder (unless root)
 		DataFolder parent = folder.getParent();
 		if (parent != null) {
-			parent.removeChild(folder);
+			disconnectChild(folder, parent);
 		}
 	}
 	
@@ -818,14 +814,6 @@ public class DataManager {
 				return npf;
 			}
 		}
-	}
-
-	public void plugTypeTag(TypeTag typeTag) {
-		this.tagMap.put(typeTag.getName(), typeTag);
-	}
-	
-	public TypeTag getTypeTag(String name) {
-		return this.tagMap.get(name);
 	}
 
 	public Iterable<File> listAllRepositories() {
@@ -850,6 +838,158 @@ public class DataManager {
 	}
 
 	public void flushSession() {
-		zipDataBeanHandler.closeZipFiles();
+		zipContentHandler.closeZipFiles();
 	}
+
+	public void setModules(LinkedList<Module> modules) {
+		this.modules = modules;
+	}
+	
+	public void connectChild(DataItem child, DataFolder parent) {
+
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+
+		// connect to this
+		child.setParent(parent);
+
+		// add
+		parent.children.add(child);
+
+		// add type tags to data beans
+		if (child instanceof DataBean) {
+			try {
+				addTypeTags((DataBean) child);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// dispatch events if needed
+		if (!wasConnected) {
+			dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void disconnectChild(DataItem child, DataFolder parent) {
+		// remove connections
+		child.setParent(null);
+
+		// remove
+		parent.children.remove(child);
+
+		// dispatch events
+		dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+
+	public void addTypeTags(DataBean data) throws IOException {
+
+		for (Module module : modules) {
+			try {
+				module.addTypeTags(data);
+				
+			} catch (MicroarrayException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	/**
+	 * Returns the handler instance of a given StorageMethod. Handler instances are DataManager specific.
+	 */
+	private ContentHandler getHandlerFor(StorageMethod method) {
+		switch (method) {
+		
+		case LOCAL_SESSION:
+			return zipContentHandler;
+
+		case LOCAL_TEMP:
+		case LOCAL_USER:
+			return localFileContentHandler;
+			
+		case REMOTE_CACHED:
+		case REMOTE_STORAGE:
+			return remoteContentHandler;
+			
+		default:
+			throw new IllegalArgumentException("unrecognised method: " + method);	
+		
+		}
+	}
+
+	public void addUrl(DataBean bean, StorageMethod method, URL url) {
+		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
+	}
+
+	public void putToStorage(DataBean dataBean) throws Exception {
+
+		// check if content is still available
+		if (dataBean.getContentLocations().size() == 0) {
+			return; // no content, nothing to put to storage
+		}
+		
+		// check if already in storage
+		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_STORAGE); 
+		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
+			return;
+		}
+		
+		// move from cache to storage, if in cache
+		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
+			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
+				
+				// move file in filebroker
+				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl(), dataBean.getContentLength());
+				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));
+
+				// remove cache location(s), because it is now obsolete  
+				dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+				return;
+			}
+		}
+
+		// if not in cache, upload to storage
+		ContentLocation closestLocation = dataBean.getClosestContentLocation();
+		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
+		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		
+	}
+
+	/**
+	 * 
+	 * @param bean
+	 * @param progressListener
+	 * @return null if no valid location available
+	 * @throws NotEnoughDiskSpaceException
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public URL getURLForCompAndUploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception { 
+
+		URL url = null;
+		try {
+			bean.getLock().readLock().lock();
+
+			// upload only if no valid storage or cached location is found
+			for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_STORAGE)) {
+				if (location.getHandler().isAccessible(location)) {
+					url = location.getUrl();
+					break;
+				}
+			}
+			// need to upload
+			if (url == null) {
+				url = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.CACHE, bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), progressListener);
+				bean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+				addUrl(bean, StorageMethod.REMOTE_CACHED, url);
+			}
+
+		} finally {
+			bean.getLock().readLock().unlock();
+		}
+		return url;
+	}
+
 }

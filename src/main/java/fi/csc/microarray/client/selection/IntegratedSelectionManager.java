@@ -17,6 +17,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -44,7 +45,7 @@ public class IntegratedSelectionManager {
 	}
 
 	public IntegratedEntity getPointSelection() {
-		return this.pointSelection;
+		return IntegratedSelectionManager.pointSelection;
 	}
 
 	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
@@ -67,7 +68,7 @@ public class IntegratedSelectionManager {
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
 		BufferedReader original = null;
-		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+		original = new BufferedReader(new InputStreamReader(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
 		String line;
 
 		//For binary search
@@ -89,7 +90,7 @@ public class IntegratedSelectionManager {
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
 		DataManager dataManager = Session.getSession().getApplication().getDataManager();
 		
-		DataBean newData = dataManager.createDataBean("user_edited.tsv");
+		DataBean newData = dataManager.createLocalTempDataBean("user_edited.tsv");
 		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
@@ -112,7 +113,7 @@ public class IntegratedSelectionManager {
 		for (DataBean data : sources) {
 			newData.addLink(Link.MODIFICATION, data);
 		}
-		primarySource.getParent().addChild(newData);
+		dataManager.connectChild(newData, primarySource.getParent());
 		
 		return newData;
 	}
@@ -129,7 +130,7 @@ public class IntegratedSelectionManager {
 	 * Focus type of selection.
 	 */
 	public void setPointSelection(IntegratedEntity entity, Object source) {
-		this.pointSelection = entity;
+		IntegratedSelectionManager.pointSelection = entity;
 		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 

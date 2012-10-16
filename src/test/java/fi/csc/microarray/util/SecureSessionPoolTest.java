@@ -1,17 +1,28 @@
 package fi.csc.microarray.util;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
 
 public class SecureSessionPoolTest  {
+	
+	@BeforeTest(groups = {"unit"} )
+	public void init() throws IOException, IllegalConfigurationException {
+		DirectoryLayout.uninitialise();
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"auth"}));
+	}
 	
 	@Test(groups = {"unit"} )
 	public void testBasicUsage() {

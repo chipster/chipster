@@ -11,6 +11,12 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public interface FileBrokerClient {
 
+	public static enum FileBrokerArea {
+		CACHE,
+		STORAGE
+	}
+	
+
 	/**
 	 * Ask for the filebroker to try to make certain amount of disk space available.
 	 * 
@@ -33,7 +39,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract URL addFile(FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
 	 * Add file to file broker. Might use local transfer instead of uploading.
@@ -49,7 +55,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract URL addFile(FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
 	 *  Get the InputStream for a while from the FileBroker.
@@ -93,8 +99,6 @@ public interface FileBrokerClient {
 	 * be updated or not. 
 	 * 
 	 * TODO Check contentLength against connection.getContentLength()
-	 * TODO Checking content length may not be the best idea,
-	 * especially when using compression
 	 * 
 	 * @param url
 	 * @param contentLength
@@ -112,5 +116,9 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 */
 	public abstract URL getPublicUrl() throws Exception;
+	
+	
+	public abstract URL moveFileToStorage(URL url, long contentLength) throws JMSException;
+	public abstract URL saveRemoteSession(String name) throws JMSException;
 
 }

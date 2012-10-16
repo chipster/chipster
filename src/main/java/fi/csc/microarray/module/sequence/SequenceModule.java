@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -53,12 +54,7 @@ public class SequenceModule implements Module {
 	public void plugModifiers(DataManager manager) {
 		// nothing to plug
 	}
-
-	@Override
-	public void plugTypeTags(DataManager manager) {
-		// nothing to plug
-	}
-
+	
 	@Override
 	public String[] getServerModuleNames() {
 		return new String[] { "sequence" };
@@ -179,6 +175,11 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
+	public boolean countOperationResults() {
+		return false;
+	}
+
+	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}
@@ -211,6 +212,16 @@ public class SequenceModule implements Module {
 	@Override
 	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
+	}
+
+	@Override
+	public void addTypeTags(DataBean data) {
+		// nothing to add
+	}
+	
+	@Override
+	public Icon getIconFor(DataBean data) {
+		return data.getContentType().getIcon();
 	}
 
 }

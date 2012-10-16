@@ -40,7 +40,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.2.2" />
+	<property name="release-version" value="3.0.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -432,14 +432,14 @@
 
 	
 	<target name="generate-session-classes" description="">
-		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema2" />
 
 		<java classname="com.sun.tools.internal.xjc.XJCFacade">
 	            <arg value="-p" />
-	            <arg value="fi.csc.microarray.client.session.schema"/>
+	            <arg value="fi.csc.microarray.client.session.schema2"/>
             	<arg value="-d" />
             	<arg value="src/main/java"/>
-	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+	    		<arg value="src/main/java/fi/csc/microarray/client/session/session2.xsd" />
 	    </java>
 	</target>
 

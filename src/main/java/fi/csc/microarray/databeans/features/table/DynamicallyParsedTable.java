@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.MatrixParseSettings;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.TableColumn;
@@ -29,23 +30,15 @@ public class DynamicallyParsedTable implements Table {
 	private LinkedList<Integer> columnNumbers;
 	private HashMap<String, String> values;
 	private String[] columnNames;
-	private DataBean bean;
 	private BufferedReader reader;
 
 	public DynamicallyParsedTable(DataBean bean, MatrixParseSettings settings, LinkedList<Integer> columnNumbers) {
-		this.bean = bean;
 		this.settings = settings;
 		this.columnNumbers = columnNumbers;
 		this.columnNames = settings.columns.keySet().toArray(new String[0]);
-		reset();
-	}
 
-	/**
-	 * Reset table iteration. After call to reset iteration will start from the first row.
-	 */
-	public void reset() {
 		try {
-			this.reader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+			this.reader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
 			this.source = new LookaheadLineReader(this.reader);
 			this.headerParsed = false;
 
@@ -53,7 +46,7 @@ public class DynamicallyParsedTable implements Table {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public boolean nextRow() {
 		try {
 

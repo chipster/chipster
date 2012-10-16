@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<directory-mappings>
+
+	<!--
+	<directory-mapping>
+	
+		<name>Institute's shared project space</name>
+		
+		<path>/mnt/projects</path>
+		
+		<access-rule-sequence>
+			
+			<rule>
+				<condition></condition>
+				<decision>GRANT</<decision>
+			</rule>
+
+			<rule>
+				<condition></condition>
+				<decision>GRANT</<decision>
+			</rule>
+
+			<default-decision>DENY</<default-decision>
+			
+		</access-rule-sequence>
+		
+	</directory-mapping>
+	-->
+</directory-mappings>
+
