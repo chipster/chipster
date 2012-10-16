@@ -13,7 +13,7 @@
 # - Comment out temp file removal in the problematic part of the script
 # - Copy commnands from script to shell and run them one by one or investigate temp files to see where it goes wrong
 # - Note: Many commands include tab-character, which is easily lost when doing copy-paste or other editing.
-#   To type tab character in shell press ctrl+v first and then tab.
+#   To type the tab character in shell press ctrl+v first and then tab.
 
 
 
@@ -269,7 +269,6 @@ echo "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2" > contents2.txt
 
 ##########################################################################################
 
-
 # Species and releases
 # Humans
 SPECIES="Human"
@@ -338,6 +337,13 @@ process_gtf "ftp://ftp.ensembl.org/pub/release-67/gtf/canis_familiaris/Canis_fam
 download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/canis_familiaris/dna/Canis_familiaris.BROADD2.67.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]"
+
+SPECIES="Ovies aries"
+VERSION="(Oar_v3.1)"
+
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Ovis_aries.Oar_v3.1.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" ""
+contents_append_url "UCSC" ""
 
 SPECIES="Stickleback"
 VERSION="(BROADS1.68)"
