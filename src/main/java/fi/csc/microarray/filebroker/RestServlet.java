@@ -34,8 +34,8 @@ import sun.net.www.protocol.http.HttpURLConnection;
 */
 public class RestServlet extends DefaultServlet {
 
-	private String userDataPath;
-	private String publicDataPath;
+	private String cachePath;
+	private String publicPath;
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
@@ -48,8 +48,8 @@ public class RestServlet extends DefaultServlet {
 		this.rootUrl = rootUrl;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		userDataPath = configuration.getString("filebroker", "user-data-path");
-		publicDataPath = configuration.getString("filebroker", "public-data-path");
+		cachePath = configuration.getString("filebroker", "cache-path");
+		publicPath = configuration.getString("filebroker", "public-path");
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
 		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
@@ -92,11 +92,11 @@ public class RestServlet extends DefaultServlet {
 			return false;
 		}
 		
-		if (!path.startsWith("/" + userDataPath + "/")) {
+		if (!path.startsWith("/" + cachePath + "/")) {
 			return false;
 		}
 
-		if (urlRepository.checkFilenameSyntax(path.substring(("/" + userDataPath + "/").length()))) {
+		if (urlRepository.checkFilenameSyntax(path.substring(("/" + cachePath + "/").length()))) {
 			return true;
 		}
 		
@@ -105,7 +105,7 @@ public class RestServlet extends DefaultServlet {
 	
 	private boolean isPublicDataRequest(HttpServletRequest request) {
 		String path = request.getPathInfo();
-		return (path != null && path.startsWith("/" + publicDataPath + "/"));
+		return (path != null && path.startsWith("/" + publicPath + "/"));
 	}
 
 	
@@ -177,14 +177,14 @@ public class RestServlet extends DefaultServlet {
 			public void run() {
 				try {
 
-					File userDataDir = new File(getServletContext().getRealPath(userDataPath));
+					File userDataDir = new File(getServletContext().getRealPath(cachePath));
 					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 
 					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
 						Log.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
 								" (" + (100-cleanUpTriggerLimitPercentage) + "%) reached, cleaning up");
-						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						Log.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(userDataPath)).getUsableSpace()));
+						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(cachePath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Log.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(cachePath)).getUsableSpace()));
 					} 
 
 				} catch (Exception e) {
