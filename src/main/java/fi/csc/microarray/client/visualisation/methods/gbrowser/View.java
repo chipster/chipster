@@ -34,12 +34,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -52,12 +51,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {
 
-	public BpCoordRegionDouble bpRegion;
-	public BpCoordRegion highlight;
+	public RegionDouble bpRegion;
+	public Region highlight;
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
 	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
-	private QueueManager queueManager = new QueueManager();
+	private QueueManager queueManager;
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
 
@@ -73,7 +72,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
-	protected Float trackHeight;
+	protected Float stretchableTrackHeight;
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
 	private Iterator<Track> trackIter;
@@ -88,7 +87,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	private static boolean showFullHeight = true;
-	private static final int Y_MARGIN = 20;
+	private static final int FULL_HEIGHT_MARGIN = 20;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
@@ -134,35 +133,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return tracks;
 	}
 
-	public BpCoord getMaxBp() {
-
-		BpCoord max = null;
-
-		if (bpRegion != null) {
-			for (Track t : getTracks()) {
-
-				BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
-
-				if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
-					max = trackMax;
-				}
-			}
-		}
-
-		if (max != null) {
-			// Little bit empty space to the end
-			max.bp += 10000;
-			return max;
-
-		} else {
-			return null;
-		}
-	}
-
-	protected void drawView(Graphics2D g, boolean isAnimation) {
+	protected void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
 
 		if (bpRegion == null) {
-			setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
 		showFullHeight = parentPlot.isFullHeight();
@@ -172,33 +146,56 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		viewArea = g.getClipBounds();
 				
-		int drawBufferWidth = (int) (viewArea.getX() + viewArea.getWidth());
-		int drawBufferHeight = (int) (viewArea.getY() + viewArea.getHeight());
+		int drawBufferWidth = (int) (viewArea.getWidth());
+		int drawBufferHeight = (int) (viewArea.getHeight());
 
 		if (drawBuffer == null || 
 				drawBuffer.getWidth() != drawBufferWidth || 
-				drawBuffer.getHeight() != drawBufferHeight) {
-			
-			drawBuffer = new BufferedImage(drawBufferWidth,
-					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
+				drawBuffer.getHeight() != drawBufferHeight) {		
 
-			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-			bufG2.setPaint(Color.white);
-			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+			/* drawBuffer contains only this view. Plot coordinates have to be shifted by the size of the other views
+			 * (viewArea.x and viewArea.y)
+			 */
+			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		/* In full height mode we draw always also the content that isn't shown in current vertical
-		 * scrolling position. Setting the original clip to the drawing buffer should
-		 * at least prevent actual pixel manipulating when drawing outside of the view.
+		/* The JScrollPane doesn't clip the content properly, but it is drawn outside JScrollPane when the window is resized.
+		 * Probably this has something to do with our custom use of clip areas or maybe the JFreeChart uses some ancient AWT 
+		 * components. Nevertheless, making the content transparent and drawing only the JViewPort area solves the problem, 
+		 * as the drawing transparent pixels elsewhere doesn't have any effect. 
 		 */
-		bufG2.setClip(g.getClip());
+		bufG2.setBackground(new Color(0, 0, 0, 0));			
+		
+		if (showFullHeight && !hasStaticHeight()) {
+			
+			//bufG2.setClip(null);
+			bufG2.clearRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
 
+			
+			/* In full height mode we draw always also the content that isn't shown in current vertical
+			 * scrolling position. Setting the original clip to the drawing buffer should
+			 * at least prevent actual pixel manipulating when drawing outside of the view.
+			 */
+			Rectangle clipRectangle = new Rectangle(viewPort.x - viewArea.x, viewPort.y - viewArea.y, viewPort.width, viewPort.height);
+			bufG2.setClip(clipRectangle);
+						
+			bufG2.setPaint(Color.white);
+			bufG2.fill(clipRectangle);
+			
+		} else {
+			bufG2.setClip(null);
+			
+			bufG2.setPaint(Color.white);
+			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		}
+		
+		
+
+		
 		// prepare context object
 		TrackContext trackContext = null;
 
@@ -244,8 +241,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					// currently only used for tracks that contain information
 					// about reads
 					if (expandDrawables && 
-							(track instanceof CoverageTrack ||
-									track instanceof CoverageAndSNPTrack ||
+							(track instanceof CoverageAndSNPTrack ||
 									track instanceof QualityCoverageTrack)) {
 
 						if (parentPlot.getReadScale() == ReadScale.AUTO) {
@@ -276,7 +272,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 							}
 						}
 						
-						track.setHeight(maxY + Y_MARGIN);						
+						track.setHeight(maxY + FULL_HEIGHT_MARGIN);						
 					}
 					
 					y += track.getHeight();
@@ -318,12 +314,30 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		}
 		
-		g.drawImage(drawBuffer, 
-				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight,
-				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight, null);				
-
-		bufG2.setPaint(Color.white);
-		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		//drawBuffer has different coordinates in normal and fullHeight modes
+		if (showFullHeight && !hasStaticHeight()) {
+			
+			//copy only the visible area of the JScrollPane
+			g.drawImage(drawBuffer, 
+					(int) viewPort.getX(), 
+					(int) viewPort.getY(), 
+					(int) (viewPort.getX() + viewPort.getWidth()), 
+					(int) (viewPort.getY() + viewPort.getHeight()),
+					(int) viewPort.getX() - viewArea.x, 
+					(int) viewPort.getY() - viewArea.y, 
+					(int) (viewPort.getX() - viewArea.x + viewPort.getWidth()), 
+					(int) (viewPort.getY() - viewArea.y + viewPort.getHeight()), null);
+			
+		} else {
+			//copy everything from the drawBuffer (this view) 
+			g.drawImage(drawBuffer, 
+					(int) viewArea.getX(), (int) viewArea.getY(), 
+					(int) (viewArea.getX() + drawBufferWidth), (int) (viewArea.getY() + drawBufferHeight),
+					0, 0, drawBufferWidth, drawBufferHeight, null);
+		}
+		//bufG2.setPaint(Color.white);
+//		bufG2.setPaint(new Color(0, 0, 0, 0));
+//		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
 		trackIter = null;
 		drawableIter = null;
 	}
@@ -342,21 +356,21 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				if (showFullHeight) {
 					t.setHeight(Integer.MAX_VALUE);
 				} else {
-					t.setHeight(Math.round(getTrackHeight()));
+					t.setHeight(Math.round(getStretchableTrackHeight()));
 				}
 			}
 		}
 	}
 
-	public float getTrackHeight() {
-		trackHeight = (getHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
-		return trackHeight;
+	public float getStretchableTrackHeight() {
+		stretchableTrackHeight = (getStaticHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
+		return stretchableTrackHeight;
 	}
 
 	/**
 	 * @return sum of heights of tracks with static heights.
 	 */
-	protected int getStaticTrackHeightTotal() {
+	private int getStaticTrackHeightTotal() {
 		int staticHeightTotal = 0;
 
 		for (Track track : getTracks()) {
@@ -367,7 +381,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return staticHeightTotal;
 	}
 
-	protected int getTrackHeightTotal() {
+	protected int getFullHeight() {
+			
 		int heightTotal = 0;
 
 		for (Track track : getTracks()) {
@@ -380,7 +395,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		// Avoid problems in initialisation by having some fixed value
 		if (heightTotal == 0) {
-			heightTotal = getHeight();
+			heightTotal = getStaticHeight();
 		}
 		return heightTotal;
 	}
@@ -400,11 +415,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return this.viewArea.width;
 	}
 
-	public int getHeight() {
+	public int getStaticHeight() {
 		return this.viewArea.height;
 	}
 
-	public void setHeight(int height) {
+	public void setStaticHeight(int height) {
 		this.viewArea.height = height;
 	}
 
@@ -416,7 +431,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		this.isStatic = isStatic;
 	}
 
-	public QueueManager getQueueManager() {
+	public QueueManager getQueueManager() {	
+		if (queueManager == null) {
+			queueManager = new QueueManager();
+		}
 		return queueManager;
 	}
 
@@ -457,13 +475,15 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				}
 			}
 		}
+		
+		Region requestRegion = getBpRegion();
 
 		// Fire area requests for concise requests
 		for (DataSource file : conciseDatas.keySet()) {
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = true;
-			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, conciseDatas.get(file), status), true);
 		}
 
 		// Fire area requests for precise requests
@@ -471,29 +491,56 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = false;
-			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, preciseDatas.get(file), status), true);
 		}
 	}
 
-	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
+		
+		RegionDouble limitedRegion = region.clone();
+		
+		if (limitedRegion.start.bp < 0 ) {
+			limitedRegion.move(-limitedRegion.start.bp);
+		}
+		
+		if (viewLimiter != null && viewLimiter.getLimit() != null) {
+			BpCoord maxBp = viewLimiter.getLimit();
 
-		this.bpRegion = region;
+			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {
+				
+				//Little bit extra space to the end
+				maxBp.bp += 100000;
+
+				if (limitedRegion.getLength() > maxBp.bp) {
+
+					limitedRegion.end.bp = (double)maxBp.bp;
+
+				} else if (limitedRegion.end.bp > maxBp.bp) {
+
+					double delta = limitedRegion.end.bp - maxBp.bp;
+					limitedRegion.move(-delta);
+				}
+			}
+		}
+
+		this.bpRegion = limitedRegion;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
-		trackHeight = null;
+		stretchableTrackHeight = null;
 
+		fireAreaRequests();
+		
 		if (!disableDrawing) {
-			fireAreaRequests();
 			dispatchRegionChange();
 		}
 	}
 
-	public BpCoordRegionDouble getBpRegionDouble() {
+	public RegionDouble getBpRegionDouble() {
 		return bpRegion;
 	}
 
-	public BpCoordRegion getBpRegion() {
-		return new BpCoordRegion((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long) (double) bpRegion.end.bp, bpRegion.end.chr);
+	public Region getBpRegion() {
+			return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long)Math.ceil((double) bpRegion.end.bp), bpRegion.end.chr);
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -523,33 +570,42 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			stopAnimation();
 
-			mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
+			mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
 
-				private int i = 0;
+				private int i = 2; //Skip a few frames to get a head start
 				private int ANIMATION_FRAMES = 30;
 				private long startTime = System.currentTimeMillis();
 
 				public void actionPerformed(ActionEvent arg0) {
+					
+					boolean skipFrame = false;
+					boolean done = false;
 
-					double endX = dragEndPoint.getX();
-					double startX = dragLastStartPoint.getX();
+					do {
+						double endX = dragEndPoint.getX();
+						double startX = dragLastStartPoint.getX();
 
-					double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
+						double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
 
-					dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
+						dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
 
-					boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
+						skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
 
-					if (i < ANIMATION_FRAMES) {
-						handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
-						i++;
-					} else {
-						stopAnimation();
-					}
+						done = i >= ANIMATION_FRAMES;
+						
+						if (!done) {
+							handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
+							i++;
+						} else {
+							stopAnimation();
+						}
+						
+					} while (skipFrame && !done);
 				}
 			});
-			mouseZoomTimer.setRepeats(true);
-			mouseZoomTimer.start();
+			mouseAnimationTimer.setCoalesce(true);
+			mouseAnimationTimer.setRepeats(true);
+			mouseAnimationTimer.start();
 		}
 	}
 
@@ -574,7 +630,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 
-	private Timer mouseZoomTimer;
+	private Timer mouseAnimationTimer;
+
+	private ViewLimiter viewLimiter;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -586,37 +644,43 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
-		mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
+		mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
 
-			private int i = 0;
+			private int i = 2; //Skip some frames to give a head start
 
-			// 100 ms to give time for slower machines to view couple animation frames also
-			private long startTime = System.currentTimeMillis() + 100;
+			private long startTime = System.currentTimeMillis();
 			private int ANIMATION_FRAMES = 15;
 
 			public void actionPerformed(ActionEvent arg0) {
 
 				boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
+				boolean done = false;
 
-				if (i < ANIMATION_FRAMES) {
-					zoom(centerX, wheelRotation, skipFrame);
-					i++;
+				do {
+					
+					done = i >= ANIMATION_FRAMES;
+					
+					if (!done) {
+						zoom(centerX, wheelRotation, skipFrame);
+						i++;
 
-				} else {
-					stopAnimation();
-				}
+					} else {
+						stopAnimation();
+					}
+					
+				} while (skipFrame && !done);
 			}
 		});
 
-		mouseZoomTimer.setRepeats(true);
-		mouseZoomTimer.setCoalesce(false);
-		mouseZoomTimer.start();
+		mouseAnimationTimer.setRepeats(true);
+		mouseAnimationTimer.setCoalesce(true);
+		mouseAnimationTimer.start();
 	}
 
 	private void stopAnimation() {
-		if (mouseZoomTimer != null) {
-			mouseZoomTimer.stop();
-			mouseZoomTimer = null;
+		if (mouseAnimationTimer != null) {
+			mouseAnimationTimer.stop();
+			mouseAnimationTimer = null;
 		}
 	}
 
@@ -641,28 +705,12 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
 			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
-
-			BpCoord maxBp = getMaxBp();
-
-			if (startBp < 0) {
-				endBp += -startBp;
-				startBp = 0;
+			
+			setBpRegion(new RegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
+			
+			if (!disableDrawing) {
+				parentPlot.redraw();
 			}
-
-			if (maxBp != null) {
-				// check bounds
-				long maxBpVal = maxBp.bp;
-
-				if (endBp > maxBpVal) {
-					startBp -= endBp - maxBpVal;
-					endBp = maxBpVal;
-
-					if (startBp < 0) {
-						startBp = 0;
-					}
-				}
-			}
-			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
 		}
 	}
 
@@ -716,7 +764,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void redraw() {
-		parentPlot.redraw();
+		//Dont accept redraw request from tracks if animation is running
+		if (mouseAnimationTimer == null || !mouseAnimationTimer.isRunning()) {
+			parentPlot.redraw();
+		}
 	}
 
 	public List<Long> getRulerInfo() {
@@ -753,4 +804,17 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return null; // tooltips disabled by default in views
 	}
 
+	public void clean() {
+		
+		if (queueManager != null) {
+			queueManager.poisonAll();
+		}
+		trackGroups.clear();
+		//Queue manager holds references to track data through the data listener references preventing gc
+		queueManager = null;
+	}
+
+	public void setViewLimiter(ViewLimiter viewLimiter) {
+		this.viewLimiter = viewLimiter;
+	}
 }

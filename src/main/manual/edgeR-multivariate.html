@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+</head>
+<body>
+<h2>RNA-seq / Differential expression using edgeR for multivariate experiments</h2>
+<h3>Description</h3>
+This tool performs a multivariate analysis for differential expression using the edgeR Bioconductor package.
+<br>
+<br>
+<h3>Parameters</h3>
+<ul>
+<li>Apply normalization (yes, no) [yes] </li>
+<li>Main effect 1 </li>
+<li>Main effect 2 </li>
+<li>Main effect 3 </li>
+<li>Treat main effect 1 as factor (yes, no) [no] </li>
+<li>Treat main effect 2 as factor (yes, no) [no] </li>
+<li>Treat main effect 3 as factor (yes, no) [no] </li>
+<li>Interaction (main, all) [main] </li>
+</ul>
+<br>
+<h3>Details</h3>
+<p>Given an input table of raw counts, the edgeR package performs statistical analysis to identify differentially expressed genomic features (genes, miRNAs,...) 
+using a multivariate regression model. A maximum of three different variables, and their interactions
+ can be specified for the model. The experiment conditions to be compared should be defined in the phenodata.tsv file, 
+ and the appropriate column selected using the "Column describing groups" parameter.
+</p>
+<p>It is highly recommended to always have at least two biological replicates for each experiment condition.</p>
+<h3>Output</h3>
+<p>The analysis output consists of the following files:</p>
+<ul>
+<li>de-list-edger.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values.<br>
+</li>
+</ul>
+<br>
+<h3>References</h3>
+<p>This tool uses the edgeR package for statistical analysis. Please read the following article for more detailed information:</p>
+<p>MD Robinson, DJ McCarthy, and GK Smyth. <a href="redir.aspx?C=6680a448aef54ff4bc21a32052ebf574&amp;URL=http%3a%2f%2fwww.ncbi.nlm.nih.gov%2fpubmed%2f19910308" target="_blank">
+edgeR: a bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics, 26 (1):139?40, Jan 2010.</a></p>
+</body>
+</html>

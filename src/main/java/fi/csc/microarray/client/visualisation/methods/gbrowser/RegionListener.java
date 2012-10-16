@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * Listens to region change events. Region is changed when Genome browser moves (pan or zoom).
@@ -10,5 +10,5 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
  */
 public interface RegionListener {
 	
-	public void regionChanged(BpCoordRegion bpRegion);
+	public void regionChanged(Region bpRegion);
 }

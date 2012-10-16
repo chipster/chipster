@@ -19,22 +19,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
@@ -54,9 +55,9 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
@@ -68,12 +69,12 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
-import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
+	private static final String EXAMPLE_SESSION_URL_ARRAY = "http://chipster.csc.fi/examples/chipster2-example-microarray.zip";
+	private static final String EXAMPLE_SESSION_URL_NGS = "http://chipster.csc.fi/examples/chipster2-example.zip";
 	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
@@ -87,6 +88,13 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag("ordered-genomic-entities", "");
 		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values", "must have column \"cluster\"");
 		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+		public static final TypeTag BAM_FILE  = new TypeTag("bam-file", "");
+		public static final TypeTag FASTA_FILE  = new TypeTag("fasta-file", "");
+		public static final TypeTag TABLE_WITH_HASH_HEADER = new TypeTag("table-with-hash-header", "header rows start with #");
+		public static final TypeTag TABLE_WITH_DOUBLE_HASH_HEADER = new TypeTag("table-with-double-hash-header", "header rows start with ##");
+		public static final TypeTag CHROMOSOME_IN_FIRST_TABLE_COLUMN = new TypeTag("chromosome-in-first-table-column", "first column of table is chromosome");
+		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
+		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("end-position-in-third-table-column", "third column of table is end position");
 	}
 	
 	public static class VisualisationMethods {
@@ -102,9 +110,9 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
 		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
-		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1, "genomeBrowser.html");
 		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 1, -1);
-		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
+		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "visualisation-phenodata.html");
 	}
 	
 	public static final String SERVER_MODULE_NAME = "microarray";
@@ -118,10 +126,14 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
 		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");
 		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
-		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf");
+		manager.plugContentType("text/gtf", true, false, "Gene Transfer Format file", VisualConstants.ICON_TYPE_TEXT, "gtf", "gff", "gff2", "gff3");
 		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
 		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
+		manager.plugContentType("application/gzip", true, true, "Gzip file", VisualConstants.ICON_TYPE_BINARY, "gz");
+		manager.plugContentType("text/vcf", true, false, "Variant Call Format", VisualConstants.ICON_TYPE_TEXT, "vcf");
+		manager.plugContentType("application/bam", true, false, "Binary sequence Alignment/Map format", VisualConstants.ICON_TYPE_TEXT, "bam");
 	}
+	
 
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
@@ -190,14 +202,14 @@ public class MicroarrayModule implements Module {
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 
-		importLinks.add(quickLinkPanel.createLink("Import from ArrayExpress ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from ArrayExpress ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromArrayExpress();
 			}
 		}));
 
-		importLinks.add(quickLinkPanel.createLink("Import from GEO ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from GEO ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromGEO();
@@ -260,8 +272,13 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
-		return isStandalone ? new URL(STANDALONE_EXAMPLE_SESSION_URL) : new URL(EXAMPLE_SESSION_URL);
+	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+		
+		if (isStandalone) {
+			return new URL[] { new URL(STANDALONE_EXAMPLE_SESSION_URL) };
+		}
+		
+		return new URL[] { new URL(EXAMPLE_SESSION_URL_ARRAY), new URL(EXAMPLE_SESSION_URL_NGS)};
 	}
 
 	@Override
@@ -318,17 +335,6 @@ public class MicroarrayModule implements Module {
 		return list.toArray(new DataBean[0]);
 	}	
 
-
-	@Override
-	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {
-				new GeneralFileFilter("Affymetrix CEL", new String[] {"cel"}),
-				new GeneralFileFilter("Spot files", new String[] {"spot"}),
-				new GeneralFileFilter("GenePix", new String[] {"gpr"}),
-				new GeneralFileFilter("Illumina", new String[] {"txt", "csv"}),
-				new GeneralFileFilter("SAM and BAM", new String[] {"sam", "bam"}),
-		};
-	}
 
 	@Override
 	public boolean isMetadata(DataBean data) {
@@ -408,11 +414,6 @@ public class MicroarrayModule implements Module {
 		return BasicModule.shortenCategoryName(categoryName);
 	}
 
-	@Override
-	public boolean countOperationResults() {
-		return true;
-	}
-
 	/**
 	 * Generates nice context link panel for quickly using genome browser. If not in standalone
 	 * mode, null is returned. 
@@ -443,8 +444,12 @@ public class MicroarrayModule implements Module {
 		JXHyperlink link;
 		boolean currentSelectionVisualisable = false;
 		try {
-			currentSelectionVisualisable = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
-		} catch (MicroarrayException e2) {
+			Visualisation visualisation = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null);
+			if (visualisation != null) {
+				List<DataBean> selection = application.getSelectionManager().getSelectedDataBeans();
+				currentSelectionVisualisable = visualisation.canVisualise(selection);
+			}
+		} catch (Exception e2) {
 			// ignore
 		}
 
@@ -472,7 +477,7 @@ public class MicroarrayModule implements Module {
 					boolean canVisualise = false;
 					try {
 						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
-					} catch (MicroarrayException e1) {
+					} catch (Exception e1) {
 						// ignore
 					}
 
@@ -535,27 +540,37 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public List<Boolean> flagLinkableColumns(String[] columnNames) {
+	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		LinkedList<Boolean> flags = new LinkedList<Boolean>();
-		for (int i = 0; i < columnNames.length; i++) {
-			
-			if (i > 0 && i < (columnNames.length-1)) {
-				flags.add("column0".equals(columnNames[i-1]) && "column1".equals(columnNames[i]) && "column2".equals(columnNames[i+1]));
-				
-			} else {
-				flags.add(false);
-			}
-			
+		
+		//flags.add(false); //0
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); //1
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)); //2
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)); //3
+		
+		for (int i = 3; i < columns.getColumnCount(); i++) {
+			flags.add(false);
 		}
 		return flags;
 	}
 
 	@Override
-	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
+		
 		IntegratedEntity entity = new IntegratedEntity();
-		entity.put("chromosome", columns.getStringValue("column0"));
-		entity.put("start", columns.getStringValue("column1"));
-		entity.put("end", columns.getStringValue("column2"));
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
+			entity.put("chromosome", columns.getStringValue(columns.getColumnNames()[0]));
+		}
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
+			entity.put("start", columns.getStringValue(columns.getColumnNames()[1]));
+		}
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
+			entity.put("end", columns.getStringValue(columns.getColumnNames()[2]));
+		}
+
 		return entity;
 	}
 

@@ -66,7 +66,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	/**
 	 * Directory for storing input and output files.
 	 */
-	private int receiveTimeout;
 	private int scheduleTimeout;
 	private int offerDelay;
 	private int timeoutCheckInterval;
@@ -122,7 +121,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 
 		// Initialise instance variables
-		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
@@ -163,7 +161,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -512,7 +510,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		try {
 			// delaying sending of the offer message can be used for
 			// prioritising comp instances 
-			if (offerDelay > 0 ) {
+			int delay = offerDelay * (runningJobs.size() + scheduledJobs.size()-1);
+			if (delay > 0 ) {
 				Timer timer = new Timer("offer-delay-timer", true);
 				timer.schedule(new TimerTask() {
 
@@ -526,9 +525,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 							}
 							logger.error("Could not send OFFER for job " + job.getId());
 						}
+						updateStatus();
 					}
 
-				}, offerDelay);
+				}, delay);
 			} else {
 				sendOfferMessage(job);
 			}
@@ -615,24 +615,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				
 				ArrayList<AnalysisJob> jobsToBeRemoved = new ArrayList<AnalysisJob>();
 
-				// get old received jobs
-				for (AnalysisJob job: receivedJobs.values()) {
-					if ((System.currentTimeMillis() - receiveTimeout * 1000) > job.getReceiveTime().getTime()) {
-						jobsToBeRemoved.add(job);
-					} else {
-						break;
-					}
-				}
-				
-				// remove old received jobs
-				for (AnalysisJob job: jobsToBeRemoved) {
-					receivedJobs.remove(job.getId());
-					logger.debug("Removing old received job: " + job.getId());
-					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
-				}
-				
 				// get old scheduled jobs	
-
 				jobsToBeRemoved.clear();
 				for (AnalysisJob job: scheduledJobs.values()) {
 					if ((System.currentTimeMillis() - scheduleTimeout * 1000) > job.getScheduleTime().getTime()) {

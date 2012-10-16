@@ -7,7 +7,7 @@
 
 <h3>Description</h3>
 
-This tool will perform an analysis for differentially expressed sequences using the R implementation of the DESeq algorithm.
+This tool performs differential expression analysis using the DESeq Bioconductor package.
 
 <br>
 <br>
@@ -17,7 +17,7 @@ This tool will perform an analysis for differentially expressed sequences using 
 <li> Column describing groups [group]</li>
 <li> Apply normalization (yes, no) [yes]</li>
 <li> Disregard replicates (yes, no) [no]</li>
-<li> Dispersion method (fit all, fit low) [fit all]</li>
+<li> Use fitted dispersion values (when higher than original values, always) [when higher than original values]</li>
 <li> Dispersion estimate (parametric, local) [local] </li>
 <li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
 <li> P-value cutoff (0-1) [0.05]</li>
@@ -28,34 +28,33 @@ This tool will perform an analysis for differentially expressed sequences using 
 <h3><br>Details</h3>
 
 <br>
-Given an input table of counts data for at least two samples, the DESeq package performs normalization, dispersion model fitting
-and statistical analysis to identify differentially expressed genomic features between two experimental conditions.
-Even though it is possible to run the analysis without independent biological replicates, by either using replicates
-for only one experiment condition or by estimating variability between samples of different experiment conditions,
-it is highly recommended to always include at least one additional biological replicate for each experiment condition.
-<br><br>
-Notice that in it's current implementation, the tool only supports single-factor experiment designs. The experiment
-conditions to be compared should be defined in the phenodata.tsv file and the appropriate column be selected using
+Given an input table of raw counts, the DESeq package performs statistical analysis to identify differentially expressed genes or other genomic features between two experimental conditions.
+Note that in its current implementation, the tool only supports single-factor experiment designs. The experiment
+conditions to be compared should be defined in the phenodata.tsv file and the appropriate column selected using
 the 'Column describing group' parameter.
 <br><br>
-If normalization is enabled, scaling of the data to account for variations in library size, are accomplished either by dividing with the average of the total counts for each sample or,
-if the user have filled in the 'library_size' column of the phenodata.tsv file, by dividing with the average of those values.
+When normalization is enabled, size factors are calculated by summing the counts for each sample, or 
+using the library size given by the user in the phenodata.tsv. The former allows to correct for RNA composition bias
+ (which can arise for example when only a small number of genes are very highly expressed in one experiment condition but not in the other). 
 <br><br>
-A dispersion value is estimated for each genomic feature through a model fit procedure, which can be performed in a "local" or "parametric" mode.
-The former is selected by default, since it is more robust, but users are encouraged to experiment with the setting to optimize results.
-The data is fitted in either of two ways, where the "fit all" option is the default choice and more conservative, whereas the "fit low" setting
-may yield increased sensitivity but potentially at the cost of increased false positives. 
+A dispersion value is estimated for each gene through a model fit procedure, which can be performed in a "local" or "parametric" mode.
+The former is more robust, but users are encouraged to experiment with the setting to optimize results.
+Users can select to replace the original dispersion values by the fitted ones always, or only when the fitted value is higher than the original one 
+(more conservative option).
 <br><br>
-Statistical testing is performed using a generalized linear model and the p-values are adjusted for multiple testing using the classical approaches.
+It is highly recommended to always have at least two biological replicates for each condition.
+If this is not possible, you can run the analysis using replicates
+for only one condition, or by estimating variability using samples of the two different conditions.
 <br><br>
+Statistical testing is performed using a negative binomial test.
 
 <h3>Output</h3>
 
-<p>The analysis output consists of the following:</p>
+<p>The analysis output consists of the following files:</p>
 
 <ul>
-<li>de-list-deseq.tsv:	Table containing the results of the statistical testing, including fold change estimates and p-values.<br></li>
-<li>de-list-deseq.bed:  The BED version of the results table contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>de-list-deseq.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values.<br></li>
+<li>de-list-deseq.bed: The BED version of the results table contains genomic coordinates and log2 fold change values.<br></li>
 <li>ma-plot-significant-deseq.pdf: A scatter plot where the significantly differentially expressed features are highlighted. <br></li>
 <li>dispersion-plot.pdf: A plot that displays the dispersion estimates as a function of the counts values, with the fitted model overlaid. <br></li>
 <li>p-value-plot-edger.pdf: Plot of the raw and adjusted p-value distributions of the statistical test. <br></li>
@@ -66,8 +65,5 @@ Statistical testing is performed using a generalized linear model and the p-valu
 <p>This tool uses the DESeq package for statistical analysis. Please read the following article for more detailed information:</p>
 
 <p> S Anders and W H. <a href="http://genomebiology.com/2010/11/10/R106">Differential expression analysis for sequence count data. Genome Biology 2010, 11:R106.</a></p> 
-
-
-<p> </a></p> 
 
 </body>

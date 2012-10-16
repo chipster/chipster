@@ -8,6 +8,8 @@
 # PARAMETER OPTIONAL d: "Report the depth at each position" TYPE [yes, no] DEFAULT no (Report the depth at each position in each B feature. Positions reported are one based.  Each position and depth follow the complete B feature.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "coverageBed"))
 

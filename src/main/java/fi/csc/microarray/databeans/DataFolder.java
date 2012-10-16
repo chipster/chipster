@@ -60,10 +60,28 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
+			
+			if (data.isContentTypeCompatitible("text/gtf")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+			}
+			
+			if (data.isContentTypeCompatitible("text/vcf")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+				
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER);
+				data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
+				data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
+			}
 
 			if (data.isContentTypeCompatitible("text/bed")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 				
+				data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
+				data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);				
+				data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN);
+
 				// Check if it has title row
 				BufferedReader in = null;
 				try {
@@ -96,6 +114,12 @@ public class DataFolder extends DataItemBase {
 
 			} else if (chips != null && chips.getColumnCount() > 0) {
 				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				
+			} else if (data.isContentTypeCompatitible("application/bam")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
+				
+			}  else if (data.isContentTypeCompatitible("chemical/x-fasta")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
 			} 
 			
 			if (data.queryFeatures("/identifier").exists()) {

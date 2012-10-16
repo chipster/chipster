@@ -13,6 +13,8 @@
 # PARAMETER OPTIONAL c: "For each entry in A, report the number of overlaps with B" TYPE [yes,no] DEFAULT no (For each entry in A, report the number of overlaps with B. Reports 0 for A entries that have no overlap with B.) 
 # PARAMETER OPTIONAL v: "Only report those entries in A that have no overlaps with B" TYPE [yes,no] DEFAULT no (Only report those entries in A that have _no overlaps_ with B) 
 
+# AMS 23.4.2012
+
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "windowBed"))
 

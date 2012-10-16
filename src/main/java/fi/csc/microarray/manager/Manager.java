@@ -198,7 +198,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		}
 		
 		// start manager web console
-//		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+//		org.eclipse.jetty.server.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
 //		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
 //		Connector connector = new SelectChannelConnector();
 //		connector.setServer(managerWebConsoleServer);

@@ -49,7 +49,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	private SecureSessionPool sessionPool; 
 	private MessagingEndpoint endpoint;
 	private MessagingTopic authorisedTopic;
-	private MessagingTopic authorisedUrlTopic;
+	private MessagingTopic authorisedFilebrokerTopic;
 	private MessagingTopic testTopic;
 
 	private TestListener testListener;
@@ -71,15 +71,15 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 
 		// create authorised topics
 		authorisedTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.WRITE);       
-		authorisedUrlTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE);       
+		authorisedFilebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE);       
 
 		// create non-authorised topics
 		RequestListener jobListener = new RequestListener(authorisedTopic);
 		MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.READ);		
 		requestTopic.setListener(jobListener);		
-		RequestListener urlListener = new RequestListener(authorisedUrlTopic);
-		MessagingTopic urlTopic = endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.READ);		
-		urlTopic.setListener(urlListener);
+		RequestListener filebrokerListener = new RequestListener(authorisedFilebrokerTopic);
+		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.READ);		
+		filebrokerTopic.setListener(filebrokerListener);
 		
 		// create test-topic
 		testTopic = endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.READ_WRITE);		

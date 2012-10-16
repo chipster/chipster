@@ -3,20 +3,25 @@ package fi.csc.microarray.filebroker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.log.Log;
-import org.mortbay.util.IO;
-import org.mortbay.util.URIUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.util.URIUtil;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.util.Files;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 
@@ -31,6 +36,9 @@ public class RestServlet extends DefaultServlet {
 
 	private String userDataPath;
 	private String publicDataPath;
+	private int cleanUpTriggerLimitPercentage;
+	private int cleanUpTargetPercentage;
+	private int cleanUpMinimumFileAge;
 	
 	private AuthorisedUrlRepository urlRepository;
 	private String rootUrl;
@@ -42,6 +50,9 @@ public class RestServlet extends DefaultServlet {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		userDataPath = configuration.getString("filebroker", "user-data-path");
 		publicDataPath = configuration.getString("filebroker", "public-data-path");
+		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
+		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
+		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
 	}
 	
 	@Override
@@ -108,6 +119,12 @@ public class RestServlet extends DefaultServlet {
 		if (isWelcomePage(request)) {
 			new WelcomePage(rootUrl).print(response);
 		} else {
+			
+			// touch the file
+			File file = locateFile(request);
+			file.setLastModified(System.currentTimeMillis());
+			
+			// delegate to super class
 			super.doGet(request, response);	
 		}
 		
@@ -142,15 +159,40 @@ public class RestServlet extends DefaultServlet {
 		}
 		
 		FileOutputStream out = new FileOutputStream(file);
+		InputStream in = request.getInputStream();
 		try {
-			IO.copy(request.getInputStream(), out);
-			
+			IO.copy(in, out);
 		} catch (IOException e) {
 			Log.warn(Log.EXCEPTION, e); // is this obsolete?
-			out.close();
+			file.delete();
 			throw(e);
+		} finally {
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(in);
 		}
 		
+		// make sure there's enough usable space left after the transfer
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+
+					File userDataDir = new File(getServletContext().getRealPath(userDataPath));
+					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
+
+					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
+						Log.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
+								" (" + (100-cleanUpTriggerLimitPercentage) + "%) reached, cleaning up");
+						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(userDataPath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
+						Log.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(userDataPath)).getUsableSpace()));
+					} 
+
+				} catch (Exception e) {
+					Log.warn("could not clean up space after put", e);
+				}
+			}
+		}, "chipster-fileserver-cache-cleanup").start();
+
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
 	}
 	

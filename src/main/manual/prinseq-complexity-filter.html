@@ -3,22 +3,21 @@
 <head><title></title></head>
 <body>
 
-<h2>Filter reads by complexity</h2>
+<h2>Filter reads for low complexity</h2>
 
 <h3>Description</h3>
 
-<p>This tool filters out low complexly sequences using either DUST or Entropy algorithm. 
-The algorithm is selected by defining a threshold value for one of the methods. 
+<p>This tool filters reads based on low complexity using either the DUST or Entropy algorithm. 
+The algorithm is selected by defining a threshold value for it. 
 </p>
 
 
 <h3>Details</h3>
 
-<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
-The filtering is calculated with PRIONSEQ option -stats_all.
+<p>
 The input data can be in FASTQ or FASTA format. You should give a threshold value 
-to DUST or Entropy filter threshold but not for both methods.
-The method fof which the threshold value is defined will be used.
+to DUST or Entropy filter, but not both.
+The method for which the threshold value is defined will be used.
 </p><p>
 The DUST method uses the threshold value as maximum allowed score.
 The DUST approach is adapted from the algorithm used to mask low-complexity 
@@ -28,8 +27,9 @@ Higher scores imply lower complexity. A sequence of homopolymer repeats
 (e.g. TTTTTTTTT) has a score of 100, of dinucleotide repeats (e.g. TATATATATA) 
 has a score around 49, and of trinucleotide repeats (e.g. TAGTAGTAGTAG) has a 
 score around 32.
-</p><p>
-The Entropy method  uses the threshold as minimum allowed value. </p>
+</p>
+<p>
+The Entropy method  uses the threshold as minimum allowed value.
 The Entropy approach evaluates the entropy of trinucleotides in a sequence. 
 The entropy values are scaled from 0 to 100 and lower entropy values imply 
 lower complexity. A sequence of homopolymer repeats (e.g. TTTTTTTTT) has an 
@@ -39,9 +39,8 @@ and of trinucleotide repeats (e.g. TAGTAGTAGTAG) has a value around 26.
 
 <h3>Output</h3>
 <p>
-The reads that pass the low complexity filtering condition are saved to file called accepted.fastq or accepted.fasta.
-You can also choose to write out the reads that are filtered out due to their low complexity.
-These reads are stored to file rejected.fastq or rejected.fasta.
+The reads that pass the filtering condition are saved to file called accepted.fastq or accepted.fasta.
+You can also choose to store the reads that are filtered out to a separate file (rejected.fastq or rejected.fasta).
 You can also print out a log file that contains information about the filtering task and
 statistics about how many reads were accepted and rejected. 
 </p>

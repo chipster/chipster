@@ -16,7 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * Ruler that shows coordinates.
@@ -37,7 +37,7 @@ public class RulerTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		BpCoordRegion region = getView().getBpRegion();
+		Region region = getView().getBpRegion();
 
 		long magnitude = (long) Math.pow(10, (int) Math.log10(region.getLength()));
 
@@ -52,13 +52,15 @@ public class RulerTrack extends Track {
 
 			drawables.add(new TextDrawable(x, textY, text, Color.black));
 		}
+		
+		boolean whiteStart = false;
 
-		drawables.addAll(getRuler(new BpCoordRegion(start, end, region.start.chr), steps * MINOR_STEPS, start / magnitude % 2 == 1));
+		drawables.addAll(getRuler(new Region(start, end, region.start.chr), steps * MINOR_STEPS, whiteStart));
 
 		return drawables;
 	}
 
-	private Collection<Drawable> getRuler(BpCoordRegion bpRegion, int steps, boolean whiteStart) {
+	private Collection<Drawable> getRuler(Region bpRegion, int steps, boolean whiteStart) {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
@@ -84,10 +86,6 @@ public class RulerTrack extends Track {
 
 			drawables.add(new RectDrawable(Math.round(lastBoxX), textY,
 			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, null));
-
-			// TODO remove these guidelines if not used
-			// Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
-			// drawables.add(new LineDrawable(boxX, -getView().getHeight() + getHeight(), boxX, getHeight(), lineColor));
 
 			lastBoxX = boxX;
 		}
@@ -129,5 +127,10 @@ public class RulerTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
+	}
+	
+	@Override
+	public String getName() {
+		return "ruler";
 	}
 }

@@ -17,7 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
@@ -36,9 +36,9 @@ public class CircularView extends View {
 	}
 
 	@Override
-	protected void drawView(Graphics2D g, boolean isAnimation) {
+	protected void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
 
-		super.drawView(g, isAnimation);
+		super.drawView(g, isAnimation, viewPort);
 
 		if (highlight != null) {
 
@@ -206,7 +206,7 @@ public class CircularView extends View {
 				startBp = 0;
 			}
 
-			setBpRegion(new BpCoordRegionDouble(startBp, endBp, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(startBp, endBp, new Chromosome("1")), false);
 		}
 	}
 
@@ -263,12 +263,12 @@ public class CircularView extends View {
 	}
 
 	private int getCenterY() {
-		return getHeight();
+		return getStaticHeight();
 	}
 
 	@Override
-	public int getHeight() {
-		return super.getHeight() / 2;
+	public int getStaticHeight() {
+		return super.getStaticHeight() / 2;
 	}
 
 	private float getAngle(Point.Float p) {

@@ -11,15 +11,12 @@ import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
  * Single track inside a {@link View}. Typically multiple instances
@@ -37,11 +34,6 @@ public abstract class Track implements AreaResultListener {
     public Track(View view, DataSource file) {
 		this.view = view;
 		this.file = file;
-	}
-
-	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
-		this(view, file);
-		view.getQueueManager().createQueue(file, handler);
 	}
 
 	/**
@@ -164,6 +156,7 @@ public abstract class Track implements AreaResultListener {
     }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
+	private String name = "Track";
 
 	/**
 	 * DOCME
@@ -195,13 +188,13 @@ public abstract class Track implements AreaResultListener {
 
 		return parts;
 	}
-
-	public BpCoord getMaxBp(Chromosome chr) {
-		return null;
-	}
 	
 	public String getName() {
-		return "Track";
+		return name ;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public boolean isNameVisible(Rectangle rect) {

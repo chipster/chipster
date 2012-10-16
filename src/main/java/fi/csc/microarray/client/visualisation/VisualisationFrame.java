@@ -43,7 +43,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private CardLayout viewChangerLayout = new CardLayout();
 	private JPanel viewChangerPanel = new JPanel(viewChangerLayout);
-	private JComponent lastVisualisationPanel;
 	private JSplitPane paramSplit;
 
 	private VisualisationMethod method;
@@ -55,6 +54,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	protected FrameType type;
 
 	private Visualisation visualiser;
+
+	private JPanel waitPanel;
 
 	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
@@ -70,7 +71,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		viewChangerPanel.setBackground(BG);
 
 		// initialise wait panel
-		JPanel waitPanel = new JPanel(new BorderLayout());
+		waitPanel = new JPanel(new BorderLayout());
 		JLabel waitLabel = new JLabel("Visualising, please wait...");
 		waitLabel.setFont(waitLabel.getFont().deriveFont(Font.BOLD));
 		waitLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -99,38 +100,46 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	}
 
 	public JComponent createVisualisation(VisualisationMethodChangedEvent e) {
+		
+		JComponent componentToReturn = null;
 
 		// Create new visualiser only if needed to keep the settings made in settings panel
-		if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
-			this.datas = e.getDatas();
-			this.method = e.getNewMethod();
-
-			removeVisualiser();
-			visualiser = method.getVisualiser(this);
-		}
-		this.variables = e.getVariables();
-
-		// parameter panel has to be first one to make it initialised before the
-		// data is set (scatterplot)
-		JPanel parametersPanel = visualiser.getParameterPanel();
-		logger.debug("parametersPanel for method " + method + " contains: " + parametersPanel);
-		if (parametersPanel != null) {
-			paramSplit = new JSplitPane();
-			parametersPanel.setMinimumSize(new Dimension(0, 0));
-			paramSplit.setRightComponent(parametersPanel);
-			// To show the width limit of parameter panel
-			paramSplit.setContinuousLayout(true);
-			// To keep the parameter panel size constant
-			paramSplit.setResizeWeight(1.0);
-
-			SplitSizeHandler sizeHandler = new SplitSizeHandler();
-			paramSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, sizeHandler);
-		}
-
-		JComponent visualisationComponent = null;
-
-		JComponent componentToReturn = null;
 		try {
+			if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
+				this.datas = e.getDatas();
+				this.method = e.getNewMethod();
+
+				removeVisualiser();
+
+				visualiser = method.getVisualiser(this);
+			}
+			this.variables = e.getVariables();
+
+			// parameter panel has to be first one to make it initialised before the
+			// data is set (scatterplot)
+			JPanel parametersPanel = visualiser.getParameterPanel();
+			logger.debug("parametersPanel for method " + method + " contains: " + parametersPanel);
+			if (parametersPanel != null) {
+				paramSplit = new JSplitPane();
+				parametersPanel.setMinimumSize(new Dimension(0, 0));
+				paramSplit.setRightComponent(parametersPanel);
+				// To show the width limit of parameter panel
+				paramSplit.setContinuousLayout(true);
+				// To keep the parameter panel size constant
+				paramSplit.setResizeWeight(1.0);
+
+				SplitSizeHandler sizeHandler = new SplitSizeHandler();
+				paramSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, sizeHandler);
+			} else {
+				//Do not keep references to old visualization to avoid memory leak
+				if (paramSplit != null) {
+					paramSplit.removeAll();
+				}
+			}
+
+			JComponent visualisationComponent = null;
+
+
 			if (visualiser.isForMultipleDatas()) {
 				visualisationComponent = visualiser.getVisualisation(datas);
 			} else if (visualiser.isForSingleData()) {
@@ -174,8 +183,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			}
 		}
 
-		this.lastVisualisationPanel = panel;
-
 		String title = "Visualisation";
 		if (datas != null && datas.size() > 0) {
 			title += " of ";
@@ -211,13 +218,15 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	 * from EDT.
 	 */
 	public void removeVisualisationComponent() {
-
-		if (lastVisualisationPanel != null) {
-			// remove all references to visualisation panel
-			viewChangerPanel.remove(lastVisualisationPanel);
-			viewChangerLayout.removeLayoutComponent(lastVisualisationPanel);
-
-			lastVisualisationPanel = null;
+		
+		for (Component component : viewChangerPanel.getComponents()) {
+			if (!(component == waitPanel)) {
+				
+				// remove all references to visualisation panel
+				viewChangerPanel.remove(component);
+				viewChangerLayout.removeLayoutComponent(component);
+			}
+			
 		}
 	}
 

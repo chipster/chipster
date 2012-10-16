@@ -3,19 +3,16 @@
 <head><title></title></head>
 <body>
 
-<h2>Filter out duplicate reads</h2>
+<h2>Filter reads for duplicates</h2>
 
 <h3>Description</h3>
 
-<p>This tool filters out duplicate reads from a reads file.
+<p>This tool filters reads for duplicates. The input data can be in FASTQ or in FASTA format.
 </p>
 
 
 <h3>Details</h3>
-
-<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.<br>
-The input data can be in FASTQ or in FASTA format.
-</p> 
+ 
 <p>
 The main purpose of removing duplicates is to mitigate the effects of PCR amplification bias 
 introduced during library construction. In addition, removing duplicates can result in computational 
@@ -33,16 +30,15 @@ The duplicate reads can be defined in several ways:
 </ul>
  
 In addition to the way how duplicates are defined, you should also define a threshold value:
-<b>Number of allowed duplicates</b>, that specifies the number of allowed duplicates. For example, 
+<b>Number of allowed duplicates</b>. For example, 
 to remove sequences that occur more than 5 times, you would specify value 6. Note that this parameter
 is used only for filtering exact duplicates or reverse complement exact duplicates.
 
 
 <h3>Output</h3>
 <p>
-The reads that pass the duplicate filtering condition are saved to file called <b>accepted.fastq</b> or <a>accepted.fasta</a>.
-You can also choose to write out the duplicate reads that are filtered out.
-These reads are stored to file <b>rejected.fastq</b> or <b>rejected.fasta</b>.
+The reads that pass the filtering condition are saved to file called accepted.fastq or accepted.fasta.
+You can also choose to store the reads that are filtered out to a separate file (rejected.fastq or rejected.fasta).
 You can also print out a log file that contains information about the filtering task and
 statistics about how many reads were accepted and rejected. 
 </p>

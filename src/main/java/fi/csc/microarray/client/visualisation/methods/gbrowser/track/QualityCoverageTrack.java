@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -43,9 +42,8 @@ public class QualityCoverageTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-			Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file, handler);
+	public QualityCoverageTrack(View view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
+		super(view, file);
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -199,10 +197,10 @@ public class QualityCoverageTrack extends Track {
 						getStrand() == Strand.BOTH) {
 
 					forwardReads.add(content);
-					getView().redraw();
 				}
 			}
 		}
+		getView().redraw();
 	}
 
 	@Override

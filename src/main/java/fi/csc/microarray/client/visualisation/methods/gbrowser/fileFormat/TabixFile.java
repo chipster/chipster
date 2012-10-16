@@ -7,11 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixReader;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryReader;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -38,7 +38,7 @@ public class TabixFile {
      */
     public List<RegionContent> getReads(AreaRequest request) throws IOException {
 
-        return TabixReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
+        return TabixSummaryReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
                 request.start.bp.toString(), request.end.bp.toString());
     }
     
@@ -95,7 +95,7 @@ public class TabixFile {
         		
         		cacheMisses++;
         		        		
-                Collection<RegionContent> queryResult = TabixReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
+                Collection<RegionContent> queryResult = TabixSummaryReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
                 		"" + (stepMiddlepoint - SAMPLE_SIZE/2), "" + (stepMiddlepoint + SAMPLE_SIZE/2));
 
    				countForward += queryResult.size();
@@ -105,8 +105,8 @@ public class TabixFile {
         	}
 
         	// Create two approximated response objects: one for each strand
-        	BpCoordRegion recordRegion =
-        		new BpCoordRegion(pos, pos + step, request.start.chr);
+        	Region recordRegion =
+        		new Region(pos, pos + step, request.start.chr);
 
         	// Forward
         	LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();

@@ -14,11 +14,11 @@
 <p>
 This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
 The filtering is calculated with PRIONSEQ options <i>-trim_qual_left</i>, <i>-trim_qual_right</i>, 
-<i>-trim_qual_type</i>, <i>-trim_qual_rule</i>, <i>-trim_qual_window</i>,and </i>-trim_qual_step</i>
+<i>-trim_qual_type</i>, <i>-trim_qual_rule</i>, <i>-trim_qual_window</i>, and <i>-trim_qual_step</i>.
 </p>
-<p>Sequences can be trimmed from either end using different rules applied to a sliding window. 
+<p>Reads can be trimmed from either end using different rules applied to a sliding window. 
 To stop at the first base that fails the rule defined, use a window size of 1. A bigger window 
-size can trim sequences that might contain a high quality score in between low quality scores 
+size can trim reads that might contain a high quality score in between low quality scores 
 without stopping at the high quality score. To move the sliding window over all quality scores 
 without missing any, the step size should be less or equal to the window size.
 </p>
@@ -26,9 +26,9 @@ without missing any, the step size should be less or equal to the window size.
 <h3>Output</h3>
 
 <p>
-The trimmed reads are saved to file called <b>trimmed.fastq</b> or <a>trimmed.fasta</a>.
-You can also print out a log file that contains information about the filtering task and
-statistics about how many reads were accepted and rejected.
+The trimmed reads are saved to file called trimmed.fastq.
+You can also request a log file that contains information about the trimming task and
+statistics about how many reads were rejected.
 </p>
 	
 

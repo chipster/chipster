@@ -5,16 +5,16 @@
 
 <h2>Analysis tools for next generation sequencing data</h2>
 
-<p>Chipster's NGS analysis tools are grouped in the categories listed below. Each analysis tool has its own detailed manual page, which consists of four sections: 
-General description, parameters, details, output and reference.
- The parameter section contains the list of parameters, their possible values (1-100) and their default values [10]. The manual for Chipster's built-in genome browser can be found <a href="genomeBrowser.html">here</a>.</p>
+<p>Chipster's NGS analysis tools are grouped in the categories listed below. Chipster also contains a <a href="genomeBrowser.html">built-in genome browser</a>,
+allowing you to view reads and results in their genomic context.</p>
 
 <ol>
-<li> <a href="#filtering">Filtering</a> </li>
 <li> <a href="#quality">Quality control</a> </li>
+<li> <a href="#filtering">Filtering</a> </li>
 <li> <a href="#utilities">Utilities</a> </li>
 <li> <a href="#regions">Matching genomic regions</a> </li>
 <li> <a href="#alignment">Alignment</a> </li>
+<li> <a href="#variants">Variants</a> </li>
 <li> <a href="#RNA">RNA-seq</a> </li>
 <li> <a href="#miRNA">miRNA-seq</a> </li>
 <li> <a href="#ChIP">ChIP-seq</a> </li>
@@ -23,23 +23,31 @@ General description, parameters, details, output and reference.
 </ol>
 <hr>
 <ul>
+<b><a name="quality">Quality control</a></b>
+<li> <a href="fastqc.html">Read quality with FastQC</a></li>
+<li> <a href="fastx-statistics.html">Quality statistics with FASTX</a></li>
+<li> <a href="prinseq-statistics.html">Read quality statistics with PRINSEQ </a> </li>
+<br>
+<br>
 <b><a name="filtering">Filtering</a></b>
-<li> <a href="fastx-quality-filter.html">Filter out low quality reads</a> </li>
-<li> <a href="fastx-clipper.html">Filter reads for adapters, length and Ns</a></li>
+<li> <a href="fastx-quality-filter.html">Filter out low quality reads (FASTX)</a> </li>
+<li> <a href="prinseq-length-filter.html">Filter reads for length (PRINSEQ)</a> </li>
+<li> <a href="prinseq-N-filter.html">Filter reads for Ns (PRINSEQ)</a> </li>
+<li> <a href="prinseq-complexity-filter.html">Filter reads for low complexity (PRINSEQ)</a> </li>
+<li> <a href="prinseq-duplicate-filter.html">Filter reads for duplicates (PRINSEQ)</a> </li>
+<li> <a href="prinseq-filter.html">Filter reads for several criteria (PRINSEQ)</a> </li>
+<li> <a href="fastx-clipper.html">Filter reads for adapters, length and Ns (FASTX)</a></li>
 <li> <a href="ngs-filter-annotations.html">Filter by column term </a> </li>
 <li> <a href="ngs-filter-results-column.html">Filter by column value </a> </li>
 <br>
 <br>
-<b><a name="quality">Quality control</a></b>
-<li> <a href="fastqc.html">Read quality with FastQC</a></li>
-<li> <a href="fastx-statistics.html">Quality statistics with FASTX</a></li>
-<br>
-<br>
 <b><a name="utilities">Utilities</a></b>
-<li> Define NGS experiment </li>
-<li> <a href="fastx-trimmer.html">Trim reads</a> </li>
+<li> <a href=" ngs-create-experiment.html">Define NGS experiment </a> </li>
+<li> <a href="fastx-trimmer.html">Trim reads (FASTX)</a> </li>
+<li> <a href="prinseq-quality-trimmer.html">Trim reads by quality (PRINSEQ) </a> </li>
+<li> <a href="prinseq-AT-trimmer.html">Trim reads for poly-A/T tails (PRINSEQ) </a> </li>
+<li> <a href="prinseq-trimmer.html">Trim reads for several criteria (PRINSEQ) </a> </li>
 <li> <a href="fastx-renamer.html">Rename reads</a> </li>
-<li> <a href="fastx-collapser.html">Remove duplicate reads from FASTQ or FASTA</a> </li>
 <li> <a href="samtools-rmdup.html">Remove duplicate reads from BAM </a> </li>
 <li> <a href="samtools-index.html">Index BAM </a> </li>
 <li> <a href="samtools-sort-index-BAM.html">Sort and index BAM</a> </li>
@@ -50,11 +58,12 @@ General description, parameters, details, output and reference.
 <li> <a href="samtools-idxstats.html">Statistics for BAM </a> </li>
 <li> <a href="samtools-subset.html">Make a subset of BAM  </a> </li>
 <li> <a href="samtools-count.html">Count alignments in BAM  </a> </li>
+<li> <a href="samtools-consensus.html">Create consensus sequence from BAM </a> </li>
+<li> <a href="annotate-variants.html">Annotate variants </a> </li>
 <li> <a href="bedtools-sort.html">Sort BED </a> </li>
 <li> <a href="bedtools-fastafrombed.html">FASTA from BED </a> </li>
 <li> <a href="bedtools-slopbed.html">Slop BED </a> </li>
 <li> Extract features from BED </li>
-
 <br>
 <br>
 <b><a name="regions">Matching genomic regions</a></b>
@@ -84,28 +93,41 @@ General description, parameters, details, output and reference.
 <li> <a href="bwa-with-index-building.html">BWA for single-end reads and own genome</a> </li>
 <li> <a href="bwasw-with-index-building.html">BWA-SW for single-end reads and own genome</a> </li>
 <li> <a href="bwa-paired-end-with-index-building.html">BWA for paired-end reads and own genome </a> </li>
+<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a> </li>
+<li><a href="tophat2-single-end.html">Alignment / TopHat2 for single end reads</a></li>
 <li> <a href="tophat.html">TopHat for paired end reads </a> </li>
 <li> <a href="tophat-single-end.html">TopHat for single end reads </a> </li>
+<br>
+<br>
+<b><a name="variants">Variants</a></b>
+<li> <a href="samtools-snp-indel-single.htmll">Call SNPs and short INDELs </a> </li>
+<li><a href="samtools-snp-indel-single.html"> Variants / Call SNPs and short INDELs</a></li>
+<li><a href="vcftools.html">Variants / Filter and analyze variants</a></li>
 <br>
 <br>
 <b><a name="RNA">RNA-seq</a></b>
 <li> <a href="htseq-count.html">Map aligned reads to genes with HTSeq</a> </li>
 <li> <a href="htseq-count-own-gtf.html">Map aligned reads to genes with HTSeq using own GTF </a> </li>
 <!--  <li> Map aligned reads to genes with coverageBed using own BED </li>-->
-<li> Differential expression analysis using edgeR</li>
-<li> Differential expression analysis using Cufflinks</li>
+<li><a href="dea-cufflinks.html">Differential expression analysis using Cufflinks</a></li>
+<li> <a href="ngs-dea-edger-RNA.html"> Differential expression analysis using edgeR</a></li>
+<li> <a href="edger-multivariate.html"> Differential expression analysis using edgeR for multivariate experiments</a></li>
+<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
+<li><a href="dexseq-exoncount.html">RNA-seq / Map aligned reads to exons for DEXSeq</a></li>
+<li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a></li>
 <br>
 <br>
 <b><a name="miRNA">miRNA-seq</a></b>
-<li> Convert genomic BAM to edgeR input format </li>
-<li> Convert miRBased BAM to edgeR input format </li>
-<li> Differential expression analysis using edgeR</li>
-<li> Find miRNA targets </li>
-<li> GO enrichment for miRNA targets</li>
-<li> KEGG enrichment for miRNA targets</li>
-<li> Correlate miRNA with target expression</li>
-<li> Up-down analysis of miRNA targets</li>
-<li> Extract miRNA target expression data</li>
+<li><a href="convert-bam-to-edger.html">Convert genomic BAM to edgeR input format</a></li>
+<li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to edgeR input format</a></li>
+<li><a href="ngs-dea-edger.html">Differential expression analysis using edgeR</a></li>
+<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
+<li><a href="ngs-annotate-miRNA-targets.html">Find miRNA targets</a></li>
+<li><a href="ngs-pathways-mirna-hyperg-go.html">GO enrichment for miRNA targets</a></li>
+<li><a href="ngs-pathways-mirna-hyperg-kegg.html">KEGG enrichment for miRNA targets</a></li>
+<li><a href="ngs-correlation-analysis-mirna.html">Correlate miRNA with target expression</a></li>
+<li><a href="ngs-up-down-analysis-mirna.html">Up-down analysis of miRNA targets</a></li>
+<li><a href="ngs-extract-target-gene-expression.html">Extract miRNA target expression data</a></li>
 <br>
 <br>
 <b><a name="ChIP">ChIP-seq</a></b>
@@ -113,22 +135,23 @@ General description, parameters, details, output and reference.
 <li> <a href="ngs-find-peaks-macs-two.html">Find peaks using MACS, treatment vs. control </a> </li>
 <li> <a href="ngs-find-motifs-jaspar.html">Find common motifs and match to JASPAR </a> </li>
 <li> <a href="ngs-find-nearest-genes.html">Find the nearest genes for regions </a> </li>
-<li> Find unique and annotated genes</li>
+<li> <a href="ngs-find-unique-genes.html">Find unique and annotated genes</a></li>
 <li> <a href="pathways-ngs-hyperg-go.html">GO enrichment for list of genes </a> </li>
 <br>
 <br>
 <b><a name="CNA">CNA-seq</a></b>
-<li> Count reads in fixed bins </li>
-<li> Plot copy number profile </li>
-<li> Compare to reference sample</li>
-<li> Define CNA-seq experiment </li>
+<li><a href="cna-bin-hits.html">Count reads in fixed bins</a></li>
+<li> <a href="cna-pool-bins.html">Pool binned read counts </a> </li>
+<li> <a href="cna-define-experiment.html ">Define CNA-seq experiment </a> </li>
+<li> <a href="cna-segment-and-call-aberrations.html">Segment and call copy number aberrations </a> </li>
+<li><a href="cna-plot-profile.html">Plot copy number profile</a></li>
 <br>
 <br>
 <b><a name="methyl">Methyl-seq</a></b>
 <li> <a href="convertBAMtoMEDIPS.html">Convert BAM file to MEDIPS input format </a> </li>
 <li> <a href="combineMEDIPS.html">Combine MEDIPS input files </a> </li>
-<li> <a href="MEDIPS_one-sample.html">MEDIPS -methylation analysis, treatment only </a> </li>
-<li> <a href="MEDIPS_two-samples.html">MEDIPS -methylation analysis, treatment and control </a> </li>
+<li> <a href="MEDIPS_one_sample.html">MEDIPS -methylation analysis, treatment only </a> </li>
+<li> <a href="MEDIPS_two_samples.html">MEDIPS -methylation analysis, treatment and control </a> </li>
 
 
 

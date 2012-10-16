@@ -11,6 +11,7 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
+	<property name="admin-src" location="src/main/admin" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
@@ -39,7 +40,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.0.1" />
+	<property name="release-version" value="2.2.2" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -88,18 +89,15 @@
             <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/swingx-1.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
-            <fatjar.jarsource file="${lib}/jetty-6.1.12.jar" relpath=""/>
-	        <fatjar.jarsource file="${lib}/jetty-util-6.1.12.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>   
             <fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-io-2.2.jar" relpath=""/>
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-	    	<fatjar.jarsource file="${lib}/sam-1.32.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/picard-1.32.jar" relpath=""/>
+	    	<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
 	    	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
@@ -113,7 +111,30 @@
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
-        </fatjar.build>
+		    <fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-annotations-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-client-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-continuation-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-deploy-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-http-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-io-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-jmx-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-jndi-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-overlay-deployer-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-plus-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-policy-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-rewrite-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-security-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-server-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-servlet-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-servlets-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-util-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
+		    
+		    </fatjar.build>
 
 		<!-- sign it -->
 		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
@@ -214,12 +235,7 @@
 			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
-			<!-- (Upgrade and migrate not available for 2.0, fresh install is required)
-			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/migrate.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/migrate.bat" filemode="755" prefix="chipster" />
-			-->
+			<tarfileset file="${admin-src}/vm/update.sh" filemode="755" prefix="chipster/admin/vm" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			
@@ -409,13 +425,6 @@
 
 	</target>
 	
-	<target name="package-zip" depends="package-tar" description="Create chipster zip">
-		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
-		  <tarfileset src="${release-tar}" />
-		</zip>
-
-	</target>
 	
 	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
