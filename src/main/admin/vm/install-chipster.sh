@@ -268,7 +268,6 @@ then
 
 
   ## R-2.15:
-  # could also use the package from nic
   R_VER=2.15.1
   cd ${TMPDIR_PATH}/
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
@@ -281,6 +280,9 @@ then
   cd ../
   rm -rf R-${R_VER}/
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
+
+  # could also use the package from nic
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 
 
   ## External apps:

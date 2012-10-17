@@ -251,6 +251,10 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Installing R library maSigPro"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/maSigPro.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   
+  echo "** Updating R-2.15"
+  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  
 fi
 
 
