@@ -527,6 +527,11 @@
       <bioconductor-package>rtracklayer</bioconductor-package>
       <mirror>http://www.bioconductor.org</mirror>
     </item>
+
+    <item installed="false" name="maSigPro" type="r-package"> 
+      <bioconductor-package>maSigPro</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
+    </item>
       
     <item installed="true" name="qvalue" type="r-package">
       <bioconductor-package>qvalue</bioconductor-package>

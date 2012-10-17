@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.3.0
+LATEST_VERSION=2.2.2
 
 # Exit immediately if some command fails
 set -e
@@ -237,8 +237,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Tools image is uptodate"                      
 fi
 
-# 2.3.0
-compare_to_current "2.3.0"
+# 2.2.2
+compare_to_current "2.2.2"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
   echo "** Removing obsolete link"                      
   rm -f ${TOOLS_PATH}/admin/ngs
@@ -246,6 +246,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Adding sheep to genome browser"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_fasta_Ovis_aries.Oar_v3.1.dna.toplevel.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/contents2.txt
+  
+  echo "** Installing R library maSigPro"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/maSigPro.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   
 fi
 
