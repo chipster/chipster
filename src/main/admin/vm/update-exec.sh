@@ -255,6 +255,12 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
   
+  echo "** Installing GATK"
+  cd ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj
+  mv GenomeAnalysisTKLite-2.1-11-* GenomeAnalysisTKLite-2.1-11
+  ln -s GenomeAnalysisTKLite-2.1-11 GenomeAnalysisTK2
+  
 fi
 
 
