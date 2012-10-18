@@ -247,6 +247,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Adding sheep to genome browser"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_fasta_Ovis_aries.Oar_v3.1.dna.toplevel.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/contents2.txt
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  	
   
   echo "** Installing R library maSigPro"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/maSigPro.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
