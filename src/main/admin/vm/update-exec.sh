@@ -244,9 +244,11 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/admin/ngs
   rm -rf ${TOOLS_PATH}/tophat-1.3.0.Linux_x86_64	
   
-  echo "** Adding sheep to genome browser"
+  echo "** Adding sheep to genome"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/genomebrowser_fasta_Ovis_aries.Oar_v3.1.dna.toplevel.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/contents2.txt
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/
   
   echo "** Installing R library maSigPro"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/maSigPro.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
@@ -254,7 +256,11 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Updating R-2.15"
   mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  
+
+  echo "** Installing GATK"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/
+  ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/gatk
+
 fi
 
 

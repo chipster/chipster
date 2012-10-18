@@ -491,6 +491,7 @@ then
   cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/bwa_indexes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/All_bwa_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bwa_indexes/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
@@ -529,7 +530,12 @@ then
     cd ../
     mv vcftools_0.1.9/ ${TOOLS_PATH}/
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
- 	 	 	 	 
+
+  # GATK, MIT
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/
+  ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/gatk
+
+ 	 	 	 	  	 	 	 	  	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
