@@ -13,8 +13,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription;
@@ -22,7 +20,6 @@ import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
@@ -107,7 +104,6 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	private static String SCRIPT_SUCCESSFUL_STRING = "script-finished-succesfully";
 	private static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";
 	
-	private int rTimeout;
 	private CountDownLatch waitRLatch = new CountDownLatch(1);
 	
 	// injected by handler at right after creation
@@ -205,7 +201,6 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 
 	protected RAnalysisJob() {
-		this.rTimeout = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "r-timeout");
 	}
 
 	
@@ -340,7 +335,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		cancelCheck();
 		logger.debug("waiting for the script to finish.");
 		try {
-			waitRLatch.await(rTimeout, TimeUnit.SECONDS);
+			waitRLatch.await();
 		} catch (InterruptedException e) {
 			outputMessage.setErrorMessage("Running R was interrupted.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));

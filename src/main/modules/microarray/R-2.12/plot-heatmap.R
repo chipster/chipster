@@ -4,6 +4,8 @@
 # OUTPUT heatmap.pdf: heatmap.pdf 
 # PARAMETER coloring.scheme: coloring.scheme TYPE [Green-Red: Green-Red, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
 # PARAMETER cluster.samples.only: cluster.samples.only TYPE [yes: yes, no: no] DEFAULT no (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
+# PARAMETER hm.scale: hm.scale TYPE [default: default, none: none, row: row, column: column] DEFAULT default (Indicating if the values should be centered and scaled in either the row direction or the column direction, or none.)
+# PARAMETER distance: distance TYPE [euclidean: euclidean, maximum: maximum, manhattan: manhattan, canberra: canberra, binary: binary, minkowski: minkowski, pearson: pearson, spearman: spearman, kendall: kendall, cosine: cosine, mcd: mcd, ogk: ogk] DEFAULT pearson (The correlation distance measure to be used for clustering.)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -16,6 +18,14 @@
 #
 # MG 25.11.2010
 # Increased the gene/sample limit to 20000
+#
+# OH 10.10.2012
+# removed dependency library("amap")
+# added library("MKmisc)
+# added parameter hm.scale, see parameter scale of heatmap function, R: help(heatmap)
+# added parameter distance, see parameter distfun of heatmap function, to allow for different distance measurements
+#
+
 
 # Parameter settings (default) for testing purposes
 #coloring.scheme<-"Green-Red"
@@ -28,8 +38,19 @@ colpar<-coloring.scheme
 w<-image.width
 h<-image.height
 
+s<-hm.scale
+d<-distance
+library("MKmisc")
+#myCorDist=function(x){dist(x)}
+if( d=="euclidean" || d=="maximum" || d=="manhattan" || d=="canberra" || d=="binary" || d=="minkowski" ) {
+	myCorDist=function(x){dist(x,method=d)}
+}
+if( d=="pearson" || d=="spearman" || d=="kendall" || d=="cosine" || d=="mcd" || d=="ogk" ) {
+	myCorDist=function(x){corDist(x,method=d)}
+}
+
 # Loading the libraries
-library(amap)
+#library(amap)
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -52,10 +73,10 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Does the clustering
-if (cluster.samples.only=="no") {
-	clustg<-as.dendrogram(hcluster(x=dat2, method="pearson", link="average"))
-}
-clustc<-as.dendrogram(hcluster(x=t(dat2), method="pearson", link="average"))
+#if (cluster.samples.only=="no") {
+#	clustg<-as.dendrogram(hcluster(x=dat2, method="pearson", link="average"))
+#}
+#clustc<-as.dendrogram(hcluster(x=t(dat2), method="pearson", link="average"))
 
 # Generating the colors
 if(colpar=="Green-Red") {
@@ -83,9 +104,21 @@ if(colpar=="Black-White") {
 	
 pdf(file="heatmap.pdf", width=w/72, height=h/72)
 if (cluster.samples.only=="no") {
-	heatmap(x=as.matrix(dat2), Rowv=clustg, Colv=clustc, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	if( hm.scale=="default" ) {
+		#heatmap(x=as.matrix(dat2), Rowv=clustg, Colv=clustc, distfun=myCorDist, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+		heatmap(x=as.matrix(dat2), distfun=myCorDist, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	} else {
+		#heatmap(x=as.matrix(dat2), Rowv=clustg, Colv=clustc, distfun=myCorDist, col=heatcol, scale=s, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+		heatmap(x=as.matrix(dat2), distfun=myCorDist, col=heatcol, scale=s, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	}
 }
 if (cluster.samples.only=="yes") {
-	heatmap(x=as.matrix(dat2), Rowv=NA, Colv=clustc, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	if( hm.scale=="default" ) {
+		#heatmap(x=as.matrix(dat2), Rowv=NA, Colv=clustc, distfun=myCorDist, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+		heatmap(x=as.matrix(dat2), Rowv=NA, distfun=myCorDist, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	} else {
+		#heatmap(x=as.matrix(dat2), Rowv=NA, Colv=clustc, distfun=myCorDist, col=heatcol, scale=s, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+		heatmap(x=as.matrix(dat2), Rowv=NA, distfun=myCorDist, col=heatcol, scale=s, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
+	}
 }
 dev.off()

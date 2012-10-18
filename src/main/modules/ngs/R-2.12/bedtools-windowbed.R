@@ -1,7 +1,8 @@
 # TOOL bedtools-windowbed.R: "Window BED" (Examines a window around each feature in A and reports all features in B that overlap the window. For each overlap the entire entry in A and B are reported. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
-# OUTPUT windowbed.bed 
+# OUTPUT OPTIONAL windowbed.bed 
+# OUTPUT OPTIONAL windowbed.bam
 # PARAMETER abam: "The A input file is in BAM format" TYPE [yes,no] DEFAULT no (The A input file is in BAM format. By default output will be BAM as well.) 
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes,no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.) 
 # PARAMETER OPTIONAL bed: "When using BAM input, write output as BED." TYPE [yes,no] DEFAULT no (When using BAM input, write output as BED. The default is to write output in BAM.) 
@@ -14,16 +15,25 @@
 # PARAMETER OPTIONAL v: "Only report those entries in A that have no overlaps with B" TYPE [yes,no] DEFAULT no (Only report those entries in A that have _no overlaps_ with B) 
 
 # AMS 23.4.2012
+# AMS 11.10.2012 Fixed BAM file support
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "windowBed"))
 
 # options
+outfile <- "windowbed.bed"
 options <- paste("")
 if (abam == "yes") {
-	if (ubam == "yes") {options <- paste(options, "-ubam")}
-	if (bed == "yes") {options <- paste(options, "-bed")}
+	outfile <- "windowbed.bam"
+	if (ubam == "yes") {
+		options <- paste(options, "-ubam")
+	}
+	if (bed == "yes") {
+		options <- paste(options, "-bed")
+		outfile <- "windowbed.bed"
+	}
 }
+
 options <- paste(options, "-l", l)
 options <- paste(options, "-r", r)
 if (sw == "yes") {options <- paste(options, "-sw")}
@@ -37,8 +47,14 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, " > windowbed.bed")
+command <- paste(binary, options, ">", outfile)
 
 # run
 system(command)
-if (file.info("windowbed.bed")$size == 0) {system("echo \"No results found\" > windowbed.bed")}
+
+if (file.exists("windowbed.bed")){
+	if (file.info("windowbed.bed")$size == 0) {
+		system("echo \"# No results found\" > windowbed.bed")
+	}	
+}
+

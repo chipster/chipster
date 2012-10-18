@@ -346,6 +346,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		if (spaceAvailable == null) {
+			logger.warn("did not get response for space request");
 			return false;
 		}
 		return spaceAvailable;

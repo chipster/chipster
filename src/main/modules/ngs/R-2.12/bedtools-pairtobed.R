@@ -1,7 +1,8 @@
 # TOOL bedtools-pairtobed.R: "Overlap BEDPE with BED" (Reports overlaps between a BEDPE file and a BED/GFF/VCF file. This tool is based on the BEDTools package.)
 # INPUT file.a: "BEDPE file" TYPE GENERIC
 # INPUT file.b: "BED file" TYPE GENERIC
-# OUTPUT pairtobed.txt
+# OUTPUT OPTIONAL pairtobed.bed
+# OUTPUT OPTIONAL pairtobed.bam
 # PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes,no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.) 
 # PARAMETER OPTIONAL bedpe: "When using BAM input, write output as BEDPE." TYPE [yes,no] DEFAULT no (When using BAM input, write output as BEDPE. The default is to write output in BAM.) 
@@ -25,12 +26,19 @@
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToBed"))
 
 # optional options
-options <- paste("")
+outfile <- "pairtobed.bed"
 options <- paste("")
 if (abam == "yes") {
-	if (ubam == "yes") {options <- paste(options, "-ubam")}
-	if (bedpe == "yes") {options <- paste(options, "-bedpe")}
+	outfile <- "pairtobed.bam"
+	if (ubam == "yes") {
+		options <- paste(options, "-ubam")
+	}
+	if (bed == "yes") {
+		options <- paste(options, "-bedbe")
+		outfile <- "pairtobed.bed"
+	}
 }
+
 if (ed == "yes") {options <- paste(options, "-ed")}
 options <- paste(options, "-f", f) 
 if (s == "yes") {options <- paste(options, "-s")}
@@ -43,8 +51,13 @@ if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 
 # command
-command <- paste(binary, options, " > pairtobed.bed")
+command <- paste(binary, options, ">", outfile)
 
 # run
 system(command)
-if (file.info("pairtobed.bed")$size == 0) {system("echo \"No results found\" > pairtobed.bed")}
+
+if (file.exists("pairtobed.bed")){
+	if (file.info("pairtobed.bed")$size == 0) {
+		system("echo \"# No results found\" > pairtobed.bed")
+	}	
+}
