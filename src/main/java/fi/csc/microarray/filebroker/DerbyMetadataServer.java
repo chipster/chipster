@@ -9,23 +9,23 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.h2.tools.Server;
-
 import fi.csc.microarray.util.IOUtils;
 
 public class DerbyMetadataServer {
 
 	private Connection connection = null;
 
-	private static String SQL_CREATE_TABLE = "CREATE TABLE remote_sessions (" +
+	private static String sessionDbTable = "sessions";
+	
+	private static String SQL_CREATE_TABLE = "CREATE TABLE " + sessionDbTable + " (" +
 			"id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) PRIMARY KEY,  " +
 			"name VARCHAR(200),  " +
 			"username VARCHAR(200), " +
-			"url VARCHAR(200));";
+			"url VARCHAR(200))";
 
-	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT * FROM remote_sessions WHERE username = ?;";
-	private static String SQL_INSERT_SESSION  = "INSERT INTO remote_sessions (name, username, url) VALUES (?, ?, ?)";
-	private static String SQL_DELETE_SESSION  = "DELETE FROM remote_sessions WHERE name = ? AND username = ?";
+	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT * FROM " + sessionDbTable + " WHERE username = ?";
+	private static String SQL_INSERT_SESSION  = "INSERT INTO " + sessionDbTable + " (name, username, url) VALUES (?, ?, ?)";
+	private static String SQL_DELETE_SESSION  = "DELETE FROM " + sessionDbTable + " WHERE name = ? AND username = ?";
 	
 	
 	public DerbyMetadataServer() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
@@ -35,30 +35,24 @@ public class DerbyMetadataServer {
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
 		String strUrl = "jdbc:derby:TestDatabase;create=true";
 		connection = DriverManager.getConnection(strUrl);
-	
 		
 		// initialise tables, if empty
 		if (!isInitialised()) {
 			initialise();
 		}
-		
-		// start web console
-		Server h2WebConsoleServer;
-		h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(8082)});
-		h2WebConsoleServer.start();
 
 		System.out.println("Database started");
 	}
 	
 	private boolean isInitialised() throws SQLException {
-		ResultSet tables = connection.getMetaData().getTables(null, "", "TEST", new String[] { "TABLE" });
+		ResultSet tables = connection.getMetaData().getTables(null, null, sessionDbTable.toUpperCase(), new String[] { "TABLE" });
 		return tables.next();
 	}
 
 	private void initialise() throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_CREATE_TABLE);
         ps.execute();
-        System.out.println("Table initialised");
+        System.out.println("Table " + sessionDbTable + " initialised");
 	}
 
 	public List<String> listSessionsInDatabase(String username) throws SQLException {

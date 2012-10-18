@@ -15,15 +15,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.log.Log;
 
+import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Files;
-
-import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
@@ -36,6 +35,7 @@ public class RestServlet extends DefaultServlet {
 
 	private String cachePath;
 	private String publicPath;
+	private String storagePath;
 	private int cleanUpTriggerLimitPercentage;
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
@@ -49,6 +49,7 @@ public class RestServlet extends DefaultServlet {
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		cachePath = configuration.getString("filebroker", "cache-path");
+		storagePath = configuration.getString("filebroker", "storage-path");
 		publicPath = configuration.getString("filebroker", "public-path");
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
@@ -62,19 +63,26 @@ public class RestServlet extends DefaultServlet {
 		if (isValidRequest(request)) {
 			super.service(request, response);
 		} else {
-			response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
+			response.sendError(HttpURLConnection.HTTP_FORBIDDEN);
 		}
 	};
 	
 	private boolean isValidRequest(HttpServletRequest request) {
 
-		// must not be directory
+		
+		// allow welcome page
+		if (isWelcomePage(request)) {
+			return true;
+		}
+
+		// any other directory is forbidden
 		File file = locateFile(request);
 		if (file.isDirectory()) {
 			return false;
 		}
 
-		if (isWelcomePage(request) || isUserDataRequest(request) || isPublicDataRequest(request) ) {
+		// allow known request types 
+		if (isCacheRequest(request) || isStorageRequest(request) || isPublicRequest(request) ) {
 			return true;
 		}
 		
@@ -85,25 +93,33 @@ public class RestServlet extends DefaultServlet {
 		return "/".equals(request.getPathInfo());
 	}
 
-	private boolean isUserDataRequest(HttpServletRequest request) {
+	private boolean isCacheRequest(HttpServletRequest request) {
+		return checkRequest(request, cachePath);
+	}
+
+	private boolean isStorageRequest(HttpServletRequest request) {
+		return checkRequest(request, storagePath);
+	}
+
+	private boolean checkRequest(HttpServletRequest request, String prefix) {
 		String path = request.getPathInfo();
 		
 		if (path == null) {
 			return false;
 		}
 		
-		if (!path.startsWith("/" + cachePath + "/")) {
+		if (!path.startsWith("/" + prefix + "/")) {
 			return false;
 		}
 
-		if (urlRepository.checkFilenameSyntax(path.substring(("/" + cachePath + "/").length()))) {
+		if (urlRepository.checkFilenameSyntax(path.substring(("/" + prefix + "/").length()))) {
 			return true;
 		}
 		
 		return false;
 	}
-	
-	private boolean isPublicDataRequest(HttpServletRequest request) {
+
+	private boolean isPublicRequest(HttpServletRequest request) {
 		String path = request.getPathInfo();
 		return (path != null && path.startsWith("/" + publicPath + "/"));
 	}
@@ -144,7 +160,7 @@ public class RestServlet extends DefaultServlet {
 				Log.debug("PUT denied for " + constructUrl(request));
 			}
 			
-			response.sendError(HttpURLConnection.HTTP_FORBIDDEN);
+			response.sendError(HttpURLConnection.HTTP_UNAUTHORIZED);
 			return;			
 		}
 		

@@ -20,6 +20,7 @@ import javax.jms.JMSException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.h2.tools.Server;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -91,12 +92,18 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
     		String cachePath = configuration.getString("filebroker", "cache-path");
     		String storagePath = configuration.getString("filebroker", "storage-path");
+    		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
-    		this.publicPath = configuration.getString("filebroker", "public-path");
 
+    		// initialise metadata database
+    		this.metadataServer = new DerbyMetadataServer();
+    		Server h2WebConsoleServer;
+    		h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(8082)});
+    		h2WebConsoleServer.start();
+    		
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
     		fileServer.start(fileRepository.getPath(), port);
@@ -152,8 +159,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 
-			System.out.println(msg.getClass().getSimpleName());
-			
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				
 				// parse request

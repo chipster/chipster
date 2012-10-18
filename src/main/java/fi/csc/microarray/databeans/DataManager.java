@@ -613,9 +613,7 @@ public class DataManager {
 	}
 
 	public void saveStorageSession(String name) throws Exception {
-		System.out.println("url haetaan");
 		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name);
-		System.out.println(sessionUrl);
 		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
 		sessionSaver.saveStorageSession();
 	}
