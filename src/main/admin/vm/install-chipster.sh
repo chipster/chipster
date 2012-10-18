@@ -531,6 +531,13 @@ then
     cd ../
     mv vcftools_0.1.9/ ${TOOLS_PATH}/
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+ 	 	 
+ 	 	 
+  # GATK
+  cd ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj
+  mv GenomeAnalysisTKLite-2.1-11-* GenomeAnalysisTKLite-2.1-11
+  ln -s GenomeAnalysisTKLite-2.1-11 GenomeAnalysisTK2
  	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
