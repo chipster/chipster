@@ -61,6 +61,12 @@ public class DataFolder extends DataItemBase {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
 			
+			if (data.isContentTypeCompatitible("text/gtf")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+			}
+			
 			if (data.isContentTypeCompatitible("text/vcf")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				

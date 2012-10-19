@@ -3,10 +3,10 @@
 # INPUT OPTIONAL genes.gtf: "Optional GTF file" TYPE GENERIC
 # OUTPUT tophat.bam
 # OUTPUT tophat.bam.bai
-# OUTPUT junctions.bed
-# OUTPUT insertions.bed
-# OUTPUT deletions.bed
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT hg19 (Genome that you would like to align your reads against.)
+# OUTPUT OPTIONAL junctions.bed
+# OUTPUT OPTIONAL insertions.bed
+# OUTPUT OPTIONAL deletions.bed
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa JGI2.0.12", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome"] DEFAULT hg19 (Genome that you would like to align your reads against.)
 # PARAMETER OPTIONAL min.anchor.length: "Minimum anchor length" TYPE INTEGER FROM 3 TO 1000 DEFAULT 8 (TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved in spliced alignments is supported by at least one read with this many bases on each side.)
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat will ignore donor-acceptor pairs closer than this many bases apart.)
@@ -19,6 +19,8 @@
 # MG 24.4.2012 added ability to use GTF files from Chipster server
 # AMS 19.6.2012 added unzipping
 # EK 19.9.2012 added mm10 and new GTFs (Ensembl 68)
+# AMS 4.10.2012 added BED sorting
+
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -98,7 +100,34 @@ system(paste(samtools.binary, "sort tophat_out/accepted_hits.bam tophat"))
 # index bam
 system(paste(samtools.binary, "index tophat.bam"))
 
-system("mv tophat_out/junctions.bed junctions.bed")
-system("mv tophat_out/insertions.bed insertions.bed")
-system("mv tophat_out/deletions.bed deletions.bed")
+system("mv tophat_out/junctions.bed junctions.u.bed")
+system("mv tophat_out/insertions.bed insertions.u.bed")
+system("mv tophat_out/deletions.bed deletions.u.bed")
 
+# sorting BEDs
+source(file.path(chipster.common.path, "bed-utils.R"))
+
+size <- file.info("junctions.u.bed")$size
+if (size > 100){	
+#if (file.info("juctions.u.bed")$size > 100) {
+	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
+size <- file.info("insertions.u.bed")$size
+if (size > 100){
+	bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
+size <- file.info("deletions.u.bed")$size
+if (size > 100){
+	bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
