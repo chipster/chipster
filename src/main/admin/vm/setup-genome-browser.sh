@@ -338,7 +338,7 @@ download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/canis_familiaris/dna/
 contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]"
 
-SPECIES="Ovies aries"
+SPECIES="Ovis aries"
 VERSION="(Oar_v3.1)"
 
 download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Ovis_aries.Oar_v3.1.dna.toplevel.fa.gz"
