@@ -1,16 +1,11 @@
 package fi.csc.microarray.filebroker;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -327,7 +322,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 		ChipsterMessage reply; 
 		try {
-			metadataServer.addSessionToDatabase(username, name, url);
+			metadataServer.addSessionToDatabase(username, name, IOUtils.getFilenameWithoutPath(url));
 			reply = new UrlMessage(url);
 			
 		} catch (Exception e) {
@@ -338,80 +333,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException, SQLException {
-		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);
-		metadataServer.removeSessionFromDatabase(requestMessage.getUsername(), name);
+		String uuid = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+		metadataServer.removeSessionFromDatabase(uuid);
 		CommandMessage reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
 		endpoint.replyToMessage(requestMessage, reply);
-	}
-
-	private List<String> _listSessionsInDatabase(String username) throws IOException {
-		File database = _openDatabase();
-		
-		LinkedList<String> names = new LinkedList<String>();
-		BufferedReader in = null;
-		try {
-
-			// check that session name is not a duplicate (in future, we could overwrite)
-			in = new BufferedReader(new FileReader(database));
-			String line = in.readLine();
-			while (line != null) {
-				String[] fields = line.split("\t");
-				
-				if (fields[0].equals(username)) {
-					names.add(fields[1]);
-				}
-				line = in.readLine();
-			}
-			
-		} finally {
-			IOUtils.closeIfPossible(in);
-		}
-		
-		return names;
-	}
-
-
-	private void _addSessionToDatabase(String username, String name, URL url) throws IOException {
-		File database = _openDatabase();
-		
-		BufferedReader in = null;
-		BufferedWriter out = null;
-		try {
-
-			// check that session name is not a duplicate (in future, we could overwrite)
-			in = new BufferedReader(new FileReader(database));
-			String line = in.readLine();
-			while (line != null) {
-				String[] fields = line.split("\t");
-				
-				if (fields[0].equals(username) && fields[1].equals(name)) {
-					throw new IllegalArgumentException("duplicate session name");
-				}
-				line = in.readLine();
-			}
-			in.close();
-
-			// save name to database
-			out = new BufferedWriter(new FileWriter(database, true));
-			out.write(username.replace("\t", "") + "\t" + name.replace("\t", "") + "\t" + IOUtils.getFilenameWithoutPath(url) + "\n");
-			
-		} finally {
-			IOUtils.closeIfPossible(in);
-			IOUtils.closeIfPossible(out);
-		}
-		
-	}
-
-	private File _openDatabase() throws IOException {
-		File database = new File(storageRoot, "database.txt");
-		if (!database.exists()) {
-			database.createNewFile();
-		}
-		return database;
-	}
-
-	private void _removeSessionFromDatabase(String username, String name) {
-		throw new UnsupportedOperationException();
 	}
 
 	private void handleMoveRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
