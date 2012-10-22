@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.dataviews.vertexes;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
@@ -8,6 +9,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 import org.jgraph.graph.DefaultGraphCell;
@@ -36,7 +38,7 @@ public abstract class AbstractGraphVertex extends DefaultGraphCell {
 	public static final Color SELECTED_BORDER_COLOR = Color.BLACK;
 	
 	public static final int DEFAULT_WIDTH = 40;
-	public static final int DEFAULT_HEIGHT = 20;
+	public static final int DEFAULT_HEIGHT = 21;
 	
 	public static final int DEFAULT_MARGIN_X = 10;
 	public static final int DEFAULT_MARGIN_Y = 30; 
@@ -66,6 +68,14 @@ public abstract class AbstractGraphVertex extends DefaultGraphCell {
 		GraphConstants.setOpaque(
 				this.getAttributes(), 
 				true);
+		
+		GraphConstants.setVerticalAlignment(
+				this.getAttributes(), 
+				JLabel.TOP);
+		
+		Font font = GraphConstants.getFont(this.getAttributes());
+		font = font.deriveFont((float)font.getSize() + 3);
+		GraphConstants.setFont(this.getAttributes(), font);
 	}
 
 	/**
