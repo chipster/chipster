@@ -8,50 +8,32 @@
 # OUTPUT bowtie2.log 
 # OUTPUT OPTIONAL unaligned_1.fq
 # OUTPUT OPTIONAL unaligned_2.fq
-# OUTPUT OPTIONAL multireads_1.fq
-# OUTPUT OPTIONAL multireads_2.fq
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans genome 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa genome (JGI2.0.12\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
-# PARAMETER strategy: "Alignment stratedy to use" TYPE [very-fast: "Very fast", fast: "Fast", sensitive: "Sensitive", very-sensitive: "Very sensitive", very-fast-local: "Very fast local", fast-local: "Fast local", sensitive-local: "Sensitive local", very-sensitive-local: "Very sensitive local"] Default sensitive ( The alignmnet strayegy to be used )
-# PARAMETER ma: "Match bonus" TYPE INTEGER FROM 0 TO 5 DEFAULT 3 (Match bonus. The default value is 0 for end-to-end, 2 for local alignment) 
-# PARAMETER mp: "Maximum penalty for mismatch" TYPE INTEGER FROM 0 TO 20 DEFAULT 6 (Maximum penalty for mismatch; lower quallity = lower penalty. Default value 6)
-# PARAMETER np: "Penalty for non-A/C/G/Ts"  TYPE INTEGER FROM 0 TO 20 DEFAULT 1 ( Penalty for non-A/C/G/Ts in read/ref. Deault value: 1 ) 
-# PARAMETER rdg_open: "Gap opening penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 5 (Gap opening penalty for the reads. Default value: 5. )
-# PARAMETER rdg_ext: "Gap extension penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 3 (Gap extension penalty for the reads. Default value: 3. )
-# PARAMETER rfg_open: "Gap opening penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 5 (Gap opening penalty for the reference. Default value: 5. )
-# PARAMETER rfg_ext "Gap extension penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 3 (Gap extenasion penalty for the reference. Default value: 3. )
-# PARAMETER minins: "Minimum insert length" TYPE INTEGER FROM 0 TO 2000 DEFAULT 0 (Minimum insert length between the mate pairs. Default value: 0)
-# PARAMETER maxins: "Maximum insert length" TYPE INTEGER FROM 0 TO 4000 DEFAULT 500 (Maximum insert length between the mate pairs. Default value: 500)
-
-# PARAMETER --fr/--rf/--ff     -1, -2 mates align fw/rev, rev/fw, fw/fw (--fr)
-# PARAMETER --no-mixed         suppress unpaired alignments for paired reads
-# PARAMETER --no-discordant    suppress discordant alignments for paired reads
-# PARAMETER --no-dovetail      not concordant when mates extend past each other
-# PARAMETER --no-contain       not concordant when one mate alignment contains other
-# PARAMETER --no-overlap       not concordant when mates overlap at all
-
-# PARAMETER
---score-min <func> min acceptable alignment score w/r/t read length
-(G,20,8 for local, L,-0.6,-0.6 for end-to-end)
-
-
-
-
-
-# PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
-# PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
-# PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
-# PARAMETER multiread: "How many places is a read allowed to align to" TYPE [1, 2, 1000000: "no limit"] DEFAULT 1000000 (If you want to have alignments only for uniquely mapping reads, select 1.)
-# PARAMETER OPTIONAL min.insert.size: "Minimum insert size" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (The minimum insert size for valid paired-end alignments. E.g. if 60 is specified and a paired-end alignment consists of two 20-bp alignments in the appropriate orientation with a 20-bp gap between them, that alignment is considered valid.)
-# PARAMETER OPTIONAL max.insert.size: "Maximum insert size" TYPE INTEGER FROM 50 TO 1500 DEFAULT 250 (The maximum insert size for valid paired-end alignments. E.g. if 100 is specified and a paired-end alignment consists of two 20-bp alignments in the proper orientation with a 60-bp gap between them, that alignment is considered valid.)
-# PARAMETER OPTIONAL orientation: "Upstream-downstream mate orientation" TYPE [fr: "mate1 upstream of reverse complement of mate2 or vice versa", rf: "upstream mate1 reverse-complemented and mate2 forward-oriented"] DEFAULT fr (The upstream-downstream mate orientations for a valid paired-end alignment against the forward reference strand.)
-# PARAMETER OPTIONAL quality: "Allowed total of mismatch qualities" TYPE INTEGER FROM 10 TO 100 DEFAULT 70 (What is the maximum permitted total of quality values of ALL mismatch positions throughout the read (not just in the seed region\)? Note that this parameter is taken into account only if you have chosen to apply the mismatch limit to the seed region.)
-# PARAMETER OPTIONAL quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3-1.5", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
-# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [1, 2, 3] DEFAULT 1 (If there are several, equally good alignments, how many should be reported?)
-# PARAMETER OPTIONAL multiread.file: "Put multireads to a separate file" TYPE [yes, no] DEFAULT no (If you chose not to have alignments for reads which map to multiple positions, would you like to store these reads to a separate fastq file?)
+# OUTPUT OPTIONAL discocncordant_1.fq
+# OUTPUT OPTIONAL discocncordant_2.fq
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", Phytophthora_infestans1_1.12: "Phytophthora infestans genome 1.1.12", saprolegnia_parasitica_cbs_223.65_2_contigs: "Saprolegnia parasitica cbs.223.65.2 contigs", Populus_trichocarpa.JGI2.0.12: "Populus trichocarpa genome (JGI2.0.12\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)"] DEFAULT mm10 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER strategy: "Alignment stratedy to use" TYPE [--very-fast: "Very fast", --fast: "Fast", --sensitive: "Sensitive", --very-sensitive: "Very sensitive", --very-fast-local: "Very fast local", -fast-local: "Fast local", --sensitive-local: "Sensitive local", --very-sensitive-local: "Very sensitive local"] DEFAULT --sensitive (The alignmnet strayegy to be used. Bowtie2 can map the reads using end-to-end or local alignments. When local alignment is used, Bowtie2 might "trim" or "clip" some read characters from one or both ends of the alignment if doing so maximizes the alignment score. Bowtie2 uses heuristics for mapping the reads to the reference genome. Several Bowtie2 parameters affect simulatenously both to the sensitivity and to computing time. In Chipster you can choose, the sensitivity level from a set of pre-defined parameter combinations that allow you to tune the balance between the computing time and mapping sensitivity.)
+# PARAMETER OPTIONAL ma: "Match bonus" TYPE INTEGER FROM 0 TO 10 DEFAULT 2 (Match bonus for a match in local alignment. Default value 2) 
+# PARAMETER OPTIONAL mp: "Maximum penalty for mismatch" TYPE INTEGER FROM 0 TO 20 DEFAULT 6 (Maximum penalty for mismatch; lower quallity = lower penalty. Default value 6)
+# PARAMETER OPTIONAL np: "Penalty for non-ACGTs"  TYPE INTEGER FROM 0 TO 20 DEFAULT 1 ( Sets penalty for positions where the read, reference, or both, contain an ambiguous character such as N. Default: 1.) 
+# PARAMETER OPTIONAL rdg.open: "Gap opening penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 5 (Gap opening penalty for the reads. Default value: 5. )
+# PARAMETER OPTIONAL rdg.ext: "Gap extension penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 3 (Gap extension penalty for the reads. Default value: 3. )
+# PARAMETER OPTIONAL rfg.open: "Gap opening penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 5 (Gap opening penalty for the reference. Default value: 5. )
+# PARAMETER OPTIONAL rfg.ext: "Gap extension penalty for the reads" TYPE INTEGER FROM 0 TO 20 DEFAULT 3 (Gap extension penalty for the reference. Default value: 3. )
+# PARAMETER OPTIONAL minins: "Minimum insert length" TYPE INTEGER FROM 0 TO 2000 DEFAULT 0 (Minimum insert length between the mate pairs. Default value: 0)
+# PARAMETER OPTIONAL maxins: "Maximum insert length" TYPE INTEGER FROM 0 TO 4000 DEFAULT 500 (Maximum insert length between the mate pairs. Default value: 500)
+# PARAMETER OPTIONAL pair.order: "Order of mates to align" TYPE [--fr: "Forward/reverse", --rf: "Reverse/Forward", --ff: "Forward/forward"] DEFAULT --fr (The orientation of the mate pairs. Default: forward/revrse)
+# PARAMETER OPTIONAL no.mixed: "Suppress unpaired alignments" TYPE [yes, no] DEFAULT no (By default, when bowtie2 cannot find a concordant or discordant alignment for a pair, it then tries to find alignments for the individual mates. This option disables that behavior.)
+# PARAMETER OPTIONAL no.discordant: "Suppress discordant alignments" TYPE [yes, no] DEFAULT no (By default, bowtie2 looks for discordant alignments if it cannot find any concordant alignments. A discordant alignment is an alignment where both mates align uniquely, but that does not satisfy the paired-end constraints. This option disables that behavior)
+# PARAMETER OPTIONAL no.dovetail: "Not concordant when mates extend past each other" TYPE [yes, no] DEFAULT no (If the mates "dovetail", that is if one mate alignment extends past the beginning of the other such that the wrong mate begins upstream, consider that to be concordant. Default: mates cannot dovetail in a concordant alignment. ) 
+# PARAMETER OPTIONAL no.contain: "Not concordant when one mate alignment contains other" TYPE [yes, no] DEFAULT no (If one mate alignment contains the other, consider that to be non-concordant. Default: a mate can contain the other in a concordant alignment.)
+# PARAMETER OPTIONAL no.overlap: "Not concordant when mates overlap at all"  TYPE [yes, no] DEFAULT no (If one mate alignment overlaps the other at all, consider that to be non-concordant. Default: mates can overlap in a concordant alignment.)
+# PARAMETER OPTIONAL quality.format: "Quality value format used" TYPE [--phred33: "Sanger - Phred+33", --phred64: "Illumina GA v1.3-1.5 - Phred+66", --ignore-quals: "Fixed 30 for all"] DEFAULT --phred33 (Quality scale used in the fastq-file.)
+# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [0: "Best based on the mapping quality", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "All alignments"] DEFAULT 0 (By default, Bowtie2 reports only the best aligmnmet of the read (based on the mapping quality\). Optionally, if there are several, equally good alignments, you can choose how many of them should be reported?)
+# PARAMETER OPTIONAL discordant.file: "Put reads that did not align concordantly to a separate file" TYPE [yes, no] DEFAULT no (If you choose not to have alignments for reads which map to multiple positions, with this option yiu can to store these reads to a separate fastq file?)
 # PARAMETER OPTIONAL unaligned.file: "Put unaligned reads to a separate file" TYPE [yes, no] DEFAULT no (Would you like to store unaligned reads to a new fastq file? Note that also multireads will be added to this file, unless you asked them to be put to a separate file.)
 
-# EK 12.7.2011
-# AMS 19.6.2012 Added unzipping
+# KM 10-01.2012
+
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -59,33 +41,73 @@ unzipIfGZipFile("reads1.fq")
 unzipIfGZipFile("reads2.fq")
 
 # bowtie
-bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
+bowtie.binary <- c(file.path(chipster.tools.path, "bowtie2", "bowtie2"))
+bowtie.genome <- c(file.path(chipster.tools.path, "bowtie2", "indexes" , genome))
 command.start <- paste("bash -c '", bowtie.binary)
-
+rdg.value <- paste (rdg.open ,rdg.ext , sep=",")
+rfg.value <- paste (rfg.open ,rfg.ext , sep=",")
 # common parameters
-common.parameters <- paste("-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
+#common.parameters <- paste("-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
 
-# mode specific parameters
-quality.parameter <- ifelse(quality.format == "solexa1_3", "--solexa1.3-quals", "")
-orientation.parameter <- ifelse(orientation == "rf", "--rf", "")
-n.mode.parameters <- paste("-n", max.mismatches, "-l", seed, "-e", quality, quality.parameter)
-v.mode.parameters <- paste("-v", max.mismatches)
-mode.parameters <- ifelse(limit.to.seed == "yes", n.mode.parameters, v.mode.parameters)
+parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, "--minins", minins, "--maxins", maxins, pair.order, quality.format)
+
+if ( alignment.no>0){
+	if ( alignment.no==6){
+		parameters <- paste(parameters, "--all")
+	}
+	if ( alignment.no<6){
+		parameters <- paste(parameters, "-k", alignment.no )
+	}
+}
+
+# Local alignment specific parameters 
+if (strategy == "--very-fast-local" || strategy == "--fast-local" || strategy == "--sensitive-local" || strategy == "--very-sensitive-local" ) {
+	parameters <- paste(parameters ,"--local --ma", ma)
+}
+
+if ( no.mixed== "yes"){
+	parameters <- paste(parameters, "--no-mixed")
+}
+
+if ( no.discordant== "yes"){
+	parameters <- paste(parameters, "--no-discordant")
+}
+
+if ( no.dovetail== "yes"){
+	parameters <- paste(parameters, "--no-dovetail")
+}
+
+if ( no.contain== "yes"){
+	parameters <- paste(parameters, "--no-contain")
+}
+
+if ( no.overlap== "yes"){
+	parameters <- paste(parameters, "--no-overlap")
+}
+
+if (discordant.file== "yes"){
+	parameters <- paste(parameters, "--un-conc discordant")
+}
+
+if (unaligned.file== "yes"){
+	parameters <- paste(parameters, "--un unaligned")
+}
+
 
 # output parameters
-unaligned.output <- ifelse(unaligned.file == "yes", "--un unaligned.fq", "")
-multiread.output <- ifelse(multiread.file == "yes", "--max multireads.fq", "")
-output.parameters <- paste(unaligned.output, multiread.output)
-
+#output.parameters <- paste(unaligned.output, multiread.output)
+#stop(paste('CHIPSTER-NOTE: ', parameters))
 # command ending
-command.end <- paste(genome, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2> bowtie.log'")
+command.end <- paste("-x", bowtie.genome, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2>> bowtie2.log'")
 
 # run bowtie
-bowtie.command <- paste(command.start, common.parameters, quality.parameter, orientation.parameter, mode.parameters, output.parameters, command.end)
+bowtie.command <- paste(command.start, parameters, command.end)
 #stop(paste('CHIPSTER-NOTE: ', bowtie.command))
+
+echo.command <- paste("echo '", bowtie.command , "' > bowtie2.log" )
+system(echo.command)
 system(bowtie.command)
-
-
+system ("ls -l >>  bowtie2.log")
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
@@ -99,5 +121,15 @@ system(paste(samtools.binary, "sort alignment.bam alignment.sorted"))
 system(paste(samtools.binary, "index alignment.sorted.bam"))
 
 # rename result files
-system("mv alignment.sorted.bam bowtie.bam")
-system("mv alignment.sorted.bam.bai bowtie.bam.bai")
+system("mv alignment.sorted.bam bowtie2.bam")
+system("mv alignment.sorted.bam.bai bowtie2.bam.bai")
+
+if (unaligned.file== "yes"){
+	system("mv unaligned.1 unaligned_1.fq")
+	system("mv unaligned.2 unaligned_2.fq")
+}
+
+if (discordant.file== "yes"){
+	system("mv discordant.1 discordant_1.fq")
+	system("mv discordant.2 discordant_2.fq")
+}
