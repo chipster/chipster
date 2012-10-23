@@ -101,6 +101,7 @@ if(analtype==1 & repltype==1) {
 	
 	# Save the bed file
 	if(save.bed=="yes") {
+		source(file.path(chipster.common.path, "bed-utils.R"))
 		MEDIPS.exportWIG(file="output.bed", data=dat, raw=T, descr=files)
 		library(rtracklayer)
 		wig<-import("output.bed", format="wig")
