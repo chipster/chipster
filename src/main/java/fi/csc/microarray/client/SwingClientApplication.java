@@ -47,6 +47,7 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.crypto.RuntimeCryptoException;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -83,6 +84,7 @@ import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
+import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -91,8 +93,8 @@ import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
@@ -1787,9 +1789,50 @@ public class SwingClientApplication extends ClientApplication {
 	@Override
 	public void saveSession(final boolean quit, final SessionSavingMethod savingMethod) {
 
-		JFileChooser fileChooser = getSessionFileChooser(null);
+		// remote and local saves are quite different, first check which one this is
+		final boolean remote;
+		switch (savingMethod) {
+		case INCLUDE_DATA_INTO_ZIP:
+			remote = false;
+			break;
+		case UPLOAD_DATA_TO_SERVER:
+			remote = true;
+			break;
+		default: 
+			throw new IllegalArgumentException("internal error, not supported: " + savingMethod);
+		}
+
+		// create right kind of filechooser dialog
+		JFileChooser fileChooser;
+		if (remote) {
+			try {
+				String prefix = "http://chipster-filebroker.csc.fi/";
+				URL[] repoDescription = new URL[] {
+						new URL(prefix + "Remote sessions/"),
+				};
+
+				ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+				fileChooser = new JFileChooser(view.getRoot(), view);
+//				fileChooser.setApproveButtonText("Remove");
+//				fileChooser.setMultiSelectionEnabled(true);
+//				System.out.println(Arrays.toString(((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()));
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[0].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[1].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[2].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[4].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[5].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[6].setVisible(false);
+				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[7].setVisible(false);
+				
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			fileChooser = getSessionFileChooser(null);
+		}
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
 		
+		// if was approved, then save it
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
 				final File file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
@@ -1797,7 +1840,7 @@ public class SwingClientApplication extends ClientApplication {
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;
 
-					String message = "The file " + file.getCanonicalPath() + " already exists. Do you want " + "to replace it?";
+					String message = "The file " + file.getCanonicalPath() + " already exists. Do you want to replace it?";
 
 					Object[] options = { "Cancel", "Replace" };
 
@@ -1809,7 +1852,7 @@ public class SwingClientApplication extends ClientApplication {
 
 				}
 
-				// save
+				// block GUI while saving
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
@@ -1817,15 +1860,10 @@ public class SwingClientApplication extends ClientApplication {
 						// save
 						boolean saveFailed = false;
 						try {
-							switch (savingMethod) {
-							case INCLUDE_DATA_INTO_ZIP:
-								getDataManager().saveSession(file);
-								break;
-							case UPLOAD_DATA_TO_SERVER:
+							if (remote) {
 								getDataManager().saveStorageSession(file.getName());
-								break;
-							default: 
-								getDataManager().saveLightweightSession(file);
+							} else {
+								getDataManager().saveSession(file);
 							}
 							
 						} catch (ValidationException e) {
