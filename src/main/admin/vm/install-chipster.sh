@@ -219,7 +219,7 @@ pip install HTSeq==0.5.3p3
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s R-${R_VER} ${TOOLS_PATH}/R
         
 #  cd ${TMPDIR_PATH}/
@@ -282,7 +282,7 @@ then
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
 
   # could also use the package from nic
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 
 
   ## External apps:
