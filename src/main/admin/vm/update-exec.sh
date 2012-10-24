@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.2
+LATEST_VERSION=2.2.3
 
 # Exit immediately if some command fails
 set -e
@@ -266,6 +266,14 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.2.3 (not released, check number)
+compare_to_current "2.2.3"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Installing R library FruitFlyAgilent.db"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+
+fi
 
 
 #####################################
