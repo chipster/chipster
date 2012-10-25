@@ -273,6 +273,16 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Installing R library FruitFlyAgilent.db"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
 
+  echo "** Removing obsolete genomes and indexes"
+  rm -f ${TOOLS_PATH}/genomes/fasta/Phytophthora_infestans1_1.12.fa
+  rm -f ${TOOLS_PATH}/genomes/fasta/Populus_trichocarpa.JGI2.0.12.fa
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Phytophthora_infestans1_1.12.*
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Populus_trichocarpa.JGI2.0.12.*
+  rm -f ${TOOLS_PATH}/bowtie/indexes/saprolegnia_parasitica_cbs_223.65_2_contigs.*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/Phytophthora_infestans1_1.12.*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/Populus_trichocarpa.JGI2.0.12.*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/saprolegnia_parasitica_cbs_223.65_2_contigs.*
+
 fi
 
 
