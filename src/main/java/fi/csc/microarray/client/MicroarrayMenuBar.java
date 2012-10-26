@@ -1,6 +1,5 @@
 package fi.csc.microarray.client;
 
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

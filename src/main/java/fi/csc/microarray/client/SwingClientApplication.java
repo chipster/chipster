@@ -3,6 +3,7 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -47,7 +49,6 @@ import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.FontUIResource;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.crypto.RuntimeCryptoException;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -1813,16 +1814,13 @@ public class SwingClientApplication extends ClientApplication {
 
 				ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
 				fileChooser = new JFileChooser(view.getRoot(), view);
-//				fileChooser.setApproveButtonText("Remove");
-//				fileChooser.setMultiSelectionEnabled(true);
-//				System.out.println(Arrays.toString(((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()));
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[0].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[1].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[2].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[4].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[5].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[6].setVisible(false);
-				((JPanel)((JPanel)fileChooser.getComponents()[0]).getComponents()[0]).getComponents()[7].setVisible(false);
+				
+				// hide buttons that we don't need (stupid graphical buttons does not seem to have anything better than tooltip for identification)
+				hideChildButtonsWithTooltip(fileChooser, "Up One Level");
+				hideChildButtonsWithTooltip(fileChooser, "Remote sessions");
+				hideChildButtonsWithTooltip(fileChooser, "Create New Folder");
+				hideChildButtonsWithTooltip(fileChooser, "List");
+				hideChildButtonsWithTooltip(fileChooser, "Details");
 				
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -1831,16 +1829,30 @@ public class SwingClientApplication extends ClientApplication {
 			fileChooser = getSessionFileChooser(null);
 		}
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
-		
+
 		// if was approved, then save it
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
+				final File file;
+				boolean exists;
+				
+				if (remote) {
+					// use filename as it is (remote sessions use more human readable names)
+					file = fileChooser.getSelectedFile();
+					exists = false; // FIXME
+					
+				}else {
+					
+					// add extension if needed
+					file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
+					exists = file.exists();
+				}
 
-				if (file.exists()) {
+				// check if file (local or remote) exists
+				if (exists) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;
 
-					String message = "The file " + file.getCanonicalPath() + " already exists. Do you want to replace it?";
+					String message = "The file " + file.getName() + " already exists. Do you want to replace it?";
 
 					Object[] options = { "Cancel", "Replace" };
 
@@ -1849,7 +1861,6 @@ public class SwingClientApplication extends ClientApplication {
 					if (returnValue != 1) {
 						return;
 					}
-
 				}
 
 				// block GUI while saving
@@ -1893,6 +1904,18 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		}
 		menuBar.updateMenuStatus();
+	}
+
+	private void hideChildButtonsWithTooltip(Container parent, String tooltip) {
+		
+		for (Component component : parent.getComponents()) {
+			if (component instanceof AbstractButton && tooltip.equals(((AbstractButton)component).getToolTipText())) {
+				component.setVisible(false); // hide this
+			} else if (component instanceof Container ){
+				hideChildButtonsWithTooltip((Container)component, tooltip);
+			}
+		}
+		
 	}
 
 	/**
