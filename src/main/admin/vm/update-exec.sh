@@ -266,7 +266,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.2.3 (not released, check number)
+# 2.2.3
 compare_to_current "2.2.3"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
