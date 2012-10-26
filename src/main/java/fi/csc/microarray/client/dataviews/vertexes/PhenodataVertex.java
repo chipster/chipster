@@ -33,13 +33,13 @@ public class PhenodataVertex extends GraphVertex {
 	}
 	
 	/** 
-	 * Returns "Phe".
+	 * Returns "phe".
 	 * 
-	 * @return "Phe"
+	 * @return "phe"
 	 */
 	@Override
 	public String toString() {
-		return "Phe";
+		return "phe";
 	}
 	
 	/**

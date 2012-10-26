@@ -157,15 +157,18 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String getShortCategoryName(String categoryName) {
-		return shortenCategoryName(categoryName);
+	public String getShortDataName(String name) {
+		return shortenDataName(name);
 	}
 
-	public static String shortenCategoryName(String catName) {
-		if (catName.startsWith("Import")) {
-			return "file";
+	public static String shortenDataName(String name) {
+		
+		String extension = name.substring(name.lastIndexOf(".") + 1);
+		if (extension.length() > 5) {
+			return extension.substring(0, 5);
+		} else {
+			return extension;
 		}
-		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
 	}
 
 	@Override

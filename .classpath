@@ -40,7 +40,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar" sourcepath="ext/lib-src/jgraph-5.12.1.0-lgpl-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
