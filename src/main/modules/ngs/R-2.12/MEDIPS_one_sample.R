@@ -91,6 +91,7 @@ dat<-MEDIPS.normalize(data=dat)
 
 # Save the BED file
 if(save.bed=="yes") {
+   source(file.path(chipster.common.path, "bed-utils.R"))
    MEDIPS.exportWIG(file="output.bed", data=dat, raw=F, descr=files)
    library(rtracklayer)
    wig<-import("output.bed", format="wig")

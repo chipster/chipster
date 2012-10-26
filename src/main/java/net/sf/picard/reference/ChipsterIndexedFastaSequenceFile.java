@@ -28,13 +28,17 @@ package net.sf.picard.reference;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.sf.picard.PicardException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 
 /**
- * Copy of Picard class modified to support urls (and smaller buffer size to avoid downloading useless extra bytes)
+ * Copy of Picard class modified to support urls and 
+ *  - smaller buffer size to avoid downloading useless extra bytes)
+ *  - access to FastaSequenceIndex
  */
 public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequenceFile {
  
@@ -58,6 +62,15 @@ public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequence
         this(data, new ChipsterFastaSequenceIndex(index));
     }
 
+    public List<String> getContigs() {
+    	
+    	List<String> contigs = new LinkedList<String>();
+    	
+    	for (FastaSequenceIndexEntry entry : index) {
+    		contigs.add(entry.getContig());
+    	}
+    	return contigs;
+    }
 
     public ReferenceSequence getSubsequenceAt( String contig, long start, long stop ) {
         if(start > stop + 1)

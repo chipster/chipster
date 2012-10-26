@@ -158,7 +158,6 @@
 		<tool runtime="R-2.12"><resource>combine-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
 		<tool runtime="R-2.12"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-samples.R</resource></tool>
