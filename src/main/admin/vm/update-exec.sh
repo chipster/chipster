@@ -275,6 +275,16 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.2.4 (not released, check number)
+compare_to_current "2.2.4"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Updating R library FruitFlyAgilent.db"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz --overwrite -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  
+
+fi
+
 
 #####################################
 # VERSION SPECIFIC ENTRIES END HERE #
