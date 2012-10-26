@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.3
+LATEST_VERSION=2.2.4
 
 # Exit immediately if some command fails
 set -e
@@ -284,6 +284,17 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/bowtie2/indexes/saprolegnia_parasitica_cbs_223.65_2_contigs.*
 
 fi
+
+
+# 2.2.4
+compare_to_current "2.2.4"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Installing mm10 bwa index"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  
+fi
+
 
 
 #####################################
