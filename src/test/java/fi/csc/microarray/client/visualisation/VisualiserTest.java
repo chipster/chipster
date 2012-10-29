@@ -13,10 +13,9 @@ import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.basic.BasicModule;
@@ -26,7 +25,8 @@ public class VisualiserTest {
 
 	private DataManager manager;
 	
-	public VisualiserTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public VisualiserTest() throws Exception {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);

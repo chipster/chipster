@@ -192,4 +192,6 @@ public abstract class Visualisation {
 		return bean.isContentTypeCompatitible("text/tab", "application/cel", "text/csv") && bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES, BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 
+	public void visualisationShown() {
+	}
 }

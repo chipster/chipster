@@ -8,13 +8,13 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class ConstantTableFeature extends BasicFeature {
 
-	public class ConstantFloatTable implements Table {
+	public static class ConstantTable implements Table {
 
 		private int row = -1;
 		private Map<String, Integer> columnMap;
 		private Object[][] values;
 		
-		public ConstantFloatTable(Map<String, Integer> columnMap, Object[][] values) {
+		public ConstantTable(Map<String, Integer> columnMap, Object[][] values) {
 			this.columnMap = columnMap;
 			this.values = values;
 		}
@@ -72,6 +72,6 @@ public class ConstantTableFeature extends BasicFeature {
 	}
 
 	public Table asTable() throws MicroarrayException {
-		return new ConstantFloatTable(columnMap, values);
+		return new ConstantTable(columnMap, values);
 	}
 }

@@ -269,7 +269,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 			} else if (data instanceof DataFolder) {
 				DataFolder folder = (DataFolder) data;
 				if (folder.getParent() == null) {
-					rootFolder.addChild(folder);
+					application.getDataManager().connectChild(folder, rootFolder);
 				}
 				DefaultMutableTreeNode node = createNode(folder);
 				nodeMap.put(folder, node);				

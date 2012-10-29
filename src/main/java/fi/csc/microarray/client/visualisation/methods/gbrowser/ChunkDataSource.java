@@ -39,17 +39,17 @@ public class ChunkDataSource extends DataSource {
 	public ChunkDataSource(URL url, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 		this.fileParser = fileParser;
-
+		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
 	}
 
 	public ChunkDataSource(URL urlRoot, String path, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler)
-			throws FileNotFoundException, MalformedURLException, URISyntaxException {
+	throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		super(urlRoot, path, requestHandler);
 		this.fileParser = fileParser;
-
+		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
@@ -85,7 +85,6 @@ public class ChunkDataSource extends DataSource {
 
 				connection = (HttpURLConnection)url.openConnection();
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + endFilePosition);
-
 				int bytes = connection.getInputStream().read(chunk);
 
 
@@ -115,10 +114,10 @@ public class ChunkDataSource extends DataSource {
 				} else {
 					throw e;
 				}
-			}finally {
+			} finally {
 				IOUtils.disconnectIfPossible(connection);
 			}
-		}
+		}   
 		return -1;   
 	}
 

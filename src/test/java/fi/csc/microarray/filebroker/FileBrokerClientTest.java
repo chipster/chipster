@@ -10,26 +10,26 @@ import java.net.URL;
 import javax.jms.JMSException;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.MessagingTestBase;
-import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.util.IOUtils;
 
 public class FileBrokerClientTest extends MessagingTestBase {
 
 	private FileBrokerClient fbc;
 	
-	@BeforeSuite(alwaysRun = true)
+	@BeforeTest
 	protected void setUp() throws Exception {
 		super.setUp();
 		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	}
 
-	@AfterSuite(alwaysRun = true)
+	@BeforeTest
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
@@ -39,7 +39,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 		File file = new File("src/test/resources/affy_example.cel");
 		
 		System.out.println("Adding file");
-		URL url = fbc.addFile(new FileInputStream(file), file.length(), null);
+		URL url = fbc.addFile(FileBrokerArea.CACHE, new FileInputStream(file), file.length(), null);
 
 		System.out.println("Checking file");
 		Assert.assertTrue(fbc.checkFile(url, file.length()));
