@@ -193,6 +193,7 @@ if (dim(significant_results)[1] > 0) {
 }
 
 # Also output a bed file for visualization and region matching tools
+source(file.path(chipster.common.path, "bed-utils.R"))
 if (dim(significant_results)[1] > 0) {
 	empty_column <- character(length(significant_indices))
 	bed_output <- output_table [,c("chr","start","end")]

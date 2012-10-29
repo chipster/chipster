@@ -19,14 +19,22 @@
 
 ##########################################################################################
 # download and extract .gz file from url unless the extracted file exists already
-# second parameter has to match file name in url (excluding .gz ending)
+# second parameter has to match file name in url (excluding .gz or .tar.gz ending)
 
 download_and_extract () # parameters 1:url 2:file
 {
 	if [ ! -e "$2" ] # if doesn't exist
 	then
-		wget --no-verbose "$1"
-		gzip -dq "$2.gz"	
+		#wget --no-verbose "$1"
+		wget "$1"
+
+		if [[ $1 == *.tar.gz ]]
+		then
+			# extract .tar.gz, omit directory structure
+			zcat "$2.tar.gz" | pax -v -r -s '/.*\///p'
+		else
+			gzip -dq "$2.gz"	
+		fi
 	else 
 		echo "   Existing file $2 skipped"
 	fi
@@ -48,21 +56,44 @@ contents_append_url () # parameters 1:type 2:url
 	echo -e "$SPECIES\t$VERSION\t$1\t*\t$2\t0" >> contents2.txt
 }
 
+index_fasta () # parameters: 1:file
+{
+	FILE=$1
+	if [ ! -e "$FILE.fai" ] # if doesn't exist
+	then
+		# create index
+		samtools faidx $FILE
+	fi
+	contents_append "Reference sequence" "*" "$FILE"
+	contents_append "Reference sequence index" "*" "$FILE.fai"
+}
 
-# create url from its parts and chromosome name and process that file
+
+# Ensembl fasta files
 
 download_fasta () # parameters: 1:url
 {
 	FILE=$(basename $1 .gz)
 	download_and_extract "$1" "$FILE"
 
-	if [ ! -e "$FILE.fai" ] # if doesn't exist
-	then
-		# create index
-		samtools faidx $FILE 
-	fi
-	contents_append "Reference sequence" "*" "$FILE"
-	contents_append "Reference sequence index" "*" "$FILE.fai"
+	index_fasta "$FILE"
+}
+
+# Chipster fasta files
+
+download_fasta_from_nic () # parameters: 1:url
+{
+	ARCHIVE=$(basename $1 .tar.gz)
+	download_and_extract "$1" "$ARCHIVE"
+
+	# arhive file path
+	PATHNAME=$(tar -tf "$ARCHIVE.tar.gz")
+	# file name part of the path
+	FILE="${PATHNAME##*/}"
+
+	rm "$ARCHIVE.tar.gz"
+
+	index_fasta "$FILE"
 }
 
 
@@ -276,7 +307,8 @@ VERSION="hg19 (GRCh37.68)"
 
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/homo_sapiens/Homo_sapiens.GRCh37.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/homo_sapiens_core_68_37/" "Homo_sapiens.GRCh37.68."
-download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.68.dna.toplevel.fa.gz"
+#download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.68.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Homo_sapiens/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg19&position=chr[CHR]%3A[START]-[END]"
 
@@ -289,13 +321,15 @@ download_fasta "ftp://ftp.ensembl.org/pub/release-54/fasta/homo_sapiens/dna/Homo
 contents_append_url "Ensembl" "http://may2009.archive.ensembl.org/Homo_sapiens/Location/View?db=core;r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg18&position=chr[CHR]%3A[START]-[END]"
 
+
 # Regularly used animals
 SPECIES="Mouse"
 VERSION="mm10 (GRCm38.68)"
 
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/mus_musculus/Mus_musculus.GRCm38.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/mus_musculus_core_68_38/" "Mus_musculus.GRCm38.68."
-download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_musculus.GRCm38.68.dna.toplevel.fa.gz"
+#download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_musculus.GRCm38.68.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm10&position=chr[CHR]%3A[START]-[END]"
 
@@ -304,17 +338,18 @@ VERSION="mm9 (NCBIM37.67)"
 
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-67/mysql/mus_musculus_core_67_37/" "Mus_musculus.NCBIM37.67."
 process_gtf "ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz"
-download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.67.dna.toplevel.fa.gz"
+#download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.67.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm9.tar.gz"
 contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]"
-
 
 SPECIES="Rat"
 VERSION="rn4 (RGSC3.4.68)"
 
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/rattus_norvegicus_core_68_34/" "Rattus_norvegicus.RGSC3.4.68."
-download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.68.dna.toplevel.fa.gz"
+#download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.68.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz"
 contents_append_url "Ensembl" "http://www.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn4&position=chr[CHR]%3A[START]-[END]"
 
@@ -341,7 +376,8 @@ contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal
 SPECIES="Ovis aries"
 VERSION="(Oar_v3.1)"
 
-download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Ovis_aries.Oar_v3.1.dna.toplevel.fa.gz"
+# download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Ovis_aries.Oar_v3.1.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_ovis_aries_texel.tar.gz"
 contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
