@@ -9,6 +9,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.microarray.manager.web.ChipsterAdminApplication;
@@ -48,15 +49,18 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 
 		if (toolbarLayout == null) {
 			toolbarLayout = new HorizontalLayout();
+			
+			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
 			refreshButton.addListener((ClickListener)this);
 			toolbarLayout.addComponent(refreshButton);
-
-			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+			
+			toolbarLayout.addComponent(app.getTitle());	
 
 			toolbarLayout.setWidth("100%");
-
-
-
 			toolbarLayout.setStyleName("toolbar");
 		}
 		return toolbarLayout;

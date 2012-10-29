@@ -22,7 +22,7 @@ import fi.csc.microarray.module.basic.BasicModule;
 
 public abstract class Visualisation {
 
-	public static final Dimension PARAMETER_SIZE = new Dimension(200, 500);
+	public static final Dimension PARAMETER_SIZE = new Dimension(240, 500);
 
 	private VisualisationFrame frame;
 
@@ -192,4 +192,6 @@ public abstract class Visualisation {
 		return bean.isContentTypeCompatitible("text/tab", "application/cel", "text/csv") && bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES, BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 
+	public void visualisationShown() {
+	}
 }

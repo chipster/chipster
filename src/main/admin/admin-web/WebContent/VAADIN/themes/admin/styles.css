@@ -30,10 +30,20 @@
 	margin-top: 5px;
 	margin-bottom: 5px;
 	margin-left: 5px;
-	margin-righ: 5px;
+	margin-right: 5px;
 	padding-top: 5px;
 	padding-bottom: 3px;
 	padding-left: 15px;
+}
+
+.toolbar .title {
+ 	text-align: right;
+	font-size: 30px;
+	margin-top: 10px;
+	padding-right: 10px;
+	text-shadow: #fafafa 1px 1px 0;
+	width: 250px;
+	
 }
 
 .navigation .v-button img {
@@ -89,6 +99,18 @@
 
 .empty-view {
 	background: gray;
+}
+
+.v-progressindicator-wrapper {
+	background: #FFFFFF;
+}
+
+ .ok .v-progressindicator-indicator {
+	background: green;
+}
+
+ .fail .v-progressindicator-indicator {
+	background: red;
 }
 
 .v-table-cell-content-failure, .v-table-cell-content-success {

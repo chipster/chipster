@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.constants.VisualConstants;
@@ -22,37 +23,44 @@ public class GeneTrackGroup extends TrackGroup {
 	protected IntensityTrack geneOverview;
 	protected Track gene;
 	protected ReferenceSNPTrack snpTrack = null;
+	protected RepeatMaskerTrack repeatMasker;
 	protected IntensityTrack geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(View dataView, DataSource annotationDataSource) {
+	public GeneTrackGroup(View dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
 		super(dataView);
 		
-		transcript = new TranscriptTrack(dataView, annotationDataSource,
-		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
-		transcript.setStrand(Strand.FORWARD);
-		
-		geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-				GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
-		geneOverview.setStrand(Strand.FORWARD);
-		
-		gene = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
-		gene.setStrand(Strand.FORWARD);
+		if (annotationDataSource != null) {
+			transcript = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+			transcript.setStrand(Strand.FORWARD);
 
-		geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-				GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
-		geneOverviewReversed.setStrand(Strand.REVERSED);
+			geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+					GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+			geneOverview.setStrand(Strand.FORWARD);
+
+			gene = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+					GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			gene.setStrand(Strand.FORWARD);
+		}
 		
-		geneReversed = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-				GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
-		geneReversed.setStrand(Strand.REVERSED);
+		if (repeatDataSource != null) {
+			repeatMasker = new RepeatMaskerTrack(dataView, repeatDataSource, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+		}
 		
-		transcriptReversed = new TranscriptTrack(dataView, annotationDataSource,
-		        GenomeBrowserConstants.SWITCH_VIEWS_AT);
-		transcriptReversed.setStrand(Strand.REVERSED);
+		if (annotationDataSource != null) {
+			geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+					GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+			geneOverviewReversed.setStrand(Strand.REVERSED);
+
+			geneReversed = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
+					GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			geneReversed.setStrand(Strand.REVERSED);
+
+			transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+			transcriptReversed.setStrand(Strand.REVERSED);
+		}
 		
 		adds();
 	}
@@ -63,15 +71,16 @@ public class GeneTrackGroup extends TrackGroup {
 		// Top separator and title
         tracks.add(new TitleTrack(view, "Annotations", Color.black));
 		
-		// Transcript, detailed, forward
-		
-		tracks.add(transcript);
+        if (transcript != null) { // no annotation data source 
+        	// Transcript, detailed, forward
+        	tracks.add(transcript);
 
-		// Gene, overview, forward 
-		tracks.add(geneOverview);
+        	// Gene, overview, forward 
+        	tracks.add(geneOverview);
 
-		// Gene, detailed, forward
-		tracks.add(gene);
+        	// Gene, detailed, forward
+        	tracks.add(gene);
+        }
 		
 		if (snpTrack != null) {
 			// SNP track Forward
@@ -85,15 +94,22 @@ public class GeneTrackGroup extends TrackGroup {
 			// SNP track Reversed
 			tracks.add(snpTrackReversed);
 		}
-		
-		// Gene, overview, reverse
-        tracks.add(geneOverviewReversed);
 
-		// Gene, detailed, reverse
-        tracks.add(geneReversed);
-	
-		// Transcript, detailed, reverse
-		tracks.add(transcriptReversed);
+		if (repeatMasker != null) {
+			// Repeat masker track
+			tracks.add(repeatMasker);
+		}
+		
+		if (transcript != null) { //no annotation data source
+			// Gene, overview, reverse
+			tracks.add(geneOverviewReversed);
+
+			// Gene, detailed, reverse
+			tracks.add(geneReversed);
+
+			// Transcript, detailed, reverse
+			tracks.add(transcriptReversed);
+		}
 		
 		// Add gene group to data view
 //	    addGroup(view, tracks);

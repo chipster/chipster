@@ -13,6 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.Topics;
@@ -38,7 +39,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 		File file = new File("src/test/resources/affy_example.cel");
 		
 		System.out.println("Adding file");
-		URL url = fbc.addFile(new FileInputStream(file), file.length(), null);
+		URL url = fbc.addFile(FileBrokerArea.CACHE, new FileInputStream(file), file.length(), null);
 
 		System.out.println("Checking file");
 		Assert.assertTrue(fbc.checkFile(url, file.length()));

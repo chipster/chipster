@@ -3,16 +3,27 @@
 <head><title></title></head>
 <body>
 
-<h2>Exome-seq / Call SNPs and short INDELs for one diploid individual</h2>
+<h2>Utilities / Call SNPs and short INDELs</h2>
 
 <h3>Description</h3>
 
-<p>Call SNPs and short INDELs for one diploid individual. </p>
+<p>Calls SNPs and short INDELs for one or more diploid individuals.</p>
 
 <h3>Parameters</h3>
 
 <ul>
+<li>Reference sequence (human hg19, mouse mm9, rat rn4) [human hg19]</li>
+<li>Chromosome names in my BAM file look like (1, chr1) [chr1]</li>
+<li>Call variants only for a certain region (String) []</li>
+<li>Disable probabilistic realignment for computation of BAC (yes, no) [no]</li>
 <li>Downgrading coefficient (Integer) [0]</li>
+<li>Minimum mapping quality for an alignment to be used (Integer) [0]</li>
+<li>Minimum base quality for a base to be considered (Integer) [13]</li>
+<li>Output per sample read depth (yes, no) [no]</li>
+<li>Output per sample strand bias P-value (yes, no) [no]</li>
+<li>Call only SNPs, indels not considered (yes, no) [no]</li>
+<li>Skip sites where reference is ambiguous (yes, no) [no]</li>
+<li>Use maximum likelihood to score variants, and perform HWE analysis (yes, no) [no]</li>
 <li>Maximum read depth (Integer) [100]</li>
 </ul>
 
@@ -20,21 +31,28 @@
 
 <p> 
 You can provide your own reference sequence in FASTA format or choose one of the provided reference genomes. 
-
+If you use the reference genomes provided by Chipster, please indicate the style of chromosome naming in your BAM file (e.g. chr1 or 1). 
+</p>
+<p>
+Alignment records are grouped by sample identifiers in @RG header lines. If sample identifiers are absent, each input file is regarded as one 
+sample.
+</p>
+<p>
 You can provide a coefficient for downgrading mapping quality for reads containing excessive mismatches. Given a 
 read with a phred-scaled probability q of being generated from the mapped position, the new mapping quality is 
 about sqrt((INT-q)/INT)*INT. A zero value disables this functionality. Applying this option usually 
 helps BWA-short but may not other mappers. The recommended value for BWA is 50.
-
+</p>
+<p> 
 Maximum read depth should be adjusted to about twice the average read depth.
 </p>
-
 
 
 <h3>Output</h3>
 
 <p>
-Output is a vcf file.
+Output is a VCF file. You can view VCF files in Chipster as text (which includes the header) or spreadsheet (which can be shorted). 
+The location column in the spreadsheet can be used in Chipster genome browser to navigate quickly through a list of variants.
 </p>
 
 

@@ -18,25 +18,23 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 
-public class ServiceContainer extends BeanItemContainer<Service> implements
+public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 Serializable {
+	
+	
+	public static final String NAME = "name";
+	public static final String COUNT = "count";
+	public static final String HOST = "host";
+	public static final String STATUS = "status";
 
-	/**
-	 * Natural property order for Service bean. Used in tables and forms.
-	 */
-	public static final Object[] NATURAL_COL_ORDER = new Object[] {
-		"name", "count", "host", "status" };
-
-	/**
-	 * "Human readable" captions for properties in same order as in
-	 * NATURAL_COL_ORDER.
-	 */
+	public static final Object[] NATURAL_COL_ORDER  = new String[] {
+		NAME, 			COUNT, 				HOST, 		STATUS };
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Service name", "Service count", "Host", "Status" };
+		"Service name", "Service count", 	"Host", 	"Status" };
 
 	public ServiceContainer() throws InstantiationException,
 	IllegalAccessException {
-		super(Service.class);
+		super(ServiceEntry.class);
 	}
 
 	public void update(final ServicesView view) {
@@ -68,7 +66,7 @@ Serializable {
 										String hosts[] = node.host.split(", ");
 										for (String host : hosts) {
 
-											Service service = new Service();
+											ServiceEntry service = new ServiceEntry();
 											service.setName(node.name);
 											service.setHost(host);
 											service.setStatus(node.status);

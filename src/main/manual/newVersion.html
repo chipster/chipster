@@ -2,6 +2,97 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 27.9.2012: What is new in Chipster 2.2.0</h2>
+
+<br>Chipster 2.2.0 contains a new tool category Variants with tools for analyzing VCF files. Visualization of these files is supported already (see the 12.9.2012 release notes).
+There are also new tools for RNA-seq analysis, and many tools have been updated to use Ensembl v68 annotations. 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="dexseq-exoncount.html">RNA-seq / Map aligned reads to exons for DEXSeq</a>. This tool counts the reads that fall into each non-overlapping exonic part.</li>
+<li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a>. This Bioconductor-based tool infers differential exon usage.</li>
+<li><a href="samtools-snp-indel-single.html"> Variants / Call SNPs and short INDELs</a>. This SAMtools and bcftools -based tool combines the old variant calling tools, allowing you to call variants from one or multiple individuals.</li>
+<li><a href="vcftools.html">Variants / Filter and analyze variants</a>. This VCFtools-based tool allows you to filter and analyze variants in a VCF file.</li>
+<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>. This tools uses TopHat 2.0.4. and Bowtie 2. We will TopHat 1.3.0 is still available for a while, but we encourage you to use TopHat 2 for new analysis sessions. </li>
+<li><a href="tophat2-single-end.html">Alignment / TopHat2 for single end reads</a>. As above.</li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but this will be updated to 2.0.2 in October.</li>
+<li><u>RNA-seq / Map aligned reads to genes using HTSeq</u>. Added mouse genome mm10, updated GTFs to Ensembl 68.</li>
+<li><u>Alignment / TopHat for paired end reads and single end reads</u>. Updated GTFs to Ensembl 68.</li>
+</ul>
+</ol>
+<hr>
+
+<h2>Version update 12.9.2012: What is new in Chipster 2.1.0</h2>
+
+<br>Chipster 2.1.0 contains major improvements in the genome browser and important new NGS data analysis functionality (see below). 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+<li><b>Genome browser improvements</b></li>
+<ul>
+<li>Several new genomes added.</li>
+<li>Support for VCF files: You can view variant positions in the browser as a separate track. You can also use a VCF file for rapidly navigating through a list of variants in the browser: Open VCF file as a spreadsheet and detach it. Clicking on chromosome position in the spreadsheet navigates the browser to that position in the genome.</li>
+<li>Improved visualization of INDELs.</li>
+<li>Improved visualization of automatically calculated coverage.</li>
+<li>Links to Ensembl and UCSC genome browser.</li>
+</ul>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><u>RNA-seq / Differential expression using edgeR for multivariate experiments</u>. This tool complements the existing edgeR by allowing you to analyze data from more complex experimental designs.</li>
+<li><u>Utilities / Annotate variants</u>. This R/Bioconductor-based tool allows you to annotate human variants in a VCF file.</li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li>PRINSEQ QC, filtering and trimming tools have been updated to use PRINSEQ version 0.19.3, which makes them run faster.</li>
+<li>Paired-end support of the tool "Filter reads for several criteria" has been updated to support HiSeq FASTQ format.</li>
+<li>Bowtie: Mouse genome mm10 has been added.</li>
+<li>TopHat: Mouse genome mm10 has been added.</li>
+</ul>
+</ol>
+<hr>
+
+<h2>Version update 6.7.2012: What is new in Chipster 2.0.2</h2>
+
+<br>Chipster 2.0.2 contains new analysis tools for variant calling (SAMtools) and quality control, trimming and filtering of reads (PRINSEQ). 
+The full list of NGS analysis tools is available <a href="tools-ngs.html">here</a>.  
+
+<ol>
+
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li> <a href="samtools-snp-indel-single.htmll">Call SNPs and short INDELs from one diploid individual </a> </li>
+<li> <a href="prinseq-statistics.html">Read quality statistics with PRINSEQ </a> </li>
+<li> <a href="prinseq-length-filter.html">Filter reads for length (PRINSEQ)</a> </li>
+<li> <a href="prinseq-N-filter.html">Filter reads for Ns (PRINSEQ)</a> </li>
+<li> <a href="prinseq-complexity-filter.html">Filter reads for low complexity (PRINSEQ)</a> </li>
+<li> <a href="prinseq-duplicate-filter.html">Filter reads for duplicates (PRINSEQ)</a> </li>
+<li> <a href="prinseq-filter.html">Filter reads for several criteria (PRINSEQ)</a>. This tool combines the above mentioned filters, and also includes a possibility to filter paired reads so that the filtered files contain the paired reads in matching order.</li>
+<li> <a href="prinseq-quality-trimmer.html">Trim reads by quality (PRINSEQ) </a> </li>
+<li> <a href="prinseq-AT-trimmer.html">Trim reads for poly-A/T tails (PRINSEQ) </a> </li>
+<li> <a href="prinseq-trimmer.html">Trim reads for several criteria (PRINSEQ) </a> </li>
+</ul>
+<li><b>Updated NGS analysis tools</b></li>
+<ul>
+<li>All aligners: Unzipping has been added, so you can give zipped FASTQ as input.</li>
+<li>Bowtie: Genomes for Dog (UCSC canFam2) and Gasterosteus aculeatus (BROADS1.67) have been added.</li>
+<li>TopHat: Parameter for the standard deviation of inner distance has been added.</li>
+</ul>	
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li>Annotation / Add genomic location to data. Adds chr, start and end location to the data.</li>
+</ul>
+<li><b>Updated microarray analysis tools</b></li>
+<ul>
+<li>Pathways / Hypergeometric test for GO. If the data was normalized using custom chiptype (altCDF) for chips hgu133a or hgu133a2, the same mapping is used in testing.</li>
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 24.1.2012: What is new in Chipster 2.0</h2>
 
 <br>Chipster 2.0 contains a comprehensive collection of analysis tools for next generation sequencing (NGS) data. 

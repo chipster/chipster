@@ -12,10 +12,10 @@
 
 # Hypergeometrix test of gene enrichment to term categories
 # Dario Greco 7.1.2007
-# JTT 30.7.2007 (with heavy modifications) 
-#
+# modified JTT 30.7.2007
 # modified MG 5.2.2010
 # modified IS 1.10.2010
+# modified EK 2.7.2012
 
 # Parameter settings (default) for testing purposes
 #ontology<-"biological_process"

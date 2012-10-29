@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
+import org.eclipse.jetty.util.IO;
 
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
@@ -106,7 +106,6 @@ public abstract class ClientApplication {
 	public abstract DataFolder initializeFolderForImport(String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
-    public abstract void showDetailsFor(DataBean data);
     public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
     public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
     public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
@@ -779,5 +778,4 @@ public abstract class ClientApplication {
 		// Remove them from bookkeeping in any case
 		deadDirectories.clear();
 	}
-	
 }

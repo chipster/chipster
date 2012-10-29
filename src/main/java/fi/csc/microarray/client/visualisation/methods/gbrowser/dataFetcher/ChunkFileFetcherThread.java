@@ -153,19 +153,19 @@ public class ChunkFileFetcherThread extends Thread {
 			
 			for (; ; i++) {
 				
+				if ( i > file.length() - 1) {	
 				
+					// buffer ended before the new line character, discard the last line 
+					lines.setLength(lines.lastIndexOf("\n") + 1);
+					break;
+				}
+
 				lines.append(file.charAt(i));		
 				
 				if (file.charAt(i) == '\n' && i > fileRequest.byteRegion.getLength()) {
 					break;
 				}
 				
-				if ( i >= file.length() - 1) {	
-					
-					// buffer ended before the new line character, discard the last line 
-					lines.setLength(lines.lastIndexOf("\n") + 1);
-					break;
-				}
 			}
 			
 			exactRegion.end = fileRequest.byteRegion.start + i;			

@@ -27,6 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.constants.VisualConstants;
@@ -94,8 +95,11 @@ public class TranscriptTrack extends Track {
 
 				rect.x = getView().bpToTrack(transcript.getRegion().start);
 				int x = rect.x;
-				rect.width = getView().bpToTrack(transcript.getRegion().end) - rect.x;
-				int x2 = getView().bpToTrack(transcript.getRegion().end);
+
+				//End has to be increased by one, because the transcript includes the base at the end location
+				BpCoord endCoord = new BpCoord(transcript.getRegion().end.bp + 1, transcript.getRegion().end.chr);
+				rect.width = getView().bpToTrack(endCoord) - rect.x;
+				int x2 = getView().bpToTrack(endCoord);
 
 				int i = 0;
 
@@ -112,7 +116,7 @@ public class TranscriptTrack extends Track {
 				}
 
 				rect.y = (int) (((i + 1) * (14)));
-				int y = rect.y + 1;
+				int y = rect.y + 2;
 				rect.height = 2;
 
 				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
@@ -126,11 +130,16 @@ public class TranscriptTrack extends Track {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
 				}
 
-				String name = transcript.getName();
-
 				if (isNameVisible(rect)) {
 
-					if (name == null) {
+					
+					String name = null;
+					
+					if (transcript.getName() != null) {
+						name = transcript.getName();
+					} else if (transcript.getId() != null) {
+						name = transcript.getId();
+					} else {
 						name = "n/a";
 					}
 
@@ -165,7 +174,9 @@ public class TranscriptTrack extends Track {
 					}
 
 					rect.x = getView().bpToTrack(exon.getRegion().start);
-					rect.width = getView().bpToTrack(exon.getRegion().end) - rect.x;
+					//End has to be increased by one, because the transcript includes the base at the end location
+					BpCoord exonEnd = new BpCoord(exon.getRegion().end.bp + 1, exon.getRegion().end.chr);
+					rect.width = getView().bpToTrack(exonEnd) - rect.x;
 					rect.height = 4;
 
 					geneDrawables.add(new RectDrawable(rect, c, null));

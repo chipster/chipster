@@ -28,11 +28,8 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -63,7 +60,6 @@ public class TaskExecutor {
 
 	private static final Logger logger = Logger.getLogger(TaskExecutor.class);
 	private DataManager manager;
-	private FileBrokerClient fileBroker;
 
 	private MessagingTopic requestTopic;
 	private LinkedList<Task> tasks = new LinkedList<Task>();
@@ -337,7 +333,6 @@ public class TaskExecutor {
 				URL payloadUrl = resultMessage.getPayload(name);
 				DataBean bean = manager.createDataBean(name);
 				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, payloadUrl);
-				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
 		}
@@ -387,7 +382,6 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws Exception {
 		this.manager = manager;
-		this.fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
@@ -458,6 +452,8 @@ public class TaskExecutor {
 					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
+
+					
 					for (final String name : task.getInputNames()) {
 
 						final int fi = i;
@@ -697,21 +693,17 @@ public class TaskExecutor {
 		logger.debug("Message cancel thread started.");
 	}
 
-	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException, FileBrokerException {
+	private void resendJobMessage(Task task, Destination replyTo) throws Exception {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		for (String name : task.getInputNames()) {
 			DataBean bean = task.getInput(name);
-			try {
-				bean.getLock().readLock().lock();
-				URL url = fileBroker.addFile(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), bean.getContentLength(), null);
-				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, url);
-				bean.setContentChanged(false);
-			} finally {
-				bean.getLock().readLock().unlock();
+			URL url = manager.getURLForCompAndUploadToCacheIfNeeded(bean, null); // no progress listening on resends
+			if (url == null) {
+				throw new RuntimeException("could not upload input data");
 			}
 			
-			jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED)); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED));
 		}
 		jobMessage.setReplyTo(replyTo);
 

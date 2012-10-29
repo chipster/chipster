@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -57,6 +58,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private JPanel waitPanel;
 
+	private Vector<Component> focusComponents;
+
 	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
 	/**
@@ -100,44 +103,45 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	}
 
 	public JComponent createVisualisation(VisualisationMethodChangedEvent e) {
+		
+		JComponent componentToReturn = null;
 
 		// Create new visualiser only if needed to keep the settings made in settings panel
-		if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
-			this.datas = e.getDatas();
-			this.method = e.getNewMethod();
-
-			removeVisualiser();
-			
-			visualiser = method.getVisualiser(this);
-		}
-		this.variables = e.getVariables();
-
-		// parameter panel has to be first one to make it initialised before the
-		// data is set (scatterplot)
-		JPanel parametersPanel = visualiser.getParameterPanel();
-		logger.debug("parametersPanel for method " + method + " contains: " + parametersPanel);
-		if (parametersPanel != null) {
-			paramSplit = new JSplitPane();
-			parametersPanel.setMinimumSize(new Dimension(0, 0));
-			paramSplit.setRightComponent(parametersPanel);
-			// To show the width limit of parameter panel
-			paramSplit.setContinuousLayout(true);
-			// To keep the parameter panel size constant
-			paramSplit.setResizeWeight(1.0);
-
-			SplitSizeHandler sizeHandler = new SplitSizeHandler();
-			paramSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, sizeHandler);
-		} else {
-			//Do not keep references to old visualization to avoid memory leak
-			if (paramSplit != null) {
-				paramSplit.removeAll();
-			}
-		}
-
-		JComponent visualisationComponent = null;
-
-		JComponent componentToReturn = null;
 		try {
+			if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
+				this.datas = e.getDatas();
+				this.method = e.getNewMethod();
+
+				removeVisualiser();
+				visualiser = method.getVisualiser(this);
+			}
+			this.variables = e.getVariables();
+
+			// parameter panel has to be first one to make it initialised before the
+			// data is set (scatterplot)
+			JPanel parametersPanel = visualiser.getParameterPanel();
+			logger.debug("parametersPanel for method " + method + " contains: " + parametersPanel);
+			if (parametersPanel != null) {
+				paramSplit = new JSplitPane();
+				parametersPanel.setMinimumSize(new Dimension(0, 0));
+				paramSplit.setRightComponent(parametersPanel);
+				// To show the width limit of parameter panel
+				paramSplit.setContinuousLayout(true);
+				// To keep the parameter panel size constant
+				paramSplit.setResizeWeight(1.0);
+
+				SplitSizeHandler sizeHandler = new SplitSizeHandler();
+				paramSplit.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY, sizeHandler);
+			} else {
+				//Do not keep references to old visualization to avoid memory leak
+				if (paramSplit != null) {
+					paramSplit.removeAll();
+				}
+			}
+
+			JComponent visualisationComponent = null;
+
+
 			if (visualiser.isForMultipleDatas()) {
 				visualisationComponent = visualiser.getVisualisation(datas);
 			} else if (visualiser.isForSingleData()) {
@@ -151,7 +155,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			} else {
 				componentToReturn = visualisationComponent;
 			}
-
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("visualisationpanel contains following components:");
 				for (Component component : paramSplit.getComponents()) {
@@ -200,6 +204,9 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		// Split obeys divider locations only after it's shown, else side visualisations hide parameters
 		if (paramSplit != null) {
 			paramSplit.setDividerLocation(0.5);
+		}
+		if (visualiser != null) {
+			visualiser.visualisationShown();
 		}
 	}
 
@@ -284,5 +291,13 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	
 	void setTitle(String title) {
 		return;
+	}
+	
+	public Vector<Component> getFocusComponents() {
+		return focusComponents;
+	}
+	
+	public Visualisation getVisualisation() {
+		return visualiser;
 	}
 }

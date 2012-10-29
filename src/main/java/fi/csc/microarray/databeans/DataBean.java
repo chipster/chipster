@@ -176,7 +176,6 @@ public class DataBean extends DataItemBase {
 	protected DataManager dataManager;
 	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
-	private boolean contentChanged = true;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
 	private LinkedList<LinkedBean> outgoingLinks = new LinkedList<LinkedBean>();
@@ -599,6 +598,12 @@ public class DataBean extends DataItemBase {
 	 * @param methods returned ContentLocation must use one of these
 	 */
 	public ContentLocation getContentLocation(StorageMethod... methods) {
+		
+		if (methods.length == 0) {
+			// does not make sense if no methods are specified, check here to avoid programming mistakes
+			throw new IllegalArgumentException("must specify at least one method"); 
+		}
+		
 		List<ContentLocation> locations = getContentLocations(methods);
 		return locations.isEmpty() ? null : locations.get(0);
 	}
@@ -684,33 +689,6 @@ public class DataBean extends DataItemBase {
 		return contentLocation != null ? contentLocation.url : null;
 	}
 	
-
-	/**
-	 * Indicate whether the contents have been changed since the contents
-	 * were last time uploaded to file broker.
-	 * 
-	 */
-	public boolean isContentChanged() {
-		return this.contentChanged;
-	}
-
-
-
-	/**
-	 * Set content changed status. Should be called with true every time
-	 * content is changed. Resets content bound cache.
-	 * 
-	 * @param contentChanged
-	 */
-	public void setContentChanged(boolean contentChanged) {
-		
-		if (contentChanged) {
-			resetContentBoundCache();
-		}
-		
-		this.contentChanged = contentChanged;
-	}
-
 
 	public void setCreationDate(Date date) {
 		this.date = date;

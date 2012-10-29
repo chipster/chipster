@@ -70,9 +70,9 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SessionReplayTest extends MessagingTestBase {
 
-	private static final String FLAG_FILE = "tool-test-ok";
+	private static final String FLAG_FILE = "test-ok";
 	private static final String DEFAULT_SESSIONS_DIR = "sessions";
-	private static final String WEB_DIR = "web";
+	private static final String DEFAULT_WEB_DIR = "web";
 	private static final String SCREEN_OUTPUTS_DIR = "screen-outputs";
 	
 	private static final long TOOL_TEST_TIMEOUT = 1;
@@ -91,6 +91,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	
 	private Date startTime;
 	private File sessionsDir;
+	static private File webDir;
 	
 	private List<ToolTestResult> toolTestResults = new LinkedList<ToolTestResult>();
 	
@@ -111,7 +112,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	public boolean testSessions(String sessionsDirName) throws Exception {
 
 		this.sessionsDir = new File(sessionsDirName);
-
+		
 		// Set up modules
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
@@ -471,12 +472,16 @@ public class SessionReplayTest extends MessagingTestBase {
 	public static void main(String[] args) throws Exception {
 		
 		boolean testOK = false;
+
+		// needed if things fail early
+		webDir = new File(DEFAULT_WEB_DIR);
+		
 		try {
 
 			String configURL = null;
 			String username = null;
 			String password = null;
-			String sessionsDir = DEFAULT_SESSIONS_DIR;
+			String sessionsDirName = DEFAULT_SESSIONS_DIR;
 			switch(args.length) {
 			case 3:
 				configURL = args[0];
@@ -489,11 +494,19 @@ public class SessionReplayTest extends MessagingTestBase {
 				username = args[1];
 				password = args[2];
 				DirectoryLayout.initialiseClientLayout(configURL);
-				sessionsDir = args[3];
+				sessionsDirName = args[3];
+				break;
+			case 5:
+				configURL = args[0];
+				username = args[1];
+				password = args[2];
+				DirectoryLayout.initialiseClientLayout(configURL);
+				sessionsDirName = args[3];
+				webDir = new File(args[4]);
 				break;
 
 			default:
-				System.out.println("Usage: " + SessionReplayTest.class.getSimpleName() + " <config-url username password> <sessions dir>\n" +
+				System.out.println("Usage: " + SessionReplayTest.class.getSimpleName() + " <config-url username password> <sessions dir> <web dir>\n" +
 				"If there are no arguments, config file is used.");
 				updateFlagFileAndExit(false);
 			}
@@ -512,7 +525,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			// run
 			try {
 				test.setUp();
-				testOK = test.testSessions(sessionsDir);
+				testOK = test.testSessions(sessionsDirName);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("TOOL TEST ERROR");
@@ -597,9 +610,8 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 
 		// create files
-		File webDir = new File(WEB_DIR);
 		webDir.mkdirs();
-		File screenOutputsDir = new File(WEB_DIR, SCREEN_OUTPUTS_DIR);
+		File screenOutputsDir = new File(webDir, SCREEN_OUTPUTS_DIR);
 
 		// delete existing screen outputs
 		if (screenOutputsDir.exists()) {
@@ -801,7 +813,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 	
 	private static void updateFlagFileAndExit(boolean testOK) throws IOException {
-		File flagFile = new File(FLAG_FILE);
+		File flagFile = new File(webDir, FLAG_FILE);
 		if (testOK) {
 			if (!flagFile.exists()) {
 				flagFile.createNewFile();
@@ -922,7 +934,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			return "";
 		}
 		
-		File outputsDir = new File(WEB_DIR, SCREEN_OUTPUTS_DIR);
+		File outputsDir = new File(webDir, SCREEN_OUTPUTS_DIR);
 		outputsDir.mkdirs();
 		File outputFile = new File(outputsDir, task.getId() + "-output");
 		try {
@@ -1068,11 +1080,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void showDetailsFor(DataBean data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void showDialog(String title, String message, String details, Severity severity, boolean modal) {
 			showDialog(title, message, details, severity, modal, DetailsVisibility.DETAILS_VISIBLE, null);
 		}
@@ -1136,7 +1143,5 @@ public class SessionReplayTest extends MessagingTestBase {
 		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
-		
 	}
-
 }

@@ -29,6 +29,7 @@ public class UrlTransferUtil {
 		int start = url.getPath().contains("/") ? url.getPath().lastIndexOf("/") + 1 : url.getPath().length();
 		return url.getPath().substring(start);
 	}
+
 	
 	/**
 	 * Uploads a file (or similar) over HTTP.
@@ -47,9 +48,7 @@ public class UrlTransferUtil {
 
     	HttpURLConnection connection = null;
     	try {
-    		connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
-    		connection.setRequestMethod("PUT");
-    		connection.setDoOutput(true);
+    		connection = prepareForUpload(url);
 
     		if (useChunked) {
     			// use chunked mode or otherwise URLConnection loads everything into memory
@@ -119,5 +118,13 @@ public class UrlTransferUtil {
 			}
 	    	
 	    });
+	}
+
+
+	public static HttpURLConnection prepareForUpload(URL url) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
+		connection.setRequestMethod("PUT");
+		connection.setDoOutput(true);
+		return connection;
 	}
 }

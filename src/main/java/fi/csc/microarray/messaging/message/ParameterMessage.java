@@ -35,13 +35,17 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	private static final String KEY_NAMED_PARAMETER_KEY ="named-parameter-key";
 	private static final String KEY_NAMED_PARAMETER_VALUE ="named-parameter-value";
 	
+	// these should be moved away, maybe to CommandMessage
 	public static final String PARAMETER_AS_ID = "as-id";
 	public static final String PARAMETER_JOB_ID = "job-id";
 	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
+	public static final String PARAMETER_AREA = "area";
 	public static final String PARAMETER_DISK_SPACE = "disk-space";
-
 	public static final String PARAMETER_URL = "url";
-
+	public static final String PARAMETER_SESSION_UUID = "session-uuid";
+	public static final String PARAMETER_SESSION_NAME = "session-name";
+	public static final String PARAMETER_SESSION_NAME_LIST = "session-name-list";
+	public static final String PARAMETER_SESSION_UUID_LIST = "session-uuid-list";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();

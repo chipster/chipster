@@ -10,8 +10,7 @@ import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.security.CryptoKey;
 
 /**
@@ -36,22 +35,23 @@ public class AuthorisedUrlRepository {
 	private String host;
 	private int port;
 	private String cachePath;
+	private String storagePath;
 	
-	public AuthorisedUrlRepository(String host, int port) {
+	public AuthorisedUrlRepository(String host, int port, String cachePath, String storagePath) {
 		this.host = host;
 		this.port = port;
-		
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		cachePath = configuration.getString("filebroker", "cache-path");
+		this.cachePath = cachePath;
+		this.storagePath = storagePath;
 	}
 
 	/**
 	 * Creates new URL and adds it to repository, where it has a 
 	 * limited lifetime.
+	 * @param area 
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl(boolean useCompression) throws MalformedURLException {
+	public URL createAuthorisedUrl(boolean useCompression, FileBrokerArea area) throws MalformedURLException {
 
 		URL newUrl;
 
@@ -65,7 +65,11 @@ public class AuthorisedUrlRepository {
 			// create url that does not exist in the repository
 			do {
 				String filename = CryptoKey.generateRandom();
-				newUrl = new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
+				if (area == FileBrokerArea.STORAGE) {
+					newUrl = new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
+				} else {
+					newUrl = new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
+				}
 				
 			} while (repository.containsKey(newUrl));
 

@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.Empty;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 /**
  * <p>A data visualisation methods. This class is used for
@@ -71,17 +72,11 @@ public class VisualisationMethod {
 		return visualiser;
 	}
 
-	public Visualisation getVisualiser(VisualisationFrame frame) {
-		try {
+	public Visualisation getVisualiser(VisualisationFrame frame) throws Exception {
+		
 			Visualisation visualisation = visualiser.getConstructor().newInstance();
 			visualisation.initialise(frame);
 			return visualisation;
-		} catch (Exception e) {
-			e.printStackTrace();
-			//field 'application' not always initialised
-			Session.getSession().getApplication().reportException(e);
-			return null;
-		}
 	}
 
 	/**
@@ -108,7 +103,7 @@ public class VisualisationMethod {
 	}
 
 	public static VisualisationMethod getDefault() {
-		return VisualisationMethod.NONE;
+		return VisualisationMethods.DATA_DETAILS;
 	}
 
 	/**

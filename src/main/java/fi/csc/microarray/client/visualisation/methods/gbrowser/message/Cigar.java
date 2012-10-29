@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem
  */
 public class Cigar {
 	private List<CigarItem> cigarItems = new ArrayList<CigarItem>();
+	private LinkedList<ReadPart> visibleElements = null;
 	private LinkedList<ReadPart> processedElements = null;
 	private RegionContent read;
 	private net.sf.samtools.Cigar samCigar;
