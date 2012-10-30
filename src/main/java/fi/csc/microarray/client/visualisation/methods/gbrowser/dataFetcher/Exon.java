@@ -30,7 +30,7 @@ public class Exon implements Comparable<Exon> {
 	
 	private Feature getFeature(String id) {
 		for (Feature feature : Feature.values()) {
-			if (feature.getId() != null && feature.getId().equals(id)) {
+			if (feature.getId().equals(id)) {
 				return feature;
 			}
 		}
