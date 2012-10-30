@@ -81,17 +81,22 @@ download_fasta () # parameters: 1:url
 
 # Chipster fasta files
 
-download_fasta_from_nic () # parameters: 1:url
+download_fasta_from_nic () # parameters: 1:url 2:file
 {
-	ARCHIVE=$(basename $1 .tar.gz)
-	download_and_extract "$1" "$ARCHIVE"
+	if [ ! -e "$2" ] # if doesn't exist
+	then
+		ARCHIVE=$(basename $1 .tar.gz)
+		download_and_extract "$1" "$ARCHIVE"
 
-	# arhive file path
-	PATHNAME=$(tar -tf "$ARCHIVE.tar.gz")
-	# file name part of the path
-	FILE="${PATHNAME##*/}"
+		# arhive file path
+		PATHNAME=$(tar -tf "$ARCHIVE.tar.gz")
+		# file name part of the path
+		FILE="${PATHNAME##*/}"
 
-	rm "$ARCHIVE.tar.gz"
+		rm "$ARCHIVE.tar.gz"
+	else
+		FILE=$2
+	fi
 
 	index_fasta "$FILE"
 }
@@ -308,7 +313,7 @@ VERSION="hg19 (GRCh37.68)"
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/homo_sapiens/Homo_sapiens.GRCh37.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/homo_sapiens_core_68_37/" "Homo_sapiens.GRCh37.68."
 #download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.68.dna.toplevel.fa.gz"
-download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz" "hg19.fa"
 contents_append_url "Ensembl" "http://www.ensembl.org/Homo_sapiens/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg19&position=chr[CHR]%3A[START]-[END]"
 
@@ -329,7 +334,7 @@ VERSION="mm10 (GRCm38.68)"
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/mus_musculus/Mus_musculus.GRCm38.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/mus_musculus_core_68_38/" "Mus_musculus.GRCm38.68."
 #download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/mus_musculus/dna/Mus_musculus.GRCm38.68.dna.toplevel.fa.gz"
-download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz" "mm10.fa"
 contents_append_url "Ensembl" "http://www.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm10&position=chr[CHR]%3A[START]-[END]"
 
@@ -339,7 +344,7 @@ VERSION="mm9 (NCBIM37.67)"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-67/mysql/mus_musculus_core_67_37/" "Mus_musculus.NCBIM37.67."
 process_gtf "ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz"
 #download_fasta "ftp://ftp.ensembl.org/pub/release-67/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.67.dna.toplevel.fa.gz"
-download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm9.tar.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm9.tar.gz" "mm9.fa"
 contents_append_url "Ensembl" "http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]"
 
@@ -349,7 +354,7 @@ VERSION="rn4 (RGSC3.4.68)"
 process_gtf "ftp://ftp.ensembl.org/pub/release-68/gtf/rattus_norvegicus/Rattus_norvegicus.RGSC3.4.68.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-68/mysql/rattus_norvegicus_core_68_34/" "Rattus_norvegicus.RGSC3.4.68."
 #download_fasta "ftp://ftp.ensembl.org/pub/release-68/fasta/rattus_norvegicus/dna/Rattus_norvegicus.RGSC3.4.68.dna.toplevel.fa.gz"
-download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz" "rn4.fa"
 contents_append_url "Ensembl" "http://www.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn4&position=chr[CHR]%3A[START]-[END]"
 
@@ -377,7 +382,7 @@ SPECIES="Ovis aries"
 VERSION="(Oar_v3.1)"
 
 # download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Ovis_aries.Oar_v3.1.dna.toplevel.fa.gz"
-download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_ovis_aries_texel.tar.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_ovis_aries_texel.tar.gz" "ovis_aries_texel.fa"
 contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
@@ -425,6 +430,23 @@ process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/gtf/vitis_vinife
 ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/mysql/vitis_vinifera_core_15_68_3/" "Vitis_vinifera.IGGP_12x.15."
 download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-15/fasta/vitis_vinifera/dna/Vitis_vinifera.IGGP_12x.15.dna.toplevel.fa.gz"
 contents_append_url "Ensembl" "http://plants.ensembl.org/Vitis_vinifera/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" ""
+
+# Other
+SPECIES="Yersinia similis"
+VERSION="(N916Ysi)"
+
+process_gtf "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/N916Ysi.gtf.gz"
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/N916Ysi.fa.gz"
+contents_append_url "Ensembl" ""
+contents_append_url "UCSC" ""
+
+SPECIES="Yersinia phage phiR1-RT"
+VERSION="(HE956709.1)"
+
+process_gtf "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/R1-RT.gtf.gz"
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/R1-RT.fa.gz"
+contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
 exit 0 

@@ -105,7 +105,7 @@ public class IndexedFastaFileFetcherThread extends Thread {
 			if (buffer == null  || !buffer.contains(request.start.bp, request.end.bp, request.start.chr)) {
 
 				long bufferStart = Math.max(request.start.bp - BUFFER_EXTRA, 0);
-				long bufferEnd = request.end.bp + BUFFER_EXTRA;
+				long bufferEnd = request.end.bp + BUFFER_EXTRA;				
 				
 				ReferenceSequence seq = dataSource.getPicard().getSubsequenceAt(chr, bufferStart, bufferEnd);
 				
