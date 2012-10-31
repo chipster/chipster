@@ -98,6 +98,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		Server h2WebConsoleServer;
     		h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(8082)});
     		h2WebConsoleServer.start();
+    		logger.info(h2WebConsoleServer.getStatus());
     		
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
