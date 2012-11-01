@@ -247,6 +247,9 @@
 		<tool runtime="R-2.15">
 			<resource>DEXseq.R</resource>
 		</tool>
+		<tool runtime="beanshell" module="common">
+			<resource>annotate-cpdb.bsh</resource>
+		</tool>
 	</category>
 
 	<category name="miRNA-seq" color="#629a9b">
