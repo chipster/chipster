@@ -120,5 +120,6 @@ public interface FileBrokerClient {
 	
 	public abstract URL moveFileToStorage(URL url, long contentLength) throws JMSException;
 	public abstract URL saveRemoteSession(String name) throws JMSException;
+	public abstract String[] listRemoteSessions() throws JMSException;
 
 }

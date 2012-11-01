@@ -1807,15 +1807,16 @@ public class SwingClientApplication extends ClientApplication {
 		JFileChooser fileChooser;
 		if (remote) {
 			try {
-				String prefix = "http://chipster-filebroker.csc.fi/";
-				URL[] repoDescription = new URL[] {
-						new URL(prefix + "Remote sessions/"),
-				};
-
-				ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+				
+				// fetch current sessions to show in the dialog
+				String[] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+				ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions);
+				
+				// create the dialog
 				fileChooser = new JFileChooser(view.getRoot(), view);
 				
-				// hide buttons that we don't need (stupid graphical buttons does not seem to have anything better than tooltip for identification)
+				// hide buttons that we don't need (stupid graphical buttons do not seem to have anything better than tooltip for identification)
+				hideChildButtonsWithTooltip(fileChooser, "Sessions at server");
 				hideChildButtonsWithTooltip(fileChooser, "Up One Level");
 				hideChildButtonsWithTooltip(fileChooser, "Remote sessions");
 				hideChildButtonsWithTooltip(fileChooser, "Create New Folder");
