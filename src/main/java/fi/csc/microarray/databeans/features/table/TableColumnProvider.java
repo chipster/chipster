@@ -226,6 +226,17 @@ public class TableColumnProvider extends FeatureProviderBase {
 						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
 					}
 					
+					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
+						//TODO this will fail if the last row of header isn't unique
+						String line = null;
+						int i = 1;
+						while (line == null || source.peekLine(i).startsWith("#")) {
+							line = source.peekLine(i);
+							i++;
+						}
+						settings.headerTerminator = line;
+					}
+					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
 						//TODO this will fail if the last row of header isn't unique
 						String line = null;

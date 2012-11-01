@@ -382,7 +382,18 @@ if (control.available == "yes") {
 
 # Convert the name of some files to make it compatible with chipster output
 system("mv results.log analysis-log.txt")
-system ("mv results_peaks.bed positive-peaks.bed")
+#system ("mv results_peaks.bed positive-peaks.bed")
+
+# Sort the BED
+source(file.path(chipster.common.path, "bed-utils.R"))
+#if (system("cat results_peaks.bed | wc -l") > 1){	
+if (file.exists("results_peaks.bed")){
+	bed <- read.table(file="results_peaks.bed", skip=0, sep="\t")
+	colnames(bed)[1:2] <- c("chr", "start")
+	sorted.bed <- sort.bed(bed)
+	write.table(sorted.bed, file="positive-peaks.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 if (build.model == "yes") {

@@ -1,14 +1,15 @@
 # TOOL bedtools-intersectbed.R: "Intersect BED" (Report overlaps between two feature files. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
-# OUTPUT intersectbed.bed 
+# OUTPUT OPTIONAL intersectbed.bed 
+# OUTPUT OPTIONAL intersectbed.bam
 # PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes, no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.)
 # PARAMETER OPTIONAL bed: "Write output as BED" TYPE [yes, no] DEFAULT no (When using BAM input, write output as BED. The default is to write output in BAM when using BAM input.)
 # PARAMETER OPTIONAL wa: "Write the original entry in A for each overlap" TYPE [yes, no] DEFAULT no (Report the original A feature when an overlap is found. The entire A feature is reported, not just the portion that overlaps with the B feature.)
 # PARAMETER OPTIONAL wb: "Write the original entry in B for each overlap" TYPE [yes, no] DEFAULT no (Report the original B feature when an overlap is found. The entire B feature is reported, not just the portion that overlaps with the A feature.)
-# PARAMETER OPTIONAL wo: "Write the original A and B entries" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two feature. Only A features with overlap are reported.)
-# PARAMETER OPTIONAL wao: "Write the original A and B entries" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two features. However, A features w/o overlap are also reported with a NULL B feature and overlap = 0.)
+# PARAMETER OPTIONAL wo: "Write the original A and B entries for overlapped A features" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two feature. Only A features with overlap are reported.)
+# PARAMETER OPTIONAL wao: "Write the original A and B entries for all A features" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two features. However, A features w/o overlap are also reported with a NULL B feature and overlap = 0.)
 # PARAMETER OPTIONAL u: "Write the original A entry once if any overlaps found in B" TYPE [yes, no] DEFAULT no (Write the original A entry once if any overlaps found in B)
 # PARAMETER OPTIONAL c: "For each entry in A, report the number of overlaps with B" TYPE [yes, no] DEFAULT no (For each entry in A, report the number of overlaps with B)
 # PARAMETER OPTIONAL v: "Only report those entries in A that have no overlaps with B" TYPE [yes, no] DEFAULT no (Only report those entries in A that have no overlaps with B)
@@ -18,15 +19,23 @@
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM (i.e., having an “N” CIGAR operation\) or BED12 entries as distinct BED intervals.)
 
 # AMS 23.4.2012
+# AMS 11.10.2012 Fixed BAM file support
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "intersectBed"))
 
 # options
+outfile <- "intersectbed.bed"
 options <- paste("")
 if (abam == "yes") {
-	if (ubam == "yes") {options <- paste(options, "-ubam")}
-	if (bed == "yes") {options <- paste(options, "-bed")}
+	outfile <- "intersectbed.bam"
+	if (ubam == "yes") {
+		options <- paste(options, "-ubam")
+	}
+	if (bed == "yes") {
+		options <- paste(options, "-bed")
+		outfile <- "intersectbed.bed"
+	}
 }
 if (wa == "yes") {options <- paste(options,"-wa")}
 if (wb == "yes") {options <- paste(options,"-wb")}
@@ -45,8 +54,15 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, "> intersectbed.bed")
+command <- paste(binary, options, ">", outfile)
+
+#stop(paste('CHIPSTER-NOTE: ', command))
 
 # run
 system(command)
-if (file.info("intersectbed.bed")$size == 0) {system("echo \"No results found\" > intersectbed.bed")}
+
+if (file.exists("intersectbed.bed")){
+	if (file.info("intersectbed.bed")$size == 0) {
+		system("echo \"# No results found\" > intersectbed.bed")
+	}	
+}

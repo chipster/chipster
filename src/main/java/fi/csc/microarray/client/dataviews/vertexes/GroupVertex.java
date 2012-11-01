@@ -90,9 +90,9 @@ public class GroupVertex extends AbstractGraphVertex {
 		int childCount = getChildCount() - 1;
 		
 		if(childCount > 1){
-			return childCount + " files";
+			return "" + childCount;
 		} else {
-			return childCount + " file";
+			return "" + childCount;
 		}
 	}
 

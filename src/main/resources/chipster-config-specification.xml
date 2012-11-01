@@ -155,7 +155,7 @@
 		<entry entryKey="max-jobs" type="int" mustBeSet="true" description="maximum number of jobs run simultaneously">		
 		</entry>
 
-		<entry entryKey="receive-timeout" type="int" description="time after which a received job is removed, seconds">
+		<entry entryKey="receive-timeout" type="int" description="deprecated, time after which a received job is removed, seconds">
 			<value>3600</value>
 		</entry>
 		
@@ -197,7 +197,7 @@
 			<value>36000</value>
 		</entry>
 		
-		<entry entryKey="r-timeout" type="int" description="timeout for a single R script, seconds">
+		<entry entryKey="r-timeout" type="int" description="deprecated, timeout for a single R script, seconds">
 			<value>2592000</value> <!-- 30 days -->
 		</entry>
 		

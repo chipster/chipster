@@ -527,6 +527,11 @@
       <bioconductor-package>rtracklayer</bioconductor-package>
       <mirror>http://www.bioconductor.org</mirror>
     </item>
+
+    <item installed="false" name="maSigPro" type="r-package"> 
+      <bioconductor-package>maSigPro</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
+    </item>
       
     <item installed="true" name="qvalue" type="r-package">
       <bioconductor-package>qvalue</bioconductor-package>
@@ -593,6 +598,10 @@
     
 	<item installed="false" name="CORNA" type="r-package">
 		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz</url>
+    </item>    
+
+	<item installed="false" name="FruitFlyAgilent.db" type="r-package">
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz</url>
     </item>    
     
 	<item installed="false" name="CGHtest" type="r-package">

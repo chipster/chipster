@@ -97,15 +97,17 @@ public class IndexedFastaFileFetcherThread extends Thread {
 		List<RegionContent> responseList = new LinkedList<RegionContent>();
 
 		try {
+			
+			String chr = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
 
 			//A few thousand byte buffer eliminates the need for downloading data on every frame. 
 			//Buffer has to be refreshed relatively rarely, maybe in 1 second intervals during heavy scrolling
 			if (buffer == null  || !buffer.contains(request.start.bp, request.end.bp, request.start.chr)) {
 
 				long bufferStart = Math.max(request.start.bp - BUFFER_EXTRA, 0);
-				long bufferEnd = request.end.bp + BUFFER_EXTRA;
+				long bufferEnd = request.end.bp + BUFFER_EXTRA;				
 				
-				ReferenceSequence seq = dataSource.getPicard().getSubsequenceAt(request.start.chr.toNormalisedString(), bufferStart, bufferEnd);
+				ReferenceSequence seq = dataSource.getPicard().getSubsequenceAt(chr, bufferStart, bufferEnd);
 				
 				buffer = new SequenceBuffer(new String(seq.getBases()), bufferStart, request.start.chr);
 			}

@@ -58,7 +58,7 @@
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
-		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
+		<tool runtime="R-2.15"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
 		<tool runtime="R-2.12"><resource>ordination-pca.R</resource></tool>
@@ -158,7 +158,6 @@
 		<tool runtime="R-2.12"><resource>combine-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
 		<tool runtime="R-2.12"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-samples.R</resource></tool>

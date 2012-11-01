@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.UIManager;
-
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
@@ -35,7 +33,7 @@ public class GenomePlot extends Plot {
     public TooltipAugmentedChartPanel chartPanel;
     
     private boolean showFullHeight = false;
-	private Rectangle dirtyArea;
+	private Rectangle fullHeightClip;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -68,13 +66,12 @@ public class GenomePlot extends Plot {
 	    // set chart panel
 	    this.chartPanel = panel;
 	    this.chartPanel.setLayout(null);
-	    this.dirtyArea = panel.getBounds();
 	    
 		// add overview view
 		this.overviewView = new OverviewHorizontalView(this);
 		this.overviewView.margin = 0;
 		this.overviewView.setStaticHeight(true);
-		this.overviewView.setHeight(25);
+		this.overviewView.setStaticHeight(25);
 		this.views.add(overviewView);
 
 		// add horizontal or circular data view
@@ -176,17 +173,13 @@ public class GenomePlot extends Plot {
 		if (info != null) {
 			info.setPlotArea(area);
 			info.setDataArea(area);
-		}
-
-		this.setBackgroundPaint(UIManager.getColor("Panel.background"));
-		g2.setClip(this.dirtyArea);
-		drawBackground(g2, this.dirtyArea); // clear everything that was drawn before 
-
+		}		
+		
 		Shape savedClip = g2.getClip();
 		g2.clip(area);
 
-		Rectangle viewArea = (Rectangle) area.getBounds().clone();				
-		this.dirtyArea = viewArea; 
+		Rectangle viewArea = (Rectangle) area.getBounds().clone();
+		Rectangle viewPort = (Rectangle) getFullHeightClip().clone();
 		
 		// Horizontal or vertical split
 		if (true) {
@@ -194,20 +187,23 @@ public class GenomePlot extends Plot {
 			for (int i = 0; i < views.size(); i++) {
 			    View view = views.get(i);
 			    
-				if (i > 0) {
-					viewArea.y += viewArea.height;
-				}
+			    if (i > 0) {
+			    	viewArea.y += viewArea.height;
+			    	
+//			    	viewPort.y += viewArea.height;
+//			    	viewPort.height -= viewArea.height;
+			    }
 				
 				if (view.hasStaticHeight()) {
-				    viewArea.height = (int) (view.getHeight());
+				    viewArea.height = (int) (view.getStaticHeight());
 				} else {
+					
 				    viewArea.height = (int) (area.getBounds().getHeight() -
-				            sumStaticViewHeights()) / countStaticViews() + 1;
+				            getStaticViewHeight()) / getNonStaticViewCount();
 				}
 
 				g2.setClip(viewArea);
-				view.drawView(g2, false);
-				this.dirtyArea = viewArea.union(this.dirtyArea);
+				view.drawView(g2, false, viewPort);
 			}
 
 		} else {
@@ -234,19 +230,21 @@ public class GenomePlot extends Plot {
 				g2.drawLine(viewArea.x - 1, 0, viewArea.x - 1, viewArea.height);
 
 				g2.setClip(viewArea);
-				view.drawView(g2, false);
-				this.dirtyArea = viewArea.union(this.dirtyArea);
+				view.drawView(g2, false, null);
 			}
 		}
 		g2.setClip(savedClip);
 	}
 	
-	public int getHeightTotal() {
+	public int getHeight() {
 		int total = 0;
 		for (View view : views) {
-			total += view.getTrackHeightTotal();
+			if (view.hasStaticHeight()) {
+				total += view.getStaticHeight();
+			} else {
+				total += view.getFullHeight();
+			}
 		}
-	
 		return total;
 	}
 
@@ -290,11 +288,11 @@ public class GenomePlot extends Plot {
     /**
      * Sum heights of all views in this plot that have constant heights.
      */
-    private int sumStaticViewHeights() {
+    private int getStaticViewHeight() {
         int heightSum = 0;
         for (View view : views) {
             if (view.hasStaticHeight()) {
-                heightSum += view.getHeight();
+                heightSum += view.getStaticHeight();
             }
         }
         return heightSum;
@@ -303,10 +301,10 @@ public class GenomePlot extends Plot {
     /**
      * Return a number of views that have static heights.
      */
-    private int countStaticViews() {
+    private int getNonStaticViewCount() {
         int count = 0;
         for (View view : views) {
-            if (view.hasStaticHeight()) {
+            if (!view.hasStaticHeight()) {
                 count += 1;
             }
         }
@@ -326,5 +324,13 @@ public class GenomePlot extends Plot {
 		overviewView.clean();
 		dataView.clean();
 		dataView = null;
+	}
+
+	public void setFullHeightClip(Rectangle clip) {
+		this.fullHeightClip = clip;
+	}
+
+	public Rectangle getFullHeightClip() {
+		return fullHeightClip;
 	}
 }
