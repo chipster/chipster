@@ -251,15 +251,14 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromRemoteServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						String prefix = "http://chipster-filebroker.csc.fi/repos/";
-						URL[] repoDescription = new URL[] {
-								new URL(prefix + "Institute repository/"),
-								new URL(prefix + "Institute repository/username/"),
-								new URL(prefix + "Institute repository/username/sample.bam"),
-								new URL(prefix + "Institute repository/username/treatment.bam")
+						String[] repoDescription = new String[] {
+								"",
+								"username/",
+								"username/sample.bam",
+								"username/treatment.bam",
 						};
 						
-						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+						ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Institute repository/", repoDescription);
 						JFileChooser fc = new JFileChooser(view.getRoot(), view);
 						fc.setMultiSelectionEnabled(true);
 						int returnVal = fc.showDialog(null, "Open");
@@ -832,12 +831,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						String prefix = "http://chipster-filebroker.csc.fi/";
-						URL[] repoDescription = new URL[] {
-								new URL(prefix + "Remote sessions/"),
+						String[] repoDescription = new String[] {
+								"",
 						};
 						
-						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
+						ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Remote sessions/", repoDescription);
 						JFileChooser fc = new JFileChooser(view.getRoot(), view);
 						fc.setApproveButtonText("Remove");
 						fc.setMultiSelectionEnabled(true);

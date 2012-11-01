@@ -3,7 +3,6 @@ package fi.csc.microarray.client.serverfiles;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 
 import javax.swing.filechooser.FileSystemView;
@@ -19,22 +18,19 @@ public class ServerFileSystemView extends FileSystemView {
 		this.rootFile = rootFile;
 	}
 
-	public static ServerFileSystemView parseFromPaths(URL[] urls) throws MalformedURLException {
+	public static ServerFileSystemView parseFromPaths(String prefix, String[] paths) throws MalformedURLException {
 		
 		HashMap<String, ServerFile> dirs = new HashMap<String, ServerFile>();
-		ServerFile root = null;
+		ServerFile root = new ServerFile(prefix + "/");
+		dirs.put(prefix + "/", root);
 		
-		for (URL url : urls) {
-			ServerFile file = new ServerFile(url);
-			String p = url.getPath();
-			ServerFile parent = dirs.get(p.substring(0, p.substring(0, p.length() - 1).lastIndexOf("/") + 1));
-			if (parent == null) {
-				root = file; // this was root
-			} else {
-				parent.addChild(file);
-			}
+		for (String path : paths) {
+			String fullPath = prefix + "/" + path;
+			ServerFile file = new ServerFile(fullPath);
+			ServerFile parent = dirs.get(fullPath.substring(0, fullPath.substring(0, fullPath.length() - 1).lastIndexOf("/") + 1));
+			parent.addChild(file);
 			if (file.isDirectory()) {
-				dirs.put(url.getPath(), file);
+				dirs.put(fullPath, file);
 			}
 		}
 		

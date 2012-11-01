@@ -80,6 +80,7 @@ public class DerbyMetadataServer {
 
 	public List<String> listSessionsInDatabase(String username) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_USERNAME);
+		ps.setString(1, username);
 		ResultSet rs = ps.executeQuery();
 		LinkedList<String> sessions = new LinkedList<String>();
 		

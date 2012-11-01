@@ -6,32 +6,27 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedList;
 
-import fi.csc.microarray.util.IOUtils;
-
 public class ServerFile extends File {
 
-	private String path;
 	private String name;
-	private URL url;
+	private String url;
 	private LinkedList<ServerFile> children = new LinkedList<ServerFile>();
 	private boolean isDirectory;
 	private ServerFile parent;
 	
-	public ServerFile(URL url) {
-		super(url.getPath());
-		this.path = url.getPath();
+	public ServerFile(String url) {
+		super(url);
 		this.url = url;
-		this.isDirectory = url.getPath().endsWith("/");
+		this.isDirectory = url.endsWith("/");
 		
+		String p = url;
 		if (isDirectory) {
-			String p = url.getPath();
 			this.name = p.substring(p.substring(0, p.length() - 1).lastIndexOf("/") + 1, p.length() - 1);
 		} else {
-			this.name = IOUtils.getFilenameWithoutPath(url);
+			this.name = p.substring(p.lastIndexOf("/") + 1, p.length());
 		}
 	}
 
@@ -56,7 +51,7 @@ public class ServerFile extends File {
 	@Override
 	public int compareTo(File pathname) {
 		if (pathname instanceof ServerFile) {
-			return path.compareTo(((ServerFile)pathname).path);
+			return url.compareTo(((ServerFile)pathname).url);
 		} else {
 			throw new IllegalArgumentException();
 		}
@@ -85,7 +80,7 @@ public class ServerFile extends File {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ServerFile) {
-			return path.equals(((ServerFile)obj).path);
+			return url.equals(((ServerFile)obj).url);
 		} else {
 			return false;
 		}
@@ -103,7 +98,7 @@ public class ServerFile extends File {
 
 	@Override
 	public String getAbsolutePath() {
-		return path;
+		return url;
 	}
 
 	@Override
@@ -113,7 +108,7 @@ public class ServerFile extends File {
 
 	@Override
 	public String getCanonicalPath() throws IOException {
-		return path;
+		return url;
 	}
 
 	@Override
@@ -142,7 +137,7 @@ public class ServerFile extends File {
 
 	@Override
 	public String getPath() {
-		return path;
+		return url;
 	}
 
 	@Override
@@ -157,7 +152,7 @@ public class ServerFile extends File {
 
 	@Override
 	public int hashCode() {
-		return path.hashCode();
+		return url.hashCode();
 	};
 
 	@Override
@@ -300,15 +295,15 @@ public class ServerFile extends File {
 	@Override
 	public URI toURI() {
 		try {
-			return url.toURI();
+			return toURL().toURI();
 			
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public URL toURL() throws MalformedURLException {
-		return url;
+		return new URL(url);
 	}
 }

@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.ReplyMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
@@ -85,7 +86,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
-	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
+	private static final int QUICK_POLL_OPERATION_TIMEOUT = 5; // seconds 
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
@@ -205,7 +206,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// wait for payload to become available
 		long waitStartTime = System.currentTimeMillis();
 		int waitTime = 10;
-		while (payload.available() < 1 && (waitStartTime + FILE_AVAILABLE_TIMEOUT*1000 > System.currentTimeMillis())) {
+		while (payload.available() < 1 && (waitStartTime + QUICK_POLL_OPERATION_TIMEOUT*1000 > System.currentTimeMillis())) {
 			// sleep
 			try {
 				Thread.sleep(waitTime);
@@ -412,5 +413,21 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		logger.debug("storage url is: " + storageURL);
 
 		return storageURL;	
+	}
+
+	@Override
+	public String[] listRemoteSessions() throws JMSException {
+		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		
+		try {
+			CommandMessage listRequestMessage = new CommandMessage(CommandMessage.COMMAND_LIST_SESSIONS);
+			filebrokerTopic.sendReplyableMessage(listRequestMessage, replyListener);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.HOURS);
+			String list = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
+			return list.split("\t");	
+			
+		} finally {
+			replyListener.cleanUp();
+		}
 	}
 }
