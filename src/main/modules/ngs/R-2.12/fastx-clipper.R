@@ -8,6 +8,7 @@
 # PARAMETER quality.format: "Quality value format used" TYPE [sanger: Sanger, illuminaold: "Illumina GA v1.3-1.5"] DEFAULT sanger (What quality encoding is used in your FASTQ file. Select Sanger if your data comes from Illumina 1.8 or later, SOLiD or 454.)
 
 # EK 27.6.2011
+# EK 1.11.2012 added -v and -c
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -18,7 +19,7 @@ binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_clipper"))
 
 # command
 quality.scale <- ifelse(quality.format == "sanger", "-Q 33", "")
-command <- paste(binary, "-l", short, "-a", adapter, quality.scale, "-i reads.fastq -o clipped.fastq  > clipped.log")
+command <- paste(binary, "-v -c -l", short, "-a", adapter, quality.scale, "-i reads.fastq -o clipped.fastq  > clipped.log")
 
 # run
 system(command)
