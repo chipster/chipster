@@ -1,5 +1,5 @@
-package fi.csc.microarray.analyser;
 
+package fi.csc.microarray.analyser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
 import fi.csc.microarray.util.XmlUtil;
@@ -169,7 +170,7 @@ public class RepositoryModule {
 	    HashMap<String, String> params = new HashMap<String, String>();
 		ToolDescription newDescription;
 		try {
-			newDescription = oldDescription.getHandler().handle(moduleDir, oldDescription.getToolFile().getName(), params);
+			newDescription = oldDescription.getHandler().handle(oldDescription.getModuleDir(), oldDescription.getToolFile().getName(), params);
 			
 		} catch (AnalysisException e) {
 			// update failed, continue using the old one
@@ -187,6 +188,8 @@ public class RepositoryModule {
 
 			// replace the old description with the same name
 			descriptions.put(newDescription.getID(), newDescription);
+
+			// FIXME what's the point?
 			if (supportedDescriptions.contains(oldDescription.getID())) {
 				supportedDescriptions.add(newDescription.getID());
 			}
@@ -196,6 +199,7 @@ public class RepositoryModule {
 		} 
 
 		// name (id) of the tool has changed
+		// FIXME maybe safer not to proceed
 		else {
 			logger.warn("name of the tool was changed, keeping both old and new");
 			if (descriptions.containsKey(newDescription.getID())){
@@ -314,6 +318,15 @@ public class RepositoryModule {
 		    		continue;
 		    	}
 
+		    	// Tool module
+		    	File toolModuleDir;
+		    	String nonDefaultModuleName = toolElement.getAttribute("module");
+		    	if (nonDefaultModuleName != null && !nonDefaultModuleName.equals("")) {
+		    		toolModuleDir = new File(DirectoryLayout.getInstance().getModulesDir(), nonDefaultModuleName);
+		    	} else {
+		    		toolModuleDir = moduleDir;
+		    	}
+		    	
 		    	// Tool parameters
 		    	boolean parametersOk = true;
 		    	HashMap<String, String> parameters = new HashMap<String, String>();
@@ -343,33 +356,28 @@ public class RepositoryModule {
 		    	// Create the analysis description
 		    	ToolDescription description;
 		    	try {
-		                description = runtime.getHandler().handle(moduleDir, resource, parameters);
-		                
-		                // check for duplicates in this module
-				        ToolDescription previousDescription = getDescription(description.getID());
-			    	    if (previousDescription != null) {
-			    	        logger.warn("not loading " + resource + ": tool with the same ID already exists in this module");
-			    	        continue;
-			    	    }
+		            description = runtime.getHandler().handle(toolModuleDir, resource, parameters);
 		    	    
 		    	} catch (AnalysisException e) {
 		    		logger.warn("loading " + resource + " failed, could not create description", e);
 		    		continue;
 		    	}
+
 		    	
-		    	// Register the tool
+		    	// Register the tool, override existing
 		    	descriptions.put(description.getID(), description);
 		    	successfullyLoadedCount++;
 
-		    	// Set disabled if needed
+		    	// Set disabled if needed, override existing
 		    	String disabledStatus = "";
 		    	if (!runtime.isDisabled() && !toolDisabled) {
 		    		// Not disabled, add to supported descriptions list
 		    		supportedDescriptions.add(description.getID());
 		    		
 		    	} else {
+		   			supportedDescriptions.remove(description.getID());	
 		    		disabledStatus = " DISABLED";
-		    		disabledCount++;
+	    			disabledCount++;
 		    	}
 
 	    		// Add to category, which gets sent to the client
@@ -414,5 +422,4 @@ public class RepositoryModule {
 			}
 		}
 	}
-
 }

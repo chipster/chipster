@@ -71,6 +71,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         						"Source code for the EMBOSS tools is available at " + 
                                   "http://emboss.sourceforge.net/.");
         description.setToolFile(acdFile);
+        description.setModuleDir(moduleDir);
         description.setHelpURL("https://extras.csc.fi/emboss/doc/programs/html/" +
                                sadlDescription.getName().getID() + ".html");
         
