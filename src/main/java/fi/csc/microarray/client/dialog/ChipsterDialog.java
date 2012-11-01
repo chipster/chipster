@@ -62,7 +62,7 @@ public class ChipsterDialog extends JDialog {
 	private DialogCloseListener dialogCloseListener;
 	private PluginButton pluginButton;
 	
-	public ChipsterDialog(SwingClientApplication app, DialogInfo dialogInfo, 
+	private ChipsterDialog(SwingClientApplication app, DialogInfo dialogInfo, 
 	        DetailsVisibility detailsVisibility, PluginButton pluginButton) {
 	    
         super(app != null ? app.getMainFrame() : null);

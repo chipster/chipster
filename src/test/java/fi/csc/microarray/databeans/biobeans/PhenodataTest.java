@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
@@ -21,8 +20,9 @@ public class PhenodataTest {
 
 	private DataManager manager; 
 	
-	@BeforeSuite(alwaysRun = true)
-	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	@BeforeTest(groups = {"unit"} )
+	public void init() throws Exception {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
@@ -30,10 +30,10 @@ public class PhenodataTest {
 
 	@Test(groups = {"unit"} )
 	public void testPhenodataRetrieval() throws MicroarrayException, IOException {
-		DataBean normalised = manager.createDataBean("normalised.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
-		DataBean filtered2 = manager.createDataBean("filtered2.tsv");
-		DataBean phenodata = manager.createDataBean("phenodata.tsv");
+		DataBean normalised = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean filtered = manager.createLocalTempDataBean("filtered.tsv");
+		DataBean filtered2 = manager.createLocalTempDataBean("filtered2.tsv");
+		DataBean phenodata = manager.createLocalTempDataBean("phenodata.tsv");
 		
 		filtered.addLink(Link.DERIVATION, normalised);
 		filtered2.addLink(Link.DERIVATION, normalised);
@@ -48,14 +48,14 @@ public class PhenodataTest {
 	@Test(groups = {"unit"} )
 	public void testPhenodataGeneration() throws MicroarrayException, IOException {
 
-		DataBean normalised1 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata1 = manager.createDataBean("phenodata.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
+		DataBean normalised1 = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean phenodata1 = manager.createLocalTempDataBean("phenodata.tsv");
+		DataBean filtered = manager.createLocalTempDataBean("filtered.tsv");
 		filtered.addLink(Link.DERIVATION, normalised1);
 		phenodata1.addLink(Link.ANNOTATION, normalised1);
 
-		DataBean normalised2 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata2 = manager.createDataBean("phenodata.tsv");
+		DataBean normalised2 = manager.createLocalTempDataBean("normalised.tsv");
+		DataBean phenodata2 = manager.createLocalTempDataBean("phenodata.tsv");
 		phenodata2.addLink(Link.ANNOTATION, normalised2);
 				
 		ArrayList<String> samples = new ArrayList<String>();
@@ -84,7 +84,6 @@ public class PhenodataTest {
 		matrix.addColumn("chiptype", chiptypes);
 
 		// FIXME use data manager
-		throw new IllegalStateException("Fix these to use DataManager");
 //		// write first phenodata out
 //		OutputStream out = phenodata1.getContentOutputStreamAndLockDataBean();
 //		matrix.writeTo(out);

@@ -82,7 +82,7 @@ public class TabixFile {
         	if (!indexedValues.isEmpty()) {
         		
         		cacheHits++;
-        		
+
         		// sum all
         		for (Counts value : indexedValues) {
         			countForward += value.forwardCount;
@@ -94,7 +94,7 @@ public class TabixFile {
         	} else {
         		
         		cacheMisses++;
-        		        		
+        		
                 Collection<RegionContent> queryResult = TabixSummaryReader.query(tabixFile.getAbsolutePath(), "s" /*request.start.chr.toString()*/,
                 		"" + (stepMiddlepoint - SAMPLE_SIZE/2), "" + (stepMiddlepoint + SAMPLE_SIZE/2));
 
@@ -115,7 +115,7 @@ public class TabixFile {
         	responseList.add(new RegionContent(recordRegion, values));
         }	
         
-//        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
+//      System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }

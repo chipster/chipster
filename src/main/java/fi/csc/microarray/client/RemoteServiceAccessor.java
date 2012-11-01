@@ -2,22 +2,19 @@ package fi.csc.microarray.client;
 
 import java.util.Collection;
 
-import javax.jms.JMSException;
-
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.DescriptionMessageListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
@@ -37,11 +34,11 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	};
 	private Collection<ToolModule> modules = null;
 
-	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
+	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
 	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
-		this.taskExecutor = new TaskExecutor(endpoint, manager);
 		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
+	    this.taskExecutor = new TaskExecutor(endpoint, manager);
 	}
 
 	public TaskExecutor getTaskExecutor() {

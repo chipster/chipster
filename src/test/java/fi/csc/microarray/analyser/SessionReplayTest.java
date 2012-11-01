@@ -56,10 +56,12 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -187,7 +189,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		return true;
 	}
 
-	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
+	private void testSession(File session) throws Exception {
 
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
@@ -204,15 +206,19 @@ public class SessionReplayTest extends MessagingTestBase {
 			// pick import operations FIXME pick also any other without parent dataset
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
+				
 				// copy imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getContentUrl().getRef());
+				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
+				URL url = new URL(session.toURI().toURL(), "#" + dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
+				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION, url);
+
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				
 				// avoid NPE 
 				dataBeanCopy.setOperationRecord(operationRecord);
 				
 				// TODO what if not in the root folder in the source manager
-				manager.getRootFolder().addChild(dataBeanCopy);
+				manager.connectChild(dataBeanCopy, manager.getRootFolder());
 				importOperationRecords.add(operationRecord);
 			}
 
@@ -356,7 +362,7 @@ public class SessionReplayTest extends MessagingTestBase {
 						OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
 						InputStream sourceIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
+							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 							IOUtils.copy(sourceIn, metadataOut);
 						} finally {
 							IOUtils.closeIfPossible(sourceIn);
@@ -395,8 +401,8 @@ public class SessionReplayTest extends MessagingTestBase {
 					if (CHECK_CONTENTS) {
 						InputStream sourceIn = null, targetIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
-							targetIn = targetBean.getContentByteStream();
+							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+							targetIn = targetBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
 
 								if (sourceBean.getName().equals(targetBean.getName())) {
@@ -919,7 +925,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	}
 	
 	private String createSessionLink(File sessionFile) {
-		return "<a href=\"sessions/" + sessionFile.getName() + "\">" + sessionFile.getName() + "</a>";
+		return "<a href=\"" + sessionsDir + "/" + sessionFile.getName() + "\">" + sessionFile.getName() + "</a>";
 	}
 	
 	
@@ -1019,11 +1025,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public File openWorkflow() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
@@ -1069,22 +1070,12 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void saveSession() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public File saveWorkflow() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
 		@Override
 		public void setMaximisedVisualisationMode(boolean maximisedVisualisationMode) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showDetailsFor(DataBean data) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1147,7 +1138,10 @@ public class SessionReplayTest extends MessagingTestBase {
 		public void visualiseWithBestMethod(FrameType target) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
-		
-	}
 
+		@Override
+		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+	}
 }

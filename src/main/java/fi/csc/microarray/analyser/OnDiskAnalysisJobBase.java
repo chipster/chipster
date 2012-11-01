@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
@@ -119,7 +120,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	            // copy file to file broker
 	            URL url;
 	            try {
-	                url = resultHandler.getFileBrokerClient().addFile(outputFile, null);
+	                url = resultHandler.getFileBrokerClient().addFile(FileBrokerArea.CACHE, outputFile, null);
 	                // put url to result message
 	                outputMessage.addPayload(outputFile.getName(), url);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());

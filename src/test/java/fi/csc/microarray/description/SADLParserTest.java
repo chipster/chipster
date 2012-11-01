@@ -21,6 +21,7 @@ public class SADLParserTest {
 
 	@BeforeTest
 	public void init() throws IOException, IllegalConfigurationException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
 	}
 

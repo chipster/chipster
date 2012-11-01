@@ -48,7 +48,8 @@ public class ToolModule {
     	hiddenCategories.add(category);
     }
 
-    public OperationDefinition getOperationDefinition(String toolId) {
+    @SuppressWarnings("unchecked")
+	public OperationDefinition getOperationDefinition(String toolId) {
     	for (List<ToolCategory> categories : new List[] { visibleCategories, hiddenCategories}) {
     		for (ToolCategory category : categories) {
     			for (OperationDefinition tool : category.getToolList()) {
@@ -94,5 +95,7 @@ public class ToolModule {
  	
  		return null;
     }
+
+    
     
 }
