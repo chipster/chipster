@@ -18,7 +18,7 @@ binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_clipper"))
 
 # command
 quality.scale <- ifelse(quality.format == "sanger", "-Q 33", "")
-command <- paste(binary, "-l", short, "-a", adapter, quality.scale, "-i reads.fastq -o clipped.fastq  > clipped.log")
+command <- paste(binary, "-v", "-l", short, "-a", adapter, quality.scale, "-i reads.fastq -o clipped.fastq  > clipped.log")
 
 # run
 system(command)
