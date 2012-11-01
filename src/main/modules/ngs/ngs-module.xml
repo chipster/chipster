@@ -247,6 +247,9 @@
 		<tool runtime="R-2.15">
 			<resource>DEXseq.R</resource>
 		</tool>
+		<tool runtime="beanshell" module="common">
+			<resource>annotate-cpdb.bsh</resource>
+		</tool>
 	</category>
 
 	<category name="miRNA-seq" color="#629a9b">
@@ -263,6 +266,9 @@
 		-->
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.14">
+			<resource>dea-deseq.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
