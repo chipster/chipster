@@ -41,7 +41,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.2.0" />
+	<property name="release-version" value="2.2.4" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -203,6 +203,7 @@
 			<fileset dir="${data}/" />			
 			<fileset dir="${admin-web}/">
 				<include name="WebContent/**/*" />
+				<exclude name="WebContent/WEB-INF/lib/*" />
 			</fileset>
 		</jar>
 	</target>
