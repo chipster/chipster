@@ -3,6 +3,7 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -30,15 +31,23 @@ public class JobLogEntry implements Serializable {
 	@Id
 	private String id;
 	
-	//Hibernate takes database column names from field names by default, use @Column(name="EXAMPLE_COLUMN") to override
+	@Column(name=JobLogContainer.OPERATION)
 	private String operation;
+	@Column(name=JobLogContainer.STATUS)
 	private String status;
+	@Column(name=JobLogContainer.START_TIME)
 	private Date startTime;
+	@Column(name=JobLogContainer.END_TIME)
 	private Date endTime;
+	@Column(name=JobLogContainer.WALLCLOCK_TIME)
 	private int wallclockTime;
+	@Column(name=JobLogContainer.ERROR_MESSAGE)
 	private String errorMessage;
+	@Column(name=JobLogContainer.OUTPUT_TEXT)
 	private String outputText;
+	@Column(name=JobLogContainer.USERNAME)
 	private String username;
+	@Column(name=JobLogContainer.COMPHOST)
 	private String compHost;
 	
 	public JobLogEntry() {};

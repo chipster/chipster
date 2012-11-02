@@ -14,26 +14,10 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 import fi.csc.microarray.manager.web.ui.JobsView;
 import fi.csc.microarray.manager.web.ui.ServicesView;
+import fi.csc.microarray.manager.web.ui.StatView;
 import fi.csc.microarray.manager.web.ui.StorageView;
 
 public class ChipsterAdminApplication extends Application {
-
-	// configuration file path
-	//private final String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
-	private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
-
-	{
-		try {
-			if (!DirectoryLayout.isInitialised()) {
-				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IllegalConfigurationException e) {
-			e.printStackTrace();
-		}
-	}
-
 
 	private HorizontalLayout horizontalSplit;
 
@@ -43,12 +27,33 @@ public class ChipsterAdminApplication extends Application {
 	private StorageView storageView;
 	private JobsView jobsView;
 	private JobLogView jobLogView;
+	private StatView statView;
 
 	private VerticalLayout emptyView;
 
 	private HorizontalLayout toolbarLayout;
-
-
+	
+	public ChipsterAdminApplication() {
+		
+		try {	
+			if (DirectoryLayout.isInitialised()) {
+				//already initialised by the Manager, run in same JVM
+				//DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+			} else {
+				
+				// Not a real server, use any development server config (and show it's data)
+				String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
+				//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
+				//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
+				
+				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IllegalConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private VerticalLayout getServicesView() {
 		if (serviceView == null) {
@@ -95,11 +100,20 @@ public class ChipsterAdminApplication extends Application {
 		}
 		return jobsView;
 	}
+	
+	private StatView getStatView() {
+		if (statView == null) {
+
+			statView = new StatView(this);
+		}
+		return statView;
+	}
 
 
 	@Override
 	public void init() {
 
+		
 		getJobLogView().init();
 
 		buildMainLayout();
@@ -154,6 +168,10 @@ public class ChipsterAdminApplication extends Application {
 
 	public void showStorageView() {
 		setMainComponent(getStorageView());
+	}
+	
+	public void showStatView() {
+		setMainComponent(getStatView());
 	}
 
 	public void showEmtpyView() {
