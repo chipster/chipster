@@ -1840,7 +1840,7 @@ public class SwingClientApplication extends ClientApplication {
 				if (remote) {
 					// use filename as it is (remote sessions use more human readable names)
 					file = fileChooser.getSelectedFile();
-					exists = false; // FIXME
+					exists = false; // FIXME add check 
 					
 				}else {
 					

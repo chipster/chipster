@@ -76,6 +76,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem saveSessionMenuItem;
 	private JMenu recentWorkflowMenu;
 	private JMenuItem loadSessionMenuItem;
+	private JMenuItem loadLocalSessionMenuItem;
 	private JMenuItem taskListMenuItem;
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
@@ -156,7 +157,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
 			fileMenu.add(getManageSessionsMenuItem());
-			fileMenu.add(getArchiveSessionMenuItem());
+			fileMenu.addSeparator();
+			fileMenu.add(getLoadLocalSessionMenuItem());
+			fileMenu.add(getSaveLocalSessionMenuItem());
 			
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
@@ -799,7 +802,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSession();
+						application.loadSession(); // FIXME make remote
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -808,6 +811,24 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return loadSessionMenuItem;
+	}
+
+	private JMenuItem getLoadLocalSessionMenuItem() {
+		if (loadLocalSessionMenuItem == null) {
+			loadLocalSessionMenuItem = new JMenuItem();
+			loadLocalSessionMenuItem.setText("Open local session...");
+			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.loadSession();
+
+					} catch (Exception ioe) {
+						application.reportException(ioe);
+					}
+				}
+			});
+		}
+		return loadLocalSessionMenuItem;
 	}
 
 	private JMenuItem getSaveSessionMenuItem() {
@@ -868,7 +889,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 
-	private JMenuItem getArchiveSessionMenuItem() {
+	private JMenuItem getSaveLocalSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
 			archiveSessionMenuItem.setText("Save session locally...");
