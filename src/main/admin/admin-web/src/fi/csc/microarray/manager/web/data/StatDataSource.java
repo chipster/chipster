@@ -3,6 +3,8 @@ package fi.csc.microarray.manager.web.data;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +37,15 @@ public class StatDataSource {
 			    .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 			    .list();
 		
+		//Create one empty row to carry the table column names, if the result was empty
+		if (results == null || results.size() == 0) {	
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put(JobLogContainer.USERNAME, null);
+			map.put(ROW_COUNT, null);
+			results = new LinkedList<Map>();
+			results.add(map);
+		}
+		
 		return results;
 	}
 	
@@ -56,16 +67,30 @@ public class StatDataSource {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Map> getJobsByMonth(Session session) {
 		
-		return session.createQuery("select new map(year(startTime) as year, month(startTime) as month, count(*) as count) " +
+		List results =  session.createQuery("select new map(year(startTime) as year, month(startTime) as month, count(*) as count) " +
 				"from JobLogEntry " + 
 						"group by year(startTime), month(startTime) " +
 						"order by year(startTime) asc, month(startTime) asc").list();
+		
+		//Create one empty row to carry the table column names, if the result was empty
+		if (results == null || results.size() == 0) {	
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			Object[] cols = getJobsByMonthColumnOrder();
+			map.put((String) cols[0], null);
+			map.put((String) cols[1], null);
+			map.put((String) cols[2], null);
+			results = new LinkedList<Map>();
+			results.add(map);
+		}
+		
+		return results;
 	}
 	
 	public Object[] getJobsByMonthColumnOrder() {
 		return new Object[] { "year", "month", "count" };
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List<Map> getToolFails(Session session) {
 		//Start one year ago
 		Calendar fromDate = new GregorianCalendar();
@@ -83,6 +108,15 @@ public class StatDataSource {
 			    .setMaxResults(10)
 			    .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 			    .list();
+		
+		//Create one empty row to carry the table column names, if the result was empty
+		if (results == null || results.size() == 0) {	
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put(JobLogContainer.OPERATION, null);
+			map.put(ROW_COUNT, null);
+			results = new LinkedList<Map>();
+			results.add(map);
+		}
 		
 		return results;
 	}
