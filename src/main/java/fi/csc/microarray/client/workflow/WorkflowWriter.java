@@ -92,9 +92,9 @@ public class WorkflowWriter {
 	 */
 	private void generateStep(StringBuffer script, OperationRecord operationRecord, LinkedList<DataBean> results) {
 		
-		OperationDefinition toolDefinition = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID());
+		OperationDefinition toolDefinition = Session.getSession().getApplication().getOperationDefinitionBestMatch(operationRecord.getNameID().getID(), operationRecord.getModule(), operationRecord.getCategoryName());
 		if (toolDefinition == null) {
-			// TODO writeWarnings
+			// FIXME writeWarnings
 		}
 		
 		StringBuffer dataString = new StringBuffer("\ndatas = new WfDataBean[] {\n");
@@ -123,7 +123,7 @@ public class WorkflowWriter {
 		dataString.append("\n};\n");
 		script.append(dataString);
 
-		script.append("op = new WfOperation(app.getOperationDefinition(\"" + operationRecord.getNameID().getID() + "\"), datas);\n");
+		script.append("op = new WfOperation(app.getOperationDefinitionBestMatch(\"" + operationRecord.getNameID().getID() + "\", \"" + operationRecord.getModule() + "\", \"" + operationRecord.getCategoryName() + "\"), datas);\n");
 
 		for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
 			// Write code that sets the value only when value is not empty

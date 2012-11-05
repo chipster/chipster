@@ -139,6 +139,8 @@ public class ToolDescription {
 	 */
 	private File toolFile = null;
 	
+	private File moduleDir = null;
+	
 	private String initialiser;
 	
 	private Date creationTime = new Date();
@@ -263,9 +265,17 @@ public class ToolDescription {
 	public File getToolFile() {
 		return toolFile;
 	}
-
+	
 	public void setToolFile(File sourceFile) {
 		this.toolFile = sourceFile;
+	}
+
+	public File getModuleDir() {
+		return moduleDir;
+	}
+	
+	public void setModuleDir(File moduleDir) {
+		this.moduleDir = moduleDir;
 	}
 	
 	public void setHelpURL(String helpURL) {

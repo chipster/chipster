@@ -172,7 +172,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 
 	private static final String[] ID_FIELDS = { "gene_id", "transcript_id", "exon_number", "gene_name", "transcript_name" };
 
-	public static String[] parseIds(String ids) {		
+	public static String[] parseIds(String ids) {
 
 		String[] split = ids.split(";");
 		String[] result = new String[ID_FIELDS.length];
