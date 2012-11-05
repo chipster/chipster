@@ -603,6 +603,14 @@
 	<item installed="false" name="FruitFlyAgilent.db" type="r-package">
 		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz</url>
     </item>    
+
+	<item installed="false" name="FruitFlyAgilent.db" type="r-package">
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz</url>
+    </item>    
+
+	<item installed="false" name="hgug4851a.db" type="r-package">
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/hgug4851a.db.tar.gz</url>
+    </item>
     
 	<item installed="false" name="CGHtest" type="r-package">
 		<url>http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtest_1.1.tar.gz</url>
