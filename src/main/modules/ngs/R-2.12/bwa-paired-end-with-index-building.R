@@ -89,7 +89,7 @@ system(bwa.command)
 # sai to sam conversion
 ###
 sampe.parameters <- paste("sampe -n", alignment.no, "-a", max.insert, "-o" , max.occurrence , "-N" , max.discordant )
-sampe.end <- paste(bwa.genome, "alignment1.sai alignment2.sai reads1.txt reads1.txt 1> alignment.sam 2>>bwa.log'" )
+sampe.end <- paste(bwa.genome, "alignment1.sai alignment2.sai reads1.txt reads2.txt 1> alignment.sam 2>>bwa.log'" )
 sampe.command <- paste( command.start, sampe.parameters , sampe.end )
 system(sampe.command)
 

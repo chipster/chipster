@@ -26,6 +26,7 @@
 
 # EK 12.7.2011
 # AMS 19.6.2012 Added unzipping
+# EK 1.11.2012 fixed genome parameter
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -59,7 +60,7 @@ multiread.output <- ifelse(multiread.file == "yes", "--max multireads.fq", "")
 output.parameters <- paste(unaligned.output, multiread.output)
 
 # command ending
-command.end <- paste(genome, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2> bowtie.log'")
+command.end <- paste(genome.base, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2> bowtie.log'")
 
 # run bowtie
 bowtie.command <- paste(command.start, common.parameters, quality.parameter, orientation.parameter, mode.parameters, output.parameters, command.end)

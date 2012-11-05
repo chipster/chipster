@@ -221,7 +221,11 @@ then
   ## R:
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s R-${R_VER} ${TOOLS_PATH}/R
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/hgug4851a.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  # maSigPro is included in the R-2.12.1-vmbin.tar.gz
         
+                        
 #  cd ${TMPDIR_PATH}/
 #  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
 #  cd R-${R_VER}/
@@ -247,6 +251,8 @@ then
   ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
   rm nz131a520662fcdf.tar.gz
   
+  
+      
   ## R-2.14:
   R_VER=2.14.1
   cd ${TMPDIR_PATH}/

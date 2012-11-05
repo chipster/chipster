@@ -12,9 +12,7 @@
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
-		<!--
-		<tool runtime="R-2.15"><resource>norm-illumina-methylumi.R</resource></tool>
-		-->
+		<!--<tool runtime="R-2.15"><resource>norm-illumina-methylumi.R</resource></tool>-->
 		<tool runtime="R-2.12"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
@@ -58,7 +56,7 @@
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
-		<tool runtime="R-2.15"><resource>stat-timeseries.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
 		<tool runtime="R-2.12"><resource>ordination-pca.R</resource></tool>
@@ -95,7 +93,7 @@
 		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
-		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
+		<tool runtime="beanshell"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-reactome.bsh</resource></tool>
 	</category>
@@ -139,7 +137,7 @@
 		<tool runtime="R-2.12"><resource>plot-dendrogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-histogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-corrgram.R</resource></tool>
-		<tool runtime="R-2.12"><resource>plot-heatmap.R</resource></tool>
+		<tool runtime="R-2.15"><resource>plot-heatmap.R</resource></tool>
 	</category>
 
 	<category name="Utilities" color="#83010b">
