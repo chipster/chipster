@@ -254,7 +254,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/
   
   echo "** Installing R library maSigPro"
-  curl -s 	http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/maSigPro.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  curl -s 	http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/maSigPro-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   
   echo "** Updating R-2.15"
   mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
@@ -295,7 +295,10 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   
   echo "** Updating R library FruitFlyAgilent.db"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz --overwrite -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
-  
+
+  echo "** Installing R library hgug4851a.db"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/hgug4851a.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+      
   
 fi
 
