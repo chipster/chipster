@@ -110,7 +110,7 @@ public class SeqTrack extends Track {
 		
 		if (rect.width > seq.length() * CHAR_WIDTH) {
 			
-			drawables.add(new TextDrawable((int) x + 1, rect.y + 9, "" + letter, Color.DARK_GRAY));
+			drawables.add(new TextDrawable((int) x + 1, rect.y + 9, "" + Character.toUpperCase(letter), Color.DARK_GRAY));
 		}
 		x = nextX;
 
