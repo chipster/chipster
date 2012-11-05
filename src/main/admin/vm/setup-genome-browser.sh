@@ -441,7 +441,7 @@ download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setu
 contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
-SPECIES="Yersinia phage phiR1-RT"
+SPECIES="Y. phage phiR1-RT"
 VERSION="(HE956709.1)"
 
 process_gtf "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/R1-RT.gtf.gz"
