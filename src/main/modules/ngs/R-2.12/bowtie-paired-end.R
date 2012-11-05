@@ -37,7 +37,7 @@ bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
 command.start <- paste("bash -c '", bowtie.binary)
 
 # common parameters
-common.parameters <- paste("-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
+common.parameters <- paste("-S", "-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
 
 # mode specific parameters
 quality.parameter <- ifelse(quality.format == "solexa1_3", "--solexa1.3-quals", "")
