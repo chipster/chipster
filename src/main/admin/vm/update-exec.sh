@@ -299,6 +299,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Installing R library hgug4851a.db"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/hgug4851a.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
       
+  echo "** Installing R-2.15 with Bioconductor 2.11
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
   
 fi
 

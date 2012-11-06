@@ -291,6 +291,10 @@ then
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 
 
+  ## R-2.15.1_bioc-2.11	
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+	
+
   ## External apps:
 
   # Link tool admin scripts from Chipster installation
