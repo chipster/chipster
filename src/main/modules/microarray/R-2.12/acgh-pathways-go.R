@@ -11,9 +11,8 @@
 # PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
 # PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
 
-# pathways-acgh-hyperg-go.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-10-12
 
 # load packages
 library(org.Hs.eg.db)
@@ -21,7 +20,8 @@ library(GOstats)
 library(R2HTML)
 
 # read input
-dat <- read.table('gene-aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'gene-aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 # convert list of reference genes from Ensembl to Entrez IDs
 ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
@@ -130,6 +130,7 @@ if (ontology == 'cellular_component' || ontology == 'all') {
 }
 
 # write outputs
+options(scipen=10)
 write.table(output, file='hypergeo-go.tsv', quote=FALSE, sep='\t')
 if (nrow(output)==0)
   write('<html>\n\t<body>\n\t\tNo significant results found!</br />\n\t</body>\n</html>', file='hypergeo-go.html')

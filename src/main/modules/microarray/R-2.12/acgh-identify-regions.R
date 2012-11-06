@@ -5,13 +5,14 @@
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-20
+# 2012-10-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(CGHregions)
 library(WECCA)
 
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 dat$chromosome[dat$chromosome=='X'] <- '23'
 dat$chromosome[dat$chromosome=='Y'] <- '24'

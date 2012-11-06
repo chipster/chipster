@@ -11,6 +11,7 @@
 # JTT 4.7.2006
 # OH, 7.11.2011
 # EK, 8.1.2012
+# IS, 12.10.2012
 
 # Loads the libraries
 library(multtest)
@@ -25,8 +26,8 @@ if(test=="empiricalBayes" & (p.value.adjustment.method!="BH" & p.value.adjustmen
 p.cut<-p.value.threshold
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -42,6 +43,8 @@ if(length(unique(groups))==1 | length(unique(groups))>=3) {
 }
 
 # Testing
+
+options(scipen=10)
 
 # Empirical Bayes
 if(meth=="empiricalBayes") {

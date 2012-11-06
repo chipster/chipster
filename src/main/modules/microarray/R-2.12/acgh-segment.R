@@ -7,11 +7,12 @@
 # PARAMETER minimum.number.of.sds.between.segments: minimum.number.of.sds.between.segments TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-28
+# 2012-10-15
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -27,6 +28,10 @@ if (ncol(dat2)==4)
   stop('CHIPSTER-NOTE: No array data found. The input file must have columns labeled with "chip.".')
 if (ncol(dat2)==5)
   colnames(dat2)[5] <- chips[1]
+
+dat2 <- dat2[!is.na(dat2$chromosome),]
+dat2 <- dat2[!is.na(dat2$start),]
+dat2 <- dat2[!is.na(dat2$end),]
 
 dat2$chromosome[dat2$chromosome=='X'] <- 23
 dat2$chromosome[dat2$chromosome=='Y'] <- 24

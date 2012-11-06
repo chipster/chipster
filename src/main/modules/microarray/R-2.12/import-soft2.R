@@ -5,7 +5,7 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package, Illumina for Illumina arrays, or cDNA for everything else.)
 
-# 2012-09-26
+# 2012-10-16
 # Ilari Scheinin <firstname.lastname@gmail.com>
 
 # JTT 9.8.2007
@@ -30,16 +30,21 @@ if (class(gds) == 'GDS') {
   eset <- gds[[w]]
 }
 
+# clean up phenodata
+pdata <- pData(eset)
+for (x in colnames(pdata))
+  pdata[,x] <- gsub('"|\'|#|\t', '', pdata[,x])
+
 # generate phenodata
-if ('geo_accession' %in% colnames(pData(eset))) {
-  sample <- pData(eset)$geo_accession
-} else if ('sample' %in% colnames(pData(eset))) {
-  sample <- pData(eset)$sample
+if ('geo_accession' %in% colnames(pdata)) {
+  sample <- pdata$geo_accession
+} else if ('sample' %in% colnames(pdata)) {
+  sample <- pdata$sample
 } else {
   sample <- sprintf('microarray%.3i', 1:ncol(eset))
 }
 group <- rep('', length(sample))
-phenodata <- data.frame(sample=sample, original_name=sample, chiptype=chiptype, group=group, description=sample, pData(eset))
+phenodata <- data.frame(sample=sample, original_name=sample, chiptype=chiptype, group=group, description=sample, pdata)
 
 dat <- data.frame(chromosome=NA, start=NA, end=NA, cytoband=NA, symbol=NA, description=NA, exprs(eset))
 colnames(dat)[-(1:6)] <- paste('chip.', sample, sep='')
@@ -73,10 +78,24 @@ if (all(is.na(dat$start)) && 'RANGE_START' %in% colnames(eset@featureData@data))
 if (all(is.na(dat$end)) && 'RANGE_END' %in% colnames(eset@featureData@data))
   dat$end <- as.integer(eset@featureData@data$RANGE_END)
 
-# remove empty annotation columns
-for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description'))
-  if (all(is.na(dat[,x])))
+# other annotation columns
+if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(eset@featureData@data))
+  dat$chromosome <- eset@featureData@data$CHROMOSOME_NR
+if (all(is.na(dat$start)) && 'START' %in% colnames(eset@featureData@data))
+  dat$start <- as.integer(eset@featureData@data$START)
+if (all(is.na(dat$end)) && 'END' %in% colnames(eset@featureData@data))
+  dat$end <- as.integer(eset@featureData@data$END)
+if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(eset@featureData@data))
+  dat$description <- eset@featureData@data$GENE_DESCRIPTION
+
+# remove empty annotation columns and clean up
+for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')) {
+  if (all(is.na(dat[,x]))) {
     dat[,x] <- NULL
+  } else {
+    dat[,x] <- gsub('"|\'|#|\t', '', dat[,x])
+  }
+}
 
 # write output files
 options(scipen=10)

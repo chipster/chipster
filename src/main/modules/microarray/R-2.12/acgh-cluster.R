@@ -5,13 +5,13 @@
 # PARAMETER type.of.calls: type.of.calls TYPE [hard: hard, soft: soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column to include in the output plot.)
 
-# cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-10-12
 
 library(WECCA)
 
-dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'regions.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
 
 dat$chromosome[dat$chromosome=='X'] <- '23'

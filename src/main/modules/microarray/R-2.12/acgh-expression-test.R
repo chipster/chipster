@@ -6,15 +6,15 @@
 # PARAMETER analysis.type: analysis.type TYPE [univariate: univariate, regional: regional] DEFAULT univariate (The type of the analysis.)
 # PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
 
-# test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-13
+# 2012-10-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
 
 # read the input files
-dat <- read.table('matched-cn-and-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'matched-cn-and-expression.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
 # check if the matched data was produced witha n old version
@@ -37,7 +37,7 @@ rownames(exprs) <- dat$exp.probe
 arrays <- phenodata$description
 
 calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
-copynumber <- as.matrix(dat[,grep("^copynumber\\.", names(dat))])
+copynumber <- as.matrix(dat[,grep("^logratio\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
 probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
@@ -82,6 +82,7 @@ result$chromosome[result$chromosome=='23'] <- 'X'
 result$chromosome[result$chromosome=='24'] <- 'Y'
 result$chromosome[result$chromosome=='25'] <- 'MT'
 
+options(scipen=10)
 write.table(result, file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

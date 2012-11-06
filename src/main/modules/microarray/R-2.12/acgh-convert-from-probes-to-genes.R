@@ -5,11 +5,11 @@
 # PARAMETER method.for.others: method.for.others TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
-# convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-20
+# 2012-10-12
 
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -112,6 +112,7 @@ if (2 %in% calls.bygene)
     genes$amp.freq <- mean(as.data.frame(t(calls.bygene==2)))
 genes <- cbind(genes, gene.calls.and.logratios)
 
+options(scipen=10)
 write.table(genes, file='gene-aberrations.tsv', sep="\t", quote=FALSE, row.names=TRUE, col.names=TRUE)
 
 # EOF

@@ -8,11 +8,11 @@
 # PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
-# stat-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-10-12
 
-dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
+file <- 'regions.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
 
 groupnames <- unique(phenodata[,column])
@@ -56,6 +56,7 @@ if (prob) {
   fdrs <- fdrperm(pvs)
 }
 
+options(scipen=10)
 write.table(fdrs, file='groups-test.tsv', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
 
 FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {

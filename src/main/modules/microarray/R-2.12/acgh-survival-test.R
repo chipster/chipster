@@ -8,9 +8,10 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-02
+# 2012-10-12
 
-dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
+file <- 'regions.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
 
 first.data.col <- min(grep('^chip\\.', names(dat)), grep('^flag\\.', names(dat)))

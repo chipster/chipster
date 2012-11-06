@@ -10,7 +10,7 @@
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-07
+# 2012-10-12
 
 # determine platform accession if a platform was chosen from the popup
 if (platform != 'other') {
@@ -23,7 +23,8 @@ platform.accession <- toupper(other.platform.accession)
 if (length(grep('^CG-PLM-[0-9]+$', platform.accession))==0)
   stop('CHIPSTER-NOTE: Not a valid platform accession: ', platform.accession)
 
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 # remove probe positions if already present
 dat$chromosome <- NULL
@@ -53,6 +54,7 @@ plat$chromosome <- factor(plat$chromosome, levels=c(1:22, "X", "Y", "MT"), order
 dat2 <- cbind(plat[rownames(dat), c('chromosome', 'start', 'end')], dat, row.names=rownames(dat))
 dat2 <- dat2[order(dat2$chromosome, dat2$start),]
 
+options(scipen=10)
 write.table(dat2, file='probe-positions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

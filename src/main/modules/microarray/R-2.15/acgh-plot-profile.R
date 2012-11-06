@@ -4,10 +4,10 @@
 # OUTPUT cgh-profile.pdf: cgh-profile.pdf 
 # PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2012-11-05
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 

@@ -3,9 +3,8 @@
 # INPUT normalized_calib.tsv: normalized_calib.tsv TYPE GENE_EXPRS 
 # OUTPUT smoothed.tsv: smoothed.tsv 
 
-# smooth-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-09
+# 2012-10-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(NoWaves)
@@ -13,7 +12,8 @@ library(NoWaves)
 pos <- c('chromosome','start','end')
 
 # load tumor data and preprocess to deal with missing values
-dat <- read.table('normalized_tumor.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file1 <- 'normalized_tumor.tsv'
+dat <- read.table(file1, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: Your cancer data set needs to have the following columns: chromosome, start, end.')
 dat <- data.frame(probe=rownames(dat), dat, stringsAsFactors=FALSE)
@@ -26,7 +26,8 @@ cgh <- preprocess(cgh, nchrom=23)
 cgh <- data.frame(Probe=rownames(cgh@featureData@data), cgh@featureData@data, assayDataElement(cgh, 'copynumber'))
 
 # load calibration data and preprocess to deal with missing values
-dat2 <- read.table('normalized_calib.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file2 <- 'normalized_calib.tsv'
+dat2 <- read.table(file2, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 if (length(setdiff(pos, colnames(dat2)))!=0)
   stop('CHIPSTER-NOTE: Your calibration data set needs to have the following columns: chromosome, start, end.')
 dat2 <- data.frame(probe=rownames(dat2), dat2, stringsAsFactors=FALSE)
@@ -53,6 +54,7 @@ dewaved$chromosome[dewaved$chromosome=='25'] <- 'MT'
 dewaved[,-(1:4)] <- round(dewaved[,-(1:4)], digits=2)
 
 # write results
+options(scipen=10)
 write.table(dewaved, file='smoothed.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

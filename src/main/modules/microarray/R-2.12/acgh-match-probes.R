@@ -12,15 +12,17 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-13
+# 2012-10-16
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
 
-dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep='\t', as.is=TRUE)
-phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep='\t', as.is=TRUE)
+file1 <- 'aberrations.tsv'
+file2 <- 'normalized.tsv'
+dat1 <- read.table(file1, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+dat2 <- read.table(file2, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep='\t', quote='', as.is=TRUE)
+phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep='\t', quote='', as.is=TRUE)
 
 # determine which dataset is cgh
 if (length(grep("^probnorm\\.", names(dat1)))!=0) {
@@ -315,6 +317,7 @@ phenodata_exp$sample <- samples
 phenodata_exp$n <- NULL
 
 # write output
+options(scipen=10)
 write.table(dat3, file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
 write.table(phenodata_exp, file='phenodata-matched.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
 
