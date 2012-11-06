@@ -178,14 +178,12 @@
 		<tool runtime="R-2.12">
 			<resource>bowtie2-paired-end.R</resource>
 		</tool>
-		<!--
 		<tool runtime="R-2.12">
 			<resource>bowtie2-with-index-building.R</resource>
 		</tool>
 	    <tool runtime="R-2.12">
 			<resource>bowtie2-paired-end-with-index-building.R</resource>
 		</tool>
-		-->
 		<tool runtime="R-2.12">
 			<resource>tophat2.R</resource>
 		</tool>
