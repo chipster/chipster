@@ -19,14 +19,15 @@
 # PARAMETER OPTIONAL max.insert.size: "Maximum insert size" TYPE INTEGER FROM 50 TO 1500 DEFAULT 250 (The maximum insert size for valid paired-end alignments. E.g. if 100 is specified and a paired-end alignment consists of two 20-bp alignments in the proper orientation with a 60-bp gap between them, that alignment is considered valid.)
 # PARAMETER OPTIONAL orientation: "Upstream-downstream mate orientation" TYPE [fr: "mate1 upstream of reverse complement of mate2 or vice versa", rf: "upstream mate1 reverse-complemented and mate2 forward-oriented"] DEFAULT fr (The upstream-downstream mate orientations for a valid paired-end alignment against the forward reference strand.)
 # PARAMETER OPTIONAL quality: "Allowed total of mismatch qualities" TYPE INTEGER FROM 10 TO 100 DEFAULT 70 (What is the maximum permitted total of quality values of ALL mismatch positions throughout the read (not just in the seed region\)? Note that this parameter is taken into account only if you have chosen to apply the mismatch limit to the seed region.)
-# PARAMETER OPTIONAL quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3 or later", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
+# PARAMETER OPTIONAL quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3-1.5", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
 # PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [1, 2, 3] DEFAULT 1 (If there are several, equally good alignments, how many should be reported?)
 # PARAMETER OPTIONAL multiread.file: "Put multireads to a separate file" TYPE [yes, no] DEFAULT no (If you chose not to have alignments for reads which map to multiple positions, would you like to store these reads to a separate fastq file?)
 # PARAMETER OPTIONAL unaligned.file: "Put unaligned reads to a separate file" TYPE [yes, no] DEFAULT no (Would you like to store unaligned reads to a new fastq file? Note that also multireads will be added to this file, unless you asked them to be put to a separate file.)
 
+
 # EK 12.7.2011
 # AMS 19.6.2012 Added unzipping
-# EK 1.11.2012 fixed genome parameter
+# EK 1.11.2012 fixed genome parameter and SAM output
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))

@@ -1,12 +1,12 @@
 # TOOL bowtie.R: "Bowtie for single end reads" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this Bowtie tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"Bowtie against own genomes\".)
+# Note that this Bowtie tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"Bowtie for single end reads and own genome\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bowtie.bam 
 # OUTPUT bowtie.bam.bai 
 # OUTPUT bowtie.log 
 # OUTPUT OPTIONAL unaligned-reads.fastq 
 # OUTPUT OPTIONAL multireads.fastq 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", mmu_miRB17mature: "Mouse miRBase17", miRBase18_mmu_matureT.fa: "Mouse miRBase18", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", mmu_miRB17mature: "Mouse miRBase17", miRBase18_mmu_matureT.fa: "Mouse miRBase18", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)

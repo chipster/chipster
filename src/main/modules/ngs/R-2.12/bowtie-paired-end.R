@@ -10,7 +10,7 @@
 # OUTPUT OPTIONAL unaligned_2.fq
 # OUTPUT OPTIONAL multireads_1.fq
 # OUTPUT OPTIONAL multireads_2.fq
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
@@ -26,6 +26,7 @@
 
 # EK 12.7.2011
 # AMS 19.6.2012 Added unzipping
+# EK 1.11.2012 fixed SAM output
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
