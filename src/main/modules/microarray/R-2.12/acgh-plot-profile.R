@@ -7,7 +7,7 @@
 # PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2012-11-07
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
@@ -15,6 +15,10 @@ source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 file <- 'aberrations.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
+
+pos <- c('chromosome','start','end')
+if (length(setdiff(pos, colnames(dat)))!=0)
+  stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # parse samples to be plotted
 if (samples=='0')
@@ -49,6 +53,8 @@ dat$chromosome[dat$chromosome=='MT'] <- 25
 dat$chromosome <- as.integer(dat$chromosome)
 
 dat <- dat[dat$chromosome %in% 1:24,]
+
+dat <- dat[order(dat$chromosome, dat$start),]
 
 calls <- as.matrix(dat[,grep("flag", names(dat))])
 copynumber <- as.matrix(dat[,grep("chip", names(dat))])
