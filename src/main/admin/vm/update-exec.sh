@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.2.4
+LATEST_VERSION=2.3.0
 
 # Exit immediately if some command fails
 set -e
@@ -302,8 +302,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 
-# 2.2.5, remember to update LATEST_VERSION
-compare_to_current "2.2.5"
+# 2.3.0
+compare_to_current "2.3.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
   echo "** Installing R-2.15 with Bioconductor 2.11"
@@ -313,21 +313,21 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir ${TOOLS_PATH}/genomebrowser/annotations
 
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/Yersinia.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.2.5/contents2.txt
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Yersinia.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/contents2.txt
 
 fi
 
