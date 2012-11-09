@@ -7,9 +7,9 @@
 bowtie2_path=("/opt/chipster/tools/bowtie2")
 
 
-if [ -d "/scratch/tmp" ]; then
-   mkdir -p "/scratch/tmp/bowtie2_indexes/tmp"
-   index_path=("/scratch/tmp/bowtie2_indexes/tmp")
+if [ -d "/tmp" ]; then
+   mkdir -p "/tmp/bowtie2_indexes/tmp"
+   index_path=("/tmp/bowtie2_indexes/tmp")
 else
    index_path=("./")
 fi
