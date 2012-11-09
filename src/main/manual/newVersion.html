@@ -2,6 +2,44 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 9.11.2012: What is new in Chipster 2.3.0</h2>
+
+<br>Chipster 2.3.0 contains changes to the user interface and analysis functionality. NGS alignment tool Bowtie2 has been added, and changes have been made to existing alignment tools. Sheep genome oar3.1 has been added to alignment tools and genome browser. Support for some Agilent and Illumina microarrays has been added.
+ 
+
+<ol>
+<li><b>Change to the user interface</b></li>
+<ul>
+<li><u>Naming of datasets in the workflow panel</u>. The "boxes" indicating files are now named with the extension of the file name. 
+As before, the box is colored according to the tool category that produced that file, and the full filename is displayed in the datasets panel.
+We hope that this change makes selecting files easier in NGS result sets, which typically contain several file types. Please let us know what you think.</li>
+</ul>
+<ul>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="bowtie2.html">Alignment / Bowtie2 for single end reads</a>.</li>
+<li><a href="bowtie2-paired-end.html">Alignment / Bowtie2 for paired end reads</a>.</li>
+<li><a href="bowtie2-with-index-building.html">Alignment / Bowtie2 for single end reads and own genome</a>.</li>
+<li><a href="bowtie2-paired-end-with-index-building.html">Alignment / Bowtie2 for paired end reads and own genome</a>.</li>
+</ul>
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li><a href="methylumi.html">Normalization / Methylumi</a>. Supports both Illumina 27k and 450k arrays.</li>
+</ul>
+<li><b>Updates and bug fixes to NGS analysis tools</b></li>
+<ul>
+<li><u>Sheep genome oar3.1 has been added to all alignment tools</u>: Bowtie1, Bowtie2, TopHat, TopHat2, BWA.
+<li><u>Alignment / BWA for paired end reads and own genome</u>. A bug in paired end read handling has been fixed. <b>Please rerun your alignments</b>.</li>
+<li><u>Alignment / Bowtie(1) for paired end reads, Bowtie(1) with paired end reads and own genome</u>. Bug resulting in empty result files has been fixed.</li>
+<li><u>Utilities / Filter reads for adaptors, length and Ns (FastX Clipper)</u>. New parameters have been added.</li>
+</ul>
+<li><b>Updates to microarray analysis tools</b></li>
+<ul>
+<li><u>Normalization / Agilent 1-color, Agilent 2-color</u>: Support has been added for Agilent Fruit fly and Human G4851A arrays.
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 27.9.2012: What is new in Chipster 2.2.0</h2>
 
 <br>Chipster 2.2.0 contains a new tool category Variants with tools for analyzing VCF files. Visualization of these files is supported already (see the 12.9.2012 release notes).
@@ -15,12 +53,12 @@ The full list of NGS analysis tools is available <a href="tools-ngs.html">here</
 <li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a>. This Bioconductor-based tool infers differential exon usage.</li>
 <li><a href="samtools-snp-indel-single.html"> Variants / Call SNPs and short INDELs</a>. This SAMtools and bcftools -based tool combines the old variant calling tools, allowing you to call variants from one or multiple individuals.</li>
 <li><a href="vcftools.html">Variants / Filter and analyze variants</a>. This VCFtools-based tool allows you to filter and analyze variants in a VCF file.</li>
-<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>. This tools uses TopHat 2.0.4. and Bowtie 2. We will TopHat 1.3.0 is still available for a while, but we encourage you to use TopHat 2 for new analysis sessions. </li>
+<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>. This tools uses TopHat 2.0.4. and Bowtie 2. We will keep TopHat 1.3.0 is available for a while, but encourage you to use TopHat 2 for new analysis sessions. </li>
 <li><a href="tophat2-single-end.html">Alignment / TopHat2 for single end reads</a>. As above.</li>
 </ul>
 <li><b>Updated NGS analysis tools</b></li>
 <ul>
-<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but this will be updated to 2.0.2 in October.</li>
+<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but this will be updated to 2.0.2 in November.</li>
 <li><u>RNA-seq / Map aligned reads to genes using HTSeq</u>. Added mouse genome mm10, updated GTFs to Ensembl 68.</li>
 <li><u>Alignment / TopHat for paired end reads and single end reads</u>. Updated GTFs to Ensembl 68.</li>
 </ul>
