@@ -40,7 +40,7 @@ public class JobLogHibernateUtil {
     		// Not a real server
 
     		//CREATE TABLE IF NOT EXISTS jobs (id VARCHAR(100) PRIMARY KEY, operation VARCHAR(200), status VARCHAR(200), starttime DATETIME DEFAULT NULL, endtime DATETIME DEFAULT NULL, 	wallclockTime INT DEFAULT NULL, errorMessage TEXT DEFAULT NULL, outputText TEXT DEFAULT NULL, username VARCHAR(200), compHost VARCHAR(500));
-    		//insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 JOBS 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
+    		//insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
 
     		dbDriver = "org.h2.Driver";
     		dbUrl = "jdbc:h2:tcp://localhost/test";

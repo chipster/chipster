@@ -42,7 +42,7 @@ public class ChipsterAdminApplication extends Application {
 			} else {
 				
 				// Not a real server, use any development server config (and show it's data)
-				String configURL = "http://chipster-devel.csc.fi:8031/chipster-config.xml";
+				String configURL = "http://chipster-devel.csc.fi:8061/chipster-config.xml";
 				//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
 				//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
 				

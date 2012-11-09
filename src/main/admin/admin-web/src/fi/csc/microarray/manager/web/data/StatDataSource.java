@@ -6,14 +6,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
-import org.springframework.web.util.HtmlUtils;
 
 public class StatDataSource {
 	
@@ -48,7 +46,7 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return htmlEscape(results);
+		return typedMap(results);
 	}
 
 	public Object[] getTopUsersColumnOrder() {
@@ -86,7 +84,7 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return htmlEscape(results);
+		return typedMap(results);
 	}
 	
 	public Object[] getJobsByMonthColumnOrder() {
@@ -121,42 +119,22 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return htmlEscape(results);
+		return typedMap(results);
 	}
 	
 	public Object[] getToolFailsColumnOrder() {
 		return new Object[] { JobLogContainer.OPERATION, ROW_COUNT };
 	}
 		
-	private List<Map<Object, Object>> htmlEscape(@SuppressWarnings("rawtypes") List<Map> unescapedMaps) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Map<Object, Object>> typedMap(List<Map> rawtype) {
 		
-		List<Map<Object, Object>> escapedMaps = new LinkedList<Map<Object, Object>>();
-		
-		for (@SuppressWarnings("rawtypes") Map unescapedMap : unescapedMaps) {
-			
-			Map<Object, Object> escapedMap = new HashMap<Object, Object>();
-			
-			for (Object entryObj  : unescapedMap.entrySet()) {
+		List<Map<Object, Object>> typed = new LinkedList<Map<Object, Object>>();
 				
-				@SuppressWarnings("rawtypes")
-				Entry entry = (Entry)entryObj;
-				
-				Object key = entry.getKey();
-				Object value = entry.getValue();
-				
-				if (key instanceof String) {
-					key = HtmlUtils.htmlEscape((String)key);
-				}
-				
-				if (value instanceof String) {
-					value = HtmlUtils.htmlEscape((String)value);
-				}
-				
-				escapedMap.put(key, value);
-			}
-			escapedMaps.add(escapedMap);
+		for (Map rawItem : rawtype) {			
+			typed.add(rawItem);
 		}
 		
-		return escapedMaps;
+		return typed;
 	}
 }

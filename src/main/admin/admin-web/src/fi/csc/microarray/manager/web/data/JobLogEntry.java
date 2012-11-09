@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.web.util.HtmlUtils;
-
 @Entity
 @Table(name="jobs")
 public class JobLogEntry implements Serializable {
@@ -58,19 +56,19 @@ public class JobLogEntry implements Serializable {
 		return id;
 	}
 	public void setId(String id) {
-		this.id = HtmlUtils.htmlEscape(id);
+		this.id = id;
 	}
 	public String getOperation() {
 		return operation;
 	}
 	public void setOperation(String operation) {
-		this.operation = HtmlUtils.htmlEscape(operation);
+		this.operation = operation;
 	}
 	public String getStatus() {
 		return status;
 	}
 	public void setStatus(String status) {
-		this.status = HtmlUtils.htmlEscape(status);
+		this.status = status;
 	}
 	public Date getStartTime() {
 		return startTime;
@@ -94,24 +92,24 @@ public class JobLogEntry implements Serializable {
 		return errorMessage;
 	}
 	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = HtmlUtils.htmlEscape(errorMessage);
+		this.errorMessage = errorMessage;
 	}
 	public String getOutputText() {
 		return outputText;
 	}
 	public void setOutputText(String outputText) {		
-		this.outputText = HtmlUtils.htmlEscape(outputText);
+		this.outputText = outputText;
 	}
 	public String getUsername() {
 		return username;
 	}
 	public void setUsername(String username) {
-		this.username = HtmlUtils.htmlEscape(username);
+		this.username = username;
 	}
 	public String getCompHost() {
 		return compHost;
 	}
 	public void setCompHost(String compHost) {
-		this.compHost = HtmlUtils.htmlEscape(compHost);
+		this.compHost = compHost;
 	}
 }

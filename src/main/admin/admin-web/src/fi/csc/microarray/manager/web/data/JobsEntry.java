@@ -3,8 +3,6 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.web.util.HtmlUtils;
-
 
 public class JobsEntry implements Serializable {
 
@@ -18,13 +16,13 @@ public class JobsEntry implements Serializable {
 		return operation;
 	}
 	public void setOperation(String operation) {
-		this.operation = HtmlUtils.htmlEscape(operation);
+		this.operation = operation;
 	}
 	public String getStatus() {
 		return status;
 	}
 	public void setStatus(String status) {
-		this.status = HtmlUtils.htmlEscape(status);
+		this.status = status;
 	}
 	public Date getStartTime() {
 		return startTime;
@@ -36,12 +34,12 @@ public class JobsEntry implements Serializable {
 		return username;
 	}
 	public void setUsername(String username) {
-		this.username = HtmlUtils.htmlEscape(username);
+		this.username = username;
 	}
 	public String getCompHost() {
 		return compHost;
 	}
 	public void setCompHost(String compHost) {
-		this.compHost = HtmlUtils.htmlEscape(compHost);
+		this.compHost = compHost;
 	}
 }

@@ -16,13 +16,13 @@ public class StorageEntry implements Serializable {
 		return username;
 	}
 	public void setUsername(String username) {
-		this.username = HtmlUtils.htmlEscape(username);
+		this.username = username;
 	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
-		this.name = HtmlUtils.htmlEscape(name);
+		this.name = name;
 	}
 	public Date getDate() {
 		return date;
