@@ -42,7 +42,7 @@ bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
 
 # bwa settings
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
-bwa.index.binary <- file.path(chipster.tools.path, "bwa", "check_bwa_index.sh")
+bwa.index.binary <- file.path(chipster.module.path, "shell", "check_bwa_index.sh")
 command.start <- paste("bash -c '", bwa.binary)
 
 # Do indexing

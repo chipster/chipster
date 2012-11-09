@@ -4,12 +4,12 @@
 #NOTE! Does not do color space indexes
 #K.M. 12.1. 2012
 
-bwa_path=("/opt/chipster/tools/bwa")
+bowtie2_path=("/opt/chipster/tools/bowtie2")
 
 
 if [ -d "/tmp" ]; then
-   mkdir -p "/tmp/bwa_indexes/tmp"
-   index_path=("/tmp/bwa_indexes/tmp")
+   mkdir -p "/tmp/bowtie2_indexes/tmp"
+   index_path=("/tmp/bowtie2_indexes/tmp")
 else
    index_path=("./")
 fi
@@ -39,19 +39,13 @@ else
    cd $genome_dir
    cp "$location"/"$genome" ./$genome
   
-   size_mb=(` expr $size / 1000000 ` )     
-   #Choose the indextype based on the genome size
-   if [ $size_mb -gt 2000 ] 
-   then
-     indextype=("bwtsw")
-   else
-     indextype=("is")
-   fi
-   $bwa_path/bwa index -a $indextype $genome 
-   
+
+   $bowtie2_path/bowtie2-build $genome $genome 
+
+
    #check that idexes are found
-   for f in ann amb bwt pac sa ; do
-       echo "$genome.$f"
+   echo "$genome"
+   for f in 1.bt2 2.bt2 3.bt2 4.bt2 rev.1.bt2 rev.2.bt2; do
        if [ -e "$genome"."$f" ]; then
          echo "$genome.$f OK"
        else
@@ -64,7 +58,7 @@ else
    cd $location
 fi
 
-echo "The bwa_indexes are in directory:"
+echo "The bowtie2_indexes are in directory:"
 echo "$index_path/$genome_dir"
 exit 
 
