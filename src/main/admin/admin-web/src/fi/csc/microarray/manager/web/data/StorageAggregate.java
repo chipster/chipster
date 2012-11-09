@@ -2,6 +2,8 @@ package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
 
+import org.springframework.web.util.HtmlUtils;
+
 public class StorageAggregate implements Serializable {
 	
 	private String username;
@@ -11,7 +13,7 @@ public class StorageAggregate implements Serializable {
 		return username;
 	}
 	public void setUsername(String username) {
-		this.username = username;
+		this.username = HtmlUtils.htmlEscape(username);
 	}
 	public long getSize() {
 		return size;

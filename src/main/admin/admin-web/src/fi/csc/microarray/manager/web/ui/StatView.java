@@ -83,42 +83,6 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		
 		this.setSizeFull();
 	}
-
-	private String mapListToHtml(List<Map> mapList) {
-
-		StringBuffer html = new StringBuffer();
-
-		if (mapList.size() > 0) {
-
-			List<Object> keyList = new LinkedList<Object>(mapList.get(0).keySet());
-
-
-			html.append("<table>");
-
-			//Column headers
-			html.append("<tr>");
-			
-			for (Object columnHeader : keyList) {
-				html.append("<th>" + columnHeader + "</th>");
-			}
-			html.append("</tr>");
-
-			
-			//Content rows
-			for (Map map : mapList) {
-				html.append("<tr>");
-
-				for (Object key : keyList) {
-					html.append("<td>" + map.get(key) + "</td>");
-				}
-				html.append("</tr>");
-			}
-
-
-			html.append("</table>");
-		}
-		return html.toString();
-	}
 	
 	private Table JobLogEntryToTable(List<JobLogEntry> list) {
 
@@ -146,14 +110,14 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		return table;
 	}
 	
-	private Table mapListToTable(List<Map> mapList) {
+	private Table mapListToTable(List<Map<Object, Object>> list) {
 
 		Table table = new Table();
 		table.setSizeFull();
 		
-		if (mapList.size() > 0) {
+		if (list.size() > 0) {
 
-			List<Object> keyList = new LinkedList<Object>(mapList.get(0).keySet());
+			List<Object> keyList = new LinkedList<Object>(list.get(0).keySet());
 
 
 			//Column headers
@@ -164,7 +128,7 @@ public class StatView extends HorizontalLayout implements ClickListener {
 			
 			//Content rows
 			int i = 0;
-			for (Map map : mapList) {
+			for (Map<Object, Object> map : list) {
 			
 				//We assume that the order of returned values is identical in all these maps 
 				//otherwise values are put to wrong columns

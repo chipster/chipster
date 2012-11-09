@@ -1,25 +1,27 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.springframework.web.util.HtmlUtils;
 
 public class StatDataSource {
 	
 	public static final String ROW_COUNT = "count";
 
 	
-	public List<Map> getTopUsers(Session session) {
+	@SuppressWarnings("rawtypes")
+	public List<Map<Object, Object>> getTopUsers(Session session) {
 		
 		//Start one year ago
 		Calendar fromDate = new GregorianCalendar();
@@ -46,9 +48,9 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return results;
+		return htmlEscape(results);
 	}
-	
+
 	public Object[] getTopUsersColumnOrder() {
 		return new Object[] { JobLogContainer.USERNAME, ROW_COUNT };
 	}
@@ -61,11 +63,12 @@ public class StatDataSource {
 			    .setMaxResults(10)
 			    .list();
 		
+		//JobLogEntry does htmlEscaping
 		return results;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Map> getJobsByMonth(Session session) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Map<Object, Object>> getJobsByMonth(Session session) {
 		
 		List results =  session.createQuery("select new map(year(startTime) as year, month(startTime) as month, count(*) as count) " +
 				"from JobLogEntry " + 
@@ -83,7 +86,7 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return results;
+		return htmlEscape(results);
 	}
 	
 	public Object[] getJobsByMonthColumnOrder() {
@@ -91,12 +94,12 @@ public class StatDataSource {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List<Map> getToolFails(Session session) {
+	public List<Map<Object, Object>> getToolFails(Session session) {
 		//Start one year ago
 		Calendar fromDate = new GregorianCalendar();
 		fromDate.set(Calendar.YEAR, fromDate.get(Calendar.YEAR) - 1);
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({"unchecked" })
 		List<Map> results = session.createCriteria(JobLogEntry.class)
 				.add(Restrictions.ge(JobLogContainer.START_TIME, fromDate.getTime()))
 				.add(Restrictions.eq(JobLogContainer.STATUS, JobLogContainer.STATUS_FAIL_VALUE))
@@ -118,10 +121,42 @@ public class StatDataSource {
 			results.add(map);
 		}
 		
-		return results;
+		return htmlEscape(results);
 	}
 	
 	public Object[] getToolFailsColumnOrder() {
 		return new Object[] { JobLogContainer.OPERATION, ROW_COUNT };
+	}
+		
+	private List<Map<Object, Object>> htmlEscape(@SuppressWarnings("rawtypes") List<Map> unescapedMaps) {
+		
+		List<Map<Object, Object>> escapedMaps = new LinkedList<Map<Object, Object>>();
+		
+		for (@SuppressWarnings("rawtypes") Map unescapedMap : unescapedMaps) {
+			
+			Map<Object, Object> escapedMap = new HashMap<Object, Object>();
+			
+			for (Object entryObj  : unescapedMap.entrySet()) {
+				
+				@SuppressWarnings("rawtypes")
+				Entry entry = (Entry)entryObj;
+				
+				Object key = entry.getKey();
+				Object value = entry.getValue();
+				
+				if (key instanceof String) {
+					key = HtmlUtils.htmlEscape((String)key);
+				}
+				
+				if (value instanceof String) {
+					value = HtmlUtils.htmlEscape((String)value);
+				}
+				
+				escapedMap.put(key, value);
+			}
+			escapedMaps.add(escapedMap);
+		}
+		
+		return escapedMaps;
 	}
 }
