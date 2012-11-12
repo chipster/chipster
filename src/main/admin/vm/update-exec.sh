@@ -311,7 +311,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   echo "** Updating genome browser annotations"
   mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/genomebrowser/annotations
+  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/

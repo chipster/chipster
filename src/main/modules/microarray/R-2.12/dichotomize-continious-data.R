@@ -1,4 +1,4 @@
-# TOOL dichotomize-continious-data.R: "Dichotomize continious data" (Dichotomize the data into values 0 and 1 based on a single cut-off value.)
+# TOOL dichotomize-continious-data.R: "Dichotomize continuous data" (Dichotomize the data into values 0 and 1 based on a single cut-off value.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT dichotomized.tsv: dichotomized.tsv
 # PARAMETER what.mode: "what mode" TYPE [absolute: absolute, relative: relative] DEFAULT relative (Determines whether to apply an absolute or relative level cut-off. If relative level is used the cut-off represents a percentile of the data distribution.)
