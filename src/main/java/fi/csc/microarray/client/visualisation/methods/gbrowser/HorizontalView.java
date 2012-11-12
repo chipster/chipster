@@ -96,7 +96,7 @@ public class HorizontalView extends View implements KeyListener {
 			g.fillRect(rect.x + x + 1, rect.y + y + 1, rect.width, rect.height);
 		}
 
-		// Draw outline after fill to make sure that it stays continuous
+		// Draw outline after fill to hide gaps between adjacent rectangles
 		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
 			g.drawRect(rect.x + x + 1, rect.y + y + 1, rect.width - 1, rect.height - 1);
