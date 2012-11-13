@@ -1,11 +1,10 @@
-# TOOL bowtie2.R: "Bowtie2 for single end reads" (Bowtie2 aligns reads to genomes or transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this Bowtie2 tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"Bowtie2 for single end reads and own genome\".)
+# TOOL bowtie2-with-index-building.R: "Bowtie2 for single end reads and own genome" (Bowtie2 aligns reads to genomes or transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser.)
 # INPUT reads1.fq: "Reads" TYPE GENERIC
+# INPUT genome.txt: "Genome to align against" TYPE GENERIC
 # OUTPUT bowtie2.bam 
 # OUTPUT bowtie2.bam.bai 
 # OUTPUT bowtie2.log 
 # OUTPUT OPTIONAL unaligned_1.fq
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", canFam2: "Dog genome (UCSC canFam2\)", Gasterosteus_aculeatus.BROADS1.67: "Gasterosteus aculeatus genome (BROADS1.67\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER strategy: "Alignment strategy to use" TYPE [--very-fast: "Very fast", --fast: "Fast", --sensitive: "Sensitive", --very-sensitive: "Very sensitive", --very-fast-local: "Very fast local", -fast-local: "Fast local", --sensitive-local: "Sensitive local", --very-sensitive-local: "Very sensitive local"] DEFAULT --sensitive (The alignment strategy to be used. Bowtie2 can map the reads using end-to-end or local alignments. When local alignment is used, Bowtie2 might "trim" or "clip" some read characters from one or both ends of the alignment if doing so maximizes the alignment score. Bowtie2 uses heuristics for mapping the reads to the reference genome. Several Bowtie2 parameters affect simultaneously both to the sensitivity and to computing time. In Chipster you can choose the sensitivity level with a set of pre-defined parameter combinations that allow you to tune the balance between the computing time and mapping sensitivity.)
 # PARAMETER quality.format: "Quality value format used" TYPE [--phred33: "Sanger - Phred+33", --phred64: "Illumina GA v1.3-1.5 - Phred+66", --ignore-quals: "Fixed 30 for all"] DEFAULT --phred33 (Quality scale used in the fastq-file.)
 # PARAMETER alignment.no: "How many valid alignments are reported per read" TYPE [0: "Best based on the mapping quality", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "All alignments"] DEFAULT 0 (By default, Bowtie2 reports only the best alignment of the read (based on the mapping quality\). Optionally, if there are several, equally good alignments, you can choose how many of them should be reported?)
@@ -25,9 +24,18 @@
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads1.fq")
 
-# bowtie
+# bowtie2
 bowtie.binary <- c(file.path(chipster.tools.path, "bowtie2", "bowtie2"))
-bowtie.genome <- c(file.path(chipster.tools.path, "bowtie2", "indexes" , genome))
+bowtie2.index.binary <- file.path(chipster.module.path, "shell", "check_bowtie2_index.sh")
+
+# Do indexing
+print("Indexing the genome...")
+system("echo Indexing the genome... > bowtie2.log")
+check.command <- paste ( bowtie2.index.binary, "genome.txt| tail -1 ")
+genome.dir <- system(check.command, intern = TRUE)
+bowtie2.genome <- file.path( genome.dir , "genome.txt")
+#bowtie.genome <- c(file.path(chipster.tools.path, "bowtie2", "indexes" , genome))
+
 command.start <- paste("bash -c '", bowtie.binary)
 rdg.value <- paste (rdg.open ,rdg.ext , sep=",")
 rfg.value <- paste (rfg.open ,rfg.ext , sep=",")
@@ -59,13 +67,13 @@ if (unaligned.file== "yes"){
 #output.parameters <- paste(unaligned.output, multiread.output)
 #stop(paste('CHIPSTER-NOTE: ', parameters))
 # command ending
-command.end <- paste("-x", bowtie.genome, "-U reads1.fq 1> alignment.sam 2>> bowtie2.log'")
+command.end <- paste("-x", bowtie2.genome, "-U reads1.fq 1> alignment.sam 2>> bowtie2.log'")
 
 # run bowtie
 bowtie.command <- paste(command.start, parameters, command.end)
 #stop(paste('CHIPSTER-NOTE: ', bowtie.command))
 
-echo.command <- paste("echo '", bowtie.command , "' > bowtie2.log" )
+echo.command <- paste("echo '", bowtie.command , "' >> bowtie2.log" )
 system(echo.command)
 system(bowtie.command)
 system ("ls -l >>  bowtie2.log")

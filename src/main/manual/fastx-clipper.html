@@ -13,12 +13,18 @@
 
 <ul>
 <li>Adapter sequence that is used for filtering and that is subsequently removed (...) [CCTTAAGG]</li>
-<li>Discard sequences shorter than (1-100) [15]</li>
+<li>Minimum adapter alignment length (0-) [0]</li>
+<li>Discard sequences shorter than (1-) [15]</li>
+<li>Quality value format used (Sanger, Illumina GA v1.3-1.5) [Sanger]</li>
+<li>Discard sequences with Ns (yes, no) [yes]</li>
+<li>Output options (Keep only clipped reads, Keep only non-clipped reads, Keep both clipped and non-clipped reads) [Keep only clipped reads]</li>
+
 </ul>
 
 <h3>Details</h3>
 
-<p>Adapters are clipped from the 3' end. If the read is too short after clipping, it is discarded. Also reads which contain unknown nucleotides (Ns) are discarded.</p>
+<p>Adapters are clipped from the 3' end. If the read is too short after clipping, it is discarded. Also reads which contain unknown nucleotides (Ns) are 
+optionally discarded.</p>
 
 <h3>Output</h3>
 

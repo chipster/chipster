@@ -1,5 +1,5 @@
-# TOOL norm-illumina-methylumi.R: "Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology. You need to import the FinalReport file DIRECTLY, not using the Import tool.)
-# INPUT chip.tsv: chip.tsv TYPE GENERIC 
+# TOOL norm-illumina-methylumi.R: "Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology. You need to import the FinalReport file DIRECTLY, not using the Import tool. The FinalReport file has to contain sample methylation profiles, group profile will not work with this tool.)
+# INPUT FinalReport_sample_methylation_profile.txt: FinalReport_sample_methylation_profile.txt TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT unmethylated.tsv: unmethylated.tsv 
 # OUTPUT methylated.tsv: methylated.tsv 
@@ -16,13 +16,14 @@
 
 # Illumina methylation array data preprocessing and normalization for FinalReport file
 # JTT 2.2.2011
-# Modified 25.9.2012 by JTT
+# Modified 25.9.2012 and 28.10.2012 by JTT
 
-
+# setwd("C://Users//Jarno Tuimala//Desktop//methylumi data")
 # color.balance.adjustment<-c("quantile")
 # background.correction<-c("none")
 # normalization<-c("quantile")
-# chiptype<-c("HumanMethylation27")
+# chiptype<-c("HumanMethylation450")
+# QCplots<-"yes"
 # image.width<-c(600)
 # image.height<-c(600)
 
@@ -45,10 +46,13 @@ if(chiptype=="HumanMethylation450") {
 chiptype<-paste(chiptype, ".db", sep="")
 
 # Loading data files
-dat<-lumiMethyR("chip.tsv", lib=chiptype)
+#dat<-lumiMethyR("chip.tsv", lib=chiptype)
+dat<-methylumiR("FinalReport_sample_methylation_profile.txt", lib=chiptype)
+methyLumiM <- as(dat, "MethyLumiM")
+methyLumiM <- addAnnotationInfo(methyLumiM, lib = chiptype)
 
 # Color balance adjustment
-dat2<-lumiMethyC(dat, method=color.balance.adjustment)
+dat2<-lumiMethyC(methyLumiM, method=color.balance.adjustment)
 
 # Background adjustment
 if(color.balance.adjustment!="none") {
@@ -59,6 +63,7 @@ if(color.balance.adjustment!="none") {
 
 # Normalization
 dat4<-lumiMethyN(dat3, method=normalization)
+#dat4<-normalizeMethyLumiSet(dat)
 
 # QC plots
 if(QCplots=="yes") {
