@@ -331,6 +331,16 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.3.1 (unreleased)
+compare_to_current "2.3.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Updating R library VariantAnnotation"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/VariantAnnotation-vmbin.tar.gz | tar -xz --overwrite -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+
+fi
+
+
 #####################################
 # VERSION SPECIFIC ENTRIES END HERE #
 #####################################
