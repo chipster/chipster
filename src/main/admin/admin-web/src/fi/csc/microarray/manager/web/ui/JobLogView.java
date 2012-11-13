@@ -7,19 +7,18 @@ import org.hibernate.exception.GenericJDBCException;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Window.Notification;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
-import fi.csc.microarray.manager.web.hbncontainer.JobLogSessionManager;
 
 public class JobLogView extends VerticalLayout implements ClickListener, ValueChangeListener  {
 	
@@ -30,7 +29,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	private JobLogTable table;
 	private JobLogContainer dataSource;
 
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 
 	private LinkedList<JobLogSearch> searches;
 
@@ -38,9 +37,10 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	private HorizontalLayout searchLayout;
 
 
-	public JobLogView(ChipsterAdminApplication app) {
+	public JobLogView(ChipsterAdminUI app) {
 
 		this.app = app;
+		init();
 	}
 
 	public void init() {
@@ -49,8 +49,8 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		//here as well (and not in the constructor like elsewhere)
 		
 		try {
-			dataSource = new JobLogContainer(this, new JobLogSessionManager(app)); 
-			dataSource.init();
+			dataSource = new JobLogContainer(this); 
+//			dataSource.init();
 			
 			table = new JobLogTable(this);		
 			table.setContainerDataSource(dataSource);
@@ -149,8 +149,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 
 		updateContainerFilters();
 
-		app.getMainWindow().showNotification(
-				"Found "
+		Notification.show("Found "
 						+ table.getContainerDataSource().size() + " item(s)",
 						Notification.TYPE_TRAY_NOTIFICATION);
 	}
@@ -213,6 +212,6 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		subWindow.setHeight(90, UNITS_PERCENTAGE);
 		subWindow.center();
 		
-		this.getWindow().addWindow(subWindow);
+		this.addComponent(subWindow);
 	}
 }

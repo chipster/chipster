@@ -3,8 +3,6 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.web.util.HtmlUtils;
-
 public class StorageEntry implements Serializable {
 	
 	private String username;

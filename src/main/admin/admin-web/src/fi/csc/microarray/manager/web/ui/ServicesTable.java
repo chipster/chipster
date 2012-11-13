@@ -15,7 +15,7 @@ public class ServicesTable extends Table {
 
 		setCellStyleGenerator(new CellStyleGenerator() {
 
-			public String getStyle(Object itemId, Object propertyId) {
+			public String getStyle(Table source, Object itemId, Object propertyId) {
 
 				if (itemId instanceof ServiceEntry) {
 					ServiceEntry service = (ServiceEntry)itemId;

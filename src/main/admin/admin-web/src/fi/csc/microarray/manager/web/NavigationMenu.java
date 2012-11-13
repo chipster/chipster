@@ -1,6 +1,6 @@
 package fi.csc.microarray.manager.web;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -16,7 +16,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private Button jobsButton = new Button("Jobs");
 	private Button jobLogButton = new Button("Job log");
 	private Button statButton = new Button("Statistics");
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 	
 	private final ThemeResource servicesIcon = new ThemeResource("crystal/service-manager.png");
 	private final ThemeResource servicesIconBw = new ThemeResource("crystal/service-manager-bw.png");
@@ -29,7 +29,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private final ThemeResource statIcon = new ThemeResource("crystal/kchart-edited.png");
 	private final ThemeResource statIconBw = new ThemeResource("crystal/kchart-edited-bw.png");
 
-	public NavigationMenu(ChipsterAdminApplication app) {
+	public NavigationMenu(ChipsterAdminUI app) {
 		this.app = app;
 
 		servicesButton.addListener(this);
@@ -107,7 +107,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			statButton.setIcon(statIconBw);
 			
 		} else if (view == jobLogButton) {
-			app.showJobHistoryView();
+			app.showJobLogView();
 			
 			servicesButton.setIcon(servicesIconBw);
 			storageButton.setIcon(storageIconBw);

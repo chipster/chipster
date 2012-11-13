@@ -39,7 +39,8 @@
 .toolbar .title {
  	text-align: right;
 	font-size: 30px;
-	margin-top: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	padding-right: 10px;
 	text-shadow: #fafafa 1px 1px 0;
 	width: 250px;

@@ -3,16 +3,17 @@ package fi.csc.microarray.manager.web.ui;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window.Notification;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
+import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
 
 public class ServicesView extends VerticalLayout implements ClickListener, ValueChangeListener {
@@ -23,10 +24,10 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
  	private Button refreshButton = new Button("Refresh");
 
 	private ServiceContainer dataSource;
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 
 
-	public ServicesView(ChipsterAdminApplication app) {
+	public ServicesView(ChipsterAdminUI app) {
 		
 		this.app = app;
 		
@@ -40,8 +41,9 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	}
 	
 	public void loadData() throws InstantiationException, IllegalAccessException {
-		dataSource = new ServiceContainer();
-		table.setContainerDataSource(dataSource);
+		dataSource = new ServiceContainer();		
+		table.setContainerDataSource(dataSource);		
+		ChipsterConfiguration.init();
 		dataSource.update(this);
 	}
 	
@@ -82,7 +84,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		}
 	}
 
-	public ChipsterAdminApplication getApp() {
+	public ChipsterAdminUI getApp() {
 		return app;
 	}
 
@@ -90,7 +92,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
 		
-		getApp().getMainWindow().showNotification(
+		Notification.show(
 				"Found "
 						+ table.getContainerDataSource().size() + " nodes",
 						Notification.TYPE_TRAY_NOTIFICATION);

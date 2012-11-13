@@ -3,7 +3,7 @@ package fi.csc.microarray.manager.web.ui;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -13,7 +13,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.StorageAggregate;
 import fi.csc.microarray.manager.web.data.StorageAggregateContainer;
 import fi.csc.microarray.manager.web.data.StorageEntryContainer;
@@ -32,12 +32,12 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	private StorageEntryContainer entryDataSource;
 	private StorageAggregateContainer aggregateDataSource;
 
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 	private ProgressIndicator diskUsageBar;
 	private HorizontalLayout storagePanels;
 
 
-	public StorageView(ChipsterAdminApplication app) {
+	public StorageView(ChipsterAdminUI app) {
 
 		this.app = app;
 
@@ -187,7 +187,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		}
 	}
 	
-	public ChipsterAdminApplication getApp() {
+	public ChipsterAdminUI getApp() {
 		return app;
 	}
 

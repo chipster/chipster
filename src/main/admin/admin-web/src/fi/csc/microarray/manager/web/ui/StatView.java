@@ -15,16 +15,16 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.manager.web.data.StatDataSource;
-import fi.csc.microarray.manager.web.hbncontainer.JobLogSessionManager;
+import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 
 
 public class StatView extends HorizontalLayout implements ClickListener {
 
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 	private Button testButton;
 
 	private Panel latestJobsPanel = new Panel("Latest jobs");
@@ -37,7 +37,7 @@ public class StatView extends HorizontalLayout implements ClickListener {
 	private Table toolFailsTable;
 
 
-	public StatView(ChipsterAdminApplication app) {
+	public StatView(ChipsterAdminUI app) {
 		this.app = app;
 
 //		testButton = new Button("Test");
@@ -47,9 +47,10 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		
 		Session session = null;
 		try {
-			session = new JobLogSessionManager(app).getSession();
+			session = HibernateUtil.getSessionFactory().getCurrentSession();
 		} catch (GenericJDBCException e) {
-			//FIXME Show exception message and hide or disable all database based content 
+			//FIXME Show exception message and hide or disable all database based content
+			e.printStackTrace();
 			return;
 		}
 
@@ -104,7 +105,7 @@ public class StatView extends HorizontalLayout implements ClickListener {
 			int i = 0;
 			for (JobLogEntry entry : list) {
 			
-				table.addItem(new Object[] { entry.getUsername(), entry.getOperation(), entry.getStartTime(), entry.getStatus() }, i++);
+				table.addItem(new Object[] { entry.getUsername(), entry.getOperation(), entry.getStartTime().toString(), entry.getStatus() }, i++);
 			}
 		}
 		return table;
@@ -132,7 +133,17 @@ public class StatView extends HorizontalLayout implements ClickListener {
 			
 				//We assume that the order of returned values is identical in all these maps 
 				//otherwise values are put to wrong columns
-				table.addItem(map.values().toArray(), i++);
+				List<String> stringValues = new LinkedList<String>();
+				
+				for (Object objValue : map.values()) {
+					if (objValue != null) {
+						stringValues.add(objValue.toString());
+					} else {
+						stringValues.add("");
+					}					
+				}
+				
+				table.addItem(stringValues.toArray(), i++);
 			}
 		}
 		return table;
