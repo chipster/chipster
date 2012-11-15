@@ -25,6 +25,8 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 
 	private ServiceContainer dataSource;
 	private ChipsterAdminUI app;
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator(); 
 
 
 	public ServicesView(ChipsterAdminUI app) {
@@ -34,10 +36,8 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		this.addComponent(getToolbar());
 		
 		//Force page updates
-		ProgressIndicator progressIndicator = new ProgressIndicator();
 		progressIndicator.setWidth(0, Unit.PIXELS);
-		progressIndicator.setHeight(0, Unit.PIXELS);
-		
+		progressIndicator.setHeight(0, Unit.PIXELS);		
 		this.addComponent(progressIndicator);
 
 		table = new ServicesTable(this);
@@ -79,6 +79,8 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		final Button source = event.getButton();
 		
 		if (source == refreshButton) {
+			//Update page with 1 second intervals
+			progressIndicator.setPollingInterval(1000);
 			dataSource.update(this);
 		}
 	}
@@ -97,9 +99,8 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	public void dataUpdated() {
 		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
-
-		Notification.show(
-				"Found "
-						+ table.getContainerDataSource().size() + " nodes", Notification.Type.TRAY_NOTIFICATION);
+		
+		//No need to update page anymore
+		progressIndicator.setPollingInterval(Integer.MAX_VALUE);
 	}
 }

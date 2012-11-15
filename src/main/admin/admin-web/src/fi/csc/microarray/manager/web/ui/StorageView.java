@@ -139,6 +139,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			diskUsageBar = new ProgressIndicator(0f);
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
+			diskUsageBar.setPollingInterval(Integer.MAX_VALUE);
 			
 			diskUsageBar.setWidth(300, Unit.PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
