@@ -18,7 +18,7 @@ public class StorageEntryTable extends Table {
 
 		setSelectable(true);
 		setImmediate(true);
-		addListener(view);
+		addValueChangeListener(view);
 		setNullSelectionAllowed(false);
 
 		setSizeFull();

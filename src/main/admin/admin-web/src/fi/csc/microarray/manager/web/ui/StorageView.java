@@ -164,7 +164,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == aggregateTable) {
 			updateEntryFilter();
 			StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();

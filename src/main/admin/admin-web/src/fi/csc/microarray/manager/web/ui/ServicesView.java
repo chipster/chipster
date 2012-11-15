@@ -78,7 +78,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == table) {
 			//Nothing to do yet
 		}
