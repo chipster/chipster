@@ -1,5 +1,5 @@
-# TOOL bwasw-with-index-building.R: "BWA-SW for single-end reads and own genome" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it supports gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. Results are sorted and indexed bam files. 
-# Note that this BWA tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align reads against publicly available genomes, please use the tool \"BWA for single end reads\".)
+# TOOL bwasw-with-index-building.R: "BWA-SW for single end reads and own genome" (BWA aligns reads to genomes and transcriptomes. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. Results are sorted and indexed bam files. 
+# Note that this BWA tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align reads against publicly available genomes, please use the tool \"BWA-SW for single end reads\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # INPUT genome.txt: "Reference genome" TYPE GENERIC
 # OUTPUT bwa.bam 
@@ -27,7 +27,7 @@ unzipIfGZipFile("genome.txt")
 
 # bwa
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
-bwa.index.binary <- file.path(chipster.tools.path, "bwa", "check_bwa_index.sh")
+bwa.index.binary <- file.path(chipster.module.path, "shell", "check_bwa_index.sh")
 command.start <- paste("bash -c '", bwa.binary)
 
 # Do indexing

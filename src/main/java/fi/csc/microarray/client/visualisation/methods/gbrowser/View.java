@@ -176,7 +176,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			bufG2.clearRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
 
 			
-			/* In full height mode we draw always also the content that isn't shown in current vertical
+			/* In full height mode we try to draw always also the content that isn't shown in current vertical
 			 * scrolling position. Setting the original clip to the drawing buffer should
 			 * at least prevent actual pixel manipulating when drawing outside of the view.
 			 */
@@ -285,8 +285,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 						if(drawable == null) {
 							continue;
-						}												
-
+						}
+						
 						// expand drawables to stretch across all height if necessary
 						if (expandDrawables) {
 							drawable.expand(trackContext);

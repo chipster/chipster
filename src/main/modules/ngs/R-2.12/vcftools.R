@@ -17,7 +17,7 @@
 # PARAMETER OPTIONAL statistics.pvalue: "Report p-value" TYPE [yes, no] DEFAULT no (Reports a p-value for each site from a Hardy-Weinberg Equilibrium test.)
 # PARAMETER OPTIONAL statistics.ld: "Report LD statistics" TYPE [yes, no] DEFAULT no (Report Linkage Disequilibrium (LD\) statistics.)
 # PARAMETER OPTIONAL statistics.snpdensity: "Report SNP density" TYPE INTEGER DEFAULT 0 (Calculates the number and density of SNPs in bins of size. 0 value means option is ignored.)
-# PARAMETER OPTIONAL output.filtered: "List removed files" TYPE [yes, no] DEFAULT no (Creates two files listing sites that have been kept or removed after filtering. Default is to list kept files only.)
+# PARAMETER OPTIONAL output.filtered: "List removed sites" TYPE [yes, no] DEFAULT no (Creates two files listing sites that have been kept or removed after filtering. Default is to list kept files only.)
 
 # AMS 14.9.2012
 
