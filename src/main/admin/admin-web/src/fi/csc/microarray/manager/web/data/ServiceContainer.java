@@ -1,6 +1,8 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +18,7 @@ import fi.csc.microarray.manager.web.ui.ServicesView;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.AdminAPI.AdminAPILIstener;
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus;
+import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
@@ -34,6 +37,9 @@ Serializable {
 		NAME, 			COUNT, 				HOST, 		STATUS };
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Service name", "Service count", 	"Host", 	"Status" };
+	
+	public static final String[] SERVER_NAMES = new String[] { 
+		"authenticator", "analyser", "filebroker", "manager" };
 
 	public ServiceContainer() throws InstantiationException,
 	IllegalAccessException {
@@ -41,6 +47,17 @@ Serializable {
 	}
 
 	public void update(final ServicesView view) {
+		
+		//Add a placeholder for each required server component
+		for (String name : ServiceContainer.SERVER_NAMES) {
+			
+			if (!contains(name)) {
+				ServiceEntry entry = new ServiceEntry();
+				entry.setName(name);
+				entry.setStatus(Status.UNKNOWN);
+				addBean(entry);
+			}
+		}
 		
 		ExecutorService execService = Executors.newCachedThreadPool();
 		execService.execute(new Runnable() {
@@ -62,8 +79,7 @@ Serializable {
 
 								public void statusUpdated(Map<String, NodeStatus> statuses) {
 
-									removeAllItems();
-
+									//removeAllItems();
 
 									for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
 										NodeStatus node = entry.getValue();
@@ -79,6 +95,9 @@ Serializable {
 												service.setCount(node.count);
 
 												synchronized (view.getApp()) {
+													
+													removeAll(service.getName());
+													
 													addBean(service);
 													view.dataUpdated();
 												}
@@ -103,5 +122,30 @@ Serializable {
 				} 
 			}
 		});
+	}
+	
+	private void removeAll(String name) {
+		
+		//Concurrent deletion and iteration not supported 
+		List<ServiceEntry> removeList = new LinkedList<ServiceEntry>();
+		
+		for (ServiceEntry entry : getItemIds()) {
+			if (name.equals(entry.getName())) {
+				removeList.add(entry);
+			}
+		}
+		
+		for (ServiceEntry entry : removeList) {
+			removeItem(entry);
+		}
+	}
+	
+	private boolean contains(String name) {
+		for (ServiceEntry entry : getItemIds()) {
+			if (name.equals(entry.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

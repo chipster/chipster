@@ -9,12 +9,12 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
+import fi.csc.microarray.manager.web.data.ServiceEntry;
 
 public class ServicesView extends VerticalLayout implements ClickListener, ValueChangeListener {
 	
@@ -49,7 +49,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	
 	public void loadData() throws InstantiationException, IllegalAccessException {
 		dataSource = new ServiceContainer();		
-		table.setContainerDataSource(dataSource);				
+		table.setContainerDataSource(dataSource);			
 		dataSource.update(this);
 	}
 	
@@ -81,6 +81,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		if (source == refreshButton) {
 			//Update page with 1 second intervals
 			progressIndicator.setPollingInterval(1000);
+			dataSource.removeAllItems();
 			dataSource.update(this);
 		}
 	}
