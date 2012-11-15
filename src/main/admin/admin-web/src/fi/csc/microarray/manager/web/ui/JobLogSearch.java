@@ -70,7 +70,7 @@ public class JobLogSearch extends HorizontalLayout {
 		columnToSearch.setValue(JobLogContainer.USERNAME);
 		columnToSearch.setNullSelectionAllowed(false);
 
-		clearButton.addListener(new Button.ClickListener() {
+		clearButton.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				getView().clearSearch(JobLogSearch.this);
 			}
@@ -100,7 +100,7 @@ public class JobLogSearch extends HorizontalLayout {
 				containerFilter = new DateContainerFilter(
 						columnToSearch.getValue(), (String) searchStringField.getValue());
 			} catch (NumberFormatException e) {
-				Notification.show(e.getMessage(), Notification.TYPE_WARNING_MESSAGE);
+				Notification.show(e.getMessage());
 				containerFilter = null;
 			}
 
@@ -111,7 +111,7 @@ public class JobLogSearch extends HorizontalLayout {
 					columnToSearch.getValue(), Integer.parseInt((String) searchStringField.getValue()));
 			
 			} catch (NumberFormatException e) {
-				Notification.show ("Search term "+ columnToSearch.getValue() + " must be numeric", Notification.TYPE_WARNING_MESSAGE);
+				Notification.show ("Search term "+ columnToSearch.getValue() + " must be numeric");
 				containerFilter = null;
 			}
 		} else {

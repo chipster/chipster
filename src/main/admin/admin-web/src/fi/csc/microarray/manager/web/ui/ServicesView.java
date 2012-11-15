@@ -53,7 +53,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 			toolbarLayout = new HorizontalLayout();
 			
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			toolbarLayout.addComponent(refreshButton);
 			
 			Label spaceEater = new Label(" ");

@@ -80,7 +80,7 @@ public class ChipsterAdminUI extends UI {
 	private StatView getStatView() {
 		if (statView == null) {
 
-			statView = new StatView(this);
+			statView = new StatView();
 		}
 		return statView;
 	}
@@ -172,7 +172,7 @@ public class ChipsterAdminUI extends UI {
 	public Component getTitle() {
 		Label label = new Label("Chipster admin");
 		label.addStyleName("title");
-		label.setWidth(250,Unit.PIXELS);
+		label.setWidth(250, Unit.PIXELS);
 		return label;
 	}
 

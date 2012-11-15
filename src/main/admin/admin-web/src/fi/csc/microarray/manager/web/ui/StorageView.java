@@ -63,8 +63,8 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		Panel aggregatePanel = new Panel("Disk usage by user");
 		Panel entryPanel = new Panel("Stored sessions");
 		
-		aggregatePanel.setWidth(300, UNITS_PIXELS);
-		aggregatePanel.setHeight(100, UNITS_PERCENTAGE);
+		aggregatePanel.setWidth(300, Unit.PIXELS);
+		aggregatePanel.setHeight(100, Unit.PERCENTAGE);
 		entryPanel.setSizeFull();
 		
 		aggregatePanel.setContent(aggregatePanelLayout);
@@ -127,7 +127,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 		if (toolbarLayout == null) {
 			toolbarLayout = new HorizontalLayout();
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			toolbarLayout.addComponent(refreshButton);
 
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
@@ -140,7 +140,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
 			
-			diskUsageBar.setWidth(300, UNITS_PIXELS);
+			diskUsageBar.setWidth(300, Unit.PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
 			toolbarLayout.setExpandRatio(diskUsageBar, 1);
 					

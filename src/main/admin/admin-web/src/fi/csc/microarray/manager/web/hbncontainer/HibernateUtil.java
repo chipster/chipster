@@ -1,76 +1,34 @@
 package fi.csc.microarray.manager.web.hbncontainer;
 
-import java.io.IOException;
-
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.H2Dialect;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
 
 public class HibernateUtil {
 	
-//	private static final Logger logger = LoggerFactory.getLogger(JobLogHibernateUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
 
-//	static
-//	{
-//		try
-//		{
-//			logger.debug("Initializing HibernateUtil");
-//			
-//			final Configuration configuration = new Configuration();
-//			configuration.configure();
-//			
-//			final ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
-//
-//			final ServiceRegistry serviceRegistry = serviceRegistryBuilder
-//					.applySettings(configuration.getProperties())
-//					.buildServiceRegistry();
-//
-//			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-//		}
-//		catch (Throwable e)
-//		{
-//			logger.error(e.toString());
-//			throw new ExceptionInInitializerError(e);
-//		}
-//	}
-//
-//	public static SessionFactory getSessionFactory()
-//	{
-//		return sessionFactory;
-//	}
+
 	
 
 
     static {
-    	AnnotationConfiguration cnf = new AnnotationConfiguration();
     	
-		try {	
-			if (DirectoryLayout.isInitialised()) {
-				//already initialised by the Manager, run in same JVM
-				//DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
-			} else {
-				
-				// Not a real server, use any development server config (and show it's data)
-				String configURL = "http://chipster-devel.csc.fi:8061/chipster-config.xml";
-				//private final String configURL = "http://chipster.csc.fi/chipster-config.xml";
-				//private final String configURL = "http://chipster.csc.fi/beta/chipster-config.xml";
-				
-				DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();				
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IllegalConfigurationException e) {
-			e.printStackTrace();
-		}
-
-    	Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+    	
+		logger.debug("Initializing HibernateUtil");
+		
+		fi.csc.microarray.config.Configuration chiptserConf = ChipsterConfiguration.getConfiguration();
+		
+		final Configuration hibernateConf = new org.hibernate.cfg.Configuration();
 
     	String dbDriver;
     	String dbUrl;
@@ -78,10 +36,10 @@ public class HibernateUtil {
     	String dbPassword;
 
     	try {
-    		dbDriver = configuration.getString("manager", "jdbc-driver");
-    		dbUrl = configuration.getString("manager", "database-url");
-    		dbUsername = configuration.getString("manager", "database-username");
-    		dbPassword = configuration.getString("manager", "database-password");
+    		dbDriver = chiptserConf.getString("manager", "jdbc-driver");
+    		dbUrl = chiptserConf.getString("manager", "database-url");
+    		dbUsername = chiptserConf.getString("manager", "database-username");
+    		dbPassword = chiptserConf.getString("manager", "database-password");
 
     	} catch (Exception e) {
 
@@ -100,17 +58,23 @@ public class HibernateUtil {
     	}
 
     	try {
-    		cnf.setProperty(Environment.DRIVER, dbDriver);
-    		cnf.setProperty(Environment.URL, dbUrl);
-    		cnf.setProperty(Environment.USER, dbUsername);
-    		cnf.setProperty(Environment.PASS, dbPassword);
-    		cnf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
-    		cnf.setProperty(Environment.SHOW_SQL, "true");
-    		cnf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+    		hibernateConf.setProperty(Environment.DRIVER, dbDriver);
+    		hibernateConf.setProperty(Environment.URL, dbUrl);
+    		hibernateConf.setProperty(Environment.USER, dbUsername);
+    		hibernateConf.setProperty(Environment.PASS, dbPassword);
+    		hibernateConf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
+    		hibernateConf.setProperty(Environment.SHOW_SQL, "true");
+    		hibernateConf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 
-    		cnf.addAnnotatedClass(JobLogEntry.class);
+    		hibernateConf.addAnnotatedClass(JobLogEntry.class);
+			
+			final ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
 
-    		sessionFactory = cnf.buildSessionFactory();
+			final ServiceRegistry serviceRegistry = serviceRegistryBuilder
+					.applySettings(hibernateConf.getProperties())
+					.buildServiceRegistry();
+
+			sessionFactory = hibernateConf.buildSessionFactory(serviceRegistry);
 
     	} catch (Throwable ex) {
     		// Make sure you log the exception, as it might be swallowed

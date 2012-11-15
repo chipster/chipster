@@ -59,7 +59,7 @@ public class JobLogTable extends Table {
 			link.setStyleName(BaseTheme.BUTTON_LINK);
 			link.setDescription("Show job output");
 
-			link.addListener(new Button.ClickListener() {
+			link.addClickListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
 
@@ -89,7 +89,7 @@ public class JobLogTable extends Table {
 					link.setStyleName(BaseTheme.BUTTON_LINK);
 					link.setDescription("Show job error message");
 
-					link.addListener(new Button.ClickListener() {
+					link.addClickListener(new Button.ClickListener() {
 
 						public void buttonClick(ClickEvent event) {
 

@@ -15,7 +15,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 
-import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.manager.web.data.StatDataSource;
@@ -24,7 +23,6 @@ import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 
 public class StatView extends HorizontalLayout implements ClickListener {
 
-	private ChipsterAdminUI app;
 	private Button testButton;
 
 	private Panel latestJobsPanel = new Panel("Latest jobs");
@@ -37,13 +35,7 @@ public class StatView extends HorizontalLayout implements ClickListener {
 	private Table toolFailsTable;
 
 
-	public StatView(ChipsterAdminUI app) {
-		this.app = app;
-
-//		testButton = new Button("Test");
-//		testButton.addListener(this);
-//
-//		this.addComponent(testButton);
+	public StatView() {
 		
 		Session session = null;
 		try {
@@ -71,10 +63,10 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		topUsersPanel.addComponent(topUsersTable);
 		toolFailsPanel.addComponent(toolFailsTable);
 		
-		latestJobsPanel.setHeight(100, UNITS_PERCENTAGE);
-		jobCountsPanel.setHeight(100, UNITS_PERCENTAGE);
-		topUsersPanel.setHeight(100, UNITS_PERCENTAGE);
-		toolFailsPanel.setHeight(100, UNITS_PERCENTAGE);
+		latestJobsPanel.setHeight(100, Unit.PERCENTAGE);
+		jobCountsPanel.setHeight(100, Unit.PERCENTAGE);
+		topUsersPanel.setHeight(100, Unit.PERCENTAGE);
+		toolFailsPanel.setHeight(100, Unit.PERCENTAGE);
 
 		
 		this.addComponent(latestJobsPanel);

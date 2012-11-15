@@ -8,6 +8,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.ThemeResource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -81,7 +82,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			searchLayout = new HorizontalLayout();
 			addSearch();
 			toolbarLayout.addComponent(searchLayout);
-			addSearchButton.addListener((ClickListener)this);
+			addSearchButton.addClickListener((ClickListener)this);
 			addSearchButton.setIcon(new ThemeResource("crystal/edit_add.png"));
 			addSearchButton.setDescription("Add another search");
 			addSearchButton.addStyleName("search-button");
@@ -97,7 +98,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			//searchButton.addStyleName("search-button");
 			toolbarLayout.addComponent(searchButton);
 			
-			searchButton.addListener(new Button.ClickListener() {
+			searchButton.addClickListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
 
@@ -150,8 +151,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		updateContainerFilters();
 
 		Notification.show("Found "
-						+ table.getContainerDataSource().size() + " item(s)",
-						Notification.TYPE_TRAY_NOTIFICATION);
+						+ table.getContainerDataSource().size() + " item(s)", Notification.TYPE_TRAY_NOTIFICATION);
 	}
 	
 	private void updateContainerFilters() {
@@ -203,13 +203,13 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	private void showTextWindow(String caption, String content) {
 		
 		Label textComponent = new Label(content);
-		textComponent.setContentMode(Label.CONTENT_PREFORMATTED);
+		textComponent.setContentMode(ContentMode.PREFORMATTED);
 		
 		Window subWindow = new Window(caption);
 		subWindow.addComponent(textComponent);
 		
-		subWindow.setWidth(70, UNITS_PERCENTAGE);
-		subWindow.setHeight(90, UNITS_PERCENTAGE);
+		subWindow.setWidth(70, Unit.PIXELS);
+		subWindow.setHeight(90, Unit.PIXELS);
 		subWindow.center();
 		
 		this.addComponent(subWindow);

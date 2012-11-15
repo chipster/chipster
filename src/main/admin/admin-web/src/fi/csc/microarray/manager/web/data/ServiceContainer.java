@@ -63,16 +63,18 @@ Serializable {
 									for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
 										NodeStatus node = entry.getValue();
 										
-										String hosts[] = node.host.split(", ");
-										for (String host : hosts) {
+										if (node.host != null) {
+											String hosts[] = node.host.split(", ");
+											for (String host : hosts) {
 
-											ServiceEntry service = new ServiceEntry();
-											service.setName(node.name);
-											service.setHost(host);
-											service.setStatus(node.status);
-											service.setCount(node.count);
+												ServiceEntry service = new ServiceEntry();
+												service.setName(node.name);
+												service.setHost(host);
+												service.setStatus(node.status);
+												service.setCount(node.count);
 
-											addBean(service);
+												addBean(service);
+											}
 										}
 									}					
 								}

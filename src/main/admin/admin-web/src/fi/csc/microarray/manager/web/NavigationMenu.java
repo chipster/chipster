@@ -5,7 +5,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -32,19 +31,19 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	public NavigationMenu(ChipsterAdminUI app) {
 		this.app = app;
 
-		servicesButton.addListener(this);
+		servicesButton.addClickListener(this);
 		addComponent(servicesButton);
 
-		storageButton.addListener(this);
+		storageButton.addClickListener(this);
 		addComponent(storageButton);
 
-		jobsButton.addListener(this);
+		jobsButton.addClickListener(this);
 		addComponent(jobsButton);
 
-		jobLogButton.addListener(this);
+		jobLogButton.addClickListener(this);
 		addComponent(jobLogButton);
 		
-		statButton.addListener(this);
+		statButton.addClickListener(this);
 		addComponent(statButton);
 
 		setMargin(true);
@@ -63,7 +62,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 		setExpandRatio(placeHolder, 1);
 
 		setHeight("100%");
-		setWidth(130, HorizontalLayout.UNITS_PIXELS);
+		setWidth(130, Unit.PIXELS);
 
 		setStyleName("navigation");
 	}

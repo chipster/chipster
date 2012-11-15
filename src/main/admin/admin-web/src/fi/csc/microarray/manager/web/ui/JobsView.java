@@ -50,7 +50,7 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 			
 			toolbarLayout = new HorizontalLayout();
 			
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
 			toolbarLayout.addComponent(refreshButton);
 			
