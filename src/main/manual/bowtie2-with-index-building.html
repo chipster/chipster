@@ -3,15 +3,15 @@
 <head><title></title></head>
 <body>
 
-<h2>Bowtie2 for single-end reads</h2>
+<h2>Bowtie2 for single-end reads and own reference genome</h2>
 
 <h3>Description</h3>
 
-<p>This tool uses <a href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">Bowtie2</a> software to align single-end reads to publicly available genomes or transcriptomes. You need to supply the reads in one fastq file containing the reads in the same order.
-If you would like us to add new reference genomes to Chipster, please contact us.
+<p>This tool uses <a href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">Bowtie2</a> software to align single-end reads to a reference genome or sequence set. You need to supply the reads in one fastq  and a fasta formatted reference sequence.
+
 </p>
 <p>
-<p>After running Bowtie2, Chipster converts the alignment file to BAM format, and sorts and indexes it using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package. This way the results are ready to be visualized in the genome browser.</p>
+<p>After running Bowtie2, Chipster converts the alignment file to BAM format, and sorts and indexes it using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package.</p>
 
 <h3>Mapping strategy</h3>
 Bowtie2 can map the reads to the reference either by aligning the reads for they full length (end-to-end read alignment) or by using local alignments. 
