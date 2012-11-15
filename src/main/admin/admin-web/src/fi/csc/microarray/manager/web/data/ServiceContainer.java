@@ -3,12 +3,15 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
 
 import com.vaadin.data.util.BeanItemContainer;
 
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.ui.ServicesView;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.AdminAPI.AdminAPILIstener;
@@ -38,8 +41,9 @@ Serializable {
 	}
 
 	public void update(final ServicesView view) {
-
-		new Runnable() {
+		
+		ExecutorService execService = Executors.newCachedThreadPool();
+		execService.execute(new Runnable() {
 
 			public void run() {
 
@@ -51,6 +55,7 @@ Serializable {
 						}
 					};
 
+					ChipsterConfiguration.init();
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(
 							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
@@ -73,7 +78,10 @@ Serializable {
 												service.setStatus(node.status);
 												service.setCount(node.count);
 
-												addBean(service);
+												synchronized (view.getApp()) {
+													addBean(service);
+													view.dataUpdated();
+												}
 											}
 										}
 									}					
@@ -84,10 +92,7 @@ Serializable {
 					api.areAllServicesUp(true);
 
 					endpoint.close();
-					
-					synchronized (view.getApp()) {
-						view.dataUpdated();
-					}
+			
 
 				} catch (MicroarrayException e) {
 					e.printStackTrace();
@@ -97,6 +102,6 @@ Serializable {
 					e.printStackTrace();
 				} 
 			}
-		}.run();
+		});
 	}
 }

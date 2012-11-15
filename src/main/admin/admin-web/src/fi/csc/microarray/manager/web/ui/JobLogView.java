@@ -151,7 +151,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		updateContainerFilters();
 
 		Notification.show("Found "
-						+ table.getContainerDataSource().size() + " item(s)", Notification.TYPE_TRAY_NOTIFICATION);
+						+ table.getContainerDataSource().size() + " item(s)", Notification.Type.TRAY_NOTIFICATION);
 	}
 	
 	private void updateContainerFilters() {

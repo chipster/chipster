@@ -10,10 +10,10 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.microarray.manager.web.ChipsterAdminUI;
-import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
 
 public class ServicesView extends VerticalLayout implements ClickListener, ValueChangeListener {
@@ -32,6 +32,13 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		this.app = app;
 		
 		this.addComponent(getToolbar());
+		
+		//Force page updates
+		ProgressIndicator progressIndicator = new ProgressIndicator();
+		progressIndicator.setWidth(0, Unit.PIXELS);
+		progressIndicator.setHeight(0, Unit.PIXELS);
+		
+		this.addComponent(progressIndicator);
 
 		table = new ServicesTable(this);
 
@@ -42,8 +49,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	
 	public void loadData() throws InstantiationException, IllegalAccessException {
 		dataSource = new ServiceContainer();		
-		table.setContainerDataSource(dataSource);		
-		ChipsterConfiguration.init();
+		table.setContainerDataSource(dataSource);				
 		dataSource.update(this);
 	}
 	
@@ -91,10 +97,9 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	public void dataUpdated() {
 		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
-		
+
 		Notification.show(
 				"Found "
-						+ table.getContainerDataSource().size() + " nodes",
-						Notification.TYPE_TRAY_NOTIFICATION);
+						+ table.getContainerDataSource().size() + " nodes", Notification.Type.TRAY_NOTIFICATION);
 	}
 }
