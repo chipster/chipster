@@ -1,8 +1,13 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.AbstractClientConnector;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -35,14 +40,19 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	private ChipsterAdminUI app;
 	private ProgressIndicator diskUsageBar;
 	private HorizontalLayout storagePanels;
-
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private boolean updateDone;
+	private static final int POLLING_INTERVAL = 100;
 
 	public StorageView(ChipsterAdminUI app) {
 
 		this.app = app;
 
 		this.addComponent(getToolbar());
-
+		
+		progressIndicator.setWidth(100, Unit.PERCENTAGE);
+		this.addComponent(progressIndicator);
 		
 		entryTable = new StorageEntryTable(this);
 		aggregateTable = new StorageAggregateTable(this);
@@ -81,28 +91,79 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		this.setSizeFull();
 		this.addComponent(storagePanels);		
 		this.setExpandRatio(storagePanels, 1);
+		
+		try {
+			entryDataSource = new StorageEntryContainer();
+			aggregateDataSource = new StorageAggregateContainer(entryDataSource);
+			
+			entryTable.setContainerDataSource(entryDataSource);
+			aggregateTable.setContainerDataSource(aggregateDataSource);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}		
 	}
 
-	public void loadData() throws InstantiationException, IllegalAccessException {
-
-		entryDataSource = new StorageEntryContainer();
-		aggregateDataSource = new StorageAggregateContainer(entryDataSource);
-
-		entryTable.setContainerDataSource(entryDataSource);
-		aggregateTable.setContainerDataSource(aggregateDataSource);
-
+	public void update() {
+		
 		entryDataSource.update(this);
 		
-		StorageAggregate totalItem = aggregateDataSource.update(this);
-		aggregateTable.select(totalItem);
+		//Disable during data update avoid concurrent modification
+		refreshButton.setEnabled(false);
 		
-		updateDiskUsageBar();
+		updateDone = false;
 		
-		entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
-		entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
+		progressIndicator.setPollingInterval(POLLING_INTERVAL);
+		
+		ExecutorService execService = Executors.newCachedThreadPool();
+		execService.execute(new Runnable() {
+			public void run() {
+				
+				try {
+					/* Separate delay from what happens in the Container, because communication between
+					 * threads is messy. Nevertheless, these delays should have approximately same duration
+					 * to prevent user from starting several background updates causing concurrent modifications.   
+					 */
+					final int DELAY = 300; 				
+					for (int i = 0; i <= DELAY; i++) {
+						
+						if (updateDone) {							
+							break;
+						}
 
-		aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-		aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+						//First case happens in initialisation, second if another view is chosen during the data update 
+						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
+							
+							//Component has to be locked before modification from background thread
+							progressIndicator.getUI().getSession().getLock().lock();					
+							try {
+								progressIndicator.setValue((float)i/DELAY);
+							} finally {
+								progressIndicator.getUI().getSession().getLock().unlock();
+							}
+						}
+
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							//Just continue
+						}
+					}
+					
+				} finally {
+					refreshButton.setEnabled(true);
+					
+					progressIndicator.getUI().getSession().getLock().lock();					
+					try {
+						progressIndicator.setValue(1.0f);
+						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+					} finally {
+						progressIndicator.getUI().getSession().getLock().unlock();
+					}
+				}
+			}
+		});
 	}
 
 	private void updateDiskUsageBar() {
@@ -121,6 +182,8 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			diskUsageBar.removeStyleName("fail");
 			diskUsageBar.addStyleName("ok");
 		}
+		
+		diskUsageBar.markAsDirty();
 	}
 
 	public HorizontalLayout getToolbar() {
@@ -158,9 +221,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			entryDataSource.update(this);
-			aggregateDataSource.update(this);
-			updateDiskUsageBar();
+			
+			update();
+//			entryDataSource.update(this);
+//			aggregateDataSource.update(this);
+//			updateDiskUsageBar();
 		}
 	}
 
@@ -200,5 +265,51 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		aggregateDataSource.update(this);
 		updateEntryFilter();
 		updateDiskUsageBar();
+	}
+	
+	/**
+	 * Calling from background threads allowed
+	 */
+	public void entryUpdateDone() {
+					
+				
+
+		Lock entryTableLock = entryTable.getUI().getSession().getLock();
+		entryTableLock.lock();
+		try {
+
+			entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
+			entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
+
+		} finally {
+			entryTableLock.unlock();
+		}
+		
+		Lock aggregateTableLock = aggregateTable.getUI().getSession().getLock();
+		aggregateTableLock.lock();
+		try {						
+			StorageAggregate totalItem = aggregateDataSource.update(this);
+			
+			aggregateTable.select(totalItem);
+			aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
+			aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+
+		} finally {
+			aggregateTableLock.unlock();
+		}
+		
+		Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLock();
+		proggressIndicatorLock.lock();
+		try {						
+			updateDiskUsageBar();
+		} finally {
+			proggressIndicatorLock.unlock();
+		}
+
+		this.updateDone = true;
+	}
+
+	public AbstractClientConnector getEntryTable() {
+		return entryTable;
 	}
 }

@@ -43,14 +43,8 @@ public class ChipsterAdminUI extends UI {
 		if (storageView == null) {
 
 			storageView = new StorageView(this);
-			try {
-				storageView.loadData();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
 		}
+		storageView.update();
 		return storageView;
 	}
 
