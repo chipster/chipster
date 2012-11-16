@@ -100,7 +100,7 @@ public class JobLogSearch extends HorizontalLayout {
 				containerFilter = new DateContainerFilter(
 						columnToSearch.getValue(), (String) searchStringField.getValue());
 			} catch (NumberFormatException e) {
-				Notification.show(e.getMessage());
+				Notification.show(e.getMessage(), Notification.Type.WARNING_MESSAGE);
 				containerFilter = null;
 			}
 
@@ -111,7 +111,7 @@ public class JobLogSearch extends HorizontalLayout {
 					columnToSearch.getValue(), Integer.parseInt((String) searchStringField.getValue()));
 			
 			} catch (NumberFormatException e) {
-				Notification.show ("Search term "+ columnToSearch.getValue() + " must be numeric");
+				Notification.show ("Search term "+ columnToSearch.getValue() + " must be numeric", Notification.Type.WARNING_MESSAGE);
 				containerFilter = null;
 			}
 		} else {

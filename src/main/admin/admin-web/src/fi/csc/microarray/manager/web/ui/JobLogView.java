@@ -137,7 +137,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == table) {
 			//			Item item = personList.getItem(personList.getValue());
 			//			if (item != personForm.getItemDataSource()) {
@@ -151,7 +151,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		updateContainerFilters();
 
 		Notification.show("Found "
-						+ table.getContainerDataSource().size() + " item(s)", Notification.TYPE_TRAY_NOTIFICATION);
+						+ table.getContainerDataSource().size() + " item(s)", Notification.Type.TRAY_NOTIFICATION);
 	}
 	
 	private void updateContainerFilters() {
@@ -180,7 +180,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	public void showOutput(Object itemId) {
 		
 		String output = "";
-		Property outputProperty = dataSource.getContainerProperty(itemId, JobLogContainer.OUTPUT_TEXT);
+		Property<?> outputProperty = dataSource.getContainerProperty(itemId, JobLogContainer.OUTPUT_TEXT);
 		
 		if (outputProperty != null) {
 			output = (String) outputProperty.getValue();
@@ -191,7 +191,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 
 	public void showErrorOutput(Object itemId) {
 		String error = "";
-		Property errorProperty = dataSource.getContainerProperty(itemId, JobLogContainer.ERROR_MESSAGE);
+		Property<?> errorProperty = dataSource.getContainerProperty(itemId, JobLogContainer.ERROR_MESSAGE);
 		
 		if (errorProperty != null) {
 			error = (String) errorProperty.getValue();

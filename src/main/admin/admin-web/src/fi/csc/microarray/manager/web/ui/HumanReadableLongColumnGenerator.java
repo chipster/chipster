@@ -12,7 +12,7 @@ class HumanReadableLongColumnGenerator implements Table.ColumnGenerator {
     public Component generateCell(Table source, Object itemId,
             Object columnId) {
     	
-        Property prop = source.getItem(itemId).getItemProperty(columnId);
+        Property<?> prop = source.getItem(itemId).getItemProperty(columnId);
         if (prop != null && prop.getType() != null && prop.getType().equals(Long.class)) {
         	
         	Long longSize = (Long)prop.getValue();

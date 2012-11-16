@@ -106,6 +106,10 @@
 	background: #FFFFFF;
 }
 
+.v-progressindicator-indicator {
+	background: lightGray;
+}
+
  .ok .v-progressindicator-indicator {
 	background: green;
 }
@@ -114,6 +118,7 @@
 	background: red;
 }
 
+ 
 .v-table-cell-content-failure, .v-table-cell-content-success {
 	background-repeat: no-repeat;
 	background-position: 5px;

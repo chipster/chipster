@@ -33,16 +33,9 @@ public class ChipsterAdminUI extends UI {
 	
 	private VerticalLayout getServicesView() {
 		if (serviceView == null) {
-
 			serviceView = new ServicesView(this);
-			try {
-				serviceView.loadData();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
 		}
+		serviceView.update();
 		return serviceView;
 	}
 	

@@ -37,7 +37,7 @@ public class JobLogTable extends Table {
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
 
-			Property prop = source.getItem(itemId).getItemProperty(columnId);
+			Property<?> prop = source.getItem(itemId).getItemProperty(columnId);
 			if (prop != null && prop.getType() != null && prop.getType().equals(Integer.class)) {
 
 				Integer wallClockTime = (Integer) prop.getValue();
@@ -77,7 +77,7 @@ public class JobLogTable extends Table {
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
 
-			Property prop = source.getItem(itemId).getItemProperty(JobLogContainer.ERROR_MESSAGE);
+			Property<?> prop = source.getItem(itemId).getItemProperty(JobLogContainer.ERROR_MESSAGE);
 			if (prop != null && prop.getType() != null && prop.getType().equals(String.class)) {
 
 				String errorMessage = (String) prop.getValue();

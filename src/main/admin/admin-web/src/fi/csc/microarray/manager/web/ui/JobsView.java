@@ -76,7 +76,7 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == table) {
 			//			Item item = personList.getItem(personList.getValue());
 			//			if (item != personForm.getItemDataSource()) {
