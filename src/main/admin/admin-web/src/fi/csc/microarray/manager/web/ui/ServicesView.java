@@ -2,6 +2,7 @@ package fi.csc.microarray.manager.web.ui;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -17,6 +18,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
+import fi.csc.microarray.manager.web.data.ServiceEntry;
+import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 
 public class ServicesView extends VerticalLayout implements ClickListener, ValueChangeListener {
 
@@ -29,6 +32,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	private ChipsterAdminUI app;
 
 	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private boolean updateDone;
 	private static final int POLLING_INTERVAL = 100; 
 
 
@@ -96,6 +100,7 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		//Disable during data update avoid concurrent modification
 		refreshButton.setEnabled(false);
 		
+		updateDone = false;
 		dataSource.update(this);
 		
 		progressIndicator.setPollingInterval(POLLING_INTERVAL);
@@ -109,8 +114,12 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 					 * threads is messy. Nevertheless, these delays should have approximately same duration
 					 * to prevent user from starting several background updates causing concurrent modifications.   
 					 */
-					final int DELAY = 50; 				
+					final int DELAY = 300; 				
 					for (int i = 0; i <= DELAY; i++) {
+						
+						if (updateDone) {							
+							break;
+						}
 
 						//First case happens in initialisation, second if another view is chosen during the data update 
 						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
@@ -130,9 +139,17 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 							//Just continue
 						}
 					}
+					
 				} finally {
 					refreshButton.setEnabled(true);
-					progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+					
+					progressIndicator.getUI().getSession().getLock().lock();					
+					try {
+						progressIndicator.setValue(1.0f);
+						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+					} finally {
+						progressIndicator.getUI().getSession().getLock().unlock();
+					}
 				}
 			}
 		});
@@ -151,5 +168,30 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 
 	public ServicesTable getTable() {
 		return table;
+	}
+
+	
+	/**
+	 * Calling from background threads allowed
+	 */
+	public void updateDone() {
+			
+		Lock tableLock = table.getUI().getSession().getLock();
+		tableLock.lock();
+		try {
+
+			for (ServiceEntry entry : dataSource.getItemIds()) {
+				if (Status.UNKNOWN.equals(entry.getStatus())) {
+					entry.setStatus(Status.DOWN);
+				}
+			}
+
+			table.markAsDirtyRecursive();						
+
+		} finally {
+			tableLock.unlock();
+		}
+
+		this.updateDone = true;
 	}
 }

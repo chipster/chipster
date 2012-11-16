@@ -24,6 +24,8 @@ public class ServicesTable extends Table {
 
 						if ("UP".equals(service.getStatus().toString())) {
 							return "success";
+						} else if ("UNKNOWN".equals(service.getStatus().toString())) {
+							return "unknown";
 						} else {
 							return "failure";
 						}

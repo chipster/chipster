@@ -1,8 +1,6 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -116,10 +114,11 @@ Serializable {
 							});
 
 					//Wait for responses									
-					api.areAllServicesUp(false);
+					api.areAllServicesUp(true);					
 					
-					endpoint.close();
-			
+					endpoint.close();										
+					
+					view.updateDone();
 
 				} catch (MicroarrayException e) {
 					e.printStackTrace();
