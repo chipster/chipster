@@ -20,6 +20,8 @@ public class StorageEntryTable extends Table {
 		setImmediate(true);
 		addValueChangeListener(view);
 		setNullSelectionAllowed(false);
+		
+		setCacheRate(0);
 
 		setSizeFull();
 		
