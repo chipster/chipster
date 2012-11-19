@@ -49,8 +49,8 @@ public class HibernateUtil {
     		//insert into jobs values ('8f99df7a-5c38-439f-8f7b-15f8bed88eda', 'importseq.sadl', 'COMPLETED', '2010-07-08 13:40:39.0', '2010-07-08 13:40:39.0', 0, null, null, 'demo', 'hippu2.csc.fi');
 
     		dbDriver = "org.h2.Driver";
-    		dbUrl = "jdbc:h2:tcp://localhost/test";
-    		dbUsername = "sa";
+    		dbUrl = "jdbc:h2:database/chipster-manager";
+    		dbUsername = "chipster";
     		dbPassword = "";
 
     		System.err.println("Chipster configuration unavailable, " +
