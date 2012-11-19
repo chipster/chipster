@@ -89,7 +89,7 @@ public class HibernateUtil {
     
 //    public static void insertExampleData(int count) {
 //        Session sess = getSessionFactory().getCurrentSession();
-//        sess.beginTransaction();
+//        //sess.beginTransaction();
 //
 //    	String[] states = new String[] { "COMPLETED", "FAILED" };
 //    	Date startTime;
