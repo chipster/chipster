@@ -38,8 +38,8 @@ public class NonScalableChartPanel extends ChartPanel {
 		int height =  getParent().getSize().height;
 		
 		/* If the genomeBrowser height is bigger than the scrollPane height, we set that bigger value
-		 * to both chartpanel size and drawHeight to make the genomeBrowser draw vertically everything
-		 * and still no scale it.
+		 * to both chartpanel size and drawHeight to make the genomeBrowser draw vertically everything 
+		 * without scaling
 		 */
 		if (genomePlot != null && genomePlot.isFullHeight()) {
 						
