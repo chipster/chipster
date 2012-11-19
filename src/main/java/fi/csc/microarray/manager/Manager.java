@@ -213,6 +213,17 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		}
 		
 		// start manager web console
+		startAdmin(configuration);
+		
+		// create keep-alive thread and register shutdown hook
+		KeepAliveShutdownHandler.init(this);
+		
+		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
+		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+	}
+
+	private void startAdmin(Configuration configuration) throws IOException,
+			Exception {
 		org.eclipse.jetty.server.Server adminServer = new org.eclipse.jetty.server.Server();
 		adminServer.setThreadPool(new QueuedThreadPool());
 		Connector connector = new SelectChannelConnector();
@@ -245,21 +256,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
         context.setContextPath("/");
         context.setParentLoaderPriority(true);
 				
-//		context.setContextPath("/");
-//		context.setWar("webapps/admin-web.war");
-		
         context.setHandler(sh);
 		HandlerCollection handlers = new HandlerCollection();
 		handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
 				
 		adminServer.setHandler(handlers);
         adminServer.start();
-		
-		// create keep-alive thread and register shutdown hook
-		KeepAliveShutdownHandler.init(this);
-		
-		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 
 	public String getName() {

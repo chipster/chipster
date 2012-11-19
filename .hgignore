@@ -23,3 +23,7 @@ syntax: regexp
 ^security$
 syntax: regexp
 ^web$
+syntax: regexp
+^src/main/admin/admin-web/database/chipster-manager\.lock\.db$
+syntax: regexp
+^src/main/admin/admin-web/build$
