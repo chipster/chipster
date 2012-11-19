@@ -1,5 +1,6 @@
 package fi.csc.microarray.manager.web.hbncontainer;
 
+
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
@@ -11,6 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
+
+//import java.util.Date;
+//import java.util.Random;
+//import org.hibernate.Session;
+//import fi.csc.microarray.manager.web.util.RandomUtil;
 
 public class HibernateUtil {
 	
