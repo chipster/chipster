@@ -3,16 +3,21 @@ package fi.csc.microarray.manager.web.data;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
 
 import javax.jms.JMSException;
 
 import com.vaadin.data.util.BeanItemContainer;
 
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.ui.ServicesView;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.AdminAPI.AdminAPILIstener;
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus;
+import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
@@ -28,9 +33,12 @@ Serializable {
 	public static final String STATUS = "status";
 
 	public static final Object[] NATURAL_COL_ORDER  = new String[] {
-		NAME, 			COUNT, 				HOST, 		STATUS };
+		NAME,			HOST, 		STATUS };
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Service name", "Service count", 	"Host", 	"Status" };
+		"Service name", "Host", 	"Status" };
+	
+	public static final String[] SERVER_NAMES = new String[] { 
+		"authenticator", "analyser", "filebroker", "manager" };
 
 	public ServiceContainer() throws InstantiationException,
 	IllegalAccessException {
@@ -38,9 +46,10 @@ Serializable {
 	}
 
 	public void update(final ServicesView view) {
-
-		new Runnable() {
-
+		
+		ExecutorService execService = Executors.newCachedThreadPool();
+		execService.execute(new Runnable() {
+		
 			public void run() {
 
 				try {
@@ -51,41 +60,65 @@ Serializable {
 						}
 					};
 
+					ChipsterConfiguration.init();
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(
 							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
 
 								public void statusUpdated(Map<String, NodeStatus> statuses) {
-
-									removeAllItems();
-
-
-									for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
-										NodeStatus node = entry.getValue();
+									
+									/* Following operation has to lock table component, because addBean() will 
+									 * eventually modify its user interface. Keep the lock during the update loop
+									 * to avoid showing inconsistent state during the loop.
+									 */
+									Lock tableLock = view.getTable().getUI().getSession().getLock();
+									tableLock.lock();
+									try {
 										
-										String hosts[] = node.host.split(", ");
-										for (String host : hosts) {
+										removeAllItems();
 
-											ServiceEntry service = new ServiceEntry();
-											service.setName(node.name);
-											service.setHost(host);
-											service.setStatus(node.status);
-											service.setCount(node.count);
+										for (Entry<String, NodeStatus> entry : statuses.entrySet()) {
 
-											addBean(service);
+
+											NodeStatus node = entry.getValue();
+
+											if (node.host != null) {
+												String hosts[] = node.host.split(", ");
+												for (String host : hosts) {
+
+													ServiceEntry service = new ServiceEntry();
+													service.setName(node.name);
+													service.setHost(host);
+													service.setStatus(node.status);
+													service.setCount(node.count);
+
+													addBean(service);
+												}
+											}
 										}
-									}					
+										
+										//Add a placeholder for each missing server component
+										for (String name : ServiceContainer.SERVER_NAMES) {
+											
+											if (!contains(name)) {
+												ServiceEntry entry = new ServiceEntry();
+												entry.setName(name);
+												entry.setStatus(Status.UNKNOWN);
+												addBean(entry);
+											}
+										}
+									} finally {
+										tableLock.unlock();
+									}
 								}
 							});
 
-					//Wait for responses
-					api.areAllServicesUp(true);
-
-					endpoint.close();
+					//Wait for responses									
+					api.areAllServicesUp(true);					
 					
-					synchronized (view.getApp()) {
-						view.dataUpdated();
-					}
+					endpoint.close();										
+					
+					view.updateDone();
 
 				} catch (MicroarrayException e) {
 					e.printStackTrace();
@@ -95,6 +128,15 @@ Serializable {
 					e.printStackTrace();
 				} 
 			}
-		}.run();
+		});
+	}
+	
+	private boolean contains(String name) {
+		for (ServiceEntry entry : getItemIds()) {
+			if (name.equals(entry.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

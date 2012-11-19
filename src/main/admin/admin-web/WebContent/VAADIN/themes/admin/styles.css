@@ -39,7 +39,8 @@
 .toolbar .title {
  	text-align: right;
 	font-size: 30px;
-	margin-top: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	padding-right: 10px;
 	text-shadow: #fafafa 1px 1px 0;
 	width: 250px;
@@ -105,6 +106,10 @@
 	background: #FFFFFF;
 }
 
+.v-progressindicator-indicator {
+	background: lightGray;
+}
+
  .ok .v-progressindicator-indicator {
 	background: green;
 }
@@ -113,7 +118,8 @@
 	background: red;
 }
 
-.v-table-cell-content-failure, .v-table-cell-content-success {
+ 
+.v-table-cell-content-failure, .v-table-cell-content-success, .v-table-cell-content-unknown {
 	background-repeat: no-repeat;
 	background-position: 5px;
 	background-size: 16px 16px;

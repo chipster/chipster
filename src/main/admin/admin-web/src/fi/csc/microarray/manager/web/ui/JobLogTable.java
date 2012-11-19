@@ -1,7 +1,7 @@
 package fi.csc.microarray.manager.web.ui;
 
 import com.vaadin.data.Property;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -37,7 +37,7 @@ public class JobLogTable extends Table {
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
 
-			Property prop = source.getItem(itemId).getItemProperty(columnId);
+			Property<?> prop = source.getItem(itemId).getItemProperty(columnId);
 			if (prop != null && prop.getType() != null && prop.getType().equals(Integer.class)) {
 
 				Integer wallClockTime = (Integer) prop.getValue();
@@ -59,7 +59,7 @@ public class JobLogTable extends Table {
 			link.setStyleName(BaseTheme.BUTTON_LINK);
 			link.setDescription("Show job output");
 
-			link.addListener(new Button.ClickListener() {
+			link.addClickListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
 
@@ -77,7 +77,7 @@ public class JobLogTable extends Table {
 		public Component generateCell(Table source, final Object itemId,
 				Object columnId) {
 
-			Property prop = source.getItem(itemId).getItemProperty(JobLogContainer.ERROR_MESSAGE);
+			Property<?> prop = source.getItem(itemId).getItemProperty(JobLogContainer.ERROR_MESSAGE);
 			if (prop != null && prop.getType() != null && prop.getType().equals(String.class)) {
 
 				String errorMessage = (String) prop.getValue();
@@ -89,7 +89,7 @@ public class JobLogTable extends Table {
 					link.setStyleName(BaseTheme.BUTTON_LINK);
 					link.setDescription("Show job error message");
 
-					link.addListener(new Button.ClickListener() {
+					link.addClickListener(new Button.ClickListener() {
 
 						public void buttonClick(ClickEvent event) {
 
