@@ -416,15 +416,17 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String[] listRemoteSessions() throws JMSException {
+	public String[][] listRemoteSessions() throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		
 		try {
 			CommandMessage listRequestMessage = new CommandMessage(CommandMessage.COMMAND_LIST_SESSIONS);
 			filebrokerTopic.sendReplyableMessage(listRequestMessage, replyListener);
-			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.HOURS);
-			String list = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
-			return list.split("\t");	
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			String[] names= reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST).split("\t");
+			String[] uuids = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST).split("\t");
+			
+			return new String[][] {names, uuids};
 			
 		} finally {
 			replyListener.cleanUp();

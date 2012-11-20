@@ -159,7 +159,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void loadSession() {
+		public void loadSession(boolean remote) {
 			// do nothing
 		}
 

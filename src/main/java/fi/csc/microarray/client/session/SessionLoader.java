@@ -3,6 +3,7 @@ package fi.csc.microarray.client.session;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.zip.ZipException;
 
 import javax.xml.bind.JAXBException;
@@ -21,17 +22,23 @@ public class SessionLoader {
 	
 	private DataManager dataManager;
 	private File sessionFile;
+	private URL sessionURL;
 	private boolean isDatalessSession;
 
 	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
-		if (!UserSession.isValidSessionFile(sessionFile)) {
-			throw new MicroarrayException("Not a valid session file.");
-		}
 		this.sessionFile = sessionFile;
+		this.sessionURL = null;
 		this.dataManager = dataManager; 
 		this.isDatalessSession = isDatalessSession;
 	}
-	
+
+	public SessionLoader(URL sessionURL, DataManager dataManager) throws MicroarrayException {
+		this.sessionFile = null;
+		this.sessionURL = sessionURL;
+		this.dataManager = dataManager; 
+		this.isDatalessSession = true;
+	}
+
 	
 	public void loadSession() throws ZipException, IOException, JAXBException, SAXException, ParserConfigurationException {
 		
@@ -39,11 +46,13 @@ public class SessionLoader {
 		InputStreamReader metadataReader = null;
 		String version = Integer.toString(UserSession.SESSION_VERSION);
 		try {
-			// get the session.xml zip entry
-			zipFile = new ZipFile(sessionFile);
-			metadataReader = new InputStreamReader(zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME)));
-			Document doc = XmlUtil.parseReader(metadataReader);
-			version = doc.getDocumentElement().getAttribute("format-version");
+			// get the session.xml zip entry (only if a file, remote sessions are always latest version)
+			if (sessionFile != null) {
+				zipFile = new ZipFile(sessionFile);
+				metadataReader = new InputStreamReader(zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME)));
+				Document doc = XmlUtil.parseReader(metadataReader);
+				version = doc.getDocumentElement().getAttribute("format-version");
+			}
 
 		} finally {
 			IOUtils.closeIfPossible(metadataReader);
@@ -57,7 +66,12 @@ public class SessionLoader {
 			
 		} else {
 			// use new loader
-			SessionLoaderImpl2 impl = new SessionLoaderImpl2(sessionFile, dataManager, isDatalessSession);
+			SessionLoaderImpl2 impl;
+			if (sessionFile != null) {
+				impl = new SessionLoaderImpl2(sessionFile, dataManager, isDatalessSession);
+			} else {
+				impl = new SessionLoaderImpl2(sessionURL, dataManager, isDatalessSession);
+			}
 			impl.loadSession();
 		}
 	}

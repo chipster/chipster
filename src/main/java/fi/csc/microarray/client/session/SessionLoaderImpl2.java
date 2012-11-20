@@ -9,7 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -53,6 +55,7 @@ public class SessionLoaderImpl2 {
 	private DataManager dataManager;
 
 	private File sessionFile;
+	private URL sessionURL;
 	private SessionType sessionType;
 	private boolean isDatalessSession;
 
@@ -68,19 +71,47 @@ public class SessionLoaderImpl2 {
 
 	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
+		this.sessionURL = null;
 		this.dataManager = dataManager;
 		this.isDatalessSession = isDatalessSession;
 	}
 
+	public SessionLoaderImpl2(URL sessionURL, DataManager dataManager, boolean isDatalessSession) {
+		this.sessionFile = null;
+		this.sessionURL = sessionURL;
+		this.dataManager = dataManager;
+		this.isDatalessSession = isDatalessSession;
+	}
+
+
 	private void parseMetadata() throws ZipException, IOException, JAXBException, SAXException {
 		ZipFile zipFile = null;
+		ZipInputStream zipStream = null;
 		try {
-			// get the session.xml zip entry
-			zipFile = new ZipFile(sessionFile);
-			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
-
+			
+			InputStream metadataStream = null;
+			if (sessionFile != null) {
+				// get the session.xml zip entry using TrueZip
+				zipFile = new ZipFile(sessionFile);
+				metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
+				
+			} else {
+				// get the session.xml zip entry using JDK, we don't need large ZIP support here because URL based sessions have no data
+				zipStream = new ZipInputStream(sessionURL.openStream());
+				ZipEntry entry;
+		        while ((entry = zipStream.getNextEntry()) != null) {
+		        	if (UserSession.SESSION_DATA_FILENAME.equals(entry.getName())) {
+		        		metadataStream = zipStream; // zip stream is wound to right entry now, use it
+		        		break; 
+		        	}
+		        }
+			}
+			
 			// validate
 			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
+			if (metadataStream == null) {
+				throw new ZipException("session file corrupted, entry " + UserSession.SESSION_DATA_FILENAME + " was missing");
+			}
 			
 			// parse the metadata xml to java objects using jaxb
 			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
@@ -95,6 +126,7 @@ public class SessionLoaderImpl2 {
 		}
 		finally {
 			IOUtils.closeIfPossible(zipFile);
+			IOUtils.closeIfPossible(zipStream);
 		}
 	}
 

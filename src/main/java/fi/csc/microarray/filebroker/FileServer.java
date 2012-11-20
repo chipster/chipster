@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -303,9 +304,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		CommandMessage reply;
 		
 		try {
-			List<String> names = metadataServer.listSessionsInDatabase(username);
+			List<String>[] sessions = metadataServer.listSessionsInDatabase(username);
 			reply = new CommandMessage();
-			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(names, "\t"));
+			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[0], "\t"));
+			LinkedList<String> fullURLs = new LinkedList<String>();
+			for (String uuid : sessions[1]) {
+				fullURLs.add(urlRepository.constructStorageURL(uuid, "").toExternalForm());
+			}
+			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(fullURLs, "\t"));
 			
 		} catch (Exception e) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED);

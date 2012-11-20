@@ -160,7 +160,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getLoadLocalSessionMenuItem());
 			fileMenu.add(getSaveLocalSessionMenuItem());
-			
+			fileMenu.addSeparator();
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -269,7 +269,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 							File[] files = fc.getSelectedFiles();
 							
 							for (File file : files) {
-								System.out.println("Selected " + file + " (" + file.toURL() + ")");
+								System.out.println("Selected " + file + " (" + file.toURI().toURL() + ")");
 							}
 						}
 
@@ -742,7 +742,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fontSizeMenu = new JMenu();
 			fontSizeMenu.setText("Text size");
 
-			// FIXME L&F Theme is lost when the font is changed
+			// TODO fix: L&F Theme is lost when the font is changed
 			// fontSizeMenu.setEnabled(false);
 
 			JMenuItem norm = new JMenuItem("Normal");
@@ -797,12 +797,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem() {
 		if (loadSessionMenuItem == null) {
 			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open session...");
+			loadSessionMenuItem.setText("Open server session...");
 			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSession(); // FIXME make remote
+						application.loadSession(true);
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -820,7 +820,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSession();
+						application.loadSession(false);
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -834,7 +834,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save session to server...");
+			saveSessionMenuItem.setText("Save server session...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -848,7 +848,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Manage sessions...");
+			manageSessionsMenuItem.setText("Server sessions...");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -874,7 +874,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 							File[] files = fc.getSelectedFiles();
 							
 							for (File file : files) {
-								System.out.println("Selected " + file + " (" + file.toURL() + ")");
+								System.out.println("Selected " + file + " (" + file.toURI().toURL() + ")");
 							}
 						}
 
@@ -892,7 +892,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveLocalSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
-			archiveSessionMenuItem.setText("Save session locally...");
+			archiveSessionMenuItem.setText("Save local session...");
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);

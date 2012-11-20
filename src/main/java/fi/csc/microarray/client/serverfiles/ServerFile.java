@@ -182,7 +182,7 @@ public class ServerFile extends File {
 
 	@Override
 	public long length() {
-		return 0; // FIXME not supported, is this ok?
+		return 0; // not supported
 	};
 
 	@Override
