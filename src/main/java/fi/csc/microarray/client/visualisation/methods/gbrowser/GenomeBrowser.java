@@ -26,11 +26,7 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.chart.JFreeChart;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
-import fi.csc.chipster.tools.gbrowser.SamBamUtils;
-import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
-import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -54,9 +50,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.util.BrowserLauncher;
-import fi.csc.microarray.util.IOUtils;
 
 public class GenomeBrowser implements RegionListener, ComponentListener {
 	
@@ -252,9 +245,9 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						}
 
 					} catch (FileNotFoundException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (URISyntaxException e) {
-						application.reportException(e);
+						reportException(e);
 					}
 
 					break;
@@ -288,9 +281,9 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						track.setTrackGroup(geneGroup);
 
 					} catch (URISyntaxException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (IOException e) {
-						application.reportException(e);
+						reportException(e);
 					}
 					break;
 
@@ -334,7 +327,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 							TrackGroup readGroup = TrackFactory.addReadTracks(
 									plot, treatmentData, 
 									refSeqDataSource, 
-									track.interpretation.primaryData.getName());
+									track.interpretation.primaryDataName);
 
 							track.setTrackGroup(readGroup);
 
@@ -344,16 +337,14 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
 									plot, treatmentData, refSeqDataSource, 
-									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
+									track.interpretation.primaryDataName, new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
 							track.setTrackGroup(readGroupWithSummary);
 						}
 					}
 				} catch (IOException e) {
-					application.reportException(e);
-				} catch (MicroarrayException e) {
-					application.reportException(e);
+					reportException(e);
 				} catch (URISyntaxException e) {
-					application.reportException(e);
+					reportException(e);
 				}
 			}
 		}
@@ -372,7 +363,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						fileUrl = file.toURI().toURL();
 
 					} catch (IOException e) {
-						application.reportException(e);
+						reportException(e);
 					}
 				}
 
@@ -380,7 +371,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				switch (track.interpretation.type) {
 				case REGIONS:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
@@ -388,43 +379,41 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						TrackFactory.addPeakTrack(plot, regionData);
 
 					} catch (FileNotFoundException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (URISyntaxException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (IOException e) {
-						application.reportException(e);
-					} catch (MicroarrayException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (UnsortedDataException e) {
-						application.showDialog("Unsorted data", e.getMessage(), null, Severity.WARNING, true);
+						showDialog("Unsorted data", e.getMessage(), null, true, true);
 					}
 					break;
 				case REGIONS_WITH_HEADER:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
 						TrackFactory.addPeakTrack(plot, regionData);
 
 					} catch (FileNotFoundException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (URISyntaxException e) {
-						application.reportException(e);
+						reportException(e);
 					}
 					break;
 				case VCF:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
 						TrackFactory.addPeakTrack(plot, regionData);
 
 					} catch (FileNotFoundException e) {
-						application.reportException(e);
+						reportException(e);
 					} catch (URISyntaxException e) {
-						application.reportException(e);
+						reportException(e);
 					}
 					break;
 
@@ -434,11 +423,8 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 		// End 3D effect
 		plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
-
-		// Set track visibility
-		updateVisibilityForTracks();
 	}
-	
+
 	private URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
 		GenomeAnnotation annotation = annotationManager.getAnnotation(
 				genome, type);
@@ -449,7 +435,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		}
 	}
 
-	private void showVisualisation() {
+	protected void showVisualisation() {
 
 		//Clean old data layers
 		if (plot != null) {
@@ -459,6 +445,8 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		// Create the chart panel with tooltip support				
 		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 		this.plot = new GenomePlot(chartPanel, true);
+		
+		//FIXME remove Chipster dependency
 		((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
 
 		//Set location to plot to avoid trouble in track initialization. 
@@ -466,7 +454,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		//tracks clear all data layers
 		plot.getDataView().setBpRegion(new RegionDouble(
 				DEFAULT_LOCATION - DEFAULT_VIEWSIZE / 2.0, DEFAULT_LOCATION + DEFAULT_VIEWSIZE / 2.0, 
-				(Chromosome)chrBox.getSelectedItem()), true);
+				settings.getChromosome()), true);
 		
 		updateCoverageScale();
 		
@@ -486,10 +474,6 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 			chartPanel.addMouseWheelListener(view);
 		}
 
-		// Add selection listener (but try to remove first old one that would prevent garage collection of the visualization) 
-		application.removeClientEventListener(this);
-		application.addClientEventListener(this);
-
 		// Put panel on top of card layout
 		if (plotPanel.getComponentCount() == 2) {
 			plotPanel.remove(1);
@@ -498,7 +482,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		verticalScroller = new JScrollPane(chartPanel);
 		verticalScroller.getVerticalScrollBar().setUnitIncrement(30);
 
-		setFullHeight(showFullHeightBox.isSelected());
+		setFullHeight(settings.isFullHeight());
 
 		plotPanel.add(verticalScroller, PLOTPANEL);
 		plotPanel.addComponentListener(this);
@@ -530,7 +514,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfDataSource, geneDataSource);
 
 			} catch (Exception e) {
-				application.reportException(e);
+				reportException(e);
 			}
 		}
 		return gia;
@@ -568,14 +552,14 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				Long.parseLong(locationField.getText()), lastViewsize);
 
 		// Set scale of profile track containing reads information
-		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
+		this.plot.setReadScale(settings.getCoverageScale());
 	}
 
 
 
 	private void requestGeneSearch() {
 
-		application.runBlockingTask("searching gene", new Runnable() {
+		runBlockingTask("searching gene", new Runnable() {
 
 			@Override
 			public void run() {
@@ -610,10 +594,10 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						@Override
 						public void run() {
 
-							application.showDialog("Search failed",
+							showDialog("Search failed",
 									"Unexpected error happened in the search. Please inform the developers if the problem persists.", null,
-									Severity.WARNING, true,
-									DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+									true,
+									false, null);
 						}
 
 					});
@@ -652,10 +636,9 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						setCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
 						updateLocation();
 					} else {
-						application.showDialog("Different chromosome", 
+						showDialog("Different chromosome", 
 								"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
-								Severity.INFO, true, 
-								DetailsVisibility.DETAILS_HIDDEN, null);
+								true, false);
 					}
 				}
 			}
@@ -769,38 +752,41 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		plot.redraw();
 	}
 
-
-
 	public List<Interpretation> getInterpretations() {
 		return interpretations;
 	}
 	
-	public void reportException(Exception e) {
+	protected String getExternalLinkUrl(AnnotationType browser) {
+		settings.getGenome();
+		URL url = annotationManager.getAnnotation(settings.getGenome(), browser).getUrl();
+
+		if (url != null) {
+			String stringUrl = url.toString();
+			Region region = plot.getDataView().getBpRegion();
+			stringUrl = stringUrl.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
+			stringUrl = stringUrl.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
+			stringUrl = stringUrl.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
+			
+			return stringUrl;
+		} else {
+			return "";
+		}
+		
+	}
+	
+	protected void reportException(Exception e) {
 		e.printStackTrace();
 	}
 	
-	private String addLocationToExternalBrowserUrl(AnnotationType browser) {
-		String url = getExternalLinkUrl(browser);	
-		Region region = this.plot.getDataView().getBpRegion();
-		url = url.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
-		url = url.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
-		url = url.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
+	protected void showDialog(String title, String message, String details, boolean showDetails, boolean modal) {
+		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details + "\t" + modal);
 	}
 	
-	public void openExternalBrowser(AnnotationType browser) {
-
-		String url = addLocationToExternalBrowserUrl(browser);
-
-		try {
-			BrowserLauncher.openURL(url);
-		} catch (Exception e) {
-			application.reportException(e);
-		}
+	protected void openExternalBrowser(String url) {
+		System.out.println("openExternalBrowser not implemented: " + url);
 	}
-
-
-
-	public GenomePlot getPlot() {
-		return plot;
+	
+	protected void runBlockingTask(String taskName, Runnable runnable) {
+		System.out.println("runBlockingTask not implemented: " + taskName + "\t" +  runnable);
 	}
 }

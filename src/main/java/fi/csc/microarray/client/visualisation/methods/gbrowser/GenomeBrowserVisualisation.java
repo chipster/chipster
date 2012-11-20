@@ -1,5 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.awt.CardLayout;
+import java.awt.Cursor;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
@@ -14,11 +16,17 @@ import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+
+import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.Interpretation;
@@ -29,6 +37,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.databeans.DataBean;
@@ -59,12 +68,46 @@ public class GenomeBrowserVisualisation extends Visualisation implements Propert
 	
 	private class ChipsterGenomeBrowser extends GenomeBrowser {
 		@Override
-		public void reportException(Exception e) {
+		protected void reportException(Exception e) {
 			application.reportException(e);
 		}
+		
+		@Override
+		protected void showDialog(String title, String message, String details, boolean showDetails, boolean modal) {
+			
+			if (showDetails) {
+				application.showDialog(title, message, details, Severity.WARNING, modal);
+			} else {
+				application.showDialog(title, message, details, Severity.WARNING, modal, DetailsVisibility.DETAILS_HIDDEN, null);
+			}
+		}
+		
+		@Override
+		protected void openExternalBrowser(String url) {
+
+			try {
+				BrowserLauncher.openURL(url);
+			} catch (Exception e) {
+				application.reportException(e);
+			}
+		}
+		
+		protected void showVisualisation() {
+
+			super.showVisualisation();
+							
+			// Add selection listener (but try to remove first old one that would prevent garage collection of the visualization) 
+			application.removeClientEventListener(GenomeBrowserVisualisation.this);
+			application.addClientEventListener(GenomeBrowserVisualisation.this);
+		}
+		
+		protected void runBlockingTask(String taskName, Runnable runnable) {
+			application.runBlockingTask(taskName, runnable);
+		}
+
 	}
 	
-	private GenomeBrowser browser;
+	private ChipsterGenomeBrowser browser;
 
 	private final ClientApplication application = Session.getSession()
 			.getApplication();

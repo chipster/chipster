@@ -111,8 +111,11 @@ public class GenomeBrowserSettings implements ActionListener {
 		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
 		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 		
-		//FIXME move to getVisualisation() phase if this doesn't work
+		//FIXME check if works, was in getVisualisation
 		fillChromosomeBox();
+		
+		//FIXME check if works, was in updateTracks
+		updateVisibilityForTracks();
 	}
 	
 	@Override
@@ -248,8 +251,8 @@ public class GenomeBrowserSettings implements ActionListener {
 
 			ensemblLink = LinkUtil.createLink("Ensembl", new AbstractAction() {
 				@Override
-				public void actionPerformed(ActionEvent arg0) {			
-					openExternalBrowser(AnnotationType.ENSEMBL_BROWSER_URL);
+				public void actionPerformed(ActionEvent arg0) {					
+					browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL));
 				}
 			});
 
@@ -257,7 +260,7 @@ public class GenomeBrowserSettings implements ActionListener {
 			ucscLink = LinkUtil.createLink("UCSC", new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {			
-					openExternalBrowser(AnnotationType.UCSC_BROWSER_URL);
+					browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL));
 				}
 			});
 
@@ -312,24 +315,8 @@ public class GenomeBrowserSettings implements ActionListener {
 
 		boolean hasLocation = plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null;
 
-		ensemblLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
-		ucscLink.setEnabled(hasLocation && getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
-	}
-
-	private String getExternalLinkUrl(AnnotationType browser) {
-		Genome genome = (Genome) genomeBox.getSelectedItem();
-		URL url = annotationManager.getAnnotation(genome, browser).getUrl();
-
-		if (url != null) {
-			return url.toString();
-		} else {
-			return "";
-		}
-		
-		Region region = this.browser.getPlot().getDataView().getBpRegion();
-		url = url.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
-		url = url.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
-		url = url.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
+		ensemblLink.setEnabled(hasLocation && browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
+		ucscLink.setEnabled(hasLocation && browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
 	}
 
 	public JPanel createSettingsPanel() {
@@ -689,5 +676,13 @@ public class GenomeBrowserSettings implements ActionListener {
 
 	public Genome getGenome() {
 		return (Genome) genomeBox.getSelectedItem()
+	}
+
+	public Chromosome getChromosome() {
+		return (Chromosome)chrBox.getSelectedItem()
+	}
+
+	public boolean isFullHeight() {
+		return showFullHeightBox.isSelected();
 	}
 }
