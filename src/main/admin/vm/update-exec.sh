@@ -6,7 +6,7 @@
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
-LATEST_VERSION=2.3.0
+LATEST_VERSION=2.3.1
 
 # Exit immediately if some command fails
 set -e
@@ -331,12 +331,16 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.3.1 (unreleased)
+# 2.3.1
 compare_to_current "2.3.1"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
   echo "** Updating R library VariantAnnotation"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/VariantAnnotation-vmbin.tar.gz | tar -xz --overwrite -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+
+  echo "** Updating R-2.15"
+  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 fi
 
