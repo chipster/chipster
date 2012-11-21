@@ -1,4 +1,4 @@
-# TOOL bwa.R: "BWA for single-end reads" (BWA aligns reads to genomes and transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa.R: "BWA for single end reads" (BWA aligns reads to genomes and transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA for single end reads and own genome\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
@@ -66,7 +66,7 @@ system(samse.command)
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
 # convert sam to bam
-system(paste(samtools.binary, "view -bS alignment.sam -o alignment.bam"))
+system(paste(samtools.binary, "view -bS -q 1 alignment.sam -o alignment.bam"))
 
 # sort bam
 system(paste(samtools.binary, "sort alignment.bam alignment.sorted"))

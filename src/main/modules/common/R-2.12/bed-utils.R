@@ -1,6 +1,6 @@
-# Utility function for adding a vector of string into same length (maximum length found from the vector).
+# Utility function for padding a vector of strings to all have same length (maximum length found from the vector).
 pad.with.zeroes <- function(str.vector) {
-	len <- max(nchar(str.vector))
+	len <- max(nchar(as.character(str.vector)))
 	str.vector.2 <- paste(paste(rep("0", len), collapse=""), str.vector, sep="")
 	return( substr(str.vector.2, nchar(str.vector.2)-(len-1), nchar(str.vector.2)) )
 }
@@ -17,7 +17,7 @@ pad.with.zeroes <- function(str.vector) {
 # We create alphabetic presentation of the values and use that for sorting.    
 #
 # Usage:
-#  bed <- read.table(file="sortme.bed", skip=1, sep="\t") # assume file has 1 line header
+#  bed <- read.table(file="sortme.bed", skip=0, sep="\t") # assume file has no header
 #  colnames(bed)[1:2] <- c("chr", "start")  # these named columns are required for sorting 
 #  sorted.bed <- sort.bed(bed)
 #  write.table(sorted.bed, file="sorted.bed", sep="\t", row.names=F, col.names=F, quote=F)
@@ -33,13 +33,13 @@ sort.bed <- function(bed) {
 	}
 	
 	# Normalise chromosome names
-	chr.without.postfix <- gsub('(.*)\\..*', '\\1', bed$chr)
+	chr.without.postfix <- gsub('(.*)\\..*', '\\1', as.character(bed$chr))
 	chr.normalised <- gsub('chr(.*)', '\\1', chr.without.postfix)
 
 	# Convert all fields to right format
 	chr.is.nonnumeric <- ifelse(is.na(as.numeric(chr.normalised)), '1', '0')
 	chr.padded <- pad.with.zeroes(chr.normalised)
-	start.padded <- pad.with.zeroes(bed$start)
+	start.padded <- pad.with.zeroes(as.character(bed$start))
 	
 	# Create the strings to be sorted
 	string.matrix <- rbind(chr.is.nonnumeric, chr.padded, start.padded)
