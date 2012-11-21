@@ -23,3 +23,5 @@ syntax: regexp
 ^security$
 syntax: regexp
 ^web$
+syntax: regexp
+^src/main/admin/admin-web/build$
