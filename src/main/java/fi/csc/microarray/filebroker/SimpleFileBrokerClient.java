@@ -70,4 +70,9 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public void removeRemoteSession(URL sessionURL) throws JMSException {
+		throw new UnsupportedOperationException();
+	}
+
 }

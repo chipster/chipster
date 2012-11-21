@@ -340,7 +340,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException, SQLException {
-		String uuid = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+		URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID));
+		String uuid = IOUtils.getFilenameWithoutPath(url);
 		metadataServer.removeSessionFromDatabase(uuid);
 		CommandMessage reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
 		endpoint.replyToMessage(requestMessage, reply);

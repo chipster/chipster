@@ -34,10 +34,6 @@ public class ServerFileSystemView extends FileSystemView {
 			}
 		}
 		
-		if (root == null) {
-			throw new IllegalArgumentException("paths were missing root path");
-		}
-		
 		return new ServerFileSystemView(root);
 	}
 	

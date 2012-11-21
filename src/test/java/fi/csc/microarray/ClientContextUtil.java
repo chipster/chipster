@@ -210,12 +210,16 @@ public class ClientContextUtil {
 
 		@Override
 		public DataManager getDataManager() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public void checkFreeMemory() {
+			// do nothing
+		}
+
+		@Override
+		public void manageRemoteSessions() {
 			// do nothing
 		}
 		

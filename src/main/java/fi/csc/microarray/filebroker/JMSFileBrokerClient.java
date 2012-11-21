@@ -432,4 +432,24 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			replyListener.cleanUp();
 		}
 	}
+
+	@Override
+	public void removeRemoteSession(URL sessionURL) throws JMSException {
+		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		
+		try {
+			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
+			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm()); 
+			filebrokerTopic.sendReplyableMessage(removeRequestMessage, replyListener);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			
+			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				throw new JMSException("failed to remove session");
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+		
+	}
 }

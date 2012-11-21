@@ -3,7 +3,6 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -26,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -86,6 +84,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
+import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -1548,6 +1547,36 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
+	private JFileChooser getSessionManagementFileChooser() throws RuntimeException {
+
+		JFileChooser sessionFileChooser = null;
+
+		try {
+			// fetch current sessions to show in the dialog and create it
+			sessionFileChooser = populateFileChooserFromServer();
+			sessionFileChooser.setApproveButtonText("Remove");
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		// hide buttons that we don't need
+		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		return sessionFileChooser;
+	}
+
+	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
+		JFileChooser sessionFileChooser;
+		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
+		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
+		sessionFileChooser.putClientProperty("sessions", sessions);
+		sessionFileChooser.setMultiSelectionEnabled(false);
+		fixFileChooserFontSize(sessionFileChooser);
+		return sessionFileChooser;
+	}
+
 	private JFileChooser getSessionFileChooser(JComponent accessory, boolean remote, boolean preselectFile) throws RuntimeException {
 		
 		
@@ -1555,13 +1584,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		if (remote) {
 			try {
-				// fetch current sessions to show in the dialog and create it
-				String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-				ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
-				sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
-				sessionFileChooser.putClientProperty("sessions", sessions);
-				sessionFileChooser.setMultiSelectionEnabled(false);
-				fixFileChooserFontSize(sessionFileChooser);
+				sessionFileChooser = populateFileChooserFromServer();
 				if (preselectFile) {
 					sessionFileChooser.setSelectedFile(new File("server-session." + UserSession.SESSION_FILE_EXTENSION));
 				}
@@ -1570,13 +1593,7 @@ public class SwingClientApplication extends ClientApplication {
 				throw new RuntimeException(e);
 			}
 
-			// hide buttons that we don't need (stupid graphical buttons do not seem to have anything better than tooltip for identification)
-			hideChildButtonsWithTooltip(sessionFileChooser, "Sessions at server");
-			hideChildButtonsWithTooltip(sessionFileChooser, "Up One Level");
-			hideChildButtonsWithTooltip(sessionFileChooser, "Remote sessions");
-			hideChildButtonsWithTooltip(sessionFileChooser, "Create New Folder");
-			hideChildButtonsWithTooltip(sessionFileChooser, "List");
-			hideChildButtonsWithTooltip(sessionFileChooser, "Details");
+			ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
 
 		} else {
 			// create local dialog
@@ -1752,13 +1769,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (remote) {
 				try {
-					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-					for (int i = 0; i < sessions[0].length; i++) {
-						if (selectedFile.getName().equals(sessions[0][i])) {
-							sessionURL = new URL(sessions[1][i]);
-							break;
-						}
-					}
+					sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
 					if (sessionURL == null) {
 						throw new RuntimeException();
 					}
@@ -1960,18 +1971,6 @@ public class SwingClientApplication extends ClientApplication {
 		menuBar.updateMenuStatus();
 	}
 
-	private void hideChildButtonsWithTooltip(Container parent, String tooltip) {
-		
-		for (Component component : parent.getComponents()) {
-			if (component instanceof AbstractButton && tooltip.equals(((AbstractButton)component).getToolTipText())) {
-				component.setVisible(false); // hide this
-			} else if (component instanceof Container ){
-				hideChildButtonsWithTooltip((Container)component, tooltip);
-			}
-		}
-		
-	}
-
 	/**
 	 * @return true if cleared, false if canceled
 	 */
@@ -2036,5 +2035,49 @@ public class SwingClientApplication extends ClientApplication {
 				VisualisationMethods.DATA_DETAILS, Arrays.asList(new Variable[] {renameVariable}), 
 				getSelectionManager().getSelectedDataBeans(), 
 				FrameType.MAIN); 
+	}
+
+	@Override
+	public void manageRemoteSessions() {
+		
+		final JFileChooser fileChooser = getSessionManagementFileChooser();
+		int ret = fileChooser.showOpenDialog(this.getMainFrame());
+
+		// user has selected a file
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			URL sessionURL = null;
+
+			try {
+				sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+				if (sessionURL == null) {
+					throw new RuntimeException();
+				}
+
+				// remote the selected session
+				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionURL);		
+
+				// confirm to user
+				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+
+			} catch (JMSException e) {
+				reportException(e);
+
+			} catch (Exception e) {
+				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+			}
+		}
+	}
+
+	private URL findMatchingSessionURL(final JFileChooser fileChooser, File selectedFile, URL sessionURL) throws MalformedURLException {
+		String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+		for (int i = 0; i < sessions[0].length; i++) {
+			if (selectedFile.getName().equals(sessions[0][i])) {
+				sessionURL = new URL(sessions[1][i]);
+				break;
+			}
+		}
+		return sessionURL;
 	}
 }
