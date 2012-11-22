@@ -6,7 +6,7 @@ corresponding to a data source.</p>
 <p>View layer sends AreaRequest objects and receives AreaResult objects. Processing layer receives AreaRequest and file result objects and
 sends file requests. Data source layer receives file request and sends file results.</p>
 
-<p>The major classes/interfaces of the view layer are GenomePlot (the core, constructed out of views), View (does actual drawing), 
+<p>The major classes/interfaces of the view layer are GBrowserPlot (the core, constructed out of views), View (does actual drawing), 
 Drawable (tells what is drawn) and Track (generates Drawable objects).</p>
 
 <p>The processing layer has two different implementations: one for non-indexed (chunk) data sources and 

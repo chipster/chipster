@@ -3,12 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp
@@ -33,32 +32,32 @@ public class GeneTrackGroup extends TrackGroup {
 		super(dataView);
 		
 		if (annotationDataSource != null) {
-			transcript = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+			transcript = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setStrand(Strand.FORWARD);
 
-			geneOverview = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-					GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+			geneOverview = new IntensityTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 			geneOverview.setStrand(Strand.FORWARD);
 
-			gene = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-					GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			gene = new GeneTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			gene.setStrand(Strand.FORWARD);
 		}
 		
 		if (repeatDataSource != null) {
-			repeatMasker = new RepeatMaskerTrack(dataView, repeatDataSource, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+			repeatMasker = new RepeatMaskerTrack(dataView, repeatDataSource, 0, GBrowserConstants.SWITCH_VIEWS_AT);
 		}
 		
 		if (annotationDataSource != null) {
-			geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-					GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+			geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 			geneOverviewReversed.setStrand(Strand.REVERSED);
 
-			geneReversed = new GeneTrack(dataView, annotationDataSource, VisualConstants.COLOR_BLUE_BRIGHTER, 
-					GenomeBrowserConstants.SWITCH_VIEWS_AT, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			geneReversed = new GeneTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			geneReversed.setStrand(Strand.REVERSED);
 
-			transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+			transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcriptReversed.setStrand(Strand.REVERSED);
 		}
 		

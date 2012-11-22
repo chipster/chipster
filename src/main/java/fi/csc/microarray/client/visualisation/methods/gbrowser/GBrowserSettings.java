@@ -32,8 +32,7 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Track;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -124,7 +123,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
-			tabPane.addTab("Legend", new GBrowserLegend());
+			tabPane.addTab("Legend", new GBrowserLegend(browser));
 
 			GridBagConstraints c = new GridBagConstraints();
 
@@ -220,7 +219,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			menu.add(coverageScaleLabel, c);
 			c.gridy++;
 			c.insets.set(0,0,0,0);
-			coverageScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+			coverageScaleBox = new JComboBox(GBrowserPlot.ReadScale.values());
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
@@ -555,7 +554,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 			// dialog for downloading annotations if not already local
 			if (!browser.getAnnotationManager().hasLocalAnnotations(genome)) {
-				browser.getAnnotationManager().openDownloadAnnotationsDialog(genome);
+				browser.openDownloadAnnotationsDialog(genome);
 			}
 
 			// enable other settings

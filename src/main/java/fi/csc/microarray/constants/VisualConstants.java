@@ -362,8 +362,6 @@ public class VisualConstants {
 		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
 	}
 
-	public static final Color BED_COLOR = new Color(1, 119, 183);
-
 	public static final Color COLOR_BEIGE = new Color(0xc3b6a2);
 	public static final Color COLOR_SAND = new Color(0xd5c796);
 	public static final Color COLOR_YELLOW = new Color(0xe7df70);

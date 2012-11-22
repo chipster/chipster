@@ -12,9 +12,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
@@ -22,7 +21,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing the reference sequence. Useful only for low zoom levels.
@@ -93,13 +93,13 @@ public class SeqTrack extends Track {
 		Color bg = Color.white;
 
 		if (letter == 'A' || letter == 'a') {
-			bg = GenomeBrowserConstants.charColors[0];
+			bg = GBrowserConstants.charColors[0];
 		} else if (letter == 'C' || letter == 'c') {
-			bg = GenomeBrowserConstants.charColors[1];
+			bg = GBrowserConstants.charColors[1];
 		} else if (letter == 'G' || letter == 'g') {
-			bg = GenomeBrowserConstants.charColors[2];
+			bg = GBrowserConstants.charColors[2];
 		} else if (letter == 'T' || letter == 't') {
-			bg = GenomeBrowserConstants.charColors[3];
+			bg = GBrowserConstants.charColors[3];
 		} else if (letter == 'N' || letter == 'n') {
 			bg = Color.white;
 		}

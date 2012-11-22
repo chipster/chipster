@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -31,11 +32,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixSummaryDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParserWithCoordinateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
@@ -44,15 +52,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.UnsortedDataException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.ViewLimiter;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.IOUtils;
 
 /**
- * Main class of genome browser visualisation. Depends on JFreeChart, SwingX, and 
+ * Main class of genome browser visualisation. Depends on JFreeChart, SwingX, tribble, Picard and 
  * Chipster util package, but should not depend on any other Chipster code. All Chipster specific 
  * functionality must be in class ChipsterGBrowserVisualisation.
  * 
@@ -151,7 +164,7 @@ public class GBrowser implements ComponentListener {
 	
 	private List<Track> tracks = new LinkedList<Track>();
 
-	private GenomePlot plot;
+	private GBrowserPlot plot;
 
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
@@ -170,7 +183,7 @@ public class GBrowser implements ComponentListener {
 	public void initialise() throws Exception {
 
 		// initialize annotations
-		this.annotationManager = new AnnotationManager();
+		this.annotationManager = new AnnotationManager(this);
 		this.annotationManager.initialize();
 
 		settings = new GBrowserSettings();
@@ -509,7 +522,7 @@ public class GBrowser implements ComponentListener {
 
 		// Create the chart panel with tooltip support				
 		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
-		this.plot = new GenomePlot(chartPanel, true);
+		this.plot = new GBrowserPlot(chartPanel, true);
 		plot.addDataRegionListener(settings);
 		
 		((GBrowserChartPanel)chartPanel).setGenomePlot(plot);
@@ -806,27 +819,83 @@ public class GBrowser implements ComponentListener {
 		return settings.getParameterPanel();
 	}
 	
+	public AnnotationManager getAnnotationManager() {
+		return annotationManager;
+	}
+	
+	public List<Track> getTracks() {
+		return tracks;
+	}
+	
+	/** 
+	 * Override this method to customize error reporting
+	 */
 	protected void reportException(Exception e) {
 		e.printStackTrace();
 	}
 	
+
+	/**
+	 * Override this method to show custom dialogs
+	 * 
+	 * @param title
+	 * @param message
+	 * @param details
+	 * @param warning true for "warning" level message, false for "info"
+	 * @param dialogShowDetails Show details by default
+	 * @param modal
+	 */
 	protected void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
 		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details + "\t" + modal);
 	}
 	
-	protected void runBlockingTask(String taskName, Runnable runnable) {
+	/** 
+	 * Override this method to lock the gui during heavy tasks
+	 */
+	public void runBlockingTask(String taskName, Runnable runnable) {
 		System.out.println("runBlockingTask not implemented: " + taskName + "\t" +  runnable);
 	}
 
+	/** 
+	 * Override this method to perform any slow initialization of the data files
+	 */
 	protected void initialiseUserDatas() throws IOException {
 		System.out.println("initialiseUserDatas not implemented");
 	}
-
-	public AnnotationManager getAnnotationManager() {
-		return annotationManager;
+	
+	/** 
+	 * Override this method to get the icons. Paths are defined in class GBrowserConstants.
+	 */
+	protected ImageIcon getIcon(String path) {
+		System.out.println("getIcon not implemented");
+		return null;
 	}
 
-	public List<Track> getTracks() {
-		return tracks;
+	/** 
+	 * Override this method to let user decide if s/he want's to download to annotations.
+	 */
+	public void openDownloadAnnotationsDialog(Genome genome) {
+		//Don't ask, just do it
+		try {
+			getAnnotationManager().downloadAnnotations(genome);
+		} catch (IOException e) {
+			reportException(e);
+		}
+	}
+	
+	/**
+	 * Override this method to specify location for remote annotations
+	 */
+	public URL getRemoteAnnotationsUrl() throws Exception {
+		System.out.println("getRemoteAnnotationsUrl not implemented");
+		return null;
+	}
+	
+	/** 
+	 * Override this method to specify location for local annotations
+	 */
+	public File getLocalAnnotationDir() throws IOException {
+		System.out.println("getLocalAnnotationDir not implemented");
+		return null;
 	}
 }

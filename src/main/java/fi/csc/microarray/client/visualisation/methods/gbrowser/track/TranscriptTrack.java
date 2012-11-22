@@ -16,11 +16,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Transcript;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -30,7 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing transcripts. Lower zoom level version of {@link GeneTrack}.
@@ -43,7 +43,7 @@ public class TranscriptTrack extends Track {
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	public enum PartColor {
-		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE);
+		CDS(GBrowserConstants.COLOR_BLUE), UTR(GBrowserConstants.COLOR_ORANGE);
 
 		public Color c;
 

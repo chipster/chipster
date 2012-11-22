@@ -2,7 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 
 import java.awt.Color;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
 
 /**
  * A line that goes from one point to another.

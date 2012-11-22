@@ -20,7 +20,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		super(null);
 	}
 
-	private GenomePlot genomePlot;
+	private GBrowserPlot genomePlot;
 
 	public void paintComponent(Graphics g) {
 
@@ -65,7 +65,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		super.paintComponent(g);
 	}
 
-	public void setGenomePlot(GenomePlot plot) {
+	public void setGenomePlot(GBrowserPlot plot) {
 		genomePlot = plot;		
 	}
 }

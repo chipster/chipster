@@ -15,7 +15,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Header
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.Strings;
 
 public class TsvSorter {
@@ -72,7 +71,7 @@ public class TsvSorter {
 		}
 	}
 
-	private void externalSort(File infile, File outfile) throws IOException, MicroarrayException {
+	private void externalSort(File infile, File outfile) throws IOException, GBrowserException {
 
 		// Start reading
 		BufferedReader initReader = new BufferedReader(new FileReader(infile));
@@ -134,7 +133,7 @@ public class TsvSorter {
 		initReader.close();
 	}
 
-	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles, String headerRow) throws IOException, MicroarrayException {
+	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles, String headerRow) throws IOException, GBrowserException {
 
 		// Initialise
 		ArrayList<BufferedReader> mergefbr = new ArrayList<BufferedReader>();
@@ -213,7 +212,7 @@ public class TsvSorter {
 				someFileStillHasRows = false;
 				if (filerows.get(i) != null) {
 					if (minIndex < 0) {
-						throw new MicroarrayException("Error in sorting: " + "mindex lt 0 and found row not null" + filerows.get(i));
+						throw new GBrowserException("Error in sorting: " + "mindex lt 0 and found row not null" + filerows.get(i));
 					}
 					someFileStillHasRows = true;
 					break;

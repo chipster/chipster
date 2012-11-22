@@ -5,10 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Tracks containing information about reads: sequences themselves, gel,
@@ -32,7 +32,7 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
     @Override
     protected void addReadOverviewTrack() {
         readOverviewSummary = new TabixIntensityTrack(view, summaryDataSource, Color.black, 
-        		GenomeBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
+        		GBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
         tracks.add(readOverviewSummary);
     }
 

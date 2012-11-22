@@ -36,6 +36,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
+import fi.csc.microarray.client.visualisation.methods.ChipsterGBrowserVisualisation;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
 import fi.csc.microarray.client.visualisation.methods.Heatmap;
@@ -48,7 +49,6 @@ import fi.csc.microarray.client.visualisation.methods.Scatterplot;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
 import fi.csc.microarray.client.visualisation.methods.VennDiagram;
 import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChipsterGBrowserVisualisation;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
