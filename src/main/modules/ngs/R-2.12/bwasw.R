@@ -1,10 +1,10 @@
-# TOOL bwasw.R: "BWA-SW for single-end reads" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it allows gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. The alignment results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA against own genomes\".)
+# TOOL bwasw.R: "BWA-SW for single end reads" (BWA aligns reads to genomes and transcriptomes. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. The alignment results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA-SW for single end reads and own genome\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17", ovis_aries_texel.fa: "Sheep (oar3.1\)" ] DEFAULT mm10.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17", ovis_aries_texel.fa: "Sheep (oar3.1\)" ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER OPTIONAL match.score: "Score of a match" TYPE INTEGER DEFAULT 1 (Score of a matching base. Corresponds to the command line parameter -a)
 # PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty. Corresponds to the command line parameter -q)
 # PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty. Corresponds to the command line parameter -r)

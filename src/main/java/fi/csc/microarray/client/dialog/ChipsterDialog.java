@@ -23,7 +23,6 @@ import javax.swing.border.LineBorder;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 /**
  * 
  * TODO State of the details visibility doesn't seem to be updated in the code.
@@ -156,7 +155,7 @@ public class ChipsterDialog extends JDialog {
 		}
 		
         g.gridx++;
-		if (dialogInfo.getType() == Type.OPTION) {
+		if (dialogInfo.getType() == DialogInfo.Type.OPTION) {
 			g.anchor = GridBagConstraints.EAST;
 			JButton cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(new ActionListener() {

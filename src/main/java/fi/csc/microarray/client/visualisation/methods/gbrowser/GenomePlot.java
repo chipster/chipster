@@ -44,6 +44,7 @@ public class GenomePlot extends Plot {
         XS("10", 10),
         SMALL("50", 50),
         MEDIUM("100", 100),
+        MEDIUM2("250", 250),
         LARGE("500", 500),        
         XL("1000", 1000),
         XXL("5000", 5000),

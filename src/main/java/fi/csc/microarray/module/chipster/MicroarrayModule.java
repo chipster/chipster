@@ -100,8 +100,11 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag TABLE_WITH_HASH_HEADER = new TypeTag("table-with-hash-header", "header rows start with #");
 		public static final TypeTag TABLE_WITH_DOUBLE_HASH_HEADER = new TypeTag("table-with-double-hash-header", "header rows start with ##");
 		public static final TypeTag CHROMOSOME_IN_FIRST_TABLE_COLUMN = new TypeTag("chromosome-in-first-table-column", "first column of table is chromosome");
+		public static final TypeTag CHROMOSOME_IN_SECOND_TABLE_COLUMN = new TypeTag("chromosome-in-second-table-column", "second column of table is chromosome");
 		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
+		public static final TypeTag START_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("start-position-in-third-table-column", "third column of table is start position");
 		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("end-position-in-third-table-column", "third column of table is end position");
+		public static final TypeTag END_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("end-position-in-fourth-table-column", "fourth column of table is end position");
 	}
 	
 	public static class VisualisationMethods {
@@ -548,12 +551,14 @@ public class MicroarrayModule implements Module {
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		LinkedList<Boolean> flags = new LinkedList<Boolean>();
 		
-		//flags.add(false); //0
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); //1
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)); //2
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)); //3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)); //0
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN) ||
+				data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN));  //1
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN) ||
+				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)); //2
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
 		
-		for (int i = 3; i < columns.getColumnCount(); i++) {
+		for (int i = 4; i < columns.getColumnCount(); i++) {
 			flags.add(false);
 		}
 		return flags;
@@ -564,16 +569,33 @@ public class MicroarrayModule implements Module {
 		
 		IntegratedEntity entity = new IntegratedEntity();
 		
+		final String CHR_KEY = "chromosome";
+		final String START_KEY = "start";
+		final String END_KEY = "end";
+		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
-			entity.put("chromosome", columns.getStringValue(columns.getColumnNames()[0]));
+			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[0]));
 		}
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
-			entity.put("start", columns.getStringValue(columns.getColumnNames()[1]));
+			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[1]));
 		}
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
-			entity.put("end", columns.getStringValue(columns.getColumnNames()[2]));
+			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[2]));
+		}
+		
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
+			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[1]));
+		}
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)) {
+			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[2]));
+		}
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[3]));
 		}
 
 		return entity;
@@ -586,6 +608,12 @@ public class MicroarrayModule implements Module {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		}
 
+		if (data.isContentTypeCompatitible("text/gtf")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+			
+			data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+		}
+		
 		if (data.isContentTypeCompatitible("text/vcf")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			

@@ -20,7 +20,8 @@ if (has.rownames == "no") {
 }
 
 # Extract the data to a vector
-f <- dat[,grep(column, colnames(dat))]
+#f <- dat[,grep(column, colnames(dat))]
+f <- dat[,colnames(dat) %in% column]
 
 # Filters the data
 if(smaller.or.larger=="equal-to") {

@@ -1,63 +1,84 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Window.Notification;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.ServiceContainer;
+import fi.csc.microarray.manager.web.data.ServiceEntry;
+import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 
 public class ServicesView extends VerticalLayout implements ClickListener, ValueChangeListener {
-	
+
 	private ServicesTable table;
 	private HorizontalLayout toolbarLayout;
-	
- 	private Button refreshButton = new Button("Refresh");
+
+	private Button refreshButton = new Button("Refresh");
 
 	private ServiceContainer dataSource;
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
+
+	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private boolean updateDone;
+	private static final int POLLING_INTERVAL = 100; 
 
 
-	public ServicesView(ChipsterAdminApplication app) {
-		
+	public ServicesView(ChipsterAdminUI app) {
+
 		this.app = app;
-		
+
 		this.addComponent(getToolbar());
+
+		progressIndicator.setWidth(100, Unit.PERCENTAGE);
+		this.addComponent(progressIndicator);
 
 		table = new ServicesTable(this);
 
 		this.addComponent(table);
 		this.setExpandRatio(table, 1);
 		this.setSizeFull();
+
+		try {
+			dataSource = new ServiceContainer();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}		
+		table.setContainerDataSource(dataSource);			
+
+		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
+		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
+		
+		table.setSortContainerPropertyId(ServiceContainer.NAME);
 	}
-	
-	public void loadData() throws InstantiationException, IllegalAccessException {
-		dataSource = new ServiceContainer();
-		table.setContainerDataSource(dataSource);
-		dataSource.update(this);
-	}
-	
+
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
 			toolbarLayout = new HorizontalLayout();
-			
+
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			toolbarLayout.addComponent(refreshButton);
-			
+
 			Label spaceEater = new Label(" ");
 			toolbarLayout.addComponent(spaceEater);
 			toolbarLayout.setExpandRatio(spaceEater, 1);
-			
+
 			toolbarLayout.addComponent(app.getTitle());	
 
 			toolbarLayout.setWidth("100%");
@@ -66,33 +87,111 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 		return toolbarLayout;
 
 	}
-	
+
 	public void buttonClick(ClickEvent event) {
 		final Button source = event.getButton();
-		
+
 		if (source == refreshButton) {
-			dataSource.update(this);
+			update();
 		}
 	}
 
+	public void update() {
+		//Disable during data update avoid concurrent modification
+		refreshButton.setEnabled(false);
+		
+		updateDone = false;
+		dataSource.update(this);
+		
+		progressIndicator.setPollingInterval(POLLING_INTERVAL);
+		
+		ExecutorService execService = Executors.newCachedThreadPool();
+		execService.execute(new Runnable() {
+			public void run() {
+				
+				try {
+					/* Separate delay from what happens in the ServiceContainer, because communication between
+					 * threads is messy. Nevertheless, these delays should have approximately same duration
+					 * to prevent user from starting several background updates causing concurrent modifications.   
+					 */
+					final int DELAY = 300; 				
+					for (int i = 0; i <= DELAY; i++) {
+						
+						if (updateDone) {							
+							break;
+						}
+
+						//First case happens in initialisation, second if another view is chosen during the data update 
+						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
+							
+							//Component has to be locked before modification from background thread
+							progressIndicator.getUI().getSession().getLock().lock();					
+							try {
+								progressIndicator.setValue((float)i/DELAY);
+							} finally {
+								progressIndicator.getUI().getSession().getLock().unlock();
+							}
+						}
+
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							//Just continue
+						}
+					}
+					
+				} finally {
+					refreshButton.setEnabled(true);
+					
+					progressIndicator.getUI().getSession().getLock().lock();					
+					try {
+						progressIndicator.setValue(1.0f);
+						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+					} finally {
+						progressIndicator.getUI().getSession().getLock().unlock();
+					}
+				}
+			}
+		});
+	}
+
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == table) {
 			//Nothing to do yet
 		}
 	}
 
-	public ChipsterAdminApplication getApp() {
+	public ChipsterAdminUI getApp() {
 		return app;
 	}
 
-	public void dataUpdated() {
-		table.setVisibleColumns(ServiceContainer.NATURAL_COL_ORDER);
-		table.setColumnHeaders(ServiceContainer.COL_HEADERS_ENGLISH);
-		
-		getApp().getMainWindow().showNotification(
-				"Found "
-						+ table.getContainerDataSource().size() + " nodes",
-						Notification.TYPE_TRAY_NOTIFICATION);
+	public ServicesTable getTable() {
+		return table;
+	}
+
+	
+	/**
+	 * Calling from background threads allowed
+	 */
+	public void updateDone() {
+			
+		Lock tableLock = table.getUI().getSession().getLock();
+		tableLock.lock();
+		try {
+
+			for (ServiceEntry entry : dataSource.getItemIds()) {
+				if (Status.UNKNOWN.equals(entry.getStatus())) {
+					entry.setStatus(Status.DOWN);
+				}
+			}
+
+			table.markAsDirtyRecursive();						
+
+		} finally {
+			tableLock.unlock();
+		}
+
+		this.updateDone = true;
 	}
 }

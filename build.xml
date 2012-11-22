@@ -12,6 +12,7 @@
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="admin-src" location="src/main/admin" />
+	<property name="admin-web" location="src/main/admin/admin-web" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
@@ -76,7 +77,7 @@
 	    	<fatjar.filesource path="${workflows}" relpath=""/>
 
         	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/log4j-1.2.17.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
@@ -178,8 +179,12 @@
 			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />
 			<src path="${modules-src-ngs}" />
+			<src path="${admin-web}/src" />
 			<classpath>
 				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -197,6 +202,10 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
+			<fileset dir="${admin-web}/">
+				<include name="WebContent/**/*" />
+				<exclude name="WebContent/WEB-INF/lib/*" />
+			</fileset>
 		</jar>
 	</target>
 
@@ -225,6 +234,7 @@
 			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />	
 			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
+			<tarfileset dir="${admin-web}/WebContent/WEB-INF/lib" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
 			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
 			<tarfileset file="${ext-src}/wrapper/chipster" filemode="755" prefix="chipster" />

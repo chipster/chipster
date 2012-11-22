@@ -1,9 +1,14 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.AbstractClientConnector;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -13,7 +18,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.StorageAggregate;
 import fi.csc.microarray.manager.web.data.StorageAggregateContainer;
 import fi.csc.microarray.manager.web.data.StorageEntryContainer;
@@ -32,17 +37,22 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	private StorageEntryContainer entryDataSource;
 	private StorageAggregateContainer aggregateDataSource;
 
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 	private ProgressIndicator diskUsageBar;
 	private HorizontalLayout storagePanels;
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
+	private boolean updateDone;
+	private static final int POLLING_INTERVAL = 100;
 
-
-	public StorageView(ChipsterAdminApplication app) {
+	public StorageView(ChipsterAdminUI app) {
 
 		this.app = app;
 
 		this.addComponent(getToolbar());
-
+		
+		progressIndicator.setWidth(100, Unit.PERCENTAGE);
+		this.addComponent(progressIndicator);
 		
 		entryTable = new StorageEntryTable(this);
 		aggregateTable = new StorageAggregateTable(this);
@@ -63,8 +73,8 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		Panel aggregatePanel = new Panel("Disk usage by user");
 		Panel entryPanel = new Panel("Stored sessions");
 		
-		aggregatePanel.setWidth(300, UNITS_PIXELS);
-		aggregatePanel.setHeight(100, UNITS_PERCENTAGE);
+		aggregatePanel.setWidth(300, Unit.PIXELS);
+		aggregatePanel.setHeight(100, Unit.PERCENTAGE);
 		entryPanel.setSizeFull();
 		
 		aggregatePanel.setContent(aggregatePanelLayout);
@@ -76,34 +86,84 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		storagePanels.addComponent(aggregatePanel);
 		storagePanels.addComponent(entryPanel);
 		
-		//storagePanels.setExpandRatio(aggregatePanel, 1);
 		storagePanels.setExpandRatio(entryPanel, 1);
 		
 		this.setSizeFull();
 		this.addComponent(storagePanels);		
 		this.setExpandRatio(storagePanels, 1);
+		
+		try {
+			entryDataSource = new StorageEntryContainer();
+			aggregateDataSource = new StorageAggregateContainer(entryDataSource);
+			
+			entryTable.setContainerDataSource(entryDataSource);
+			aggregateTable.setContainerDataSource(aggregateDataSource);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}		
 	}
 
-	public void loadData() throws InstantiationException, IllegalAccessException {
-
-		entryDataSource = new StorageEntryContainer();
-		aggregateDataSource = new StorageAggregateContainer(entryDataSource);
-
-		entryTable.setContainerDataSource(entryDataSource);
-		aggregateTable.setContainerDataSource(aggregateDataSource);
-
+	public void update() {
+		
 		entryDataSource.update(this);
 		
-		StorageAggregate totalItem = aggregateDataSource.update(this);
-		aggregateTable.select(totalItem);
+		//Disable during data update avoid concurrent modification
+		refreshButton.setEnabled(false);
 		
-		updateDiskUsageBar();
+		updateDone = false;
 		
-		entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
-		entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
+		progressIndicator.setPollingInterval(POLLING_INTERVAL);
+		
+		ExecutorService execService = Executors.newCachedThreadPool();
+		execService.execute(new Runnable() {
+			public void run() {
+				
+				try {
+					/* Separate delay from what happens in the Container, because communication between
+					 * threads is messy. Nevertheless, these delays should have approximately same duration
+					 * to prevent user from starting several background updates causing concurrent modifications.   
+					 */
+					final int DELAY = 300; 				
+					for (int i = 0; i <= DELAY; i++) {
+						
+						if (updateDone) {							
+							break;
+						}
 
-		aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-		aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+						//First case happens in initialisation, second if another view is chosen during the data update 
+						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
+							
+							//Component has to be locked before modification from background thread
+							progressIndicator.getUI().getSession().getLock().lock();					
+							try {
+								progressIndicator.setValue((float)i/DELAY);
+							} finally {
+								progressIndicator.getUI().getSession().getLock().unlock();
+							}
+						}
+
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							//Just continue
+						}
+					}
+					
+				} finally {
+					refreshButton.setEnabled(true);
+					
+					progressIndicator.getUI().getSession().getLock().lock();					
+					try {
+						progressIndicator.setValue(1.0f);
+						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+					} finally {
+						progressIndicator.getUI().getSession().getLock().unlock();
+					}
+				}
+			}
+		});
 	}
 
 	private void updateDiskUsageBar() {
@@ -122,13 +182,15 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			diskUsageBar.removeStyleName("fail");
 			diskUsageBar.addStyleName("ok");
 		}
+		
+		diskUsageBar.markAsDirty();
 	}
 
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
 			toolbarLayout = new HorizontalLayout();
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			toolbarLayout.addComponent(refreshButton);
 
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
@@ -140,8 +202,9 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			diskUsageBar = new ProgressIndicator(0f);
 			diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION);
 			diskUsageBar.setStyleName("big");
+			diskUsageBar.setPollingInterval(Integer.MAX_VALUE);
 			
-			diskUsageBar.setWidth(300, UNITS_PIXELS);
+			diskUsageBar.setWidth(300, Unit.PIXELS);
 			toolbarLayout.addComponent(diskUsageBar);
 			toolbarLayout.setExpandRatio(diskUsageBar, 1);
 					
@@ -158,14 +221,16 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			entryDataSource.update(this);
-			aggregateDataSource.update(this);
-			updateDiskUsageBar();
+			
+			update();
+//			entryDataSource.update(this);
+//			aggregateDataSource.update(this);
+//			updateDiskUsageBar();
 		}
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == aggregateTable) {
 			updateEntryFilter();
 			StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
@@ -188,7 +253,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		}
 	}
 	
-	public ChipsterAdminApplication getApp() {
+	public ChipsterAdminUI getApp() {
 		return app;
 	}
 
@@ -200,5 +265,51 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		aggregateDataSource.update(this);
 		updateEntryFilter();
 		updateDiskUsageBar();
+	}
+	
+	/**
+	 * Calling from background threads allowed
+	 */
+	public void entryUpdateDone() {
+					
+				
+
+		Lock entryTableLock = entryTable.getUI().getSession().getLock();
+		entryTableLock.lock();
+		try {
+
+			entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
+			entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
+
+		} finally {
+			entryTableLock.unlock();
+		}
+		
+		Lock aggregateTableLock = aggregateTable.getUI().getSession().getLock();
+		aggregateTableLock.lock();
+		try {						
+			StorageAggregate totalItem = aggregateDataSource.update(this);
+			
+			aggregateTable.select(totalItem);
+			aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
+			aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+
+		} finally {
+			aggregateTableLock.unlock();
+		}
+		
+		Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLock();
+		proggressIndicatorLock.lock();
+		try {						
+			updateDiskUsageBar();
+		} finally {
+			proggressIndicatorLock.unlock();
+		}
+
+		this.updateDone = true;
+	}
+
+	public AbstractClientConnector getEntryTable() {
+		return entryTable;
 	}
 }
