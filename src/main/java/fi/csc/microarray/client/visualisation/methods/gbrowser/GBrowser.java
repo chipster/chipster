@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,11 +91,28 @@ public class GBrowser implements ComponentListener {
 			this.isToggleable = toggleable;
 		}
 	}
-	
-	public abstract static class DataFile {
-		public abstract String getName();
-		public abstract InputStream getInputStream() throws IOException;
-		public abstract File getLocalFile() throws IOException;
+		
+	public static class DataFile {
+
+		private File file;
+
+		public DataFile(File data) {
+			this.file = data;
+		}
+
+		public String getName() {
+			return file.getName();
+		}
+
+		public InputStream getInputStream() throws IOException {
+
+			return new FileInputStream(file);
+		}
+
+		public File getLocalFile() throws IOException {
+			//Assume local
+			return file;
+		}
 	}
 	
 	public static class Interpretation {
@@ -846,21 +864,22 @@ public class GBrowser implements ComponentListener {
 	 * @param modal
 	 */
 	protected void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
-		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details + "\t" + modal);
+		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details);
 	}
 	
 	/** 
 	 * Override this method to lock the gui during heavy tasks
 	 */
 	public void runBlockingTask(String taskName, Runnable runnable) {
-		System.out.println("runBlockingTask not implemented: " + taskName + "\t" +  runnable);
+		System.out.println("runBlockingTask: " + taskName);
+		new Thread(runnable).start();
 	}
 
 	/** 
 	 * Override this method to perform any slow initialization of the data files
 	 */
 	protected void initialiseUserDatas() throws IOException {
-		System.out.println("initialiseUserDatas not implemented");
+		//Nothing to do if the files are already local
 	}
 	
 	/** 
@@ -868,7 +887,7 @@ public class GBrowser implements ComponentListener {
 	 */
 	protected ImageIcon getIcon(String path) {
 		System.out.println("getIcon not implemented");
-		return null;
+		return new ImageIcon();
 	}
 
 	/** 
@@ -887,14 +906,18 @@ public class GBrowser implements ComponentListener {
 	 * Override this method to specify location for remote annotations
 	 */
 	public URL getRemoteAnnotationsUrl() throws Exception {
+		//"http://chipster-filebroker.csc.fi:8080/public/annotations/"
 		System.out.println("getRemoteAnnotationsUrl not implemented");
 		return null;
 	}
 	
 	/** 
-	 * Override this method to specify location for local annotations
+	 * Override this method to specify location for local annotations.
+	 * 
+	 * WARNING: FILES IN THIS FOLDER WILL BE DELETED!
 	 */
 	public File getLocalAnnotationDir() throws IOException {
+		//"~/.chipster/annotations/"
 		System.out.println("getLocalAnnotationDir not implemented");
 		return null;
 	}

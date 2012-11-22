@@ -30,11 +30,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackTyp
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
@@ -52,6 +52,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		private DataBean bean;
 		
 		public BeanDataFile(DataBean data) {
+			super(null);
 			this.bean = data;
 		}
 
@@ -77,8 +78,8 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		public List<BeanDataFile> summaryDatas = new LinkedList<BeanDataFile>();
 
-		public DataBeanInterpretation(TrackType type, BeanDataFile primaryData) {
-			super(type, primaryData);
+		public DataBeanInterpretation(TrackType type, BeanDataFile beanDataFile) {
+			super(type, beanDataFile);
 		}
 	}
 	

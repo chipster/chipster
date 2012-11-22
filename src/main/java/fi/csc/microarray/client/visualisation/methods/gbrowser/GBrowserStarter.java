@@ -1,109 +1,103 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.LinkedList;
 
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JSplitPane;
+import javax.swing.WindowConstants;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataFile;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Quick and dirty starter utility for genome browser development and debugging.
  */
 public class GBrowserStarter {
 
-//	private static final File BAM_DATA_FILE;
-//	private static final File BAI_DATA_FILE;
-//	private static final File CYTOBAND_FILE;
-//	private static final File CYTOBAND_REGION_FILE;
-//	private static final File GTF_ANNOTATION_FILE;
-//
-//	private static final String dataPath;
-//	
-//	static {
-//		
-//		dataPath = System.getProperty("user.home") + "/chipster/ohtu/";
-//
-//		BAM_DATA_FILE = new File(dataPath + "ohtu-within-chr.bam");
-//		BAI_DATA_FILE = new File(dataPath + "ohtu-within-chr.bam.bai");
-//		CYTOBAND_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.cytobands.txt");
-//		CYTOBAND_REGION_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.seq_region.txt");
-//		GTF_ANNOTATION_FILE = new File(dataPath + "Homo_sapiens.GRCh37.65.gtf");
-//	}
-//	
-//	private static void checkData() {
-//		File[] files = new File[] { BAM_DATA_FILE, BAI_DATA_FILE, CYTOBAND_FILE, CYTOBAND_REGION_FILE, GTF_ANNOTATION_FILE };
-//		boolean fileNotFoundFail = false;
-//		for (File file : files) {
-//			if (!file.exists()) {
-//				System.err.println("File not found: " + file);
-//				fileNotFoundFail = true;
-//			}
-//		}
-//		if (fileNotFoundFail) {
-//			System.exit(1);
-//		}
-//	}
-//
-//	public static void main(String[] args) throws IOException {
-//
-//		JFrame frame = new JFrame();
-//		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//		getGenomeBrowserPanel();
-//
-//		frame.add(panel);
-//		//frame.add(new JButton("Button"));
-//		frame.setSize(PREVIEW_WIDTH, PREVIEW_HEIGHT);
-//		
-//		frame.setVisible(true);
-//	}
-//	
-//	private static TooltipAugmentedChartPanel panel;
-//	private static GenomePlot plot;
-//	protected static int PREVIEW_WIDTH = 1280;
-//	protected static int PREVIEW_HEIGHT = 768;
-//	
-//	public static TooltipAugmentedChartPanel getGenomeBrowserPanel() throws FileNotFoundException, MalformedURLException {
-//		
-//		checkData();
-//		
-//		boolean horizontal = true;
-//		
-//		panel = new TooltipAugmentedChartPanel();
-//		
-//		plot = new GenomePlot(panel, horizontal);
-//		
-//		TrackFactory.addCytobandTracks(plot, new CytobandDataSource(CYTOBAND_FILE, CYTOBAND_REGION_FILE));
-//		
-//		TrackFactory.addTitleTrack(plot, "Annotations");		
-//		TrackFactory.addGeneTracks(plot, new LineDataSource(GTF_ANNOTATION_FILE));		
-//		TrackFactory.addThickSeparatorTrack(plot);
-//
-//		TrackFactory.addReadTracks(
-//				plot, 
-//				new SAMDataSource(BAM_DATA_FILE, BAI_DATA_FILE),
-//				SAMHandlerThread.class,
-//				null,
-//				"Control"
-//		);
-//		
-//		TrackFactory.addReadTracks(
-//				plot, 
-//				new SAMDataSource(BAM_DATA_FILE, BAI_DATA_FILE),
-//				SAMHandlerThread.class,
-//				null,
-//				"Treatment"
-//		);
-//		
-//		panel.setChart(new JFreeChart(plot));
-//		panel.setPreferredSize(new Dimension(PREVIEW_WIDTH, PREVIEW_HEIGHT));
-//		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-//		
-//		RegionDouble region = new RegionDouble(144151000d, 144154000d, new Chromosome("1"));
-//		
-//		plot.getDataView().setBpRegion(region, false);
-//		
-//		for (View view : plot.getViews()){
-//			panel.addMouseListener(view);
-//			panel.addMouseMotionListener(view);
-//			panel.addMouseWheelListener(view);
-//		}
-//
-//		return panel;
-//	}
+	private static void checkData(File... files) {
+
+		boolean fileNotFoundFail = false;
+		for (File file : files) {
+			if (!file.exists()) {
+				System.err.println("File not found: " + file);
+				fileNotFoundFail = true;
+			}
+		}
+		if (fileNotFoundFail) {
+			System.exit(1);
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		
+		//Get rid of Chipster logging errors
+		DirectoryLayout.initialiseStandaloneClientLayout();
+
+		//Define data
+		
+		String dataPath = System.getProperty("user.home") + "/chipster/ohtu/";
+
+		File BAM_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam");
+		File BAI_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam.bai");
+
+		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
+
+		Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
+		reads.setIndexData(new DataFile(BAI_DATA_FILE));			
+		interpretations.add(reads);
+
+		//			interpretations.add(new BasicInterpretation(TrackType.REGIONS, new BasicDataFile(data)));
+		//			interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
+		//			interpretations.add(new BasicInterpretation(TrackType.VCF, new BasicDataFile(data)));
+
+		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
+
+		//Create gui
+		
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		BasicGBrowser browser = new BasicGBrowser();
+		browser.initialise();
+
+		//Has to be before getVisualisation()
+		JComponent parameterPanel =  browser.getParameterPanel();
+		JComponent component = browser.getVisualisation(interpretations);
+
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component, parameterPanel);
+		split.setDividerLocation(1000);
+		frame.add(split);
+		frame.setSize(1280, 800);
+		frame.setVisible(true);
+	}
+
+	/**
+	 * Configure annotation and icon locations
+	 */
+	private static class BasicGBrowser extends GBrowser {
+
+		protected ImageIcon getIcon(String path) {
+
+			//Chipster packaging specific implementation
+			return new ImageIcon(VisualConstants.class.getResource(path));
+		}
+
+		public URL getRemoteAnnotationsUrl() throws Exception {
+			return new URL("http://chipster-filebroker.csc.fi:8080/public/annotations");
+		}
+
+		public File getLocalAnnotationDir() throws IOException {
+
+			//All files in this folder will be DELETED!
+			return new File(System.getProperty("user.home") + "/.chipster/annotations");
+		}
+	}
 }
