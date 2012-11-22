@@ -212,8 +212,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 			h2WebConsoleServer.start();
 		}
 		
-		// start manager web console
-		startAdmin(configuration);
+		// start admin
+		boolean startAdmin = configuration.getBoolean("manager", "start-admin");
+		if (startAdmin) {
+			startAdmin(configuration);
+		}
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -228,7 +231,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		adminServer.setThreadPool(new QueuedThreadPool());
 		Connector connector = new SelectChannelConnector();
 		connector.setServer(adminServer);
-		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
+		connector.setPort(configuration.getInt("manager", "admin-port"));
 		adminServer.setConnectors(new Connector[]{ connector });
 		
 		Constraint constraint = new Constraint();
@@ -240,9 +243,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		cm.setConstraint(constraint);
 		cm.setPathSpec("/*");
 		
-		HashLoginService loginService = new HashLoginService("Please enter Chipster Admin web username and password");
-		loginService.update(configuration.getString("manager", "manager-web-console-username"), 
-				new Password(configuration.getString("manager", "manager-web-console-password")), 
+		HashLoginService loginService = new HashLoginService("Please enter Chipster Admin username and password");
+		loginService.update(configuration.getString("manager", "admin-username"), 
+				new Password(configuration.getString("manager", "admin-password")), 
 				new String[] {ADMIN_ROLE});
 		
 		ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
