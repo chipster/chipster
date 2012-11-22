@@ -10,12 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -25,6 +21,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Base;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Nucleotide;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
@@ -160,7 +160,7 @@ public class CoverageAndSNPTrack extends Track {
 				int increment = currentBase.getSNPCounts()[nt.ordinal()];
 
 				if (increment > 0) {
-					Color c = GenomeBrowserConstants.charColors[nt.ordinal()];
+					Color c = GBrowserConstants.charColors[nt.ordinal()];
 
 					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, null));
 

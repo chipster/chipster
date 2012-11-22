@@ -14,8 +14,11 @@ import javax.swing.JScrollPane;
 public class GBrowserLegend extends JPanel {
 	
 	private JPanel panel;
+	private GBrowser browser;
 
-	public GBrowserLegend() {
+	public GBrowserLegend(GBrowser browser) {
+		
+		this.browser = browser;
 		
 		panel = new JPanel();
 		panel.setBackground(Color.white);
@@ -28,26 +31,26 @@ public class GBrowserLegend extends JPanel {
 		c.insets = new Insets(7, 7, 7, 7);
 		c.weighty = 0;
 		
-		addIcon(GenomeBrowserConstants.GB_LEGEND_CDS_ICON, "Coding sequence", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_INTRON_ICON, "Intron", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_END_ICON, "Transcript end", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_REPEAT_ICON, "Low complexity region", c);
+		addIcon(GBrowserConstants.GB_LEGEND_CDS_ICON, "Coding sequence", c);
+		addIcon(GBrowserConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
+		addIcon(GBrowserConstants.GB_LEGEND_INTRON_ICON, "Intron", c);
+		addIcon(GBrowserConstants.GB_LEGEND_END_ICON, "Transcript end", c);
+		addIcon(GBrowserConstants.GB_LEGEND_REPEAT_ICON, "Low complexity region", c);
 		
-		addIcon(GenomeBrowserConstants.GB_LEGEND_READ_ICON, "Read", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_MORE_READS_ICON, "More reads to show", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_INSERTION_ICON, "Insertion", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_DELETION_ICON, "Deletion", c);
+		addIcon(GBrowserConstants.GB_LEGEND_READ_ICON, "Read", c);
+		addIcon(GBrowserConstants.GB_LEGEND_MORE_READS_ICON, "More reads to show", c);
+		addIcon(GBrowserConstants.GB_LEGEND_INSERTION_ICON, "Insertion", c);
+		addIcon(GBrowserConstants.GB_LEGEND_DELETION_ICON, "Deletion", c);
 		
-		addIcon(GenomeBrowserConstants.GB_LEGEND_A_ICON, "Adenine", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_C_ICON, "Cytosine", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_G_ICON, "Guanine", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_T_ICON, "Thymine", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_N_ICON, "N", c);
+		addIcon(GBrowserConstants.GB_LEGEND_A_ICON, "Adenine", c);
+		addIcon(GBrowserConstants.GB_LEGEND_C_ICON, "Cytosine", c);
+		addIcon(GBrowserConstants.GB_LEGEND_G_ICON, "Guanine", c);
+		addIcon(GBrowserConstants.GB_LEGEND_T_ICON, "Thymine", c);
+		addIcon(GBrowserConstants.GB_LEGEND_N_ICON, "N", c);
 		
-		addIcon(GenomeBrowserConstants.GB_LEGEND_TOTAL_ICON, "Total coverage", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_FORWARD_ICON, "Forward coverage", c);
-		addIcon(GenomeBrowserConstants.GB_LEGEND_REVERSE_ICON, "Reverse coverage", c);
+		addIcon(GBrowserConstants.GB_LEGEND_TOTAL_ICON, "Total coverage", c);
+		addIcon(GBrowserConstants.GB_LEGEND_FORWARD_ICON, "Forward coverage", c);
+		addIcon(GBrowserConstants.GB_LEGEND_REVERSE_ICON, "Reverse coverage", c);
 		
 		c.fill = GridBagConstraints.VERTICAL;
 		c.weighty = 1.0;
@@ -65,8 +68,10 @@ public class GBrowserLegend extends JPanel {
 		
 	}
 
-	private void addIcon(ImageIcon icon, String text, GridBagConstraints c) {
+	private void addIcon(String path, String text, GridBagConstraints c) {
 
+		ImageIcon icon = browser.getIcon(path);
+		
 		c.gridx = 0;
 		panel.add(new JLabel(icon), c);
 		

@@ -2,15 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.event.MouseEvent;
 
-import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
-
 /**
- * Class that adds tooltip support to {@link NonScalableChartPanel}.
+ * Class that adds tooltip support to {@link GBrowserChartPanel}.
  * 
  * @author Aleksi Kallio
  *
  */
-public class TooltipAugmentedChartPanel extends NonScalableChartPanel {
+public class TooltipAugmentedChartPanel extends GBrowserChartPanel {
 
 	public static interface TooltipRequestProcessor {
 		public String tooltipRequest(MouseEvent mouseEvent);

@@ -2,11 +2,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import java.util.Queue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
-import fi.csc.microarray.gbrowser.index.GeneResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 
 
 public class GtfTabixHandlerThread extends TabixHandlerThread {

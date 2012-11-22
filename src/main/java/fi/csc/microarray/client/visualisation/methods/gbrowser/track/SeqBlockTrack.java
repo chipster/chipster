@@ -13,9 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -25,7 +24,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * The read track, most important of all tracks. Shows actual content of reads using color coding.
@@ -127,11 +127,11 @@ public class SeqBlockTrack extends Track {
 			}
 			
 			// Now we can decide the y coordinate
-			readRect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
-			readRect.height = GenomeBrowserConstants.READ_HEIGHT;
+			readRect.y = getYCoord(layer, GBrowserConstants.READ_HEIGHT);
+			readRect.height = GBrowserConstants.READ_HEIGHT;
 
 			// Check if we are about to go over the edge of the drawing area
-			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) > getHeight();
+			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT) > getHeight();
 
 			// Check if we are over the edge of the drawing area
 			if (readRect.y > getHeight()) {
@@ -208,19 +208,19 @@ public class SeqBlockTrack extends Track {
 							} else {
 								switch (letter) {
 								case 'A':
-									bg = GenomeBrowserConstants.charColors[0];
+									bg = GBrowserConstants.charColors[0];
 									border = bg;
 									break;
 								case 'C':
-									bg = GenomeBrowserConstants.charColors[1];
+									bg = GBrowserConstants.charColors[1];
 									border = bg;
 									break;
 								case 'G':
-									bg = GenomeBrowserConstants.charColors[2];
+									bg = GBrowserConstants.charColors[2];
 									border = bg;
 									break;
 								case 'T':
-									bg = GenomeBrowserConstants.charColors[3];
+									bg = GBrowserConstants.charColors[3];
 									border = bg;
 									break;
 								case 'N':
@@ -240,7 +240,7 @@ public class SeqBlockTrack extends Track {
 							int x1 = Math.round(startX + ((float)refIndex) * increment);
 							int x2 = Math.round(startX + ((float)refIndex + 1f) * increment);
 							int width = Math.max(x2 - x1, 1);
-							drawables.add(new RectDrawable(x1, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, border, cigar.toInfoString()));
+							drawables.add(new RectDrawable(x1, rect.y, width, GBrowserConstants.READ_HEIGHT, bg, border, cigar.toInfoString()));
 
 						}
 					}
@@ -269,7 +269,7 @@ public class SeqBlockTrack extends Track {
 	}
 
 	private int getYCoord(int layer, int height) {
-		return (int) ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS));
+		return (int) ((layer + 1) * (height + GBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
