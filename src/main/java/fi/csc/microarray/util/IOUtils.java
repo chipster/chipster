@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import de.schlichtherle.truezip.zip.ZipFile;
+
 /**
  * 
  * @author Aleksi Kallio
@@ -185,6 +187,17 @@ public class IOUtils {
 		}		
 	}
 
+	public static void closeIfPossible(ZipFile zipFile) {
+		if (zipFile != null) {
+			try {
+				zipFile.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+
+	}
+
 	public static URL createURL(URL url, String postfix) throws MalformedURLException {
 		return new URL(url, url.getFile() + "/" + postfix);
 	}
@@ -234,5 +247,5 @@ public class IOUtils {
 		int ch2 = input2.read();
 		return (ch2 == -1);
 	}
-	
+
 }

@@ -14,6 +14,8 @@ import javax.swing.JSplitPane;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
 	
@@ -28,6 +30,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	private SimpleInternalFrame frameComponent;
 
 	private VisualisationToolBar toolBar;
+
+	private JComponent focusComponent;
 	
 	public enum FrameType { MAIN, SIDE, WINDOW };
 	
@@ -54,7 +58,12 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	
 	public Vector<Component> getFocusComponents(){
 		Vector<Component> order = new Vector<Component>();
-		order.addAll(toolBar.getFocusComponents());		
+
+		if (focusComponent != null) {
+			order.add(focusComponent);
+		}
+		order.addAll(toolBar.getFocusComponents());
+		
 		return order;
 	}
 	
@@ -108,13 +117,15 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			
 			//Special case: the empty  visualisation is so fast, that showing wait 
 			//panel causes only irritating flickering
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() != VisualisationMethod.NONE){
+			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
+						
+			if(method != VisualisationMethod.NONE && method != VisualisationMethods.DATA_DETAILS){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
 			
 			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() == VisualisationMethod.NONE){
+			if(method == VisualisationMethod.NONE){
 				if (toolBar.isMaximised) {
 					toolBar.maximiseOrRestoreVisualisation();
 				}
@@ -157,6 +168,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 		case MAIN:
 			mainFrame.showVisualisationComponent(visualisation);
 			updateInternalContent();
+			this.focusComponent = visualisation;
+			((SwingClientApplication)Session.getSession().getApplication()).updateFocusTraversal();
 			break;
 		case SIDE:
 			twinView = true;

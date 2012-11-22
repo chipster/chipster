@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -51,13 +52,6 @@ public interface Module {
 	 */
 	public void plugContentTypes(DataManager manager);
 	
-	/**
-	 * Plugs type tags of this module to given data manager.
-	 * 
-	 * @param manager data manager to plug into
-	 */
-	public void plugTypeTags(DataManager manager);
-
 	/**
 	 * Returns the name of the server module associated to this 
 	 * this client side module, or null if not available.
@@ -153,6 +147,14 @@ public interface Module {
 	 */
 	public String getShortDataName(String categoryName);
 
+	/**
+	 * Should workflow engine check for the number of results? If the module contains tools
+	 * that produce variable amounts of results, then number of results should not be checked.
+	 * 
+	 * @return should workflow engine check for the number of results?
+	 */
+	public boolean countOperationResults();
+	
 	public boolean notesVisibleAtStartup();
 
 	/**
@@ -189,7 +191,8 @@ public interface Module {
 	/**
 	 * Flags spreadsheet columns that support linking by this module.
 	 *  
-	 * @param data 
+	 * @param columns spreadsheet columns
+	 * @param data DataBean TagTypes are used for finding the right columns
 	 * 
 	 * @return Boolean list with the same size as columnNames
 	 * @throws MicroarrayException 
@@ -211,5 +214,22 @@ public interface Module {
 	 * Converts server module name into GUI friendly name.
 	 */
 	public String getModuleLongName(String moduleName);
+
+	/**
+	 * Looks into data bean, possibly reading a little bit of content data, and adds type tags appropriate for the module.
+	 * 
+	 * @param data data bean to add type tags to
+	 * @throws MicroarrayException 
+	 * @throws IOException 
+	 */
+	public void addTypeTags(DataBean data) throws MicroarrayException, IOException;
+
+	
+	/**
+	 * Returns icon for given data, depending on it's type and possibly content.
+	 * 
+	 * @return icon
+	 */
+	public Icon getIconFor(DataBean data);
 	
 }

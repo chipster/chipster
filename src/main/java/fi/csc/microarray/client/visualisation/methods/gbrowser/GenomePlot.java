@@ -3,6 +3,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
