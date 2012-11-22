@@ -38,10 +38,12 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
- * with Chipster visualization system. 
+ * with Chipster visualization system. See class GBroserStarter for how to start genome browser 
+ * outside Chipster. 
  * 
  * @author Petri Klemelä, Aleksi Kallio
  * @see GBrowserPlot
+ * @see GBrowserStarter
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
 	
