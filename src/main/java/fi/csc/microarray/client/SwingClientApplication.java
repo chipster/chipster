@@ -3,7 +3,6 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -26,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -86,6 +84,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
+import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -171,7 +170,6 @@ public class SwingClientApplication extends ClientApplication {
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
 
 	private JFileChooser importExportFileChooser;
-	private JFileChooser sessionFileChooser;
 	private JFileChooser workflowFileChooser;
 
 	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
@@ -1549,20 +1547,67 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSessionFileChooser(JComponent accessory) {
-		if (sessionFileChooser == null) {
-			sessionFileChooser = ImportUtils.getFixedFileChooser();
+	private JFileChooser getSessionManagementFileChooser() throws RuntimeException {
 
-			String[] extensions = { UserSession.SESSION_FILE_EXTENSION };
-			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", extensions));
-			sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
-			sessionFileChooser.setAcceptAllFileFilterUsed(false);
-			sessionFileChooser.setMultiSelectionEnabled(false);
+		JFileChooser sessionFileChooser = null;
 
+		try {
+			// fetch current sessions to show in the dialog and create it
+			sessionFileChooser = populateFileChooserFromServer();
+			sessionFileChooser.setApproveButtonText("Remove");
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		sessionFileChooser.setAccessory(accessory);
 
+		// hide buttons that we don't need
+		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		return sessionFileChooser;
+	}
+
+	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
+		JFileChooser sessionFileChooser;
+		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
+		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
+		sessionFileChooser.putClientProperty("sessions", sessions);
+		sessionFileChooser.setMultiSelectionEnabled(false);
 		fixFileChooserFontSize(sessionFileChooser);
+		return sessionFileChooser;
+	}
+
+	private JFileChooser getSessionFileChooser(JComponent accessory, boolean remote, boolean preselectFile) throws RuntimeException {
+		
+		
+		JFileChooser sessionFileChooser = null;
+		
+		if (remote) {
+			try {
+				sessionFileChooser = populateFileChooserFromServer();
+				if (preselectFile) {
+					sessionFileChooser.setSelectedFile(new File("server-session." + UserSession.SESSION_FILE_EXTENSION));
+				}
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+			ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		} else {
+			// create local dialog
+			sessionFileChooser = ImportUtils.getFixedFileChooser();
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", new String[] { UserSession.SESSION_FILE_EXTENSION }));
+			sessionFileChooser.setAcceptAllFileFilterUsed(false);
+			sessionFileChooser.setAccessory(accessory);
+			sessionFileChooser.setMultiSelectionEnabled(false);
+			fixFileChooserFontSize(sessionFileChooser);
+			if (preselectFile) {
+				sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
+			}
+		}
+
 
 		return sessionFileChooser;
 	}
@@ -1686,7 +1731,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, true, true);
+		loadSessionImpl(file, null, true, true);
 	}
 
 	@Override
@@ -1698,7 +1743,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile, false, false);
+					loadSessionImpl(tempFile, null, false, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1709,51 +1754,71 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	@Override
-	public void loadSession() {
+	public void loadSession(boolean remote) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
-		final JFileChooser fileChooser = getSessionFileChooser(accessory);
+		final JFileChooser fileChooser = getSessionFileChooser(accessory, remote, false);
+
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-		
+
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
-			File sessionFile = fileChooser.getSelectedFile();
-			
-			// check that file exists
-			if (!sessionFile.exists()) {
-				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' not found.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				return;
+			File selectedFile = fileChooser.getSelectedFile();
+			File sessionFile = null;
+			URL sessionURL = null;
+
+			if (remote) {
+				try {
+					sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+					if (sessionURL == null) {
+						throw new RuntimeException();
+					}
+					
+				} catch (Exception e) {
+					throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+				}
+
+			} else {
+				// check that file exists
+				if (!selectedFile.exists()) {
+					DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + selectedFile.getName() + "' not found.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+					return;
+				}
+
+				// check that the file is a session file
+				if (!UserSession.isValidSessionFile(selectedFile)) {
+					DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + selectedFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+					return;
+				}
+				
+				sessionFile = selectedFile;
 			}
-			
-			// check that the file is a session file
-			if (!UserSession.isValidSessionFile(sessionFile)) {
-				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				return;
-			}
-			
+
 			// clear previous session 
 			if (accessory.clearSession()) {
 				if (!clearSession()) {
 					return; // loading cancelled
 				}
-			}								
+			}		
 
 			// load the new session
-			boolean isDataless = fileChooser.getSelectedFile().getName().startsWith("remote") ? true : false; // FIXME remove remote session sniffing HACK
-			loadSessionImpl(fileChooser.getSelectedFile(), isDataless, false);		
+			loadSessionImpl(sessionFile, sessionURL, remote, false);		
+
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final boolean isDataless, final boolean clearDeadTempDirs) {
+	private void loadSessionImpl(final File sessionFile, final URL sessionURL, final boolean isDataless, final boolean clearDeadTempDirs) {
 		
 		// check that it's a valid session file 
-		if (!UserSession.isValidSessionFile(sessionFile)) {
-			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
-			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-			return;
+		if (!isDataless) {
+			if (!UserSession.isValidSessionFile(sessionFile)) {
+				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
+				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				return;
+			}
 		}
 		
 		// start loading the session
@@ -1767,7 +1832,11 @@ public class SwingClientApplication extends ClientApplication {
 				boolean somethingToSave = manager.databeans().size() != 0;
 
 				try {
-					manager.loadSession(sessionFile, isDataless);
+					if (sessionFile != null) {
+						manager.loadSession(sessionFile, isDataless);
+					} else {
+						manager.loadStorageSession(sessionURL);
+					}
 					
 				} catch (Exception e) {
 					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
@@ -1803,30 +1872,19 @@ public class SwingClientApplication extends ClientApplication {
 			throw new IllegalArgumentException("internal error, not supported: " + savingMethod);
 		}
 
-		// create right kind of filechooser dialog
+		// create filechooser dialog
 		JFileChooser fileChooser;
-		if (remote) {
-			try {
-				String prefix = "http://chipster-filebroker.csc.fi/";
-				URL[] repoDescription = new URL[] {
-						new URL(prefix + "Remote sessions/"),
-				};
-
-				ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
-				fileChooser = new JFileChooser(view.getRoot(), view);
-				
-				// hide buttons that we don't need (stupid graphical buttons does not seem to have anything better than tooltip for identification)
-				hideChildButtonsWithTooltip(fileChooser, "Up One Level");
-				hideChildButtonsWithTooltip(fileChooser, "Remote sessions");
-				hideChildButtonsWithTooltip(fileChooser, "Create New Folder");
-				hideChildButtonsWithTooltip(fileChooser, "List");
-				hideChildButtonsWithTooltip(fileChooser, "Details");
-				
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+		try {
+			fileChooser = getSessionFileChooser(null,  remote, true);
+			
+		} catch (RuntimeException e) {
+			if (remote) {
+				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				return;
+			} else {
+				throw e;
 			}
-		} else {
-			fileChooser = getSessionFileChooser(null);
 		}
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
 
@@ -1839,10 +1897,17 @@ public class SwingClientApplication extends ClientApplication {
 				if (remote) {
 					// use filename as it is (remote sessions use more human readable names)
 					file = fileChooser.getSelectedFile();
-					exists = false; // FIXME
+					exists = false;
 					
-				}else {
+					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+					for (int i = 0; i < sessions[0].length; i++) {
+						if (file.getName().equals(sessions[0][i])) {
+							exists = true;
+							break;
+						}
+					}
 					
+				} else {
 					// add extension if needed
 					file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
 					exists = file.exists();
@@ -1904,18 +1969,6 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		}
 		menuBar.updateMenuStatus();
-	}
-
-	private void hideChildButtonsWithTooltip(Container parent, String tooltip) {
-		
-		for (Component component : parent.getComponents()) {
-			if (component instanceof AbstractButton && tooltip.equals(((AbstractButton)component).getToolTipText())) {
-				component.setVisible(false); // hide this
-			} else if (component instanceof Container ){
-				hideChildButtonsWithTooltip((Container)component, tooltip);
-			}
-		}
-		
 	}
 
 	/**
@@ -1982,5 +2035,49 @@ public class SwingClientApplication extends ClientApplication {
 				VisualisationMethods.DATA_DETAILS, Arrays.asList(new Variable[] {renameVariable}), 
 				getSelectionManager().getSelectedDataBeans(), 
 				FrameType.MAIN); 
+	}
+
+	@Override
+	public void manageRemoteSessions() {
+		
+		final JFileChooser fileChooser = getSessionManagementFileChooser();
+		int ret = fileChooser.showOpenDialog(this.getMainFrame());
+
+		// user has selected a file
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			URL sessionURL = null;
+
+			try {
+				sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+				if (sessionURL == null) {
+					throw new RuntimeException();
+				}
+
+				// remote the selected session
+				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionURL);		
+
+				// confirm to user
+				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+
+			} catch (JMSException e) {
+				reportException(e);
+
+			} catch (Exception e) {
+				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+			}
+		}
+	}
+
+	private URL findMatchingSessionURL(final JFileChooser fileChooser, File selectedFile, URL sessionURL) throws MalformedURLException {
+		String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+		for (int i = 0; i < sessions[0].length; i++) {
+			if (selectedFile.getName().equals(sessions[0][i])) {
+				sessionURL = new URL(sessions[1][i]);
+				break;
+			}
+		}
+		return sessionURL;
 	}
 }

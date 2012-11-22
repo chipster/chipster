@@ -1015,7 +1015,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadSession() {
+		public void loadSession(boolean remote) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1141,6 +1141,11 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+
+		@Override
+		public void manageRemoteSessions() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 	}

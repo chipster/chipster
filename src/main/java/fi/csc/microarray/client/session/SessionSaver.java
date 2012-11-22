@@ -211,8 +211,6 @@ public class SessionSaver {
 		} finally {
 			IOUtils.closeIfPossible(out);
 			IOUtils.disconnectIfPossible(conn);
-			System.out.println(conn.getResponseCode());
-			System.out.println(conn.getResponseMessage());
 		}
 		
 	}

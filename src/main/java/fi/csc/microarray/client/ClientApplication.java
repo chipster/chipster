@@ -122,10 +122,11 @@ public abstract class ClientApplication {
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
 	public abstract File saveWorkflow();
 	public abstract File openWorkflow();
-	public abstract void loadSession();
+	public abstract void loadSession(boolean remote);
 	public abstract void loadSessionFrom(URL url);
 	public abstract void restoreSessionFrom(File file);
 	public abstract void saveSession(final boolean quit, final SessionSavingMethod savingMethod);
+	public abstract void manageRemoteSessions();
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)

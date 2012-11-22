@@ -565,6 +565,17 @@ public class DataManager {
 		sessionLoader.loadSession();
 	}
 
+	
+	/**
+	 * Load remote session from an URL.
+	 * 
+	 * @see #saveStorageSession(String) 
+	 */
+	public void loadStorageSession(URL sessionURL) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionURL, this);
+		sessionLoader.loadSession();
+	}
+
 	/**
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.

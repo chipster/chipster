@@ -36,7 +36,7 @@ public class DerbyMetadataServer {
 			"file_uuid VARCHAR(200) CONSTRAINT file_foreign_key REFERENCES " + FILE_DBTABLE + ")"
 	};
 
-	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT * FROM " + SESSION_DBTABLE + " WHERE username = ?";
+	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, uuid FROM " + SESSION_DBTABLE + " WHERE username = ?";
 	private static String SQL_INSERT_SESSION  = "INSERT INTO " + SESSION_DBTABLE + " (name, username, uuid) VALUES (?, ?, ?)";
 	private static String SQL_DELETE_SESSION  = "DELETE FROM " + SESSION_DBTABLE + " WHERE uuid = ?";
 	
@@ -78,16 +78,20 @@ public class DerbyMetadataServer {
 		System.out.println("Initialised database schema with " + tableCount + " tables");
 	}
 
-	public List<String> listSessionsInDatabase(String username) throws SQLException {
+	@SuppressWarnings("unchecked")
+	public List<String>[] listSessionsInDatabase(String username) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_USERNAME);
+		ps.setString(1, username);
 		ResultSet rs = ps.executeQuery();
-		LinkedList<String> sessions = new LinkedList<String>();
+		LinkedList<String> names = new LinkedList<String>();
+		LinkedList<String> uuids = new LinkedList<String>();
 		
 		while (rs.next()) {
-			sessions.add(rs.getString("name"));
+			names.add(rs.getString("name"));
+			uuids.add(rs.getString("uuid"));
 		}
 		
-		return sessions;
+		return new List[] { names, uuids };
 	}
 
 	public void addSessionToDatabase(String username, String name, String uuid) throws SQLException {

@@ -9,14 +9,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
@@ -25,7 +22,6 @@ import fi.csc.microarray.client.ClientApplication.SessionSavingMethod;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
-import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -50,7 +46,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu fileMenu = null;
 	private JMenu importMenu = null;
 	private JMenu importRemoteMenu = null;
-	private JMenuItem importFromRemoteServerMenuItem;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromRemoteURLMenuItem = null;
@@ -76,6 +71,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem saveSessionMenuItem;
 	private JMenu recentWorkflowMenu;
 	private JMenuItem loadSessionMenuItem;
+	private JMenuItem loadLocalSessionMenuItem;
 	private JMenuItem taskListMenuItem;
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
@@ -156,8 +152,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
 			fileMenu.add(getManageSessionsMenuItem());
-			fileMenu.add(getArchiveSessionMenuItem());
-			
+			fileMenu.addSeparator();
+			fileMenu.add(getLoadLocalSessionMenuItem());
+			fileMenu.add(getSaveLocalSessionMenuItem());
+			fileMenu.addSeparator();
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -187,7 +185,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importRemoteMenu.setText("Import remote data from");
 			
 			importRemoteMenu.add(getImportFromRemoteURLMenuItem());
-			importRemoteMenu.add(getImportFromRemoteServerMenuItem());
 		}
 		return importRemoteMenu;
 	}
@@ -242,43 +239,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromRemoteURLMenuItem;
-	}
-
-	private JMenuItem getImportFromRemoteServerMenuItem() {
-		if (importFromRemoteServerMenuItem == null) {
-			importFromRemoteServerMenuItem = new JMenuItem();
-			importFromRemoteServerMenuItem.setText("Server...");
-			importFromRemoteServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						String prefix = "http://chipster-filebroker.csc.fi/repos/";
-						URL[] repoDescription = new URL[] {
-								new URL(prefix + "Institute repository/"),
-								new URL(prefix + "Institute repository/username/"),
-								new URL(prefix + "Institute repository/username/sample.bam"),
-								new URL(prefix + "Institute repository/username/treatment.bam")
-						};
-						
-						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
-						JFileChooser fc = new JFileChooser(view.getRoot(), view);
-						fc.setMultiSelectionEnabled(true);
-						int returnVal = fc.showDialog(null, "Open");
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File[] files = fc.getSelectedFiles();
-							
-							for (File file : files) {
-								System.out.println("Selected " + file + " (" + file.toURL() + ")");
-							}
-						}
-
-						
-					} catch (Exception me) {
-						application.reportException(me);
-					}
-				}
-			});
-		}
-		return importFromRemoteServerMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {
@@ -740,7 +700,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fontSizeMenu = new JMenu();
 			fontSizeMenu.setText("Text size");
 
-			// FIXME L&F Theme is lost when the font is changed
+			// TODO fix: L&F Theme is lost when the font is changed
 			// fontSizeMenu.setEnabled(false);
 
 			JMenuItem norm = new JMenuItem("Normal");
@@ -795,12 +755,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem() {
 		if (loadSessionMenuItem == null) {
 			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open session...");
+			loadSessionMenuItem.setText("Open server session...");
 			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSession();
+						application.loadSession(true);
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -811,10 +771,28 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return loadSessionMenuItem;
 	}
 
+	private JMenuItem getLoadLocalSessionMenuItem() {
+		if (loadLocalSessionMenuItem == null) {
+			loadLocalSessionMenuItem = new JMenuItem();
+			loadLocalSessionMenuItem.setText("Open local session...");
+			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.loadSession(false);
+
+					} catch (Exception ioe) {
+						application.reportException(ioe);
+					}
+				}
+			});
+		}
+		return loadLocalSessionMenuItem;
+	}
+
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save session to server...");
+			saveSessionMenuItem.setText("Save server session...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -828,41 +806,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Manage sessions...");
+			manageSessionsMenuItem.setText("Server sessions...");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						String prefix = "http://chipster-filebroker.csc.fi/";
-						URL[] repoDescription = new URL[] {
-								new URL(prefix + "Remote sessions/"),
-						};
-						
-						ServerFileSystemView view = ServerFileSystemView.parseFromPaths(repoDescription);
-						JFileChooser fc = new JFileChooser(view.getRoot(), view);
-						fc.setApproveButtonText("Remove");
-						fc.setMultiSelectionEnabled(true);
-						System.out.println(Arrays.toString(((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()));
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[0].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[1].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[2].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[4].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[5].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[6].setVisible(false);
-						((JPanel)((JPanel)fc.getComponents()[0]).getComponents()[0]).getComponents()[7].setVisible(false);
-//						components[3].setVisible(false);
-						int returnVal = fc.showDialog(null, "Remove");
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							File[] files = fc.getSelectedFiles();
-							
-							for (File file : files) {
-								System.out.println("Selected " + file + " (" + file.toURL() + ")");
-							}
-						}
-
-						
-					} catch (Exception me) {
-						application.reportException(me);
-					}
+					application.manageRemoteSessions();
 				}
 			});
 		}
@@ -870,10 +817,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 
-	private JMenuItem getArchiveSessionMenuItem() {
+	private JMenuItem getSaveLocalSessionMenuItem() {
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
-			archiveSessionMenuItem.setText("Save session locally...");
+			archiveSessionMenuItem.setText("Save local session...");
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);

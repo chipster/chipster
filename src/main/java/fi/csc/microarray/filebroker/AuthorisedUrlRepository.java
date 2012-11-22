@@ -66,9 +66,9 @@ public class AuthorisedUrlRepository {
 			do {
 				String filename = CryptoKey.generateRandom();
 				if (area == FileBrokerArea.STORAGE) {
-					newUrl = new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
+					newUrl = constructStorageURL(filename, compressionSuffix);
 				} else {
-					newUrl = new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
+					newUrl = constructCacheURL(filename, compressionSuffix);
 				}
 				
 			} while (repository.containsKey(newUrl));
@@ -83,6 +83,14 @@ public class AuthorisedUrlRepository {
 		return newUrl;
 	}
 	
+	public URL constructStorageURL(String filename, String compressionSuffix) throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
+	}
+
+	public URL constructCacheURL(String filename, String compressionSuffix) throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
+	}
+
 	/**
 	 * Checks if repository contains valid (not outdated) copy of the URL. 
 	 */
