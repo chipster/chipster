@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -49,7 +48,7 @@ import fi.csc.microarray.client.visualisation.methods.Scatterplot;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
 import fi.csc.microarray.client.visualisation.methods.VennDiagram;
 import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserVisualisation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChipsterGBrowserVisualisation;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -69,6 +68,7 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
@@ -110,7 +110,7 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
 		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
-		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowserVisualisation.class, VisualConstants.SCATTER_MENUICON, 1, -1, "genomeBrowser.html");
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", ChipsterGBrowserVisualisation.class, VisualConstants.SCATTER_MENUICON, 1, -1, "genomeBrowser.html");
 		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 1, -1);
 		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "visualisation-phenodata.html");
 	}

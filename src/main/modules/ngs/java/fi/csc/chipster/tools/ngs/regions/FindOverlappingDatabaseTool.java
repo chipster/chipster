@@ -10,10 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.java.JavaAnalysisHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.util.IOUtils;
 

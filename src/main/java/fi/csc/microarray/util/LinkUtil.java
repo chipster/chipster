@@ -1,4 +1,4 @@
-package fi.csc.microarray.client;
+package fi.csc.microarray.util;
 
 import java.awt.Color;
 import java.awt.FlowLayout;

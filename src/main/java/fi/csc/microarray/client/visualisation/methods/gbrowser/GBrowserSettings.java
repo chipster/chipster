@@ -1,23 +1,18 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -25,7 +20,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,34 +27,36 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
 
-import fi.csc.chipster.tools.gbrowser.SamBamUtils;
-import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
-import fi.csc.microarray.client.LinkUtil;
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.Interpretation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.Track;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.TrackType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
-import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.LinkUtil;
 
-public class GenomeBrowserSettings implements ActionListener {
+/**
+ * Genome browser settings GUI. The side panel for genome browser to change the settings of the visualisation.
+ * 
+ * @author klemela
+ */
+public class GBrowserSettings implements ActionListener, RegionListener {
 	
 	private static final String COVERAGE_NONE = "none";
 	private static final String COVERAGE_TOTAL = "total";
 	private static final String COVERAGE_STRAND = "strand-specific";
+	
+	private static final long DEFAULT_VIEWSIZE = 100000;
+	private static final long DEFAULT_LOCATION = 1000000;
+	
+	private Long lastViewsize;
+	private boolean initialised;
 	
 	private JPanel paramPanel;
 	private JPanel settingsPanel = new JPanel();
@@ -97,9 +93,12 @@ public class GenomeBrowserSettings implements ActionListener {
 
 	private JXHyperlink ensemblLink;
 	private JXHyperlink ucscLink;
-	private GenomeBrowser browser;
+	private GBrowser browser;
+	private Long lastLocation;
 
-	public void initialise() throws Exception {
+	public void initialise(GBrowser browser) throws Exception {
+		
+		this.browser = browser;
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight SNPs", true), "highlightSNP");
@@ -110,16 +109,9 @@ public class GenomeBrowserSettings implements ActionListener {
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
 		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
 		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
-		
-		//FIXME check if works, was in getVisualisation
-		fillChromosomeBox();
-		
-		//FIXME check if works, was in updateTracks
-		updateVisibilityForTracks();
 	}
 	
-	@Override
-	public JPanel getParameterPanel() {
+	protected JPanel getParameterPanel() {
 
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
@@ -153,7 +145,7 @@ public class GenomeBrowserSettings implements ActionListener {
 	private JPanel getDatasetsPanel() {
 		if (datasetsPanel == null) { 
 			datasetsPanel = new JPanel(new GridBagLayout());
-			datasetsPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Datasets"));
+			datasetsPanel.setBorder(createSettingsPanelSubPanelBorder("Datasets"));
 
 			GridBagConstraints dc = new GridBagConstraints();
 			dc.gridy = 0;
@@ -175,7 +167,7 @@ public class GenomeBrowserSettings implements ActionListener {
 	public JPanel getOptionsPanel() {
 		if (this.optionsPanel == null) {
 			optionsPanel = new JPanel(new GridBagLayout());
-			optionsPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Options"));
+			optionsPanel.setBorder(createSettingsPanelSubPanelBorder("Options"));
 
 			GridBagConstraints oc = new GridBagConstraints();
 			oc.gridy = 0;
@@ -247,7 +239,7 @@ public class GenomeBrowserSettings implements ActionListener {
 	private JPanel getExternalLinkPanel() {
 		if (linksPanel == null) { 
 			linksPanel = new JPanel(new GridBagLayout());
-			linksPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("External links"));
+			linksPanel.setBorder(createSettingsPanelSubPanelBorder("External links"));
 
 			ensemblLink = LinkUtil.createLink("Ensembl", new AbstractAction() {
 				@Override
@@ -313,10 +305,8 @@ public class GenomeBrowserSettings implements ActionListener {
 
 	private void setExternalLinksEnabled() {
 
-		boolean hasLocation = plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null;
-
-		ensemblLink.setEnabled(hasLocation && browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
-		ucscLink.setEnabled(hasLocation && browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
+		ensemblLink.setEnabled(browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL).length() > 0);
+		ucscLink.setEnabled(browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL).length() > 0);
 	}
 
 	public JPanel createSettingsPanel() {
@@ -363,7 +353,7 @@ public class GenomeBrowserSettings implements ActionListener {
 	private JPanel getGenomePanel() {
 		if (this.genomePanel == null) {
 			this.genomePanel = new JPanel(new GridBagLayout());
-			genomePanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Genome"));
+			genomePanel.setBorder(createSettingsPanelSubPanelBorder("Genome"));
 
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridy = 0;
@@ -376,7 +366,7 @@ public class GenomeBrowserSettings implements ActionListener {
 			c.gridx = 0;
 
 			// genome
-			Collection<Genome> genomes = annotationManager.getGenomes();
+			Collection<Genome> genomes = browser.getAnnotationManager().getGenomes();
 			for (Genome genome : genomes) {
 				genomeBox.addItem(genome);
 			}
@@ -395,7 +385,7 @@ public class GenomeBrowserSettings implements ActionListener {
 		if (this.locationPanel == null) {
 
 			locationPanel = new JPanel(new GridBagLayout());
-			locationPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Location"));
+			locationPanel.setBorder(createSettingsPanelSubPanelBorder("Location"));
 
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridy = 0;
@@ -453,8 +443,6 @@ public class GenomeBrowserSettings implements ActionListener {
 
 		LinkedList<Chromosome> chromosomes = browser.getChromosomeNames();
 		
-		Collections.sort(chromosomes);
-
 		// Fill in the box
 		for (Chromosome chromosome : chromosomes) {
 			chrBox.addItem(chromosome);
@@ -466,12 +454,12 @@ public class GenomeBrowserSettings implements ActionListener {
 
 		datasetSwitchesPanel.removeAll();
 
-		for (Track track : tracks) {
+		for (Track track : browser.getTracks()) {
 			JCheckBox box = new JCheckBox(track.name, true);
 			box.setToolTipText(track.name);
 			box.setEnabled(false);
 			track.checkBox = box;
-			if (track.interpretation.type.isToggleable) {
+			if (track.interpretation.getType().isToggleable) {
 				datasetSwitchesPanel.add(box);
 				datasetSwitches.add(box);
 				box.addActionListener(this);
@@ -492,12 +480,12 @@ public class GenomeBrowserSettings implements ActionListener {
 			this.genomeBox.setEnabled(false);
 			if (!initialised) {
 
-				application.runBlockingTask("initialising genome browser", new Runnable() {
+				browser.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
 					public void run() {
 						try {
 							// Preload datas in background thread
-							initialiseUserDatas();
+							browser.initialiseUserDatas();
 
 							// Update UI in Event Dispatch Thread
 							SwingUtilities.invokeAndWait(new Runnable() {
@@ -505,9 +493,9 @@ public class GenomeBrowserSettings implements ActionListener {
 								public void run() {
 									try {
 										// Show visualisation
-										showVisualisation();
+										browser.showVisualisation();
 									} catch (Exception e) {
-										application.reportException(e);
+										browser.reportException(e);
 									}
 								}
 							});
@@ -520,13 +508,13 @@ public class GenomeBrowserSettings implements ActionListener {
 								public void run() {
 
 									try {
-										updateLocation();
+										processLocationPanelInput();
 										setExternalLinksEnabled();
 
 										initialised = true;
 
 									} catch (Exception e) {
-										application.reportException(e);
+										browser.reportException(e);
 									}
 								}
 							});
@@ -540,7 +528,7 @@ public class GenomeBrowserSettings implements ActionListener {
 			} else {
 
 				// Move to correct location
-				updateLocation();
+				processLocationPanelInput();
 
 				this.setExternalLinksEnabled();
 			}
@@ -548,13 +536,13 @@ public class GenomeBrowserSettings implements ActionListener {
 		} else if (datasetSwitches.contains(source) && this.initialised) {
 
 			showFullHeightBox.setSelected(false);
-			setFullHeight(false);
+			browser.setFullHeight(false);
 
-			updateTracks();
+			browser.updateTracks();
 
 		} else if (source == coverageScaleBox && this.initialised) {
 
-			updateCoverageScale();
+			browser.updateCoverageScale();
 
 		} else if ((trackSwitches.keySet().contains(source) || source == coverageTypeBox) && this.initialised) {
 			updateVisibilityForTracks();
@@ -566,8 +554,8 @@ public class GenomeBrowserSettings implements ActionListener {
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 
 			// dialog for downloading annotations if not already local
-			if (!annotationManager.hasLocalAnnotations(genome)) {
-				annotationManager.openDownloadAnnotationsDialog(genome);
+			if (!browser.getAnnotationManager().hasLocalAnnotations(genome)) {
+				browser.getAnnotationManager().openDownloadAnnotationsDialog(genome);
 			}
 
 			// enable other settings
@@ -580,7 +568,7 @@ public class GenomeBrowserSettings implements ActionListener {
 			this.viewsizeField.setEnabled(true);
 			this.showFullHeightBox.setEnabled(true);
 
-			for (Track track : tracks) {
+			for (Track track : browser.getTracks()) {
 				track.checkBox.setEnabled(true);
 			}
 
@@ -594,7 +582,7 @@ public class GenomeBrowserSettings implements ActionListener {
 
 		} else if (source == showFullHeightBox && this.initialised) {
 
-			setFullHeight(showFullHeightBox.isSelected());
+			browser.setFullHeight(showFullHeightBox.isSelected());
 		}
 	}
 	
@@ -603,7 +591,7 @@ public class GenomeBrowserSettings implements ActionListener {
 			trackSwitch.setEnabled(enabled);
 			
 			if (enabled && "RepeatMaskerTrack".equals(trackSwitches.get(trackSwitch))) {
-				trackSwitch.setEnabled(getAnnotationUrl(getGenome(), AnnotationType.REPEAT) != null);
+				trackSwitch.setEnabled(browser.getAnnotationUrl(getGenome(), AnnotationType.REPEAT) != null);
 			}
 		}
 	}
@@ -641,7 +629,7 @@ public class GenomeBrowserSettings implements ActionListener {
 	 * 
 	 */
 	public void updateVisibilityForTracks() {
-		for (Track track : tracks) {
+		for (Track track : browser.getTracks()) {
 			if (track.trackGroup != null) {
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
@@ -675,14 +663,95 @@ public class GenomeBrowserSettings implements ActionListener {
 	}
 
 	public Genome getGenome() {
-		return (Genome) genomeBox.getSelectedItem()
+		return (Genome) genomeBox.getSelectedItem();
 	}
 
 	public Chromosome getChromosome() {
-		return (Chromosome)chrBox.getSelectedItem()
+		return (Chromosome)chrBox.getSelectedItem();
 	}
 
 	public boolean isFullHeight() {
 		return showFullHeightBox.isSelected();
+	}
+
+	public void processLocationPanelInput() {
+		
+		// Fill in initial position if not filled in
+		if (locationField.getText().trim().isEmpty()) {
+
+			setCoordinateFields(DEFAULT_LOCATION, null);
+		}
+
+		if (viewsizeField.getText().trim().isEmpty()) {
+
+			setCoordinateFields(null, DEFAULT_VIEWSIZE);
+			lastViewsize = DEFAULT_VIEWSIZE;
+		}
+		
+		if (!locationField.getText().isEmpty()) {
+			if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
+
+				// If gene name was given, search for it
+				browser.requestGeneSearch(locationField.getText());
+				setCoordinateFields(getLocation(), getViewSize());
+			} else {
+				browser.setLocation(getChromosome(), getLocationStart(), getLocationEnd());
+			}
+		}	
+	}
+
+
+	public Long getLocation() {
+		try {
+			return Long.parseLong(locationField.getText());
+		} catch (NumberFormatException e) {
+			if (lastLocation != null) {
+				return lastLocation;
+			} else {
+				return DEFAULT_LOCATION;
+			}
+		}
+	}
+	
+	private Long getLocationStart() {
+		return getLocation() - getViewSize() / 2;
+	}
+	
+	private Long getLocationEnd() {
+		return getLocation() + getViewSize() / 2;
+	}
+
+	public Long getViewSize() {
+		if (lastViewsize != null) {
+			return lastViewsize;
+		} else {
+			return DEFAULT_VIEWSIZE;
+		}
+	}
+
+	public boolean setChromosome(Chromosome chr) {
+		
+		chrBox.setSelectedItem(chr);
+
+		return chrBox.getSelectedItem().equals(chr);
+	}
+	
+
+	public void regionChanged(Region bpRegion) {
+		setCoordinateFields(bpRegion.getMid(), bpRegion.getLength());
+		this.lastLocation = bpRegion.getMid();
+		this.lastViewsize = bpRegion.getLength();
+	}
+	
+	public static TitledBorder createSettingsPanelSubPanelBorder(String title) {
+		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
+	}
+
+	public void updateInterpretations() throws IOException {
+		fillChromosomeBox();		
+	}
+
+	public void updateTracks() {
+		updateVisibilityForTracks();
 	}
 }

@@ -1,4 +1,4 @@
-package fi.csc.microarray.gbrowser.index;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.index;
 
 import java.util.List;
 

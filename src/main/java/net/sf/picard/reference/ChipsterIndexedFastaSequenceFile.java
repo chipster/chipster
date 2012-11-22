@@ -32,6 +32,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.picard.PicardException;
+import net.sf.picard.reference.FastaSequenceIndex;
+import net.sf.picard.reference.FastaSequenceIndexEntry;
+import net.sf.picard.reference.ReferenceSequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 

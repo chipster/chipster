@@ -7,9 +7,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.index.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
-import fi.csc.microarray.gbrowser.index.GeneResult;
 
 
 public class GeneSearchHandler extends AreaRequestHandler {

@@ -15,7 +15,6 @@ import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
-import fi.csc.microarray.client.LinkUtil;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
@@ -31,6 +30,7 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.util.LinkUtil;
 
 public class SequenceModule implements Module {
 

@@ -1,4 +1,4 @@
-package fi.csc.chipster.tools.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.tools;
 
 import java.io.File;
 import java.io.FileWriter;

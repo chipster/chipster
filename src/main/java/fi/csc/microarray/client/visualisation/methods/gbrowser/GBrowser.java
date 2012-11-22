@@ -26,14 +26,13 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParserWithCoordinateConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.index.GeneIndexActions;
@@ -41,17 +40,25 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.util.BrowserLauncher;
+import fi.csc.microarray.util.IOUtils;
 
-public class GenomeBrowser implements RegionListener, ComponentListener {
+/**
+ * Main class of genome browser visualisation. Depends on JFreeChart, SwingX, and 
+ * Chipster util package, but should not depend on any other Chipster code. All Chipster specific 
+ * functionality must be in class ChipsterGBrowserVisualisation.
+ * 
+ * @author klemela
+ */
+public class GBrowser implements ComponentListener {
 	
 	public static enum TrackType {
 		CYTOBANDS(false), 
@@ -64,44 +71,65 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		HIDDEN(false), 
 		VCF(true);
 
-		private boolean isToggleable;
+		public boolean isToggleable;
 
 		private TrackType(boolean toggleable) {
 			this.isToggleable = toggleable;
 		}
 	}
 	
+	public abstract static class DataFile {
+		public abstract String getName();
+		public abstract InputStream getInputStream() throws IOException;
+		public abstract File getLocalFile() throws IOException;
+	}
+	
 	public static class Interpretation {
+		
+		private TrackType type;
+		private List<DataFile> summaryDatas = new LinkedList<DataFile>();
+		private DataFile primaryData;
+		private DataFile indexData;
 
-		public TrackType type;
-		public List<URL> summaryDatas = new LinkedList<URL>();
-		public URL primaryData;
-		public String primaryDataName;
-		public URL indexData;
-
-		public Interpretation(TrackType type, URL primaryData, String primaryDataName) {
+		public Interpretation(TrackType type, DataFile primaryData) {
 			this.type = type;
 			this.primaryData = primaryData;
-			this.primaryDataName = primaryDataName;
 		}
-				
-		protected InputStream getPrimaryDataInputStream() {
-			
-			/*
-			 * 						DataBean data = interpretation.primaryData;
-				InputStream in = null;
-				try {
-					in  = data.getContentByteStream();
-					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
-				} finally {
-					IOUtils.closeIfPossible(in);
-				}
-			 */
-			return null;
+
+		public TrackType getType() {
+			return type;
+		}
+
+		public void setType(TrackType type) {
+			this.type = type;
+		}
+
+		public List<DataFile> getSummaryDatas() {
+			return summaryDatas;
+		}
+
+		public void setSummaryDatas(List<DataFile> summaryDatas) {
+			this.summaryDatas = summaryDatas;
+		}
+
+		public DataFile getPrimaryData() {
+			return primaryData;
+		}
+
+		public void setPrimaryData(DataFile primaryData) {
+			this.primaryData = primaryData;
+		}
+
+		public DataFile getIndexData() {
+			return indexData;
+		}
+
+		public void setIndexData(DataFile indexData) {
+			this.indexData = indexData;
 		}
 	}
 
-	private static class Track {
+	public static class Track {
 
 		Interpretation interpretation;
 		JCheckBox checkBox;
@@ -118,8 +146,6 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		}
 	}
 	
-	private static final long DEFAULT_VIEWSIZE = 100000;
-	private static final long DEFAULT_LOCATION = 1000000;
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 	
@@ -133,14 +159,11 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 	private GeneIndexActions gia;
 
-	private boolean initialised;
-
-	private Long lastViewsize;
 	private JScrollPane verticalScroller;
 	private ViewLimiter viewLimiter;
 	protected boolean geneSearchDone;
 	
-	private GenomeBrowserSettings settings;
+	private GBrowserSettings settings;
 	
 	private List<Interpretation> interpretations;
 
@@ -150,28 +173,27 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		this.annotationManager = new AnnotationManager();
 		this.annotationManager.initialize();
 
-		settings.initialise();
+		settings = new GBrowserSettings();
+		settings.initialise(this);		
 	}
-
-
-
+	
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
-		tracks.add(new Track(AnnotationManager.AnnotationType.GTF_TABIX.getId(), new Interpretation(TrackType.GENES, null, null)));
-		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.GTF_TABIX.getId(), new Interpretation(TrackType.GENES, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
 
 
 		for (int i = 0; i < interpretations.size(); i++) {
 			Interpretation interpretation = interpretations.get(i);
-			tracks.add(new Track(interpretation.primaryDataName, interpretation));
+			tracks.add(new Track(interpretation.primaryData.getName(), interpretation));
 		}
 
 		// update the dataset switches in the settings panel
 		settings.updateDatasetSwitches();
 	}
 
-	private void setFullHeight(boolean fullHeight) {
+	protected void setFullHeight(boolean fullHeight) {
 
 		if (fullHeight) {
 			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -182,9 +204,11 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		plot.setFullHeight(fullHeight);		
 	}
 
-	public JComponent getVisualisation(List<Interpretation> interpretations) {
+	public JComponent getVisualisation(List<Interpretation> interpretations) throws IOException {
 		
-		this.interpretations = interpretations;  
+		this.interpretations = interpretations;
+		
+		settings.updateInterpretations();
 
 		// We can create tracks now that we know the data
 		this.tracks.clear();
@@ -200,7 +224,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		return plotPanel;
 	}
 	
-	private void updateCoverageScale() {
+	protected void updateCoverageScale() {
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale(settings.getCoverageScale());
 	}
@@ -216,7 +240,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 	 * 
 	 * @See updateVisibilityForTracks()
 	 */
-	private void updateTracks() {
+	protected void updateTracks() {
 
 		plot.getDataView().clean();
 
@@ -294,6 +318,8 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				case TRANSCRIPTS:
 					// integrated into genes
 					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -304,9 +330,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 				File file;
 				try {
-					file = track.interpretation.primaryData == null ? null : Session
-							.getSession().getDataManager().getLocalFile(
-									track.interpretation.primaryData);
+					file = track.interpretation.primaryData == null ? null : track.interpretation.primaryData.getLocalFile();
 					DataSource treatmentData;
 					if (track.interpretation.type == TrackType.READS) {
 
@@ -327,7 +351,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 							TrackGroup readGroup = TrackFactory.addReadTracks(
 									plot, treatmentData, 
 									refSeqDataSource, 
-									track.interpretation.primaryDataName);
+									track.interpretation.primaryData.getName());
 
 							track.setTrackGroup(readGroup);
 
@@ -337,7 +361,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(
 									plot, treatmentData, refSeqDataSource, 
-									track.interpretation.primaryDataName, new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
+									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
 							track.setTrackGroup(readGroupWithSummary);
 						}
 					}
@@ -345,6 +369,9 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 					reportException(e);
 				} catch (URISyntaxException e) {
 					reportException(e);
+				} catch (GBrowserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}
@@ -358,8 +385,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				if (track.interpretation.primaryData != null) {
 					File file;
 					try {
-						file = Session.getSession().getDataManager().getLocalFile(
-								track.interpretation.primaryData);
+						file = track.interpretation.primaryData.getLocalFile();
 						fileUrl = file.toURI().toURL();
 
 					} catch (IOException e) {
@@ -371,7 +397,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				switch (track.interpretation.type) {
 				case REGIONS:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
@@ -385,12 +411,12 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 					} catch (IOException e) {
 						reportException(e);
 					} catch (UnsortedDataException e) {
-						showDialog("Unsorted data", e.getMessage(), null, true, true);
+						showDialog("Unsorted data", e.getMessage(), null, true, false, true);
 					}
 					break;
 				case REGIONS_WITH_HEADER:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
@@ -404,7 +430,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 					break;
 				case VCF:
 					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryDataName);
+					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
@@ -416,7 +442,8 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 						reportException(e);
 					}
 					break;
-
+				default:
+					break;
 				}
 			}
 		}
@@ -424,8 +451,46 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		// End 3D effect
 		plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
 	}
+	
+	/**
+	 * Create DataSource for SAM/BAM files
+	 * 
+	 * @param tracks
+	 * 
+	 * @param file
+	 * @return
+	 * @throws MicroarrayException
+	 *             if index file is not selected properly
+	 * @throws IOException
+	 *             if opening data files fails
+	 * @throws URISyntaxException 
+	 * @throws GBrowserException 
+	 */
+	public DataSource createReadDataSource(DataFile data, DataFile indexData, List<Track> tracks)
+			throws IOException, URISyntaxException, GBrowserException {
+		DataSource dataSource = null;
 
-	private URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
+		// Convert data bean into file
+		File file = data == null ? null : data.getLocalFile();
+
+		URL fileUrl = file.toURI().toURL();
+
+		if (data.getName().contains(".bam-summary")) {
+			dataSource = new TabixSummaryDataSource(fileUrl);
+
+		} else if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
+			File indexFile = indexData.getLocalFile();
+			URL indexFileUrl = indexFile.toURI().toURL();
+			dataSource = new SAMDataSource(fileUrl, indexFileUrl);
+
+		} else {
+			dataSource = new ChunkDataSource(fileUrl, new ElandParser(), ChunkTreeHandlerThread.class);
+		}
+
+		return dataSource;
+	}
+
+	protected URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
 		GenomeAnnotation annotation = annotationManager.getAnnotation(
 				genome, type);
 		if (annotation != null) {
@@ -445,23 +510,20 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		// Create the chart panel with tooltip support				
 		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 		this.plot = new GenomePlot(chartPanel, true);
+		plot.addDataRegionListener(settings);
 		
-		//FIXME remove Chipster dependency
-		((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
+		((GBrowserChartPanel)chartPanel).setGenomePlot(plot);
 
-		//Set location to plot to avoid trouble in track initialization. 
-		//Can't do this with updateLocation, because it would lose gene search when the 
-		//tracks clear all data layers
+		//Set default location to plot to avoid trouble in track initialization. 
 		plot.getDataView().setBpRegion(new RegionDouble(
-				DEFAULT_LOCATION - DEFAULT_VIEWSIZE / 2.0, DEFAULT_LOCATION + DEFAULT_VIEWSIZE / 2.0, 
+				settings.getLocation() - settings.getViewSize() / 2.0, settings.getLocation() + settings.getViewSize() / 2.0, 
 				settings.getChromosome()), true);
-		
+				
 		updateCoverageScale();
 		
 		updateTracks();
-
-		// Initialise the plot
-		plot.addDataRegionListener(this);
+		
+		settings.updateTracks();
 
 		// Wrap GenomePlot in a panel
 		chartPanel.setChart(new JFreeChart(plot));
@@ -520,44 +582,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		return gia;
 	}
 
-	/**
-	 * Update genome browser to location given in the location panel.
-	 * 
-	 */
-	private void updateLocation() {
-
-		boolean isSearch = false;
-
-		if (!locationField.getText().isEmpty() && !GeneIndexActions.checkIfNumber(locationField.getText())) {
-			// If gene name was given, search for it
-
-			requestGeneSearch();
-			isSearch = true;
-		}
-
-		// Fill in initial position if not filled in
-		if (locationField.getText().trim().isEmpty() || isSearch) {
-
-			setCoordinateFields(DEFAULT_LOCATION, null);
-		}
-
-		if (viewsizeField.getText().trim().isEmpty()) {
-
-			setCoordinateFields(null, DEFAULT_VIEWSIZE);
-			lastViewsize = DEFAULT_VIEWSIZE;
-		}
-
-
-		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-				Long.parseLong(locationField.getText()), lastViewsize);
-
-		// Set scale of profile track containing reads information
-		this.plot.setReadScale(settings.getCoverageScale());
-	}
-
-
-
-	private void requestGeneSearch() {
+	protected void requestGeneSearch(String gene) {
 
 		runBlockingTask("searching gene", new Runnable() {
 
@@ -596,8 +621,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 							showDialog("Search failed",
 									"Unexpected error happened in the search. Please inform the developers if the problem persists.", null,
-									true,
-									false, null);
+									true, false, false);
 						}
 
 					});
@@ -605,7 +629,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 			}
 		});
 
-		getGeneIndexActions().requestLocation(locationField.getText(), new GeneIndexActions.GeneLocationListener() {
+		getGeneIndexActions().requestLocation(gene, new GeneIndexActions.GeneLocationListener() {
 
 			@Override
 			public void geneLocation(Region geneLocation) {
@@ -615,13 +639,10 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 				if (geneLocation == null) {
 
 					// Move to last known location
-					updateLocation();
+					settings.processLocationPanelInput();
 
 					// Tell the user 
-					application.showDialog("Not found",
-							"Gene was not found", null,
-							Severity.INFO, true,
-							DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+					showDialog("Not found", "Gene was not found", null,	false, false, false);
 
 				} else {
 
@@ -629,16 +650,13 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 					Chromosome resultChr = new Chromosome(geneLocation.start.chr);
 
-					chrBox.setSelectedItem(resultChr);
+					if (settings.setChromosome(resultChr)) {
 
-					if (chrBox.getSelectedItem().equals(resultChr)) {
-
-						setCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
-						updateLocation();
+						setLocation(settings.getChromosome(), geneLocation.start.bp, geneLocation.end.bp);
 					} else {
 						showDialog("Different chromosome", 
 								"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
-								true, false);
+								true, false, false);
 					}
 				}
 			}
@@ -647,15 +665,22 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 	
 	public void setLocation(Chromosome chr, Long start, Long end) {
 
-		// Move to selected region 
-		chrBox.setSelectedItem(chr));
+		// Move to selected region
+		
+		settings.setChromosome(chr);
+
 		if (end == null) {
 			end = start;
 		}
-		setCoordinateFields((end + start) / 2, (end - start) * 2);
+		
+		settings.setCoordinateFields((end + start) / 2, (end - start) * 2);
 
 		// Update
-		updateLocation();
+		plot.moveDataBpRegion((Chromosome) settings.getChromosome(),
+				settings.getLocation(), settings.getViewSize());
+
+		// Set scale of profile track containing reads information
+		this.plot.setReadScale(settings.getCoverageScale());
 	}
 	
 	public void removeVisualisation() {
@@ -676,23 +701,17 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		gia = null;	
 	}
 	
-
-	public void regionChanged(Region bpRegion) {
-		settings.setCoordinateFields(bpRegion.getMid(), bpRegion.getLength());
-		this.lastViewsize = bpRegion.getLength();
-	}
-	
-	protected void getChromosomeNames() throws IOException {
+	protected LinkedList<Chromosome> getChromosomeNames() throws IOException {
 
 		// Gather all chromosome names from all indexed datasets (SAM/BAM)
 		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
 		for (Interpretation interpretation : interpretations) {
 			if (interpretation.type == TrackType.READS) {
-				InputStream in;
+				InputStream in = null;
 				try {
-					in  = interpretation.getPrimaryDataInputStream();
+					in  = interpretation.primaryData.getInputStream();
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
-				} finally {
+				} finally { 
 					IOUtils.closeIfPossible(in);
 				}
 			}
@@ -700,10 +719,10 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 		// If we still don't have names, go through non-indexed datasets
 		if (chromosomeNames.isEmpty()) {
-			for (Interpretation interpretation : browser.getInterpretations()) {
+			for (Interpretation interpretation : getInterpretations()) {
 				if (interpretation.type == TrackType.REGIONS) {
-					DataBean data = interpretation.primaryData;
-					File file = Session.getSession().getDataManager().getLocalFile(data);
+					DataFile data = interpretation.primaryData;
+					File file = data.getLocalFile();
 					List<RegionContent> rows = null;
 					try {
 						//FIXME remove Chipster dependency 
@@ -725,10 +744,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		}
 		Collections.sort(chromosomes);
 
-		// Fill in the box
-		for (Chromosome chromosome : chromosomes) {
-			chrBox.addItem(chromosome);
-		}
+		return chromosomes;
 	}
 	
 	@Override
@@ -748,7 +764,10 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent arg0) {
-		this.updateLocation();
+		
+		//FIXME remove if works without this
+//		//Move to last location
+//		settings.processLocationPanelInput();
 		plot.redraw();
 	}
 
@@ -760,7 +779,7 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		settings.getGenome();
 		URL url = annotationManager.getAnnotation(settings.getGenome(), browser).getUrl();
 
-		if (url != null) {
+		if (url != null && plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null) {
 			String stringUrl = url.toString();
 			Region region = plot.getDataView().getBpRegion();
 			stringUrl = stringUrl.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
@@ -774,19 +793,40 @@ public class GenomeBrowser implements RegionListener, ComponentListener {
 		
 	}
 	
+	protected void openExternalBrowser(String url) {
+
+		try {
+			BrowserLauncher.openURL(url);
+		} catch (Exception e) {
+			reportException(e);
+		}
+	}
+	
+	public JPanel getParameterPanel() {
+		return settings.getParameterPanel();
+	}
+	
 	protected void reportException(Exception e) {
 		e.printStackTrace();
 	}
 	
-	protected void showDialog(String title, String message, String details, boolean showDetails, boolean modal) {
+	protected void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
 		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details + "\t" + modal);
-	}
-	
-	protected void openExternalBrowser(String url) {
-		System.out.println("openExternalBrowser not implemented: " + url);
 	}
 	
 	protected void runBlockingTask(String taskName, Runnable runnable) {
 		System.out.println("runBlockingTask not implemented: " + taskName + "\t" +  runnable);
+	}
+
+	protected void initialiseUserDatas() throws IOException {
+		System.out.println("initialiseUserDatas not implemented");
+	}
+
+	public AnnotationManager getAnnotationManager() {
+		return annotationManager;
+	}
+
+	public List<Track> getTracks() {
+		return tracks;
 	}
 }

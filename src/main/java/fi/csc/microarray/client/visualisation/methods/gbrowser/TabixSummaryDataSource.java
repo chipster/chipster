@@ -19,10 +19,10 @@ public class TabixSummaryDataSource extends DataSource {
     TabixFile tabixFile = null;
     
     
-    public TabixSummaryDataSource(URL url) throws FileNotFoundException, MicroarrayException, URISyntaxException {
+    public TabixSummaryDataSource(URL url) throws FileNotFoundException, URISyntaxException, GBrowserException {
         // TODO Support URLs            
         super(url, TabixSummaryHandlerThread.class);
-        throw new MicroarrayException("Reading Tabix files from URL not yet supported");
+        throw new GBrowserException("Reading Tabix files from URL not yet supported");
     }
 
     public TabixFile getTabix() {

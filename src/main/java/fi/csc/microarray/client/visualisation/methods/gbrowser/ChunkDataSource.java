@@ -19,7 +19,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -222,7 +221,7 @@ public class ChunkDataSource extends DataSource {
 		}
 	}
 
-	public void checkSorting() throws IOException, MicroarrayException, UnsortedDataException {
+	public void checkSorting() throws IOException, UnsortedDataException {
 		byte[] bytes = new byte[100000];
 		this.read(getHeaderLength(), bytes);
 		Chunk chunk = new Chunk(new String(bytes));

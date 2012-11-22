@@ -20,6 +20,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")

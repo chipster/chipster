@@ -26,6 +26,8 @@ package net.sf.picard.reference;
 
 import java.io.IOException;
 
+import net.sf.picard.reference.FastaSequenceIndex;
+import net.sf.picard.reference.FastaSequenceIndexEntry;
 import net.sf.samtools.SAMSequenceRecord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 
