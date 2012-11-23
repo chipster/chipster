@@ -28,6 +28,12 @@ biocLite("DEXSeq")
 
 biocLite("BSgenome.Hsapiens.UCSC.hg19")
 
+biocLite("vegan")
+biocLite("rich")
+biocLite("BiodiversityR")
+biocLite("pegas")
+biocLite("labdsv")
+
 # from CRAN
 install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="MKmisc")
 install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="e1071")
