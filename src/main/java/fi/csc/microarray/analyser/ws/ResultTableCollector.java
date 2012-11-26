@@ -15,7 +15,7 @@ public class ResultTableCollector {
 			if (fields.containsKey(fieldName)) {
 				throw new IllegalStateException(fieldName + " already added");
 			}
-			fields.put(fieldName, new ResultField(fieldName, value));
+			fields.put(fieldName, new ResultField(value));
 		}
 		
 		public String getValue(String fieldName) {
@@ -27,30 +27,15 @@ public class ResultTableCollector {
 	}
 	
 	private static class ResultField {
-		private String name;
 		private String value;
 		
-		public ResultField(String name, String value) {
-			this.name = name;
+		public ResultField(String value) {
 			this.value = value;
-		}
-
-		public String getName() {
-			return name;
 		}
 
 		public String getValue() {
 			return value;
 		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-		
 	}
 	
 	private LinkedList<ResultRow> resultRows = new LinkedList<ResultRow>();

@@ -80,6 +80,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -628,7 +630,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				DataBean data = interpretation.primaryData;
 				InputStream in = null;
 				try {
-					in  = data.getContentByteStream();
+					in  = data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
 				} finally {
 					IOUtils.closeIfPossible(in);
@@ -733,8 +735,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 								@Override
 								public void run() {
 									try {
-										// Show visualisation
-										showVisualisation();
+									// Show visualisation
+									showVisualisation();
 									} catch (Exception e) {
 										application.reportException(e);
 									}
@@ -930,72 +932,72 @@ RegionListener, ComponentListener, PropertyChangeListener {
 
 					break;
 
-				case GENES:
-					// Start 3D effect
-					plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
+					case GENES:
+						// Start 3D effect
+						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
 
-					URL gtfUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
+						URL gtfUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
 
-					URL gtfIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
+						URL gtfIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
 
-					URL repeatUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
+						URL repeatUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
 
-					URL repeatIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
+						URL repeatIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
 
-					TabixDataSource gtfDataSource = null;
-					TabixDataSource repeatDataSource = null;
+						TabixDataSource gtfDataSource = null;
+						TabixDataSource repeatDataSource = null;
 
-					try {
-						if (gtfUrl != null && gtfIndexUrl != null) {
-							gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, GtfTabixHandlerThread.class);
+						try {
+							if (gtfUrl != null && gtfIndexUrl != null) {
+								gtfDataSource = new TabixDataSource(gtfUrl, gtfIndexUrl, GtfTabixHandlerThread.class);
+							}
+
+							if (repeatUrl != null && repeatIndexUrl != null) {
+								repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
+							}
+							
+							//Show ruler track even if there are now data sources
+							TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
+							track.setTrackGroup(geneGroup);
+
+						} catch (URISyntaxException e) {
+							application.reportException(e);
+						} catch (IOException e) {
+							application.reportException(e);
 						}
+						break;
 
-						if (repeatUrl != null && repeatIndexUrl != null) {
-							repeatDataSource = new TabixDataSource(repeatUrl, repeatIndexUrl, BedTabixHandlerThread.class);
-						}
+					case REFERENCE:
+						// integrated into peaks
+						break;
 
-						//Show ruler track even if there are now data sources
-						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot, gtfDataSource, repeatDataSource);
-						track.setTrackGroup(geneGroup);
-
-					} catch (URISyntaxException e) {
-						application.reportException(e);
-					} catch (IOException e) {
-						application.reportException(e);
+					case TRANSCRIPTS:
+						// integrated into genes
+						break;
 					}
-					break;
-
-				case REFERENCE:
-					// integrated into peaks
-					break;
-
-				case TRANSCRIPTS:
-					// integrated into genes
-					break;
 				}
 			}
-		}
 
-		// Add selected read tracks
-		for (Track track : tracks) {
-			if (track.checkBox.isSelected()) {
+			// Add selected read tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
 
-				File file;
-				try {
-					file = track.interpretation.primaryData == null ? null : Session
-							.getSession().getDataManager().getLocalFile(
-									track.interpretation.primaryData);
-					DataSource treatmentData;
-					if (track.interpretation.type == TrackType.READS) {
+					File file;
+					try {
+						file = track.interpretation.primaryData == null ? null : Session
+								.getSession().getDataManager().getLocalFile(
+										track.interpretation.primaryData);
+						DataSource treatmentData;
+						if (track.interpretation.type == TrackType.READS) {
 
-						URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
-						URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
+							URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
+							URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
 
-						IndexedFastaDataSource refSeqDataSource = null;
-						
-						if (fastaUrl != null && fastaIndexUrl != null) {
-							refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
-						}
+							IndexedFastaDataSource refSeqDataSource = null;
+							
+							if (fastaUrl != null && fastaIndexUrl != null) {
+								refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
+							}
 
 						if (track.interpretation.summaryDatas.size() == 0) {
 							// No precomputed summary data
@@ -1019,96 +1021,97 @@ RegionListener, ComponentListener, PropertyChangeListener {
 							track.setTrackGroup(readGroupWithSummary);
 						}
 					}
-				} catch (IOException e) {
-					application.reportException(e);
-				} catch (MicroarrayException e) {
-					application.reportException(e);
-				} catch (URISyntaxException e) {
-					application.reportException(e);
-				}
-			}
-		}
-
-		// Add selected peak tracks
-		for (Track track : tracks) {
-			if (track.checkBox.isSelected()) {
-
-				URL fileUrl = null;
-
-				if (track.interpretation.primaryData != null) {
-					File file;
-					try {
-						file = Session.getSession().getDataManager().getLocalFile(
-								track.interpretation.primaryData);
-						fileUrl = file.toURI().toURL();
-
-					} catch (IOException e) {
-						application.reportException(e);
-					}
-				}
-
-				DataSource regionData;
-				switch (track.interpretation.type) {
-				case REGIONS:
-					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-
-					try {
-						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
-						((ChunkDataSource)regionData).checkSorting();
-						TrackFactory.addPeakTrack(plot, regionData);
-
-					} catch (FileNotFoundException e) {
-						application.reportException(e);
-					} catch (URISyntaxException e) {
-						application.reportException(e);
 					} catch (IOException e) {
 						application.reportException(e);
 					} catch (MicroarrayException e) {
 						application.reportException(e);
-					} catch (UnsortedDataException e) {
-						application.showDialog("Unsorted data", e.getMessage(), null, Severity.WARNING, true);
-					}
-					break;
-				case REGIONS_WITH_HEADER:
-					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-
-					try {
-						regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
-						TrackFactory.addPeakTrack(plot, regionData);
-
-					} catch (FileNotFoundException e) {
-						application.reportException(e);
 					} catch (URISyntaxException e) {
 						application.reportException(e);
 					}
-					break;
-				case VCF:
-					TrackFactory.addThickSeparatorTrack(plot);
-					TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
-
-					try {
-						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
-						TrackFactory.addPeakTrack(plot, regionData);
-
-					} catch (FileNotFoundException e) {
-						application.reportException(e);
-					} catch (URISyntaxException e) {
-						application.reportException(e);
-					}
-					break;
-
 				}
 			}
+
+			// Add selected peak tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+
+					URL fileUrl = null;
+
+					if (track.interpretation.primaryData != null) {
+						File file;
+						try {
+							file = Session.getSession().getDataManager().getLocalFile(
+									track.interpretation.primaryData);
+							fileUrl = file.toURI().toURL();
+
+						} catch (IOException e) {
+							application.reportException(e);
+						}
+					}
+
+					DataSource regionData;
+					switch (track.interpretation.type) {
+					case REGIONS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+
+						try {
+							regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
+							((ChunkDataSource)regionData).checkSorting();
+							TrackFactory.addPeakTrack(plot, regionData);
+
+						} catch (FileNotFoundException e) {
+							application.reportException(e);
+						} catch (URISyntaxException e) {
+							application.reportException(e);
+						} catch (IOException e) {
+							application.reportException(e);
+						} catch (MicroarrayException e) {
+							application.reportException(e);
+						} catch (UnsortedDataException e) {
+							application.showDialog("Unsorted data", e.getMessage(), null, Severity.WARNING, true);
+						}
+						break;
+					case REGIONS_WITH_HEADER:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+
+						try {
+							regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
+							TrackFactory.addPeakTrack(plot, regionData);
+
+						} catch (FileNotFoundException e) {
+							application.reportException(e);
+						} catch (URISyntaxException e) {
+							application.reportException(e);
+						}
+						break;
+					case VCF:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
+
+						try {
+							regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
+							TrackFactory.addPeakTrack(plot, regionData);
+
+						} catch (FileNotFoundException e) {
+							application.reportException(e);
+						} catch (URISyntaxException e) {
+							application.reportException(e);
+						}
+						break;
+
+					}
+				}
+			}
+
+			// End 3D effect
+			plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
+
+			// Set track visibility
+			updateVisibilityForTracks();
 		}
 
-		// End 3D effect
-		plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
-
-		// Set track visibility
-		updateVisibilityForTracks();
-	}
 	
 	private URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
 		GenomeAnnotation annotation = annotationManager.getAnnotation(
@@ -1218,7 +1221,8 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void initialiseUserData(DataBean data) throws IOException {
-		if (data != null) {
+		// If data needs to be copied out of a session ZIP file, do it now  
+		if (data != null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) == null) {
 			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
@@ -1241,10 +1245,19 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			throws MicroarrayException, IOException, URISyntaxException {
 		DataSource dataSource = null;
 
-		// Convert data bean into file
-		File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+		// Find how to access the data
+		URL fileUrl;
+		if (data.getContentLocation(StorageMethod.LOCAL_FILE_METHODS) == null && data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS) != null) {
 
-		URL fileUrl = file.toURI().toURL();
+			// Remote available, no local files available, use remote
+			fileUrl = data.getContentLocation(StorageMethod.REMOTE_FILE_METHODS).getUrl();
+		
+		} else {
+			
+			// Use local file, possibly copying data into local file if not there yet
+			File file = Session.getSession().getDataManager().getLocalFile(data);
+			fileUrl = file.toURI().toURL();
+		}
 
 		if (data.getName().contains(".bam-summary")) {
 			dataSource = new TabixSummaryDataSource(fileUrl);
@@ -1431,19 +1444,19 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	}
 
 	private void requestGeneSearch() {
-
+		
 		application.runBlockingTask("searching gene", new Runnable() {
-
+			
 			@Override
 			public void run() {
-
+				
 				int TIME_OUT = 30*1000;
 				int INTERVAL = 100;
-
+				
 				long startTime = System.currentTimeMillis();
 
 				while (System.currentTimeMillis() < startTime + TIME_OUT) {
-
+			
 					if (!geneSearchDone) {
 						try {
 							Thread.sleep(INTERVAL);
@@ -1454,7 +1467,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 						break;
 					}
 				}		
-
+				
 				if (geneSearchDone) {
 
 					geneSearchDone = false;
@@ -1552,7 +1565,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 				// Move to selected region 
 				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
 				long start = Long.parseLong(sel.get("start"));
-
+				
 				long end = -1;
 				if (sel.containsKey("end")) {
 					end = Long.parseLong(sel.get("end"));
@@ -1571,7 +1584,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 	public void removeVisualisation() {
 
 		super.removeVisualisation();
-
+		
 		plotPanel.removeComponentListener(this);
 		plotPanel.removeAll();
 
@@ -1579,7 +1592,7 @@ RegionListener, ComponentListener, PropertyChangeListener {
 			plot.clean();
 			plot = null;
 		}
-
+		
 		//Remove references to tracks and data to free memory, even if the (hidden) parameter panel keeps actionListener
 		//references to this object preventing garbage collection (when visualization is changed to none)
 		if (tracks != null) {

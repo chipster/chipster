@@ -71,6 +71,10 @@ public class MessagingTopic {
 	}
 
 	
+
+	/**
+	 * Not multithread safe.
+	 */
 	protected void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
 		MessagingTopic tempTopic = new MessagingTopic(session, null, Type.TEMPORARY, AccessMode.READ_WRITE, endpoint);
 		
@@ -89,6 +93,7 @@ public class MessagingTopic {
 	
 	/**
 	 * Sends the message and creates a temporary topic for replying.
+	 * Not multithread safe.
 	 * 
 	 * @param replyListener receives replies (if any) through hidden temporary topic
 	 */
@@ -98,6 +103,7 @@ public class MessagingTopic {
 	
 	/**
 	 * The basic message sending method. Sends a message without reply possibility.
+	 * Not multithread safe.
 	 */
 	public void sendMessage(ChipsterMessage message) throws JMSException {
 

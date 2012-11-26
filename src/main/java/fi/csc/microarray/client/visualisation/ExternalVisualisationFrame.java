@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.awt.Dimension;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -19,6 +21,40 @@ public class ExternalVisualisationFrame extends VisualisationFrame{
 	public JFrame getFrameComponent(){
 		if(frameComponent == null){
 			frameComponent = new JFrame();
+			
+			frameComponent.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			
+			frameComponent.addWindowListener(new WindowListener() {
+				
+				@Override
+				public void windowOpened(WindowEvent arg0) {
+				}
+				
+				@Override
+				public void windowIconified(WindowEvent arg0) {
+				}
+				
+				@Override
+				public void windowDeiconified(WindowEvent arg0) {
+				}
+				
+				@Override
+				public void windowDeactivated(WindowEvent arg0) {
+				}
+				
+				@Override
+				public void windowClosing(WindowEvent arg0) {
+				}
+				
+				@Override
+				public void windowClosed(WindowEvent e) {
+					getVisualisation().removeVisualisation();
+				}
+				
+				@Override
+				public void windowActivated(WindowEvent arg0) {
+				}
+			});
 		}
 		return frameComponent;
 	}

@@ -168,28 +168,27 @@ public class FastaFileFetcherThread extends Thread {
 		Fasta fasta = fastas.get(chr);
 		
 		if (fasta != null) {
-		
-		if (request.start.bp < 1) {
-			long move = 1 - request.start.bp;
-			request.start.bp += move;
-			request.end.bp += move;
-		}
 
-		
-		String seqence = fasta.read(request.start.bp, request.end.bp);
-		
-		
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		
-		values.put(ColumnType.SEQUENCE, seqence);
+			if (request.start.bp < 1) {
+				long move = 1 - request.start.bp;
+				request.start.bp += move;
+				request.end.bp += move;
+			}
 
-		resultList.add(new RegionContent(new Region(request), values));
+			String seqence = fasta.read(request.start.bp, request.end.bp);
 
 
-		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.status);
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 
-		fileResultQueue.add(result);		
-		areaRequestThread.notifyAreaRequestHandler();
+			values.put(ColumnType.SEQUENCE, seqence);
+
+			resultList.add(new RegionContent(new Region(request), values));
+
+
+			ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.status);
+
+			fileResultQueue.add(result);		
+			areaRequestThread.notifyAreaRequestHandler();
 		} else {
 			//TODO fix error handling
 			System.err.println("Can't find fasta annotation file for chromosome: " + request.start.chr);
