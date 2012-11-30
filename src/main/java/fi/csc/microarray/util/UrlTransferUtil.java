@@ -87,7 +87,7 @@ public class UrlTransferUtil {
         return url;
     }
     
-    private static boolean isSuccessfulCode(int responseCode) {
+    public static boolean isSuccessfulCode(int responseCode) {
 		return responseCode >= 200 && responseCode < 300; // 2xx => successful
 	}
     

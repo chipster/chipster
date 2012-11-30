@@ -121,7 +121,7 @@ public class SessionSaver {
 		gatherMetadata(saveData);
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionFile(saveData);
+		writeSessionToFile(saveData);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
@@ -132,7 +132,7 @@ public class SessionSaver {
 		boolean saveData = false;
 		
 		gatherMetadata(saveData);
-		writeSessionFile(saveData);
+		writeSessionToFile(saveData);
 	}
 
 	public void saveStorageSession() throws Exception {
@@ -145,7 +145,7 @@ public class SessionSaver {
 		// save metadata
 		boolean saveData = false;
 		gatherMetadata(saveData);
-		writeSessionUrl(saveData);
+		writeSessionToUrl(saveData);
 	}
 	
 	
@@ -201,16 +201,25 @@ public class SessionSaver {
 	 * @param saveData if true, also actual contents of databeans are saved 
 	 * 
 	 */
-	private void writeSessionUrl(boolean saveData) throws Exception {
-		// write data to zip file
+	private void writeSessionToUrl(boolean saveData) throws Exception {
+
 		HttpURLConnection conn = UrlTransferUtil.prepareForUpload(sessionUrl);
-		OutputStream out = conn.getOutputStream();
 		
 		try {
-			writeSessionXmlOut(saveData, out);
+			OutputStream out = conn.getOutputStream();
+			try {
+				writeSessionContents(saveData, out); 
+			} finally {
+				IOUtils.closeIfPossible(out);
+			}
+			
+			// need to check this to guarantee upload
+			if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
+    			throw new IOException("PUT was not successful: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+    		}
+			
 		} finally {
-			IOUtils.closeIfPossible(out);
-			IOUtils.disconnectIfPossible(conn);
+			IOUtils.disconnectIfPossible(conn); 
 		}
 		
 	}
@@ -221,7 +230,7 @@ public class SessionSaver {
 	 * @param saveData if true, also actual contents of databeans are saved 
 	 * 
 	 */
-	private void writeSessionFile(boolean saveData) throws Exception {
+	private void writeSessionToFile(boolean saveData) throws Exception {
 
 		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
@@ -238,12 +247,14 @@ public class SessionSaver {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(newSessionFile);
-			writeSessionXmlOut(saveData, out);
+			writeSessionContents(saveData, out);
+			IOUtils.closeIfPossible(out);
 			
-		} finally {
+		} catch (Exception e) {
+			IOUtils.closeIfPossible(out);
 			// don't leave the new session file lying around if something went wrong
 			newSessionFile.delete();
-			IOUtils.closeIfPossible(out);
+			throw e;
 		}
 		
 		
@@ -276,7 +287,7 @@ public class SessionSaver {
 		} 
 	}
 
-	private void writeSessionXmlOut(boolean saveData, OutputStream out) throws Exception {
+	private void writeSessionContents(boolean saveData, OutputStream out) throws Exception {
 
 		ZipOutputStream zipOutputStream = null;
 		try {	
@@ -302,7 +313,8 @@ public class SessionSaver {
 			writeSourceCodesToZip(zipOutputStream);
 			
 			// close the zip stream
-			zipOutputStream.close();
+			zipOutputStream.flush();
+//			zipOutputStream.close();
 		} 
 		
 		catch (Exception e) {
@@ -576,7 +588,6 @@ public class SessionSaver {
 
 			// write bean contents to zip
 			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
-			zipOutputStream.closeEntry();
 		}
 	}
 	
@@ -641,4 +652,70 @@ public class SessionSaver {
 		}
 		
 	}
+	
+//    public static void main(String args[])
+//    {                
+//            try
+//            {
+//                    String zipFile = "/home/akallio/Desktop/test.zip";
+//                   
+//                    //create byte buffer
+//                    byte[] buffer = new byte[1024];
+//                    /*
+//                     * To create a zip file, use
+//                     *
+//                     * ZipOutputStream(OutputStream out)
+//                     * constructor of ZipOutputStream class.
+//                     *  
+//                     */
+//                     
+//                     //create object of FileOutputStream
+//                     FileOutputStream fout = new FileOutputStream(zipFile);
+//                     
+//                     //create object of ZipOutputStream from FileOutputStream
+//                     ZipOutputStream zout = new ZipOutputStream(fout);
+//                     
+//                     /*
+//                      * To begin writing ZipEntry in the zip file, use
+//                      *
+//                      * void putNextEntry(ZipEntry entry)
+//                      * method of ZipOutputStream class.
+//                      *
+//                      * This method begins writing a new Zip entry to
+//                      * the zip file and positions the stream to the start
+//                      * of the entry data.
+//                      */
+//                     
+//                     zout.putNextEntry(new ZipEntry("jee"));
+//                     
+//                     /*
+//                      * After creating entry in the zip file, actually
+//                      * write the file.
+//                      */
+//                     int length = buffer.length;
+//                     
+//                     zout.write(buffer, 0, length);
+//                     
+//                     /*
+//                      * After writing the file to ZipOutputStream, use
+//                      *
+//                      * void closeEntry() method of ZipOutputStream class to
+//                      * close the current entry and position the stream to
+//                      * write the next entry.
+//                      */
+//                     
+//                      zout.closeEntry();
+//                     
+//                      //close the ZipOutputStream
+//                      zout.close();
+//                     
+//                      System.out.println("Zip file has been created!");
+//           
+//            }
+//            catch(IOException ioe)
+//            {
+//                    System.out.println("IOException :" + ioe);
+//            }
+//           
+//    }
 }
