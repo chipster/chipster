@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 /**
  * Gene indexing tools. 
@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**

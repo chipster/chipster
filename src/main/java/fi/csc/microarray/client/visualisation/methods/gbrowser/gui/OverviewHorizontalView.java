@@ -1,11 +1,9 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.view;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.RegionListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
@@ -25,7 +23,7 @@ public class OverviewHorizontalView extends HorizontalView {
 	
 	public void mouseClicked(MouseEvent e) {
 		
-		if (!viewArea.contains(e.getPoint())) {
+		if (!viewCanvasArea.contains(e.getPoint())) {
 			return;
 		}
 		

@@ -1,6 +1,5 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.util.Collection;
@@ -15,23 +14,19 @@ import org.jfree.data.general.DatasetChangeEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.CircularView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.HorizontalView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.OverviewHorizontalView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
  * <p>The main visual component for Genome browser. GenomePlot is the core of the view layer and runs inside Swing event
- * dispatch thread. The plot is constructed out of {@link View} components. Compatible with JFreeChart visualization library.</p>
+ * dispatch thread. The plot is constructed out of {@link GBrowserView} components. Compatible with JFreeChart visualization library.</p>
  * 
  * @author Petri Klemelä, Aleksi Kallio
- * @see View
+ * @see GBrowserViewdrawView
  */
-public class GBrowserPlot extends Plot {
+public class GBrowserPlot extends Plot implements LayoutContainer {
 
-	private List<View> views = new LinkedList<View>();
-	private View dataView = null;
+	private List<GBrowserView> views = new LinkedList<GBrowserView>();
+	private GBrowserView dataView = null;
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
     public TooltipAugmentedChartPanel chartPanel;
@@ -75,8 +70,6 @@ public class GBrowserPlot extends Plot {
 		// add overview view
 		this.overviewView = new OverviewHorizontalView(this);
 		this.overviewView.margin = 0;
-		this.overviewView.setStaticHeight(true);
-		this.overviewView.setStaticHeight(25);
 		this.views.add(overviewView);
 
 		// add horizontal or circular data view
@@ -88,7 +81,7 @@ public class GBrowserPlot extends Plot {
 			
 			this.dataView = new CircularView(this, true, true, false);
 			this.dataView.margin = 20;
-			this.dataView.addTrack(new EmptyTrack(dataView, 30));
+			//this.dataView.addTrack(new EmptyTrack(dataView, 30));
 		}
 
 		this.views.add(dataView);
@@ -112,11 +105,11 @@ public class GBrowserPlot extends Plot {
 		
 	}
 
-	public View getDataView() {
+	public GBrowserView getDataView() {
 		return dataView;
 	}
 
-	public View getOverviewView() {
+	public GBrowserView getOverviewView() {
 		return overviewView;
 	}
 
@@ -154,7 +147,7 @@ public class GBrowserPlot extends Plot {
 	}
 	
 	public String getPlotType() {
-		return "GeneBrowser";
+		return "GenomeBrowser";
 	}
 
 	/**
@@ -162,7 +155,7 @@ public class GBrowserPlot extends Plot {
 	 * 
 	 * @param g2
 	 *            the graphics device.
-	 * @param area
+	 * @param plotArea
 	 *            the area within which the plot should be drawn.
 	 * @param anchor
 	 *            the anchor point (<code>null</code> permitted).
@@ -173,79 +166,61 @@ public class GBrowserPlot extends Plot {
 	 * @throws NullPointerException
 	 *             if g2 or area is null.
 	 */
-	public void draw(java.awt.Graphics2D g2, java.awt.geom.Rectangle2D area, java.awt.geom.Point2D anchor, PlotState parentState, PlotRenderingInfo info) {
+	public void draw(java.awt.Graphics2D g2, java.awt.geom.Rectangle2D plotArea, java.awt.geom.Point2D anchor, PlotState parentState, PlotRenderingInfo info) {
 
 		if (info != null) {
-			info.setPlotArea(area);
-			info.setDataArea(area);
+			info.setPlotArea(plotArea);
+			info.setDataArea(plotArea);
 		}		
 		
 		Shape savedClip = g2.getClip();
-		g2.clip(area);
+		g2.clip(plotArea);
 
-		Rectangle viewArea = (Rectangle) area.getBounds().clone();
-		Rectangle viewPort = (Rectangle) getFullHeightClip().clone();
+		//Set width
+		Rectangle viewCanvasArea = (Rectangle) plotArea.getBounds().clone();
+		Rectangle plotViewPort = (Rectangle) getFullHeightClip().clone();
 		
-		// Horizontal or vertical split
-		if (true) {
+		LayoutTool.doLayout(this, (int) plotArea.getBounds().getHeight());		
+		
+		for (int i = 0; i < views.size(); i++) {
+			GBrowserView view = views.get(i);
 
-			for (int i = 0; i < views.size(); i++) {
-			    View view = views.get(i);
-			    
-			    if (i > 0) {
-			    	viewArea.y += viewArea.height;
-			    	
-//			    	viewPort.y += viewArea.height;
-//			    	viewPort.height -= viewArea.height;
-			    }
-				
-				if (view.hasStaticHeight()) {
-				    viewArea.height = (int) (view.getStaticHeight());
-				} else {
-					
-				    viewArea.height = (int) (area.getBounds().getHeight() -
-				            getStaticViewHeight()) / getNonStaticViewCount();
-				}
-
-				g2.setClip(viewArea);
-				view.drawView(g2, false, viewPort);
+			if (i > 0) {
+				viewCanvasArea.y += viewCanvasArea.height;
 			}
+			
+			//FIXME			
+			viewCanvasArea.height = view.getLayoutHeight();
+//			if (view.isFullHeight()) {					
+//				viewCanvasArea.height = (int) (view.getHeight());
+//			} else {
+//				viewCanvasArea.height = this.getHeight(); 
+//			}
 
-		} else {
-			float[] viewWidths = new float[] { 0.05f, 0.95f };
-			Rectangle lastArea = null;
-
-			for (int i = 0; i < views.size(); i++) {
-				if (lastArea != null) {
-					viewArea.x = lastArea.x + lastArea.width;
-					viewArea.y = lastArea.y;
-					viewArea.height = lastArea.height;
-				}
-				g2.setColor(Color.black);
-				viewArea.width = (int) (area.getBounds().getWidth() * viewWidths[i]);
-				lastArea = (Rectangle) (viewArea.clone());
-
-				View view = views.get(i);
-
-				if (view instanceof HorizontalView) {
-					viewArea.grow(-view.margin, 0);
-				}
-
-				g2.setClip(savedClip);
-				g2.drawLine(viewArea.x - 1, 0, viewArea.x - 1, viewArea.height);
-
-				g2.setClip(viewArea);
-				view.drawView(g2, false, null);
-			}
+			g2.setClip(viewCanvasArea);
+			view.drawView(g2, plotViewPort, viewCanvasArea);
 		}
+		
+		//Height of content is known only after it is drawn
+		chartPanel.setScrollGroupBoundaries(getScrollGroups(), (int) plotViewPort.getHeight());		
+		
 		g2.setClip(savedClip);
 	}
-	
+
+	private Collection<ScrollGroup> getScrollGroups() {
+		
+		List<ScrollGroup> groups = new LinkedList<ScrollGroup>();
+		for ( GBrowserView view : views) {
+			groups.addAll(view.getScrollGroups());
+		}
+		return groups;
+	}
+
 	public int getHeight() {
 		int total = 0;
-		for (View view : views) {
-			if (view.hasStaticHeight()) {
-				total += view.getStaticHeight();
+		for (GBrowserView view : views) {
+			if (view.isFixedHeight()) {
+				total += view.getHeight();
 			} else {
 				total += view.getFullHeight();
 			}
@@ -277,7 +252,7 @@ public class GBrowserPlot extends Plot {
 		this.datasetChanged(new DatasetChangeEvent(this, null));		
 	}
 
-	public Collection<View> getViews() {
+	public Collection<GBrowserView> getViews() {
 		return views;
 	}
 	
@@ -288,32 +263,6 @@ public class GBrowserPlot extends Plot {
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
         this.dataView.redraw();
-    }
-    
-    /**
-     * Sum heights of all views in this plot that have constant heights.
-     */
-    private int getStaticViewHeight() {
-        int heightSum = 0;
-        for (View view : views) {
-            if (view.hasStaticHeight()) {
-                heightSum += view.getStaticHeight();
-            }
-        }
-        return heightSum;
-    }
-    
-    /**
-     * Return a number of views that have static heights.
-     */
-    private int getNonStaticViewCount() {
-        int count = 0;
-        for (View view : views) {
-            if (!view.hasStaticHeight()) {
-                count += 1;
-            }
-        }
-        return count;
     }
     
     public boolean isFullHeight() {
@@ -337,5 +286,18 @@ public class GBrowserPlot extends Plot {
 
 	public Rectangle getFullHeightClip() {
 		return fullHeightClip;
+	}
+
+	@Override
+	public Collection<? extends LayoutComponent> getLayoutComponents() {
+		return views;
+	}
+
+	public void initializeTracks() {
+		for (GBrowserView view : views) {
+			for (Track track : view.getTracks()) {
+				track.initializeListener();
+			}
+		}
 	}
 }

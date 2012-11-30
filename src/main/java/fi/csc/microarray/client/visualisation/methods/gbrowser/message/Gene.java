@@ -1,9 +1,8 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.Collection;
 import java.util.HashMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 public class Gene extends HashMap<String, Transcript> implements Comparable<Gene> {
 	

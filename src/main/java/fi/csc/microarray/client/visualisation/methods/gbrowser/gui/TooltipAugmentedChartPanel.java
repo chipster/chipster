@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.event.MouseEvent;
 

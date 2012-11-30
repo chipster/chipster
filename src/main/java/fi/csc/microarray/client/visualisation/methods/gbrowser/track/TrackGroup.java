@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +13,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutContainer;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
 
 /**
  * <p>A collection of tracks representing a single data source or
@@ -24,17 +28,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
  * switching tracks inside the group and changing properties of
  * individual groups.</p>
  * 
- * @author Rimvydas Naktinis
+ * @author Rimvydas Naktinis, Petri Klemelä
  *
  */
-public class TrackGroup {
+public class TrackGroup implements LayoutComponent, LayoutContainer {
     
     protected List<Track> tracks = new LinkedList<Track>();
-    protected View view;
+    protected GBrowserView view;
     protected boolean menuVisible = false;
     protected boolean visible = true;
     public SideMenu menu;
     private JButton resize;
+	private int layoutHeight;
         
     public class SideMenu extends JPanel implements ActionListener {
         
@@ -116,13 +121,13 @@ public class TrackGroup {
         }
     }
 
-    public TrackGroup(View view) {
+    public TrackGroup(GBrowserView view) {
         this.view = view;
         
         // Add side menu
         menu = new SideMenu();
         
-        //Memory leak, the reference isn't removed when the visualization is changed to none.
+        //FIXME Memory leak, the reference isn't removed when the visualization is changed to none.
         //Fix if the side panel is needed
         //this.view.parentPlot.chartPanel.add(menu);
     }
@@ -156,15 +161,7 @@ public class TrackGroup {
         return tracks;
     }
     
-    public int getHeight() {
-        int height = 0;
-        for (Track track : getTracks()) {
-            height += track.getHeight();
-        }
-        return height;
-    }
-    
-    public View getView() {
+    public GBrowserView getView() {
         return view;
     }
     
@@ -217,4 +214,56 @@ public class TrackGroup {
     		}
     	}
     }
+
+	//FIXME
+//	public void setHeight(int nonFixedGroupHeight) {
+//
+//		// Fixed height comes directly from the tracks and can't be changed at run time
+//		if (!isFixedHeight()) {
+//			for (Track t : getTracks()) {
+//				if (t.isFixedHeight()) {
+//					if (view.isFullHeight()) {
+//						t.setHeight(Integer.MAX_VALUE);
+//					} else {
+//						int strechHeight = Math.round(getStretchableTrackHeight());					
+//						if (strechHeight < t.getMinHeight()) {
+//							t.setHeight(t.getMinHeight());
+//						} else {
+//							t.setHeight(Math.round(getStretchableTrackHeight()));
+//						}
+//					}
+//				}
+//			}		
+//		}
+//	}
+
+	@Override
+	public Collection<? extends LayoutComponent> getLayoutComponents() {
+		return tracks;
+	}
+
+	@Override
+	public boolean isFixedHeight() {
+		return LayoutTool.isFixedHeight(this);
+	}
+
+	@Override
+	public int getHeight() {
+		return LayoutTool.getHeight(this, layoutHeight);
+	}
+
+	@Override
+	public void setHeight(int height) {
+		this.layoutHeight = height;
+	}
+
+	@Override
+	public int getMinHeight() {
+		return 0;
+	}
+	
+	@Override
+	public int getCanvasHeight() {
+		return LayoutTool.getCanvasHeight(this);
+	}
 }

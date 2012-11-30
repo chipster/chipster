@@ -13,25 +13,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * The read track, most important of all tracks. Shows actual content of reads using color coding.
  * 
  */
-public class SeqBlockTrack extends Track {
+public class ReadPileTrack extends Track {
 	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 	
@@ -47,7 +47,7 @@ public class SeqBlockTrack extends Track {
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 
-	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
+	public ReadPileTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
 			long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.readData = file;
@@ -290,17 +290,8 @@ public class SeqBlockTrack extends Track {
 	}
 
 	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public boolean isStretchable() {
-		return isVisible(); // Stretchable unless hidden
+	public boolean isFixedHeight() {
+		return false;
 	}
 
 	@Override
@@ -331,7 +322,7 @@ public class SeqBlockTrack extends Track {
 	 * Enable SNP highlighting and set reference data.
 	 * 
 	 * @param highlightSNP
-	 * @see SeqBlockTrack.setReferenceSeq
+	 * @see ReadPileTrack.setReferenceSeq
 	 */
 	public void enableSNPHighlight(DataSource file) {
 		// turn on highlighting mode
@@ -355,7 +346,7 @@ public class SeqBlockTrack extends Track {
 	/**
 	 * Convert reference sequence reads to a char array.
 	 */
-	public static char[] getReferenceArray(Collection<RegionContent> refReads, View view, Strand strand) {
+	public static char[] getReferenceArray(Collection<RegionContent> refReads, GBrowserView view, Strand strand) {
 		char[] refSeq = new char[0];
 		Iterator<RegionContent> iter = refReads.iterator();
 		refSeq = new char[view.getBpRegion().getLength().intValue() + 1];
@@ -393,5 +384,10 @@ public class SeqBlockTrack extends Track {
 	@Override
 	public String getName() {
 		return "Reads";
+	}
+	
+	@Override
+	public int getMinHeight() {
+		return 100;
 	}
 }

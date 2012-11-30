@@ -16,22 +16,23 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
 
 /**
- * Single track inside a {@link View}. Typically multiple instances
+ * Single track inside a {@link GBrowserView}. Typically multiple instances
  * are used to construct what user perceives as a track. 
  */
-public abstract class Track implements AreaResultListener {
+public abstract class Track implements AreaResultListener, LayoutComponent {
 
 	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
-	protected View view;
+	protected GBrowserView view;
 	protected DataSource file;
 	protected Strand strand = Strand.FORWARD;
-	protected Integer height;
+	protected int layoutHeight;
 	protected boolean visible = true;
 	
-    public Track(View view, DataSource file) {
+    public Track(GBrowserView view, DataSource file) {
 		this.view = view;
 		this.file = file;
 	}
@@ -43,21 +44,18 @@ public abstract class Track implements AreaResultListener {
 	public void initializeListener() {
 		if (file != null) {
 			view.getQueueManager().addResultListener(file, this);
-		} else {
-			throw new RuntimeException("Track has no file: " + this);
-		}
+		} 
 	}
 
 	/**
 	 * The method where the actual work of a track typically happens. Each track needs to manage drawables, possibly
 	 * caching them.
 	 */
-	public abstract Collection<Drawable> getDrawables();
-
+	public abstract  Collection<Drawable> getDrawables();
 	/**
 	 * The view under which this track operates.
 	 */
-	protected View getView() {
+	protected GBrowserView getView() {
 		return view;
 	}
 	
@@ -89,29 +87,28 @@ public abstract class Track implements AreaResultListener {
 	}
 	
 	/**
-	 * Each track has individual height. If it is not set explicitly,
-	 * the default height is taken from View.
-	 * 
 	 * @return height of this track in pixels.
 	 */
-	public Integer getHeight() {
-	    return height;
+	public int getHeight() {
+	    return layoutHeight;
 	}
 	
 	/**
 	 * Set height of this track.
 	 */
-    public void setHeight(Integer height) {
-        this.height = height;
+    public void setHeight(int height) {
+        this.layoutHeight = height;
     }
 
 	/**
 	 * Determine if the track can be resized vertically.
 	 * 
-	 * @return true if track can be resized, false if it has
-	 * static height.
+	 * @return false if track can be resized, true if it has
+	 * fixed height.
 	 */
-	public abstract boolean isStretchable();
+	public boolean isFixedHeight() {
+		return true;
+	}
 	
     /**
      * Determine if the track is visible.
@@ -157,6 +154,7 @@ public abstract class Track implements AreaResultListener {
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 	private String name = "Track";
+	private int canvasHeight;
 
 	/**
 	 * DOCME
@@ -203,5 +201,23 @@ public abstract class Track implements AreaResultListener {
 
 	protected void drawTextAboveRectangle(String text, Collection<Drawable> drawables, Rectangle rect, int offset) {
 		drawables.add(new TextDrawable(rect.x < 0 ? 0 : rect.x, rect.y + offset, text, Color.DARK_GRAY));
+	}
+
+	public int getMinHeight() {
+		return 0;
+	}
+
+	public void updateCanvasHeight(Collection<Drawable> drawables) {
+		int maxY = 0;
+		for (Drawable drawable : drawables) {
+			if (drawable.getMaxY() > maxY && view.getWidth() > drawable.x) {
+				maxY = drawable.getMaxY();
+			}
+		}
+		this.canvasHeight = maxY;
+	}
+
+	public int getCanvasHeight() {
+		return Math.max(canvasHeight, this.getHeight());
 	}
 }

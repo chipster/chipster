@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -10,6 +10,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 
 public class GBrowserLegend extends JPanel {
 	

@@ -9,8 +9,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Line that separates real tracks.
@@ -24,13 +24,13 @@ public class SeparatorTrack extends Track {
 	private int thickness;
 	private String name = "separator";
 	
-	protected SeparatorTrack(View view, long minBpLength, long maxBpLength) {
+	protected SeparatorTrack(GBrowserView view, long minBpLength, long maxBpLength) {
 		super(view, null);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
 	
-	public SeparatorTrack(View view, Color color, int thickness, long minBpLength, long maxBpLength) {
+	public SeparatorTrack(GBrowserView view, Color color, int thickness, long minBpLength, long maxBpLength) {
 		this(view, minBpLength, maxBpLength);
 		this.color = color;
 		this.thickness = thickness;
@@ -61,17 +61,8 @@ public class SeparatorTrack extends Track {
 	}  
 
     @Override
-    public Integer getHeight() {
-        if (isVisible()) {
-            return thickness;
-        } else {
-            return 0;
-        }
-    }
-    
-    @Override
-    public boolean isStretchable() {
-        return false;
+    public int getHeight() {
+        return thickness;
     }
     
     @Override

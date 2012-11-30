@@ -1,19 +1,18 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.view;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.RegionListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -30,7 +29,7 @@ public class ViewLimiter implements RegionListener {
 	 * @param cytobandDataSource
 	 * @param view View to follow to notice chromosome changes
 	 */
-	public ViewLimiter(QueueManager queueManager, CytobandDataSource cytobandDataSource, View view) {
+	public ViewLimiter(QueueManager queueManager, CytobandDataSource cytobandDataSource, GBrowserView view) {
 		this.queueManager = queueManager;
 		this.cytobandDataSource = cytobandDataSource;
 

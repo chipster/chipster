@@ -2,11 +2,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 
 import java.awt.Color;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
- * Base class for all drawable objects (shapes). Actual drawing is done by {@link View} objects. 
+ * Base class for all drawable objects (shapes). Actual drawing is done by {@link GBrowserView} objects. 
  * 
  * @author Petri Klemelä
  *

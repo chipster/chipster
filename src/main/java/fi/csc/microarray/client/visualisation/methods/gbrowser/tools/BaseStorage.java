@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Utility class for storing information that is organised by bases (genomic coordinates).
@@ -153,7 +153,7 @@ public class BaseStorage {
 		}
 	}
 
-	public void updateBases(Collection<RegionContent> reads, View view) {
+	public void updateBases(Collection<RegionContent> reads, GBrowserView view) {
 
 		
 		// Divide to two groups: in view and out of view
@@ -206,7 +206,7 @@ public class BaseStorage {
 	 * Goes through data and gives count for each location and nucleotide.
 	 * @param refSeq 
 	 */
-	public void getNucleotideCounts(Iterable<ReadPart> readParts, View view, char[] refSeq) {
+	public void getNucleotideCounts(Iterable<ReadPart> readParts, GBrowserView view, char[] refSeq) {
 	
 		// Sweep collector
 		collector = new TreeMap<Long, Base>();

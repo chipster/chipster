@@ -16,12 +16,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
@@ -42,7 +42,7 @@ public class QualityCoverageTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(View view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
+	public QualityCoverageTrack(GBrowserView view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
@@ -204,23 +204,8 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			//return super.getHeight();
-			
-			return 100;
-			
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public boolean isStretchable() {
-		// stretchable unless hidden
-		//return isVisible();
-		
-		return false;
+	public int getHeight() {
+		return 100;
 	}
 
 	@Override
@@ -249,7 +234,7 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	/**
-	 * @see View#drawView
+	 * @see GBrowserView#drawView
 	 */
 	@Override
 	public boolean canExpandDrawables() {

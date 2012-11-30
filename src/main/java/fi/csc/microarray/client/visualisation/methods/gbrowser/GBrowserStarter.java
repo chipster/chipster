@@ -53,10 +53,16 @@ public class GBrowserStarter {
 		Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
 		reads.setIndexData(new DataFile(BAI_DATA_FILE));			
 		interpretations.add(reads);
+		
+		Interpretation reads2 = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
+		reads2.setIndexData(new DataFile(BAI_DATA_FILE));			
+		interpretations.add(reads2);
 
-		//			interpretations.add(new BasicInterpretation(TrackType.REGIONS, new BasicDataFile(data)));
-		//			interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
-		//			interpretations.add(new BasicInterpretation(TrackType.VCF, new BasicDataFile(data)));
+		//Bed with or without header
+		//interpretations.add(new BasicInterpretation(TrackType.REGIONS, new BasicDataFile(data)));
+		//interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
+		//Vcf
+		//interpretations.add(new BasicInterpretation(TrackType.VCF, new BasicDataFile(data)));
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 
@@ -84,7 +90,7 @@ public class GBrowserStarter {
 	 */
 	private static class BasicGBrowser extends GBrowser {
 
-		protected ImageIcon getIcon(String path) {
+		public ImageIcon getIcon(String path) {
 
 			//Chipster packaging specific implementation
 			return new ImageIcon(VisualConstants.class.getResource(path));

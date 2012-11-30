@@ -1,10 +1,10 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BpCoordFileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMFileFetcherThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 
 /**
  * Result generated from {@link SAMHandlerThread} by {@link SAMFileFetcherThread}.

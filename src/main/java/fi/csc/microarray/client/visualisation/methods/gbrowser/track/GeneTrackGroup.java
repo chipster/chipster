@@ -3,11 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp
@@ -28,7 +28,7 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(View dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
+	public GeneTrackGroup(GBrowserView dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
 		super(dataView);
 		
 		if (annotationDataSource != null) {

@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,15 +8,13 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
 /**
- * Collects and resends area results. Used by the {@link View} objects to manage incoming area results.
+ * Collects and resends area results. Used by the {@link GBrowserView} objects to manage incoming area results.
  * 
  * @author Petri Klemelä
  *

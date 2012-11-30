@@ -12,29 +12,29 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing the reference sequence. Useful only for low zoom levels.
  *
  */
-public class SeqTrack extends Track {
+public class ReferenceSequenceTrack extends Track {
 
 	private TreeMap<BpCoord, String> reads = new TreeMap<BpCoord, String>();
 
 	private long maxBpLength;
 
-	public SeqTrack(View view, DataSource file, long maxBpLength) {
+	public ReferenceSequenceTrack(GBrowserView view, DataSource file, long maxBpLength) {
 
 		super(view, file);
 		this.maxBpLength = maxBpLength;
@@ -137,18 +137,9 @@ public class SeqTrack extends Track {
 	}
 
 	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			return 20;
-		} else {
-			return 0;
-		}
+	public int getHeight() {
+		return 20;
 	}
-	   
-    @Override
-    public boolean isStretchable() {
-        return false;
-    }
     
     @Override
     public boolean isVisible() {

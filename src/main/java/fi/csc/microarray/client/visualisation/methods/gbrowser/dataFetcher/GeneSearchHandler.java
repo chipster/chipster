@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 
 
 public class GeneSearchHandler extends AreaRequestHandler {

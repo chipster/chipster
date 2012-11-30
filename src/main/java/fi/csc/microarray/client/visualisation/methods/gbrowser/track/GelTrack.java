@@ -11,17 +11,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Gel-like track that shows intensity of some parameter as a continuous stripe
@@ -47,7 +47,7 @@ public class GelTrack extends Track {
     private Color BACKGROUND = Color.WHITE;
 	private ReadpartDataProvider readpartProvider;
 
-    public GelTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, 
+    public GelTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, 
     		Color color, long minBpLength, long maxBpLength) {
         super(view, file);
         this.color = color;
@@ -137,7 +137,7 @@ public class GelTrack extends Track {
         }
         
         return drawables;
-    }
+     }
 
     public void processAreaResult(AreaResult areaResult) {
 
@@ -146,18 +146,8 @@ public class GelTrack extends Track {
     }
 
     @Override
-    public Integer getHeight() {
-        if (isVisible()) {
-            return 16;
-        } else {
-            return 0;
-        }
-    }
-    
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
+    public int getHeight() {
+        return 16;       
     }
     
     @Override

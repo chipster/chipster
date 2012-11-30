@@ -27,7 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataFile;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -38,7 +38,7 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
- * with Chipster visualization system. See class GBroserStarter for how to start genome browser 
+ * with Chipster visualization system. See class GBrowserStarter for how to start genome browser 
  * outside Chipster. 
  * 
  * @author Petri Klemelä, Aleksi Kallio
@@ -101,12 +101,12 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		}
 		
 		@Override
-		protected void reportException(Exception e) {
+		public void reportException(Exception e) {
 			application.reportException(e);
 		}
 		
 		@Override
-		protected void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
+		public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
 			
 			Severity severity;
 			
@@ -127,7 +127,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);			
 		}
 		
-		protected void showVisualisation() {
+		public void showVisualisation() {
 
 			super.showVisualisation();
 							
@@ -164,7 +164,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			application.runBlockingTask(taskName, runnable);
 		}
 		
-		protected void initialiseUserDatas() throws IOException {
+		public void initialiseUserDatas() throws IOException {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
@@ -180,7 +180,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 		}
 		
-		protected ImageIcon getIcon(String path) {
+		public ImageIcon getIcon(String path) {
 			return new ImageIcon(VisualConstants.class.getResource(path));
 		}
 		

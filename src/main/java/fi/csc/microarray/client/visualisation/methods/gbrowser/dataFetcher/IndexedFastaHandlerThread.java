@@ -9,6 +9,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 
 
 

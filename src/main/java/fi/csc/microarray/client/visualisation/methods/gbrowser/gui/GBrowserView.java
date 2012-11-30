@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.view;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -26,24 +26,21 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.RegionListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipAugmentedChartPanel.TooltipRequestProcessor;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -53,13 +50,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  * View is responsible for allocating space and taking care of actual drawing.
  * 
  */
-public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {
+public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor, LayoutComponent, LayoutContainer{
 
 	public RegionDouble bpRegion;
 	public Region highlight;
 
-	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
-	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
+	public Collection<ScrollGroup> scrollGroups = new LinkedList<ScrollGroup>();
+	protected Rectangle viewCanvasArea = new Rectangle(0, 0, 500, 500);
 	private QueueManager queueManager;
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
@@ -76,7 +73,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
-	protected Float stretchableTrackHeight;
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
 	private Iterator<Track> trackIter;
@@ -87,13 +83,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private int x;
 	private BufferedImage drawBuffer;
 	private long dragEventTime;
-	private boolean isStatic;
+
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
-	private static boolean showFullHeight = true;
+	private static boolean isFullHeight = true;
 	private static final int FULL_HEIGHT_MARGIN = 20;
 
-	public View(GBrowserPlot parent, boolean movable, boolean zoomable, boolean selectable) {
+	public GBrowserView(GBrowserPlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
 		this.movable = movable;
 		this.zoomable = zoomable;
@@ -102,23 +98,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected abstract void drawDrawable(Graphics2D g, int x, int y, Drawable drawable);
 
 	/**
-	 * Add a single track to this view.
-	 * 
-	 * A track group with a single track is created.
-	 * 
-	 * @param track
-	 */
-	public void addTrack(Track track) {
-		trackGroups.add(new TrackGroup(track));
-	}
-
-	/**
 	 * Add a track group containing one or several tracks.
 	 * 
 	 * @param group
 	 */
 	public void addTrackGroup(TrackGroup group) {
-		trackGroups.add(group);
+		ScrollGroup scrollGroup = new ScrollGroup();
+		scrollGroup.addTrackGroup(group);
+		scrollGroups.add(scrollGroup);
 	}
 
 	/**
@@ -128,30 +115,38 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 */
 	public Collection<Track> getTracks() {
 		Collection<Track> tracks = new LinkedList<Track>();
-		for (TrackGroup trackGroup : trackGroups) {
-			// Only return tracks within visible groups
-			if (trackGroup.isVisible()) {
-				tracks.addAll(trackGroup.getTracks());
+		for (ScrollGroup scrollGroup : scrollGroups) {
+			for (TrackGroup trackGroup : scrollGroup.getTrackGroups()) {
+				// Only return tracks within visible groups
+				if (trackGroup.isVisible()) {
+					tracks.addAll(trackGroup.getTracks());
+				}
 			}
 		}
 		return tracks;
 	}
 
-	public void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
+	public void drawView(Graphics2D g, Rectangle plotViewPort, Rectangle viewCanvasArea) {
+		
+		this.viewCanvasArea = viewCanvasArea;
+		
+		if (viewCanvasArea.height == 0) {
+			//There is no layout yet
+			return;
+		}
 
 		if (bpRegion == null) {
 			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
-		showFullHeight = parentPlot.isFullHeight();
+		isFullHeight = parentPlot.isFullHeight();
 
+		//FIXME should happen recursively now
 		// Recalculate track heights
-		updateTrackHeights();
-
-		viewArea = g.getClipBounds();
+		//LayoutTool.doLayout(this, getHeight());
 				
-		int drawBufferWidth = (int) (viewArea.getWidth());
-		int drawBufferHeight = (int) (viewArea.getHeight());
+		int drawBufferWidth = (int) (viewCanvasArea.getWidth());
+		int drawBufferHeight = (int) (viewCanvasArea.getHeight());
 
 		if (drawBuffer == null || 
 				drawBuffer.getWidth() != drawBufferWidth || 
@@ -160,7 +155,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			/* drawBuffer contains only this view. Plot coordinates have to be shifted by the size of the other views
 			 * (viewArea.x and viewArea.y)
 			 */
-			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			drawBuffer = new BufferedImage((int) viewCanvasArea.getWidth(), (int) viewCanvasArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
@@ -174,7 +169,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		 */
 		bufG2.setBackground(new Color(0, 0, 0, 0));			
 		
-		if (showFullHeight && !hasStaticHeight()) {
+		if (isFullHeight && !isFixedHeight()) {
 			
 			//bufG2.setClip(null);
 			bufG2.clearRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
@@ -184,7 +179,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			 * scrolling position. Setting the original clip to the drawing buffer should
 			 * at least prevent actual pixel manipulating when drawing outside of the view.
 			 */
-			Rectangle clipRectangle = new Rectangle(viewPort.x - viewArea.x, viewPort.y - viewArea.y, viewPort.width, viewPort.height);
+			Rectangle clipRectangle = new Rectangle(plotViewPort.x - viewCanvasArea.x, plotViewPort.y - viewCanvasArea.y, plotViewPort.width, plotViewPort.height);
 			bufG2.setClip(clipRectangle);
 						
 			bufG2.setPaint(Color.white);
@@ -213,56 +208,87 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
 		}
 
-		// track group contains one or several logically-related tracks
-		for (TrackGroup group : trackGroups) {
-			trackIter = group.getTracks().iterator();
-			drawableIter = null;
+		int scrollGroupCanvasY = 0;
+		int scrollGroupDestinationY = 0;
+		
+		for (ScrollGroup scrollGroup : scrollGroups) {
+			
+			// track group contains one or several logically-related tracks
+			for (TrackGroup group : scrollGroup.getTrackGroups()) {
+				
+				
+				trackIter = group.getTracks().iterator();
+				drawableIter = null;
 
-			if (!group.isVisible()) {
-				continue;
-			}
-
-			// draw side menu
-			if (group.isMenuVisible()) {
-				group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
-						(int) (viewArea.getY() + y));
-			}
-
-			// draw all tracks
-			while (trackIter.hasNext()) {
-
-				if (drawableIter == null || !drawableIter.hasNext()) {
-					track = trackIter.next();
+				if (!group.isVisible()) {
+					continue;
 				}
 
-				// draw drawable objects for visible tracks
-				if (track.isVisible()) {
+				// draw side menu
+				if (group.isMenuVisible()) {
+					group.menu.setPosition((int) (viewCanvasArea.getX() + viewCanvasArea.getWidth()),
+							(int) (viewCanvasArea.getY() + y));
+				}
 
-					// decide if we will expand drawable for this track
-					boolean expandDrawables = track.canExpandDrawables();
+				// draw all tracks
+				while (trackIter.hasNext()) {
 
-					// create view context for this track only if we will use it
-					// currently only used for tracks that contain information
-					// about reads
-					if (expandDrawables && 
-							(track instanceof CoverageAndSNPTrack ||
-									track instanceof QualityCoverageTrack)) {
-
-						if (parentPlot.getReadScale() == ReadScale.AUTO) {
-							trackContext = new TrackContext(track);
-						} else {
-							// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-							trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
-						}
+					if (drawableIter == null || !drawableIter.hasNext()) {
+						track = trackIter.next();
 					}
 
-					Collection<Drawable> drawables = track.getDrawables();
-					drawableIter = drawables.iterator();
-					
-					int maxY = 20;
-					
-					if (showFullHeight && track.isStretchable()) {
+					// draw drawable objects for visible tracks
+					if (track.isVisible()) {
+
+						// decide if we will expand drawable for this track
+						boolean expandDrawables = track.canExpandDrawables();
+
+						// create view context for this track only if we will use it
+						// currently only used for tracks that contain information
+						// about reads
+						if (expandDrawables && 
+								(track instanceof CoverageAndSNPTrack ||
+										track instanceof QualityCoverageTrack)) {
+
+							if (parentPlot.getReadScale() == ReadScale.AUTO) {
+								trackContext = new TrackContext(track);
+							} else {
+								// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
+								trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
+							}
+						}
+
+						Collection<Drawable> drawables = track.getDrawables();
+						track.updateCanvasHeight(drawables);
 						
+						drawableIter = drawables.iterator();
+
+						int maxY = 20;
+
+//						if (isFullHeight && track.isFixedHeight()) {
+//
+//							while (drawableIter.hasNext()) {										
+//
+//								Drawable drawable = drawableIter.next();
+//
+//								if(drawable == null) {
+//									continue;
+//								}
+//
+//								if (drawable.getMaxY() > maxY) {
+//									maxY = drawable.getMaxY();
+//								}
+//							}
+//
+//							track.setCanvasHeight(maxY + FULL_HEIGHT_MARGIN);						
+//						}
+
+						//FIXME if scroll disabled...
+						//y += track.getHeight();
+						y += track.getCanvasHeight();
+
+						drawableIter = drawables.iterator();					
+
 						while (drawableIter.hasNext()) {										
 
 							Drawable drawable = drawableIter.next();
@@ -270,169 +296,109 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 							if(drawable == null) {
 								continue;
 							}
-							
-							if (drawable.getMaxY() > maxY) {
-								maxY = drawable.getMaxY();
+
+							// expand drawables to stretch across all height if necessary
+							if (expandDrawables) {
+								drawable.expand(trackContext);
 							}
-						}
-						
-						track.setHeight(maxY + FULL_HEIGHT_MARGIN);						
-					}
-					
-					y += track.getHeight();
-					
-					drawableIter = drawables.iterator();					
 
-					while (drawableIter.hasNext()) {										
+							// recalculate position for reversed strands
+							int maybeReversedY = (int) y;
+							if (track.isReversed()) {
+								maybeReversedY -= track.getHeight();
+							} else {
+								drawable.upsideDown();
+							}			
 
-						Drawable drawable = drawableIter.next();
+							// draw an object onto the buffer
+							drawDrawable(bufG2, x, maybeReversedY, drawable);
 
-						if(drawable == null) {
-							continue;
-						}
-						
-						// expand drawables to stretch across all height if necessary
-						if (expandDrawables) {
-							drawable.expand(trackContext);
 						}
 
-						// recalculate position for reversed strands
-						int maybeReversedY = (int) y;
-						if (track.isReversed()) {
-							maybeReversedY -= track.getHeight();
-						} else {
-							drawable.upsideDown();
-						}			
-
-						// draw an object onto the buffer
-						drawDrawable(bufG2, x, maybeReversedY, drawable);
-
-					}
-
-					drawableIter = null;
+						drawableIter = null;
 
 
-				} else {
-					drawableIter = null;
-				}               
+					} else {
+						drawableIter = null;
+					}               
+				}
 			}
-		}
-		
-		//drawBuffer has different coordinates in normal and fullHeight modes
-		if (showFullHeight && !hasStaticHeight()) {
+			
+			int scrollValue = this.parentPlot.chartPanel.getScrollValue(scrollGroup);
 			
 			//copy only the visible area of the JScrollPane
 			g.drawImage(drawBuffer, 
-					(int) viewPort.getX(), 
-					(int) viewPort.getY(), 
-					(int) (viewPort.getX() + viewPort.getWidth()), 
-					(int) (viewPort.getY() + viewPort.getHeight()),
-					(int) viewPort.getX() - viewArea.x, 
-					(int) viewPort.getY() - viewArea.y, 
-					(int) (viewPort.getX() - viewArea.x + viewPort.getWidth()), 
-					(int) (viewPort.getY() - viewArea.y + viewPort.getHeight()), null);
+					(int) plotViewPort.getX(), 
+					(int) plotViewPort.getY() + scrollGroupDestinationY, 
+					(int) (plotViewPort.getX() + plotViewPort.getWidth()), 
+					(int) (plotViewPort.getY() + scrollGroup.getHeight()) + scrollGroupDestinationY,
+					(int) plotViewPort.getX() - viewCanvasArea.x, 
+					(int) plotViewPort.getY() - viewCanvasArea.y + scrollGroupCanvasY +  + scrollValue, 
+					(int) (plotViewPort.getX() - viewCanvasArea.x + plotViewPort.getWidth()), 
+					(int) (plotViewPort.getY() - viewCanvasArea.y + scrollGroup.getHeight() + scrollGroupCanvasY  + scrollValue), null);
 			
-		} else {
-			//copy everything from the drawBuffer (this view) 
-			g.drawImage(drawBuffer, 
-					(int) viewArea.getX(), (int) viewArea.getY(), 
-					(int) (viewArea.getX() + drawBufferWidth), (int) (viewArea.getY() + drawBufferHeight),
-					0, 0, drawBufferWidth, drawBufferHeight, null);
+			scrollGroupCanvasY += scrollGroup.getCanvasHeight();
+			scrollGroupDestinationY += scrollGroup.getHeight();
+
 		}
-		//bufG2.setPaint(Color.white);
-//		bufG2.setPaint(new Color(0, 0, 0, 0));
-//		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+
+		//drawBuffer has different coordinates in normal and fullHeight modes
+//		if (isFullHeight && !isFixedHeight()) {
+//
+//			//copy only the visible area of the JScrollPane
+//			g.drawImage(drawBuffer, 
+//					(int) plotViewPort.getX(), 
+//					(int) plotViewPort.getY(), 
+//					(int) (plotViewPort.getX() + plotViewPort.getWidth()), 
+//					(int) (plotViewPort.getY() + plotViewPort.getHeight()),
+//					(int) plotViewPort.getX() - viewCanvasArea.x, 
+//					(int) plotViewPort.getY() - viewCanvasArea.y, 
+//					(int) (plotViewPort.getX() - viewCanvasArea.x + plotViewPort.getWidth()), 
+//					(int) (plotViewPort.getY() - viewCanvasArea.y + plotViewPort.getHeight()), null);
+//
+//		} else {
+//			//copy everything from the drawBuffer (this view) 
+//			g.drawImage(drawBuffer, 
+//					(int) viewCanvasArea.getX(), (int) viewCanvasArea.getY(), 
+//					(int) (viewCanvasArea.getX() + drawBufferWidth), (int) (viewCanvasArea.getY() + drawBufferHeight),
+//					0, 0, drawBufferWidth, drawBufferHeight, null);
+//		}
+		
 		trackIter = null;
 		drawableIter = null;
+	}
+	
+	public int getFullHeight() {
+		int height = 0;
+		for (ScrollGroup group : scrollGroups) {
+			
+			height += group.getFullHeight();
+		}
+		return height;
 	}
 
 	public boolean isRulerEnabled() {
 		return true;
 	}
 
-	/**
-	 * Update heights of tracks after zoom, resize etc.
-	 */
-	private void updateTrackHeights() {
-		// Calculate height of stretchable tracks
-		for (Track t : getTracks()) {
-			if (t.isStretchable()) {
-				if (showFullHeight) {
-					t.setHeight(Integer.MAX_VALUE);
-				} else {
-					t.setHeight(Math.round(getStretchableTrackHeight()));
-				}
-			}
-		}
-	}
-
-	public float getStretchableTrackHeight() {
-		stretchableTrackHeight = (getStaticHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
-		return stretchableTrackHeight;
-	}
-
-	/**
-	 * @return sum of heights of tracks with static heights.
-	 */
-	private int getStaticTrackHeightTotal() {
-		int staticHeightTotal = 0;
-
-		for (Track track : getTracks()) {
-			if (track.isVisible() && !track.isStretchable()) {
-				staticHeightTotal += track.getHeight();
-			}
-		}
-		return staticHeightTotal;
-	}
-
-	public int getFullHeight() {
-			
-		int heightTotal = 0;
-
-		for (Track track : getTracks()) {
-			if (track.isVisible()) {
-				if (track.getHeight() != null) {
-					heightTotal += track.getHeight();
-				}
-			}
-		}
-
-		// Avoid problems in initialisation by having some fixed value
-		if (heightTotal == 0) {
-			heightTotal = getStaticHeight();
-		}
-		return heightTotal;
-	}
-
-	protected int getStretchableTrackCount() {
-		int stretchableCount = 0;
-
-		for (Track track : getTracks()) {
-			if (track.isStretchable()) {
-				stretchableCount++;
-			}
-		}
-		return stretchableCount;
-	}
-
 	public int getWidth() {
-		return this.viewArea.width;
+		return this.viewCanvasArea.width;
 	}
 
-	public int getStaticHeight() {
-		return this.viewArea.height;
+	//FIXME
+//	/**
+//	 * Height of the area drawn by this view. Height is larger than sum of track heights,
+//	 * if all tracks have fixed height. Height is larger than the actual visible area if there is a scroll bar.
+//	 * 
+//	 * @return   
+//	 */
+	public int getHeight() {
+		//return this.viewCanvasArea.height;
+		return LayoutTool.getHeight(this, layoutHeight);
 	}
-
-	public void setStaticHeight(int height) {
-		this.viewArea.height = height;
-	}
-
-	public boolean hasStaticHeight() {
-		return isStatic;
-	}
-
-	public void setStaticHeight(boolean isStatic) {
-		this.isStatic = isStatic;
+	
+	public int getLayoutHeight() {
+		return layoutHeight;
 	}
 
 	public QueueManager getQueueManager() {	
@@ -529,9 +495,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		this.bpRegion = limitedRegion;
 
-		// Bp-region change may change visibility of tracks, calculate sizes again
-		stretchableTrackHeight = null;
-
 		fireAreaRequests();
 		
 		if (!disableDrawing) {
@@ -615,7 +578,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseDragged(MouseEvent e) {
 
-		if (movable && ((dragStartPoint != null && viewArea.contains(dragStartPoint) || viewArea.contains(e.getPoint())))) {
+		if (movable && ((dragStartPoint != null && viewCanvasArea.contains(dragStartPoint) || viewCanvasArea.contains(e.getPoint())))) {
 
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
@@ -637,6 +600,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Timer mouseAnimationTimer;
 
 	private ViewLimiter viewLimiter;
+	private int layoutHeight;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -760,11 +724,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public int getX() {
-		return viewArea.x;
+		return viewCanvasArea.x;
 	}
 
 	public int getY() {
-		return viewArea.y;
+		return viewCanvasArea.y;
 	}
 
 	public void redraw() {
@@ -772,16 +736,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		if (mouseAnimationTimer == null || !mouseAnimationTimer.isRunning()) {
 			parentPlot.redraw();
 		}
-	}
-
-	public List<Long> getRulerInfo() {
-		for (Track t : getTracks()) {
-			if (t instanceof RulerTrack) {
-				RulerTrack ruler = (RulerTrack) t;
-				return ruler.getRulerInfo();
-			}
-		}
-		return null;
 	}
 
 	public void addRegionListener(RegionListener listener) {
@@ -813,12 +767,50 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		if (queueManager != null) {
 			queueManager.poisonAll();
 		}
-		trackGroups.clear();
+		scrollGroups.clear();
 		//Queue manager holds references to track data through the data listener references preventing gc
 		queueManager = null;
 	}
 
 	public void setViewLimiter(ViewLimiter viewLimiter) {
 		this.viewLimiter = viewLimiter;
+	}
+
+	public boolean isFullHeight() {
+		return isFullHeight;
+	}
+	
+
+	@Override
+	public boolean isFixedHeight() {
+		return LayoutTool.isFixedHeight(this);
+	}
+
+	@Override
+	public void setHeight(int height) {
+		this.layoutHeight = height;
+	}
+
+	@Override
+	public Collection<? extends LayoutComponent> getLayoutComponents() {
+		return scrollGroups;
+	}
+	
+	@Override
+	public int getMinHeight() {
+		return 0;
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return true;
+	}
+
+	public void addScrollGroup(ScrollGroup group) {
+		scrollGroups.add(group);
+	}
+
+	public Collection<? extends ScrollGroup> getScrollGroups() {
+		return scrollGroups;
 	}
 }

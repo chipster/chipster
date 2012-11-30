@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.view;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -12,14 +12,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
  * Experimental circular view of the tracks (cf. Circos).
@@ -27,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
  * @author Petri Klemelä
  *
  */
-public class CircularView extends View {
+public class CircularView extends GBrowserView {
 
 	private Point offset;
 	private float angleOffset = (float) Math.PI;
@@ -37,9 +36,9 @@ public class CircularView extends View {
 	}
 
 	@Override
-	public void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
+	public void drawView(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
 
-		super.drawView(g, isAnimation, viewPort);
+		super.drawView(g, viewPort, viewCanvasArea);
 
 		if (highlight != null) {
 
@@ -264,12 +263,12 @@ public class CircularView extends View {
 	}
 
 	private int getCenterY() {
-		return getStaticHeight();
+		return getHeight();
 	}
 
 	@Override
-	public int getStaticHeight() {
-		return super.getStaticHeight() / 2;
+	public int getHeight() {
+		return super.getHeight() / 2;
 	}
 
 	private float getAngle(Point.Float p) {
@@ -288,6 +287,12 @@ public class CircularView extends View {
 
 	private float getAngle(float x) {
 		return x / (float) getWidth() * (float) Math.PI * 2 + angleOffset;
+	}
+
+	@Override
+	public int getCanvasHeight() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	// @Override

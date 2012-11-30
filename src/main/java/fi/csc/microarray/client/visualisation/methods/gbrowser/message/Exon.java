@@ -1,6 +1,5 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 public class Exon implements Comparable<Exon> {
 	

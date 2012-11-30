@@ -7,6 +7,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 
 
 public class GtfTabixHandlerThread extends TabixHandlerThread {

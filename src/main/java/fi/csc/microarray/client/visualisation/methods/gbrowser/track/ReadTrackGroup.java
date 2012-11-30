@@ -2,10 +2,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
 /**
  * Tracks containing information about reads: sequences themselves, gel,
@@ -24,10 +24,10 @@ public class ReadTrackGroup extends TrackGroup {
     // Tracks
     protected TitleTrack titleTrack;
     protected IntensityTrack readOverview;
-    protected SeqBlockTrack reads;
-    protected SeqTrack seq;
+    protected ReadPileTrack reads;
+    protected ReferenceSequenceTrack seq;
     protected IntensityTrack readOverviewReversed;
-    protected SeqBlockTrack readsReversed;
+    protected ReadPileTrack readsReversed;
     protected CoverageAndSNPTrack profileTrack;
     protected CoverageAndSNPTrack profileSNPTrack;
 //    protected QualityCoverageTrack qualityCoverageTrack;
@@ -46,7 +46,7 @@ public class ReadTrackGroup extends TrackGroup {
 	private boolean initialised = false;
 	private SeparatorTrack sepTrackReadOverview;
 
-    public ReadTrackGroup(View view, DataSource userData,
+    public ReadTrackGroup(GBrowserView view, DataSource userData,
             DataSource seqFile, String title) {
         super(view);
         
@@ -68,7 +68,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackReadOverview);
 
         // Detailed
-        reads = new SeqBlockTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+        reads = new ReadPileTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         tracks.add(reads);
         sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         sepTrackReads.setName("Reads");
@@ -77,7 +77,7 @@ public class ReadTrackGroup extends TrackGroup {
         // Reference
         if (seqFile != null) {
             // Reference sequence		
-            seq = new SeqTrack(view, seqFile, GBrowserConstants.SHOW_REFERENCE_AT);            
+            seq = new ReferenceSequenceTrack(view, seqFile, GBrowserConstants.SHOW_REFERENCE_AT);
                         
             tracks.add(seq);
             
@@ -91,7 +91,7 @@ public class ReadTrackGroup extends TrackGroup {
         addReadOverviewReversedTrack();
         
         // Detailed - reversed
-        readsReversed = new SeqBlockTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+        readsReversed = new ReadPileTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         readsReversed.setStrand(Strand.REVERSED);
         tracks.add(readsReversed);
     	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
@@ -203,5 +203,10 @@ public class ReadTrackGroup extends TrackGroup {
 		if (!initialised) {
     		throw new IllegalStateException("you must call initialise() after creating this object");
     	}
+	}
+	
+	@Override
+	public boolean isFixedHeight() {
+		return false;
 	}
 }

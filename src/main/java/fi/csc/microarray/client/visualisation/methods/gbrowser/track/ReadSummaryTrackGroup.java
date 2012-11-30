@@ -5,10 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
 /**
  * Tracks containing information about reads: sequences themselves, gel,
@@ -22,7 +22,7 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
     protected TabixIntensityTrack readOverviewSummary;
 	private TabixDataSource summaryDataSource;
 
-    public ReadSummaryTrackGroup(View view, DataSource userData, DataSource seqFile, String title, 
+    public ReadSummaryTrackGroup(GBrowserView view, DataSource userData, DataSource seqFile, String title, 
     		TabixDataSource summaryDataSource) throws FileNotFoundException {
 
     	super(view, userData, seqFile, title);

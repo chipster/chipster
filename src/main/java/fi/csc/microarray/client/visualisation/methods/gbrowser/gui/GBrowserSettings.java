@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -31,8 +31,9 @@ import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Track;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackDefinition;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -110,7 +111,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 	
-	protected JPanel getParameterPanel() {
+	public JPanel getParameterPanel() {
 
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
@@ -448,12 +449,12 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		}
 	}
 
-	protected void updateDatasetSwitches() {
+	public void updateDatasetSwitches() {
 		datasetSwitches.clear();
 
 		datasetSwitchesPanel.removeAll();
 
-		for (Track track : browser.getTracks()) {
+		for (TrackDefinition track : browser.getTracks()) {
 			JCheckBox box = new JCheckBox(track.name, true);
 			box.setToolTipText(track.name);
 			box.setEnabled(false);
@@ -567,7 +568,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			this.viewsizeField.setEnabled(true);
 			this.showFullHeightBox.setEnabled(true);
 
-			for (Track track : browser.getTracks()) {
+			for (TrackDefinition track : browser.getTracks()) {
 				track.checkBox.setEnabled(true);
 			}
 
@@ -601,7 +602,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	 * @param location
 	 * @param viewsize
 	 */
-	protected void setCoordinateFields(Long location, Long viewsize) {
+	public void setCoordinateFields(Long location, Long viewsize) {
 		if (location != null) {
 			locationField.setText(location.toString());
 		}
@@ -628,7 +629,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	 * 
 	 */
 	public void updateVisibilityForTracks() {
-		for (Track track : browser.getTracks()) {
+		for (TrackDefinition track : browser.getTracks()) {
 			if (track.trackGroup != null) {
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());

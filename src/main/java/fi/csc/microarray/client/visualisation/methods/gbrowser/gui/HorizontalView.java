@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.view;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,7 +18,6 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDou
  * The basic view of genome browser. Shows the tracks horizontally.
  *
  */
-public class HorizontalView extends View implements KeyListener {
+public class HorizontalView extends GBrowserView implements KeyListener {
 
 	private Timer keyTimer;
 	private Set<Integer> keySet = new HashSet<Integer>();
@@ -41,7 +41,7 @@ public class HorizontalView extends View implements KeyListener {
 	}
 
 	@Override
-	public void drawView(Graphics2D g, boolean isAnimation, Rectangle viewPort) {
+	public void drawView(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
 
 		// Clear previous tooltip mappings
 		drawableMap.clear();
@@ -50,7 +50,7 @@ public class HorizontalView extends View implements KeyListener {
 		this.clip = g.getClip();
 		
 		// Do the actual drawing
-		super.drawView(g, isAnimation, viewPort);
+		super.drawView(g, viewPort, viewCanvasArea);
 
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
@@ -282,4 +282,9 @@ public class HorizontalView extends View implements KeyListener {
 		return null;
 	}
 
+	@Override
+	public int getCanvasHeight() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

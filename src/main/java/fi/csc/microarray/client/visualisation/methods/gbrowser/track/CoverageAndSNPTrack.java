@@ -10,13 +10,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -24,7 +25,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Base;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Nucleotide;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
@@ -51,7 +51,7 @@ public class CoverageAndSNPTrack extends Track {
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 
-	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, DataSource refFile, 
+	public CoverageAndSNPTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, DataSource refFile, 
 			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.forwardColor = forwardColor;
@@ -87,7 +87,7 @@ public class CoverageAndSNPTrack extends Track {
 		Chromosome chr = getView().getBpRegion().start.chr;
 		
 		// If SNP highlight mode is on, we need reference sequence data
-		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, Strand.FORWARD);
+		char[] refSeq = ReadPileTrack.getReferenceArray(refReads, view, Strand.FORWARD);
 
 		// Count nucleotides for each location
 		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(dataStrand), view, refSeq); 
@@ -202,22 +202,8 @@ public class CoverageAndSNPTrack extends Track {
 	}
 
 	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			//return super.getHeight();
-			
-			return 100;
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public boolean isStretchable() {
-		// stretchable unless hidden
-		//return isVisible();
-		
-		return false;
+	public int getHeight() {
+		return 100;
 	}
 
 	@Override
@@ -248,7 +234,7 @@ public class CoverageAndSNPTrack extends Track {
 	}
 
 	/**
-	 * @see View#drawView
+	 * @see GBrowserView#drawView
 	 */
 	@Override
 	public boolean canExpandDrawables() {

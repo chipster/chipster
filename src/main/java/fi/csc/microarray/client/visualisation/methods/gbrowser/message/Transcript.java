@@ -1,9 +1,8 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.Collection;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 public class Transcript extends TreeSet<Exon> implements Comparable<Transcript> {
 	

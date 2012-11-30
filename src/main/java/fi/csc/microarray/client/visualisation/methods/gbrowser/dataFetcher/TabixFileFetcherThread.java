@@ -8,6 +8,7 @@ import org.broad.tribble.readers.TabixReader;
 import org.broad.tribble.readers.TabixReader.Iterator;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**

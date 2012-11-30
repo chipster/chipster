@@ -14,9 +14,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.view.View;
 
 /**
  * <p>Track showing known SNP's of the genome.</p> 
@@ -78,7 +78,7 @@ public class ReferenceSNPTrack extends Track {
 		INTRONIC_NMD_TRANSCRIPT, NONE,
 	}
 
-	public ReferenceSNPTrack(View view, DataSource file, long minBpLength, long maxBpLength) {
+	public ReferenceSNPTrack(GBrowserView view, DataSource file, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -186,17 +186,8 @@ public class ReferenceSNPTrack extends Track {
 	}
 
 	@Override
-	public boolean isStretchable() {
-		return isVisible();
-	}
-
-	@Override
-    public Integer getHeight() {
-        if (isVisible()) {
-            return 12;
-        } else {
-            return 0;
-        }
+    public int getHeight() {
+        return 12;
     }
 
 	public void changeSNPView() {
