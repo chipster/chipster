@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
+import fi.csc.microarray.util.Exceptions;
 
 //import java.util.Date;
 //import java.util.Random;
@@ -32,7 +33,13 @@ public class HibernateUtil {
     	
 		logger.debug("Initializing HibernateUtil");
 		
-		fi.csc.microarray.config.Configuration chiptserConf = ChipsterConfiguration.getConfiguration();
+		fi.csc.microarray.config.Configuration chiptserConf;
+		try {
+			chiptserConf = ChipsterConfiguration.getConfiguration();
+		} catch (Exception e) {
+    		System.err.println("Initialising Chipster configuration failed.\n" + Exceptions.getStackTrace(e));
+    		throw new ExceptionInInitializerError(e);
+		}
 		
 		final Configuration hibernateConf = new org.hibernate.cfg.Configuration();
 
