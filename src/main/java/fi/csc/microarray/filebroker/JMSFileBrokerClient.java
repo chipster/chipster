@@ -381,10 +381,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
 		try {
-			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
-			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
+			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
 			
-			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
+			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
 			url = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
 			
 		} finally {
@@ -423,9 +423,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			CommandMessage listRequestMessage = new CommandMessage(CommandMessage.COMMAND_LIST_SESSIONS);
 			filebrokerTopic.sendReplyableMessage(listRequestMessage, replyListener);
 			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			if (reply == null) {
+				throw new RuntimeException("server failed to list sessions");
+			}
 			String[] names= reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST).split("\t");
 			String[] uuids = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST).split("\t");
-			
+						
 			return new String[][] {names, uuids};
 			
 		} finally {
