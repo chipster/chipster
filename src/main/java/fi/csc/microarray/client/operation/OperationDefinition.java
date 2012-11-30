@@ -545,7 +545,6 @@ public class OperationDefinition implements ExecutionItem {
 		return bindings;
 	}
 
-	// TODO update to new type tag system
 	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
 		
 		if (type == ChipsterInputTypes.AFFY) {

@@ -12,13 +12,15 @@ public class DerbyMetadataServer {
 
 	private Connection connection = null;
 
-	private static String SESSION_DBTABLE = "sessions";
-	private static String FILE_DBTABLE = "files";
-	private static String BELONGS_TO_DBTABLE = "belongs_to";
+	private static String SESSION_DBTABLE = "chipster.sessions";
+	private static String FILE_DBTABLE = "chipster.files";
+	private static String BELONGS_TO_DBTABLE = "chipster.belongs_to";
+	private static String SPECIAL_USERS_DBTABLE = "chipster.special_users";
 	private static String[] DBTABLES = new String[] {
 		SESSION_DBTABLE,
 		FILE_DBTABLE,
-		BELONGS_TO_DBTABLE
+		BELONGS_TO_DBTABLE,
+		SPECIAL_USERS_DBTABLE
 	};
 	
 	private static String[] SQL_CREATE_TABLES = new String[] {
@@ -33,10 +35,12 @@ public class DerbyMetadataServer {
 			"last_accessed TIMESTAMP)",
 		"CREATE TABLE " + BELONGS_TO_DBTABLE + " (" + 
 			"session_uuid VARCHAR(200) CONSTRAINT session_foreign_key REFERENCES " + SESSION_DBTABLE + "," +
-			"file_uuid VARCHAR(200) CONSTRAINT file_foreign_key REFERENCES " + FILE_DBTABLE + ")"
+			"file_uuid VARCHAR(200) CONSTRAINT file_foreign_key REFERENCES " + FILE_DBTABLE + ")",
+		"CREATE TABLE " + SPECIAL_USERS_DBTABLE + " (" + 
+			"username VARCHAR(200) PRIMARY KEY)"
 	};
 
-	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, uuid FROM " + SESSION_DBTABLE + " WHERE username = ?";
+	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, uuid FROM " + SESSION_DBTABLE + " WHERE username = ? OR username in (SELECT username FROM " + SPECIAL_USERS_DBTABLE + ")";
 	private static String SQL_INSERT_SESSION  = "INSERT INTO " + SESSION_DBTABLE + " (name, username, uuid) VALUES (?, ?, ?)";
 	private static String SQL_DELETE_SESSION  = "DELETE FROM " + SESSION_DBTABLE + " WHERE uuid = ?";
 	
@@ -90,7 +94,7 @@ public class DerbyMetadataServer {
 			names.add(rs.getString("name"));
 			uuids.add(rs.getString("uuid"));
 		}
-		
+
 		return new List[] { names, uuids };
 	}
 

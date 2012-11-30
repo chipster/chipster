@@ -426,9 +426,17 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			if (reply == null) {
 				throw new RuntimeException("server failed to list sessions");
 			}
-			String[] names= reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST).split("\t");
-			String[] uuids = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST).split("\t");
-						
+			
+			String[] names; 
+			String[] uuids;
+			if ("".equals(reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST))) {
+				names = new String[0];
+				uuids = new String[0];
+			} else {
+				uuids= reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST).split("\t");
+				names = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST).split("\t");
+			}
+			
 			return new String[][] {names, uuids};
 			
 		} finally {

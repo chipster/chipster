@@ -1757,7 +1757,21 @@ public class SwingClientApplication extends ClientApplication {
 	public void loadSession(boolean remote) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
-		final JFileChooser fileChooser = getSessionFileChooser(accessory, remote, false);
+		// create filechooser dialog
+		final JFileChooser fileChooser;
+		try {
+			fileChooser = getSessionFileChooser(null,  remote, true);
+			
+		} catch (RuntimeException e) {
+			if (remote) {
+				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", Exceptions.getStackTrace(e), Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_HIDDEN, true);
+				return;
+			} else {
+				throw e;
+			}
+		}
+
 
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
 
@@ -1879,8 +1893,8 @@ public class SwingClientApplication extends ClientApplication {
 			
 		} catch (RuntimeException e) {
 			if (remote) {
-				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", Exceptions.getStackTrace(e), Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_HIDDEN, true);
 				return;
 			} else {
 				throw e;
