@@ -254,6 +254,9 @@
 			<resource>cufflinks2.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>cuffmerge2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>cuffdiff2.R</resource>
 		</tool>
 		<tool runtime="R-2.15">
