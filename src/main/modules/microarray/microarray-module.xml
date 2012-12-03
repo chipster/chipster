@@ -12,9 +12,7 @@
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
-		<!--
-		<tool runtime="R-2.15"><resource>norm-illumina-methylumi.R</resource></tool>
-		-->
+		<tool runtime="R-2.15_bioc-2.11"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
@@ -139,7 +137,7 @@
 		<tool runtime="R-2.12"><resource>plot-dendrogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-histogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-corrgram.R</resource></tool>
-		<tool runtime="R-2.12"><resource>plot-heatmap.R</resource></tool>
+		<tool runtime="R-2.15"><resource>plot-heatmap.R</resource></tool>
 	</category>
 
 	<category name="Utilities" color="#83010b">
@@ -158,7 +156,6 @@
 		<tool runtime="R-2.12"><resource>combine-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
 		<tool runtime="R-2.12"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-samples.R</resource></tool>

@@ -91,12 +91,14 @@ dat<-MEDIPS.normalize(data=dat)
 
 # Save the BED file
 if(save.bed=="yes") {
+   source(file.path(chipster.common.path, "bed-utils.R"))
    MEDIPS.exportWIG(file="output.bed", data=dat, raw=F, descr=files)
    library(rtracklayer)
    wig<-import("output.bed", format="wig")
    export(wig, "output.bed", format="bed")
    wig<-read.table("output.bed", header=F, sep="\t")
    wig<-wig[wig[,5]>0,]
+   wig <- sort.bed(wig)
    write.table(wig, "methylation.bed", col.names=F, row.names=F, sep="\t", quote=F)
 }
 

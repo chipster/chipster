@@ -14,6 +14,7 @@
 # PARAMETER OPTIONAL mpileup.ui: "Call only SNPs, indels not considered" TYPE [yes, no] DEFAULT no (Do not perform INDEL calling.)
 # PARAMETER OPTIONAL bfctools.un: "Skip sites where reference is ambiguous" TYPE [yes, no] DEFAULT no (Skip sites where the REF field is not A/C/G/T.)
 # PARAMETER OPTIONAL bfctools.e: "Use maximum likelihood to score variants, and perform HWE analysis" TYPE [yes, no] DEFAULT no (Perform max-likelihood inference only, including estimating the site allele frequency, testing Hardy-Weinberg equlibrium and testing associations with LRT.)
+# PARAMETER OPTIONAL vcfutils.d: "Minimum read depth" TYPE INTEGER DEFAULT 2 (Minimum read depth.)
 # PARAMETER OPTIONAL vcfutils.ud: "Maximum read depth" TYPE INTEGER DEFAULT 100 (Maximum read depth. Should be adjusted to about twice the average read depth.)
 
 # AMS 30.5.2012
@@ -75,7 +76,7 @@ if (bfctools.e == "yes") {
 
 
 # vcfutils otions
-vcfutils.options <- paste("varFilter -D", vcfutils.ud)
+vcfutils.options <- paste("varFilter", "-d", vcfutils.d,"-D", vcfutils.ud)
 
 
 # commands

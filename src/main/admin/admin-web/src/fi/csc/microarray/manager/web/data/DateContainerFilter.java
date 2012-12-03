@@ -55,10 +55,10 @@ public class DateContainerFilter extends ContainerFilter {
 			}
 		} catch (NumberFormatException e) {
 			throw new NumberFormatException(
-					"Search term parsing failed. Use following format: <br>" +
-					"<table><tr><td>2010</td><td>Search for year</td></tr>" +
-					"<tr><td>2010-03</td><td>Search for month</td></tr>" +
-					"<tr><td>2010-03-12</td><td>Search for date</td></tr></table>");
+					"Search term parsing failed. Use following format: " +
+					"2010 to search for year, " +
+					"2010-03 to search for month or " +
+					"2010-03-12 to search for specific date.");
 		}
 		
 

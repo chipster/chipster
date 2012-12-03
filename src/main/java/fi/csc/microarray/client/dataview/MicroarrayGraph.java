@@ -35,13 +35,13 @@ import fi.csc.microarray.client.dataviews.vertexes.PhenodataVertex;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.util.SwingTools;
 
 /**

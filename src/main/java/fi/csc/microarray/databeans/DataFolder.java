@@ -61,6 +61,35 @@ public class DataFolder extends DataItemBase {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
 			
+			if (data.isContentTypeCompatitible("text/tab")) {
+				// Some special tags for the tsv output of tool Annotate variants 
+				BufferedReader in = null;
+				try {
+					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+					String line = in.readLine();
+					String[] split = line.split("\t");
+					if (split.length > 4 && 
+							"SEQNAMES".equals(split[1]) && 
+							"START".equals(split[2]) && 
+							"END".equals(split[3])) {
+						
+						data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
+						data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
+						data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				} finally {
+					IOUtils.closeIfPossible(in);
+				}				
+			}
+			
+			if (data.isContentTypeCompatitible("text/gtf")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+			}
+			
 			if (data.isContentTypeCompatitible("text/vcf")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				

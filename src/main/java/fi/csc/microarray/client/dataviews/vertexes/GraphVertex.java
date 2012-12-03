@@ -163,7 +163,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 */
 	@Override
 	public String toString() {
-		return Session.getSession().getPrimaryModule().getShortCategoryName(getData().getOperationRecord().getCategoryName());
+		return Session.getSession().getPrimaryModule().getShortDataName(getData().getName());		
 	}
 	
 	public void addChildVertex(GraphVertex child){

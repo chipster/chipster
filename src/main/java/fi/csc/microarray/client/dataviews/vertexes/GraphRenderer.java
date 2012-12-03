@@ -95,6 +95,9 @@ public class GraphRenderer extends VertexRenderer {
 		}
 
 		if(isPhenodata){
+			
+			 this.setFont(this.getFont().deriveFont(Font.ITALIC));
+			
 			// Draw an oval
 			
 			int b = borderWidth;
@@ -124,6 +127,7 @@ public class GraphRenderer extends VertexRenderer {
 		}		
 		
 		if(isPhenodata && !((PhenodataVertex)vertex).isPhenodataSet()){
+						
 			// Draws warning icon for phenodata vertex if phenodata is not set
 			ImageIcon icon = VisualConstants.PHENODATA_ICON;
 			

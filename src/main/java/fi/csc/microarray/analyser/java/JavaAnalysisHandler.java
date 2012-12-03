@@ -92,6 +92,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
 		ad.setToolFile(new File(jobClass.getCanonicalName()));
+		ad.setModuleDir(moduleDir);
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
 		
 		return ad;

@@ -7,9 +7,9 @@
 bwa_path=("/opt/chipster/tools/bwa")
 
 
-if [ -d "/scratch/tmp" ]; then
-   mkdir -p "/scratch/tmp/bwa_indexes/tmp"
-   index_path=("/scratch/tmp/bwa_indexes/tmp")
+if [ -d "/tmp" ]; then
+   mkdir -p "/tmp/bwa_indexes/tmp"
+   index_path=("/tmp/bwa_indexes/tmp")
 else
    index_path=("./")
 fi

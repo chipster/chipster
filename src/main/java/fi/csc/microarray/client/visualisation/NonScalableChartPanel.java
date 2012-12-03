@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.JViewport;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
@@ -31,11 +33,9 @@ public class NonScalableChartPanel extends ChartPanel {
 	public void paintComponent(Graphics g) {
 
 		//in genomeBrowser getSize() doesn't work below width of 680
-		//put parent seems to know better
+		//but parent seems to know better
 		
 		int height =  getParent().getSize().height;
-		
-		
 		
 		/* If the genomeBrowser height is bigger than the scrollPane height, we set that bigger value
 		 * to both chartpanel size and drawHeight to make the genomeBrowser draw vertically everything
@@ -43,7 +43,12 @@ public class NonScalableChartPanel extends ChartPanel {
 		 */
 		if (genomePlot != null && genomePlot.isFullHeight()) {
 						
-			height = genomePlot.getHeightTotal();
+			height = genomePlot.getHeight();
+		}
+		
+		if (getParent() instanceof JViewport) {
+			JViewport viewport = (JViewport)getParent();
+			genomePlot.setFullHeightClip(viewport.getViewRect());
 		}
 				
 		Dimension size = new Dimension(getParent().getSize().width, height);
