@@ -18,6 +18,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
  * Single track inside a {@link GBrowserView}. Typically multiple instances
@@ -31,6 +33,8 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	protected Strand strand = Strand.FORWARD;
 	protected int layoutHeight;
 	protected boolean visible = true;
+	protected LayoutMode layoutMode = LayoutMode.FIXED;
+	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;
 	
     public Track(GBrowserView view, DataSource file) {
 		this.view = view;
@@ -90,7 +94,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * @return height of this track in pixels.
 	 */
 	public int getHeight() {
-	    return layoutHeight;
+	    return Math.max(layoutHeight, getMinHeight());
 	}
 	
 	/**
@@ -99,16 +103,6 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
     public void setHeight(int height) {
         this.layoutHeight = height;
     }
-
-	/**
-	 * Determine if the track can be resized vertically.
-	 * 
-	 * @return false if track can be resized, true if it has
-	 * fixed height.
-	 */
-	public boolean isFixedHeight() {
-		return true;
-	}
 	
     /**
      * Determine if the track is visible.
@@ -154,7 +148,8 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 	private String name = "Track";
-	private int canvasHeight;
+	private int fullHeight;
+	private int FULL_HEIGHT_MARGIN = 10;
 
 	/**
 	 * DOCME
@@ -207,17 +202,41 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 		return 0;
 	}
 
-	public void updateCanvasHeight(Collection<Drawable> drawables) {
+	public void setFullHeight(Collection<Drawable> drawables) {
 		int maxY = 0;
 		for (Drawable drawable : drawables) {
 			if (drawable.getMaxY() > maxY && view.getWidth() > drawable.x) {
 				maxY = drawable.getMaxY();
 			}
 		}
-		this.canvasHeight = maxY;
+		
+		if (getLayoutMode() == LayoutMode.FULL) {
+			maxY += FULL_HEIGHT_MARGIN;
+		}
+		this.fullHeight = maxY;
 	}
 
-	public int getCanvasHeight() {
-		return Math.max(canvasHeight, this.getHeight());
+	public int getFullHeight() {
+		if (getLayoutMode() == LayoutMode.FIXED) {
+			return getHeight();
+		} else {
+			return Math.max(fullHeight, this.getHeight());
+		}
+	}
+	
+	public void setLayoutMode(LayoutMode mode) {
+		this.layoutMode = mode;
+	}
+	
+	public void setDefaultLayoutMode(LayoutMode mode) {
+		this.defaultLayoutMode = mode;
+	}
+	
+	public void setDefaultLayoutMode() {
+		this.layoutMode = this.defaultLayoutMode;
+	}
+	
+	public LayoutMode getLayoutMode() {
+		return layoutMode;
 	}
 }

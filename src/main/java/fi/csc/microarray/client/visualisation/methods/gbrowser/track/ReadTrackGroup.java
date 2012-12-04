@@ -145,9 +145,9 @@ public class ReadTrackGroup extends TrackGroup {
         gelTrack = new GelTrack(view, userData, readpartProvider, Color.WHITE, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         tracks.add(gelTrack);
-    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
-    	sepTrackGel.setName("GelTrack");
-        tracks.add(sepTrackGel);
+//    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
+//    	sepTrackGel.setName("GelTrack");
+//      tracks.add(sepTrackGel);
         
         this.initialised  = true;
     }
@@ -203,10 +203,5 @@ public class ReadTrackGroup extends TrackGroup {
 		if (!initialised) {
     		throw new IllegalStateException("you must call initialise() after creating this object");
     	}
-	}
-	
-	@Override
-	public boolean isFixedHeight() {
-		return false;
 	}
 }

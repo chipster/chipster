@@ -11,6 +11,7 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
@@ -31,8 +32,8 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 	private ReadScale readScale = ReadScale.AUTO;
     public TooltipAugmentedChartPanel chartPanel;
     
-    private boolean showFullHeight = false;
-	private Rectangle fullHeightClip;
+//    private boolean showFullHeight = false;
+//	private Rectangle fullHeightClip;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -174,35 +175,35 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		}		
 		
 		Shape savedClip = g2.getClip();
-		g2.clip(plotArea);
+//		g2.clip(plotArea);
 
 		//Set width
-		Rectangle viewCanvasArea = (Rectangle) plotArea.getBounds().clone();
-		Rectangle plotViewPort = (Rectangle) getFullHeightClip().clone();
+//		Rectangle viewCanvasArea = (Rectangle) plotArea.getBounds().clone();
+//		Rectangle plotViewPort = (Rectangle) getLegacyFullHeightClip().clone();
+		
+		Rectangle viewArea = (Rectangle) plotArea.getBounds().clone();
 		
 		LayoutTool.doLayout(this, (int) plotArea.getBounds().getHeight());		
 		
 		for (int i = 0; i < views.size(); i++) {
 			GBrowserView view = views.get(i);
-
-			if (i > 0) {
-				viewCanvasArea.y += viewCanvasArea.height;
-			}
 			
 			//FIXME			
-			viewCanvasArea.height = view.getLayoutHeight();
+			viewArea.height = view.getHeight();
 //			if (view.isFullHeight()) {					
 //				viewCanvasArea.height = (int) (view.getHeight());
 //			} else {
 //				viewCanvasArea.height = this.getHeight(); 
 //			}
 
-			g2.setClip(viewCanvasArea);
-			view.drawView(g2, plotViewPort, viewCanvasArea);
+			g2.setClip(viewArea);
+			view.draw(g2, plotArea.getBounds(), viewArea);
+			
+			viewArea.y += viewArea.height;
 		}
 		
 		//Height of content is known only after it is drawn
-		chartPanel.setScrollGroupBoundaries(getScrollGroups(), (int) plotViewPort.getHeight());		
+		chartPanel.setScrollGroupBoundaries(getScrollGroups(), (int) plotArea.getHeight());		
 		
 		g2.setClip(savedClip);
 	}
@@ -219,10 +220,10 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 	public int getHeight() {
 		int total = 0;
 		for (GBrowserView view : views) {
-			if (view.isFixedHeight()) {
+			if (LayoutTool.inferLayoutMode(view) == LayoutMode.FIXED) {
 				total += view.getHeight();
 			} else {
-				total += view.getFullHeight();
+				total += view.getLegacyFullHeight();
 			}
 		}
 		return total;
@@ -265,12 +266,12 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
         this.dataView.redraw();
     }
     
-    public boolean isFullHeight() {
-    	return showFullHeight;
-    }
-    
-    public void setFullHeight(boolean b) {
-    	showFullHeight = b;
+    public void setFullLayoutMode(boolean enabled) {
+    	
+    	for (GBrowserView view : views) {
+    		view.setFullLayoutMode(enabled);
+    	}
+    	redraw();
     }
 
 	public void clean() {
@@ -278,14 +279,6 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		overviewView.clean();
 		dataView.clean();
 		dataView = null;
-	}
-
-	public void setFullHeightClip(Rectangle clip) {
-		this.fullHeightClip = clip;
-	}
-
-	public Rectangle getFullHeightClip() {
-		return fullHeightClip;
 	}
 
 	@Override

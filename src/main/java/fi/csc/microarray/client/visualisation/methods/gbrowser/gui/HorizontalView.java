@@ -22,6 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
@@ -41,7 +42,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 	}
 
 	@Override
-	public void drawView(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
+	public void draw(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
 
 		// Clear previous tooltip mappings
 		drawableMap.clear();
@@ -50,7 +51,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 		this.clip = g.getClip();
 		
 		// Do the actual drawing
-		super.drawView(g, viewPort, viewCanvasArea);
+		super.draw(g, viewPort, viewCanvasArea);
 
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
@@ -283,8 +284,13 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 	}
 
 	@Override
-	public int getCanvasHeight() {
+	public int getFullHeight() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferLayoutMode(this);
 	}
 }

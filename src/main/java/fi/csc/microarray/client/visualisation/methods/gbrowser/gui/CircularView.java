@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
@@ -36,9 +37,9 @@ public class CircularView extends GBrowserView {
 	}
 
 	@Override
-	public void drawView(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
+	public void draw(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
 
-		super.drawView(g, viewPort, viewCanvasArea);
+		super.draw(g, viewPort, viewCanvasArea);
 
 		if (highlight != null) {
 
@@ -290,9 +291,15 @@ public class CircularView extends GBrowserView {
 	}
 
 	@Override
-	public int getCanvasHeight() {
+	public int getFullHeight() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public LayoutMode getLayoutMode() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// @Override

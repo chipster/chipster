@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
@@ -53,6 +54,7 @@ public class ReadPileTrack extends Track {
 		this.readData = file;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.layoutMode = this.defaultLayoutMode = LayoutMode.FILL;
 	}
 
 	@Override
@@ -130,13 +132,18 @@ public class ReadPileTrack extends Track {
 			readRect.y = getYCoord(layer, GBrowserConstants.READ_HEIGHT);
 			readRect.height = GBrowserConstants.READ_HEIGHT;
 
-			// Check if we are about to go over the edge of the drawing area
-			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT) > getHeight();
-
-			// Check if we are over the edge of the drawing area
-			if (readRect.y > getHeight()) {
-				continue;
+			boolean lastBeforeMaxStackingDepthCut = false;
+			
+			if (getLayoutMode() != LayoutMode.FULL) {
+				// Check if we are about to go over the edge of the drawing area
+				lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT) > getHeight();
+				
+				// Check if we are over the edge of the drawing area
+				if (readRect.y > getHeight()) {
+					continue;
+				}
 			}
+			
 
 			for (ReadPart readPart : Cigar.splitElements(splittedRead)) {
 
@@ -287,11 +294,6 @@ public class ReadPileTrack extends Track {
 		if (areaResult.getStatus().file == refData) {
 			this.refReads.addAll(areaResult.getContents());
 		}
-	}
-
-	@Override
-	public boolean isFixedHeight() {
-		return false;
 	}
 
 	@Override

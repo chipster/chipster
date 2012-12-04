@@ -3,6 +3,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,15 +28,53 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup.S
  */
 public class GBrowserChartPanel extends ChartPanel {
 
+	public class ScrollGroupBar extends JScrollBar implements AdjustmentListener {
+		
+		public ScrollGroupBar() {
+			addAdjustmentListener(this);
+		}
+		
+		private int referenceY = 0;
+			
+		public void setHeight(int height) {
+			int scrollBarWidth = ((Integer) UIManager.get("ScrollBar.width")).intValue();
+			setSize(scrollBarWidth, height);
+		}
+		
+		/**
+		 * Set maximum, but keep the same scroll position in comparison to referenceY
+		 * 
+		 * @param maximum
+		 * @param extent
+		 * @param referenceY
+		 */
+		public void set(int maximum, int extent, int referenceY) {
+			int offset = getValue() - referenceY + getModel().getExtent() / 2;
+			setMaximum(maximum);
+			getModel().setExtent(extent);
+			setValue(referenceY - extent / 2 + offset);
+			this.referenceY = referenceY;
+		}
+		
+		public void setDefaultValue() {
+			setValue(referenceY - getModel().getExtent() / 2);
+		}
+		
+		@Override
+		public void adjustmentValueChanged(AdjustmentEvent e) {
+			GBrowserChartPanel.this.genomePlot.redraw();
+		}
+	}
+
 	public GBrowserChartPanel() {
 		super(null);		
 	}
 
 	private GBrowserPlot genomePlot;
-	//FIXME memory leak or not?
-	private Map<ScrollGroup, JScrollBar> scrollBarsMap = new HashMap<ScrollGroup, JScrollBar>();
+	//FIXME clean when visualization is closed
+	private Map<ScrollGroup, ScrollGroupBar> scrollBarsMap = new HashMap<ScrollGroup, ScrollGroupBar>();
 	//Preserves ScrollGroup order
-	private List<JScrollBar> scrollBarsList = new LinkedList<JScrollBar>();
+	private List<ScrollGroupBar> scrollBarsList = new LinkedList<ScrollGroupBar>();
 
 	public void paintComponent(Graphics g) {
 
@@ -47,15 +87,15 @@ public class GBrowserChartPanel extends ChartPanel {
 		 * to both chartpanel size and drawHeight to make the genomeBrowser draw vertically everything 
 		 * without scaling
 		 */
-		if (genomePlot != null && genomePlot.isFullHeight()) {
+//		if (genomePlot != null && genomePlot.isLegacyFullHeight()) {
+//
+//			height = genomePlot.getHeight();
+//		}
 
-			height = genomePlot.getHeight();
-		}
-
-		if (getParent() instanceof JViewport) {
-			JViewport viewport = (JViewport)getParent();
-			genomePlot.setFullHeightClip(viewport.getViewRect());
-		}
+//		if (getParent() instanceof JViewport) {
+//			JViewport viewport = (JViewport)getParent();
+//			genomePlot.setLegacyFullHeightClip(viewport.getViewRect());
+//		}
 
 		Dimension size = new Dimension(getParent().getSize().width, height);
 
@@ -130,71 +170,56 @@ public class GBrowserChartPanel extends ChartPanel {
 
 		for ( ScrollGroup group : scrollGroups) {			
 
-			//Calculate new values, but don't set them yet, because the old values are needed
+			//Calculate new values, but don't set them yet, because we still need the old values
 			int barHeight = Math.min(group.getHeight(), maxY - barHeightSum);
 			barHeightSum += barHeight;
 			int extent = barHeight;
 			
 			int maximum;
 			if (group.isScrollEnabled()) {
-				maximum = group.getCanvasHeight();
+				maximum = group.getFullHeight();
 			} else {
 				maximum = group.getHeight();
 			}
 
 			//Search for the scroll bar of this ScrollGroup, create a new one if it doesn't exist yet 
-			JScrollBar bar;
+			ScrollGroupBar bar;
 			if (!scrollBarsMap.containsKey(group)) {
-				bar = new JScrollBar(JScrollBar.VERTICAL);
+				bar = new ScrollGroupBar();
+				
 				scrollBarsMap.put(group, bar);
 
 			} else {					
 				bar = scrollBarsMap.get(group); 
 			}
 
-			boolean visible = group.isVisible() && group.isScrollEnabled() && bar.getMaximum() > bar.getHeight();
+			boolean visible = group.isVisible() && group.isScrollEnabled() && maximum > barHeight;
 			boolean becomesVisible = bar.isVisible() == false && visible == true;
 			
 			int referenceY = group.getScrollReferenceY();
 
-			//FIXME replace with reference
+			//FIXME replace with referenceY
 			if (ScrollPosition.START == group.getDefaultScrollPosition()) {
 				if (becomesVisible) {
 					bar.setValue(0);
 				}
+				bar.set(maximum, extent, referenceY);
 			}
 
 			if (ScrollPosition.MID == group.getDefaultScrollPosition()) {
 				if (becomesVisible) {
-					bar.setValue(getMidValue(maximum, barHeight));
-				} else {
-					//FIXME last reference value needed to calculate offset
-					//Try to keep the old scroll position despite the scroll area has changed
-//					int offset = bar.getValue() - getMidValue(bar.getMaximum(), bar.getModel().getExtent());
-//					bar.setMaximum(maximum);
-//					bar.setValue(getMidValue(maximum, extent) + offset);
-
-					bar.setMaximum(maximum);
-					//FIXME not quite right
-					//bar.setValue(referenceY - extent / 2);
-					
+					bar.setDefaultValue();
 				}
+				bar.set(maximum, extent, referenceY);
 			}
 
 			//Set the new values
-			int scrollBarWidth = ((Integer) UIManager.get("ScrollBar.width")).intValue();
-			bar.setSize(scrollBarWidth, barHeight);
-			bar.getModel().setExtent(extent);
+			bar.setHeight(barHeight);
 			bar.setVisible(visible);
 
 			scrollBarsList.add(bar);			
 		}
 	}
-
-	private int getMidValue(int maximum, int extent) {
-		return (maximum - extent) / 2;
-	}
-	
 
 	public int getScrollValue(ScrollGroup scrollGroup) {
 		if (scrollBarsMap.containsKey(scrollGroup)) {

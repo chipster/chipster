@@ -27,6 +27,13 @@ public class TrackFactory {
 			    
 	    return geneGroup;
 	}
+    
+	public static TrackGroup getThinSeparatorTrackGroup(GBrowserPlot genomePlot) {
+		GBrowserView view = genomePlot.getDataView();
+		TrackGroup group = new TrackGroup(view);
+		group.addTrack(new SeparatorTrack(view, Color.LIGHT_GRAY, 3, 0, Long.MAX_VALUE));
+		return group;
+	}
 
 	public static TrackGroup getThickSeparatorTrackGroup(GBrowserPlot genomePlot) {
 		GBrowserView view = genomePlot.getDataView();

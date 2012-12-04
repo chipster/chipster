@@ -23,7 +23,7 @@ public class OverviewHorizontalView extends HorizontalView {
 	
 	public void mouseClicked(MouseEvent e) {
 		
-		if (!viewCanvasArea.contains(e.getPoint())) {
+		if (!viewArea.contains(e.getPoint())) {
 			return;
 		}
 		
@@ -110,11 +110,6 @@ public class OverviewHorizontalView extends HorizontalView {
 		for (RegionListener listener : overviewListeners) {
 			listener.regionChanged(selectedRegion);
 		}
-	}
-	
-	@Override
-	public boolean isRulerEnabled() {
-		return false;
 	}
 	
 	@Override

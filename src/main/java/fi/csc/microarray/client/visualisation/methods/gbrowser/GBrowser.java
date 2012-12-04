@@ -45,6 +45,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings;
@@ -234,13 +235,13 @@ public class GBrowser implements ComponentListener {
 
 	public void setFullHeight(boolean fullHeight) {
 
-		if (fullHeight) {
-			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		} else {
-			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		}
+//		if (fullHeight) {
+//			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//		} else {
+//			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+//		}
 
-		plot.setFullHeight(fullHeight);		
+		plot.setFullLayoutMode(fullHeight);		
 	}
 
 	public JComponent getVisualisation(List<Interpretation> interpretations) throws IOException {
@@ -288,8 +289,7 @@ public class GBrowser implements ComponentListener {
 		Genome genome = getGenome();
 		
 		ScrollGroup overview = new ScrollGroup("Overview");
-		ScrollGroup annotations = new ScrollGroup("Annotations", true);
-		
+		AnnotationScrollGroup annotations = new AnnotationScrollGroup();
 		plot.getDataView().addTrackGroup(new TrackGroup(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true)));
 
 		// Add selected annotation tracks
@@ -373,8 +373,10 @@ public class GBrowser implements ComponentListener {
 		plot.getOverviewView().addScrollGroup(overview);		
 		plot.getDataView().addScrollGroup(annotations);		
 		plot.getDataView().addTrackGroup((TrackFactory.getThickSeparatorTrackGroup(plot)));
-		ScrollGroup samples = new ScrollGroup("Samples", ScrollPosition.START, Integer.MAX_VALUE);
+		ScrollGroup samples = new ScrollGroup("Samples", true);
 
+		boolean firstReadTrack = true;
+		
 		// Add selected read tracks
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
@@ -384,6 +386,12 @@ public class GBrowser implements ComponentListener {
 					file = track.interpretation.primaryData == null ? null : track.interpretation.primaryData.getLocalFile();
 					DataSource treatmentData;
 					if (track.interpretation.type == TrackType.READS) {
+						
+						if (!firstReadTrack) {
+							samples.addTrackGroup((TrackFactory.getThinSeparatorTrackGroup(plot)));
+						} else {
+							firstReadTrack = false;
+						}
 
 						URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
 						URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
@@ -417,9 +425,6 @@ public class GBrowser implements ComponentListener {
 							track.setTrackGroup(readGroupWithSummary);
 							samples.addTrackGroup(readGroupWithSummary);
 						}
-						
-						samples.addTrackGroup((TrackFactory.getThickSeparatorTrackGroup(plot)));
-
 					}
 				} catch (IOException e) {
 					reportException(e);
@@ -436,6 +441,8 @@ public class GBrowser implements ComponentListener {
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
 		ScrollGroup analysis = new ScrollGroup("Analysis", ScrollPosition.START);
 
+		boolean firstPeakTrack = true;
+		
 		// Add selected peak tracks
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
@@ -452,14 +459,30 @@ public class GBrowser implements ComponentListener {
 						reportException(e);
 					}
 				}
+				
+				//Add separators
+				switch (track.interpretation.type) {
+				case REGIONS:
+				case REGIONS_WITH_HEADER:
+				case VCF:
+					
+					if (!firstPeakTrack) {
+						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
+					} else {
+						firstPeakTrack = false;
+					}
+					break;
+				default:
+					break;
+				}	
 
 				DataSource regionData;
-				
 				
 				switch (track.interpretation.type) {
 				case REGIONS:
 
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
+					
 					try {
 						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
 						((ChunkDataSource)regionData).checkSorting();
@@ -496,7 +519,7 @@ public class GBrowser implements ComponentListener {
 					try {
 						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
-
+						
 					} catch (FileNotFoundException e) {
 						reportException(e);
 					} catch (URISyntaxException e) {
@@ -505,9 +528,7 @@ public class GBrowser implements ComponentListener {
 					break;
 				default:
 					break;
-				}
-				
-				analysis.addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
+				}				
 			}
 		}
 

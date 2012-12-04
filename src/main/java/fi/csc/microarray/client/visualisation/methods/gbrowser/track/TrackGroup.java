@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutContainer;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
  * <p>A collection of tracks representing a single data source or
@@ -243,11 +244,6 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
 	}
 
 	@Override
-	public boolean isFixedHeight() {
-		return LayoutTool.isFixedHeight(this);
-	}
-
-	@Override
 	public int getHeight() {
 		return LayoutTool.getHeight(this, layoutHeight);
 	}
@@ -259,11 +255,28 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
 
 	@Override
 	public int getMinHeight() {
-		return 0;
+		return LayoutTool.getMinHeightSum(this);
 	}
 	
 	@Override
-	public int getCanvasHeight() {
-		return LayoutTool.getCanvasHeight(this);
+	public int getFullHeight() {
+		return LayoutTool.getFullHeight(this);
+	}
+
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferLayoutMode(this);
+	}
+
+	public void setFullLayoutMode(boolean enabled) {
+		for (Track track : tracks) {
+			if (enabled) {
+				if (track.getLayoutMode() == LayoutMode.FILL) {
+					track.setLayoutMode(LayoutMode.FULL);
+				}
+			} else {
+				track.setDefaultLayoutMode();
+			}
+		}
 	}
 }

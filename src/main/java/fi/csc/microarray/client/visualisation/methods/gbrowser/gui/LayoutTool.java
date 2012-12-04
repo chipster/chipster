@@ -1,55 +1,85 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 public class LayoutTool {
+	
+	public static enum LayoutMode { FIXED, FILL, FULL }
 
 	public static void doLayout(LayoutContainer container, int layoutHeight) {
-		int nonFixedComponentHeight = 0;
+		int componentFillHeight = 0;
 		
-		if (!isFixedHeight(container)) {
-			nonFixedComponentHeight = getNonFixedComponentHeight(container, layoutHeight);
+		if (inferLayoutMode(container) != LayoutMode.FIXED) {
+			componentFillHeight = getComponentFillHeight(container, layoutHeight);
 		}
 		
 		for (LayoutComponent component : container.getLayoutComponents()) {
 			int childHeight;
-			if (component.isFixedHeight()) {
+			if (component.getLayoutMode() == LayoutMode.FIXED) {
 				childHeight = component.getHeight();
 			} else {
-				childHeight = nonFixedComponentHeight;
-				childHeight = Math.max(childHeight, component.getMinHeight());
+				childHeight = component.getMinHeight() + componentFillHeight;
 				component.setHeight(childHeight);				
 			}
 				
 			if (component instanceof LayoutContainer) {
 				LayoutContainer childContainer = (LayoutContainer) component;
 				doLayout(childContainer, childHeight);
-				component.setHeight(calculateHeight(childContainer));
+//				component.setHeight(calculateHeight(childContainer));
 			}
 		}
 	}
+//	
+//	public static void doCanvasLayout(LayoutContainer container, int layoutHeight) {
+//		int nonFixedComponentHeight = 0;
+//		
+//		if (!isFixedHeight(container)) {
+//			nonFixedComponentHeight = getComponentFillHeight(container, layoutHeight);
+//		}
+//		
+//		for (LayoutComponent component : container.getLayoutComponents()) {
+//			int childHeight;
+//			if (component.isFixedHeight()) {
+//				childHeight = component.getHeight();
+//			} else {
+//				childHeight = nonFixedComponentHeight;
+//				childHeight = Math.max(childHeight, component.getMinHeight());
+//				component.setHeight(childHeight);				
+//			}
+//				
+//			if (component instanceof LayoutContainer) {
+//				LayoutContainer childContainer = (LayoutContainer) component;
+//				doViewPortLayout(childContainer, childHeight);
+//				component.setHeight(calculateHeight(childContainer));
+//			}
+//		}
+//	}
 
-	private static int getNonFixedComponentHeight(LayoutContainer container, int layoutHeight) {
+	private static int getComponentFillHeight(LayoutContainer container, int layoutHeight) {
 
-		int nonFixedHeightSum = layoutHeight - getFixedHeightSum(container);
-		return nonFixedHeightSum / getNonFixedHeightComponentCount(container);
+		int fillHeight = layoutHeight - getMinHeightSum(container);
+		return fillHeight / getFillComponentCount(container);
 	}
 
-	private static int getNonFixedHeightComponentCount(LayoutContainer container) {
+	private static int getFillComponentCount(LayoutContainer container) {
 		int count = 0;
 
 		for (LayoutComponent component : container.getLayoutComponents()) {
-			if (component.isVisible() && !component.isFixedHeight()) {
+			if (component.isVisible() && component.getLayoutMode() != LayoutMode.FIXED) {
 				count++;
 			}
 		}
 		return count;	
 	}
 
-	private static int getFixedHeightSum(LayoutContainer container) {
+	public static int getMinHeightSum(LayoutContainer container) {
 		int height = 0;
 
 		for (LayoutComponent component : container.getLayoutComponents()) {
-			if (component.isVisible() && component.isFixedHeight()) {
-				height += component.getHeight();
+			if (component.isVisible()) {
+				if (component.getLayoutMode() == LayoutMode.FIXED) {
+					height += component.getHeight();
+				} else {
+					height += component.getMinHeight();
+				}
 			}
 		}
 		return height;
@@ -59,39 +89,39 @@ public class LayoutTool {
 	 * @param container
 	 * @return true if all components have fixed height, otherwise false
 	 */
-	public static boolean isFixedHeight(LayoutContainer container) {
+	public static LayoutMode inferLayoutMode(LayoutContainer container) {
 
 		for (LayoutComponent component : container.getLayoutComponents()) {
-			if (component.isVisible() && !component.isFixedHeight()) {
-				return false;
+			if (component.isVisible() && component.getLayoutMode() != LayoutMode.FIXED) {
+				return LayoutMode.FILL;
 			}
 		}
-		return true;
+		return LayoutMode.FIXED;
 	}
 
 	public static int getHeight(LayoutContainer container, int layoutHeight) {
-		if (isFixedHeight(container)) {
-			return getFixedHeightSum(container);
+		if (inferLayoutMode(container) == LayoutMode.FIXED) {
+			return getMinHeightSum(container);
 		} else {
 			return layoutHeight;
 		}
 	}
+//
+//	public static int calculateHeight(LayoutContainer container) {
+//		int height = 0;
+//		for (LayoutComponent component : container.getLayoutComponents()) {
+//			if (component.isVisible()) {
+//				height += component.getHeight();
+//			}
+//		}
+//		return height;
+//	}
 
-	public static int calculateHeight(LayoutContainer container) {
+	public static int getFullHeight(LayoutContainer container) {
 		int height = 0;
 		for (LayoutComponent component : container.getLayoutComponents()) {
 			if (component.isVisible()) {
-				height += component.getHeight();
-			}
-		}
-		return height;
-	}
-
-	public static int getCanvasHeight(LayoutContainer container) {
-		int height = 0;
-		for (LayoutComponent component : container.getLayoutComponents()) {
-			if (component.isVisible()) {
-				height += Math.max(component.getCanvasHeight(), component.getHeight());
+				height += Math.max(component.getFullHeight(), component.getHeight());
 			}
 		}
 		return height;		

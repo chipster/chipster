@@ -115,4 +115,9 @@ public class PeakTrack extends Track {
 	public boolean isConcised() {
 		return false;
 	}
+	
+	@Override
+	public int getHeight() {
+		return PEAK_SYMBOL_HEIGHT * 2;
+	}
 }

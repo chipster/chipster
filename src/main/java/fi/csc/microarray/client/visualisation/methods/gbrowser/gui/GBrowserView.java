@@ -56,7 +56,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public Region highlight;
 
 	public Collection<ScrollGroup> scrollGroups = new LinkedList<ScrollGroup>();
-	protected Rectangle viewCanvasArea = new Rectangle(0, 0, 500, 500);
+	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
 	private QueueManager queueManager;
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
@@ -126,11 +126,11 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return tracks;
 	}
 
-	public void drawView(Graphics2D g, Rectangle plotViewPort, Rectangle viewCanvasArea) {
+	public void draw(Graphics2D g, Rectangle plotArea, Rectangle viewArea) {
 		
-		this.viewCanvasArea = viewCanvasArea;
-		
-		if (viewCanvasArea.height == 0) {
+		this.viewArea = (Rectangle) viewArea.clone();
+				
+		if (viewArea.height == 0) {
 			//There is no layout yet
 			return;
 		}
@@ -139,207 +139,17 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
-		isFullHeight = parentPlot.isFullHeight();
-
-		//FIXME should happen recursively now
-		// Recalculate track heights
-		//LayoutTool.doLayout(this, getHeight());
-				
-		int drawBufferWidth = (int) (viewCanvasArea.getWidth());
-		int drawBufferHeight = (int) (viewCanvasArea.getHeight());
-
-		if (drawBuffer == null || 
-				drawBuffer.getWidth() != drawBufferWidth || 
-				drawBuffer.getHeight() != drawBufferHeight) {		
-
-			/* drawBuffer contains only this view. Plot coordinates have to be shifted by the size of the other views
-			 * (viewArea.x and viewArea.y)
-			 */
-			drawBuffer = new BufferedImage((int) viewCanvasArea.getWidth(), (int) viewCanvasArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		}
-
-		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+//		isFullHeight = parentPlot.isLegacyFullHeight();
 		
-		/* The JScrollPane doesn't clip the content properly, but it is drawn outside JScrollPane when the window is resized.
-		 * Probably this has something to do with our custom use of clip areas or maybe the JFreeChart uses some ancient AWT 
-		 * components. Nevertheless, making the content transparent and drawing only the JViewPort area solves the problem, 
-		 * as the drawing transparent pixels elsewhere doesn't have any effect. 
-		 */
-		bufG2.setBackground(new Color(0, 0, 0, 0));			
-		
-		if (isFullHeight && !isFixedHeight()) {
-			
-			//bufG2.setClip(null);
-			bufG2.clearRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-
-			
-			/* In full height mode we try to draw always also the content that isn't shown in current vertical
-			 * scrolling position. Setting the original clip to the drawing buffer should
-			 * at least prevent actual pixel manipulating when drawing outside of the view.
-			 */
-			Rectangle clipRectangle = new Rectangle(plotViewPort.x - viewCanvasArea.x, plotViewPort.y - viewCanvasArea.y, plotViewPort.width, plotViewPort.height);
-			bufG2.setClip(clipRectangle);
-						
-			bufG2.setPaint(Color.white);
-			bufG2.fill(clipRectangle);
-			
-		} else {
-			bufG2.setClip(null);
-			
-			bufG2.setPaint(Color.white);
-			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-		}
-		
-		
-
-		
-		// prepare context object
-		TrackContext trackContext = null;
-
-		// prepare coordinates
-		y = 0;
-		x = 0;
-
-		// draw simple vertical ruler
-		if (isRulerEnabled()) {
-			bufG2.setColor(Color.LIGHT_GRAY);
-			bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
-		}
-
-		int scrollGroupCanvasY = 0;
-		int scrollGroupDestinationY = 0;
+		Rectangle scrollGroupViewPort = (Rectangle) viewArea.clone();
 		
 		for (ScrollGroup scrollGroup : scrollGroups) {
 			
-			// track group contains one or several logically-related tracks
-			for (TrackGroup group : scrollGroup.getTrackGroups()) {
-				
-				
-				trackIter = group.getTracks().iterator();
-				drawableIter = null;
-
-				if (!group.isVisible()) {
-					continue;
-				}
-
-				// draw side menu
-				if (group.isMenuVisible()) {
-					group.menu.setPosition((int) (viewCanvasArea.getX() + viewCanvasArea.getWidth()),
-							(int) (viewCanvasArea.getY() + y));
-				}
-
-				// draw all tracks
-				while (trackIter.hasNext()) {
-
-					if (drawableIter == null || !drawableIter.hasNext()) {
-						track = trackIter.next();
-					}
-
-					// draw drawable objects for visible tracks
-					if (track.isVisible()) {
-
-						// decide if we will expand drawable for this track
-						boolean expandDrawables = track.canExpandDrawables();
-
-						// create view context for this track only if we will use it
-						// currently only used for tracks that contain information
-						// about reads
-						if (expandDrawables && 
-								(track instanceof CoverageAndSNPTrack ||
-										track instanceof QualityCoverageTrack)) {
-
-							if (parentPlot.getReadScale() == ReadScale.AUTO) {
-								trackContext = new TrackContext(track);
-							} else {
-								// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-								trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
-							}
-						}
-
-						Collection<Drawable> drawables = track.getDrawables();
-						track.updateCanvasHeight(drawables);
-						
-						drawableIter = drawables.iterator();
-
-						int maxY = 20;
-
-//						if (isFullHeight && track.isFixedHeight()) {
-//
-//							while (drawableIter.hasNext()) {										
-//
-//								Drawable drawable = drawableIter.next();
-//
-//								if(drawable == null) {
-//									continue;
-//								}
-//
-//								if (drawable.getMaxY() > maxY) {
-//									maxY = drawable.getMaxY();
-//								}
-//							}
-//
-//							track.setCanvasHeight(maxY + FULL_HEIGHT_MARGIN);						
-//						}
-
-						//FIXME if scroll disabled...
-						//y += track.getHeight();
-						y += track.getCanvasHeight();
-
-						drawableIter = drawables.iterator();					
-
-						while (drawableIter.hasNext()) {										
-
-							Drawable drawable = drawableIter.next();
-
-							if(drawable == null) {
-								continue;
-							}
-
-							// expand drawables to stretch across all height if necessary
-							if (expandDrawables) {
-								drawable.expand(trackContext);
-							}
-
-							// recalculate position for reversed strands
-							int maybeReversedY = (int) y;
-							if (track.isReversed()) {
-								maybeReversedY -= track.getHeight();
-							} else {
-								drawable.upsideDown();
-							}			
-
-							// draw an object onto the buffer
-							drawDrawable(bufG2, x, maybeReversedY, drawable);
-
-						}
-
-						drawableIter = null;
-
-
-					} else {
-						drawableIter = null;
-					}               
-				}
-			}
+			scrollGroupViewPort.height = scrollGroup.getHeight();
 			
-			int scrollValue = this.parentPlot.chartPanel.getScrollValue(scrollGroup);
+			scrollGroup.draw(g, plotArea, scrollGroupViewPort, this);
 			
-			//copy only the visible area of the JScrollPane
-			g.drawImage(drawBuffer, 
-					(int) plotViewPort.getX(), 
-					(int) plotViewPort.getY() + scrollGroupDestinationY, 
-					(int) (plotViewPort.getX() + plotViewPort.getWidth()), 
-					(int) (plotViewPort.getY() + scrollGroup.getHeight()) + scrollGroupDestinationY,
-					(int) plotViewPort.getX() - viewCanvasArea.x, 
-					(int) plotViewPort.getY() - viewCanvasArea.y + scrollGroupCanvasY +  + scrollValue, 
-					(int) (plotViewPort.getX() - viewCanvasArea.x + plotViewPort.getWidth()), 
-					(int) (plotViewPort.getY() - viewCanvasArea.y + scrollGroup.getHeight() + scrollGroupCanvasY  + scrollValue), null);
-			
-			scrollGroupCanvasY += scrollGroup.getCanvasHeight();
-			scrollGroupDestinationY += scrollGroup.getHeight();
-
+			scrollGroupViewPort.y += scrollGroupViewPort.height;
 		}
 
 		//drawBuffer has different coordinates in normal and fullHeight modes
@@ -363,12 +173,9 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 //					(int) (viewCanvasArea.getX() + drawBufferWidth), (int) (viewCanvasArea.getY() + drawBufferHeight),
 //					0, 0, drawBufferWidth, drawBufferHeight, null);
 //		}
-		
-		trackIter = null;
-		drawableIter = null;
 	}
 	
-	public int getFullHeight() {
+	public int getLegacyFullHeight() {
 		int height = 0;
 		for (ScrollGroup group : scrollGroups) {
 			
@@ -377,12 +184,8 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return height;
 	}
 
-	public boolean isRulerEnabled() {
-		return true;
-	}
-
 	public int getWidth() {
-		return this.viewCanvasArea.width;
+		return this.viewArea.width;
 	}
 
 	//FIXME
@@ -528,6 +331,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 		stopAnimation();
 		dragStartPoint = scale(e.getPoint());
+		
 		dragStarted = false;
 	}
 
@@ -578,7 +382,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void mouseDragged(MouseEvent e) {
 
-		if (movable && ((dragStartPoint != null && viewCanvasArea.contains(dragStartPoint) || viewCanvasArea.contains(e.getPoint())))) {
+		if (movable && ((dragStartPoint != null && viewArea.contains(dragStartPoint) || viewArea.contains(e.getPoint())))) {
 
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
@@ -604,9 +408,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
-		if (!parentPlot.isFullHeight()) {
-			zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
-		}
+		zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
 	}
 
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
@@ -724,11 +526,11 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	public int getX() {
-		return viewCanvasArea.x;
+		return viewArea.x;
 	}
 
 	public int getY() {
-		return viewCanvasArea.y;
+		return viewArea.y;
 	}
 
 	public void redraw() {
@@ -779,12 +581,6 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public boolean isFullHeight() {
 		return isFullHeight;
 	}
-	
-
-	@Override
-	public boolean isFixedHeight() {
-		return LayoutTool.isFixedHeight(this);
-	}
 
 	@Override
 	public void setHeight(int height) {
@@ -798,7 +594,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	
 	@Override
 	public int getMinHeight() {
-		return 0;
+		return LayoutTool.getMinHeightSum(this);
 	}
 	
 	@Override
@@ -812,5 +608,11 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public Collection<? extends ScrollGroup> getScrollGroups() {
 		return scrollGroups;
+	}
+
+	public void setFullLayoutMode(boolean enabled) {
+		for (ScrollGroup scrollGroup : scrollGroups) {
+			scrollGroup.setFullLayoutMode(enabled);
+		}
 	}
 }

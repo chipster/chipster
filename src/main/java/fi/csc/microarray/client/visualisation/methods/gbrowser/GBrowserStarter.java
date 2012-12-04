@@ -47,6 +47,7 @@ public class GBrowserStarter {
 
 		File BAM_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam");
 		File BAI_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam.bai");
+		File BED_DATA_FILE = new File(dataPath + "peaks.bed");
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
@@ -59,10 +60,10 @@ public class GBrowserStarter {
 		interpretations.add(reads2);
 
 		//Bed with or without header
-		//interpretations.add(new BasicInterpretation(TrackType.REGIONS, new BasicDataFile(data)));
-		//interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
-		//Vcf
-		//interpretations.add(new BasicInterpretation(TrackType.VCF, new BasicDataFile(data)));
+		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
+		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
+//		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
+//		interpretations.add(new BasicInterpretation(TrackType.VCF, new BasicDataFile(data)));
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 

@@ -19,6 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
@@ -45,6 +46,7 @@ public class GeneTrack extends Track {
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
 	@Override
@@ -143,11 +145,6 @@ public class GeneTrack extends Track {
 		getView().redraw();
 	}
 	
-    @Override
-    public boolean isFixedHeight() {
-        return false;
-    }
-    
     @Override
     public boolean isVisible() {
         // visible region is not suitable

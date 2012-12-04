@@ -8,6 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixD
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp
@@ -138,4 +139,14 @@ public class GeneTrackGroup extends TrackGroup {
 			setChangeSNP(state);
 		}
 	}
+	
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutMode.FIXED;
+	}
+	
+	@Override
+	public int getHeight() {
+		return 250;
+	}	
 }
