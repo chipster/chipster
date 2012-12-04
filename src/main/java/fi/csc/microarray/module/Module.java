@@ -151,7 +151,7 @@ public interface Module {
 	 * 
 	 * @return short name (4 letters or less)
 	 */
-	public String getShortCategoryName(String categoryName);
+	public String getShortDataName(String categoryName);
 
 	public boolean notesVisibleAtStartup();
 

@@ -128,15 +128,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
                 
                 SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
                 
-                // check for duplicate id in this module
-                if (module.getOperationDefinition(sadl.getName().getID()) != null) {
-                	logger.warn("ignoring tool with duplicate id: " + sadl.getName().getID());
-                	Session.getSession().getApplication().showDialog("Ignoring tool with duplicate id " + sadl.getName().getID() , 
-                				"This message is meant for the Chipster service administrator, who should check the tool configurations. Don't worry about it.", "", Severity.INFO, false);
-                	continue;
-                }
-                
-                
+                // this also has the side effecth of adding the new tool to the category, argh
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
                                                                             sadl.getName().getDisplayName(), toolCategory,
                                                                             sadl.getComment(), true,

@@ -91,7 +91,7 @@ public class IntensityTrack extends Track {
 				count = Math.log(count);
 			}
 			
-			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getTrackHeight());			
+			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getStretchableTrackHeight());			
 
 			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 

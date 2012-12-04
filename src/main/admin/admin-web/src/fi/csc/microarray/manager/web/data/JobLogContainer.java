@@ -1,12 +1,12 @@
 package fi.csc.microarray.manager.web.data;
 
+
 import com.vaadin.data.hbnutil.HbnContainer;
 
-import fi.csc.microarray.manager.web.hbncontainer.JobLogSessionManager;
+import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 import fi.csc.microarray.manager.web.ui.JobLogView;
 
 
-@SuppressWarnings("unchecked")
 public class JobLogContainer extends HbnContainer<JobLogEntry> {
 
 	public static final String USERNAME = "username";
@@ -26,18 +26,12 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Operation", 	"Comp host", 	"Start time", 	"Wall clock time", 	"", 			"Error", 		"Status" };
+	
+	
+	public static final String STATUS_FAIL_VALUE = "FAILED";
 
+	public JobLogContainer(JobLogView view) {
 
-	private JobLogSessionManager sessionManager;
-
-
-	public JobLogContainer(JobLogView view, JobLogSessionManager sessionManager) {
-
-		super(JobLogEntry.class, sessionManager);
-		this.sessionManager = sessionManager;
-	}
-
-	public void init() {		
-		sessionManager.attachVaadinTransactionListener();	
+		super(JobLogEntry.class, HibernateUtil.getSessionFactory());
 	}
 }

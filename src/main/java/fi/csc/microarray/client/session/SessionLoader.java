@@ -279,10 +279,7 @@ public class SessionLoader {
 
 			// update names, category from the current version of the tool
 			OperationDefinition currentTool;
-			currentTool = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID(), operationRecord.getModule());
-			if (currentTool == null) {
-				currentTool = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID());
-			}
+			currentTool = Session.getSession().getApplication().getOperationDefinitionBestMatch(operationRecord.getNameID().getID(), operationRecord.getModule(), operationRecord.getCategoryName());
 			if (currentTool != null) {
 				operationRecord.getNameID().setDisplayName(currentTool.getDisplayName());
 				operationRecord.getNameID().setDescription(currentTool.getDescription());

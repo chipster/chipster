@@ -53,4 +53,9 @@ public class EmptyTrack extends Track {
 	public boolean isConcised() {
 		return false;
 	}
+	
+	@Override
+	public String getName() {
+		return "empty";
+	}
 }

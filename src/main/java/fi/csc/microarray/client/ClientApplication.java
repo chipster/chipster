@@ -618,20 +618,55 @@ public abstract class ClientApplication {
 	}
 
 	/**
-	 * Get OperationDefinition from specific module.
+	 * Get OperationDefinition which best matches the given module and category names.
+	 * 
+	 * Module is matched before category.
 	 * 
 	 * @param toolId
 	 * @param moduleName
+	 * @param categoryName
 	 * @return null if not found
 	 */
-	public OperationDefinition getOperationDefinition(String toolId, String moduleName) {
-		for (ToolModule module : toolModules) {
-			if (module.getModuleName().equals(moduleName)) {
-				OperationDefinition tool = module.getOperationDefinition(toolId);
+	public OperationDefinition getOperationDefinitionBestMatch(String toolId, String moduleName, String categoryName) {
+		
+		// module match
+		ToolModule preferredModule = getModule(moduleName);
+		if (preferredModule != null) {
+			OperationDefinition preferredTool = preferredModule.getOperationDefinition(toolId, categoryName);
+			
+			// module and category match
+			if (preferredTool != null) {
+				return preferredTool;
+			} 
+			
+			// module match, category mismatch
+			else {
+				preferredTool = preferredModule.getOperationDefinition(toolId);
+				if (preferredTool != null) {
+					return preferredTool;
+				} 
+			}
+		} 
+		
+		// module mismatch
+		else {
+			OperationDefinition toolWithCategoryMismatch = null;
+			for (ToolModule module : toolModules) {
+				// try to find tool with matching category, return if found
+				OperationDefinition tool = module.getOperationDefinition(toolId, categoryName);
 				if (tool != null) {
 					return tool;
 				}
+
+				// try to find tool with mismatching category
+				tool = module.getOperationDefinition(toolId);
+				if (tool != null) {
+					toolWithCategoryMismatch = tool;
+				}
 			}
+
+			// matching category not found, return with mismatch, may be null
+			return toolWithCategoryMismatch;
 		}
 		return null;
 	}
@@ -777,6 +812,15 @@ public abstract class ClientApplication {
 
 		// Remove them from bookkeeping in any case
 		deadDirectories.clear();
+	}
+
+	private ToolModule getModule(String moduleName) {
+		for (ToolModule toolModule : toolModules) {
+			if (toolModule.getModuleName().equals(moduleName)) {
+				return toolModule;
+			}
+		}
+		return null;
 	}
 	
 }

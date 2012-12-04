@@ -29,4 +29,10 @@ public class WfApplication {
 		return new WfOperationDefinition(operationDefinition);
 	}
 
+	public WfOperationDefinition getOperationDefinitionBestMatch(String operationID, String moduleName, String categoryName) {
+		OperationDefinition operationDefinition = this.application.getOperationDefinitionBestMatch(operationID, moduleName, categoryName);
+		return new WfOperationDefinition(operationDefinition);
+	}
+
+	
 }

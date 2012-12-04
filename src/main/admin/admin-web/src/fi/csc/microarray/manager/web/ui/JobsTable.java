@@ -35,7 +35,7 @@ public class JobsTable extends Table {
 			link.setStyleName(BaseTheme.BUTTON_LINK);
 			link.setDescription("Cancel running job");
 
-			link.addListener(new Button.ClickListener() {
+			link.addClickListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
 

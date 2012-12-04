@@ -9,7 +9,7 @@ public class StorageAggregateTable extends Table {
 
 		setSelectable(true);
 		setImmediate(true);
-		addListener(view);
+		addValueChangeListener(view);
 		setNullSelectionAllowed(false);
 		
 		this.setSizeFull();

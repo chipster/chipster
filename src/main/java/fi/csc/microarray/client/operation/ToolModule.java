@@ -60,7 +60,39 @@ public class ToolModule {
     	}
     	
     	return null;
-		
 	}
 
+    public OperationDefinition getOperationDefinition(String toolId, String categoryName) {
+    	ToolCategory preferredCategory = getCategory(categoryName);
+    	if (preferredCategory != null) {
+  			for (OperationDefinition tool : preferredCategory.getToolList()) {
+				if (tool.getID().equals(toolId)) {
+					return tool;
+				}
+			}
+  		}
+    	return null;
+	}
+
+    /**
+     * Prefer visible.
+     * 
+     * @param categoryName
+     * @return
+     */
+    private ToolCategory getCategory(String categoryName) {
+ 		for (ToolCategory category : visibleCategories) {
+ 		   if (category.getName().equals(categoryName)) {
+ 			   return category;
+ 		   }
+ 		}
+ 		for (ToolCategory category : hiddenCategories) {
+  		   if (category.getName().equals(categoryName)) {
+  			   return category;
+  		   }
+  		}
+ 	
+ 		return null;
+    }
+    
 }

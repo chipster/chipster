@@ -18,8 +18,10 @@ public class StorageEntryTable extends Table {
 
 		setSelectable(true);
 		setImmediate(true);
-		addListener(view);
+		addValueChangeListener(view);
 		setNullSelectionAllowed(false);
+		
+		setCacheRate(0);
 
 		setSizeFull();
 		
@@ -41,7 +43,7 @@ public class StorageEntryTable extends Table {
 	    		Button link = new Button("Delete");
 	    		link.setStyleName(BaseTheme.BUTTON_LINK);
 	    		
-	    		link.addListener(new Button.ClickListener() {
+	    		link.addClickListener(new Button.ClickListener() {
 
 					public void buttonClick(ClickEvent event) {
 						

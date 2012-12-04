@@ -60,7 +60,7 @@ public class TabixIntensityTrack extends Track {
 			int startX = getView().bpToTrack(regCont.region.start);
 			int endX = getView().bpToTrack(regCont.region.end);
 			int height = (int) Math.min( (Math.log((Float)regCont.values.get(ColumnType.VALUE)) / regCont.region.getLength() * 1000), 
-					getView().getTrackHeight());
+					getView().getStretchableTrackHeight());
 			
 			// Update profile at the start location
 			if (profileDerivate.get(startX) == null) {

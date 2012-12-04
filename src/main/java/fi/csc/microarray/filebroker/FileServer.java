@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.Configuration;
@@ -106,10 +107,16 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		// create keep-alive thread and register shutdown hook
     		KeepAliveShutdownHandler.init(this);
 
+			logger.info("total space: " + FileUtils.byteCountToDisplaySize(userDataRoot.getTotalSpace()));
+			logger.info("usable space: " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()));
+			logger.info("cache clean up will start when usable space is less than: " + FileUtils.byteCountToDisplaySize((long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100)) + " (" + (100-cleanUpTriggerLimitPercentage) + "%)");
+			logger.info("cache clean target usable space is:  " + FileUtils.byteCountToDisplaySize((long) ((double)userDataRoot.getTotalSpace()*(double)(100-cleanUpTargetPercentage)/100)) + " (" + (100-cleanUpTargetPercentage) + "%)");
+			logger.info("minimum required space after upload: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload));
+			logger.info("will not clean up files newer than: " + (cleanUpMinimumFileAge/3600) + "h");
     		
     		logger.info("fileserver is up and running [" + ApplicationConstants.VERSION + "]");
     		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
-
+			
     	} catch (Exception e) {
     		e.printStackTrace();
     		logger.error(e, e);
@@ -179,8 +186,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 		// space available, clean up soft limit will be reached, hard will not be reached
 		else if (userDataRoot.getUsableSpace() - size >= usableSpaceHardLimit) {
-			logger.info("space available, more preferred"); 
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()) + 
+					", usable space soft limit: " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + " (" + (100-cleanUpTriggerLimitPercentage) + 
+					"%) will be reached --> scheduling clean up");
 			spaceAvailable = true;
 			
 			final long targetUsableSpace = size + cleanUpTargetLimit;
@@ -190,9 +198,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				public void run() {
 					try {
 						long cleanUpBeginTime = System.currentTimeMillis();
-						logger.info("cache cleanup, target usable space: " + targetUsableSpace);
+						logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize(targetUsableSpace) + " (" + (100-cleanUpTargetPercentage) + "%)");
 						Files.makeSpaceInDirectory(userDataRoot, targetUsableSpace, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
+						logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()));
 					} catch (Exception e) {
 						logger.warn("exception while cleaning cache", e);
 					}
@@ -200,33 +208,40 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			}, "chipster-fileserver-cache-cleanup").start();
 		} 
 		
-		// hard limit will be reached, try to make more immediately
+		// will run out of usable space, try to make more immediately
 		else if (userDataRoot.getUsableSpace() - size > 0){
-			logger.debug("not enough space, trying to clean");
-			logger.info("requested: " + size + " usable: " + userDataRoot.getUsableSpace() + ", limit: " + usableSpaceSoftLimit);
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()) + 
+					", not enough space --> clean up immediately");
+
 			try {
 				long cleanUpBeginTime = System.currentTimeMillis();
-				logger.info("cache cleanup, target usable space: " + (size + cleanUpTargetLimit));
+				logger.info("cache cleanup, target usable space: " + FileUtils.byteCountToDisplaySize((size + cleanUpTargetLimit)) + 
+						" (" + FileUtils.byteCountToDisplaySize(size) + " + " + FileUtils.byteCountToDisplaySize(cleanUpTargetLimit) + 
+						" (" + (100-cleanUpTargetPercentage) + "%)");
 				Files.makeSpaceInDirectory(userDataRoot, size + cleanUpTargetLimit, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms");
+				logger.info("cache cleanup took " + (System.currentTimeMillis() - cleanUpBeginTime) + " ms, usable space now " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()));
 			} catch (Exception e) {
 				logger.warn("exception while cleaning cache", e);
 			}
-			logger.info("usable after cleaning: " + userDataRoot.getUsableSpace());
-			logger.info("minimum extra: " + minimumSpaceForAcceptUpload);
+			logger.info("not accepting upload if less than " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + " usable space after upload");
 
 			// check if cleaned up enough 
 			if (userDataRoot.getUsableSpace() >= size + minimumSpaceForAcceptUpload ) {
-				logger.info("enough after cleaning");
+				logger.info("enough space after cleaning");
 				spaceAvailable = true;
 			} else {
-				logger.info("not enough after cleaning");
+				logger.info("not enough space after cleaning");
 				spaceAvailable = false;
 			}
 		} 
 		
 		// request more than total, no can do
 		else {
+			logger.info("space request: " + FileUtils.byteCountToDisplaySize(size) + " usable: " + FileUtils.byteCountToDisplaySize(userDataRoot.getUsableSpace()) + 
+			", maximum space: " + FileUtils.byteCountToDisplaySize(userDataRoot.getTotalSpace()) + 
+					", minimum usable: " + FileUtils.byteCountToDisplaySize(minimumSpaceForAcceptUpload) + 
+					" --> not possible to make enough space");
+
 			spaceAvailable = false;
 		}
 		

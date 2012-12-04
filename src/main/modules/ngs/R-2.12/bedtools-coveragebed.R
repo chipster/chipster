@@ -9,6 +9,7 @@
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
 
 # AMS 23.4.2012
+# AMS 11.10.2012 Fixed BAM file support
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "coverageBed"))
@@ -25,8 +26,9 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, " > coveragebed.bed")
+command <- paste(binary, options, "> coveragebed.bed")
 
 # run
 system(command)
+
 if (file.info("coveragebed.bed")$size == 0) {system("echo \"No results found\" > coveragebed.bed")}
