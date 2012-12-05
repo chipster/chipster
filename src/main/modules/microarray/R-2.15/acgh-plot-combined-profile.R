@@ -6,7 +6,7 @@
 # PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2012-12-05
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
@@ -47,7 +47,7 @@ dat$chromosome <- as.integer(dat$chromosome)
 
 exprs <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
-copynumber <- as.matrix(dat[,grep("^copynumber\\.", names(dat))])
+copynumber <- as.matrix(dat[,grep("^logratio\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
 probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
