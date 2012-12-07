@@ -302,6 +302,18 @@ public class CircularView extends GBrowserView {
 		return null;
 	}
 
+	@Override
+	public void setLayoutMode(LayoutMode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDefaultLayoutMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	// @Override
 	// public float getTrackHeight() {
 	// if(trackHeight == null){

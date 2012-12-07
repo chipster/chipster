@@ -268,15 +268,15 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
 		return LayoutTool.inferLayoutMode(this);
 	}
 
-	public void setFullLayoutMode(boolean enabled) {
-		for (Track track : tracks) {
-			if (enabled) {
-				if (track.getLayoutMode() == LayoutMode.FILL) {
-					track.setLayoutMode(LayoutMode.FULL);
-				}
-			} else {
-				track.setDefaultLayoutMode();
-			}
-		}
+	@Override
+	public void setLayoutMode(LayoutMode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDefaultLayoutMode() {
+		// TODO Auto-generated method stub
+		
 	}
 }

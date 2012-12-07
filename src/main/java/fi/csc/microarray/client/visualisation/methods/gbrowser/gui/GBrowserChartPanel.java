@@ -14,12 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JScrollBar;
-import javax.swing.JViewport;
 import javax.swing.UIManager;
 
 import org.jfree.chart.ChartPanel;
-
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup.ScrollPosition;
 
 /**
  * ChartPanel without internal scaling to be used inside JScrollPane.
@@ -28,12 +25,24 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup.S
  */
 public class GBrowserChartPanel extends ChartPanel {
 
+	/**
+	 * GUI component for ScrollGroup. The actual scrolling happens in ScrollGroup.draw(...) method.
+	 * The ChartPanel is lowest Swing component in the genome browser and therefore the scroll bars
+	 * have to be created here separately from the ScrollGroup.
+	 * 
+	 * @author klemela
+	 */
 	public class ScrollGroupBar extends JScrollBar implements AdjustmentListener {
 		
 		public ScrollGroupBar() {
 			addAdjustmentListener(this);
 		}
 		
+		/**
+		 * Reference level of the scroll content. The reference level is kept steady between frames. In practice
+		 * this is used to keep the Ruler track in place, although the amount of Transcripts varies 
+		 * around it.
+		 */
 		private int referenceY = 0;
 			
 		public void setHeight(int height) {
@@ -56,13 +65,20 @@ public class GBrowserChartPanel extends ChartPanel {
 			this.referenceY = referenceY;
 		}
 		
+		/**
+		 * Set scrolling position according to referenceY and forget any user induced 
+		 * value changes.
+		 */
 		public void setDefaultValue() {
 			setValue(referenceY - getModel().getExtent() / 2);
 		}
 		
+		/* 
+		 * Redraw plot to show the new scrolling position
+		 */
 		@Override
 		public void adjustmentValueChanged(AdjustmentEvent e) {
-			GBrowserChartPanel.this.genomePlot.redraw();
+			GBrowserChartPanel.this.plot.redraw();
 		}
 	}
 
@@ -70,7 +86,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		super(null);		
 	}
 
-	private GBrowserPlot genomePlot;
+	private GBrowserPlot plot;
 	//FIXME clean when visualization is closed
 	private Map<ScrollGroup, ScrollGroupBar> scrollBarsMap = new HashMap<ScrollGroup, ScrollGroupBar>();
 	//Preserves ScrollGroup order
@@ -80,26 +96,11 @@ public class GBrowserChartPanel extends ChartPanel {
 
 		//in genomeBrowser getSize() doesn't work below width of 680
 		//but parent seems to know better
-
 		int height =  getParent().getSize().height;
-
-		/* If the genomeBrowser height is bigger than the scrollPane height, we set that bigger value
-		 * to both chartpanel size and drawHeight to make the genomeBrowser draw vertically everything 
-		 * without scaling
-		 */
-//		if (genomePlot != null && genomePlot.isLegacyFullHeight()) {
-//
-//			height = genomePlot.getHeight();
-//		}
-
-//		if (getParent() instanceof JViewport) {
-//			JViewport viewport = (JViewport)getParent();
-//			genomePlot.setLegacyFullHeightClip(viewport.getViewRect());
-//		}
 
 		Dimension size = new Dimension(getParent().getSize().width, height);
 
-		//Required for JScrollPane to understand that content requires scrolling
+		//Required for JScrollPane (not used in the current Chipster implementation) to understand that content requires scrolling
 		this.setPreferredSize(size);
 
 		//Required for JFreeChart to avoid scaling after the view is drawn
@@ -121,6 +122,10 @@ public class GBrowserChartPanel extends ChartPanel {
 		super.paintComponent(g);
 	}
 
+	/**
+	 * Put scroll bars to this Swing container. Scroll bars are configured 
+	 * in method setScrollGroupBoundaries(). 
+	 */
 	private void udpateScrollBars() {
 
 		this.removeAll();
@@ -149,10 +154,16 @@ public class GBrowserChartPanel extends ChartPanel {
 		}
 	}
 
-	public void setGenomePlot(GBrowserPlot plot) {
-		genomePlot = plot;		
+	public void setPlot(GBrowserPlot plot) {
+		this.plot = plot;		
 	}	
 
+	/**
+	 * Use ScrollGroup view port and content sizes to calculate scroll bar values.
+	 * 
+	 * @param scrollGroups
+	 * @param maxY
+	 */
 	public void setScrollGroupBoundaries(Collection<ScrollGroup> scrollGroups, int maxY) {
 
 		//Keep only scroll bars that still have a ScrollGroup
@@ -198,29 +209,28 @@ public class GBrowserChartPanel extends ChartPanel {
 			
 			int referenceY = group.getScrollReferenceY();
 
-			//FIXME replace with referenceY
-			if (ScrollPosition.START == group.getDefaultScrollPosition()) {
-				if (becomesVisible) {
-					bar.setValue(0);
-				}
-				bar.set(maximum, extent, referenceY);
-			}
-
-			if (ScrollPosition.MID == group.getDefaultScrollPosition()) {
-				if (becomesVisible) {
-					bar.setDefaultValue();
-				}
-				bar.set(maximum, extent, referenceY);
+			if (becomesVisible) {
+				bar.setDefaultValue();
 			}
 
 			//Set the new values
+			bar.set(maximum, extent, referenceY);
 			bar.setHeight(barHeight);
 			bar.setVisible(visible);
 
 			scrollBarsList.add(bar);			
 		}
+		
+		this.validate();
 	}
 
+	/**
+	 * This method is used in ScrollGroup.draw() to get the scrolling position of each ScrollGroup
+	 * to show the right part of the content.
+	 * 
+	 * @param scrollGroup
+	 * @return
+	 */
 	public int getScrollValue(ScrollGroup scrollGroup) {
 		if (scrollBarsMap.containsKey(scrollGroup)) {
 			return scrollBarsMap.get(scrollGroup).getValue();

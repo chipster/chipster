@@ -11,7 +11,6 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
@@ -31,9 +30,6 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
     public TooltipAugmentedChartPanel chartPanel;
-    
-//    private boolean showFullHeight = false;
-//	private Rectangle fullHeightClip;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -175,34 +171,25 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		}		
 		
 		Shape savedClip = g2.getClip();
-//		g2.clip(plotArea);
-
-		//Set width
-//		Rectangle viewCanvasArea = (Rectangle) plotArea.getBounds().clone();
-//		Rectangle plotViewPort = (Rectangle) getLegacyFullHeightClip().clone();
 		
 		Rectangle viewArea = (Rectangle) plotArea.getBounds().clone();
 		
+		//Decide how to divide space between ScrollGroup, TrackGroup and Tracks
 		LayoutTool.doLayout(this, (int) plotArea.getBounds().getHeight());		
 		
+		//Draw all views
 		for (int i = 0; i < views.size(); i++) {
 			GBrowserView view = views.get(i);
-			
-			//FIXME			
+						
 			viewArea.height = view.getHeight();
-//			if (view.isFullHeight()) {					
-//				viewCanvasArea.height = (int) (view.getHeight());
-//			} else {
-//				viewCanvasArea.height = this.getHeight(); 
-//			}
-
+			
 			g2.setClip(viewArea);
 			view.draw(g2, plotArea.getBounds(), viewArea);
 			
 			viewArea.y += viewArea.height;
 		}
 		
-		//Height of content is known only after it is drawn
+		//Update ScrollGroups' scroll bars locations and values. Height of content is known only after it is drawn.
 		chartPanel.setScrollGroupBoundaries(getScrollGroups(), (int) plotArea.getHeight());		
 		
 		g2.setClip(savedClip);
@@ -215,18 +202,6 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 			groups.addAll(view.getScrollGroups());
 		}
 		return groups;
-	}
-
-	public int getHeight() {
-		int total = 0;
-		for (GBrowserView view : views) {
-			if (LayoutTool.inferLayoutMode(view) == LayoutMode.FIXED) {
-				total += view.getHeight();
-			} else {
-				total += view.getLegacyFullHeight();
-			}
-		}
-		return total;
 	}
 
 	/**
@@ -268,9 +243,8 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
     
     public void setFullLayoutMode(boolean enabled) {
     	
-    	for (GBrowserView view : views) {
-    		view.setFullLayoutMode(enabled);
-    	}
+    	LayoutTool.setFullLayoutMode(this, enabled);
+    
     	redraw();
     }
 

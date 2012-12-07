@@ -21,4 +21,9 @@ public class AnnotationScrollGroup extends ScrollGroup {
 		}
 		return 0;
 	}
+	
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferLayoutMode(this);
+	}
 }

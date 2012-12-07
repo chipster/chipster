@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
+
 public class LayoutTool {
 	
 	public static enum LayoutMode { FIXED, FILL, FULL }
@@ -23,35 +24,9 @@ public class LayoutTool {
 			if (component instanceof LayoutContainer) {
 				LayoutContainer childContainer = (LayoutContainer) component;
 				doLayout(childContainer, childHeight);
-//				component.setHeight(calculateHeight(childContainer));
 			}
 		}
 	}
-//	
-//	public static void doCanvasLayout(LayoutContainer container, int layoutHeight) {
-//		int nonFixedComponentHeight = 0;
-//		
-//		if (!isFixedHeight(container)) {
-//			nonFixedComponentHeight = getComponentFillHeight(container, layoutHeight);
-//		}
-//		
-//		for (LayoutComponent component : container.getLayoutComponents()) {
-//			int childHeight;
-//			if (component.isFixedHeight()) {
-//				childHeight = component.getHeight();
-//			} else {
-//				childHeight = nonFixedComponentHeight;
-//				childHeight = Math.max(childHeight, component.getMinHeight());
-//				component.setHeight(childHeight);				
-//			}
-//				
-//			if (component instanceof LayoutContainer) {
-//				LayoutContainer childContainer = (LayoutContainer) component;
-//				doViewPortLayout(childContainer, childHeight);
-//				component.setHeight(calculateHeight(childContainer));
-//			}
-//		}
-//	}
 
 	private static int getComponentFillHeight(LayoutContainer container, int layoutHeight) {
 
@@ -106,16 +81,6 @@ public class LayoutTool {
 			return layoutHeight;
 		}
 	}
-//
-//	public static int calculateHeight(LayoutContainer container) {
-//		int height = 0;
-//		for (LayoutComponent component : container.getLayoutComponents()) {
-//			if (component.isVisible()) {
-//				height += component.getHeight();
-//			}
-//		}
-//		return height;
-//	}
 
 	public static int getFullHeight(LayoutContainer container) {
 		int height = 0;
@@ -125,5 +90,22 @@ public class LayoutTool {
 			}
 		}
 		return height;		
+	}
+
+	public static void setFullLayoutMode(LayoutContainer container, boolean enabled) {
+		for (LayoutComponent component : container.getLayoutComponents()) {
+			if (component instanceof LayoutContainer) {
+				LayoutContainer childContainer = (LayoutContainer) component;
+				setFullLayoutMode(childContainer, enabled);
+			} else {
+				if (enabled) {
+					if (component.getLayoutMode() == LayoutMode.FILL) {
+						component.setLayoutMode(LayoutMode.FULL);
+					}
+				} else {
+					component.setDefaultLayoutMode();
+				}
+			}
+		}
 	}
 }

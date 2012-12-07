@@ -9,4 +9,6 @@ public interface LayoutComponent {
 	public int getMinHeight();
 	public boolean isVisible();
 	public int getFullHeight();
+	public void setLayoutMode(LayoutMode mode);
+	public void setDefaultLayoutMode();
 }

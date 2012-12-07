@@ -1,10 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,11 +11,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +25,6 @@ import javax.swing.Timer;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -39,15 +34,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
 /**
- * Combines tracks to create a single synchronised view. All tracks within one view move hand-in-hand. 
- * View is responsible for allocating space and taking care of actual drawing.
+ * Combines tracks to create a single synchronised view. All tracks within one view move horizontally hand-in-hand. 
+ * View is responsible for handling user input that moves or zooms the view. 
+ * Also the drawing of drawables is implemented in View, because different views 
+ * (e.g. Horizontal or Circular) require different drawing implementations.
  * 
  */
 public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor, LayoutComponent, LayoutContainer{
@@ -75,19 +69,9 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public int margin = 0;
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
-	private Iterator<Track> trackIter;
-	private Iterator<Drawable> drawableIter;
-
-	private Track track;
-	private float y;
-	private int x;
-	private BufferedImage drawBuffer;
 	private long dragEventTime;
 
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
-
-	private static boolean isFullHeight = true;
-	private static final int FULL_HEIGHT_MARGIN = 20;
 
 	public GBrowserView(GBrowserPlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
@@ -95,6 +79,14 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		this.zoomable = zoomable;
 	}
 
+	/**
+	 * Override to implement drawing of drawables.
+	 * 
+	 * @param g
+	 * @param x
+	 * @param y
+	 * @param drawable
+	 */
 	protected abstract void drawDrawable(Graphics2D g, int x, int y, Drawable drawable);
 
 	/**
@@ -126,6 +118,13 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return tracks;
 	}
 
+	/**
+	 * Calls ScrollGroups to draw themselves.
+	 * 
+	 * @param g
+	 * @param plotArea
+	 * @param viewArea
+	 */
 	public void draw(Graphics2D g, Rectangle plotArea, Rectangle viewArea) {
 		
 		this.viewArea = (Rectangle) viewArea.clone();
@@ -139,69 +138,30 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
-//		isFullHeight = parentPlot.isLegacyFullHeight();
-		
 		Rectangle scrollGroupViewPort = (Rectangle) viewArea.clone();
 		
 		for (ScrollGroup scrollGroup : scrollGroups) {
 			
 			scrollGroupViewPort.height = scrollGroup.getHeight();
 			
-			scrollGroup.draw(g, plotArea, scrollGroupViewPort, this);
+			scrollGroup.draw(g, plotArea, scrollGroupViewPort, this);	
 			
 			scrollGroupViewPort.y += scrollGroupViewPort.height;
 		}
-
-		//drawBuffer has different coordinates in normal and fullHeight modes
-//		if (isFullHeight && !isFixedHeight()) {
-//
-//			//copy only the visible area of the JScrollPane
-//			g.drawImage(drawBuffer, 
-//					(int) plotViewPort.getX(), 
-//					(int) plotViewPort.getY(), 
-//					(int) (plotViewPort.getX() + plotViewPort.getWidth()), 
-//					(int) (plotViewPort.getY() + plotViewPort.getHeight()),
-//					(int) plotViewPort.getX() - viewCanvasArea.x, 
-//					(int) plotViewPort.getY() - viewCanvasArea.y, 
-//					(int) (plotViewPort.getX() - viewCanvasArea.x + plotViewPort.getWidth()), 
-//					(int) (plotViewPort.getY() - viewCanvasArea.y + plotViewPort.getHeight()), null);
-//
-//		} else {
-//			//copy everything from the drawBuffer (this view) 
-//			g.drawImage(drawBuffer, 
-//					(int) viewCanvasArea.getX(), (int) viewCanvasArea.getY(), 
-//					(int) (viewCanvasArea.getX() + drawBufferWidth), (int) (viewCanvasArea.getY() + drawBufferHeight),
-//					0, 0, drawBufferWidth, drawBufferHeight, null);
-//		}
-	}
-	
-	public int getLegacyFullHeight() {
-		int height = 0;
-		for (ScrollGroup group : scrollGroups) {
-			
-			height += group.getFullHeight();
-		}
-		return height;
 	}
 
 	public int getWidth() {
 		return this.viewArea.width;
 	}
 
-	//FIXME
-//	/**
-//	 * Height of the area drawn by this view. Height is larger than sum of track heights,
-//	 * if all tracks have fixed height. Height is larger than the actual visible area if there is a scroll bar.
-//	 * 
-//	 * @return   
-//	 */
+	/**
+	 * Height of the area drawn by this view. The height is sum of component heights if the components have fixed height,
+	 * otherwise height set by LayoutTool.doLayout(). 
+	 * 
+	 * @return   
+	 */
 	public int getHeight() {
-		//return this.viewCanvasArea.height;
 		return LayoutTool.getHeight(this, layoutHeight);
-	}
-	
-	public int getLayoutHeight() {
-		return layoutHeight;
 	}
 
 	public QueueManager getQueueManager() {	
@@ -578,18 +538,9 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		this.viewLimiter = viewLimiter;
 	}
 
-	public boolean isFullHeight() {
-		return isFullHeight;
-	}
-
 	@Override
 	public void setHeight(int height) {
 		this.layoutHeight = height;
-	}
-
-	@Override
-	public Collection<? extends LayoutComponent> getLayoutComponents() {
-		return scrollGroups;
 	}
 	
 	@Override
@@ -609,10 +560,9 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public Collection<? extends ScrollGroup> getScrollGroups() {
 		return scrollGroups;
 	}
-
-	public void setFullLayoutMode(boolean enabled) {
-		for (ScrollGroup scrollGroup : scrollGroups) {
-			scrollGroup.setFullLayoutMode(enabled);
-		}
+	
+	@Override
+	public Collection<? extends LayoutComponent> getLayoutComponents() {
+		return getScrollGroups();
 	}
 }

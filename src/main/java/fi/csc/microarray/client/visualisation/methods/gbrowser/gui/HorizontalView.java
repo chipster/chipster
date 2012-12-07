@@ -293,4 +293,16 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 	public LayoutMode getLayoutMode() {
 		return LayoutTool.inferLayoutMode(this);
 	}
+
+	@Override
+	public void setLayoutMode(LayoutMode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDefaultLayoutMode() {
+		// TODO Auto-generated method stub
+		
+	}
 }

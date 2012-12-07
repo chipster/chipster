@@ -23,7 +23,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import org.jfree.chart.JFreeChart;
@@ -54,7 +53,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GeneIndexActi
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ViewLimiter;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup.ScrollPosition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
@@ -199,7 +197,6 @@ public class GBrowser implements ComponentListener {
 
 	private GeneIndexActions gia;
 
-	private JScrollPane verticalScroller;
 	private ViewLimiter viewLimiter;
 	protected boolean geneSearchDone;
 	
@@ -234,12 +231,6 @@ public class GBrowser implements ComponentListener {
 	}
 
 	public void setFullHeight(boolean fullHeight) {
-
-//		if (fullHeight) {
-//			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-//		} else {
-//			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-//		}
 
 		plot.setFullLayoutMode(fullHeight);		
 	}
@@ -439,7 +430,7 @@ public class GBrowser implements ComponentListener {
 		
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
-		ScrollGroup analysis = new ScrollGroup("Analysis", ScrollPosition.START);
+		ScrollGroup analysis = new ScrollGroup("Analysis");
 
 		boolean firstPeakTrack = true;
 		
@@ -600,7 +591,7 @@ public class GBrowser implements ComponentListener {
 		this.plot = new GBrowserPlot(chartPanel, true);
 		plot.addDataRegionListener(settings);
 		
-		((GBrowserChartPanel)chartPanel).setGenomePlot(plot);
+		((GBrowserChartPanel)chartPanel).setPlot(plot);
 
 		//Set default location to plot to avoid trouble in track initialization. 
 		plot.getDataView().setBpRegion(new RegionDouble(
@@ -629,12 +620,9 @@ public class GBrowser implements ComponentListener {
 			plotPanel.remove(1);
 		}
 
-		verticalScroller = new JScrollPane(chartPanel);
-		verticalScroller.getVerticalScrollBar().setUnitIncrement(30);
-
 		setFullHeight(settings.isFullHeight());
 
-		plotPanel.add(verticalScroller, PLOTPANEL);
+		plotPanel.add(chartPanel, PLOTPANEL);
 		plotPanel.addComponentListener(this);
 		CardLayout cl = (CardLayout) (plotPanel.getLayout());
 		cl.show(plotPanel, PLOTPANEL);
