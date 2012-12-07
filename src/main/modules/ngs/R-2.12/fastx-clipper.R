@@ -4,11 +4,11 @@
 # OUTPUT clipped.fastq
 # OUTPUT clipped.log
 # PARAMETER adapter: "Adapter to be removed" TYPE STRING DEFAULT CCTTAAGG (Adapter sequence that is used for filtering and that is subsequently removed.)
-# PARAMETER minimum.alignment: "Minimum adapter alignment length" TYPE INTEGER FROM 0 DEFAULT 0 (Required minimum adapter alignment length. Maximum is adapter length. 0 means option is ignored.)
-# PARAMETER short: "Discard sequences shorter than" TYPE INTEGER FROM 1 DEFAULT 15 (Minimum length of sequences to keep.)
-# PARAMETER quality.format: "Quality value format used" TYPE [sanger: Sanger, illuminaold: "Illumina GA v1.3-1.5"] DEFAULT sanger (What quality encoding is used in your FASTQ file. Select Sanger if your data comes from Illumina 1.8 or later, SOLiD or 454.)
-# PARAMETER discard.n: "Discard sequences with Ns" TYPE [yes, no] DEFAULT yes (Keep sequences with unknown nucleotides. Default is to discard such sequences.)
 # PARAMETER output.options: "Output options" TYPE [clipped: "Keep only clipped reads", unclipped: "Keep only non-clipped reads", both: "Keep both clipped and non-clipped reads"] DEFAULT clipped (You can choose to keep only clipped reads (reads that contained adapter\), only non-clipped reads (reads that did not contain an adapter\) or both clipped and non-clipped reads.)
+# PARAMETER minimum.alignment: "Minimum adapter alignment length" TYPE INTEGER FROM 0 DEFAULT 0 (Required minimum adapter alignment length. Maximum is adapter length. 0 means option is ignored.)
+# PARAMETER OPTIONAL short: "Discard sequences shorter than" TYPE INTEGER FROM 1 DEFAULT 15 (Minimum length of sequences to keep.)
+# PARAMETER OPTIONAL discard.n: "Discard sequences with Ns" TYPE [yes, no] DEFAULT yes (Keep sequences with unknown nucleotides. Default is to discard such sequences.)
+# PARAMETER OPTIONAL quality.format: "Quality value format used" TYPE [sanger: Sanger, illuminaold: "Illumina GA v1.3-1.5"] DEFAULT sanger (What quality encoding is used in your FASTQ file. Select Sanger if your data comes from Illumina 1.8 or later, SOLiD or 454.)
 
 # EK 27.6.2011
 # AMS 01.11.2012: Added minimum.alignement and output.options options
