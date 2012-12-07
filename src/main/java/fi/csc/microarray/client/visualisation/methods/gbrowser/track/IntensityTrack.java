@@ -11,12 +11,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -38,7 +38,7 @@ public class IntensityTrack extends Track {
 	private boolean doLog;
 	private boolean removeTooWide;
 
-	public IntensityTrack(View view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
+	public IntensityTrack(GBrowserView view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
 		super(view, file);
 		this.color = c;
 		this.doLog = doLog;
@@ -91,7 +91,7 @@ public class IntensityTrack extends Track {
 				count = Math.log(count);
 			}
 			
-			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getStretchableTrackHeight());			
+			int height = (int) Math.min(count * (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS), getHeight());			
 
 			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 
@@ -115,20 +115,6 @@ public class IntensityTrack extends Track {
 
 		getView().redraw();
 	}
-
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-	   
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
     
     @Override
     public boolean isVisible() {
@@ -148,5 +134,10 @@ public class IntensityTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return true;
+	}
+	
+	@Override
+	public int getHeight() {
+	    return 100;
 	}
 }

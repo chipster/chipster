@@ -2,10 +2,10 @@ package fi.csc.chipster.tools.ngs;
 
 import java.io.File;
 
-import fi.csc.chipster.tools.gbrowser.ChromosomeNormaliser;
-import fi.csc.chipster.tools.gbrowser.TsvSorter;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.ChromosomeNormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
 
 public class SortBed extends JavaAnalysisJobBase {

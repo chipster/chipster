@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
