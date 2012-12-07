@@ -1,4 +1,4 @@
-# TOOL fastx-clipper.R: "Filter reads for adapters, length and Ns" (Filters reads accordingto user-defined adapter sequence. Clips away the adapter,
+# TOOL fastx-clipper.R: "Filter reads for adapters, length and Ns" (Filters reads according to user-defined adapter sequence. Clips away the adapter,
 # and optionally filters out reads that are too short after clipping or contain unknown nucleotides. Adapter-only sequences are removed in the process. This tool is based on the FASTA/Q Clipper tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC
 # OUTPUT clipped.fastq
