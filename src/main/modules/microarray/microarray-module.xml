@@ -123,6 +123,7 @@
 		<tool runtime="R-2.15"><resource>acgh-expression-test.R</resource></tool>	
 		<tool runtime="R-2.15"><resource>acgh-plot-combined-expression.R</resource></tool>
 		<tool runtime="R-2.15"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-fetch-probe-positions-from-geo.R</resource></tool>
 		<tool runtime="R-2.15" module="common"><resource>acgh-add-cytobands.R</resource></tool>
 		<tool runtime="R-2.15" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
 		<tool runtime="R-2.15" module="common"><resource>acgh-update-aberration-frequencies.R</resource></tool>

@@ -5,7 +5,7 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package, Illumina for Illumina arrays, or cDNA for everything else.)
 
-# 2012-10-16
+# 2012-12-11
 # Ilari Scheinin <firstname.lastname@gmail.com>
 
 # JTT 9.8.2007
@@ -49,44 +49,50 @@ phenodata <- data.frame(sample=sample, original_name=sample, chiptype=chiptype, 
 dat <- data.frame(chromosome=NA, start=NA, end=NA, cytoband=NA, symbol=NA, description=NA, exprs(eset))
 colnames(dat)[-(1:6)] <- paste('chip.', sample, sep='')
 
-# GDS annotation columns
-if ('Gene symbol' %in% colnames(eset@featureData@data))
-  dat$symbol <- eset@featureData@data[, 'Gene symbol']
-if ('Gene title' %in% colnames(eset@featureData@data))
-  dat$description <- eset@featureData@data[, 'Gene title']
+# annotation columns
+plat <- eset@featureData@data
+colnames(plat) <- toupper(colnames(plat))
 
-# Agilent annotation columns
-if ('CHROMOSOMAL_LOCATION' %in% colnames(eset@featureData@data)) {
-  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', eset@featureData@data$CHROMOSOMAL_LOCATION)
-  dat$start <- as.integer(gsub('.*:|-.*','', eset@featureData@data$CHROMOSOMAL_LOCATION))
-  dat$end <- as.integer(gsub('.*-|','', eset@featureData@data$CHROMOSOMAL_LOCATION))
+# GDS
+if ('Gene symbol' %in% colnames(plat))
+  dat$symbol <- plat[, 'Gene symbol']
+if ('Gene title' %in% colnames(plat))
+  dat$description <- plat[, 'Gene title']
+
+# Agilent
+if ('CHROMOSOMAL_LOCATION' %in% colnames(plat)) {
+  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$CHROMOSOMAL_LOCATION)
+  dat$start <- as.integer(gsub('.*:|-.*','', plat$CHROMOSOMAL_LOCATION))
+  dat$end <- as.integer(gsub('.*-|','', plat$CHROMOSOMAL_LOCATION))
 }
-if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(eset@featureData@data))
-  dat$cytoband <- gsub('hs\\|', '', eset@featureData@data$CYTOBAND)
-if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(eset@featureData@data))
-  dat$symbol <- eset@featureData@data$GENE_SYMBOL
-if (all(is.na(dat$description)) && 'GENE_NAME' %in% colnames(eset@featureData@data))
-  dat$description <- eset@featureData@data$GENE_NAME
-if (all(is.na(dat$description)) && 'DESCRIPTION' %in% colnames(eset@featureData@data))
-  dat$description <- eset@featureData@data$DESCRIPTION
+if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(plat))
+  dat$cytoband <- gsub('hs\\|', '', plat$CYTOBAND)
+if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(plat))
+  dat$symbol <- plat$GENE_SYMBOL
+if (all(is.na(dat$description)) && 'GENE_NAME' %in% colnames(plat))
+  dat$description <- plat$GENE_NAME
+if (all(is.na(dat$description)) && 'DESCRIPTION' %in% colnames(plat))
+  dat$description <- plat$DESCRIPTION
 
-# Nimblegen annotation columns
-if (all(is.na(dat$chromosome)) && 'CHROMOSOME' %in% colnames(eset@featureData@data))
-  dat$chromosome <- eset@featureData@data$CHROMOSOME
-if (all(is.na(dat$start)) && 'RANGE_START' %in% colnames(eset@featureData@data))
-  dat$start <- as.integer(eset@featureData@data$RANGE_START)
-if (all(is.na(dat$end)) && 'RANGE_END' %in% colnames(eset@featureData@data))
-  dat$end <- as.integer(eset@featureData@data$RANGE_END)
+# Nimblegen
+if (all(is.na(dat$chromosome)) && 'CHROMOSOME' %in% colnames(plat))
+  dat$chromosome <- plat$CHROMOSOME
+if (all(is.na(dat$start)) && 'RANGE_START' %in% colnames(plat))
+  dat$start <- as.integer(plat$RANGE_START)
+if (all(is.na(dat$end)) && 'RANGE_END' %in% colnames(plat))
+  dat$end <- as.integer(plat$RANGE_END)
 
-# other annotation columns
-if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(eset@featureData@data))
-  dat$chromosome <- eset@featureData@data$CHROMOSOME_NR
-if (all(is.na(dat$start)) && 'START' %in% colnames(eset@featureData@data))
-  dat$start <- as.integer(eset@featureData@data$START)
-if (all(is.na(dat$end)) && 'END' %in% colnames(eset@featureData@data))
-  dat$end <- as.integer(eset@featureData@data$END)
-if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(eset@featureData@data))
-  dat$description <- eset@featureData@data$GENE_DESCRIPTION
+# other
+if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(plat))
+  dat$chromosome <- plat$CHROMOSOME_NR
+if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
+  dat$start <- as.integer(plat$START)
+if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
+  dat$end <- as.integer(plat$END)
+if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
+  dat$symbol <- plat$SYMBOL
+if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(plat))
+  dat$description <- plat$GENE_DESCRIPTION
 
 # remove empty annotation columns and clean up
 for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')) {

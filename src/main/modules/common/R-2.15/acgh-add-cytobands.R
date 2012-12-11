@@ -4,7 +4,7 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2012-12-11
 
 file <- 'normalized.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -40,8 +40,11 @@ for (band in rownames(bands)) {
     dat[index, 'endband'] <- bands[band, 'band']
 }
 
-dat[!is.na(dat$startband), 'cytoband'] <- paste(dat[!is.na(dat$startband), 'startband'], '-', dat[!is.na(dat$startband), 'endband'], sep='')
-dat[!is.na(dat$startband) & dat$startband==dat$endband, 'cytoband'] <- dat[!is.na(dat$startband) & dat$startband==dat$endband, 'startband']
+dat$startband[is.na(dat$startband)] <- 'unknown'
+dat$endband[is.na(dat$endband)] <- 'unknown'
+
+dat$cytoband <- paste(dat$startband, '-', dat$endband, sep='')
+dat$cytoband[dat$startband==dat$endband] <- dat$startband[dat$startband==dat$endband]
 
 dat$startband <- NULL
 dat$endband <- NULL
