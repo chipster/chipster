@@ -49,10 +49,10 @@ public class ImportSession{
 			ImportItem item = new ImportItem(files.get(i));
 			
 			// Set default action
-			if(ImportUtils.isFileSupported(files.get(i))){
+			if (ImportUtils.isFileSupported(files.get(i))) {
 				item.setAction(ImportItem.Action.DIRECT);
 			} else {
-				item.setAction(ImportItem.Action.CUSTOM);
+				item.setAction(ImportItem.Action.DIRECT); // we never offer import tool by default
 			}
 			
 			// Set content type

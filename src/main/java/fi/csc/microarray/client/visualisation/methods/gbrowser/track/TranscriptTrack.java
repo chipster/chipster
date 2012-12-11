@@ -95,7 +95,7 @@ public class TranscriptTrack extends Track {
 
 				rect.x = getView().bpToTrack(transcript.getRegion().start);
 				int x = rect.x;
-				
+
 				//End has to be increased by one, because the transcript includes the base at the end location
 				BpCoord endCoord = new BpCoord(transcript.getRegion().end.bp + 1, transcript.getRegion().end.chr);
 				rect.width = getView().bpToTrack(endCoord) - rect.x;
@@ -142,7 +142,7 @@ public class TranscriptTrack extends Track {
 					} else {
 						name = "n/a";
 					}
-					
+
 					drawTextAboveRectangle(name, drawables, rect, 1);
 				}
 

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -196,7 +197,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		@Override
 		public Table asTable() throws MicroarrayException {
 			if (indexCollector.isEmpty()) {
-				return null;
+				return null; // we have to return null, cannot return empty table (because it is not true). it is also specified by Feature interface.
 				
 			} else {
 				return new DynamicallyParsedTable(getDataBean(), settings, indexCollector);
@@ -206,11 +207,13 @@ public class TableColumnProvider extends FeatureProviderBase {
 		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
 			BufferedReader bufferedReader = null;
 			try {
-				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EMPTY_ON_NA)));
 				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 				MatrixParseSettings settings = new MatrixParseSettings();
 
-				// check what kind of matrix we are dealing with TODO remove this Affymetrix CEL specific functionality here and use type tags
+				// check what kind of matrix we are dealing with 
+				// TODO remove this Affymetrix CEL specific functionality here, (type tags would not help removing "CellHeader=" etc., 
+				// must create module.inferSettings(bean) or similar
 				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
 					logger.debug("parsing cel type");
 					settings.headerTerminator = "CellHeader=";
@@ -226,6 +229,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
 					}
 					
+					//TODO same as comment above about Affymetrix CEL specific functionality 
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
 						//TODO this will fail if the last row of header isn't unique
 						String line = null;

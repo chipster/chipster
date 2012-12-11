@@ -141,7 +141,7 @@ public class AnnotationManager {
 			return species.hashCode();
 		}
 	}
-
+	
 	public enum AnnotationType {
 		CYTOBANDS("Cytoband"), 
 		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
@@ -453,7 +453,7 @@ public class AnnotationManager {
 			} else {
 				url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
 			}
-
+			
 			long contentLength = Long.parseLong(splitted[5]);
 
 			Chromosome chr = null;

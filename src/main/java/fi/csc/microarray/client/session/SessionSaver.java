@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -23,23 +25,27 @@ import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
-import fi.csc.microarray.client.session.schema.DataType;
-import fi.csc.microarray.client.session.schema.FolderType;
-import fi.csc.microarray.client.session.schema.InputType;
-import fi.csc.microarray.client.session.schema.LinkType;
-import fi.csc.microarray.client.session.schema.NameType;
-import fi.csc.microarray.client.session.schema.ObjectFactory;
-import fi.csc.microarray.client.session.schema.OperationType;
-import fi.csc.microarray.client.session.schema.ParameterType;
-import fi.csc.microarray.client.session.schema.SessionType;
+import fi.csc.microarray.client.session.schema2.DataType;
+import fi.csc.microarray.client.session.schema2.FolderType;
+import fi.csc.microarray.client.session.schema2.InputType;
+import fi.csc.microarray.client.session.schema2.LinkType;
+import fi.csc.microarray.client.session.schema2.LocationType;
+import fi.csc.microarray.client.session.schema2.NameType;
+import fi.csc.microarray.client.session.schema2.ObjectFactory;
+import fi.csc.microarray.client.session.schema2.OperationType;
+import fi.csc.microarray.client.session.schema2.ParameterType;
+import fi.csc.microarray.client.session.schema2.SessionType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * @author hupponen
@@ -53,6 +59,7 @@ public class SessionSaver {
 	private final int DATA_BLOCK_SIZE = 2048;
 	
 	private File sessionFile;
+	private URL sessionUrl;
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
 	private int entryCounter = 0;
@@ -67,23 +74,35 @@ public class SessionSaver {
 	private HashMap<OperationRecord, String> reversedOperationRecordIdMap = new HashMap<OperationRecord, String>();
 	private HashMap<String, OperationType> operationRecordTypeMap = new HashMap<String, OperationType>();
 	
-	
 	private DataManager dataManager;
 
 	private ObjectFactory factory;
 	private SessionType sessionType;
 
-
 	private String validationErrors;
+
 
 
 	/**
 	 * Create a new instance for every session to be saved.
 	 * 
-	 * @param sessionFile
+	 * @param sessionFile file to write out metadata and possible data
 	 */
 	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
+		this.sessionUrl = null;
+		this.dataManager = dataManager;
+
+	}
+
+	/**
+	 * Create a new instance for every session to be saved.
+	 * 
+	 * @param sessionUrl url to write out metadata
+	 */
+	public SessionSaver(URL sessionUrl, DataManager dataManager) {
+		this.sessionFile = null;
+		this.sessionUrl = sessionUrl;
 		this.dataManager = dataManager;
 
 	}
@@ -102,7 +121,7 @@ public class SessionSaver {
 		gatherMetadata(saveData);
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionFile(saveData);
+		writeSessionToFile(saveData);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
@@ -113,9 +132,22 @@ public class SessionSaver {
 		boolean saveData = false;
 		
 		gatherMetadata(saveData);
-		writeSessionFile(saveData);
+		writeSessionToFile(saveData);
 	}
 
+	public void saveStorageSession() throws Exception {
+
+		// move data bean contents to storage
+		for (DataBean dataBean : dataManager.databeans()) {
+			dataManager.putToStorage(dataBean);
+		}
+		
+		// save metadata
+		boolean saveData = false;
+		gatherMetadata(saveData);
+		writeSessionToUrl(saveData);
+	}
+	
 	
 	/**
 	 * Gather the metadata form the data beans, folders and operations.
@@ -153,7 +185,6 @@ public class SessionSaver {
 		marshaller.setEventHandler(validationEventHandler);
 		
 		marshaller.marshal(factory.createSession(sessionType), new DefaultHandler());
-		//marshaller.marshal(factory.createSession(sessionType), System.out);
 	
 		if (!validationEventHandler.hasEvents()) {
 			 return true;
@@ -165,12 +196,41 @@ public class SessionSaver {
 	}
 
 	/**
-	 * Write the metadata file and data bean contents to the zip file.
+	 * Write metadata over URL. 
 	 * 
 	 * @param saveData if true, also actual contents of databeans are saved 
 	 * 
 	 */
-	private void writeSessionFile(boolean saveData) throws Exception {
+	private void writeSessionToUrl(boolean saveData) throws Exception {
+
+		HttpURLConnection conn = UrlTransferUtil.prepareForUpload(sessionUrl);
+		
+		try {
+			OutputStream out = conn.getOutputStream();
+			try {
+				writeSessionContents(saveData, out); 
+			} finally {
+				IOUtils.closeIfPossible(out);
+			}
+			
+			// need to check this to guarantee upload
+			if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
+    			throw new IOException("PUT was not successful: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+    		}
+			
+		} finally {
+			IOUtils.disconnectIfPossible(conn); 
+		}
+		
+	}
+
+	/**
+	 * Write the metadata file and possibly data bean contents to the zip file.
+	 * 
+	 * @param saveData if true, also actual contents of databeans are saved 
+	 * 
+	 */
+	private void writeSessionToFile(boolean saveData) throws Exception {
 
 		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
@@ -184,42 +244,20 @@ public class SessionSaver {
 		}
 
 		// write data to zip file 
-		ZipOutputStream zipOutputStream = null;
-		try {	
-			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
-			zipOutputStream.setLevel(1); // quite slow with bigger values														
-
-			// save meta data
-			ZipEntry sessionDataZipEntry = new ZipEntry(UserSession.SESSION_DATA_FILENAME);
-			zipOutputStream.putNextEntry(sessionDataZipEntry);
-			Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			// TODO disable validation
-			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
-			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
-			zipOutputStream.closeEntry() ;							
-
-			// save data bean contents
-			if (saveData) {
-				writeDataBeanContentsToZipFile(zipOutputStream);
-			}
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(newSessionFile);
+			writeSessionContents(saveData, out);
+			IOUtils.closeIfPossible(out);
 			
-			// save source codes
-			writeSourceCodesToZip(zipOutputStream);
-			
-			// close the zip stream
-			zipOutputStream.close();
-		} 
-		
-		catch (Exception e) {
-			IOUtils.closeIfPossible(zipOutputStream);
-			
+		} catch (Exception e) {
+			IOUtils.closeIfPossible(out);
 			// don't leave the new session file lying around if something went wrong
 			newSessionFile.delete();
-			
 			throw e;
 		}
-
+		
+		
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
@@ -249,6 +287,42 @@ public class SessionSaver {
 		} 
 	}
 
+	private void writeSessionContents(boolean saveData, OutputStream out) throws Exception {
+
+		ZipOutputStream zipOutputStream = null;
+		try {	
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(out));
+			zipOutputStream.setLevel(1); // quite slow with bigger values														
+
+			// save meta data
+			ZipEntry sessionDataZipEntry = new ZipEntry(UserSession.SESSION_DATA_FILENAME);
+			zipOutputStream.putNextEntry(sessionDataZipEntry);
+			Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			// TODO disable validation
+			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
+			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
+			zipOutputStream.closeEntry() ;							
+
+			// save data bean contents
+			if (saveData) {
+				writeDataBeanContentsToZipFile(zipOutputStream);
+			}
+			
+			// save source codes
+			writeSourceCodesToZip(zipOutputStream);
+			
+			// close the zip stream
+			zipOutputStream.flush();
+//			zipOutputStream.close();
+		} 
+		
+		catch (Exception e) {
+			IOUtils.closeIfPossible(zipOutputStream);
+			throw e;
+		}
+	}
+
 
 	/**
 	 * After the session file has been saved, update the urls and handlers in the client
@@ -258,9 +332,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
-			bean.setContentUrl(newURLs.get(bean));
-			bean.setHandler(dataManager.getZipDataBeanHandler());
+			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION, newURLs.get(bean));
 		}
 	}
 	
@@ -315,7 +387,7 @@ public class SessionSaver {
 
 				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = bean.getContentUrl();
+				URL newURL = null;
 				
 				if (saveData) {
 
@@ -388,29 +460,22 @@ public class SessionSaver {
 		// notes
 		dataType.setNotes(bean.getNotes());
 
-		// write storage method and URL, depending on if data is packed into zip or not
-		if (saveData) {
-
-			// all data content goes to session --> type is local session
-			dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
-
-			// url
-			dataType.setUrl("file:#" + newURL.getRef());
-			
-		} else {
-
-			// all data content goes to session --> type is local session
-			dataType.setStorageType(bean.getStorageMethod().toString());
-
-			// url
-			dataType.setUrl(bean.getContentUrl().toString());
+		// write all URL's
+		for (ContentLocation location : bean.getContentLocations()) {
+			LocationType locationType = new LocationType();
+			locationType.setMethod(location.getMethod().toString());
+			locationType.setUrl(location.getUrl().toString());
+			dataType.getLocation().add(locationType);
 		}
 		
-		// cache url
-		if (bean.getCacheUrl() != null) {
-			dataType.setCacheUrl(bean.getCacheUrl().toString());
+		// write newly created URL inside session files, if exists
+		if (newURL != null) {
+			LocationType locationType = new LocationType();
+			locationType.setMethod(StorageMethod.LOCAL_SESSION.name());
+			locationType.setUrl("file:#" + newURL.getRef());
+			dataType.getLocation().add(locationType);
 		}
-
+		
 		// for now, accept beans without operation
 		if (bean.getOperationRecord() != null) {
 			OperationRecord operationRecord = bean.getOperationRecord();
@@ -522,8 +587,7 @@ public class SessionSaver {
 			String entryName = entry.getValue().getRef();
 
 			// write bean contents to zip
-			writeFile(zipOutputStream, entryName, entry.getKey().getContentByteStream());
-			zipOutputStream.closeEntry();
+			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
 		}
 	}
 	
@@ -568,4 +632,90 @@ public class SessionSaver {
 	public String getValidationErrors() {
 		return this.validationErrors;
 	}
+	
+	public static void dumpSession(DataFolder folder, StringBuffer buffer) {
+
+		for (DataItem data : folder.getChildren()) {
+			
+			if (data instanceof DataFolder) {
+				dumpSession((DataFolder)data, buffer);
+				
+			} else {
+				DataBean bean = (DataBean)data;
+				buffer.append("\nBean: " + bean.getName() + "\n");
+				
+				for (ContentLocation locations : bean.getContentLocations()) {
+					buffer.append("  " + locations.getMethod() + ": \t" + locations.getUrl() + "\n");
+				}
+
+			}
+		}
+		
+	}
+	
+//    public static void main(String args[])
+//    {                
+//            try
+//            {
+//                    String zipFile = "/home/akallio/Desktop/test.zip";
+//                   
+//                    //create byte buffer
+//                    byte[] buffer = new byte[1024];
+//                    /*
+//                     * To create a zip file, use
+//                     *
+//                     * ZipOutputStream(OutputStream out)
+//                     * constructor of ZipOutputStream class.
+//                     *  
+//                     */
+//                     
+//                     //create object of FileOutputStream
+//                     FileOutputStream fout = new FileOutputStream(zipFile);
+//                     
+//                     //create object of ZipOutputStream from FileOutputStream
+//                     ZipOutputStream zout = new ZipOutputStream(fout);
+//                     
+//                     /*
+//                      * To begin writing ZipEntry in the zip file, use
+//                      *
+//                      * void putNextEntry(ZipEntry entry)
+//                      * method of ZipOutputStream class.
+//                      *
+//                      * This method begins writing a new Zip entry to
+//                      * the zip file and positions the stream to the start
+//                      * of the entry data.
+//                      */
+//                     
+//                     zout.putNextEntry(new ZipEntry("jee"));
+//                     
+//                     /*
+//                      * After creating entry in the zip file, actually
+//                      * write the file.
+//                      */
+//                     int length = buffer.length;
+//                     
+//                     zout.write(buffer, 0, length);
+//                     
+//                     /*
+//                      * After writing the file to ZipOutputStream, use
+//                      *
+//                      * void closeEntry() method of ZipOutputStream class to
+//                      * close the current entry and position the stream to
+//                      * write the next entry.
+//                      */
+//                     
+//                      zout.closeEntry();
+//                     
+//                      //close the ZipOutputStream
+//                      zout.close();
+//                     
+//                      System.out.println("Zip file has been created!");
+//           
+//            }
+//            catch(IOException ioe)
+//            {
+//                    System.out.println("IOException :" + ioe);
+//            }
+//           
+//    }
 }

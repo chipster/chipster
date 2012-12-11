@@ -64,9 +64,6 @@ public class ChildScreenPool {
 			this.screen = screen;
 		}		
 
-		public void keyTyped(KeyEvent e) {			
-		}
-		
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 		}
 		
