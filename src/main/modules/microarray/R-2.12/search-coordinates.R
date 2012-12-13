@@ -5,7 +5,7 @@
 # PARAMETER include.partial.overlaps: include.partial.overlaps TYPE [yes: yes, no: no] DEFAULT yes (Whether to include only features that are completely contained within the search window, or also partial overlaps.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2012-12-13
 
 # load inputs
 file <- 'normalized.tsv'
@@ -15,25 +15,20 @@ pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
+# parse coordinates
+position <- gsub('(\t|:|-|\\.\\.)', ';', position)
+items <- strsplit(position, ';')[[1]]
+chromosome <- items[1]
+start <- as.integer(items[2])
+end <- as.integer(items[3])
+
 # discard data from other chromosomes
 dat <- dat[dat$chromosome == chromosome,]
 
-# add distance column
-dat2 <- dat[,pos]
-dat2$distance <- abs(dat$start + (dat$end - dat$start) / 2 - (start + (end - start) / 2))
-dat2 <- cbind(dat2, dat[,setdiff(colnames(dat), pos)])
-dat <- dat2
-
-# order according to distance
-dat <- dat[order(dat$distance),]
-
-# check that we are not trying to return more results than we have
-number.of.closest.results.to.return <- min(number.of.closest.results.to.return, nrow(dat))
-
-if (number.of.closest.results.to.return == 0) {
-  dat <- dat[0,]
+if (include.partial.overlaps == 'no') {
+  dat <- dat[dat$start >= start & dat$end <= end,]
 } else {
-  dat <- dat[1:number.of.closest.results.to.return,]
+  dat <- dat[dat$end > start & dat$start < end,]
 }
 
 # write output
