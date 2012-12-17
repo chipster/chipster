@@ -1,7 +1,6 @@
 # TOOL cuffmerge2.R: "Cuffmerge2" (Cuffmerge2)
-# INPUT annotation{...}.gtf: "GTF files" TYPE GENERIC
+# INPUT annotation{...}.gtf: "GTF files" TYPE GTF
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA
-# OUTPUT OPTIONAL ls.txt
 # OUTPUT OPTIONAL genes.fpkm_tracking.tsv  
 # OUTPUT OPTIONAL isoforms.fpkm_tracking.tsv  
 # OUTPUT OPTIONAL merged.gtf  
@@ -13,6 +12,12 @@
 
 # binary
 cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffmerge"))
+
+# Set PATH so cuffmerge can find gtf_to_sam
+cufflinkspath <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64"))
+setpathc1 <- c("export PATH=$PATH:", cufflinkspath, ";")
+setpathcommand <- paste(setpathc1 , collapse = '')
+
 
 # Make gtf list file
 system("ls *.gtf > assemblies.txt")
@@ -39,25 +44,26 @@ if (file.exists("ownref.fa")){
 
 
 # command
-command <- paste(cuffmerge.binary, "-s", genomefile, "assemblies.txt")
+command <- paste(setpathcommand, cuffmerge.binary, "-s", genomefile, "assemblies.txt")
 
 # run
 #stop(paste('CHIPSTER-NOTE: ', command))
-#system(command)
- system("ls -l > ls.txt")
+system(command)
+
+# Rename files
+if (file.exists("merged_asm/genes.fpkm_tracking") && file.info("merged_asm/genes.fpkm_tracking")$size > 0) {
+	system("mv merged_asm/genes.fpkm_tracking genes.fpkm_tracking.tsv")
+}
+if (file.exists("merged_asm/isoforms.fpkm_tracking") && file.info("merged_asm/isoforms.fpkm_tracking")$size > 0) {
+	system("mv merged_asm/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
+}
+if (file.exists("merged_asm/merged.gtf") && file.info("merged_asm/merged.gtf")$size > 0) {
+	system("mv merged_asm/merged.gtf merged.gtf")
+}
+if (file.exists("merged_asm/skipped.gtf") && file.info("merged_asm/skipped.gtf")$size > 0) {
+	system("mv merged_asm/skipped.gtf skipped.gtf")
+}
+if (file.exists("merged_asm/transcripts.gtf") && file.info("merged_asm/transcripts.gtf")$size > 0) {
+	system("mv merged_asm/transcripts.gtf transcripts.gtf")
+}
  
- # Rename files
- if (file.info("merged_asm/genes.fpkm_tracking")$size > 0) {
-	 system("mv merged_asm/genes.fpkm_tracking genes.fpkm_tracking.tsv")
- }
- if (file.info("merged_asm/isoforms.fpkm_tracking")$size > 0) {
-	 system("mv merged_asm/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
- }
- if (file.info("merged_asm/merged.gtf")$size > 0) {
-	 system("mv merged_asm/merged.gtf merged.gtf")
- }
- if (file.info("merged_asm/skipped.gtf")$size > 0) {
-	 system("mv merged_asm/skipped.gtf skipped.gtf")
- }
- if (file.info("merged_asm/transcripts.gtf")$size > 0) {
-	 system("mv merged_asm/transcripts.gtf transcripts.gtf")
