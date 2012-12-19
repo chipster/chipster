@@ -319,8 +319,9 @@
 
 	<category name="CNA-seq" color="#a49900">
 		<tool runtime="R-2.15"><resource>cna-bin-hits.R</resource></tool>
-		<tool runtime="R-2.15"><resource>cna-pool-bins.R</resource></tool>
 		<tool runtime="R-2.15"><resource>cna-define-experiment.R</resource></tool>
+		<tool runtime="R-2.15"><resource>cna-correct.R</resource></tool>
+                <tool runtime="R-2.15" module="common"><resource>acgh-normalize.R</resource></tool>
                 <tool runtime="R-2.15" module="common"><resource>acgh-plot-profile.R</resource></tool>
                 <tool runtime="R-2.15"><resource>cna-segment.R</resource></tool>
                 <tool runtime="R-2.15" module="common"><resource>acgh-call-aberrations.R</resource></tool>
