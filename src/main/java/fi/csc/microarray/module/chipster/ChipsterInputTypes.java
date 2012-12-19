@@ -125,6 +125,23 @@ public class ChipsterInputTypes {
 
 	};
 
+	public static final InputType GTF = new InputType() {
+
+		public String getName() {
+			return "GTF";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("text/gtf");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
+
+	
 	public static boolean hasRawType(DataBean data) {
 		return AFFY.isTypeOf(data) || CDNA.isTypeOf(data);
 	}
