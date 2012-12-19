@@ -1,16 +1,14 @@
 package fi.csc.microarray.manager.web.data;
-
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
-
 import javax.jms.JMSException;
-
 import com.vaadin.data.util.BeanItemContainer;
-
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.ui.ServicesView;
@@ -23,6 +21,7 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 
+@SuppressWarnings("serial")
 public class ServiceContainer extends BeanItemContainer<ServiceEntry> implements
 Serializable {
 	
@@ -126,10 +125,17 @@ Serializable {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalConfigurationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				} 
 			}
 		});
 	}
+
 	
 	private boolean contains(String name) {
 		for (ServiceEntry entry : getItemIds()) {
