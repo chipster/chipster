@@ -152,8 +152,8 @@ public class LocalNGSPreprocess implements Runnable {
 		OperationRecord operationRecord = new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
 		outputBean.setOperationRecord(operationRecord);
 		indexOutputBean.setOperationRecord(operationRecord);
-		dataManager.getRootFolder().addChild(outputBean);
-		dataManager.getRootFolder().addChild(indexOutputBean);
+		dataManager.connectChild(outputBean, dataManager.getRootFolder());
+		dataManager.connectChild(indexOutputBean, dataManager.getRootFolder());
 	}
 	
 	private void preprocessBed(DataManager dataManager, File inputFile) throws Exception {
@@ -162,7 +162,6 @@ public class LocalNGSPreprocess implements Runnable {
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
-		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 		
 		// Create outputs in the client
@@ -170,7 +169,7 @@ public class LocalNGSPreprocess implements Runnable {
 		
 		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
-		dataManager.getRootFolder().addChild(outputBean);
+		dataManager.connectChild(outputBean, dataManager.getRootFolder());
 	}
 
 	private void preprocessBai(DataManager dataManager, File inputFile) throws Exception {
@@ -182,7 +181,7 @@ public class LocalNGSPreprocess implements Runnable {
 		
 		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
-		dataManager.getRootFolder().addChild(outputBean);
+		dataManager.connectChild(outputBean, dataManager.getRootFolder());
 	}
 	
 }

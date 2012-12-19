@@ -50,7 +50,8 @@ public class SADLDescriptionTest {
 
 	@Test(groups = {"unit"} )
 	public void testDescriptions() throws Exception {
-				
+
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		
 		LinkedList<String> resources = new LinkedList<String>();

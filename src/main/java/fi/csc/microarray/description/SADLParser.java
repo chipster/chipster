@@ -196,10 +196,6 @@ public class SADLParser {
 			name.setDisplayName(tokens.next());
 		}
 		
-		// check 
-		if (name == null) {
-			throw new ParseException("name is null");
-		}
 		if (name.getID() == null && (name.getPrefix() == null && name.getPostfix() == null)) {
 			throw new ParseException("id, prefix and postfix are all null");
 		}

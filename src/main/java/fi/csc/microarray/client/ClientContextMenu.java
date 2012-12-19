@@ -18,13 +18,12 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
-import fi.csc.microarray.databeans.DataBean.Link;
 
 /**
  * Context menu for set of selected DataItems.
@@ -302,7 +301,8 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			application.visualiseWithBestMethod(FrameType.MAIN);
 
 		} else if (source == renameMenuItem) {
-			new RenameDialog(application, this.selectedItem);
+			
+			application.showRenameView();
 
 		} else if (source == deleteMenuItem) {
 			if (selectedItem instanceof DataFolder) {

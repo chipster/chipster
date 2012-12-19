@@ -11,18 +11,18 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class VisualisationMethodRepository {
-	
+
 	private LinkedList<VisualisationMethod> visualisationMethods = new LinkedList<VisualisationMethod>(); 
 
-	
+
 	public void addVisualisationMethods(VisualisationMethod[] newMethods) {
 		this.visualisationMethods.addAll(Arrays.asList(newMethods));
 	}
-	
+
 	public List<VisualisationMethod> getVisualisationMethods() {
 		return visualisationMethods;
 	}
-	
+
 	public VisualisationMethod getDefaultVisualisationFor(DataBean dataBean) throws IOException, MicroarrayException {
 		for (VisualisationMethod method : getOrderedDefaultCandidates()) {
 			if (method != VisualisationMethod.NONE && method.isApplicableTo(dataBean)) {
@@ -31,22 +31,23 @@ public class VisualisationMethodRepository {
 		}
 		return null;
 	}
-	
+
 	public Iterable<VisualisationMethod> getOrderedDefaultCandidates() {
-		
+
 		LinkedList<VisualisationMethod> orderedDefaultCandidates = new LinkedList<VisualisationMethod>();
 		for (VisualisationMethod method : visualisationMethods) {
 			if (method.getOrderNumber() >= 0) {
 				orderedDefaultCandidates.add(method);
 			}
 		}
-		Collections.sort(orderedDefaultCandidates, new Comparator<VisualisationMethod>() {
-			public int compare(VisualisationMethod method1, VisualisationMethod method2) {
-				return new Integer(method2.getOrderNumber()).compareTo(new Integer(method1.getOrderNumber()));
-			}
-		});
+		Collections.sort(orderedDefaultCandidates, new VisualisationMethodOrderComparator());
 
 		return orderedDefaultCandidates;
-	}	
+	}
 
+	public static class VisualisationMethodOrderComparator implements Comparator<VisualisationMethod> {
+		public int compare(VisualisationMethod method1, VisualisationMethod method2) {
+			return new Integer(method2.getOrderNumber()).compareTo(new Integer(method1.getOrderNumber()));
+		}
+	}
 }

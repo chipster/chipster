@@ -31,12 +31,12 @@ public class ChunkFileFetcherThread extends Thread {
 	private ChunkDataSource dataSource;
 
 	private FileParser inputParser;
-
+	
 	private boolean poison = false;
 
 	public ChunkFileFetcherThread(BlockingQueue<ChunkFileRequest> fileRequestQueue,
-			ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue,
-			ChunkTreeHandlerThread areaRequestThread, FileParser inputParser) {
+	        ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue,
+	        ChunkTreeHandlerThread areaRequestThread, FileParser inputParser) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
@@ -52,25 +52,25 @@ public class ChunkFileFetcherThread extends Thread {
 
 		while (!poison) {
 			try {
-
+				
 				for (ChunkFileRequest fileRequest : fileRequestQueue) {
 					if (fileRequest.status.poison) {
 						poison = true;
 					}
 				}
-
+				
 				processFileRequest(fileRequestQueue.take());
-
+				
 			} catch (IOException e) {
 				e.printStackTrace(); // FIXME fix exception handling
 			} catch (InterruptedException e) {
 				e.printStackTrace(); // FIXME fix exception handling
 			}
 		}
-
+		
 		dataSource.close();
 	}
-
+	
 	/**
 	 * Reads the requested parts of the file and returns them with FileResult objects. There are 
 	 * two ways of reading, one to use when the location of the line changes isn't known and other
@@ -85,60 +85,60 @@ public class ChunkFileFetcherThread extends Thread {
 	 * @throws IOException
 	 */
 	private void processFileRequest(ChunkFileRequest fileRequest) throws IOException {
-
+		
 		if (fileRequest.status.poison) {
 			poison = true;
 			return;
 		}
-
+		
 		Chunk chunk = new Chunk();
 		ByteRegion exactRegion = null;
-
-
+		
+		
 		/* If the fileRequest.byteRegion.exact is set, the requested area starts from the beginning 
 		 * of the line and ends to the new line character of the same or other line.
 		 */
 		if (fileRequest.byteRegion.exact) {
-
+			
 			// FIXME This is never used
 
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
-
+				
 			dataSource.read(fileRequest.byteRegion.start, byteChunk);			
-
+			
 			chunk.setContent(new String(byteChunk));
 
-			/* fileRequest.byteRegion.exact isn't set and the location of line changes isn't known. 
-			 * The returned chunk should contain only full lines starting from the line just after
-			 * the first new line character after the request start location. The last returned line
-			 * should be the first whose ending new line comes after the end of the request. This way
-			 * no lines will be lost between the chunks, even though the exact byte location of the 
-			 * new line characters isn't known.   
-			 */
+		/* fileRequest.byteRegion.exact isn't set and the location of line changes isn't known. 
+		 * The returned chunk should contain only full lines starting from the line just after
+		 * the first new line character after the request start location. The last returned line
+		 * should be the first whose ending new line comes after the end of the request. This way
+		 * no lines will be lost between the chunks, even though the exact byte location of the 
+		 * new line characters isn't known.   
+		 */
 		} else {
-
+			
 			//FIXME There shouldn't be other limits for String length than Integer.MAX_VALUE and
 			//memory heap size, but there seems to be some problems when if the length of chunks is
 			//bigger than a couple thousand bytes.
-
+			
 			// some extra to get the last line fully
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength() + 1000];
-
+			
 			int length = dataSource.read(fileRequest.byteRegion.start, byteChunk);
-
+			
 			String file = new String(byteChunk).substring(0, length);		
-
+			
 			exactRegion = new ByteRegion();
 			int i = 0;
-
+			
 			if(fileRequest.byteRegion.start != 0) {
 				for (; ; i++) {
-
+					
 					if ( i >= file.length()) {
 						//not a single new line found, source file is broken
 						return;
 					}
-
+					
 					if (file.charAt(i) == '\n') {
 						i++;
 						exactRegion.start = fileRequest.byteRegion.start + i;
@@ -148,26 +148,26 @@ public class ChunkFileFetcherThread extends Thread {
 			} else {
 				exactRegion.start = 0l;
 			}
-
+			
 			StringBuffer lines = new StringBuffer();
-
+			
 			for (; ; i++) {
-
+				
 				if ( i > file.length() - 1) {	
-
+				
 					// buffer ended before the new line character, discard the last line 
 					lines.setLength(lines.lastIndexOf("\n") + 1);
 					break;
 				}
 
-				lines.append(file.charAt(i));
-
+				lines.append(file.charAt(i));		
+				
 				if (file.charAt(i) == '\n' && i > fileRequest.byteRegion.getLength()) {
 					break;
 				}
-
+				
 			}
-
+			
 			exactRegion.end = fileRequest.byteRegion.start + i;			
 			exactRegion.exact = true;
 
@@ -199,7 +199,7 @@ public class ChunkFileFetcherThread extends Thread {
 		}
 		return 0;
 	}
-
+	
 	public String toString() {
 		return this.getClass().getName() + " - " + dataSource;
 	}
