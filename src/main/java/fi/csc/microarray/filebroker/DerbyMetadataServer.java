@@ -46,7 +46,7 @@ public class DerbyMetadataServer {
 		// initialise database
 		System.setProperty("derby.system.home", "db-root");
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
-		String strUrl = "jdbc:derby:TestDatabase;create=true";
+		String strUrl = "jdbc:derby:FileDatabase;create=true";
 		connection = DriverManager.getConnection(strUrl);
 		
 		// initialise tables, if empty
