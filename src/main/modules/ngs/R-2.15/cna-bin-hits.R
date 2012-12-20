@@ -45,6 +45,15 @@ binbp <- bin.size * 1000
 
 genome <- .get.genome('human', genome.build)
 bins <- .create.bins(binbp, 'human', genome.build)
+
+# update file paths and add parameters for read length and number of mismatches !!!
+gc <- read.table(file.path(chipster.tools.path, 'MPScall', genome.build, paste('gc.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE)
+mappability <- read.table(file.path(chipster.tools.path, 'MPScall', genome.build, paste('mappability.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE)
+gc <- gc[gc$chromosome != 'MT',]
+mappability <- mappability[mappability$chromosome != 'MT',]
+bins$gc <- round(gc$gc * 100, digits=1)
+bins$mappability <- round(mappability$mappability, digits=1)
+
 bins$count <- 0
 
 system(paste(file.path(chipster.tools.path, 'samtools', 'samtools'), ' view -F 0x0404 -q 1 alignment.bam | cut -f3,4 | tr -d chr > hits.txt', sep=''))
@@ -70,6 +79,7 @@ while(1) {
 unlink('hits.txt')
 
 rownames(bins) <- paste(bins$chromosome, ':', bins$start, '-', bins$end, sep='')
+
 write.table(bins, 'binned-hits.tsv', quote=FALSE, sep='\t', na='')
 
 # EOF

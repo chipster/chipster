@@ -4,14 +4,11 @@
 # OUTPUT META phenodata.tsv: "Experiment description file"
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-18
-
-# look for sample names? !!!
+# 2012-12-20
 
 filenames <- list.files(pattern='^binned-hits-[0-9]*\\.tsv$')
 dat <- read.table(filenames[1], header=TRUE, sep='\t', row.names=1, as.is=TRUE)
 total.reads <- sum(dat$count, na.rm=TRUE)
-dat$corrected <- NULL
 dat$count <- log2(dat$count+1)
 
 if (length(filenames) > 1) {
@@ -20,7 +17,6 @@ if (length(filenames) > 1) {
     if (nrow(x) != nrow(dat))
       stop("CHIPSTER-NOTE: All input files need to be binned using the same bin size.")
     total.reads <- c(total.reads, sum(x$count, na.rm=TRUE))
-    x$corrected <- NULL
     dat <- cbind(dat, log2(x$count+1))
   }
 }
@@ -28,7 +24,7 @@ if (length(filenames) > 1) {
 identifiers <- gsub('tsv$', '', filenames)
 identifiers <- gsub('\\.', '', identifiers)
 identifiers <- gsub('-', '', identifiers)
-colnames(dat)[-(1:3)] <- paste('chip.', identifiers, sep='')
+colnames(dat)[-(1:5)] <- paste('chip.', identifiers, sep='')
 
 # generate phenodata
 phenodata <- data.frame(sample=filenames, chiptype='not applicable', experiment='cna_seq', reads=total.reads, group='', stringsAsFactors=FALSE)
