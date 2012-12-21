@@ -440,6 +440,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				names = new String[0];
 				uuids = new String[0];
 			}
+			
 			return new String[][] {names, uuids};
 			
 		} finally {

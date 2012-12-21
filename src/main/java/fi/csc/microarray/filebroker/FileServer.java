@@ -318,7 +318,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		}
 		
 		endpoint.replyToMessage(requestMessage, reply);
-		
 	}
 
 	private void handleStoreSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
