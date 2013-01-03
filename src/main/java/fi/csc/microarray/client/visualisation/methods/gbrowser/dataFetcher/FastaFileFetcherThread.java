@@ -10,11 +10,12 @@ import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.FastaDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.FastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
