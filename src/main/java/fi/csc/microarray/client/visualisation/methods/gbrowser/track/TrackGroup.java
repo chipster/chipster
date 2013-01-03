@@ -216,28 +216,6 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
     	}
     }
 
-	//FIXME
-//	public void setHeight(int nonFixedGroupHeight) {
-//
-//		// Fixed height comes directly from the tracks and can't be changed at run time
-//		if (!isFixedHeight()) {
-//			for (Track t : getTracks()) {
-//				if (t.isFixedHeight()) {
-//					if (view.isFullHeight()) {
-//						t.setHeight(Integer.MAX_VALUE);
-//					} else {
-//						int strechHeight = Math.round(getStretchableTrackHeight());					
-//						if (strechHeight < t.getMinHeight()) {
-//							t.setHeight(t.getMinHeight());
-//						} else {
-//							t.setHeight(Math.round(getStretchableTrackHeight()));
-//						}
-//					}
-//				}
-//			}		
-//		}
-//	}
-
 	@Override
 	public Collection<? extends LayoutComponent> getLayoutComponents() {
 		return tracks;

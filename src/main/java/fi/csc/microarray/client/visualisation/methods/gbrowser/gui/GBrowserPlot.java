@@ -190,7 +190,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		}
 		
 		//Update ScrollGroups' scroll bars locations and values. Height of content is known only after it is drawn.
-		chartPanel.setScrollGroupBoundaries(getScrollGroups(), (int) plotArea.getHeight());		
+		chartPanel.setScrollGroupOrder(getScrollGroups(), (int) plotArea.getHeight());		
 		
 		g2.setClip(savedClip);
 	}
@@ -264,7 +264,13 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		for (GBrowserView view : views) {
 			for (Track track : view.getTracks()) {
 				track.initializeListener();
-			}
+			}			
+		}		
+	}
+
+	public void updateData() {
+		for (GBrowserView view : views) {
+			view.fireAreaRequests();			
 		}
 	}
 }

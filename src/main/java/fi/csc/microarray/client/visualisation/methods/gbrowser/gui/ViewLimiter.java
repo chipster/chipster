@@ -38,22 +38,24 @@ public class ViewLimiter implements RegionListener {
 			@Override
 			public void processAreaResult(AreaResult areaResult) {
 				
-				Long previousLimit = limit.bp;
+				if (limit != null) {
+					Long previousLimit = limit.bp;
 
-				for (RegionContent regCont : areaResult.getContents()) {
+					for (RegionContent regCont : areaResult.getContents()) {
 
-					BpCoord value = regCont.region.end;
+						BpCoord value = regCont.region.end;
 
-					if (value.chr.equals(limit.chr)) {
-						if (value.bp > limit.bp) {
-							limit.bp = value.bp;
+						if (value.chr.equals(limit.chr)) {
+							if (value.bp > limit.bp) {
+								limit.bp = value.bp;
+							}
+						} 
+					}
+
+					if (!previousLimit.equals(limit.bp)) {
+						for (RegionListener listener : limitChangeListeners) {
+							listener.regionChanged(new Region(0l, limit.bp, limit.chr));
 						}
-					} 
-				}
-				
-				if (!previousLimit.equals(limit.bp)) {
-					for (RegionListener listener : limitChangeListeners) {
-						listener.regionChanged(new Region(0l, limit.bp, limit.chr));
 					}
 				}
 			}

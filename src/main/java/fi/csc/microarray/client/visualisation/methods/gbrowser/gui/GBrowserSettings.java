@@ -538,7 +538,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			showFullHeightBox.setSelected(false);
 			browser.setFullHeight(false);
 
-			browser.updateTracks();
+			browser.updateData();
 
 		} else if (source == coverageScaleBox && this.initialised) {
 

@@ -274,7 +274,6 @@ public class GBrowser implements ComponentListener {
 	public void updateTracks() {
 
 		plot.getOverviewView().clean();
-		//FIXME cytoband doesn't show before first redraw
 		plot.getDataView().clean();
 
 		Genome genome = getGenome();
@@ -528,6 +527,8 @@ public class GBrowser implements ComponentListener {
 		// End 3D effect
 		plot.getDataView().addTrackGroup(new TrackGroup(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false)));
 		
+		//This does not fire area requests, but they are created separately when location is known, 
+		//i.e. when the Go button is pressed or if dataset switches are used  
 		plot.initializeTracks();
 	}
 	
@@ -965,5 +966,17 @@ public class GBrowser implements ComponentListener {
 		//"~/.chipster/annotations/"
 		System.out.println("getLocalAnnotationDir not implemented");
 		return null;
+	}
+
+	/**
+	 * Updates tracks to correspond with the settings and updates the data. This is used
+	 * when the dataset visibility settings are changed and old location is shown with the new settings, whereas
+	 * in initialization the tracks are created when the visualization opens, but data is requested only later after the "Go"
+	 * button is pressed.
+	 */
+	public void updateData() {
+		updateTracks();
+		settings.updateVisibilityForTracks();
+		plot.updateData();
 	}
 }

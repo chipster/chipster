@@ -117,9 +117,6 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		}
 		return tracks;
 	}
-	
-	private int frameCount = 0;
-	private long resetTime = 0;
 
 	/**
 	 * Calls ScrollGroups to draw themselves.
@@ -152,14 +149,19 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			scrollGroupViewPort.y += scrollGroupViewPort.height;
 		}
 		
-		frameCount++;
-		if (System.currentTimeMillis() >= resetTime + 500) {
-			
-			System.out.println("FPS:\t" + frameCount * 1000 / (System.currentTimeMillis() - resetTime));
-			resetTime = System.currentTimeMillis();
-			frameCount = 0;
-		}
+		// Print fps
+//		frameCount++;
+//		if (System.currentTimeMillis() >= resetTime + 500) {
+//			
+//			System.out.println("FPS:\t" + frameCount * 1000 / (System.currentTimeMillis() - resetTime));
+//			resetTime = System.currentTimeMillis();
+//			frameCount = 0;
+//		}
 	}
+	
+	// Used above
+//	private int frameCount = 0;
+//	private long resetTime = 0;
 
 	public int getWidth() {
 		return this.viewArea.width;

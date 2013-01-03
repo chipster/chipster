@@ -86,9 +86,9 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 			if (!group.isVisible()) {
 				continue;
 			}
-			
+
 			printTime(null);
-			
+
 			// get drawables of all tracks
 			while (trackIter.hasNext()) {
 
@@ -100,14 +100,14 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 					if (track.isVisible()) {
 
 						Collection<Drawable> drawables = track.getDrawables();
-						
+
 						//Update track height
 						track.setFullHeight(drawables);
-						
+
 						//Store drawables and Track reference
 						drawableLists.add(drawables);
 						visibleTracks.add(track);
-						
+
 						printTime(track.getName() + "\tgetDrawables\t");
 					}
 				}
@@ -120,86 +120,89 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 		int drawBufferWidth = (int) (scrollGroupViewPort.getWidth());
 		int drawBufferHeight = (int) (getFullHeight());
 
-		if (drawBuffer == null || 
-				drawBuffer.getWidth() != drawBufferWidth || 
-				drawBuffer.getHeight() != drawBufferHeight) {		
+		if (drawBufferHeight > 0) { 
 
-			drawBuffer = new BufferedImage(drawBufferWidth, (int) drawBufferHeight, BufferedImage.TYPE_INT_ARGB);
-		}
+			if (drawBuffer == null || 
+					drawBuffer.getWidth() != drawBufferWidth || 
+					drawBuffer.getHeight() != drawBufferHeight) {		
 
-		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-
-		bufG2.setPaint(Color.white);
-		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-
-		// prepare coordinates
-		int y = 0;
-		int x = 0;
-
-		Iterator<Collection<Drawable>> drawableListIter = drawableLists.iterator();
-		Iterator<Track> trackIter = visibleTracks.iterator();
-		
-		printTime(null);
-
-		// Iterate lists of track and drawables simultaneously
-		while (drawableListIter.hasNext() && trackIter.hasNext()) {
-			Collection<Drawable> drawables = drawableListIter.next();
-			Track track = trackIter.next();
-			
-			//Add track height before the track drawables are drawn, because the track coordinates start
-			//from the bottom and grow upwards
-			y += track.getFullHeight();										
-
-			for (Drawable drawable : drawables) {
-
-				if(drawable == null) {
-					continue;
-				}
-
-				// decide if we will expand drawable for this track
-				boolean expandDrawables = track.canExpandDrawables();
-
-				TrackContext trackContext = null;
-				// create view context for this track only if we will use it
-				// currently only used for tracks that contain information
-				// about reads
-				if (expandDrawables && 
-						(track instanceof CoverageAndSNPTrack ||
-								track instanceof QualityCoverageTrack)) {
-
-					if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-						trackContext = new TrackContext(track);
-					} else {
-						// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-						trackContext = new TrackContext(track, track.getHeight() - view.parentPlot.getReadScale().numReads);
-					}
-				}
-
-				// expand drawables to stretch across all height if necessary
-				if (expandDrawables) {
-					drawable.expand(trackContext);
-				}
-
-				// recalculate position for reversed strands
-				int maybeReversedY = (int) y;
-				if (track.isReversed()) {
-					maybeReversedY -= track.getFullHeight();
-				} else {
-					drawable.upsideDown();
-				}			
-
-				// draw the drawable to the buffer
-				view.drawDrawable(bufG2, x, maybeReversedY, drawable);
+				drawBuffer = new BufferedImage(drawBufferWidth, (int) drawBufferHeight, BufferedImage.TYPE_INT_ARGB);
 			}
-			
-			printTime(track.getName() + "\tdrawDrawables");
+
+			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
+			bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			bufG2.setPaint(Color.white);
+			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+
+			// prepare coordinates
+			int y = 0;
+			int x = 0;
+
+			Iterator<Collection<Drawable>> drawableListIter = drawableLists.iterator();
+			Iterator<Track> trackIter = visibleTracks.iterator();
+
+			printTime(null);
+
+			// Iterate lists of track and drawables simultaneously
+			while (drawableListIter.hasNext() && trackIter.hasNext()) {
+				Collection<Drawable> drawables = drawableListIter.next();
+				Track track = trackIter.next();
+
+				//Add track height before the track drawables are drawn, because the track coordinates start
+				//from the bottom and grow upwards
+				y += track.getFullHeight();										
+
+				for (Drawable drawable : drawables) {
+
+					if(drawable == null) {
+						continue;
+					}
+
+					// decide if we will expand drawable for this track
+					boolean expandDrawables = track.canExpandDrawables();
+
+					TrackContext trackContext = null;
+					// create view context for this track only if we will use it
+					// currently only used for tracks that contain information
+					// about reads
+					if (expandDrawables && 
+							(track instanceof CoverageAndSNPTrack ||
+									track instanceof QualityCoverageTrack)) {
+
+						if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+							trackContext = new TrackContext(track);
+						} else {
+							// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
+							trackContext = new TrackContext(track, track.getHeight() - view.parentPlot.getReadScale().numReads);
+						}
+					}
+
+					// expand drawables to stretch across all height if necessary
+					if (expandDrawables) {
+						drawable.expand(trackContext);
+					}
+
+					// recalculate position for reversed strands
+					int maybeReversedY = (int) y;
+					if (track.isReversed()) {
+						maybeReversedY -= track.getFullHeight();
+					} else {
+						drawable.upsideDown();
+					}			
+
+					// draw the drawable to the buffer
+					view.drawDrawable(bufG2, x, maybeReversedY, drawable);
+				}
+				printTime(track.getName() + "\tdrawDrawables");
+			}
 		}               
 
 		//Finally, get the scroll position to know which part of the content is shown
+		view.parentPlot.chartPanel.setScrollGroupBoundaries(this);
 		int scrollValue = view.parentPlot.chartPanel.getScrollValue(this);
-	
+
 		int width = scrollGroupViewPort.width;
 		int viewPortHeight = scrollGroupViewPort.height;
 
@@ -214,7 +217,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 				width, 
 				scrollValue + viewPortHeight, null);
 	}
-	
+
 	private long time = 0;
 	private void printTime(String operation) {
 		if (operation == null) {
@@ -223,7 +226,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 			long elapsed = System.currentTimeMillis() - time;
 			time = System.currentTimeMillis();
 			if (elapsed > 1) {
-				System.out.println(operation + "\t" + elapsed);
+				//				System.out.println(operation + "\t" + elapsed);
 			}
 		}
 	}
@@ -273,7 +276,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 	public Collection<TrackGroup> getTrackGroups() {
 		return trackGroups;
 	}
-	
+
 	@Override
 	public Collection<? extends LayoutComponent> getLayoutComponents() {
 		return getTrackGroups();

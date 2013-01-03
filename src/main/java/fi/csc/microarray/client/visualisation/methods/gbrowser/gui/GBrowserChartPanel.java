@@ -58,11 +58,13 @@ public class GBrowserChartPanel extends ChartPanel {
 		 * @param referenceY
 		 */
 		public void set(int maximum, int extent, int referenceY) {
-			int offset = getValue() - referenceY + getModel().getExtent() / 2;
+			
+			int referenceDelta = referenceY - this.referenceY;
+			this.referenceY = referenceY;
+
 			setMaximum(maximum);
 			getModel().setExtent(extent);
-			setValue(referenceY - extent / 2 + offset);
-			this.referenceY = referenceY;
+			setValue(this.getValue() + referenceDelta);						
 		}
 		
 		/**
@@ -91,6 +93,7 @@ public class GBrowserChartPanel extends ChartPanel {
 	private Map<ScrollGroup, ScrollGroupBar> scrollBarsMap = new HashMap<ScrollGroup, ScrollGroupBar>();
 	//Preserves ScrollGroup order
 	private List<ScrollGroupBar> scrollBarsList = new LinkedList<ScrollGroupBar>();
+	private int maxY;
 
 	public void paintComponent(Graphics g) {
 
@@ -157,14 +160,16 @@ public class GBrowserChartPanel extends ChartPanel {
 	public void setPlot(GBrowserPlot plot) {
 		this.plot = plot;		
 	}	
-
+	
 	/**
 	 * Use ScrollGroup view port and content sizes to calculate scroll bar values.
 	 * 
 	 * @param scrollGroups
 	 * @param maxY
 	 */
-	public void setScrollGroupBoundaries(Collection<ScrollGroup> scrollGroups, int maxY) {
+	public void setScrollGroupOrder(Collection<ScrollGroup> scrollGroups, int maxY) {
+		
+		this.maxY = maxY;
 
 		//Keep only scroll bars that still have a ScrollGroup
 		Iterator<ScrollGroup> iter = scrollBarsMap.keySet().iterator();
@@ -176,22 +181,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		}
 		scrollBarsList.clear();
 
-		//Calculate height sum to prevent scrollbars from going outside the window
-		int barHeightSum = 0;
-
 		for ( ScrollGroup group : scrollGroups) {			
-
-			//Calculate new values, but don't set them yet, because we still need the old values
-			int barHeight = Math.min(group.getHeight(), maxY - barHeightSum);
-			barHeightSum += barHeight;
-			int extent = barHeight;
-			
-			int maximum;
-			if (group.isScrollEnabled()) {
-				maximum = group.getFullHeight();
-			} else {
-				maximum = group.getHeight();
-			}
 
 			//Search for the scroll bar of this ScrollGroup, create a new one if it doesn't exist yet 
 			ScrollGroupBar bar;
@@ -199,14 +189,43 @@ public class GBrowserChartPanel extends ChartPanel {
 				bar = new ScrollGroupBar();
 				
 				scrollBarsMap.put(group, bar);
-
 			} else {					
 				bar = scrollBarsMap.get(group); 
 			}
+			scrollBarsList.add(bar);			
+		}
+	}
+
+	/**
+	 * Use ScrollGroup view port and content sizes to calculate scroll bar values.
+	 * 
+	 * @param scrollGroups
+	 * @param maxY
+	 */
+	public void setScrollGroupBoundaries(ScrollGroup group) {
+
+//		//Calculate height sum to prevent scrollbars from going outside the window
+//		int barHeightSum = 0;
+//
+//		//Calculate new values, but don't set them yet, because we still need the old values
+//		int barHeight = Math.min(group.getHeight(), maxY - barHeightSum);
+		int barHeight = group.getHeight();
+//		barHeightSum += barHeight;
+		int extent = barHeight;
+
+		int maximum;
+		if (group.isScrollEnabled()) {
+			maximum = group.getFullHeight();
+		} else {
+			maximum = group.getHeight();
+		}
+
+		ScrollGroupBar bar = scrollBarsMap.get(group);
+		if (bar != null) {
 
 			boolean visible = group.isVisible() && group.isScrollEnabled() && maximum > barHeight;
 			boolean becomesVisible = bar.isVisible() == false && visible == true;
-			
+
 			int referenceY = group.getScrollReferenceY();
 
 			if (becomesVisible) {
@@ -218,10 +237,8 @@ public class GBrowserChartPanel extends ChartPanel {
 			bar.setHeight(barHeight);
 			bar.setVisible(visible);
 
-			scrollBarsList.add(bar);			
+			this.validate();
 		}
-		
-		this.validate();
 	}
 
 	/**
