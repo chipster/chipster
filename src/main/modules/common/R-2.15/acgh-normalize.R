@@ -1,7 +1,7 @@
 # TOOL acgh-normalize.R: "Normalize copy number data" (Normalize copy number data before segmentation.)
 # INPUT raw.tsv: raw.tsv TYPE GENE_EXPRS 
 # OUTPUT normalized.tsv: normalized.tsv
-# PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
+# PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT median (Normalization method.)
 # PARAMETER number.of.chromosomes: number.of.chromosomes TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -42,7 +42,7 @@ cgh.raw <- make_cghRaw(dat2)
 cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
 
-dat3 <- cbind(anno[featureNames(cgh.nor)], copynumber(cgh.nor))
+dat3 <- cbind(anno[featureNames(cgh.nor),], copynumber(cgh.nor))
 colnames(dat3) <- colnames(dat)
 
 dat3$chromosome <- as.character(dat3$chromosome)
