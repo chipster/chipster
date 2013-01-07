@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 
+
 public class LayoutTool {
 	
 	public static enum LayoutMode { FIXED, FILL, FULL }
 
 	public static void doLayout(LayoutContainer container, int layoutHeight) {
+		
 		int componentFillHeight = 0;
 		
 		if (inferLayoutMode(container) != LayoutMode.FIXED) {
@@ -13,6 +15,7 @@ public class LayoutTool {
 		}
 		
 		for (LayoutComponent component : container.getLayoutComponents()) {
+			
 			int childHeight;
 			if (component.getLayoutMode() == LayoutMode.FIXED) {
 				childHeight = component.getHeight();

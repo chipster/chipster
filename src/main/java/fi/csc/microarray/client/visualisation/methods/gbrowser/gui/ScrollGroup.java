@@ -152,7 +152,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 
 				//Add track height before the track drawables are drawn, because the track coordinates start
 				//from the bottom and grow upwards
-				y += track.getFullHeight();										
+				y += track.getFullHeight();
 
 				for (Drawable drawable : drawables) {
 

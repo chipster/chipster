@@ -217,7 +217,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	}
 
 	public int getFullHeight() {
-		if (getLayoutMode() == LayoutMode.FIXED) {
+		if (getLayoutMode() == LayoutMode.FIXED || getLayoutMode() == LayoutMode.FILL) {
 			return getHeight();
 		} else {
 			return Math.max(fullHeight, this.getHeight());
