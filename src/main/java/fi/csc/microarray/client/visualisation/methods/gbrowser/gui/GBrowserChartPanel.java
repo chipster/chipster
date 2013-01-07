@@ -36,6 +36,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		
 		public ScrollGroupBar() {
 			addAdjustmentListener(this);
+			this.setUnitIncrement(10);
 		}
 		
 		/**
