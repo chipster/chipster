@@ -17,15 +17,16 @@ command <- paste(cufflinks.binary, "-q", "-o tmp", "alignment.bam")
 system(command)
 
 # Rename files
-if (file.info("tmp/genes.fpkm_tracking")$size > 0) {
+if (file.exists("tmp/genes.fpkm_tracking") && file.info("tmp/genes.fpkm_tracking")$size > 0) {
 	system("mv tmp/genes.fpkm_tracking genes.fpkm_tracking.tsv")
 }
-if (file.info("tmp/isoforms.fpkm_tracking")$size > 0) {
+if (file.exists("tmp/isoforms.fpkm_tracking") && file.info("tmp/isoforms.fpkm_tracking")$size > 0) {
 	system("mv tmp/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
 }
-if (file.info("tmp/skipped.gtf")$size > 0) {
+if (file.exists("tmp/skipped.gtf") && file.info("tmp/skipped.gtf")$size > 0) {
 	system("mv tmp/skipped.gtf skipped.gtf")
 }
-if (file.info("tmp/transcripts.gtf")$size > 0) {
+if (file.exists("tmp/transcripts.gtf") && file.info("tmp/transcripts.gtf")$size > 0) {
 	system("mv tmp/transcripts.gtf transcripts.gtf")
 }
+
