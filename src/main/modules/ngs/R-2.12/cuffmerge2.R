@@ -1,14 +1,13 @@
-# TOOL cuffmerge2.R: "Cuffmerge2" (Cuffmerge2)
+# TOOL cuffmerge2.R: "Merge transcript assemblies with Cuffmerge" (This tool allows you to merge transcript GTF files obtained by Cufflinks from several samples into one, so that you can use it in differential expression analysis using Cuffdiff.)
 # INPUT annotation{...}.gtf: "GTF files" TYPE GTF
-# INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA
-# OUTPUT OPTIONAL genes.fpkm_tracking.tsv  
-# OUTPUT OPTIONAL isoforms.fpkm_tracking.tsv  
+# INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA  
 # OUTPUT OPTIONAL merged.gtf  
 # OUTPUT OPTIONAL skipped.gtf  
 # OUTPUT OPTIONAL transcripts.gtf
 # PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
 
 # AMS 21.11.2012
+# LUE TÄMÄ poistin ne tsv:t outputeista, varmaan pitää poistaa skriptistäkin? mitä nää skipped ja transcripts gtf:t on? Genomi ei ole tässä bias correctionia varten, joten sen voisi kommentoida ulos.
 
 # binary
 cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffmerge"))

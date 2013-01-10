@@ -1,4 +1,4 @@
-# TOOL cufflinks2.R: "Cufflinks2" (Cufflinks2)
+# TOOL cufflinks2.R: "Assemble reads into transcripts using Cufflinks" (Given aligned RNA-Seq reads, Cufflinks assembles the alignments into a parsimonious set of transcripts. It then estimates the relative abundances of these transcripts based on how many reads support each one, taking into account biases in library preparation protocols. It is recommended to use the TopHat aligner to map your reads to the reference genome. You can view the resulting GTF file in Chipster genome browser to explore the structure of the genes. If you have GTF files from several samples, you can merge them to one using the Cuffmerge tool, and use it in differential expression analysis using Cuffdiff.)
 # INPUT alignment.bam TYPE GENERIC
 # OUTPUT OPTIONAL genes.fpkm_tracking.tsv  
 # OUTPUT OPTIONAL isoforms.fpkm_tracking.tsv
