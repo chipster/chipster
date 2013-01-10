@@ -38,7 +38,7 @@ public abstract class AreaRequestHandler extends Thread {
 		while (!poison) {
 			AreaRequest areaRequest;
 			if ((areaRequest = areaRequestQueue.poll()) != null) {
-				areaRequest.status.areaRequestCount = areaRequestQueue.size();
+				areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 				processAreaRequest(areaRequest);
 			}
 
@@ -67,7 +67,7 @@ public abstract class AreaRequestHandler extends Thread {
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
 
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 
 			this.areaResultListener = null;
 			this.poison = true;

@@ -7,7 +7,7 @@ public class GeneResult extends AreaResult {
 	
 	private String searchString;
 
-	public GeneResult(FsfStatus status, List<RegionContent> contents, String searchString) {
+	public GeneResult(DataRetrievalStatus status, List<RegionContent> contents, String searchString) {
 		super(status, contents);
 		this.searchString = searchString;
 	}

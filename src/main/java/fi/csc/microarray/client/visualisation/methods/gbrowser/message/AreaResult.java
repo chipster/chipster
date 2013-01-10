@@ -8,15 +8,15 @@ import java.util.List;
  */
 public class AreaResult {
 
-	private FsfStatus status;
+	private DataRetrievalStatus status;
 	private List<RegionContent> contents;
 
-	public AreaResult(FsfStatus status, List<RegionContent> contents) {
+	public AreaResult(DataRetrievalStatus status, List<RegionContent> contents) {
 		this.status = status;
 		this.contents = contents;
 	}
 
-	public FsfStatus getStatus() {
+	public DataRetrievalStatus getStatus() {
 		return status;
 	}
 

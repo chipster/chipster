@@ -23,13 +23,13 @@ public class ReadTrackGroup extends TrackGroup {
 
     // Tracks
     protected TitleTrack titleTrack;
-    protected IntensityTrack readOverview;
+    protected CoverageEstimateTrack readOverview;
     protected ReadPileTrack reads;
     protected ReferenceSequenceTrack seq;
-    protected IntensityTrack readOverviewReversed;
+    protected CoverageEstimateTrack readOverviewReversed;
     protected ReadPileTrack readsReversed;
-    protected CoverageAndSNPTrack profileTrack;
-    protected CoverageAndSNPTrack profileSNPTrack;
+    protected CoverageTrack profileTrack;
+    protected CoverageTrack profileSNPTrack;
 //    protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
     protected SeparatorTrack sepTrackReads;
@@ -92,7 +92,7 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Detailed - reversed
         readsReversed = new ReadPileTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
-        readsReversed.setStrand(Strand.REVERSED);
+        readsReversed.setStrand(Strand.REVERSE);
         tracks.add(readsReversed);
     	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
     	sepTrackReads2.setName("Reads");
@@ -116,7 +116,7 @@ public class ReadTrackGroup extends TrackGroup {
 //    	sepTrackProfile.setName("ProfileTrack");
 //        tracks.add(sepTrackProfile);
         
-        profileTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, forwardColor, reverseColor, 0, 
+        profileTrack = new CoverageTrack(view, userData, readpartProvider, seqFile, forwardColor, reverseColor, 0, 
         		GBrowserConstants.SWITCH_VIEWS_AT);
         profileTrack.setName("ProfileTrack");
         tracks.add(profileTrack);
@@ -125,7 +125,7 @@ public class ReadTrackGroup extends TrackGroup {
     	tracks.add(sepTrackProfile);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, totalColor, null, 0, 
+        profileSNPTrack = new CoverageTrack(view, userData, readpartProvider, seqFile, totalColor, null, 0, 
         		GBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setName("ProfileSNPTrack");
         tracks.add(profileSNPTrack);
@@ -154,15 +154,15 @@ public class ReadTrackGroup extends TrackGroup {
 
 
 	protected void addReadOverviewReversedTrack() {
-		readOverviewReversed = new IntensityTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
+		readOverviewReversed = new CoverageEstimateTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
-        readOverviewReversed.setStrand(Strand.REVERSED);
+        readOverviewReversed.setStrand(Strand.REVERSE);
         readOverviewReversed.setName("ReadOverview");
 		tracks.add(readOverviewReversed);
 	}
 
 	protected void addReadOverviewTrack() {
-		readOverview = new IntensityTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
+		readOverview = new CoverageEstimateTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
 		readOverview.setName("ReadOverview");
 		tracks.add(readOverview);

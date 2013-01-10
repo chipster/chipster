@@ -203,11 +203,6 @@ public class CytobandTrack extends Track {
                 ColumnType.VALUE })));
         return datas;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public String getName() {

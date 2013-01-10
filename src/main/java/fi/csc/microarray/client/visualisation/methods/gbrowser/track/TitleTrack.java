@@ -50,11 +50,6 @@ public class TitleTrack extends Track {
     }
 
 	@Override
-	public boolean isConcised() {
-		return false;
-	}
-	
-	@Override
 	public String getName() {
 		return "title";
 	}

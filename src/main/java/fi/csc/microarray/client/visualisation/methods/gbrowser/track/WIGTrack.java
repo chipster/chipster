@@ -86,11 +86,6 @@ public class WIGTrack extends Track{
 		this.values.addAll(areaResult.getContents());
         getView().redraw();
 	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public boolean isVisible(){

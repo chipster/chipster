@@ -126,7 +126,7 @@ public class TranscriptTrack extends Track {
 				rect.height = 4;
 
 				// draw arrow
-				if (transcript.getRegion().getStrand() == Strand.REVERSED) {
+				if (transcript.getRegion().getStrand() == Strand.REVERSE) {
 					drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
 				} else {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
@@ -210,7 +210,7 @@ public class TranscriptTrack extends Track {
 		for (RegionContent content : areaResult.getContents()) {
 
 			// Sorting is needed to draw partly overlapping genes in the same order every time
-			if (!areaResult.getStatus().concise && content.region.getStrand() == getStrand()) {
+			if (content.region.getStrand() == getStrand()) {
 
 				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
 				
@@ -242,11 +242,6 @@ public class TranscriptTrack extends Track {
 		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.VALUE })));
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 	
 	@Override

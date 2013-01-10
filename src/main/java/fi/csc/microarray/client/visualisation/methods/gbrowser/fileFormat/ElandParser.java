@@ -33,36 +33,41 @@ public class ElandParser extends TsvParser {
 								new ColumnDefinition(ColumnType.STRAND, Type.STRING)
 						})));
 	}
-		
+	
 	@Override
 	public RegionContent[] concise(Chunk chunk) {
-
-		long totalF = 0;
-		long totalR = 0;
-		
-		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
-						
-		for (RegionContent rc : 
-			getAll(chunk, Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
-
-			if ((Strand) rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
-				totalF += readLength;
-
-			} else {
-				totalR += readLength;
-			}
-		}
-
-		RegionContent[] result = new RegionContent[] {
-				new RegionContent(getBpRegion(chunk), totalF / (float)getBpRegion(chunk).getLength()),
-				new RegionContent(getBpRegion(chunk), totalR / (float)getBpRegion(chunk).getLength())
-		};
-		
-		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
-		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
-
-		return result;
+		return new RegionContent[] {};
 	}
+		
+//	@Override
+//	public RegionContent[] concise(Chunk chunk) {
+//
+//		long totalF = 0;
+//		long totalR = 0;
+//		
+//		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
+//						
+//		for (RegionContent rc : 
+//			getAll(chunk, Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
+//
+//			if ((Strand) rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
+//				totalF += readLength;
+//
+//			} else {
+//				totalR += readLength;
+//			}
+//		}
+//
+//		RegionContent[] result = new RegionContent[] {
+//				new RegionContent(getBpRegion(chunk), totalF / (float)getBpRegion(chunk).getLength()),
+//				new RegionContent(getBpRegion(chunk), totalR / (float)getBpRegion(chunk).getLength())
+//		};
+//		
+//		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
+//		result[1].values.put(ColumnType.STRAND, Strand.REVERSE);
+//
+//		return result;
+//	}
 	
 	@Override
 	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {

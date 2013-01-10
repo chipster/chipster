@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -181,7 +182,7 @@ public class RegionOperations {
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.merge(right.region), EMPTY_EXTRA_FIELDS));
+			collector.add(new RegionContent(left.region.merge(right.region), getEmptyExtraFieldMap()));
 		}
 	};
 
@@ -211,7 +212,7 @@ public class RegionOperations {
 
 	public static PairPolicy INTERSECT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.intersect(right.region), EMPTY_EXTRA_FIELDS));
+			collector.add(new RegionContent(left.region.intersect(right.region), getEmptyExtraFieldMap()));
 		}
 	};
 
@@ -307,7 +308,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new RegionContent(new Region(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
+			mergedRegions.add(new RegionContent(new Region(regions.get(i).region.start, regions.get(j).region.end), getEmptyExtraFieldMap()));
 			
 			// Jump to region after the previously written one
 			i = j+1;
@@ -363,7 +364,7 @@ public class RegionOperations {
 	 */
 	private static RegionContent augment(RegionContent primary, RegionContent secondary) {
 		
-		RegionContent augmented = new RegionContent(primary.region, "");
+		RegionContent augmented = new RegionContent(primary.region, getEmptyExtraFieldMap());
 		augmented.values.clear();
 		
 		// Copy from primary, but augmenting from secondary
@@ -381,5 +382,11 @@ public class RegionOperations {
 		
 		return augmented;
 	}
+	
 
+	public static LinkedHashMap<ColumnType, Object> getEmptyExtraFieldMap() {
+		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+		values.put(ColumnType.VALUE, EMPTY_EXTRA_FIELDS);
+		return values;
+	}
 }

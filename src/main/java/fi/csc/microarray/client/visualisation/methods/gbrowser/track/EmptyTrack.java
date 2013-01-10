@@ -38,11 +38,6 @@ public class EmptyTrack extends Track {
     public Map<DataSource, Set<ColumnType>> requestedData() {
         return null;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public String getName() {

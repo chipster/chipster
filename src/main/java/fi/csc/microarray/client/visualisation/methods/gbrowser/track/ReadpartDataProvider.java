@@ -43,19 +43,25 @@ public class ReadpartDataProvider implements AreaResultListener {
 
 	@Override
 	public void processAreaResult(AreaResult areaResult) {
-		// Check that areaResult has false concised status and correct strand
-		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false) {
-			
-			// Add this to queue of RegionContents to be processed
-			synchronized (reads) {
 
-				// Here identical region contents are removed (set semantics, no duplicates)
-				// So it is essential that reads have their unique ID's.
-				this.reads.addAll(areaResult.getContents());
-				needsRefresh = true;
+
+		// Add this to queue of RegionContents to be processed
+		synchronized (reads) {
+
+			// Here identical region contents are removed (set semantics, no duplicates)
+			// So it is essential that reads have their unique ID's.
+			for (RegionContent read : areaResult.getContents()) {	  
+				if (areaResult.getStatus().file == readData && 
+						read.values.containsKey(ColumnType.STRAND) &&
+						read.values.containsKey(ColumnType.SEQUENCE) && 
+						read.values.containsKey(ColumnType.CIGAR)) {
+					
+					this.reads.add(read);
+					needsRefresh = true;
+				}
 			}
-			view.redraw();
 		}
+		view.redraw();
 	}
 
 	public Iterable<ReadPart> getReadparts(Strand strand) {
@@ -72,7 +78,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 				return readParts;
 			case FORWARD:
 				return readPartsF;
-			case REVERSED:
+			case REVERSE:
 				return readPartsR;
 			}
 			throw new IllegalArgumentException("illegal strand: " + strand);
@@ -109,7 +115,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 				
 				if (read.values.get(ColumnType.STRAND) == Strand.FORWARD) {
 					readPartsF.add(visibleRegion);
-				} else if (read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
+				} else if (read.values.get(ColumnType.STRAND) == Strand.REVERSE) {
 					readPartsR.add(visibleRegion);
 				}
 			}

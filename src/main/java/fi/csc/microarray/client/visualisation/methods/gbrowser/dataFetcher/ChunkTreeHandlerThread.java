@@ -10,9 +10,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkD
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileAreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileStatus;
 
 /**
  * Processing layer implementation for chunk files (tab separated text files). Because those files do not 
@@ -78,13 +80,13 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		fileResult.request.node.processFileResult(fileResult);
 	}
 
-	protected void processAreaRequest(AreaRequest areaRequest) {
+	protected void processAreaRequest(ChunkFileAreaRequest areaRequest) {
 		
 		super.processAreaRequest(areaRequest);
 		
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 			
-			ChunkFileRequest fileRequest = new ChunkFileRequest(areaRequest, null, null, areaRequest.status);
+			ChunkFileRequest fileRequest = new ChunkFileRequest(areaRequest, null, null, (ChunkFileStatus) areaRequest.getStatus());
 			fileRequestQueue.add(fileRequest);
 			return;
 		}
@@ -101,10 +103,10 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 	 * problems here
 	 * @param node
 	 */
-	public void createFileRequest(AreaRequest areaRequest, ByteRegion byteRegion, TreeNode node) {
-		areaRequest.status.maybeClearQueue(fileRequestQueue);
+	public void createFileRequest(ChunkFileAreaRequest areaRequest, ByteRegion byteRegion, TreeNode node) {
+		areaRequest.getStatus().maybeClearQueue(fileRequestQueue);
 
-		fileRequestQueue.add(new ChunkFileRequest(areaRequest, byteRegion.clone(), node, areaRequest.status));
+		fileRequestQueue.add(new ChunkFileRequest(areaRequest, byteRegion.clone(), node, (ChunkFileStatus) areaRequest.getStatus()));
 	}
 
 	public FileParser getInputParser() {
