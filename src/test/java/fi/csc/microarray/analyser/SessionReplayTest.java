@@ -125,8 +125,9 @@ public class SessionReplayTest extends MessagingTestBase {
 		ServiceAccessor serviceAccessor = new RemoteServiceAccessor();
 		serviceAccessor.initialise(manager, this.authenticationListener);
 		serviceAccessor.fetchDescriptions(new MicroarrayModule());
+		Session.getSession().setServiceAccessor(serviceAccessor);
 		toolModules.addAll(serviceAccessor.getModules());
-		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules));
+		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules, manager));
 		
 		// Set up source system
 		sourceManager = new DataManager();
@@ -196,20 +197,24 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Load session
 		sourceManager.loadSession(session, false);
 		
-		// Pick import operations and copy imported data beans to target manager 
-		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
+		// Find import operations and load imported data beans to target manager 
+		// Also map OperationRecords to outputs TODO check that order is right in all cases, might need to traverse links
 		LinkedList<OperationRecord> importOperationRecords = new LinkedList<OperationRecord>();
 		Map<OperationRecord, List<DataBean>> outputMap = new HashMap<OperationRecord, List<DataBean>>();
 		for (DataBean dataBean : sourceManager.databeans()) {
 			OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations FIXME pick also any other without parent dataset
+			// pick import operations
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
 				
-				// copy imported databean, add mapping
+				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
-				URL url = new URL(session.toURI().toURL(), "#" + dataBean.getUrl(StorageMethod.LOCAL_FILE_METHODS).getRef());
+				URL urlInSessionZip = dataBean.getUrl(StorageMethod.LOCAL_SESSION);
+				if (urlInSessionZip == null) {
+					throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
+				}
+				URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
 				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION, url);
 
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
@@ -952,9 +957,10 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		private SessionReplayTest parent;
 
-		public SessionLoadingSkeletonApplication(SessionReplayTest parent, LinkedList<ToolModule> toolModules) {
+		public SessionLoadingSkeletonApplication(SessionReplayTest parent, LinkedList<ToolModule> toolModules, DataManager manager) {
 			this.parent = parent;
 			this.toolModules = toolModules;
+			this.manager = manager;
 			logger = org.apache.log4j.Logger.getLogger(SessionLoadingSkeletonApplication.class);
 		}
 		
