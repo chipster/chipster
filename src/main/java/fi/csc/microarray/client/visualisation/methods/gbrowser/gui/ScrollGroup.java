@@ -197,7 +197,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 				}
 				printTime(track.getName() + "\tdrawDrawables");
 			}
-		}               
+		}
 
 		//Finally, get the scroll position to know which part of the content is shown
 		view.parentPlot.chartPanel.setScrollGroupBoundaries(this);
@@ -233,7 +233,14 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 
 	@Override
 	public int getHeight() {
-		return LayoutTool.getHeight(this, layoutHeight);
+		
+		int canvasHeight = LayoutTool.getHeight(this, layoutHeight);
+		
+		if (scrollEnabled && layoutHeight != 0) {
+			return Math.min(layoutHeight, canvasHeight);
+		} else { 
+			return canvasHeight;
+		}
 	}
 
 	@Override

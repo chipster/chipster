@@ -205,13 +205,8 @@ public class GBrowserChartPanel extends ChartPanel {
 	 */
 	public void setScrollGroupBoundaries(ScrollGroup group) {
 
-//		//Calculate height sum to prevent scrollbars from going outside the window
-//		int barHeightSum = 0;
-//
-//		//Calculate new values, but don't set them yet, because we still need the old values
-//		int barHeight = Math.min(group.getHeight(), maxY - barHeightSum);
 		int barHeight = group.getHeight();
-//		barHeightSum += barHeight;
+
 		int extent = barHeight;
 
 		int maximum;
@@ -224,14 +219,8 @@ public class GBrowserChartPanel extends ChartPanel {
 		ScrollGroupBar bar = scrollBarsMap.get(group);
 		if (bar != null) {
 
-			boolean visible = group.isVisible() && group.isScrollEnabled() && maximum > barHeight;
-			boolean becomesVisible = bar.isVisible() == false && visible == true;
-
+			boolean visible = group.isVisible() && group.isScrollEnabled() && maximum > barHeight;			
 			int referenceY = group.getScrollReferenceY();
-
-			if (becomesVisible) {
-				bar.setDefaultValue();
-			}
 
 			//Set the new values
 			bar.set(maximum, extent, referenceY);
