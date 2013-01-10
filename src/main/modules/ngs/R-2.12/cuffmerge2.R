@@ -2,9 +2,7 @@
 # INPUT annotation{...}.gtf: "GTF files" TYPE GTF
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA  
 # OUTPUT OPTIONAL merged.gtf  
-# OUTPUT OPTIONAL skipped.gtf  
-# OUTPUT OPTIONAL transcripts.gtf
-# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Reference genome.)
 
 # AMS 21.11.2012
 # LUE TÄMÄ poistin ne tsv:t outputeista, varmaan pitää poistaa skriptistäkin? mitä nää skipped ja transcripts gtf:t on? Genomi ei ole tässä bias correctionia varten, joten sen voisi kommentoida ulos.
@@ -50,19 +48,6 @@ command <- paste(setpathcommand, cuffmerge.binary, "-s", genomefile, "assemblies
 system(command)
 
 # Rename files
-if (file.exists("merged_asm/genes.fpkm_tracking") && file.info("merged_asm/genes.fpkm_tracking")$size > 0) {
-	system("mv merged_asm/genes.fpkm_tracking genes.fpkm_tracking.tsv")
-}
-if (file.exists("merged_asm/isoforms.fpkm_tracking") && file.info("merged_asm/isoforms.fpkm_tracking")$size > 0) {
-	system("mv merged_asm/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
-}
 if (file.exists("merged_asm/merged.gtf") && file.info("merged_asm/merged.gtf")$size > 0) {
 	system("mv merged_asm/merged.gtf merged.gtf")
 }
-if (file.exists("merged_asm/skipped.gtf") && file.info("merged_asm/skipped.gtf")$size > 0) {
-	system("mv merged_asm/skipped.gtf skipped.gtf")
-}
-if (file.exists("merged_asm/transcripts.gtf") && file.info("merged_asm/transcripts.gtf")$size > 0) {
-	system("mv merged_asm/transcripts.gtf transcripts.gtf")
-}
- 

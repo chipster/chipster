@@ -88,67 +88,67 @@ command <- paste(cuffdiff.binary, "-q", "-o tmp", cuffdiff.options, "treatment1.
 system(command)
 
 # Rename files
-if (file.info("tmp/cds.count_tracking")$size > 12) {
+if (file.exists("tmp/cds.count_tracking") && file.info("tmp/cds.count_tracking")$size > 12) {
 	system("mv tmp/cds.count_tracking cds.count_tracking.tsv")
 }
-if (file.info("tmp/cds.diff")$size > 115) {
+if (file.exists("tmp/cds.diff") && file.info("tmp/cds.diff")$size > 115) {
 	system("mv tmp/cds.diff cds.diff.tsv")
 }
-if (file.info("tmp/cds.fpkm_tracking")$size > 91) {
+if (file.exists("tmp/cds.fpkm_tracking") && file.info("tmp/cds.fpkm_tracking")$size > 91) {
 	system("mv tmp/cds.fpkm_tracking cds.fpkm_tracking.tsv")
 }
-if (file.info("tmp/cds.read_group_tracking")$size > 115) {
+if (file.exists("tmp/cds.read_group_tracking") && file.info("tmp/cds.read_group_tracking")$size > 115) {
 	system("mv tmp/cds.read_group_tracking cds.read_group_tracking.tsv")
 }
-if (file.info("tmp/cds_exp.diff")$size > 124) {
+if (file.exists("tmp/cds_exp.diff") && file.info("tmp/cds_exp.diff")$size > 124) {
 	system("mv tmp/cds_exp.diff cds_exp.diff.tsv")
 }
-if (file.info("tmp/gene_exp.diff")$size > 124) {
+if (file.exists("tmp/gene_exp.diff") && file.info("tmp/gene_exp.diff")$size > 124) {
 	system("mv tmp/gene_exp.diff gene_exp.diff.tsv")
 }
-if (file.info("tmp/genes.count_tracking")$size > 184) {
+if (file.exists("tmp/genes.count_tracking") && file.info("tmp/genes.count_tracking")$size > 184) {
 	system("mv tmp/genes.count_tracking genes.count_tracking.tsv")
 }
-if (file.info("tmp/genes.fpkm_tracking")$size > 171) {
+if (file.exists("tmp/genes.fpkm_tracking") && file.info("tmp/genes.fpkm_tracking")$size > 171) {
 	system("mv tmp/genes.fpkm_tracking genes.fpkm_tracking.tsv")
 }
-if (file.info("tmp/genes.read_group_tracking")$size > 115) {
+if (file.exists("tmp/genes.read_group_tracking") && file.info("tmp/genes.read_group_tracking")$size > 115) {
 	system("mv tmp/genes.read_group_tracking genes.read_group_tracking.tsv")
 }
-if (file.info("tmp/isoform_exp.diff")$size > 124) {
+if (file.exists("tmp/isoform_exp.diff") && file.info("tmp/isoform_exp.diff")$size > 124) {
 	system("mv tmp/isoform_exp.diff isoform_exp.diff.tsv")
 }
-if (file.info("tmp/isoforms.count_tracking")$size > 184) {
+if (file.exists("tmp/isoforms.count_tracking") && file.info("tmp/isoforms.count_tracking")$size > 184) {
 	system("mv tmp/isoforms.count_tracking isoforms.count_tracking.tsv")
 }
-if (file.info("tmp/isoforms.fpkm_tracking")$size > 171) {
+if (file.exists("tmp/isoforms.fpkm_tracking") && file.info("tmp/isoforms.fpkm_tracking")$size > 171) {
 	system("mv tmp/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
 }
-if (file.info("tmp/isoforms.read_group_tracking")$size > 115) {
+if (file.exists("tmp/isoforms.read_group_tracking") && file.info("tmp/isoforms.read_group_tracking")$size > 115) {
 	system("mv tmp/isoforms.read_group_tracking isoforms.read_group_tracking.tsv")
 }
-if (file.info("tmp/promoters.diff")$size > 115) {
+if (file.exists("tmp/promoters.diff") && file.info("tmp/promoters.diff")$size > 115) {
 	system("mv tmp/promoters.diff promoters.diff.tsv")
 }
-if (file.info("tmp/read_groups.info")$size > 0) {
+if (file.exists("tmp/read_groups.info") && file.info("tmp/read_groups.info")$size > 0) {
 	system("mv tmp/read_groups.info read_groups.info.txt")
 }
-if (file.info("tmp/run.info")$size > 0) {
+if (file.exists("tmp/run.info") && file.info("tmp/run.info")$size > 0) {
 	system("mv tmp/run.info run.info.txt")
 }
-if (file.info("tmp/splicing.diff")$size > 115) {
+if (file.exists("tmp/splicing.diff") && file.info("tmp/splicing.diff")$size > 115) {
 	system("mv tmp/splicing.diff splicing.diff.tsv")
 }
-if (file.info("tmp/tss_group_exp.diff")$size > 124) {
+if (file.exists("tmp/tss_group_exp.diff") && file.info("tmp/tss_group_exp.diff")$size > 124) {
 	system("mv tmp/tss_group_exp.diff tss_group_exp.diff.tsv")
 }
-if (file.info("tmp/tss_groups.count_tracking")$size > 12) {
+if (file.exists("tmp/tss_groups.count_tracking") && file.info("tmp/tss_groups.count_tracking")$size > 12) {
 	system("mv tmp/tss_groups.count_tracking tss_groups.count_tracking.tsv")
 }
-if (file.info("tmp/tss_groups.fpkm_tracking")$size > 91) {
+if (file.exists("tmp/tss_groups.fpkm_tracking") && file.info("tmp/tss_groups.fpkm_tracking")$size > 91) {
 	system("mv tmp/tss_groups.fpkm_tracking tss_groups.fpkm_tracking.tsv")
 }
-if (file.info("tmp/tss_groups.read_group_tracking")$size > 115) {
+if (file.exists("tmp/tss_groups.read_group_tracking") && file.info("tmp/tss_groups.read_group_tracking")$size > 115) {
 	system("mv tmp/tss_groups.read_group_tracking tss_groups.read_group_tracking.tsv")
 }
 
