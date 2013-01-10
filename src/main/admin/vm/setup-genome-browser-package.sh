@@ -1,5 +1,5 @@
 mkdir linked-fasta-files
-mv hg19.fa mm9.fa mm10.fa rn4.fa linked-fasta-files
+mv hg19.fa mm9.fa mm10.fa rn4.fa Arabidopsis_lyrata.v.1.0.16.fa ovis_aries_texel.fa linked-fasta-files
 
 cd linked-fasta-files
 tar -cvzf packages/linked-fasta-files.tar.gz * &
@@ -9,6 +9,8 @@ ln -s ../../genomes/fasta/hg19.fa hg19.fa
 ln -s ../../genomes/fasta/mm9.fa mm9.fa
 ln -s ../../genomes/fasta/mm10.fa mm10.fa
 ln -s ../../genomes/fasta/rn4.fa rn4.fa
+ln -s ../../genomes/fasta/Arabidopsis_lyrata.v.1.0.16.fa Arabidopsis_lyrata.v.1.0.16.fa
+ln -s ../../genomes/fasta/ovis_aries_texel.fa ovis_aries_texel.fa
 
 mkdir packages
 

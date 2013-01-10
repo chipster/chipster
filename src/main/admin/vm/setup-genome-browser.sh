@@ -356,6 +356,16 @@ contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal
 
 
 # Other animals in alphabetical order 
+
+SPECIES="Cow"
+VERSION="(UMD3.1.69)"
+
+process_gtf "ftp://ftp.ensembl.org/pub/release-69/gtf/bos_taurus/Bos_taurus.UMD3.1.69.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-69/mysql/bos_taurus_core_69_31/" "Bos_taurus.UMD3.1.69."
+download_fasta "ftp://ftp.ensembl.org/pub/release-69/fasta/bos_taurus/dna/Bos_taurus.UMD3.1.69.dna.toplevel.fa.gz"
+contents_append_url "Ensembl" "http://www.ensembl.org/Bos_taurus/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Cow&db=bosTau6&position=chr[CHR]%3A[START]-[END]"
+
 SPECIES="Dog"
 VERSION="(CanFam3.1.69)"
 
@@ -405,7 +415,7 @@ VERSION="(v.1.0.16)"
 
 process_gtf "ftp://ftp.ensemblgenomes.org/pub/plants/release-16/gtf/arabidopsis_lyrata/Arabidopsis_lyrata.v.1.0.16.gtf.gz"
 ensembl_mysql "ftp://ftp.ensemblgenomes.org/pub/plants/release-16/mysql/arabidopsis_lyrata_core_16_69_10/" "Arabidopsis_lyrata.v.1.0.16."
-download_fasta "ftp://ftp.ensemblgenomes.org/pub/plants/release-16/fasta/arabidopsis_lyrata/dna/Arabidopsis_lyrata.v.1.0.16.dna.toplevel.fa.gz"
+download_fasta_from_nic "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Arabidopsis_lyrata.v.1.0.16.tar.gz" "Arabidopsis_lyrata.v.1.0.16.fa"
 contents_append_url "Ensembl" "http://plants.ensembl.org/Arabidopsis_lyrata/Location/View?db=core;r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" ""
 
@@ -441,6 +451,13 @@ VERSION="(HE956709.1)"
 
 process_gtf "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/R1-RT.gtf.gz"
 download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/R1-RT.fa.gz"
+contents_append_url "Ensembl" ""
+contents_append_url "UCSC" ""
+
+SPECIES="Homo sapiens mitochondrion"
+VERSION="(NC_012920.1)"
+
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/human-mt-NC_012920.1.fa.gz"
 contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
