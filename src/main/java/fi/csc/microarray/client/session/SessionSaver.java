@@ -116,12 +116,10 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		boolean saveData = true;
-		
-		gatherMetadata(saveData);
+		gatherMetadata(true, false);
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionToFile(saveData);
+		writeSessionToFile(true);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
@@ -129,10 +127,8 @@ public class SessionSaver {
 
 	public void saveLightweightSession() throws Exception {
 
-		boolean saveData = false;
-		
-		gatherMetadata(saveData);
-		writeSessionToFile(saveData);
+		gatherMetadata(false, false);
+		writeSessionToFile(false);
 	}
 
 	public void saveStorageSession() throws Exception {
@@ -143,9 +139,8 @@ public class SessionSaver {
 		}
 		
 		// save metadata
-		boolean saveData = false;
-		gatherMetadata(saveData);
-		writeSessionToUrl(saveData);
+		gatherMetadata(false, true);
+		writeSessionToUrl(false);
 	}
 	
 	
@@ -155,7 +150,7 @@ public class SessionSaver {
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
-	private void gatherMetadata(boolean saveData) throws IOException, JAXBException {
+	private void gatherMetadata(boolean saveData, boolean skipLocalLocations) throws IOException, JAXBException {
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
@@ -167,7 +162,7 @@ public class SessionSaver {
 		generateIdsRecursively(dataManager.getRootFolder());
 
 		// gather meta data
-		saveMetadataRecursively(dataManager.getRootFolder(), saveData);
+		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
 	}
 
 
@@ -373,14 +368,14 @@ public class SessionSaver {
 		return id.toString();
 	}
 
-	private void saveMetadataRecursively(DataFolder folder, boolean saveData) throws IOException {
+	private void saveMetadataRecursively(DataFolder folder, boolean saveData, boolean skipLocalLocations) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof DataFolder) {
-				saveMetadataRecursively((DataFolder)data, saveData);
+				saveMetadataRecursively((DataFolder)data, saveData, skipLocalLocations);
 				
 			} else {
 				DataBean bean = (DataBean)data;
@@ -399,7 +394,7 @@ public class SessionSaver {
 				}
 				
 				// store metadata
-				saveDataBeanMetadata(bean, newURL, folderId, saveData);
+				saveDataBeanMetadata(bean, newURL, folderId, skipLocalLocations);
 
 			}
 		}
@@ -439,7 +434,7 @@ public class SessionSaver {
 	}	
 	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, boolean saveData) {
+	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, boolean skipLocalLocations) {
 		String beanId = reversedItemIdMap.get(bean);
 		DataType dataType = factory.createDataType();
 	
@@ -462,6 +457,9 @@ public class SessionSaver {
 
 		// write all URL's
 		for (ContentLocation location : bean.getContentLocations()) {
+			if (skipLocalLocations && location.getMethod().isLocal()) {
+				continue; // do not save local locations to remote sessions
+			}
 			LocationType locationType = new LocationType();
 			locationType.setMethod(location.getMethod().toString());
 			locationType.setUrl(location.getUrl().toString());
