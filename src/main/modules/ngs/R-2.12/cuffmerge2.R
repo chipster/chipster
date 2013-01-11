@@ -5,7 +5,7 @@
 # PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Reference genome.)
 
 # AMS 21.11.2012
-# LUE TÄMÄ poistin ne tsv:t outputeista, varmaan pitää poistaa skriptistäkin? mitä nää skipped ja transcripts gtf:t on? Genomi ei ole tässä bias correctionia varten, joten sen voisi kommentoida ulos.
+# AMS 11.01.2013 Removed unnecessary outputs
 
 # binary
 cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffmerge"))
