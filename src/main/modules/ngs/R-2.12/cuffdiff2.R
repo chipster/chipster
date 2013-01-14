@@ -2,9 +2,9 @@
 # INPUT treatment1.bam: "Treatment BAM" TYPE BAM
 # INPUT control1.bam: "Control BAM" TYPE BAM
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GTF
-# OUTPUT cufflinks-log.txt
 # OUTPUT de-genes-cufflinks.tsv
 # OUTPUT de-isoforms-cufflinks.tsv
+# OUTPUT OPTIONAL cufflinks-log.txt
 # OUTPUT OPTIONAL de-genes-cufflinks.bed
 # OUTPUT OPTIONAL de-isoforms-cufflinks.bed
 # OUTPUT OPTIONAL cds.count_tracking.tsv
@@ -92,10 +92,10 @@ system(command)
 source(file.path(chipster.common.path, "bed-utils.R")) # bed sort
 
 # Only do post-processing if file exists
-if (file.exists("tmp/gene_exp.diff.tsv")){
+if (file.exists("tmp/gene_exp.diff")){
 	# DE genes
 	# Extract chromosome locations and add in the first three table columns
-	dat <- read.table(file="tmp/gene_exp.diff.tsv", header=T, sep="\t")
+	dat <- read.table(file="tmp/gene_exp.diff", header=T, sep="\t")
 	regions_list <- as.character(dat$locus)
 	chr_list <- character(length(regions_list))
 	start_list <- numeric(length(regions_list))
@@ -142,28 +142,28 @@ if (file.exists("tmp/gene_exp.diff.tsv")){
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="de-genes-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}	
-
-	# Report numbers to the log file
-	if (dim(results_list)[1] > 0) {
-		sink(file="cufflinks-log.txt")
-		number_genes_tested <- dim(dat)[1]
-		number_filtered <- number_genes_tested-dim(results_list)[1]
-		number_significant <- dim(results_list)[1]
-		cat("GENE TEST SUMMARY\n")
-		cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
-		cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-		cat(number_significant, "genes were found to be statistically significantly differentially expressed.")	
-	} else {
-		cat("GENE TEST SUMMARY\n")
-		cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
-	}
+}
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	sink(file="cufflinks-log.txt")
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	cat("GENE TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+	cat(number_significant, "genes were found to be statistically significantly differentially expressed.")	
+} else {
+	cat("GENE TEST SUMMARY\n")
+	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
 }
 
+
 # Only do post-processing if file exists
-if (file.exists("tmp/isoform_exp.diff.tsv")){
+if (file.exists("tmp/isoform_exp.diff")){
 	# DE isoforms
 	# Extract chromosome locations and add in the first three table columns
-	dat <- read.table(file="tmp/isoform_exp.diff.tsv", header=T, sep="\t")
+	dat <- read.table(file="tmp/isoform_exp.diff", header=T, sep="\t")
 	regions_list <- as.character(dat$locus)
 	chr_list <- character(length(regions_list))
 	start_list <- numeric(length(regions_list))
@@ -211,22 +211,23 @@ if (file.exists("tmp/isoform_exp.diff.tsv")){
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
-	
-	# Report numbers to the log file
-	if (dim(results_list)[1] > 0) {
-		number_genes_tested <- dim(dat)[1]
-		number_filtered <- number_genes_tested-dim(results_list)[1]
-		number_significant <- dim(results_list)[1]
-		cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-		cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
-		cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-		cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.")	
-	} else {
-		cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-		cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.")
-	}
-	sink()
+}	
+
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.")	
+} else {
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+	cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.")
 }
+sink()
+
 
 # Rename files
 # Non-processed cuffdiff output shown only when complete output selected

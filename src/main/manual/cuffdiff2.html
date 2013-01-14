@@ -8,26 +8,27 @@
 <h3>Description</h3>
 
 <p>
-Differential expression using Cuffdiff2" (Cuffdiff2).
+This tool performs differential expression analysis using Cuffdiff2.
 </p>
 
 <h3>Parameters</h3>
 
 <ul>
-Annotation GTF
-p-value cutoff
-q-value cutoff
-Upper-quartile normalization
-Bias correction for stranded data
-Bias
-<li> Genome (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
+<li>Output type (concise, complete) [concise]</li>
+<li>Annotation GTF (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
+<li>p-value cutoff (0-1) [1]
+<li>q-value cutoff (0-1) [0.05]
+<li>Upper-quartile normalization (yes, no) [yes]
+<li>Bias correction for stranded data (yes, no) [yes]
+<li> Genome used for bias correction (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
 </ul>
 
 <h3>Details</h3>
 
 <p>
-This tool allows you to merge transcript GTF files obtained by Cufflinks from several samples into one, 
-so that you can use it in differential expression analysis using Cuffdiff.
+Given GTF and BAM files, Cuffdiff performs differential expression analysis of genes and transcripts using the 
+Cufflins algorithm. It is currently not possible to use replicate samples in Chipster, so you have to merge 
+all samples belonging to the same experiment group into a single BAM file.
 
 </p>
 
@@ -37,8 +38,66 @@ so that you can use it in differential expression analysis using Cuffdiff.
 <p>
 <p>The analysis output consists of the following:</p>
 <ul>
-<li>merged.gtf: A GTF file that contains an assembly that merges together the input assemblies.</li>
+<li>de-genes-cufflinks.tsv:	Table containing the results of the statistical testing for differentially expressed genes, including fold change estimates and p-values.<br></li>
+<li>de-genes-cufflinks.bed:  The BED version of the results table for genes contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>de-isoforms-cufflinks.tsv:Table containing the results of the statistical testing for differentially expressed isoforms, including fold change estimates and p-values.<br></li>
+<li>de-isoform-cufflinks.bed: The BED version of the results table for isoforms contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
+<li>cufflinks.log: Contains useful information of the analysis run.
 </ul>
+<p>If the Output type: complete option is selected, the following optional outputs may also be generated:</p>
+<p>1. FPKM tracking files</p>
+<ul>
+<li>cds.fpkm_tracking.tsv: Coding sequence FPKMs. Tracks the summed FPKM of transcripts sharing each p_id, independent of tss_id</li>
+<li>genes.fpkm_tracking.tsv: Gene FPKMs. Tracks the summed FPKM of transcripts sharing each gene_id</li>
+<li>isoforms.fpkm_tracking.tsv: Transcript FPKMs</li>
+<li>tss_groups.fpkm_tracking.tsv: Primary transcript FPKMs. Tracks the summed FPKM of transcripts sharing each tss_id</li>
+</ul>
+<p>2. Count tracking files</p>
+<ul>
+<li>cds.count_tracking.tsv: Coding sequence counts. Tracks the summed counts of transcripts sharing each p_id, independent of tss_id</li>
+<li>genes.count_tracking.tsv: Gene counts. Tracks the summed counts of transcripts sharing each gene_id</li>
+<li>isoforms.count_tracking.tsv: Transcript counts</li>
+<li>tss_groups.count_tracking.tsv: Primary transcript counts. Tracks the summed counts of transcripts sharing each tss_id</li>
+</ul>
+<p>3. Read group tracking files</p>
+<ul>
+<li>cds.read_group_tracking.tsv: Coding sequence FPKMs. Tracks the summed expression and counts of transcripts sharing each p_id, independent of tss_id in each replicate</li>
+<li>genes.read_group_tracking.tsv: Gene read group tracking. Tracks the summed expression and counts of transcripts sharing each gene_id in each replicate</li>
+<li>isoforms.read_group_tracking.tsv: Transcript read group tracking</li>
+<li>tss_groups.read_group_tracking.tsv: Primary transcript FPKMs. Tracks the summed expression and counts of transcripts sharing each tss_id in each replicate</li>
+</ul>
+<p>4. Differential expression tests</p>
+<ul>
+<li>cds_exp.diff.tsv: Coding sequence differential FPKM. Tests differences in the summed FPKM of transcripts sharing each p_id independent of tss_id</li>
+<li>gene_exp.diff.tsv: Gene differential FPKM. Tests difference sin the summed FPKM of transcripts sharing each gene_id</li>
+<li>isoform_exp.diff.tsv: Transcript differential FPKM.</li>
+<li>tss_group_exp.diff.tsv: Primary transcript differential FPKM. Tests differences in the summed FPKM of transcripts sharing each tss_id</li>
+</ul>
+<p>5. Differential splicing tests</p>
+<ul>
+<li>splicing.diff.tsv: This tab delimited file lists, for each primary transcript, the amount of overloading detected among its isoforms, i.e. how much differential splicing exists between isoforms processed from a single primary transcript. Only primary transcripts from which two or more isoforms are spliced are listed in this file.</li>
+</ul>
+<p>6. Differential coding output</p>
+<ul>
+<li>cds.diff.tsv: This tab delimited file lists, for each gene, the amount of overloading detected among its coding sequences, i.e. how much differential CDS output exists between samples. Only genes producing two or more distinct CDS (i.e. multi-protein genes) are listed here.</li>
+</ul>
+<p>7. Differential promoter use</p>
+<ul>
+<li>promoters.diff.tsv: This tab delimited file lists, for each gene, the amount of overloading detected among its primary transcripts, i.e. how much differential promoter use exists between samples. Only genes producing two or more distinct primary transcripts (i.e. multi-promoter genes) are listed here.</li>
+</ul>
+<p>8. Read group info</p>
+<ul>
+<li>read_groups.info.txt: This tab delimited file lists, for each replicate, key properties used by Cuffdiff during quantification, such as library normalization factors.</li>
+</ul>
+<p>8. Run info</p>
+<ul>
+<li>run.info.txt: This tab delimited file lists various bits of information about a Cuffdiff run to help track what options were provided.</li>
+</ul>
+
+
+
+</ul>
+
 </p>
 
 
