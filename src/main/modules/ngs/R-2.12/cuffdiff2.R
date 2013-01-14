@@ -1,7 +1,7 @@
 # TOOL cuffdiff2.R: "Differential expression using Cuffdiff" (Given GTF and BAM files, Cuffdiff performs differential expression analysis of genes and transcripts using the Cufflins algorithm. It is currently not possible to use replicate samples in Chipster, so you have to merge all samples belonging to the same experiment group into a single BAM file.)
-# INPUT treatment1.bam: "Treatment BAM" TYPE GENERIC
-# INPUT control1.bam: "Control BAM" TYPE GENERIC
-# INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GENERIC
+# INPUT treatment1.bam: "Treatment BAM" TYPE BAM
+# INPUT control1.bam: "Control BAM" TYPE BAM
+# INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GTF
 # OUTPUT cufflinks-log.txt
 # OUTPUT de-genes-cufflinks.tsv
 # OUTPUT de-isoforms-cufflinks.tsv
@@ -28,6 +28,7 @@
 # OUTPUT OPTIONAL tss_groups.count_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
+# PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output. The default is to see processed output.)
 # PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL p.value.threshold: "p-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The p-value cutoff for statistical significance. Since the p-values are not corrected for multiple testing, the cutoff needs to be substantially more conservative than what is usually applied.)
 # PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The FDR-adjusted p-value cutoff for statistical significance.)                                                
@@ -42,7 +43,7 @@ cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_6
 # options
 cuffdiff.options <- ""
 if (normalize == "yes") {
-	cuffdiff.options <- paste(cuffdiff.options, "--upper-quartile-norm --total-hits-norm")
+	cuffdiff.options <- paste(cuffdiff.options, "-N")
 }
 if (bias == "yes") {
 	if (genome == "hg19"){
@@ -86,80 +87,15 @@ command <- paste(cuffdiff.binary, "-q", "-o tmp", cuffdiff.options, "treatment1.
 #stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
 
-# Rename files
-if (file.exists("tmp/cds.count_tracking") && file.info("tmp/cds.count_tracking")$size > 12) {
-	system("mv tmp/cds.count_tracking cds.count_tracking.tsv")
-}
-if (file.exists("tmp/cds.diff") && file.info("tmp/cds.diff")$size > 115) {
-	system("mv tmp/cds.diff cds.diff.tsv")
-}
-if (file.exists("tmp/cds.fpkm_tracking") && file.info("tmp/cds.fpkm_tracking")$size > 91) {
-	system("mv tmp/cds.fpkm_tracking cds.fpkm_tracking.tsv")
-}
-if (file.exists("tmp/cds.read_group_tracking") && file.info("tmp/cds.read_group_tracking")$size > 115) {
-	system("mv tmp/cds.read_group_tracking cds.read_group_tracking.tsv")
-}
-if (file.exists("tmp/cds_exp.diff") && file.info("tmp/cds_exp.diff")$size > 124) {
-	system("mv tmp/cds_exp.diff cds_exp.diff.tsv")
-}
-if (file.exists("tmp/gene_exp.diff") && file.info("tmp/gene_exp.diff")$size > 124) {
-	system("mv tmp/gene_exp.diff gene_exp.diff.tsv")
-}
-if (file.exists("tmp/genes.count_tracking") && file.info("tmp/genes.count_tracking")$size > 184) {
-	system("mv tmp/genes.count_tracking genes.count_tracking.tsv")
-}
-if (file.exists("tmp/genes.fpkm_tracking") && file.info("tmp/genes.fpkm_tracking")$size > 171) {
-	system("mv tmp/genes.fpkm_tracking genes.fpkm_tracking.tsv")
-}
-if (file.exists("tmp/genes.read_group_tracking") && file.info("tmp/genes.read_group_tracking")$size > 115) {
-	system("mv tmp/genes.read_group_tracking genes.read_group_tracking.tsv")
-}
-if (file.exists("tmp/isoform_exp.diff") && file.info("tmp/isoform_exp.diff")$size > 124) {
-	system("mv tmp/isoform_exp.diff isoform_exp.diff.tsv")
-}
-if (file.exists("tmp/isoforms.count_tracking") && file.info("tmp/isoforms.count_tracking")$size > 184) {
-	system("mv tmp/isoforms.count_tracking isoforms.count_tracking.tsv")
-}
-if (file.exists("tmp/isoforms.fpkm_tracking") && file.info("tmp/isoforms.fpkm_tracking")$size > 171) {
-	system("mv tmp/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
-}
-if (file.exists("tmp/isoforms.read_group_tracking") && file.info("tmp/isoforms.read_group_tracking")$size > 115) {
-	system("mv tmp/isoforms.read_group_tracking isoforms.read_group_tracking.tsv")
-}
-if (file.exists("tmp/promoters.diff") && file.info("tmp/promoters.diff")$size > 115) {
-	system("mv tmp/promoters.diff promoters.diff.tsv")
-}
-if (file.exists("tmp/read_groups.info") && file.info("tmp/read_groups.info")$size > 0) {
-	system("mv tmp/read_groups.info read_groups.info.txt")
-}
-if (file.exists("tmp/run.info") && file.info("tmp/run.info")$size > 0) {
-	system("mv tmp/run.info run.info.txt")
-}
-if (file.exists("tmp/splicing.diff") && file.info("tmp/splicing.diff")$size > 115) {
-	system("mv tmp/splicing.diff splicing.diff.tsv")
-}
-if (file.exists("tmp/tss_group_exp.diff") && file.info("tmp/tss_group_exp.diff")$size > 124) {
-	system("mv tmp/tss_group_exp.diff tss_group_exp.diff.tsv")
-}
-if (file.exists("tmp/tss_groups.count_tracking") && file.info("tmp/tss_groups.count_tracking")$size > 12) {
-	system("mv tmp/tss_groups.count_tracking tss_groups.count_tracking.tsv")
-}
-if (file.exists("tmp/tss_groups.fpkm_tracking") && file.info("tmp/tss_groups.fpkm_tracking")$size > 91) {
-	system("mv tmp/tss_groups.fpkm_tracking tss_groups.fpkm_tracking.tsv")
-}
-if (file.exists("tmp/tss_groups.read_group_tracking") && file.info("tmp/tss_groups.read_group_tracking")$size > 115) {
-	system("mv tmp/tss_groups.read_group_tracking tss_groups.read_group_tracking.tsv")
-}
-
 # The following code copied from dea-cufflinks.R
 #
 source(file.path(chipster.common.path, "bed-utils.R")) # bed sort
 
 # Only do post-processing if file exists
-if (file.exists("gene_exp.diff.tsv")){
+if (file.exists("tmp/gene_exp.diff.tsv")){
 	# DE genes
 	# Extract chromosome locations and add in the first three table columns
-	dat <- read.table(file="gene_exp.diff.tsv", header=T, sep="\t")
+	dat <- read.table(file="tmp/gene_exp.diff.tsv", header=T, sep="\t")
 	regions_list <- as.character(dat$locus)
 	chr_list <- character(length(regions_list))
 	start_list <- numeric(length(regions_list))
@@ -174,7 +110,7 @@ if (file.exists("gene_exp.diff.tsv")){
 	# Rename gene to symbol for compatibility with venn diagram
 	colnames (dat2) [5] <- "ensembl_id"
 	colnames (dat2) [6] <- "symbol"
-	colnames (dat2) [13] <- "ln_FC"
+	colnames (dat2) [13] <- "log2_FC"
 
 	# Filter the gene output based on user defined cutoffs
 	dat2 <- dat2[dat2$status=="OK",]
@@ -198,7 +134,7 @@ if (file.exists("gene_exp.diff.tsv")){
 
 	# Also output a BED file for visualization and region matching tools
 	if (dim(results_list)[1] > 0) {
-		bed_output <- results_list[,c("chr","start","end","symbol","ln_FC")]
+		bed_output <- results_list[,c("chr","start","end","symbol","log2_FC")]
 		# sort according to chromosome location
 		write.table(bed_output, file="sortme.bed", sep="\t", row.names=F, col.names=T, quote=F)
 		bed <- read.table(file="sortme.bed", skip=1, sep="\t") # assume file has 1 line header
@@ -224,10 +160,10 @@ if (file.exists("gene_exp.diff.tsv")){
 }
 
 # Only do post-processing if file exists
-if (file.exists("isoform_exp.diff.tsv")){
+if (file.exists("tmp/isoform_exp.diff.tsv")){
 	# DE isoforms
 	# Extract chromosome locations and add in the first three table columns
-	dat <- read.table(file="isoform_exp.diff.tsv", header=T, sep="\t")
+	dat <- read.table(file="tmp/isoform_exp.diff.tsv", header=T, sep="\t")
 	regions_list <- as.character(dat$locus)
 	chr_list <- character(length(regions_list))
 	start_list <- numeric(length(regions_list))
@@ -242,7 +178,7 @@ if (file.exists("isoform_exp.diff.tsv")){
 	# Rename gene to symbol for compability with venn diagram
 	colnames (dat2) [5] <- "ensembl_id"
 	colnames (dat2) [6] <- "symbol"
-	colnames (dat2) [13] <- "ln_FC"
+	colnames (dat2) [13] <- "log2_FC"
 
 	# Filter the isoforms output based on user defined cutoffs
 	dat2 <- dat2[dat2$status=="OK",]
@@ -266,7 +202,7 @@ if (file.exists("isoform_exp.diff.tsv")){
 	
 	# Also output a BED file for visualization and region matching tools
 	if (dim(results_list)[1] > 0) {
-		bed_output <- results_list[,c("chr","start","end","symbol","ln_FC")]
+		bed_output <- results_list[,c("chr","start","end","symbol","log2_FC")]
 		write.table(bed_output, file="", sep="\t", row.names=F, col.names=T, quote=F)
 		# sort according to chromosome location
 		write.table(bed_output, file="sortme.bed", sep="\t", row.names=F, col.names=T, quote=F)
@@ -290,4 +226,72 @@ if (file.exists("isoform_exp.diff.tsv")){
 		cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.")
 	}
 	sink()
+}
+
+# Rename files
+# Non-processed cuffdiff output shown only when complete output selected
+if (output.type == "complete"){
+	if (file.exists("tmp/cds.count_tracking") && file.info("tmp/cds.count_tracking")$size > 12) {
+		system("mv tmp/cds.count_tracking cds.count_tracking.tsv")
+	}
+	if (file.exists("tmp/cds.diff") && file.info("tmp/cds.diff")$size > 115) {
+		system("mv tmp/cds.diff cds.diff.tsv")
+	}
+	if (file.exists("tmp/cds.fpkm_tracking") && file.info("tmp/cds.fpkm_tracking")$size > 91) {
+		system("mv tmp/cds.fpkm_tracking cds.fpkm_tracking.tsv")
+	}
+	if (file.exists("tmp/cds.read_group_tracking") && file.info("tmp/cds.read_group_tracking")$size > 115) {
+		system("mv tmp/cds.read_group_tracking cds.read_group_tracking.tsv")
+	}
+	if (file.exists("tmp/cds_exp.diff") && file.info("tmp/cds_exp.diff")$size > 124) {
+		system("mv tmp/cds_exp.diff cds_exp.diff.tsv")
+	}
+	if (file.exists("tmp/gene_exp.diff") && file.info("tmp/gene_exp.diff")$size > 124) {
+		system("mv tmp/gene_exp.diff gene_exp.diff.tsv")
+	}
+	if (file.exists("tmp/genes.count_tracking") && file.info("tmp/genes.count_tracking")$size > 184) {
+		system("mv tmp/genes.count_tracking genes.count_tracking.tsv")
+	}
+	if (file.exists("tmp/genes.fpkm_tracking") && file.info("tmp/genes.fpkm_tracking")$size > 171) {
+		system("mv tmp/genes.fpkm_tracking genes.fpkm_tracking.tsv")
+	}
+	if (file.exists("tmp/genes.read_group_tracking") && file.info("tmp/genes.read_group_tracking")$size > 115) {
+		system("mv tmp/genes.read_group_tracking genes.read_group_tracking.tsv")
+	}
+	if (file.exists("tmp/isoform_exp.diff") && file.info("tmp/isoform_exp.diff")$size > 124) {
+		system("mv tmp/isoform_exp.diff isoform_exp.diff.tsv")
+	}
+	if (file.exists("tmp/isoforms.count_tracking") && file.info("tmp/isoforms.count_tracking")$size > 184) {
+		system("mv tmp/isoforms.count_tracking isoforms.count_tracking.tsv")
+	}
+	if (file.exists("tmp/isoforms.fpkm_tracking") && file.info("tmp/isoforms.fpkm_tracking")$size > 171) {
+		system("mv tmp/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
+	}
+	if (file.exists("tmp/isoforms.read_group_tracking") && file.info("tmp/isoforms.read_group_tracking")$size > 115) {
+		system("mv tmp/isoforms.read_group_tracking isoforms.read_group_tracking.tsv")
+	}
+	if (file.exists("tmp/promoters.diff") && file.info("tmp/promoters.diff")$size > 115) {
+		system("mv tmp/promoters.diff promoters.diff.tsv")
+	}
+	if (file.exists("tmp/read_groups.info") && file.info("tmp/read_groups.info")$size > 0) {
+		system("mv tmp/read_groups.info read_groups.info.txt")
+	}
+	if (file.exists("tmp/run.info") && file.info("tmp/run.info")$size > 0) {
+		system("mv tmp/run.info run.info.txt")
+	}
+	if (file.exists("tmp/splicing.diff") && file.info("tmp/splicing.diff")$size > 115) {
+		system("mv tmp/splicing.diff splicing.diff.tsv")
+	}
+	if (file.exists("tmp/tss_group_exp.diff") && file.info("tmp/tss_group_exp.diff")$size > 124) {
+		system("mv tmp/tss_group_exp.diff tss_group_exp.diff.tsv")
+	}
+	if (file.exists("tmp/tss_groups.count_tracking") && file.info("tmp/tss_groups.count_tracking")$size > 12) {
+		system("mv tmp/tss_groups.count_tracking tss_groups.count_tracking.tsv")
+	}
+	if (file.exists("tmp/tss_groups.fpkm_tracking") && file.info("tmp/tss_groups.fpkm_tracking")$size > 91) {
+		system("mv tmp/tss_groups.fpkm_tracking tss_groups.fpkm_tracking.tsv")
+	}
+	if (file.exists("tmp/tss_groups.read_group_tracking") && file.info("tmp/tss_groups.read_group_tracking")$size > 115) {
+		system("mv tmp/tss_groups.read_group_tracking tss_groups.read_group_tracking.tsv")
+	}
 }

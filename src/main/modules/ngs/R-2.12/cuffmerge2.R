@@ -1,8 +1,6 @@
 # TOOL cuffmerge2.R: "Merge transcript assemblies with Cuffmerge" (Given several transcript GTF files obtained by Cufflinks, Cuffmerge merges them into one. The merged GTF file can be used in differential expression analysis with Cuffdiff.)
 # INPUT annotation{...}.gtf: "GTF files" TYPE GTF
-# INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA  
 # OUTPUT OPTIONAL merged.gtf  
-# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Reference genome.)
 
 # AMS 21.11.2012
 # AMS 11.01.2013 Removed unnecessary outputs
@@ -15,33 +13,11 @@ cufflinkspath <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64"
 setpathc1 <- c("export PATH=$PATH:", cufflinkspath, ";")
 setpathcommand <- paste(setpathc1 , collapse = '')
 
-
 # Make gtf list file
 system("ls *.gtf > assemblies.txt")
 
-# Reference sequence
-cuffmerge.options <- ""
-if (file.exists("ownref.fa")){
-	genomefile <- "ownref.fa"
-}else{
-	if (genome == "hg19"){
-		genomefile <- "hg19.fa"
-	}
-	if (genome == "mm9"){
-		genomefile <- "mm9.fa"
-	}
-	if (genome == "mm10"){
-		genomefile <- "mm10.fa"
-	}
-	if (genome == "rn4"){
-		genomefile <- "rn4.fa"
-	}
-	genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))	
-}
-
-
 # command
-command <- paste(setpathcommand, cuffmerge.binary, "-s", genomefile, "assemblies.txt")
+command <- paste(setpathcommand, cuffmerge.binary, "assemblies.txt")
 
 # run
 #stop(paste('CHIPSTER-NOTE: ', command))
