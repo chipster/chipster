@@ -1,4 +1,4 @@
-# TOOL cuffdiff2.R: "Differential expression using Cuffdiff2" (Cuffdiff2)
+# TOOL cuffdiff2.R: "Differential expression using Cuffdiff" (Given GTF and BAM files, Cuffdiff performs differential expression analysis of genes and transcripts using the Cufflins algorithm. It is currently not possible to use replicate samples in Chipster, so you have to merge all samples belonging to the same experiment group into a single BAM file.)
 # INPUT treatment1.bam: "Treatment BAM" TYPE GENERIC
 # INPUT control1.bam: "Control BAM" TYPE GENERIC
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GENERIC

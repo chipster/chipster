@@ -1,4 +1,4 @@
-# TOOL cuffmerge2.R: "Merge transcript assemblies with Cuffmerge" (This tool allows you to merge transcript GTF files obtained by Cufflinks from several samples into one, so that you can use it in differential expression analysis using Cuffdiff.)
+# TOOL cuffmerge2.R: "Merge transcript assemblies with Cuffmerge" (Given several transcript GTF files obtained by Cufflinks, Cuffmerge merges them into one. The merged GTF file can be used in differential expression analysis with Cuffdiff.)
 # INPUT annotation{...}.gtf: "GTF files" TYPE GTF
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE FASTA  
 # OUTPUT OPTIONAL merged.gtf  
