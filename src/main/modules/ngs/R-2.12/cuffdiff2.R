@@ -2,6 +2,11 @@
 # INPUT treatment1.bam: "Treatment BAM" TYPE GENERIC
 # INPUT control1.bam: "Control BAM" TYPE GENERIC
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GENERIC
+# OUTPUT cufflinks-log.txt
+# OUTPUT de-genes-cufflinks.tsv
+# OUTPUT de-isoforms-cufflinks.tsv
+# OUTPUT OPTIONAL de-genes-cufflinks.bed
+# OUTPUT OPTIONAL de-isoforms-cufflinks.bed
 # OUTPUT OPTIONAL cds.count_tracking.tsv
 # OUTPUT OPTIONAL cds.diff.tsv
 # OUTPUT OPTIONAL cds.fpkm_tracking.tsv
@@ -23,18 +28,12 @@
 # OUTPUT OPTIONAL tss_groups.count_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
-# OUTPUT cufflinks-log.txt
-# OUTPUT de-genes-cufflinks.tsv
-# OUTPUT de-isoforms-cufflinks.tsv
-# OUTPUT OPTIONAL de-genes-cufflinks.bed
-# OUTPUT OPTIONAL de-isoforms-cufflinks.bed
-# PARAMETER normalize: "Normalize" TYPE [yes, no] DEFAULT no (Normalize.)
-# PARAMETER bias: "Bias correction" TYPE [yes, no] DEFAULT no (Bias detection and correction.)
 # PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
 # PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use your own GTF or select one of the provided ones.)
-# PARAMETER OPTIONAL p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction, the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMETER OPTIONAL q.value.threshold: "Q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Note that q-values are adjusted to account for multiple testing correction.)                                                
-
+# PARAMETER OPTIONAL p.value.threshold: "p-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The p-value cutoff for statistical significance. Since the p-values are not corrected for multiple testing, the cutoff needs to be substantially more conservative than what is usually applied.)
+# PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The FDR-adjusted p-value cutoff for statistical significance.)                                                
+# PARAMETER OPTIONAL normalize: "Upper-quartile normalization " TYPE [yes, no] DEFAULT yes (Upper quartile normalization can improve robustness of differential expression calls for less abundant genes and transcripts. It excludes very abundant genes when normalizing expression values for the number of reads in each sample by using the upper quartile of the number of fragments mapping to individual loci.)
+# PARAMETER OPTIONAL bias: "Bias correction for stranded data" TYPE [yes, no] DEFAULT no (Bias detection and correction.)
 
 
 # binary
