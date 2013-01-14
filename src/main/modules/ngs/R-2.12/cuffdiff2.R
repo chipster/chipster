@@ -1,4 +1,4 @@
-# TOOL cuffdiff2.R: "Cuffdiff2" (Cuffdiff2)
+# TOOL cuffdiff2.R: "Differential expression using Cuffdiff2" (Cuffdiff2)
 # INPUT treatment1.bam: "Treatment BAM" TYPE GENERIC
 # INPUT control1.bam: "Control BAM" TYPE GENERIC
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GENERIC
