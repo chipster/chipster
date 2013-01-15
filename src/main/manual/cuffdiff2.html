@@ -16,10 +16,10 @@ This tool performs differential expression analysis using Cuffdiff2.
 <ul>
 <li>Output type (concise, complete) [concise]</li>
 <li>Annotation GTF (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
-<li>p-value cutoff (0-1) [1]
-<li>q-value cutoff (0-1) [0.05]
-<li>Upper-quartile normalization (yes, no) [yes]
-<li>Bias correction for stranded data (yes, no) [yes]
+<li>Allowed false discovery rate (0-1) [1]</li>
+<li>Upper-quartile normalization (yes, no) [yes]</li>
+<li>Enable multi-mapped read correction (yes,no) [no]</li>
+<li>Bias correction for stranded data (yes, no) [yes]</li>
 <li> Genome used for bias correction (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
 </ul>
 
@@ -42,7 +42,7 @@ all samples belonging to the same experiment group into a single BAM file.
 <li>de-genes-cufflinks.bed:  The BED version of the results table for genes contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
 <li>de-isoforms-cufflinks.tsv:Table containing the results of the statistical testing for differentially expressed isoforms, including fold change estimates and p-values.<br></li>
 <li>de-isoform-cufflinks.bed: The BED version of the results table for isoforms contains genomic coordinates and p-value estimates and is ideal for quick navigation in the Genome Browser.<br></li>
-<li>cufflinks.log: Contains useful information of the analysis run.
+<li>cufflinks.log: Contains useful information of the analysis run.</li>
 </ul>
 <p>If the Output type: complete option is selected, the following optional outputs may also be generated:</p>
 <p>1. FPKM tracking files</p>
