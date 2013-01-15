@@ -148,14 +148,16 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 		String exonIndex = ids[2];
 		String geneName = ids[3];
 		String transcName = ids[4];
+		
+		if ("exon".equals(feature) || "CDS".equals(feature)) {
 
-		Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
-				new Chromosome(chr), getStrand(strand));
+			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
+					new Chromosome(chr), getStrand(strand));
 
-		Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
+			Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
 
-		genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
-
+			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
+		}
 	} 
 
 	private static Strand getStrand(String strand) {
