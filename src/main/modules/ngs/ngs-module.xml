@@ -112,6 +112,21 @@
         <tool runtime="R-2.12">
 			<resource>test-data-in-out.R</resource>
 		</tool>	
+		<tool runtime="R-2.15">
+			<resource>mothur-prepare-data.R</resource>
+		</tool>	
+		<tool runtime="R-2.15">
+			<resource>mothur-process-data.R</resource>
+		</tool>	
+		<tool runtime="R-2.15">
+			<resource> mothur-combine-results.R</resource>
+		</tool>	
+		<tool runtime="R-2.15">
+			<resource> mothur-generate-count-table.R</resource>
+		</tool>	
+	    <tool runtime="R-2.15">
+			<resource> mothur-analyses.R</resource>
+		</tool>	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
