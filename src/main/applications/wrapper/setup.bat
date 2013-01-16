@@ -1,1 +1,0 @@
-java -jar shared\lib\chipster-config-tool.jar setup
