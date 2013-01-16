@@ -1,10 +1,10 @@
-# This install script is run in bare R 3.0 installation and 
+# This install script is run in bare R installation and 
 # it installs all packages required to run Chipster.
 # The script uses install functions that check each package
 # before installation, meaning that it can be rerun if needed
 # and only missing packages are installed.
 
-# Configure repos (change if you need)
+# Configure paths and repos (change if you need)
 chipster.path <- "/opt/chipster/"
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
 repo.bioc <- "http://www.bioconductor.org"

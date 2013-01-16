@@ -3,7 +3,7 @@
 #
 # User friendly interface into install.packages(...) and biocLite(...)
 #
-# All functions chech existence of packages before installation and skip installation
+# All functions check existence of packages before installation and skip installation
 # if the package already exists. For group of packages, each one is checked
 # individually and only missing ones are installed.
 #
@@ -50,8 +50,8 @@ smart.install.bioconductor.repo <- function(repo.index, mirror=NA) {
 	# Select the given repository
 	orig.repos <- setRepositories(ind=c(repo.index))
 	
-	for (package in available.packages()) {
-		smart.install.packages(bioconductor.package = package[1], mirror = mirror)
+	for (package in available.packages()[,"Package"]) {
+		smart.install.packages(bioconductor.package = package, mirror = mirror)
 	}
 	
 	# Restore original repositories
@@ -77,7 +77,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 		cat(paste("Will now install", package.name, "\n"))
 	} else {
 		cat(paste("Already installed", package.name, "\n"))
-		return(TRUE)
+		return(invisible(TRUE))
 	}
 	
 	if (!is.na(package)) {
@@ -104,13 +104,20 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 		
 	} else {
 		stop("Must specify something to install");
+		return(invisible(FALSE))
 	}
 
 	# Install was successfull
-	return(TRUE)
+	return(invisible(TRUE))
 }
 
 is.installed <- function(package) {
-	
-	return(suppressWarnings(require(package, character.only=TRUE, warn.conflicts=FALSE, quietly=TRUE))) 		
+	sink("/dev/null") # the only way to get rid of all output (some packages don't behave)
+	is.installed <- suppressPackageStartupMessages(suppressWarnings(suppressMessages(require(package, character.only=TRUE, warn.conflicts=FALSE, quietly=TRUE))))
+	sink()
+#	if (is.installed) {
+#		print(paste("package:", package, sep=""))
+#		detach(paste("package:", package, sep=""))
+#	}
+	return(is.installed) 		
 }
