@@ -6,7 +6,7 @@
 wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/All/GCF_000002315.3.assembly.txt
 
 # keep only chromosome identifiers
-cat GCF_000002315.3.assembly.txt |grep assembled-molecule |grep -v "MT" |grep -v "linkage group"|cut -d "	" -f 3 > chrs.txt
+cat GCF_000002315.3.assembly.txt |grep assembled-molecule |grep -v "MT" |cut -d "	" -f 3 > chrs.txt
 
 # download sequence for each chromosome
 while read chr; do

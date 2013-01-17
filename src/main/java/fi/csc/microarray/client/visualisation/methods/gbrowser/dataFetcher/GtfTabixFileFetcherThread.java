@@ -127,7 +127,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 	}
 
 	private void parseGtfLine(String line, GeneSet genes) {
-
+		
 		String[] cols;
 
 		String[] ids;
@@ -153,6 +153,41 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 
 			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
 					new Chromosome(chr), getStrand(strand));
+
+			Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
+
+			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
+			
+		} else 	if (feature.startsWith("GenBank")) {
+
+			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
+					new Chromosome(chr), getStrand(strand));
+			
+			if (geneId == null || transcId == null) {
+				return;
+			}
+			
+			if ("GenBank gene".equals(feature)) {
+				feature = "exon";
+			} else if ("GenBank CDS".equals(feature)) {
+				feature = "CDS";
+			} else {
+				geneId = feature + geneId;
+				transcId = feature + transcId;
+				
+				if (geneName != null) {
+					geneName = feature + " " + geneName;
+				}
+				
+				if (transcName != null) {
+					transcName = feature + " " + transcName;
+				}
+				
+				feature = "exon";
+			}
+			
+			exonIndex = "1";
+			
 
 			Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
 
