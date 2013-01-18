@@ -148,10 +148,10 @@ if (dim(results_list)[1] > 0) {
 	cat("GENE TEST SUMMARY\n")
 	cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
 	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "genes were found to be statistically significantly differentially expressed.")	
+	cat(number_significant, "genes were found to be statistically significantly differentially expressed.\n")	
 } else {
 	cat("GENE TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
+	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.\n")
 }
 
 
@@ -209,10 +209,10 @@ if (dim(results_list)[1] > 0) {
 	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
 	cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
 	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.")	
+	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.\n")	
 } else {
 	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.")
+	cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.\n")
 }
 sink()
 
