@@ -112,8 +112,10 @@ if (file.exists("tmp/gene_exp.diff")){
 	dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 	# Rename gene to symbol for compatibility with venn diagram
-	colnames (dat2) [5] <- "ensembl_id"
+	colnames (dat2) [5] <- "ID"
 	colnames (dat2) [6] <- "symbol"
+	colnames (dat2) [11] <- "FPKM_1"
+	colnames (dat2) [12] <- "FPKM_2"
 	colnames (dat2) [13] <- "log2_FC"
 
 	# Filter the gene output based on status and significant columns
@@ -172,8 +174,10 @@ if (file.exists("tmp/isoform_exp.diff")){
 	dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 	
 	# Rename gene to symbol for compability with venn diagram
-	colnames (dat2) [5] <- "ensembl_id"
+	colnames (dat2) [5] <- "ID"
 	colnames (dat2) [6] <- "symbol"
+	colnames (dat2) [11] <- "FPKM_1"
+	colnames (dat2) [12] <- "FPKM_2"
 	colnames (dat2) [13] <- "log2_FC"
 
 	# Filter the gene output based on status and significant columns
