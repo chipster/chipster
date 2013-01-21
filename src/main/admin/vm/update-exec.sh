@@ -340,7 +340,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.3.2 not released yet, remember to change the LATEST_VERSION
+# 2.3.2 not released yet, remember to change the LATEST_VERSION above
 compare_to_current "2.3.2"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
