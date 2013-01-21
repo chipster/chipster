@@ -91,7 +91,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 		if (!is.na(mirror)) {
 			options("BioC_mirror" = c("Mirror"=mirror))
 		}
-		biocLite(bioconductor.package)
+		biocLite(bioconductor.package, suppressUpdates=TRUE)
 		
 	} else if (!is.na(url.package)) {
 		
