@@ -143,7 +143,7 @@ smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHte
 smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtestpar_0.0.tar.gz")
 
 # Install the whole annotation repository from Bioconductor
-smart.install.bioconductor.repo(repo.index = 4, mirror=repo.bioc)
+smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0, repo number 3 is annotations (might change)
 
 # Install BrainArray custom CDF's
 smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")
