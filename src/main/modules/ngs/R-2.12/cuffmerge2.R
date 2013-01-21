@@ -4,6 +4,7 @@
 
 # AMS 21.11.2012
 # AMS 11.01.2013 Removed unnecessary outputs
+# EK 21.1.2013 Testing
 
 # binary
 cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffmerge"))
