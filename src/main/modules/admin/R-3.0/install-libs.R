@@ -33,7 +33,8 @@ smart.install.packages(package="moments", mirror=repo.cran)
 smart.install.packages(package="snowfall", mirror=repo.cran)
 smart.install.packages(package="sm", mirror=repo.cran)
 smart.install.packages(package="flexmix", mirror=repo.cran) ## required by WECCA
-		
+
+
 # Install packages, and their dependencies, from Bioconductor
 smart.install.packages(bioconductor.package="Biobase", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="IRanges", mirror=repo.bioc)
