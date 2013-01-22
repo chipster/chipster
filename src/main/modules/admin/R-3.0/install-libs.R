@@ -32,6 +32,7 @@ smart.install.packages(package="R2HTML", mirror=repo.cran)
 smart.install.packages(package="moments", mirror=repo.cran)
 smart.install.packages(package="snowfall", mirror=repo.cran)
 smart.install.packages(package="sm", mirror=repo.cran)
+smart.install.packages(package="rda", mirror=repo.cran)
 smart.install.packages(package="flexmix", mirror=repo.cran) ## required by WECCA
 
 
@@ -81,7 +82,7 @@ smart.install.packages(bioconductor.package="lumi", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="prada", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="siggenes", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="plier", mirror=repo.bioc)
-#smart.install.packages(bioconductor.package="cosmo", mirror=repo.bioc)
+#smart.install.packages(bioconductor.package="cosmo", mirror=repo.bioc) # missing
 smart.install.packages(bioconductor.package="beadarraySNP", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="GEOquery", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="ArrayExpress", mirror=repo.bioc)
@@ -125,25 +126,25 @@ smart.install.packages(bioconductor.package="maSigPro", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="qvalue", mirror=repo.bioc)
 
 # Install non-repo packages
-smart.install.packages(url.package="http://xmap.picr.man.ac.uk/downloads/cdf/ratexonpmcdf_1.1.tar.gz")
-smart.install.packages(url.package="http://xmap.picr.man.ac.uk/downloads/cdf/mouseexonpmcdf_1.1.tar.gz")
-smart.install.packages(url.package="http://xmap.picr.man.ac.uk/downloads/cdf/exon.pmcdf_1.1.tar.gz")
-smart.install.packages(url.package="http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz")
-smart.install.packages(url.package="http://addictedtor.free.fr/packages/A2R/A2R_0.0-4.tar.gz")
-smart.install.packages(url.package="http://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.1.tar.gz")
-smart.install.packages(url.package="http://www.math.utu.fi/projects/software/bio/ROTS_1.1.1.tar.gz")
-smart.install.packages(url.package="http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz")
 smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz")
-smart.install.packages(url.package="http://www.few.vu.nl/~wvanwie/software/intCNGEan/intCNGEan_0.53.tar.gz")
-smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
-smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/hgug4851a.db.tar.gz")
 smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtest_1.1.tar.gz")
 smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtestpar_0.0.tar.gz")
+smart.install.packages(url.package="http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz")
+smart.install.packages(url.package="http://www.math.utu.fi/projects/software/bio/ROTS_1.1.1.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/A2R_0.0-4.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/exon.pmcdf_1.1.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/mouseexonpmcdf_1.1.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/ratexonpmcdf_1.1.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.53.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
+#smart.install.packages(url.package="http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz") # missing
+
 
 # Install the whole annotation repository from Bioconductor
 smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0, repo number 3 is annotations (might change)
+
 
 # Install BrainArray custom CDF's
 smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")

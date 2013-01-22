@@ -115,9 +115,5 @@ is.installed <- function(package) {
 	sink("/dev/null") # the only way to get rid of all output (some packages don't behave)
 	is.installed <- suppressPackageStartupMessages(suppressWarnings(suppressMessages(require(package, character.only=TRUE, warn.conflicts=FALSE, quietly=TRUE))))
 	sink()
-#	if (is.installed) {
-#		print(paste("package:", package, sep=""))
-#		detach(paste("package:", package, sep=""))
-#	}
 	return(is.installed) 		
 }
