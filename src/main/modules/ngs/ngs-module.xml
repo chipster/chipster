@@ -114,7 +114,7 @@
 		</tool>	
 	</category>
 
-	<category name="Matching genomic regions" color="#e7881c">
+	<category name="Matching sets of genomic regions" color="#e7881c">
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
 			</resource>
@@ -247,11 +247,20 @@
 		<tool runtime="R-2.15">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
+		<tool runtime="R-2.15">
+			<resource>DEXseq.R</resource>
+		</tool>
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
-			<resource>DEXseq.R</resource>
+		<tool runtime="R-2.12">
+			<resource>cufflinks2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cuffmerge2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cuffdiff2.R</resource>
 		</tool>
 		<tool runtime="beanshell" module="common">
 			<resource>annotate-cpdb.bsh</resource>
