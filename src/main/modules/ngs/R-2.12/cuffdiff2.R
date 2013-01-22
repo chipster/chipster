@@ -156,7 +156,7 @@ if (dim(results_list)[1] > 0) {
 	cat(number_significant, "genes were found to be statistically significantly differentially expressed.\n")	
 } else {
 	cat("GENE TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.\n")
+	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
 }
 sink()
 
