@@ -28,7 +28,7 @@
 # OUTPUT OPTIONAL tss_groups.count_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
-# PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output. The default is to see the processed output.)
+# PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output.)
 # PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL fdr: "Allowed false discovery rate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR-adjusted p-values (q-values\) are calculated. The concise output files include only those genes or transcripts which have a q-value lower than the given FDR. The value of the Significant-column is adjusted accordingly (yes/no\) in all output files.) 
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
@@ -46,9 +46,9 @@ cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_6
 # options
 cuffdiff.options <- ""
 cuffdiff.options <- paste(cuffdiff.options, "-FDR", fdr)
-if (normalize == "yes") {
-	cuffdiff.options <- paste(cuffdiff.options, "-N")
-}
+# if (normalize == "yes") {
+#	cuffdiff.options <- paste(cuffdiff.options, "-N")
+# }
 if (mmread == "yes") {
 	cuffdiff.options <- paste(cuffdiff.options, "-u")
 }
