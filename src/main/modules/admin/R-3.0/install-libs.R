@@ -125,6 +125,7 @@ smart.install.packages(bioconductor.package="rtracklayer", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="maSigPro", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="qvalue", mirror=repo.bioc)
 
+
 # Install non-repo packages
 smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz")
@@ -139,7 +140,7 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/ratexonpmcdf_1.1.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.53.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
-#smart.install.packages(url.package="http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz") # missing
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.30.tar.gz")
 
 
 # Install the whole annotation repository from Bioconductor
@@ -148,4 +149,3 @@ smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0,
 
 # Install BrainArray custom CDF's
 smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")
-
