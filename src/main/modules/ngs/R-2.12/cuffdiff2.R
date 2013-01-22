@@ -28,13 +28,16 @@
 # OUTPUT OPTIONAL tss_groups.count_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
-# PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output. The default is to see processed output.)
+# PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output. The default is to see the processed output.)
 # PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL fdr: "Allowed false discovery rate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR-adjusted p-values (q-values\) are calculated. The concise output files include only those genes or transcripts which have a q-value lower than the given FDR. The value of the Significant-column is adjusted accordingly (yes/no\) in all output files.) 
-# PARAMETER OPTIONAL normalize: "Upper-quartile normalization " TYPE [yes, no] DEFAULT yes (Upper quartile normalization can improve robustness of differential expression calls for less abundant genes and transcripts. It excludes very abundant genes when normalizing expression values for the number of reads in each sample by using the upper quartile of the number of fragments mapping to individual loci.)
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Bias correction for stranded data" TYPE [yes, no] DEFAULT no (Cuffdiff can detect sequence-specific bias and correct for it in abundance estimation. Note that bias correction works only if your data was produced with a strand specific protocol.)
 # PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
+
+# AMS 21.1.2013
+# check column renaming when replicates are enabled
+# This parameter is not yet functional due to a bug in Cuffdiff itself. PARAMETER OPTIONAL normalize: "Upper-quartile normalization " TYPE [yes, no] DEFAULT yes (Upper quartile normalization can improve robustness of differential expression calls for less abundant genes and transcripts. It excludes very abundant genes when normalizing expression values for the number of reads in each sample by using the upper quartile of the number of fragments mapping to individual loci.)
 
 
 # binary
@@ -112,7 +115,7 @@ if (file.exists("tmp/gene_exp.diff")){
 	dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 	# Rename gene to symbol for compatibility with venn diagram
-	colnames (dat2) [5] <- "ID"
+	# colnames (dat2) [5] <- "ID"
 	colnames (dat2) [6] <- "symbol"
 	colnames (dat2) [11] <- "FPKM_1"
 	colnames (dat2) [12] <- "FPKM_2"
@@ -132,7 +135,7 @@ if (file.exists("tmp/gene_exp.diff")){
 
 	# Also output a BED file for visualization and region matching tools
 	if (dim(results_list)[1] > 0) {
-		bed_output <- results_list[,c("chr","start","end","symbol","log2_FC")]
+		bed_output <- results_list[,c("chr","start","end","gene_id","log2_FC")]
 		# sort according to chromosome location
 		write.table(bed_output, file="sortme.bed", sep="\t", row.names=F, col.names=T, quote=F)
 		bed <- read.table(file="sortme.bed", skip=1, sep="\t") # assume file has 1 line header
@@ -174,7 +177,7 @@ if (file.exists("tmp/isoform_exp.diff")){
 	dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 	
 	# Rename gene to symbol for compability with venn diagram
-	colnames (dat2) [5] <- "ID"
+	# colnames (dat2) [5] <- "ID"
 	colnames (dat2) [6] <- "symbol"
 	colnames (dat2) [11] <- "FPKM_1"
 	colnames (dat2) [12] <- "FPKM_2"
@@ -194,7 +197,7 @@ if (file.exists("tmp/isoform_exp.diff")){
 	
 	# Also output a BED file for visualization and region matching tools
 	if (dim(results_list)[1] > 0) {
-		bed_output <- results_list[,c("chr","start","end","symbol","log2_FC")]
+		bed_output <- results_list[,c("chr","start","end","gene_id","log2_FC")]
 		write.table(bed_output, file="", sep="\t", row.names=F, col.names=T, quote=F)
 		# sort according to chromosome location
 		write.table(bed_output, file="sortme.bed", sep="\t", row.names=F, col.names=T, quote=F)
