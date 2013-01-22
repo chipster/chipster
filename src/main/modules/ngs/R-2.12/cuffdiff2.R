@@ -158,7 +158,7 @@ if (dim(results_list)[1] > 0) {
 	cat("GENE TEST SUMMARY\n")
 	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.\n")
 }
-
+sink()
 
 # Only do post-processing if file exists
 if (file.exists("tmp/isoform_exp.diff")){
@@ -210,6 +210,7 @@ if (file.exists("tmp/isoform_exp.diff")){
 
 # Report numbers to the log file
 if (dim(results_list)[1] > 0) {
+	sink(file="cufflinks-log.txt", append=TRUE)
 	number_genes_tested <- dim(dat)[1]
 	number_filtered <- number_genes_tested-dim(results_list)[1]
 	number_significant <- dim(results_list)[1]
