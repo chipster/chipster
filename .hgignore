@@ -9,3 +9,21 @@ syntax: regexp
 ^test-output$
 syntax: regexp
 ^debug-base-dir$
+syntax: regexp
+^conf$
+syntax: regexp
+^db-root$
+syntax: regexp
+^file-root$
+syntax: regexp
+^jobs-data$
+syntax: regexp
+^modules$
+syntax: regexp
+^security$
+syntax: regexp
+^web$
+syntax: regexp
+^src/main/admin/admin-web/database/chipster-manager\.lock\.db$
+syntax: regexp
+^src/main/admin/admin-web/build$

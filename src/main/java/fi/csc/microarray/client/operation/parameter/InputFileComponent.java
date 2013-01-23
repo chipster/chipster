@@ -60,7 +60,7 @@ public class InputFileComponent extends JPanel {
                 bindingMap.put(binding.getName(), binding.getData().getName());
                 
                 // Find the selected item
-                if (binding.getName().equals(input.getID())) {
+                if (input.idMatches(binding.getName())) {
                     currentBean = binding.getData();
                 }
             }
@@ -72,10 +72,8 @@ public class InputFileComponent extends JPanel {
         choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
         choiceBox.setBackground(Color.white);
 
-        // Set selected bean for this combo box
-        if (currentBean != null) {
-            choiceBox.setSelectedItem(currentBean);
-        }
+        // Set selected bean for this combo box, if null -> no selection
+        choiceBox.setSelectedItem(currentBean);
         
         this.add(choiceBox, BorderLayout.CENTER);
     }

@@ -13,7 +13,7 @@ class DateColumnGenerator implements Table.ColumnGenerator {
 	public Component generateCell(Table source, final Object itemId,
 			Object columnId) {
 
-		Property prop = source.getItem(itemId).getItemProperty(columnId);
+		Property<?> prop = source.getItem(itemId).getItemProperty(columnId);
 		if (prop != null && prop.getType() != null && prop.getType().equals(Date.class)) {
 			
 			Date date = (Date) prop.getValue();

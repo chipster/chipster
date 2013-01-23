@@ -3,7 +3,7 @@ package fi.csc.microarray.manager.web.ui;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -11,7 +11,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.manager.web.ChipsterAdminApplication;
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.JobsContainer;
 
 public class JobsView extends VerticalLayout implements ClickListener, ValueChangeListener  {
@@ -23,9 +23,9 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 	private JobsTable table;
 	private JobsContainer dataSource;
 
-	private ChipsterAdminApplication app;
+	private ChipsterAdminUI app;
 
-	public JobsView(ChipsterAdminApplication app) {
+	public JobsView(ChipsterAdminUI app) {
 		
 		this.app = app;
 		dataSource = new JobsContainer(); 
@@ -50,7 +50,7 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 			
 			toolbarLayout = new HorizontalLayout();
 			
-			refreshButton.addListener((ClickListener)this);
+			refreshButton.addClickListener((ClickListener)this);
 			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
 			toolbarLayout.addComponent(refreshButton);
 			
@@ -76,7 +76,7 @@ public class JobsView extends VerticalLayout implements ClickListener, ValueChan
 	}
 
 	public void valueChange(ValueChangeEvent event) {
-		Property property = event.getProperty();
+		Property<?> property = event.getProperty();
 		if (property == table) {
 			//			Item item = personList.getItem(personList.getValue());
 			//			if (item != personForm.getItemDataSource()) {

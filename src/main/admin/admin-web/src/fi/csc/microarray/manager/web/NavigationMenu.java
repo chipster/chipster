@@ -1,11 +1,10 @@
 package fi.csc.microarray.manager.web;
 
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -15,7 +14,8 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private Button storageButton = new Button("Storage");
 	private Button jobsButton = new Button("Jobs");
 	private Button jobLogButton = new Button("Job log");
-	private ChipsterAdminApplication app;
+	private Button statButton = new Button("Statistics");
+	private ChipsterAdminUI app;
 	
 	private final ThemeResource servicesIcon = new ThemeResource("crystal/service-manager.png");
 	private final ThemeResource servicesIconBw = new ThemeResource("crystal/service-manager-bw.png");
@@ -25,21 +25,26 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private final ThemeResource jobsIconBw = new ThemeResource("crystal/clock-bw.png");
 	private final ThemeResource jobLogIcon = new ThemeResource("crystal/vcalendar.png");
 	private final ThemeResource jobLogIconBw = new ThemeResource("crystal/vcalendar-bw.png");
+	private final ThemeResource statIcon = new ThemeResource("crystal/kchart-edited.png");
+	private final ThemeResource statIconBw = new ThemeResource("crystal/kchart-edited-bw.png");
 
-	public NavigationMenu(ChipsterAdminApplication app) {
+	public NavigationMenu(ChipsterAdminUI app) {
 		this.app = app;
 
-		servicesButton.addListener(this);
+		servicesButton.addClickListener(this);
 		addComponent(servicesButton);
 
-		storageButton.addListener(this);
+		storageButton.addClickListener(this);
 		addComponent(storageButton);
 
-		jobsButton.addListener(this);
+		jobsButton.addClickListener(this);
 		addComponent(jobsButton);
 
-		jobLogButton.addListener(this);
+		jobLogButton.addClickListener(this);
 		addComponent(jobLogButton);
+		
+		statButton.addClickListener(this);
+		addComponent(statButton);
 
 		setMargin(true);
 		setSpacing(true);
@@ -57,7 +62,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 		setExpandRatio(placeHolder, 1);
 
 		setHeight("100%");
-		setWidth(130, HorizontalLayout.UNITS_PIXELS);
+		setWidth(130, Unit.PIXELS);
 
 		setStyleName("navigation");
 	}
@@ -80,6 +85,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			storageButton.setIcon(storageIconBw);
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIconBw);
 			
 		} else if (view == storageButton) {
 			app.showStorageView();
@@ -88,6 +94,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			storageButton.setIcon(storageIcon);
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIconBw);
 			
 		} else if (view == jobsButton) {
 			app.showJobsView();
@@ -96,14 +103,25 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			storageButton.setIcon(storageIconBw);
 			jobsButton.setIcon(jobsIcon);
 			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIconBw);
 			
 		} else if (view == jobLogButton) {
-			app.showJobHistoryView();
+			app.showJobLogView();
 			
 			servicesButton.setIcon(servicesIconBw);
 			storageButton.setIcon(storageIconBw);
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIcon);
+			statButton.setIcon(statIconBw);
+			
+		} else if (view == statButton) {
+			app.showStatView();
+			
+			servicesButton.setIcon(servicesIconBw);
+			storageButton.setIcon(storageIconBw);
+			jobsButton.setIcon(jobsIconBw);
+			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIcon);
 			
 		} else {
 			app.showEmtpyView();
@@ -112,6 +130,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			storageButton.setIcon(storageIconBw);
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIconBw);
 		}
 	}
 }

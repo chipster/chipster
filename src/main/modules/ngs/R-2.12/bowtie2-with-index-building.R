@@ -26,7 +26,7 @@ unzipIfGZipFile("reads1.fq")
 
 # bowtie2
 bowtie.binary <- c(file.path(chipster.tools.path, "bowtie2", "bowtie2"))
-bowtie2.index.binary <- file.path(chipster.tools.path, "bowtie2", "check_bowtie2_index.sh")
+bowtie2.index.binary <- file.path(chipster.module.path, "shell", "check_bowtie2_index.sh")
 
 # Do indexing
 print("Indexing the genome...")

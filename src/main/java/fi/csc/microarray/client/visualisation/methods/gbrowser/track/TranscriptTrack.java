@@ -110,9 +110,9 @@ public class TranscriptTrack extends Track {
 				int end = rect.x + rect.width;
 
 				if (occupiedSpace.size() > i) {
-					occupiedSpace.set(i, end);
+					occupiedSpace.set(i, end + 1);
 				} else {
-					occupiedSpace.add(end);
+					occupiedSpace.add(end + 1);
 				}
 
 				rect.y = (int) (((i + 1) * (14)));

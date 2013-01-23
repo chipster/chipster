@@ -39,7 +39,7 @@ public class LineDrawable extends Drawable {
     public void expand(TrackContext context) {
 
         int maxY = context.trackHeight-1;
-        this.y = Math.min(maxY, Math.round(this.y * context.expansionRatio));
-        this.y2 = Math.min(maxY, Math.round(this.y2 * context.expansionRatio));
+        this.y = Math.min(maxY, (int) (this.y * context.expansionRatio));
+        this.y2 = Math.min(maxY, (int) (this.y2 * context.expansionRatio));
     }
 }

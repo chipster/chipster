@@ -13,13 +13,15 @@
 # PARAMETER OPTIONAL filter.removeindels: "Remove indels" TYPE [yes, no] DEFAULT no (Remove indels.)
 # PARAMETER OPTIONAL filter.minalleles: "Minimum number of alleles" TYPE INTEGER DEFAULT 0 (Minumun number of alleles. 0 value means option is ignored.)
 # PARAMETER OPTIONAL filter.maxalleles: "Maximum number of alleles" TYPE INTEGER DEFAULT 0 (Maximum number of alleles. 0 value means option is ignored.)
+# PARAMETER OPTIONAL filter.minquality: "Minumum quality" TYPE DECIMAL DEFAULT 0 (Include only sites with Quality above this threshold. 0 value means option is ignored.)
 # PARAMETER OPTIONAL statistics.freq: "Report per-site frequency information" TYPE [yes, no] DEFAULT no (Reports per-site frequency information.)
 # PARAMETER OPTIONAL statistics.pvalue: "Report p-value" TYPE [yes, no] DEFAULT no (Reports a p-value for each site from a Hardy-Weinberg Equilibrium test.)
 # PARAMETER OPTIONAL statistics.ld: "Report LD statistics" TYPE [yes, no] DEFAULT no (Report Linkage Disequilibrium (LD\) statistics.)
 # PARAMETER OPTIONAL statistics.snpdensity: "Report SNP density" TYPE INTEGER DEFAULT 0 (Calculates the number and density of SNPs in bins of size. 0 value means option is ignored.)
-# PARAMETER OPTIONAL output.filtered: "List removed files" TYPE [yes, no] DEFAULT no (Creates two files listing sites that have been kept or removed after filtering. Default is to list kept files only.)
+# PARAMETER OPTIONAL output.filtered: "List removed sites" TYPE [yes, no] DEFAULT no (Creates two files listing sites that have been kept or removed after filtering. Default is to list kept files only.)
 
 # AMS 14.9.2012
+# AMS 0212.2012 Added option for minimum quality
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -43,7 +45,9 @@ if (filter.minalleles != "0"){
 if (filter.maxalleles != "0"){
 	vcftools.options <- paste(vcftools.options, "--max-alleles", filter.maxalleles)
 }
-
+if (filter.minquality > 0){
+	vcftools.options <- paste(vcftools.options, "--minQ", filter.minquality)
+}
 
 # statistics options
 if (statistics.freq == "yes"){
