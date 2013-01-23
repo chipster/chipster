@@ -7,10 +7,10 @@
 # EK 21.1.2013
 
 # binary
-cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffmerge"))
+cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffmerge"))
 
 # Set PATH so cuffmerge can find gtf_to_sam
-cufflinkspath <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64"))
+cufflinkspath <- c(file.path(chipster.tools.path, "cufflinks2"))
 setpathc1 <- c("export PATH=$PATH:", cufflinkspath, ";")
 setpathcommand <- paste(setpathc1 , collapse = '')
 

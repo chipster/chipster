@@ -41,7 +41,7 @@
 
 
 # binary
-cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cuffdiff"))
+cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffdiff"))
 
 # options
 cuffdiff.options <- ""

@@ -14,7 +14,7 @@
 # AMS 21.11.2012
 
 # binary
-cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks-2.0.2.Linux_x86_64", "cufflinks"))
+cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
 
 # options
 cufflinks.options <- ""
