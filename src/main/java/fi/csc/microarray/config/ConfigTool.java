@@ -94,7 +94,6 @@ public class ConfigTool {
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
 		UpgradeTool upgradeTool = new UpgradeTool();
-		SetupTool setupTool = new SetupTool(); 
 		
 		if (args.length == 0) {
 			fail();
@@ -108,9 +107,6 @@ public class ConfigTool {
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
 
-		} else if ("setup".equals(args[0])) {
-			setupTool.setup();
-				
 		} else if (args[0].startsWith("upgrade")) {
 			String[] parts = args[0].split("_");
 			int fromMajor = Integer.parseInt(parts[1]);
@@ -127,7 +123,7 @@ public class ConfigTool {
 	}
 	
 	private static void fail() {
-		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, setup, upgrade_<major version number of source>_<major version number of target>");
+		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, upgrade_<major version number of source>_<major version number of target>");
 	}
 	
 	private void genpasswd() throws Exception {
