@@ -19,6 +19,9 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
+import fi.csc.microarray.client.dialog.FeedbackDialog;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
@@ -62,6 +65,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem aboutMenuItem = null;
 	private JMenuItem contentMenuItem;
 	private JMenuItem startedMenuItem;
+	private JMenuItem sendFeedbackMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
 	private JMenuItem helpWorkflowMenuItem;
 	private JMenuItem saveSnapshotMenuItem;
@@ -585,6 +589,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu.setMnemonic('H');
 			helpInfoMenu.add(getStartedMenuItem());
 			helpInfoMenu.add(getContentMenuItem());
+			helpInfoMenu.add(getSendFeedbackMenuItem());
 			helpInfoMenu.add(getAboutMenuItem());
 		}
 		return helpInfoMenu;
@@ -619,6 +624,22 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return startedMenuItem;
 	}
 
+	private JMenuItem getSendFeedbackMenuItem() {
+		if (sendFeedbackMenuItem == null) {
+			sendFeedbackMenuItem = new JMenuItem();
+			sendFeedbackMenuItem.setText("Send Feedback");
+			sendFeedbackMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					FeedbackDialog feedback = new FeedbackDialog(application, "", true);
+                    feedback.showDialog();
+				}
+			});
+		}
+		return sendFeedbackMenuItem;
+	}
+
+	
+	
 	private JMenuItem getAboutMenuItem() {
 		if (aboutMenuItem == null) {
 			aboutMenuItem = new JMenuItem();

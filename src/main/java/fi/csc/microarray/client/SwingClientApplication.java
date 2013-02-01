@@ -3,6 +3,10 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,12 +18,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -30,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
@@ -363,6 +371,7 @@ public class SwingClientApplication extends ClientApplication {
 		// final touches
 		customiseFocusTraversal();
 		restoreDefaultView();
+		enableKeyboardShortcuts();
 		
 		// check for session restore need
 		File mostRecentDeadTempDirectory = checkTempDirectories();
@@ -1705,8 +1714,13 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 	
+	
 	@Override
 	public void loadSession() {
+		loadSession(false);
+	}
+	
+	public void loadSession(boolean lightWeightSession) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
 		final JFileChooser fileChooser = getSessionFileChooser(accessory);
@@ -1738,7 +1752,7 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile(), false);		
+			loadSessionImpl(fileChooser.getSelectedFile(), lightWeightSession);		
 		}
 		menuBar.updateMenuStatus();
 	}
@@ -1892,4 +1906,42 @@ public class SwingClientApplication extends ClientApplication {
 	public Screen getTaskListScreen() {
 		return childScreens.get("TaskList");
 	}
+	
+	private void enableKeyboardShortcuts() {
+		// add application wide keyboard shortcuts
+		final HashMap<KeyStroke, Action> shortcutActionMap = new 
+				HashMap<KeyStroke, Action>();
+		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 
+				KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | 
+				KeyEvent.SHIFT_DOWN_MASK),
+				new AbstractAction("OPEN_LIGHTWEIGHT_SESSION") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadSession(true);
+			}
+		});
+		KeyboardFocusManager kfm = 
+				KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+				if (shortcutActionMap.containsKey(keyStroke) ) {
+					final Action a = shortcutActionMap.get(keyStroke);
+					final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), 
+							null );
+					SwingUtilities.invokeLater( new Runnable() {
+						@Override
+						public void run() {
+							a.actionPerformed(ae);
+						}
+					});
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+	
+	
 }

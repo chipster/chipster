@@ -2,7 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import java.util.Queue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 
 

@@ -202,7 +202,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		jobLogTopic.setListener(this);
 		
 	    // listen for feedback messages
-        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
+        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FEEDBACK_TOPIC, AccessMode.READ);
         feedbackTopic.setListener(this);
 
 		// start h2 web console
@@ -309,6 +309,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		            feedback.getSessionURL() : "[not available]";
 		    String emailBody =
 		        feedback.getDetails() + "\n\n" +
+		        "Username: " + feedback.getUsername() + "\n" +
 		        "Email: " + replyEmail + "\n" +
 		        "Session file: " + sessURL + "\n";		    
 		    for (String[] log : feedback.getLogs()) {

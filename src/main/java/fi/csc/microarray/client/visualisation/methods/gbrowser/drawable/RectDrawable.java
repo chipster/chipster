@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 import java.awt.Color;
 import java.awt.Rectangle;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
 
 /**
  * A rectangle that can be either filled or not.

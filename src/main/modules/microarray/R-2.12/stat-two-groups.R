@@ -11,6 +11,7 @@
 # JTT 4.7.2006
 # OH, 7.11.2011
 # EK, 8.1.2012
+# JT, 28.11.2012, fixed Wilcoxon test, sped up other tests
 
 # Loads the libraries
 library(multtest)
@@ -29,8 +30,8 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
+calls <- dat[,grep("flag", names(dat))]
+dat2  <- as.matrix(dat[,grep("chip", names(dat))])
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
@@ -70,108 +71,161 @@ if(meth=="fast-t-test") {
 		p[i]<-1-pf(f, 1, (ncol(dat2)-1))
 	}
 	p.raw<-p
-	if(adj.method=="none") {
-		p.adjusted<-p.raw
-	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	
+	#following code moved twoards the end
+	#if(adj.method=="none") {
+	#	p.adjusted<-p.raw
+	#}
+	#if(adj.method=="Bonferroni" | adj.method=="BH") {
+	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	#}
+	#dat<-dat[p.adjusted<=p.cut,]   
+	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # T-test
 if(meth=="t-test") {
-	p<-c()
-	len<-length(dat2[,1])
-	for(i in 1:len) {
-		p<-c(p, na.omit((anova(lm(t(dat2)[,i]~groups)))$Pr)[1])
+	#p<-c()
+	#len<-length(dat2[,1])
+	#for(i in 1:len) {
+	#	#p<-c(p, na.omit((anova(lm(t(dat2)[,i]~groups)))$Pr)[1])
+	#}
+	# p <- rep(as.numeric(NA), len)
+	
+	dat2.1 <-dat2[,groups==unique(groups)[1]]
+	dat2.2 <-dat2[,groups==unique(groups)[2]]
+	p      <- rep(as.numeric(NA), nrow(dat2))
+	for(i in 1:nrow(dat2)) {
+		if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+			p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
+		}
 	}
-	p[which(is.na(p))]<-1.0
 	p.raw<-p
 	
-	if(adj.method=="none") {
-		p.adjusted<-p.raw
-	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	# remaining steps: see below
+	#if(adj.method=="none") {
+	#	p.adjusted<-p.raw
+	#}
+	#if(adj.method=="Bonferroni" | adj.method=="BH") {
+	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	#}
+	#dat<-dat[p.adjusted<=p.cut,]   
+	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # F-test
 if(meth=="F-test") {
-	p<-c()
-	len<-nrow(dat2)
-	dat2.1<-dat2[,groups==unique(groups)[1]]
-	dat2.2<-dat2[,groups==unique(groups)[2]]
-	for(i in 1:len) {
-		p<-c(p, var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value)
+	#p<-c()
+	dat2.1 <-dat2[,groups==unique(groups)[1]]
+	dat2.2 <-dat2[,groups==unique(groups)[2]]
+	p 	   <- rep(as.numeric(NA), nrow(dat2))
+	for(i in 1:nrow(dat2)) {
+		#p<-c(p, var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value)
+		p[i] <- var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value
 	}
 	p.raw<-p
-	if(adj.method=="none") {
-		p.adjusted<-p.raw
-	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	
+	## JT: for the remaining steps, see below:
+	#if(adj.method=="none") {
+	#	p.adjusted<-p.raw
+	#}
+	#if(adj.method=="Bonferroni" | adj.method=="BH") {
+	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	#}
+	#dat<-dat[p.adjusted<=p.cut,]   
+	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 
 # Mann-Whitney test
 if(meth=="Mann-Whitney") {
-	dat3<-split(as.data.frame(t(dat2)), groups)
+	#dat3<-split(as.data.frame(t(dat2)), groups)
 	# Split creates a list with two objects
-	g1<-dat3$'1'
-	g2<-dat3$'2'
-	p<-c()
+	#g1<-dat3$'1'
+	#g2<-dat3$'2'
+	#p<-c()
+	#for(i in 1:nrow(dat2)) {
+	#	p<-c(p, wilcox.test(g1[,i], g2[,i], mu=0)$p.value)
+	#}
+	#groups <- factor(groups)
+	dat2.1 <-dat2[,groups==unique(groups)[1]]
+	dat2.2 <-dat2[,groups==unique(groups)[2]]
+	p      <- rep(as.numeric(NA), nrow(dat2))
 	for(i in 1:nrow(dat2)) {
-		p<-c(p, wilcox.test(g1[,i], g2[,i], mu=0)$p.value)
+		p[i] <- wilcox.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
 	}
 	p.raw<-p
-	if(adj.method=="none") {
-		p.adjusted<-p.raw
-	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	#if(adj.method=="none") {
+	#	p.adjusted<-p.raw
+	#}
+	#if(adj.method=="Bonferroni" | adj.method=="BH") {
+	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	#}
+	#dat<-dat[p.adjusted<=p.cut,]   
+	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+}
+
+## these methods have a common p-value adjustment and result generation
+if (meth %in% c("Mann-Whitney", "fast-t-test", "t-test", "F-test")){
+	if(!exists("p.raw")) {	
+		stop("Could not find p.raw object")
+	}	
+	
+	if (adj.method %in% c("Bonferroni", "Holm", "Hochberg")) {
+		p.adjusted <- p.adjust(p.raw, method=tolower(adj.method))
+	} else {
+		p.adjusted <- p.adjust(p.raw, method=adj.method)
 	}
 	dat<-dat[p.adjusted<=p.cut,]   
 	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)),
+			file="two-sample.tsv", sep="\t", row.names=TRUE,
+			col.names=TRUE, quote=FALSE)
 }
+
 
 if(meth=="LPE") {
 	library(LPE)
-	group1<-dat2[,which(groups==1)]
-	group2<-dat2[,which(groups==2)]
+	
+	group1 <-dat2[,groups==unique(groups)[1]]
+	group2 <-dat2[,groups==unique(groups)[2]]	
 	g1.x<-baseOlig.error(group1)
 	g2.x<-baseOlig.error(group2)
 	lp<-data.frame(lpe(group1, group2, g1.x, g2.x, probe.set.name=row.names(dat2)))
-	if(adj.method=="none") {
+	
+	if(adj.method=="none" | adj.method=="Holm") {
 		x.location <- grep("^x", names(lp))
 		y.location <- grep("^y", names(lp))
 		x <- lp[, x.location]
 		y <- lp[, y.location]
 		pnorm.diff <- pnorm(lp$median.diff, mean = 0, sd = lp$pooled.std.dev)
-		fdr <- 2 * apply(cbind(pnorm.diff, 1 - pnorm.diff), 1, min)
-		fdr<-round(fdr, digits=4)
-		dat2<-data.frame(dat, p.adjusted=fdr)
+		
+		p.adjusted <- 2 * apply(cbind(pnorm.diff, 1 - pnorm.diff), 1, min)
+		
+		if(adj.method=="Holm") {
+			#do Holm-Bonferroni correction
+			p.adjusted <- pmin(p.adjusted * seq(1,length(p.adjusted)),1) 	
+		}
 	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		fdr<-fdr.adjust(lp, adjp=adj.method)
-		dat2<-merge(dat,as.data.frame(round(fdr, digits=4)), by.x="row.names", by.y="row.names")
-		dat2<-dat2[,-ncol(dat2)] # Removes the last columns that holds Z-test values
-		names(dat2)[which(names(dat2)=="FDR")]<-"p.adjusted" # Renames "FDR" with "p.adjusted"
+	if(adj.method=="Hochberg") {
+		stop("LPE function does not support Hochberg's correction. Please rerun the function again after choosing another p.value.adjustment.method")
+	}
+	if(adj.method=="Bonferroni" | adj.method=="BH" | adj.method=="BY") {
+		p.adjusted <- fdr.adjust(lp, adjp=adj.method)
+		p.adjusted <- p.adjusted[order(match(rownames(p.adjusted),rownames(lp))),]
+		p.adjusted <- data.frame(p.adjusted)$FDR;
+		
+		#dat2<-merge(dat,as.data.frame(round(fdr, digits=4)), by.x="row.names", by.y="row.names")
+		#dat2<-dat2[,-ncol(dat2)] # Removes the last columns that holds Z-test values
+		#names(dat2)[which(names(dat2)=="FDR")]<-"p.adjusted" # Renames "FDR" with "p.adjusted"
 	}
 	dat<-dat[p.adjusted<=p.cut,]   
 	p.adjusted<-p.adjusted[p.adjusted<=p.cut]

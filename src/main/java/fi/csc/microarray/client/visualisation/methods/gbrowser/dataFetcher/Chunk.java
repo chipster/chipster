@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
 
 /**
  * Chunk is a part of file containing only full lines. The default length of the chunk can be 
