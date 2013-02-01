@@ -47,7 +47,8 @@
                				<authorizationEntry admin="all" read="filebrokers" topic="authorised-filebroker-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="filebroker-topic" write="clients"/>
                				<authorizationEntry admin="all" read="managers" topic="job-log-topic" write="analysers,authenticators"/>
-               				<authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
+               				<authorizationEntry admin="all" read="authenticators" topic="feedback-topic" write="clients"/>
+               				<authorizationEntry admin="all" read="managers" topic="authorised-feedback-topic" write="authenticators"/>
                				<authorizationEntry admin="all" read="all" topic="admin-topic" write="all"/>
                				<authorizationEntry admin="all" read="all" topic="test-topic" write="all"/>
              			</authorizationEntries>
