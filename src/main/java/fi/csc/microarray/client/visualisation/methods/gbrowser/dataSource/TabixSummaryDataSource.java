@@ -6,7 +6,7 @@ import java.net.URL;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TabixFile;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
  * Data source for Tabix files.

@@ -26,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.Sequence;
 
 /**
  * The read track, most important of all tracks. Shows actual content of reads using color coding.

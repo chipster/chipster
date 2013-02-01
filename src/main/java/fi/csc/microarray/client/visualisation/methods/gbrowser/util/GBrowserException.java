@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.tools;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.util;
 
 public class GBrowserException extends Exception {
 

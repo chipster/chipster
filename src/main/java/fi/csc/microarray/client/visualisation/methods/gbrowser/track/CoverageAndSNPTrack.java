@@ -22,9 +22,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Base;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.BaseStorage.Nucleotide;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Nucleotide;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating

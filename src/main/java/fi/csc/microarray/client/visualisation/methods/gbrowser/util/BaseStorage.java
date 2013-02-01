@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.tools;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.util;
 
 import java.util.Collection;
 import java.util.Iterator;

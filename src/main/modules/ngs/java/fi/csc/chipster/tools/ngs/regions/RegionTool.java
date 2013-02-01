@@ -7,7 +7,7 @@ import java.util.List;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
