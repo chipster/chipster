@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -31,7 +31,7 @@ public class WIGTrack extends Track{
 	private Collection<RegionContent> values = new TreeSet<RegionContent>();
 	private Color color;
 
-	public WIGTrack(View view, DataSource file,	Color color, long minBpLength, long maxBpLength) {
+	public WIGTrack(GBrowserView view, DataSource file,	Color color, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
@@ -91,12 +91,6 @@ public class WIGTrack extends Track{
 	public boolean isConcised() {
 		return false;
 	}
-
-	@Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
 	
 	@Override
 	public boolean isVisible(){
@@ -106,12 +100,8 @@ public class WIGTrack extends Track{
 	}
 	
 	@Override
-    public Integer getHeight() {
-        if (isVisible()) {
-            return 51;
-        } else {
-            return 0;
-        }
+    public int getHeight() {
+        return 51;
     }
 
 	@Override

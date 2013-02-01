@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -29,7 +29,7 @@ public class RepeatMaskerTrack extends Track{
 
 	private Collection<RegionContent> regions = new TreeSet<RegionContent>();
 
-	public RepeatMaskerTrack(View view, TabixDataSource file, long minBpLength, long maxBpLength){
+	public RepeatMaskerTrack(GBrowserView view, TabixDataSource file, long minBpLength, long maxBpLength){
 
 		super(view, file);
 		this.color = Color.lightGray;
@@ -88,18 +88,8 @@ public class RepeatMaskerTrack extends Track{
 	}
 
 	@Override
-	public boolean isStretchable() {
-
-		return false;
-	}
-
-	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			return 5;
-		} else {
-			return 0;
-		}
+	public int getHeight() {
+		return 5;
 	}
 
 	@Override
