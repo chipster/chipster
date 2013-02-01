@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 /**
@@ -18,30 +18,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  */
 public class EmptyTrack extends Track {
 
-	public EmptyTrack(View view, int height) {
+	public EmptyTrack(GBrowserView view, int height) {
 		super(view, null);
-		this.height = height;
+		this.layoutHeight = height;
 	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		drawables.add(new RectDrawable(0, 0, getView().getWidth(), height, Color.WHITE, Color.WHITE));
+		drawables.add(new RectDrawable(0, 0, getView().getWidth(), layoutHeight, Color.WHITE, Color.WHITE));
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
 		// ignored
-	}
-	
-    @Override
-    public Integer getHeight() {
-        return height;
-    }
-
-	@Override
-	public boolean isStretchable () {
-		return false;
 	}
 
     @Override
