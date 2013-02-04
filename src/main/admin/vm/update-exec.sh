@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.3.2
+LATEST_VERSION=2.4.0
 
 # Exit immediately if some command fails
 set -e
@@ -365,7 +365,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.4.0 not released yet
+# 2.4.0
 compare_to_current "2.4.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
