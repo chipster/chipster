@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -42,7 +42,7 @@ public class CoverageTrack extends Track {
 	private ReadpartDataProvider readpartProvider;
 
 
-	public CoverageTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
+	public CoverageTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
 	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.forwardColor = forwardColor;
@@ -172,21 +172,8 @@ public class CoverageTrack extends Track {
 	}
 
     @Override
-    public Integer getHeight() {
-        if (isVisible()) {
-            // return super.getHeight();
-        	return 100;
-        } else {
-            return 0;
-        }
-    }
-    
-    @Override
-    public boolean isStretchable() {
-    	
-    	return false;
-        // stretchable unless hidden
-        // return isVisible();
+    public int getHeight() {
+       	return 100;
     }
     
     @Override
@@ -214,7 +201,7 @@ public class CoverageTrack extends Track {
 	}
 	
 	/**
-	 * @see View#drawView
+	 * @see GBrowserView#drawView
 	 */
 	@Override
     public boolean canExpandDrawables() {
