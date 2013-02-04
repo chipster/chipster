@@ -35,6 +35,7 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -620,6 +621,48 @@ public class DataManager {
 		sessionSaver.saveLightweightSession();
 	}
 
+	
+	/**
+	 * The same as saveLightweightSession(), but before saving the session, makes sure
+	 * that all data bean contents have been uploaded to cache. Uploads in necessary.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveFeedbackSession(File sessionFile) throws Exception {
+	
+		// upload beans to cache if necessary
+		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+		for (DataBean bean : this.databeans()) {
+			try {
+				bean.getLock().readLock().lock();
+
+				// bean modified, upload
+				if (bean.isContentChanged()) {
+					bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null)); 
+					bean.setContentChanged(false);
+				} 
+
+				// bean not modified, check cache, upload if needed
+				else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
+					bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null));
+				}
+
+			} finally {
+				bean.getLock().readLock().unlock();
+			}
+		
+		}
+
+		// save lightweight session
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		sessionSaver.saveLightweightSession();
+	}
+
+	
+	
+	
+	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
 	 * 
