@@ -408,16 +408,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/contents2.txt
 
   echo "** Updating activemq.xml"
-
-
-                      #                      <authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
-
-
-                      #                      <authorizationEntry admin="all" read="authenticators" topic="feedback-topic" write="clients"/>
-                      #                      <authorizationEntry admin="all" read="managers" topic="authorised-feedback-topic" write="authenticators"/>
-
-
-
+  sed -i'~' "s:<authorizationEntry topic=\"feedback-topic\" write=\"clients\" read=\"managers\" admin=\"all\" />:<authorizationEntry admin=\"all\" read=\"authenticators\" topic=\"feedback-topic\" write=\"clients\"/>\n\t\t\t\t\t<authorizationEntry admin=\"all\" read=\"managers\" topic=\"authorised-feedback-topic\" write=\"authenticators\"/>:" ${CHIP_PATH}/activemq/conf/activemq.xml
 
 fi
 
