@@ -70,7 +70,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         // Text are for entering details
         c.insets.set(10,10,5,10);
         c.gridy++;
-        this.add(new JLabel("Feedback"), c);
+        this.add(new JLabel("Message"), c);
         detailArea = new JTextArea();
         detailArea.setPreferredSize(new Dimension(300, 150));
         c.insets.set(0, 10, 10, 10);  
@@ -80,7 +80,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         // Email
         c.insets.set(10,10,5,10);
         c.gridy++;
-        this.add(new JLabel("Your email (optional)"), c);
+        this.add(new JLabel("Your email"), c);
         emailField = new JTextField();
         emailField.setPreferredSize(new Dimension(300, 20));
         c.insets.set(0, 10, 10, 10);  
