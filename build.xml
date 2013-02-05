@@ -185,6 +185,7 @@
 				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
+				<path refid="ivy.path" />
 			</classpath>
 		</javac>
 

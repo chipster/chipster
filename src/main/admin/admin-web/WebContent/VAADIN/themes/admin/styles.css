@@ -1,4 +1,4 @@
-@import url(../runo/styles.css);
+@import url(../runo/legacy-styles.css);
 
 .toolbar .v-button,.navigation .v-button {
 	background: transparent;

@@ -24,10 +24,6 @@ public class HibernateUtil {
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
 
-
-	
-
-
     static {
     	
     	

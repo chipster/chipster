@@ -39,7 +39,7 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		
 		Session session = null;
 		try {
-			session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session = HibernateUtil.getSessionFactory().openSession();
 		} catch (GenericJDBCException e) {
 			//FIXME Show exception message and hide or disable all database based content
 			e.printStackTrace();
@@ -58,10 +58,10 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		topUsersTable.setVisibleColumns(dataSource.getTopUsersColumnOrder());
 		toolFailsTable.setVisibleColumns(dataSource.getToolFailsColumnOrder());
 		
-		latestJobsPanel.addComponent(latestJobsTable);
-		jobCountsPanel.addComponent(jobCountsTable);
-		topUsersPanel.addComponent(topUsersTable);
-		toolFailsPanel.addComponent(toolFailsTable);
+		latestJobsPanel.setContent(latestJobsTable);
+		jobCountsPanel.setContent(jobCountsTable);
+		topUsersPanel.setContent(topUsersTable);
+		toolFailsPanel.setContent(toolFailsTable);
 		
 		latestJobsPanel.setHeight(100, Unit.PERCENTAGE);
 		jobCountsPanel.setHeight(100, Unit.PERCENTAGE);
