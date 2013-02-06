@@ -9,7 +9,8 @@
 	</context-param>
 	<servlet>
 		<servlet-name>Chipster admin</servlet-name>
-		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+		<!--   <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>-->
+		<servlet-class>fi.csc.microarray.manager.web.ChipsterVaadinServlet</servlet-class>
 		<init-param>
 			<description>
 			Vaadin UI class to use</description>
