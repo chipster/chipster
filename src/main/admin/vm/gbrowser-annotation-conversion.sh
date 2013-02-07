@@ -452,7 +452,7 @@ download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extra
 contents_append_url "Ensembl" ""
 contents_append_url "UCSC" ""
 
-SPECIES="Human mitochondrion"
+SPECIES="Human mitoch."
 VERSION="(NC_012920)"
 
 process_gtf "http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/setup/Human-MT.NC_012920.1.gtf.gz"
