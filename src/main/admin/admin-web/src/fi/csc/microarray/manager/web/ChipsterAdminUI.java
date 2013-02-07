@@ -1,7 +1,7 @@
 package fi.csc.microarray.manager.web;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.server.WrappedRequest;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -164,7 +164,8 @@ public class ChipsterAdminUI extends UI {
 	}
 
 	@Override
-	protected void init(WrappedRequest request) {
+	protected void init(VaadinRequest request) {
+		
 		buildMainLayout();
 	}
 }
