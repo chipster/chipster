@@ -57,7 +57,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         super(application.getMainFrame(), true);
 
         this.application = application;
-        this.setTitle("Send feedback");
+        this.setTitle("Contact support");
         this.errorMessage = errorMessage;
         
         // Layout
