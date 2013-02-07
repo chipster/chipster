@@ -16,7 +16,8 @@
 # PARAMETER OPTIONAL max.intron.length: "Maximum intron length" TYPE INTEGER FROM 1000 TO 1000000 DEFAULT 500000 (TopHat will ignore donor-acceptor pairs farther than this many bases apart, except when such a pair is supported by a split segment alignment of a long read.)
 # PARAMETER OPTIONAL min.isoform.fraction: "Minimum isoform fraction" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.15 (TopHat filters out junctions supported by too few alignments. Suppose a junction spanning two exons is supported by S reads. Let the average depth of coverage of exon A be D, and assume that it is higher than B. If S divided by D is less than the minimum isoform fraction, the junction is not reported. A value of zero disables the filter.)
 # PARAMETER OPTIONAL max.multihits: "How many hits is a read allowed to have" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 20 (Instructs TopHat to allow up to this many alignments to the reference for a given read, and suppresses all alignments for reads with more than this many alignments.)
-# PARAMETER OPTIONAL no.novel.juncs: "When GTF file is supplied, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If you supply an optional GTF file, TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. This parameter controls if TopHat should look for reads accross the known junctions only.)
+# PARAMETER OPTIONAL use.gtf: "Use annotation GTF" TYPE [yes, no] DEFAULT yes (If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final tophat output. If no GTF file is provided by user, internal annotation file wil be used if available. Internal annotation is provided for human, mouse and rat.)
+# PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If annotation GTF is used, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final TopHat output. If no GTF file is provided by the user, internal annotation file will be used if available. Internal annotation is provided for human, mouse and rat.)
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
@@ -24,6 +25,7 @@
 # AMS 27.6.2012 Added parameter mate.std.dev, allow negative values for mate.inner.distance
 # EK 19.9.2012 added mm10 and new GTFs (Ensembl 68)
 # AMS 4.10.2012 added BED sorting
+# AMS 4.2.2013 added option to use no GTF
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -90,7 +92,11 @@ if (!is_gtf && genome_available) {
 command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq'")
 
 # run tophat
-command <- paste(command.start, command.parameters, command.gtf, command.end)
+if (use.gtf == "yes"){ 
+	command <- paste(command.start, command.parameters, command.gtf, command.end)
+}else{
+	command <- paste(command.start, command.parameters, command.end)
+}
 system(command)
 
 # samtools binary
