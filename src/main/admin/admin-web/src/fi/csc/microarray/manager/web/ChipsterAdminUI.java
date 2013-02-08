@@ -67,7 +67,7 @@ public class ChipsterAdminUI extends UI {
 	private StatView getStatView() {
 		if (statView == null) {
 
-			statView = new StatView();
+			statView = new StatView(this);
 		}
 		return statView;
 	}

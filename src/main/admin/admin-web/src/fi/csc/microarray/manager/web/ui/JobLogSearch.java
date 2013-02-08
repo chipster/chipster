@@ -47,10 +47,7 @@ public class JobLogSearch extends HorizontalLayout {
 			}
 		});
 
-
-		searchStringField.addStyleName("search-filter-component");
 		columnToSearch = new NativeSelect();
-		columnToSearch.addStyleName("search-filter-component");
 
 		Button clearButton = new Button();
 		clearButton.setIcon(new ThemeResource("crystal/button_cancel-bw.png"));
@@ -80,7 +77,8 @@ public class JobLogSearch extends HorizontalLayout {
 		addComponent(searchStringField);
 		addComponent(clearButton);
 
-		setStyleName("search-filter");
+		addStyleName("search-filter-bg");
+		addStyleName("search-filter");
 	}
 
 	@Override

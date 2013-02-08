@@ -88,14 +88,13 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			addSearchButton.addStyleName("search-button");
 			
 			HorizontalLayout buttonBorder = new HorizontalLayout();
-			buttonBorder.addStyleName("search-filter");
+			buttonBorder.addStyleName("search-filter-bg");
 			buttonBorder.addComponent(addSearchButton);
 			toolbarLayout.addComponent(buttonBorder);
 			
 			Button searchButton = new Button();
 			searchButton.setIcon(new ThemeResource("crystal/mail_find.png"));
 			searchButton.setDescription("Search");
-			//searchButton.addStyleName("search-button");
 			toolbarLayout.addComponent(searchButton);
 			
 			searchButton.addClickListener(new Button.ClickListener() {

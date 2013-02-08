@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fi.csc.microarray.manager.web.ChipsterConfiguration;
+import fi.csc.microarray.manager.web.data.AccountEntry;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.util.Exceptions;
 
@@ -76,6 +77,7 @@ public class HibernateUtil {
     		hibernateConf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 
     		hibernateConf.addAnnotatedClass(JobLogEntry.class);
+    		hibernateConf.addAnnotatedClass(AccountEntry.class);
 			
 			final ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
 
@@ -97,8 +99,9 @@ public class HibernateUtil {
     }
     
 //    public static void insertExampleData(int count) {
-//        Session sess = getSessionFactory().getCurrentSession();
-//        //sess.beginTransaction();
+//        //Session sess = getSessionFactory().getCurrentSession();
+//        Session sess = getSessionFactory().openSession();
+//        Transaction tran = sess.beginTransaction();        
 //
 //    	String[] states = new String[] { "COMPLETED", "FAILED" };
 //    	Date startTime;
@@ -139,5 +142,6 @@ public class HibernateUtil {
 //
 //            sess.save(job);
 //        }
+//        tran.commit();
 //    }
 }

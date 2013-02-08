@@ -8,22 +8,27 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.hibernate.exception.GenericJDBCException;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
+import fi.csc.microarray.manager.web.ChipsterAdminUI;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.manager.web.data.StatDataSource;
 import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 
 
-public class StatView extends HorizontalLayout implements ClickListener {
-
-	private Button testButton;
+public class StatView extends VerticalLayout implements ClickListener {
 
 	private Panel latestJobsPanel = new Panel("Latest jobs");
 	private Panel jobCountsPanel = new Panel("Job counts monthly");
@@ -34,25 +39,67 @@ public class StatView extends HorizontalLayout implements ClickListener {
 	private Table topUsersTable;
 	private Table toolFailsTable;
 
+	private HorizontalLayout toolbarLayout;
+	private HorizontalLayout statLayout = new HorizontalLayout();
 
-	public StatView() {
+	private ChipsterAdminUI app;
+
+	private Button refreshButton;
+
+	private CheckBox ignoreTestAccounts;
+
+	private Session session;
+	private StatDataSource dataSource;
+
+	public StatView(ChipsterAdminUI app) {
 		
-		Session session = null;
-		try {
-			session = HibernateUtil.getSessionFactory().openSession();
-		} catch (GenericJDBCException e) {
-			//FIXME Show exception message and hide or disable all database based content
-			e.printStackTrace();
-			return;
+		this.app = app;
+					
+		this.addComponent(getToolbar());		
+		
+		updateData(ignoreTestAccounts.getValue());
+		
+		latestJobsPanel.setHeight(100, Unit.PERCENTAGE);
+		jobCountsPanel.setHeight(100, Unit.PERCENTAGE);
+		topUsersPanel.setHeight(100, Unit.PERCENTAGE);
+		toolFailsPanel.setHeight(100, Unit.PERCENTAGE);
+		
+		statLayout.addComponent(latestJobsPanel);
+		statLayout.addComponent(jobCountsPanel);
+		statLayout.addComponent(topUsersPanel);
+		statLayout.addComponent(toolFailsPanel);
+		
+		this.addComponent(statLayout);
+		
+		this.setExpandRatio(statLayout, 1);
+		
+		this.setSizeFull();
+	}
+	
+	private Session getHibernateSession() {
+		if (session == null) {
+			try {
+				session = HibernateUtil.getSessionFactory().openSession();
+			} catch (GenericJDBCException e) {
+				//FIXME Show exception message and hide or disable all database based content
+				e.printStackTrace();			
+			}
 		}
+		return session;
+	}
 
-		StatDataSource dataSource = new StatDataSource();
-
+	private void updateData(boolean ignoreTestAccounts) {
+		
+		Session session = getHibernateSession();
+		
+		if (dataSource == null) {
+			dataSource = new StatDataSource();
+		}
 		
 		latestJobsTable = JobLogEntryToTable(dataSource.getLatestJobs(session));
-		jobCountsTable = mapListToTable(dataSource.getJobsByMonth(session));
-		topUsersTable = mapListToTable(dataSource.getTopUsers(session));
-		toolFailsTable = mapListToTable(dataSource.getToolFails(session));
+		jobCountsTable = mapListToTable(dataSource.getJobsByMonth(session, ignoreTestAccounts));
+		topUsersTable = mapListToTable(dataSource.getTopUsers(session, ignoreTestAccounts));
+		toolFailsTable = mapListToTable(dataSource.getToolFails(session, ignoreTestAccounts));
 		
 		jobCountsTable.setVisibleColumns(dataSource.getJobsByMonthColumnOrder());
 		topUsersTable.setVisibleColumns(dataSource.getTopUsersColumnOrder());
@@ -62,19 +109,43 @@ public class StatView extends HorizontalLayout implements ClickListener {
 		jobCountsPanel.setContent(jobCountsTable);
 		topUsersPanel.setContent(topUsersTable);
 		toolFailsPanel.setContent(toolFailsTable);
-		
-		latestJobsPanel.setHeight(100, Unit.PERCENTAGE);
-		jobCountsPanel.setHeight(100, Unit.PERCENTAGE);
-		topUsersPanel.setHeight(100, Unit.PERCENTAGE);
-		toolFailsPanel.setHeight(100, Unit.PERCENTAGE);
+	}
+	
+	public HorizontalLayout getToolbar() {
 
-		
-		this.addComponent(latestJobsPanel);
-		this.addComponent(jobCountsPanel);
-		this.addComponent(topUsersPanel);
-		this.addComponent(toolFailsPanel);
-		
-		this.setSizeFull();
+		if (toolbarLayout == null) {
+			
+			toolbarLayout = new HorizontalLayout();
+			
+			refreshButton = new Button("Refresh");
+			refreshButton.addClickListener((ClickListener)this);
+			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
+			refreshButton.setEnabled(true);
+			toolbarLayout.addComponent(refreshButton);
+								
+			ignoreTestAccounts = new CheckBox("Ignore test accounts", true);
+			ignoreTestAccounts.addStyleName("toolbar-component");
+			toolbarLayout.addComponent(ignoreTestAccounts);
+						
+			ignoreTestAccounts.addValueChangeListener(new ValueChangeListener() {
+
+				@Override
+				public void valueChange(ValueChangeEvent arg0) {
+					updateData(ignoreTestAccounts.getValue());
+				}
+			});
+			
+			Label spaceEater = new Label(" ");
+			toolbarLayout.addComponent(spaceEater);
+			toolbarLayout.setExpandRatio(spaceEater, 1);
+
+			toolbarLayout.addComponent(app.getTitle());	
+			
+			toolbarLayout.setWidth("100%");
+			toolbarLayout.setStyleName("toolbar");
+		}
+
+		return toolbarLayout;
 	}
 	
 	private Table JobLogEntryToTable(List<JobLogEntry> list) {
@@ -142,8 +213,8 @@ public class StatView extends HorizontalLayout implements ClickListener {
 	}
 
 	public void buttonClick(ClickEvent event) {
-		if (event.getButton() == testButton) {
-
+		if (event.getButton() == refreshButton) {			
+			updateData(ignoreTestAccounts.getValue());
 		}
 	}
 }
