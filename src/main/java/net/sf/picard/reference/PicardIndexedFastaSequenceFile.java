@@ -26,6 +26,10 @@ package net.sf.picard.reference;
 
 import net.sf.picard.PicardException;
 import net.sf.picard.io.IoUtil;
+import net.sf.picard.reference.AbstractFastaSequenceFile;
+import net.sf.picard.reference.FastaSequenceIndex;
+import net.sf.picard.reference.FastaSequenceIndexEntry;
+import net.sf.picard.reference.ReferenceSequence;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
 

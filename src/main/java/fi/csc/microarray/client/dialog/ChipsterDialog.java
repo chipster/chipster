@@ -142,7 +142,7 @@ public class ChipsterDialog extends JDialog {
 		
         g.gridx++;
 		if (dialogInfo.getFeedbackVisible()) {
-		    JButton feedbackButton = new JButton("Send feedback");
+		    JButton feedbackButton = new JButton("Contact Support...");
 		    final String errorMessage = dialogInfo.getDetails();
 		    feedbackButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

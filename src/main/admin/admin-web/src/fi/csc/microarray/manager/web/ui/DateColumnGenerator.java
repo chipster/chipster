@@ -1,8 +1,8 @@
 package fi.csc.microarray.manager.web.ui;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.ibm.icu.text.SimpleDateFormat;
 import com.vaadin.data.Property;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;

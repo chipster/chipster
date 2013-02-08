@@ -1,6 +1,10 @@
 package fi.csc.microarray.manager.web.data;
 
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.context.internal.ThreadLocalSessionContext;
+
 import com.vaadin.data.hbnutil.HbnContainer;
 
 import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
@@ -33,5 +37,19 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	public JobLogContainer(JobLogView view) {
 
 		super(JobLogEntry.class, HibernateUtil.getSessionFactory());
+	}
+	
+	/* (non-Javadoc)
+	 * Fix for incompatibility or bug of hbncontainer and hibernate
+	 * 
+	 * @see com.vaadin.data.hbnutil.HbnContainer#getBaseCriteria()
+	 */
+	@Override
+	protected Criteria getBaseCriteria()
+	{
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		ThreadLocalSessionContext.bind(session);
+		
+		return super.getBaseCriteria();
 	}
 }

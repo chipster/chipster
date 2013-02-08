@@ -206,12 +206,12 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		textComponent.setContentMode(ContentMode.PREFORMATTED);
 		
 		Window subWindow = new Window(caption);
-		subWindow.addComponent(textComponent);
+		subWindow.setContent(textComponent);
 		
-		subWindow.setWidth(70, Unit.PIXELS);
-		subWindow.setHeight(90, Unit.PIXELS);
+		subWindow.setWidth(70, Unit.PERCENTAGE);
+		subWindow.setHeight(90, Unit.PERCENTAGE);
 		subWindow.center();
 		
-		this.addComponent(subWindow);
+		this.getUI().addWindow(subWindow);
 	}
 }

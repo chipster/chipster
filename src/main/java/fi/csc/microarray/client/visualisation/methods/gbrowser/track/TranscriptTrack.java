@@ -16,21 +16,22 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Exon;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Transcript;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcript;
 
 /**
  * Track for showing transcripts. Lower zoom level version of {@link GeneTrack}.
@@ -43,7 +44,7 @@ public class TranscriptTrack extends Track {
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	public enum PartColor {
-		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE);
+		CDS(GBrowserConstants.COLOR_BLUE), UTR(GBrowserConstants.COLOR_ORANGE);
 
 		public Color c;
 
@@ -52,10 +53,11 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file, long maxBpLength) {
+	public TranscriptTrack(GBrowserView view, DataSource file, long maxBpLength) {
 
 		super(view, file);
 		this.maxBpLength = maxBpLength;
+		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
 	@Override
@@ -110,9 +112,9 @@ public class TranscriptTrack extends Track {
 				int end = rect.x + rect.width;
 
 				if (occupiedSpace.size() > i) {
-					occupiedSpace.set(i, end);
+					occupiedSpace.set(i, end + 1);
 				} else {
-					occupiedSpace.add(end);
+					occupiedSpace.add(end + 1);
 				}
 
 				rect.y = (int) (((i + 1) * (14)));
@@ -226,20 +228,6 @@ public class TranscriptTrack extends Track {
 
 	private long maxBpLength;
 
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
-	public boolean isStretchable() {
-		// stretchable unless hidden
-		return isVisible();
-	}
-
 	@Override
 	public boolean isVisible() {
 		// hide if visible region is too large
@@ -259,5 +247,10 @@ public class TranscriptTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
+	}
+	
+	@Override
+	public int getMinHeight() {
+		return 100;
 	}
 }

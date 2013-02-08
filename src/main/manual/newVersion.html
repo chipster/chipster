@@ -2,13 +2,50 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
-<h2>Version update 13.11.2012: What is new in Chipster 2.3.0</h2>
+<h2>Version update 4.2.2013: What is new in Chipster 2.4</h2>
 
-<br>Chipster 2.3.0 contains changes to the user interface and analysis functionality. NGS alignment tool Bowtie2 has been added, and changes have been made to existing alignment tools. Sheep genome oar3.1 has been added to alignment tools and genome browser. Support for some Agilent and Illumina microarrays has been added.
+<br>Chipster 2.4 contains changes to the user interface and analysis functionality. New genomes have been added to several analysis tools and to the genome browser.
+
+<ol>
+<li><b>Changes to the user interface</b></li>
+<ul><li><u>Contact support option</u> has been added to the Help menu. This provides an easy way for the users on CSC's Chipster server to send their analysis sessions for problem solving.</li>
+</ul>
+<li><b>Genome browser improvements</b></li>
+<ul>
+<li>Annotations and user data have been divided into separate panels and a scrollbar has been added.</li>
+<li>Chicken, cow and human mitochondrial genome have been added.</li>
+<li>Ability to navigate with variant annotation files (all-variants.tsv and coding-variants.tsv) has been added. If you detach the file and click on the value in the START-column, genome browser moves to that location.</li>
+</ul>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="cufflinks2.html">RNA-seq / Assemble reads into transcripts using Cufflinks</a>.</li>
+<li><a href="cuffmerge2.html">RNA-seq / Merge transcript assemblies using Cuffmerge</a>.</li>
+<li><a href="cuffdiff2.html">RNA-seq / Differential expression using Cuffdiff</a>.</li><br>
+These tools are based on Cufflinks 2.0.2. The previous Cufflinks tool has been renamed "Differential expression using Cufflinks v1.0.3".
+</ul>
+<li><b>Updates and bug fixes to NGS analysis tools</b></li>
+<ul>
+<li><u>Variants / Call SNPs and short INDELs</u>. Reference genomes for pig, chicken and cow have been added.</li>
+<li><u>Variants / Filter and analyze variants</u>. Minimum quality filter has been added.</li>
+<li><u>Alignment / BWA and Bowtie2 tools</u>: Reference genomes for Arabidopsis lyrata and pig have been added.
+<li><u>Alignment / TopHat tools</u>: Parameter "Use annotation GTF" has been added.
+<li><u>Alignment / BWA for paired end reads</u>. A bug in unzipping FASTQ files has been fixed.</li>
+<li><u>Alignment / BWA-SW for single end reads</u>. This analysis tool has been removed due to a bug in BWA itself.</li>
+</ul>
+<li><b>Updates to microarray analysis tools</b></li>
+<ul>
+<li><u>Normalization / Agilent miRNA</u>: This analysis tool has been reintroduced.
+</ul>
+</ol>
+<hr>
+
+<h2>Version update 13.11.2012: What is new in Chipster 2.3</h2>
+
+<br>Chipster 2.3 contains changes to the user interface and analysis functionality. NGS alignment tool Bowtie2 has been added, and changes have been made to existing alignment tools. Sheep genome oar3.1 has been added to alignment tools and genome browser. Support for some Agilent and Illumina microarrays has been added.
  
 
 <ol>
-<li><b>Change to the user interface</b></li>
+<li><b>Changes to the user interface</b></li>
 <ul><li><u>Naming of datasets in the workflow panel</u>. The "boxes" indicating files are now named with the extension of the file name. 
 As before, the box is colored according to the tool category that produced that file, and the full filename is displayed in the datasets panel.
 We hope that this change makes selecting files easier in NGS result sets, which typically contain several file types. Please let us know what you think.</li>
@@ -57,7 +94,7 @@ The full list of NGS analysis tools is available <a href="tools-ngs.html">here</
 </ul>
 <li><b>Updated NGS analysis tools</b></li>
 <ul>
-<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but this will be updated to 2.0.2 in November.</li>
+<li><u>RNA-seq / Differential expression with Cufflinks</u>. Added mouse genome mm10, updated GTFs to Ensembl 68. Note that Cufflinks version is still 1.0.3, but we are working on updating it to 2.0.2.</li>
 <li><u>RNA-seq / Map aligned reads to genes using HTSeq</u>. Added mouse genome mm10, updated GTFs to Ensembl 68.</li>
 <li><u>Alignment / TopHat for paired end reads and single end reads</u>. Updated GTFs to Ensembl 68.</li>
 </ul>

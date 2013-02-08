@@ -20,12 +20,14 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication.SessionSavingMethod;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
+import fi.csc.microarray.client.dialog.FeedbackDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
@@ -65,6 +67,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem aboutMenuItem = null;
 	private JMenuItem contentMenuItem;
 	private JMenuItem startedMenuItem;
+	private JMenuItem sendFeedbackMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
 	private JMenuItem helpWorkflowMenuItem;
 	private JMenuItem archiveSessionMenuItem;
@@ -648,6 +651,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu.setMnemonic('H');
 			helpInfoMenu.add(getStartedMenuItem());
 			helpInfoMenu.add(getContentMenuItem());
+			if (DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-contact-support")) {
+				// disabled for server side sessions
+				// helpInfoMenu.add(getSendFeedbackMenuItem());
+			}
+
 			helpInfoMenu.add(getAboutMenuItem());
 		}
 		return helpInfoMenu;
@@ -682,6 +690,21 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return startedMenuItem;
 	}
 
+	private JMenuItem getSendFeedbackMenuItem() {
+		if (sendFeedbackMenuItem == null) {
+			sendFeedbackMenuItem = new JMenuItem();
+			sendFeedbackMenuItem.setText("Contact Support...");
+			sendFeedbackMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					FeedbackDialog feedback = new FeedbackDialog(application, "", false);
+                    feedback.showDialog();
+				}
+			});
+		}
+		return sendFeedbackMenuItem;
+	}
+	
+	
 	private JMenuItem getAboutMenuItem() {
 		if (aboutMenuItem == null) {
 			aboutMenuItem = new JMenuItem();

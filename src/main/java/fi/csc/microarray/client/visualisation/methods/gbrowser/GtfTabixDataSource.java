@@ -8,6 +8,7 @@ import java.net.URL;
 import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 
 /**
  * 

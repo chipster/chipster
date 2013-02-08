@@ -12,15 +12,15 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytoband;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -56,7 +56,7 @@ public class CytobandTrack extends Track {
 		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
 	}
 
-	public CytobandTrack(View view, CytobandDataSource data, boolean showText) {
+	public CytobandTrack(GBrowserView view, CytobandDataSource data, boolean showText) {
 		super(view, data); 
 
 		this.showText = showText;
@@ -190,14 +190,9 @@ public class CytobandTrack extends Track {
 	}
 
 	@Override
-	public Integer getHeight() {
-		return showText ? 40 : 20;
+	public int getHeight() {
+		return showText ? 40 : 25;
 	}
-	
-    @Override
-    public boolean isStretchable() {
-        return false;
-    }
 
     @Override
     public Map<DataSource, Set<ColumnType>> requestedData() {

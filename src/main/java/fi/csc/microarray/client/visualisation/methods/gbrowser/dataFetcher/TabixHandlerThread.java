@@ -5,10 +5,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 
 
 public abstract class TabixHandlerThread extends AreaRequestHandler {

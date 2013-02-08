@@ -9,11 +9,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.broad.tribble.readers.TabixReader;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -127,7 +131,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 	}
 
 	private void parseGtfLine(String line, GeneSet genes) {
-
+		
 		String[] cols;
 
 		String[] ids;
@@ -148,14 +152,51 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 		String exonIndex = ids[2];
 		String geneName = ids[3];
 		String transcName = ids[4];
+		
+		if ("exon".equals(feature) || "CDS".equals(feature)) {
 
-		Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
-				new Chromosome(chr), getStrand(strand));
+			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
+					new Chromosome(chr), getStrand(strand));
 
-		Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
+			Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
 
-		genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
+			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
+			
+		} else 	if (feature.startsWith("GenBank")) {
 
+			Region region = new Region(Long.parseLong(exonStart), Long.parseLong(exonEnd), 
+					new Chromosome(chr), getStrand(strand));
+			
+			if (geneId == null || transcId == null) {
+				return;
+			}
+			
+			if ("GenBank gene".equals(feature)) {
+				feature = "exon";
+			} else if ("GenBank CDS".equals(feature)) {
+				feature = "CDS";
+			} else {
+				geneId = feature + geneId;
+				transcId = feature + transcId;
+				
+				if (geneName != null) {
+					geneName = feature + " " + geneName;
+				}
+				
+				if (transcName != null) {
+					transcName = feature + " " + transcName;
+				}
+				
+				feature = "exon";
+			}
+			
+			exonIndex = "1";
+			
+
+			Exon exon = new Exon(region, feature, Integer.parseInt(exonIndex));
+
+			genes.addExon(exon, geneId, transcId, geneName, transcName, biotype);
+		}
 	} 
 
 	private static Strand getStrand(String strand) {

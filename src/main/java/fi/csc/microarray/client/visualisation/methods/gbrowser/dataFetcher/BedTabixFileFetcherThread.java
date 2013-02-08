@@ -8,8 +8,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.broad.tribble.readers.TabixReader;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 

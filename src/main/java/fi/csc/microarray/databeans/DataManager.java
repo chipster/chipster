@@ -631,6 +631,26 @@ public class DataManager {
 
 	
 	
+	
+	/**
+	 * The same as saveLightweightSession(), but before saving the session, makes sure
+	 * that all data bean contents have been uploaded to cache. Uploads in necessary.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveFeedbackSession(File sessionFile) throws Exception {
+	
+		// upload beans to cache if necessary
+
+		// save lightweight session
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		sessionSaver.saveLightweightSession();
+	}
+
+	
+	
+	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
 	 * 

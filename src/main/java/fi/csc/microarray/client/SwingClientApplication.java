@@ -390,6 +390,7 @@ public class SwingClientApplication extends ClientApplication {
 		// final touches
 		updateFocusTraversal();
 		restoreDefaultView();
+		enableKeyboardShortcuts();
 		
 		// check for session restore need
 		File mostRecentDeadTempDirectory = checkTempDirectories();
@@ -2093,5 +2094,41 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		}
 		return sessionURL;
+	}
+
+	private void enableKeyboardShortcuts() {
+		// add application wide keyboard shortcuts
+		final HashMap<KeyStroke, Action> shortcutActionMap = new 
+				HashMap<KeyStroke, Action>();
+		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 
+				KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | 
+				KeyEvent.SHIFT_DOWN_MASK),
+				new AbstractAction("OPEN_LIGHTWEIGHT_SESSION") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadSession(true);
+			}
+		});
+		KeyboardFocusManager kfm = 
+				KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+				if (shortcutActionMap.containsKey(keyStroke) ) {
+					final Action a = shortcutActionMap.get(keyStroke);
+					final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), 
+							null );
+					SwingUtilities.invokeLater( new Runnable() {
+						@Override
+						public void run() {
+							a.actionPerformed(ae);
+						}
+					});
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 }
