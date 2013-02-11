@@ -73,7 +73,7 @@ public class HibernateUtil {
     		hibernateConf.setProperty(Environment.USER, dbUsername);
     		hibernateConf.setProperty(Environment.PASS, dbPassword);
     		hibernateConf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
-    		hibernateConf.setProperty(Environment.SHOW_SQL, "true");
+    		hibernateConf.setProperty(Environment.SHOW_SQL, "false");
     		hibernateConf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 
     		hibernateConf.addAnnotatedClass(JobLogEntry.class);

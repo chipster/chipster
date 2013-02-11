@@ -1,6 +1,5 @@
 package fi.csc.microarray.manager.web.ui;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,62 +16,58 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.microarray.manager.web.ChipsterAdminUI;
-import fi.csc.microarray.manager.web.data.JobLogContainer;
-import fi.csc.microarray.manager.web.data.JobLogEntry;
 import fi.csc.microarray.manager.web.data.StatDataSource;
 import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
 
 
 public class StatView extends VerticalLayout implements ClickListener {
-
-	private Panel latestJobsPanel = new Panel("Latest jobs");
-	private Panel jobCountsPanel = new Panel("Job counts monthly");
-	private Panel topUsersPanel = new Panel("Top users during last year");
-	private Panel toolFailsPanel = new Panel("Tool fails during last year");
-	private Table latestJobsTable;
-	private Table jobCountsTable;
-	private Table topUsersTable;
-	private Table toolFailsTable;
-
+	
+	private Table monthlyStats;
+	private Table yearlyStats;
+	private Table topUsers;
+	private Table toolFails;
+	private Table toolUsage;
+	private Table moduleUsage;
+	
+	private TabSheet tabSheet;
+	private int selectedTab;
+	
 	private HorizontalLayout toolbarLayout;
-	private HorizontalLayout statLayout = new HorizontalLayout();
-
-	private ChipsterAdminUI app;
-
 	private Button refreshButton;
-
 	private CheckBox ignoreTestAccounts;
 
 	private Session session;
 	private StatDataSource dataSource;
 
+	private ChipsterAdminUI app;
+	
 	public StatView(ChipsterAdminUI app) {
 		
 		this.app = app;
 					
-		this.addComponent(getToolbar());		
-		
+		this.addComponent(getToolbar());
+
+		tabSheet = new TabSheet();
 		updateData(ignoreTestAccounts.getValue());
+		tabSheet.setSizeFull();
+		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
+
+			@Override
+			public void selectedTabChange(SelectedTabChangeEvent e) {
+				
+				selectedTab = tabSheet.getTabPosition(tabSheet.getTab(tabSheet.getSelectedTab()));
+			}
+		});
 		
-		latestJobsPanel.setHeight(100, Unit.PERCENTAGE);
-		jobCountsPanel.setHeight(100, Unit.PERCENTAGE);
-		topUsersPanel.setHeight(100, Unit.PERCENTAGE);
-		toolFailsPanel.setHeight(100, Unit.PERCENTAGE);
-		
-		statLayout.addComponent(latestJobsPanel);
-		statLayout.addComponent(jobCountsPanel);
-		statLayout.addComponent(topUsersPanel);
-		statLayout.addComponent(toolFailsPanel);
-		
-		this.addComponent(statLayout);
-		
-		this.setExpandRatio(statLayout, 1);
-		
+        this.addComponent(tabSheet);        
+        this.setExpandRatio(tabSheet, 1);
 		this.setSizeFull();
 	}
 	
@@ -96,19 +91,32 @@ public class StatView extends VerticalLayout implements ClickListener {
 			dataSource = new StatDataSource();
 		}
 		
-		latestJobsTable = JobLogEntryToTable(dataSource.getLatestJobs(session));
-		jobCountsTable = mapListToTable(dataSource.getJobsByMonth(session, ignoreTestAccounts));
-		topUsersTable = mapListToTable(dataSource.getTopUsers(session, ignoreTestAccounts));
-		toolFailsTable = mapListToTable(dataSource.getToolFails(session, ignoreTestAccounts));
+		monthlyStats = mapListToTable(dataSource.getMonthlyStats(session, ignoreTestAccounts));
+		yearlyStats = mapListToTable(dataSource.getYearlyStats(session, ignoreTestAccounts));
+		topUsers = mapListToTable(dataSource.getTopUsers(session, ignoreTestAccounts));
+		toolFails = mapListToTable(dataSource.getToolFails(session, ignoreTestAccounts));
+		toolUsage = mapListToTable(dataSource.getToolUsage(session, ignoreTestAccounts));
+		//moduleUsageTable;
 		
-		jobCountsTable.setVisibleColumns(dataSource.getJobsByMonthColumnOrder());
-		topUsersTable.setVisibleColumns(dataSource.getTopUsersColumnOrder());
-		toolFailsTable.setVisibleColumns(dataSource.getToolFailsColumnOrder());
+		monthlyStats.setVisibleColumns(dataSource.getMonthlyStatsColumnOrder());
+		yearlyStats.setVisibleColumns(dataSource.getYearlyStatsColumnOrder());
+		topUsers.setVisibleColumns(dataSource.getTopUsersColumnOrder());
+		toolFails.setVisibleColumns(dataSource.getToolFailsColumnOrder());		
+		toolUsage.setVisibleColumns(dataSource.getToolUsageColumnOrder());
+		//moduleUsageTable;
 		
-		latestJobsPanel.setContent(latestJobsTable);
-		jobCountsPanel.setContent(jobCountsTable);
-		topUsersPanel.setContent(topUsersTable);
-		toolFailsPanel.setContent(toolFailsTable);
+		//selectedTab field is updated when new tabs are added, keep the old value
+		int lastSelectedTab = this.selectedTab;
+		
+		tabSheet.removeAllComponents();
+        tabSheet.addTab(monthlyStats, "Monthly statistics");        
+        tabSheet.addTab(yearlyStats, "Yearly statistics");
+        tabSheet.addTab(topUsers, "Top users (1 year)");
+        tabSheet.addTab(toolFails, "Tool fails (1 year)");
+        tabSheet.addTab(toolUsage, "Tools usage (1 year)");
+        tabSheet.addTab(moduleUsage, "Module job counts");
+                
+        tabSheet.setSelectedTab(lastSelectedTab);
 	}
 	
 	public HorizontalLayout getToolbar() {
@@ -132,6 +140,7 @@ public class StatView extends VerticalLayout implements ClickListener {
 				@Override
 				public void valueChange(ValueChangeEvent arg0) {
 					updateData(ignoreTestAccounts.getValue());
+					tabSheet.setSelectedTab(selectedTab);
 				}
 			});
 			
@@ -146,32 +155,6 @@ public class StatView extends VerticalLayout implements ClickListener {
 		}
 
 		return toolbarLayout;
-	}
-	
-	private Table JobLogEntryToTable(List<JobLogEntry> list) {
-
-		Table table = new Table();
-		table.setSizeFull();
-		
-		if (list.size() > 0) {
-
-			List<Object> keyList = Arrays.asList(new Object[] { JobLogContainer.USERNAME, JobLogContainer.OPERATION, JobLogContainer.START_TIME, JobLogContainer.STATUS });
-
-
-			//Column headers
-			for (Object columnHeader : keyList) {
-				table.addContainerProperty(columnHeader, String.class, null);
-			}
-			
-			
-			//Content rows
-			int i = 0;
-			for (JobLogEntry entry : list) {
-			
-				table.addItem(new Object[] { entry.getUsername(), entry.getOperation(), entry.getStartTime().toString(), entry.getStatus() }, i++);
-			}
-		}
-		return table;
 	}
 	
 	private Table mapListToTable(List<Map<Object, Object>> list) {
@@ -214,7 +197,7 @@ public class StatView extends VerticalLayout implements ClickListener {
 
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == refreshButton) {			
-			updateData(ignoreTestAccounts.getValue());
+			updateData(ignoreTestAccounts.getValue());			
 		}
 	}
 }
