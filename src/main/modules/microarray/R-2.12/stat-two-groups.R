@@ -3,6 +3,7 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT two-sample.tsv: two-sample.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-macthed data or you have interested of comparing expression in one tissue against the expression in another collected from same individuals, etc.)
 # PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
@@ -12,6 +13,7 @@
 # OH, 7.11.2011
 # EK, 8.1.2012
 # JT, 28.11.2012, fixed Wilcoxon test, sped up other tests
+# MK, 05.02.2013, added paired tests for limma, t-test and Wilcox
 
 # Loads the libraries
 library(multtest)
@@ -37,9 +39,17 @@ dat2  <- as.matrix(dat[,grep("chip", names(dat))])
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
+if(exists("pairing")) {
+	if(pairing!="EMPTY") {
+		pairs<-phenodata[,pmatch(pairing,colnames(phenodata))]
+	}
+} else {
+	pairing <- "EMPTY"
+}
+
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
-	stop("You need to have exactly two groups to run this analysis")
+	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
 
 # Testing
@@ -47,7 +57,18 @@ if(length(unique(groups))==1 | length(unique(groups))>=3) {
 # Empirical Bayes
 if(meth=="empiricalBayes") {
 	library(limma)
-	design<-model.matrix(~as.factor(groups))
+	if(pairing=="EMPTY") {
+		design<-model.matrix(~as.factor(groups))
+	} else {
+		groups		<- factor(groups)
+		pairs		<- factor(pairs)
+		#the 0 means no intercept for the first factor. In this case pairs-factor must be given first
+		#design		<- model.matrix(~0+pairs+groups)
+		design		<- model.matrix(~groups+pairs)
+	}
+
+	#stop(as.factor(groups));
+	
 	fit<-lmFit(dat2, design)
 	fit<-eBayes(fit)
 	tab<-toptable(fit, coef=2, number=nrow(fit), adjust.method=adj.method)
@@ -59,8 +80,54 @@ if(meth=="empiricalBayes") {
 	write.table(data.frame(dat, p.adjusted=round(p, digits=6), FC=M), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
+if(meth=="RankProd") {
+	library(RankProd)
+	
+	dat2.1 <-dat2[,groups==unique(groups)[1]]
+	dat2.2 <-dat2[,groups==unique(groups)[2]]
+			
+	if(pairing =="EMPTY") {
+		group_vec <- c(rep(0, ncol(dat2.1)), rep(1, ncol(dat2.1)));
+		dat.rp <- cbind(dat2.1, dat2.2);
+	} else {
+		pairs.1 <-pairs[groups==unique(groups)[1]]
+		pairs.2 <-pairs[groups==unique(groups)[2]]
+		
+		#find shared elements (remove elements not present in one of the arrays)
+		dat2.1 <- dat2.1[, which(pairs.1 %in% intersect(pairs.1, pairs.2))]
+		dat2.2 <- dat2.2[, which(pairs.2 %in% intersect(pairs.1, pairs.2))]
+		
+		pairs.1 <- pairs.1[which(pairs.1 %in% intersect(pairs.1, pairs.2))];
+		pairs.2 <- pairs.2[which(pairs.2 %in% intersect(pairs.1, pairs.2))];
+		
+		#average over those that are found multiple times in one
+		temp.1 <- t(rowsum(t(dat2.1), factor(pairs.1), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.1)), factor(pairs.1), reorder = FALSE));
+		dat2.1 <- temp.1 / temp.2;
+		
+		temp.1 <- t(rowsum(t(dat2.2), factor(pairs.2), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.2)), factor(pairs.2), reorder = FALSE));
+		dat2.2 <- temp.1 / temp.2;
+
+		#sort columns so that samples have the same order
+		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
+		
+		if(ncol(dat2.1) != ncol(dat2.2)) { stop("Paired RankProd error: matrices differn in column number")}
+		dat.rp <- dat2.1 - dat2.2;
+		group_vec <- rep(0, ncol(dat.rp));
+	}
+
+	print(dat.rp[1:10,]);
+	print(group_vec)
+	
+	RPdata 	<- RP(dat.rp, cl=group_vec, num.perm=10, logged=TRUE)
+	p.raw   <- cbind(RPdata$pval[,1],  RPdata$pval[,2]);
+}
+		
 # Fast T-test
 if(meth=="fast-t-test") {
+	if(pairing!="EMPTY") { stop("CHIPSTER-NOTE: Fast T-test does not support pairing information"); }
+		
 	fit1<-lm(t(dat2)~groups)
 	p<-rep(NA, nrow(dat2))
 	for(i in 1:nrow(dat2)) {
@@ -70,107 +137,107 @@ if(meth=="fast-t-test") {
 		f<-r2/((1-r2)/(ncol(dat2)-1))
 		p[i]<-1-pf(f, 1, (ncol(dat2)-1))
 	}
-	p.raw<-p
-	
-	#following code moved twoards the end
-	#if(adj.method=="none") {
-	#	p.adjusted<-p.raw
-	#}
-	#if(adj.method=="Bonferroni" | adj.method=="BH") {
-	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	#}
-	#dat<-dat[p.adjusted<=p.cut,]   
-	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	p.raw<-p	
 }
 
 # T-test
 if(meth=="t-test") {
-	#p<-c()
-	#len<-length(dat2[,1])
-	#for(i in 1:len) {
-	#	#p<-c(p, na.omit((anova(lm(t(dat2)[,i]~groups)))$Pr)[1])
-	#}
-	# p <- rep(as.numeric(NA), len)
-	
 	dat2.1 <-dat2[,groups==unique(groups)[1]]
 	dat2.2 <-dat2[,groups==unique(groups)[2]]
 	p      <- rep(as.numeric(NA), nrow(dat2))
-	for(i in 1:nrow(dat2)) {
-		if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
-			p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
+	if (pairing=="EMPTY") {
+		for(i in 1:nrow(dat2)) {
+			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
+			}
 		}
+	} else {
+		pairs.1 <-pairs[groups==unique(groups)[1]]
+		pairs.2 <-pairs[groups==unique(groups)[2]]
+
+		#find shared elements (remove elements not present in one of the arrays)
+		dat2.1 <- dat2.1[, which(pairs.1 %in% intersect(pairs.1, pairs.2))]
+		dat2.2 <- dat2.2[, which(pairs.2 %in% intersect(pairs.1, pairs.2))]
+		
+		pairs.1 <- pairs.1[which(pairs.1 %in% intersect(pairs.1, pairs.2))];
+		pairs.2 <- pairs.2[which(pairs.2 %in% intersect(pairs.1, pairs.2))];
+		
+		#average over those that are found multiple times in one
+		temp.1 <- t(rowsum(t(dat2.1), factor(pairs.1), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.1)), factor(pairs.1), reorder = FALSE));
+		dat2.1 <- temp.1 / temp.2;
+
+		temp.1 <- t(rowsum(t(dat2.2), factor(pairs.2), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.2)), factor(pairs.2), reorder = FALSE));
+		dat2.2 <- temp.1 / temp.2;
+
+		#sort columns so that samples have the same order
+		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
+		
+		for(i in 1:nrow(dat2)) {
+			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,], paired=TRUE)$p.value
+			}
+		}	
 	}
+
 	p.raw<-p
-	
-	# remaining steps: see below
-	#if(adj.method=="none") {
-	#	p.adjusted<-p.raw
-	#}
-	#if(adj.method=="Bonferroni" | adj.method=="BH") {
-	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	#}
-	#dat<-dat[p.adjusted<=p.cut,]   
-	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # F-test
 if(meth=="F-test") {
-	#p<-c()
+	#paired var.test does in fact exist in package PairedData
+	if(pairing!="EMPTY") { stop("CHIPSTER-NOTE: F-test does not support pairing information"); }
+	
 	dat2.1 <-dat2[,groups==unique(groups)[1]]
 	dat2.2 <-dat2[,groups==unique(groups)[2]]
 	p 	   <- rep(as.numeric(NA), nrow(dat2))
 	for(i in 1:nrow(dat2)) {
-		#p<-c(p, var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value)
 		p[i] <- var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value
 	}
 	p.raw<-p
 	
-	## JT: for the remaining steps, see below:
-	#if(adj.method=="none") {
-	#	p.adjusted<-p.raw
-	#}
-	#if(adj.method=="Bonferroni" | adj.method=="BH") {
-	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	#}
-	#dat<-dat[p.adjusted<=p.cut,]   
-	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
-
 
 # Mann-Whitney test
 if(meth=="Mann-Whitney") {
-	#dat3<-split(as.data.frame(t(dat2)), groups)
-	# Split creates a list with two objects
-	#g1<-dat3$'1'
-	#g2<-dat3$'2'
-	#p<-c()
-	#for(i in 1:nrow(dat2)) {
-	#	p<-c(p, wilcox.test(g1[,i], g2[,i], mu=0)$p.value)
-	#}
-	#groups <- factor(groups)
 	dat2.1 <-dat2[,groups==unique(groups)[1]]
 	dat2.2 <-dat2[,groups==unique(groups)[2]]
 	p      <- rep(as.numeric(NA), nrow(dat2))
-	for(i in 1:nrow(dat2)) {
-		p[i] <- wilcox.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
+
+	if (pairing=="EMPTY") {
+		for(i in 1:nrow(dat2)) {
+			p[i] <- wilcox.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
+		}
+	} else {
+		pairs.1 <-pairs[groups==unique(groups)[1]]
+		pairs.2 <-pairs[groups==unique(groups)[2]]
+		
+		#find shared elements (remove elements not present in one of the arrays)
+		dat2.1 <- dat2.1[, which(pairs.1 %in% intersect(pairs.1, pairs.2))]
+		dat2.2 <- dat2.2[, which(pairs.2 %in% intersect(pairs.1, pairs.2))]
+		
+		pairs.1 <- pairs.1[which(pairs.1 %in% intersect(pairs.1, pairs.2))];
+		pairs.2 <- pairs.2[which(pairs.2 %in% intersect(pairs.1, pairs.2))];
+		
+		#average over those that are found multiple times in one
+		temp.1 <- t(rowsum(t(dat2.1), factor(pairs.1), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.1)), factor(pairs.1), reorder = FALSE));
+		dat2.1 <- temp.1 / temp.2;
+		
+		temp.1 <- t(rowsum(t(dat2.2), factor(pairs.2), reorder = FALSE, na.rm = TRUE));
+		temp.2 <- t(rowsum(1L - is.na(t(dat2.2)), factor(pairs.2), reorder = FALSE));
+		dat2.2 <- temp.1 / temp.2;
+
+		#sort columns so that samples have the same order
+		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
+		
+		for(i in 1:nrow(dat2)) {
+			p[i] <- wilcox.test(x=dat2.1[i,], y=dat2.2[i,], paired=TRUE)$p.value
+		}
 	}
+		
 	p.raw<-p
-	#if(adj.method=="none") {
-	#	p.adjusted<-p.raw
-	#}
-	#if(adj.method=="Bonferroni" | adj.method=="BH") {
-	#	p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-	#	p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	#}
-	#dat<-dat[p.adjusted<=p.cut,]   
-	#p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	#write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 ## these methods have a common p-value adjustment and result generation
@@ -191,8 +258,31 @@ if (meth %in% c("Mann-Whitney", "fast-t-test", "t-test", "F-test")){
 			col.names=TRUE, quote=FALSE)
 }
 
-
+if(meth=="RankProd") {
+	if(!exists("p.raw")) {	
+		stop("Could not find p.raw object")
+	}	
+	
+	p.adjusted <- matrix(NA, ncol=ncol(p.raw), nrow=nrow(p.raw));
+	if (adj.method %in% c("Bonferroni", "Holm", "Hochberg")) {
+		p.adjusted[, 1] <- p.adjust(p.raw[, 1], method=tolower(adj.method));
+		p.adjusted[, 2] <- p.adjust(p.raw[, 2], method=tolower(adj.method));
+	} else {
+		p.adjusted[, 1] <- p.adjust(p.raw[, 1], method=adj.method)
+		p.adjusted[, 2] <- p.adjust(p.raw[, 2], method=adj.method)
+	}
+	dat <- dat[apply(p.adjusted,1,min)<=p.cut,]   
+	p.adjusted <- p.adjusted[apply(p.adjusted,1,min)<=p.cut, ]
+	p.adjusted <- apply(p.adjusted,1,min)
+	
+	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)),
+			file="two-sample.tsv", sep="\t", row.names=TRUE,
+			col.names=TRUE, quote=FALSE)
+}
+	
 if(meth=="LPE") {
+	if(pairing!="EMPTY") { stop("CHIPSTER-NOTE: LPE does not support pairing information"); }
+	
 	library(LPE)
 	
 	group1 <-dat2[,groups==unique(groups)[1]]
@@ -216,7 +306,7 @@ if(meth=="LPE") {
 		}
 	}
 	if(adj.method=="Hochberg") {
-		stop("LPE function does not support Hochberg's correction. Please rerun the function again after choosing another p.value.adjustment.method")
+		stop("CHIPSTER-NOTE: LPE function does not support Hochberg's correction. Please rerun the function again after choosing another p.value.adjustment.method")
 	}
 	if(adj.method=="Bonferroni" | adj.method=="BH" | adj.method=="BY") {
 		p.adjusted <- fdr.adjust(lp, adjp=adj.method)
