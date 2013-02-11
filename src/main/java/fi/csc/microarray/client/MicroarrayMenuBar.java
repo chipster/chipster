@@ -18,9 +18,9 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.ClientApplication.SessionSavingMethod;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.FeedbackDialog;
-import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
@@ -32,6 +32,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -46,8 +47,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private JMenu fileMenu = null;
 	private JMenu importMenu = null;
+	private JMenu importRemoteMenu = null;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
+	private JMenuItem importFromRemoteURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
@@ -67,20 +70,25 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem sendFeedbackMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
 	private JMenuItem helpWorkflowMenuItem;
-	private JMenuItem saveSnapshotMenuItem;
+	private JMenuItem archiveSessionMenuItem;
+	private JMenuItem saveSessionMenuItem;
 	private JMenu recentWorkflowMenu;
-	private JMenuItem loadSnapshotMenuItem;
+	private JMenuItem loadSessionMenuItem;
+	private JMenuItem loadLocalSessionMenuItem;
 	private JMenuItem taskListMenuItem;
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
 	private JMenuItem historyMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
 	private JMenuItem visualiseMenuItem;
+	private JMenuItem closeVisualisationMenuItem;
 	private JMenuItem detachMenuItem;
 	private JMenu visualisationMenu;
 	private JMenu openRepoWorkflowsMenu;
 
 	private boolean hasRepoWorkflows;
+
+	private JMenuItem manageSessionsMenuItem;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
@@ -104,6 +112,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (selectedDataBean != null) {
 			workflowCompatibleDataSelected = Session.getSession().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
 		}
+		
+		renameMenuItem.setEnabled(selectionManager.getSelectedDataBeans().size() == 1);
 
 		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
 
@@ -111,6 +121,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
+		
+		closeVisualisationMenuItem.setEnabled(method != null && method != VisualisationMethods.DATA_DETAILS);
 
 		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
 		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
@@ -136,11 +148,17 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getDirectImportMenuItem());
 			fileMenu.add(getAddDirMenuItem());
 			fileMenu.add(getImportMenu());
+			fileMenu.add(getImportRemoteMenu());
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getLoadSnapshotMenuItem());
-			fileMenu.add(getSaveSnapshotMenuItem());
+			fileMenu.add(getLoadSessionMenuItem());
+			fileMenu.add(getSaveSessionMenuItem());
+			fileMenu.add(getManageSessionsMenuItem());
+			fileMenu.addSeparator();
+			fileMenu.add(getLoadLocalSessionMenuItem());
+			fileMenu.add(getSaveLocalSessionMenuItem());
+			fileMenu.addSeparator();
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -162,6 +180,16 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu.add(getImportFromClipboardMenuItem());
 		}
 		return importMenu;
+	}
+
+	private JMenu getImportRemoteMenu() {
+		if (importRemoteMenu == null) {
+			importRemoteMenu = new JMenu();
+			importRemoteMenu.setText("Import remote data from");
+			
+			importRemoteMenu.add(getImportFromRemoteURLMenuItem());
+		}
+		return importRemoteMenu;
 	}
 
 	private JMenuItem getDirectImportMenuItem() {
@@ -189,7 +217,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromURLMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.openURLImport();
+						application.openURLImport(true);
 					} catch (Exception me) {
 						application.reportException(me);
 					}
@@ -197,6 +225,23 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromURLMenuItem;
+	}
+
+	private JMenuItem getImportFromRemoteURLMenuItem() {
+		if (importFromRemoteURLMenuItem == null) {
+			importFromRemoteURLMenuItem = new JMenuItem();
+			importFromRemoteURLMenuItem.setText("URL...");
+			importFromRemoteURLMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.openURLImport(false);
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromRemoteURLMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {
@@ -376,7 +421,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			renameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
 			renameMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					new RenameDialog(application, application.getSelectionManager().getSelectedItem());
+	
+					application.showRenameView();
 				}
 			});
 		}
@@ -489,6 +535,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			viewMenu.add(getRestoreViewMenuItem());
 			viewMenu.addSeparator();
 			viewMenu.add(getVisualiseMenutItem());
+			viewMenu.add(getCloseVisualisationMenutItem());
 			viewMenu.add(getVisualisationwMenu());
 			viewMenu.addSeparator();
 			viewMenu.add(getFontSize());
@@ -563,6 +610,22 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return visualiseMenuItem;
 	}
+	
+	private JMenuItem getCloseVisualisationMenutItem() {
+		if (closeVisualisationMenuItem == null) {
+			closeVisualisationMenuItem = new JMenuItem();
+			closeVisualisationMenuItem.setText("Close visualisation");
+			closeVisualisationMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+			closeVisualisationMenuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					application.setVisualisationMethod(VisualisationMethods.DATA_DETAILS, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				}
+
+			});
+		}
+		return closeVisualisationMenuItem;
+	}
 
 	private JMenuItem getRestoreViewMenuItem() {
 		if (restoreViewMenuItem == null) {
@@ -589,7 +652,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu.add(getStartedMenuItem());
 			helpInfoMenu.add(getContentMenuItem());
 			if (DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-contact-support")) {
-				helpInfoMenu.add(getSendFeedbackMenuItem());
+				// disabled for server side sessions
+				// helpInfoMenu.add(getSendFeedbackMenuItem());
 			}
 
 			helpInfoMenu.add(getAboutMenuItem());
@@ -639,7 +703,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return sendFeedbackMenuItem;
 	}
-
 	
 	
 	private JMenuItem getAboutMenuItem() {
@@ -660,7 +723,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fontSizeMenu = new JMenu();
 			fontSizeMenu.setText("Text size");
 
-			// FIXME L&F Theme is lost when the font is changed
+			// TODO fix: L&F Theme is lost when the font is changed
 			// fontSizeMenu.setEnabled(false);
 
 			JMenuItem norm = new JMenuItem("Normal");
@@ -712,15 +775,15 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return clearSessionMenuItem;
 	}
 
-	private JMenuItem getLoadSnapshotMenuItem() {
-		if (loadSnapshotMenuItem == null) {
-			loadSnapshotMenuItem = new JMenuItem();
-			loadSnapshotMenuItem.setText("Open session...");
-			loadSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			loadSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	private JMenuItem getLoadSessionMenuItem() {
+		if (loadSessionMenuItem == null) {
+			loadSessionMenuItem = new JMenuItem();
+			loadSessionMenuItem.setText("Open server session...");
+			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSession();
+						application.loadSession(true);
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -728,21 +791,66 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				}
 			});
 		}
-		return loadSnapshotMenuItem;
+		return loadSessionMenuItem;
 	}
 
-	private JMenuItem getSaveSnapshotMenuItem() {
-		if (saveSnapshotMenuItem == null) {
-			saveSnapshotMenuItem = new JMenuItem();
-			saveSnapshotMenuItem.setText("Save session...");
-			saveSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			saveSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	private JMenuItem getLoadLocalSessionMenuItem() {
+		if (loadLocalSessionMenuItem == null) {
+			loadLocalSessionMenuItem = new JMenuItem();
+			loadLocalSessionMenuItem.setText("Open local session...");
+			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession();
+					try {
+						application.loadSession(false);
+
+					} catch (Exception ioe) {
+						application.reportException(ioe);
+					}
 				}
 			});
 		}
-		return saveSnapshotMenuItem;
+		return loadLocalSessionMenuItem;
+	}
+
+	private JMenuItem getSaveSessionMenuItem() {
+		if (saveSessionMenuItem == null) {
+			saveSessionMenuItem = new JMenuItem();
+			saveSessionMenuItem.setText("Save server session...");
+			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
+				}
+			});
+		}
+		return saveSessionMenuItem;
+	}
+
+	private JMenuItem getManageSessionsMenuItem() {
+		if (manageSessionsMenuItem == null) {
+			manageSessionsMenuItem = new JMenuItem();
+			manageSessionsMenuItem.setText("Server sessions...");
+			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					application.manageRemoteSessions();
+				}
+			});
+		}
+		return manageSessionsMenuItem;
+	}
+
+
+	private JMenuItem getSaveLocalSessionMenuItem() {
+		if (archiveSessionMenuItem == null) {
+			archiveSessionMenuItem = new JMenuItem();
+			archiveSessionMenuItem.setText("Save local session...");
+			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
+				}
+			});
+		}
+		return archiveSessionMenuItem;
 	}
 
 	private JMenuItem getAddDirMenuItem() {

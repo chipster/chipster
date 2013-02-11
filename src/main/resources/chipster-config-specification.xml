@@ -83,18 +83,22 @@
 	
 	<configuration-module moduleId="filebroker" description="file broker">
 	
-		<entry entryKey="file-root-path" type="string" description="path to file broker cache directory">
+		<entry entryKey="file-root-path" type="string" description="path to file broker root directory">
 			<value>file-root</value>
 		</entry>
 
-		<entry entryKey="user-data-path" type="string" description="path to data files of the users'">
-			<value>user-data</value>
+		<entry entryKey="cache-path" type="string" description="path to user cache files'">
+			<value>cache</value>
 		</entry>
 
-		<entry entryKey="public-data-path" type="string" description="path to public data files">
+		<entry entryKey="storage-path" type="string" description="path to user storage files'">
+			<value>storage</value>
+		</entry>
+
+		<entry entryKey="public-path" type="string" description="path to public data files">
 			<value>public</value>
 		</entry>
-		
+
 		<entry entryKey="file-life-time" type="int" description="how long files are stored in fileserver, seconds">
 			<value>86400</value>
 		</entry>

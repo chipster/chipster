@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.Empty;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 /**
  * <p>A data visualisation methods. This class is used for
@@ -102,7 +103,7 @@ public class VisualisationMethod {
 	}
 
 	public static VisualisationMethod getDefault() {
-		return VisualisationMethod.NONE;
+		return VisualisationMethods.DATA_DETAILS;
 	}
 
 	/**

@@ -59,6 +59,7 @@ public class DataParsingTest {
 	}
 	
 	public DataParsingTest() throws IOException, IllegalConfigurationException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 	}
 	
