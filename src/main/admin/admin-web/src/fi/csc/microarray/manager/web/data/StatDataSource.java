@@ -2,8 +2,11 @@ package fi.csc.microarray.manager.web.data;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -21,6 +24,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.springframework.core.io.ClassPathResource;
 
 import com.vaadin.server.FileResource;
 import com.vaadin.server.VaadinService;
@@ -339,21 +343,32 @@ public class StatDataSource {
 				toolCount.put(YEAR, year);
 				results.add(toolCount);
 			}
-		}
-		
-		//Load module files
-		String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
-		FileResource microarrayResource = new FileResource(new File(basepath + "/WEB-INF/microarray-module-copy.xml"));
-		FileResource ngsResource = new FileResource(new File(basepath + "/WEB-INF/ngs-module-copy.xml"));
+		}	
 		
 		String microarray = null;
 		String ngs = null;
 		
 		try {
-			microarray = readFile(microarrayResource.getSourceFile());
-			ngs = readFile(ngsResource.getSourceFile());
-		} catch (IOException e) {			
-			e.printStackTrace();
+			//Try to load files from jar (in case of real server)
+			microarray = readFile(new ClassPathResource("WebContent/WEB-INF/microarray-module-copy.xml").getInputStream());
+			ngs = readFile(new ClassPathResource("WebContent/WEB-INF/ngs-module-copy.xml").getInputStream());
+			
+		} catch (FileNotFoundException e) {
+						
+			try {
+				
+				//This is not a real server, because files were not found from jar. Use real files instead (in case of running directly from sources)
+				String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+				
+				microarray = readFile(new FileResource(new File(basepath + "/WEB-INF/microarray-module-copy.xml")).getSourceFile());
+				ngs = readFile(new FileResource(new File(basepath + "/WEB-INF/ngs-module-copy.xml")).getSourceFile());
+				
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}				
 		
 		//Find out a module for each tool		
@@ -459,6 +474,23 @@ public class StatDataSource {
 	private String readFile(File file) throws IOException {
 		
 		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = null;
+		StringBuilder stringBuilder = new StringBuilder();
+		String ls = System.getProperty("line.separator");
+
+		while ((line = reader.readLine()) != null) {
+			stringBuilder.append(line);
+			stringBuilder.append(ls);
+		}
+		
+		reader.close();
+
+		return stringBuilder.toString();
+	}
+	
+	private String readFile(InputStream file) throws IOException {
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(file));
 		String line = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		String ls = System.getProperty("line.separator");
