@@ -96,14 +96,14 @@ public class StatView extends VerticalLayout implements ClickListener {
 		topUsers = mapListToTable(dataSource.getTopUsers(session, ignoreTestAccounts));
 		toolFails = mapListToTable(dataSource.getToolFails(session, ignoreTestAccounts));
 		toolUsage = mapListToTable(dataSource.getToolUsage(session, ignoreTestAccounts));
-		//moduleUsageTable;
+		moduleUsage = mapListToTable(dataSource.getModuleUsage(session, ignoreTestAccounts));
 		
 		monthlyStats.setVisibleColumns(dataSource.getMonthlyStatsColumnOrder());
 		yearlyStats.setVisibleColumns(dataSource.getYearlyStatsColumnOrder());
 		topUsers.setVisibleColumns(dataSource.getTopUsersColumnOrder());
 		toolFails.setVisibleColumns(dataSource.getToolFailsColumnOrder());		
 		toolUsage.setVisibleColumns(dataSource.getToolUsageColumnOrder());
-		//moduleUsageTable;
+		moduleUsage.setVisibleColumns(dataSource.getModuleUsageColumnOrder());
 		
 		//selectedTab field is updated when new tabs are added, keep the old value
 		int lastSelectedTab = this.selectedTab;
@@ -111,10 +111,10 @@ public class StatView extends VerticalLayout implements ClickListener {
 		tabSheet.removeAllComponents();
         tabSheet.addTab(monthlyStats, "Monthly statistics");        
         tabSheet.addTab(yearlyStats, "Yearly statistics");
+        tabSheet.addTab(toolUsage, "Tools usage (1 year)");
         tabSheet.addTab(topUsers, "Top users (1 year)");
         tabSheet.addTab(toolFails, "Tool fails (1 year)");
-        tabSheet.addTab(toolUsage, "Tools usage (1 year)");
-        tabSheet.addTab(moduleUsage, "Module job counts");
+        tabSheet.addTab(moduleUsage, "Module job counts (beta)");
                 
         tabSheet.setSelectedTab(lastSelectedTab);
 	}

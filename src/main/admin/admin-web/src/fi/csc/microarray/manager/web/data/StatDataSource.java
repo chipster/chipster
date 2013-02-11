@@ -1,5 +1,9 @@
 package fi.csc.microarray.manager.web.data;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -7,6 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -16,10 +22,21 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 
+import com.vaadin.server.FileResource;
+import com.vaadin.server.VaadinService;
+
 public class StatDataSource {
 
 	public static final String ROW_COUNT = "count";
-
+	public static final String YEAR = "year";
+	public static final String MONTH = "month";
+	public static final String JOB_COUNT = "jobCount";
+	public static final String UNIQUE_USERS = "uniqueUsers";
+	public static final String MICROARRAY = "microarray";
+	public static final String NGS = "ngs";
+	public static final String UNRESOLVED = "unresolved";
+	public static final String OTHER = "other";
+	
 	private TestAccountFilter testAccountFilter = new TestAccountFilter();
 
 	@SuppressWarnings("rawtypes")
@@ -39,7 +56,7 @@ public class StatDataSource {
 				.add(Projections.groupProperty(JobLogContainer.USERNAME), JobLogContainer.USERNAME)		        
 				);
 		criteria.addOrder(Order.desc(ROW_COUNT));
-		criteria.setMaxResults(10);
+		criteria.setMaxResults(1000);
 		criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 
 		@SuppressWarnings("unchecked") 		
@@ -125,8 +142,8 @@ public class StatDataSource {
 				criteria.add(Restrictions.lt(JobLogContainer.START_TIME, endDate.getTime()));
 
 				criteria.setProjection( Projections.projectionList()
-						.add(Projections.rowCount(), "jobCount")
-						.add(Projections.countDistinct(JobLogContainer.USERNAME), "uniqueUsers")
+						.add(Projections.rowCount(), JOB_COUNT)
+						.add(Projections.countDistinct(JobLogContainer.USERNAME), UNIQUE_USERS)
 						);
 				criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);        	
 
@@ -137,8 +154,8 @@ public class StatDataSource {
 				@SuppressWarnings("unchecked")
 				Map<Object, Object> resultMap = resultList.get(0);
 
-				resultMap.put("year", year);
-				resultMap.put("month", month);
+				resultMap.put(YEAR, year);
+				resultMap.put(MONTH, month);
 
 				results.add(resultMap);
 
@@ -150,7 +167,7 @@ public class StatDataSource {
 	}
 
 	public Object[] getMonthlyStatsColumnOrder() {
-		return new Object[] { "year", "month", "uniqueUsers", "jobCount"};
+		return new Object[] { YEAR, MONTH, UNIQUE_USERS, JOB_COUNT};
 	}
 
 	public List<Map<Object, Object>> getYearlyStats(Session session, boolean ignoreTestAccounts) {
@@ -183,8 +200,8 @@ public class StatDataSource {
 			criteria.add(Restrictions.lt(JobLogContainer.START_TIME, endDate.getTime()));
 
 			criteria.setProjection( Projections.projectionList()
-					.add(Projections.rowCount(), "jobCount")
-					.add(Projections.countDistinct(JobLogContainer.USERNAME), "uniqueUsers")
+					.add(Projections.rowCount(), JOB_COUNT)
+					.add(Projections.countDistinct(JobLogContainer.USERNAME), UNIQUE_USERS)
 					);
 			criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);        	
  		
@@ -193,14 +210,14 @@ public class StatDataSource {
 
 			@SuppressWarnings("unchecked")
 			Map<Object, Object> resultMap = resultList.get(0);				
-			resultMap.put("year", year);
+			resultMap.put(YEAR, year);
 			results.add(resultMap);
 		}
 		return results;
 	}
 
 	public Object[] getYearlyStatsColumnOrder() {
-		return new Object[] { "year", "uniqueUsers", "jobCount"};
+		return new Object[] { YEAR, UNIQUE_USERS, JOB_COUNT };
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -221,7 +238,7 @@ public class StatDataSource {
 				.add(Projections.groupProperty(JobLogContainer.OPERATION), JobLogContainer.OPERATION)		        
 				)
 				.addOrder(Order.desc(ROW_COUNT))
-				.setMaxResults(10)
+				//.setMaxResults(10)
 				.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
 				.list();
 
@@ -276,6 +293,156 @@ public class StatDataSource {
 	public Object[] getToolUsageColumnOrder() {
 		return new Object[] { JobLogContainer.OPERATION, ROW_COUNT };
 	}
+	
+	public List<Map<Object, Object>> getModuleUsage(Session session, boolean ignoreTestAccounts) {
+
+		//Get date of first and last job
+		@SuppressWarnings("rawtypes")
+		Map rangeMap = getJobDateRange(session, ignoreTestAccounts);
+
+		Calendar minDate = new GregorianCalendar();
+		Calendar maxDate = new GregorianCalendar();
+		minDate.setTime((Date) rangeMap.get("min"));
+		maxDate.setTime((Date) rangeMap.get("max"));
+
+		int minYear = minDate.get(Calendar.YEAR);
+		int maxYear = maxDate.get(Calendar.YEAR);
+
+		//Get a yearly job count for each tool 
+		List<Map<Object, Object>> results = new LinkedList<Map<Object, Object>>();
+
+		for (int year = minYear; year <= maxYear; year++) {
+
+			Calendar startDate = new GregorianCalendar();
+			startDate.set(year, 0, 1, 0, 0, 0);
+
+			Calendar endDate = (Calendar) startDate.clone();        		
+			endDate.add(Calendar.YEAR, 1);
+
+			Criteria criteria = session.createCriteria(JobLogEntry.class);		
+			testAccountFilter.addCriteriaForTestAccounts(session, ignoreTestAccounts, criteria);
+
+			criteria.add(Restrictions.ge(JobLogContainer.START_TIME, startDate.getTime()));
+			criteria.add(Restrictions.lt(JobLogContainer.START_TIME, endDate.getTime()));
+
+			criteria.setProjection( Projections.projectionList()
+					.add(Projections.rowCount(), ROW_COUNT)
+					.add(Projections.groupProperty(JobLogContainer.OPERATION), JobLogContainer.OPERATION)		        
+					);
+			
+			criteria.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);        	
+ 		
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			List<Map> resultList = criteria.list();
+
+			for (Map<Object, Object> toolCount : resultList) {				
+				toolCount.put(YEAR, year);
+				results.add(toolCount);
+			}
+		}
+		
+		//Load module files
+		String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath();
+		FileResource microarrayResource = new FileResource(new File(basepath + "/WEB-INF/microarray-module-copy.xml"));
+		FileResource ngsResource = new FileResource(new File(basepath + "/WEB-INF/ngs-module-copy.xml"));
+		
+		String microarray = null;
+		String ngs = null;
+		
+		try {
+			microarray = readFile(microarrayResource.getSourceFile());
+			ngs = readFile(ngsResource.getSourceFile());
+		} catch (IOException e) {			
+			e.printStackTrace();
+		}				
+		
+		//Find out a module for each tool		
+		Map<String, String> toolModuleMap = new HashMap<String, String>();
+		
+		for (Map<Object, Object> resultMap : results) {
+			String tool = (String) resultMap.get(JobLogContainer.OPERATION);
+			
+			if (!toolModuleMap.containsKey(tool)) {
+				
+				boolean isMicroarray = microarray.contains(tool);
+				boolean isNgs = ngs.contains(tool);
+				
+				if (isMicroarray && !isNgs) {
+					toolModuleMap.put(tool, MICROARRAY);					
+				} else if (isNgs && !isMicroarray) {
+					toolModuleMap.put(tool, NGS);
+				} else if (isNgs && isMicroarray) {
+					toolModuleMap.put(tool, UNRESOLVED);
+				} else if (!isNgs && !isMicroarray) {
+					toolModuleMap.put(tool, OTHER);
+				}
+			}
+		}				
+		
+		//Count yearly job count for each module
+		Map<Integer, Map<String, Integer>> yearModuleCount = new TreeMap<Integer, Map<String, Integer>>();
+		
+		for (Map<Object, Object> resultMap : results) {
+			String tool = (String) resultMap.get(JobLogContainer.OPERATION);
+			Integer year = (Integer) resultMap.get(YEAR);
+			Integer toolCount = (int)(long)(Long)resultMap.get(ROW_COUNT);
+			
+			if (!yearModuleCount.containsKey(year)) {
+				yearModuleCount.put(year, new HashMap<String, Integer>());
+			}
+			
+			Map<String, Integer> moduleCountMap = yearModuleCount.get(year);
+			
+			String module = toolModuleMap.get(tool);
+			
+			if (!moduleCountMap.containsKey(module)) {
+				moduleCountMap.put(module, toolCount);
+			} else {
+				moduleCountMap.put(module, moduleCountMap.get(module) + toolCount);
+			}				
+		}
+		
+		List<Map<Object, Object>> moduleResults = new LinkedList<Map<Object, Object>>();
+		
+		//Convert nested maps to list of maps	
+		for (Entry<Integer, Map<String, Integer>> entry : yearModuleCount.entrySet()) {
+			
+			Map<Object, Object> moduleMap = new HashMap<Object, Object>();
+			
+			int microarrayCount = 0;
+			int ngsCount = 0;
+			int unresolvedCount = 0;
+			int otherCount = 0;
+			
+			if (entry.getValue().containsKey(MICROARRAY)) {
+				microarrayCount = entry.getValue().get(MICROARRAY);
+			}
+			if (entry.getValue().containsKey(NGS)) {
+				ngsCount = entry.getValue().get(NGS);
+			}
+			if (entry.getValue().containsKey(UNRESOLVED)) {
+				unresolvedCount = entry.getValue().get(UNRESOLVED);
+			}
+			if (entry.getValue().containsKey(OTHER)) {
+				otherCount = entry.getValue().get(OTHER);
+			}
+													
+			moduleMap.put(YEAR, entry.getKey());
+			moduleMap.put(MICROARRAY, microarrayCount);
+			moduleMap.put(NGS, ngsCount);
+			moduleMap.put(UNRESOLVED, unresolvedCount);
+			moduleMap.put(OTHER, otherCount);
+			
+			moduleResults.add(moduleMap);
+		}
+				
+		return moduleResults;
+	}
+
+	public Object[] getModuleUsageColumnOrder() {
+		return new Object[] { YEAR, MICROARRAY, NGS, UNRESOLVED, OTHER };
+	}
+	
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<Object, Object>> typedMap(List<Map> rawtype) {
@@ -287,5 +454,22 @@ public class StatDataSource {
 		}
 
 		return typed;
+	}
+
+	private String readFile(File file) throws IOException {
+		
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		String line = null;
+		StringBuilder stringBuilder = new StringBuilder();
+		String ls = System.getProperty("line.separator");
+
+		while ((line = reader.readLine()) != null) {
+			stringBuilder.append(line);
+			stringBuilder.append(ls);
+		}
+		
+		reader.close();
+
+		return stringBuilder.toString();
 	}
 }
