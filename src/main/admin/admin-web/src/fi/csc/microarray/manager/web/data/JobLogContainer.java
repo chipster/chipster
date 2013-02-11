@@ -33,23 +33,29 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	
 	
 	public static final String STATUS_FAIL_VALUE = "FAILED";
+	
+	private TestAccountFilter testAccountFilter = new TestAccountFilter();
+	private boolean ignoreTestAccounts;
 
 	public JobLogContainer(JobLogView view) {
 
 		super(JobLogEntry.class, HibernateUtil.getSessionFactory());
 	}
 	
-	/* (non-Javadoc)
-	 * Fix for incompatibility or bug of hbncontainer and hibernate
-	 * 
-	 * @see com.vaadin.data.hbnutil.HbnContainer#getBaseCriteria()
-	 */
 	@Override
-	protected Criteria getBaseCriteria()
-	{
+	protected Criteria getBaseCriteria() {
+		//Fix for incompatibility or bug of hbncontainer and hibernate
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		ThreadLocalSessionContext.bind(session);
 		
-		return super.getBaseCriteria();
+		//Filter test accounts
+		Criteria criteria = super.getBaseCriteria();		
+		testAccountFilter.addCriteriaForTestAccounts(session, ignoreTestAccounts, criteria);
+		
+		return criteria;
+	}
+
+	public void setIgnoreTestAccounts(boolean ignoreTestAccounts) {
+		this.ignoreTestAccounts = ignoreTestAccounts;
 	}
 }

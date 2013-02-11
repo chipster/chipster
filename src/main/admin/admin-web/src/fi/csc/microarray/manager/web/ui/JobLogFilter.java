@@ -19,7 +19,7 @@ import com.vaadin.ui.TextField;
 import fi.csc.microarray.manager.web.data.DateContainerFilter;
 import fi.csc.microarray.manager.web.data.JobLogContainer;
 
-public class JobLogSearch extends HorizontalLayout {
+public class JobLogFilter extends HorizontalLayout {
 	
 	
 	private static final Collection<String> SEARCH_COLUMNS = Arrays.asList(
@@ -35,7 +35,7 @@ public class JobLogSearch extends HorizontalLayout {
 	private ContainerFilter containerFilter;
 
 
-	public JobLogSearch(final JobLogView view) {
+	public JobLogFilter(final JobLogView view) {
 		this.view = view;
 
 		searchStringField = new TextField();
@@ -43,18 +43,15 @@ public class JobLogSearch extends HorizontalLayout {
 
 			@Override
 			public void handleAction(Object sender, Object target) {
-				view.performSearch();
+				view.applyFilters();
 			}
 		});
 
-
-		searchStringField.addStyleName("search-filter-component");
 		columnToSearch = new NativeSelect();
-		columnToSearch.addStyleName("search-filter-component");
 
 		Button clearButton = new Button();
 		clearButton.setIcon(new ThemeResource("crystal/button_cancel-bw.png"));
-		clearButton.setDescription("Remove search");
+		clearButton.setDescription("Remove filter");
 		clearButton.addStyleName("search-button");
 
 		for (int i = 0; i < JobLogContainer.NATURAL_COL_ORDER.length; i++) {
@@ -72,7 +69,7 @@ public class JobLogSearch extends HorizontalLayout {
 
 		clearButton.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				getView().clearSearch(JobLogSearch.this);
+				getView().clearFilters(JobLogFilter.this);
 			}
 		});
 
@@ -80,7 +77,8 @@ public class JobLogSearch extends HorizontalLayout {
 		addComponent(searchStringField);
 		addComponent(clearButton);
 
-		setStyleName("search-filter");
+		addStyleName("search-filter-bg");
+		addStyleName("search-filter");
 	}
 
 	@Override

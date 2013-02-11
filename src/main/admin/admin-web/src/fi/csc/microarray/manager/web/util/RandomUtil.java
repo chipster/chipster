@@ -12,7 +12,7 @@ public class RandomUtil {
 	public static Date getRandomDate(Random rnd, int startYear) {
 		Calendar cal = new GregorianCalendar();
 
-		cal.set(rnd.nextInt(2012 - startYear) + startYear, rnd.nextInt(12) + 1, rnd.nextInt(28) + 1, rnd.nextInt(24), rnd.nextInt(60), rnd.nextInt(60));
+		cal.set(rnd.nextInt(Calendar.getInstance().get(Calendar.YEAR) - startYear) + startYear, rnd.nextInt(12) + 1, rnd.nextInt(28) + 1, rnd.nextInt(24), rnd.nextInt(60), rnd.nextInt(60));
 
 		return cal.getTime();
 	}
@@ -26,12 +26,13 @@ public class RandomUtil {
 	}
 
 
-	private static final String[] usernames = new String[] { "korhone", "virtane", "makine", "niemine", "makela", "hamalai", "laine", "heikkin", "koskine", "jarvine" };
+	private static final String[] usernames = new String[] { "demo", "nagios", "korhone", "virtane", "makine", "niemine", "makela", "hamalai", "laine", "heikkin", "koskine", "jarvine" };
 	private static final String[] character = new String[] { "a", "e", "h", "i", "j", "k", "l", "m", "n", "o" };
 
 	public static String getRandomUserName(Random rnd) {
 
-		return usernames[rnd.nextInt(usernames.length)] + character[rnd.nextInt(character.length)];
+		return usernames[rnd.nextInt(usernames.length)];
+		//return usernames[rnd.nextInt(usernames.length)] + character[rnd.nextInt(character.length)];
 	}
 
 	private static final String[] sessionParts = new String[] { "hg19", "S2", "CSA", "chr", "_", "-", "gene", "genomes", "seq", "SEQ", "genomes", "analysis", "worflow", "all", "analysis", "align", "rat", "_vs_", "3", "6", "8", "2", "7" };

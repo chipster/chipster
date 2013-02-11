@@ -17,22 +17,29 @@
 	width: 80px;
 }
 
+.toolbar .v-checkbox {
+	margin-top: 8px; 	
+}
+
 .toolbar .search-button img {
 	widhth: 16px;
 	height: 16px;
 }
 
 .toolbar .search-filter {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.toolbar .search-filter-bg {
 	background: #A0A0A0;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	margin-left: 5px;
-	margin-right: 5px;
-	padding-top: 5px;
-	padding-bottom: 3px;
+	margin-top: 4px;
+	margin-bottom: 4px;
+	padding-top: 3px;
+	padding-bottom: 2px;
 	padding-left: 15px;
 }
 

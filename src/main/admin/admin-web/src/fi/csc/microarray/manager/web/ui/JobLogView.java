@@ -12,6 +12,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -25,17 +26,19 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	
 	private HorizontalLayout toolbarLayout;
 
-	private Button addSearchButton = new Button();
+	private Button addFilterButton = new Button();
 
 	private JobLogTable table;
 	private JobLogContainer dataSource;
 
 	private ChipsterAdminUI app;
 
-	private LinkedList<JobLogSearch> searches;
+	private LinkedList<JobLogFilter> filters;
 
 
-	private HorizontalLayout searchLayout;
+	private HorizontalLayout filterLayout;
+
+	private CheckBox ignoreTestAccounts;
 
 
 	public JobLogView(ChipsterAdminUI app) {
@@ -50,17 +53,19 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		//here as well (and not in the constructor like elsewhere)
 		
 		try {
-			dataSource = new JobLogContainer(this); 
+			dataSource = new JobLogContainer(this);			
 //			dataSource.init();
 			
 			table = new JobLogTable(this);		
-			table.setContainerDataSource(dataSource);
+			table.setContainerDataSource(dataSource);					
 			
 		} catch (GenericJDBCException e) {
 			//FIXME Show exception message and hide or disable all database based content 
 			return;
 		}
 		
+		table.setSortContainerPropertyId(JobLogContainer.START_TIME);
+		table.setSortAscending(false);		
 
 		table.setVisibleColumns(JobLogContainer.NATURAL_COL_ORDER);
 		table.setColumnHeaders(JobLogContainer.COL_HEADERS_ENGLISH);
@@ -79,30 +84,42 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 			
 			toolbarLayout = new HorizontalLayout();
 			
-			searchLayout = new HorizontalLayout();
-			addSearch();
-			toolbarLayout.addComponent(searchLayout);
-			addSearchButton.addClickListener((ClickListener)this);
-			addSearchButton.setIcon(new ThemeResource("crystal/edit_add.png"));
-			addSearchButton.setDescription("Add another search");
-			addSearchButton.addStyleName("search-button");
+			filterLayout = new HorizontalLayout();
+			addFilter();
+			toolbarLayout.addComponent(filterLayout);
+			addFilterButton.addClickListener((ClickListener)this);
+			addFilterButton.setIcon(new ThemeResource("crystal/edit_add.png"));
+			addFilterButton.setDescription("Add another filter");
+			addFilterButton.addStyleName("search-button");
 			
 			HorizontalLayout buttonBorder = new HorizontalLayout();
-			buttonBorder.addStyleName("search-filter");
-			buttonBorder.addComponent(addSearchButton);
+			buttonBorder.addStyleName("search-filter-bg");
+			buttonBorder.addComponent(addFilterButton);
 			toolbarLayout.addComponent(buttonBorder);
 			
 			Button searchButton = new Button();
 			searchButton.setIcon(new ThemeResource("crystal/mail_find.png"));
 			searchButton.setDescription("Search");
-			//searchButton.addStyleName("search-button");
 			toolbarLayout.addComponent(searchButton);
 			
 			searchButton.addClickListener(new Button.ClickListener() {
 
 				public void buttonClick(ClickEvent event) {
 
-					performSearch();
+					applyFilters();
+				}
+			});
+			
+			ignoreTestAccounts = new CheckBox("Ignore test accounts", true);
+			ignoreTestAccounts.addStyleName("toolbar-component");
+			toolbarLayout.addComponent(ignoreTestAccounts);
+			dataSource.setIgnoreTestAccounts(ignoreTestAccounts.getValue());
+						
+			ignoreTestAccounts.addValueChangeListener(new ValueChangeListener() {
+
+				@Override
+				public void valueChange(ValueChangeEvent arg0) {
+					applyFilters();
 				}
 			});
 			
@@ -119,20 +136,20 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		return toolbarLayout;
 	}
 
-	private void addSearch() {
-		if (searches == null) {
-			searches = new LinkedList<JobLogSearch>();
+	private void addFilter() {
+		if (filters == null) {
+			filters = new LinkedList<JobLogFilter>();
 		}
-		JobLogSearch search = new JobLogSearch(this);
-		searches.add(search);
-		searchLayout.addComponent(search);
+		JobLogFilter filter = new JobLogFilter(this);
+		filters.add(filter);
+		filterLayout.addComponent(filter);
 	}
 
 	public void buttonClick(ClickEvent event) {
 		final Button source = event.getButton();
 
-		if (source == addSearchButton) {
-			addSearch();
+		if (source == addFilterButton) {
+			addFilter();
 		}
 	}
 
@@ -146,7 +163,7 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 		}
 	}
 
-	public void performSearch() {
+	public void applyFilters() {
 
 		updateContainerFilters();
 
@@ -156,21 +173,24 @@ public class JobLogView extends VerticalLayout implements ClickListener, ValueCh
 	
 	private void updateContainerFilters() {
 		dataSource.removeAllContainerFilters();
+		dataSource.setIgnoreTestAccounts(ignoreTestAccounts.getValue());
 
-		for (JobLogSearch iteratedSearch : searches) {
+		for (JobLogFilter iteratedSearch : filters) {
 			if (iteratedSearch.getContainerFilter() != null) {
 				dataSource.addContainerFilter(iteratedSearch.getContainerFilter());
 			}
 		}
+		
+		table.refreshRowCache();
 	}
 
-	public void clearSearch(JobLogSearch search) {
+	public void clearFilters(JobLogFilter filter) {
 
-		if (searches.size() > 1) {
-			searchLayout.removeComponent(search);
-			searches.remove(search);
+		if (filters.size() > 1) {
+			filterLayout.removeComponent(filter);
+			filters.remove(filter);
 		} else {
-			searches.get(0).clear();
+			filters.get(0).clear();
 		}
 
 		//It's not possible to remove just one filter, so let's do it in the hard way
