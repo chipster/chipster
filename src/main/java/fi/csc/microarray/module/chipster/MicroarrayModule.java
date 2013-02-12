@@ -612,13 +612,12 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("text/gtf")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
-			data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+			addTypeTagIfHashHeader(data);
 		}
 		
 		if (data.isContentTypeCompatitible("text/vcf")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-			
-			data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER);
+			addTypeTagIfDoubleHashHeader(data);
 			data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
 			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
 		}
@@ -740,5 +739,18 @@ public class MicroarrayModule implements Module {
 		}
 	}
 
+	private void addTypeTagIfHashHeader(DataBean data) {
+		String line = readFirstLine(data);
+		if (line != null && line.startsWith("#")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+		}
+	}
+
+	private void addTypeTagIfDoubleHashHeader(DataBean data) {
+		String line = readFirstLine(data);
+		if (line != null && line.startsWith("##")) {
+			data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER);
+		}
+	}
 
 }
