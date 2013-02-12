@@ -12,7 +12,6 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
-import fi.csc.microarray.module.chipster.MicroarrayModule.TypeTags;
 import fi.csc.microarray.util.IOUtils;
 
 /**
