@@ -12,6 +12,7 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule.TypeTags;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -87,13 +88,12 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("text/gtf")) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
-				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+				addTypeTagIfHashHeader(data);
 			}
 			
 			if (data.isContentTypeCompatitible("text/vcf")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				
-				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER);
+				addTypeTagIfDoubleHashHeader(data);
 				data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
 				data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
 			}
@@ -224,5 +224,36 @@ public class DataFolder extends DataItemBase {
 	public String toString() {
 		return getName();
 	}
+
+	private void addTypeTagIfHashHeader(DataBean data) {
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+			String line = in.readLine();
+			if (line != null && line.startsWith("#")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+
+	private void addTypeTagIfDoubleHashHeader(DataBean data) {
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+			String line = in.readLine();
+			if (line != null && line.startsWith("##")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+
 
 }
