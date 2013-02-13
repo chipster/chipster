@@ -1,11 +1,11 @@
 # TOOL import-soft2.R: "Import from GEO" (Import a data set directly from GEO. Be sure to specify the chiptype as an Affymetrix chip name, or either Illumina or cDNA.)
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER GDS.name: accession TYPE STRING DEFAULT GDS858 (GDS or GSE number of the experiment.)
+# PARAMETER GDS.name: accession TYPE STRING DEFAULT GSE (GDS or GSE number of the experiment.)
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
-# PARAMETER chiptype: chiptype TYPE STRING DEFAULT cDNA (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package, Illumina for Illumina arrays, or cDNA for everything else.)
+# PARAMETER chiptype: "Affymetrix/Illumina chiptype" TYPE STRING DEFAULT other (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package. For Illumina arrays, fill in Illumina. For everything else, either cDNA or other.)
 
-# 2012-12-11
+# 2013-02-13
 # Ilari Scheinin <firstname.lastname@gmail.com>
 
 # JTT 9.8.2007
@@ -14,6 +14,9 @@
 GDS.name <- toupper(GDS.name)
 if (length(grep('^(GDS|GSE|)[0-9]+$', GDS.name)) == 0)
   stop('CHIPSTER-NOTE: Not a valid accession: ', GDS.name)
+
+if (chiptype=='other')
+  chiptype <- 'cDNA'
 
 # load data
 library(GEOquery)
@@ -87,12 +90,18 @@ if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(plat))
   dat$chromosome <- plat$CHROMOSOME_NR
 if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
   dat$start <- as.integer(plat$START)
+if (all(is.na(dat$start)) && 'POSITION' %in% colnames(plat))
+  dat$start <- as.integer(plat$POSITION)
 if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
   dat$end <- as.integer(plat$END)
 if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
   dat$symbol <- plat$SYMBOL
 if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(plat))
   dat$description <- plat$GENE_DESCRIPTION
+
+# if missing, impute end column from start (assuming 60 bp probes)
+if (all(is.na(dat$end)))
+  dat$end <- dat$start + 60
 
 # remove empty annotation columns and clean up
 for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')) {

@@ -4,7 +4,7 @@
 # OUTPUT smoothed.tsv: smoothed.tsv 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-02-13
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(NoWaves)
@@ -21,9 +21,11 @@ dat$chromosome[dat$chromosome=='X'] <- 23
 dat$chromosome[dat$chromosome=='Y'] <- 24
 dat$chromosome[dat$chromosome=='MT'] <- 25
 dat$chromosome <- as.integer(dat$chromosome)
+dat.anno <- dat[,setdiff(colnames(dat), c('probe', 'chromosome', 'start', 'end', grep('chip\\.', colnames(dat), value=TRUE)))]
+dat <- dat[,c('probe', 'chromosome', 'start', 'end', grep('chip\\.', colnames(dat), value=TRUE))]
 cgh <- make_cghRaw(dat)
 cgh <- preprocess(cgh, nchrom=23)
-cgh <- data.frame(Probe=rownames(cgh@featureData@data), cgh@featureData@data, assayDataElement(cgh, 'copynumber'))
+cgh <- data.frame(Probe=rownames(fData(cgh)), fData(cgh), copynumber(cgh), stringsAsFactors=FALSE)
 
 # load calibration data and preprocess to deal with missing values
 file2 <- 'normalized_calib.tsv'
@@ -35,9 +37,10 @@ dat2$chromosome[dat2$chromosome=='X'] <- 23
 dat2$chromosome[dat2$chromosome=='Y'] <- 24
 dat2$chromosome[dat2$chromosome=='MT'] <- 25
 dat2$chromosome <- as.integer(dat2$chromosome)
+dat2 <- dat2[,c('probe', 'chromosome', 'start', 'end', grep('chip\\.', colnames(dat2), value=TRUE))]
 calib <- make_cghRaw(dat2)
 calib <- preprocess(calib, nchrom=23)
-calib <- data.frame(Probe=rownames(calib@featureData@data), calib@featureData@data, assayDataElement(calib, 'copynumber'))
+calib <- data.frame(Probe=rownames(fData(calib)), fData(calib), copynumber(calib), stringsAsFactors=FALSE)
 
 # dewave tumor data
 calib <- SmoothNormals(calib)
@@ -51,10 +54,11 @@ dewaved$chromosome <- as.character(dewaved$chromosome)
 dewaved$chromosome[dewaved$chromosome=='23'] <- 'X'
 dewaved$chromosome[dewaved$chromosome=='24'] <- 'Y'
 dewaved$chromosome[dewaved$chromosome=='25'] <- 'MT'
-dewaved[,-(1:4)] <- round(dewaved[,-(1:4)], digits=2)
+dewaved[,-(1:3)] <- round(dewaved[,-(1:3)], digits=2)
+dewaved <- cbind(dewaved[,1:3], dat.anno[rownames(dewaved),], dewaved[,-(1:3)])
 
 # write results
 options(scipen=10)
-write.table(dewaved, file='smoothed.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(dewaved, file='smoothed.tsv', quote=FALSE, sep='\t', na='')
 
 # EOF

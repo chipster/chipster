@@ -4,7 +4,7 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (The accession of the platform.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-11
+# 2013-02-13
 
 # check for valid accession
 platform <- toupper(platform)
@@ -65,12 +65,18 @@ if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(plat))
   dat$chromosome <- plat$CHROMOSOME_NR
 if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
   dat$start <- as.integer(plat$START)
+if (all(is.na(dat$start)) && 'POSITION' %in% colnames(plat))
+  dat$start <- as.integer(plat$POSITION)
 if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
   dat$end <- as.integer(plat$END)
 if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
   dat$symbol <- plat$SYMBOL
 if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(plat))
   dat$description <- plat$GENE_DESCRIPTION
+
+# if missing, impute end column from start (assuming 60 bp probes)
+if (all(is.na(dat$end)))
+  dat$end <- dat$start + 60
 
 dat3 <- cbind(dat[rownames(dat2), c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')], dat2, row.names=rownames(dat2))
 
