@@ -427,7 +427,34 @@ public class GBrowser implements ComponentListener {
 				}
 			}
 		}
-		
+
+		if (firstReadTrack) {// there wasn't any read tracks, add a separate reference  track
+
+
+			URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
+			URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
+
+			IndexedFastaDataSource refSeqDataSource = null;
+
+			if (fastaUrl != null && fastaIndexUrl != null) {
+				try {
+					refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
+
+					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
+							plot, null, 
+							refSeqDataSource, 
+							settings.getGenome().toString());
+
+					samples.addTrackGroup(readGroup);
+
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
 		ScrollGroup analysis = new ScrollGroup("Analysis");
