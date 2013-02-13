@@ -1,16 +1,31 @@
 package fi.csc.microarray.manager.web.data;
 
 import java.io.Serializable;
-import java.util.Random;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 
+import javax.jms.JMSException;
+
 import com.vaadin.data.util.BeanItemContainer;
 
+import fi.csc.microarray.manager.web.ChipsterConfiguration;
 import fi.csc.microarray.manager.web.ui.StorageView;
-import fi.csc.microarray.manager.web.util.RandomUtil;
+import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.NodeBase;
+import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.ParameterMessage;
 
+@SuppressWarnings("serial")
 public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements
 Serializable {
 
@@ -27,6 +42,9 @@ Serializable {
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Session name", "Size", "Date", 	" " };
 
+	
+	
+	
 	public StorageEntryContainer() throws InstantiationException,
 	IllegalAccessException {
 		super(StorageEntry.class);
@@ -38,83 +56,76 @@ Serializable {
 		execService.execute(new Runnable() {
 
 			public void run() {
+
 				
-				//Simulate some delay
+				MessagingEndpoint endpoint = null;
 				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
-//				try {
-//
-//					NodeBase nodeSupport = new NodeBase() {
-//						public String getName() {
-//							return "chipster-admin-web";
-//						}
-//					};
-//
-//					ChipsterConfiguration.init();
-//					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
-//					AdminAPI api = new AdminAPI(
-//							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
-//
-//								public void statusUpdated(Map<String, NodeStatus> statuses) {
+					NodeBase nodeSupport = new NodeBase() {
+						public String getName() {
+							return "admin";
+						}
+					};
 
-									/* Following operation has to lock table component, because addBean() will 
-									 * eventually modify its user interface. Keep the lock during the update loop
-									 * to avoid showing inconsistent state during the loop.
-									 */		
-				
-									//Following is null if data loading in this thread
-									//was faster than UI initialisation in another thread
-				if (view.getEntryTable().getUI() != null) {
-					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+					ChipsterConfiguration.init();
+					endpoint = new MessagingEndpoint(nodeSupport);
+					
+					// TODO close topic
+					MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
+
+					CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_SESSIONS_FOR_USER);
+					request.addNamedParameter("username", "testiuuseri");
+					final CountDownLatch latch = new CountDownLatch(1);
+
+					// TODO clean up this
+					StorageEntryMessageListener replyListener = new StorageEntryMessageListener(latch);
+					filebrokerAdminTopic.sendReplyableMessage(request, replyListener);
+
+					// wait for responses TODO timeout									
+					latch.await();
+
+					// TODO check if results, timeout
+
+					/* Following operation has to lock table component, because addBean() will 
+					 * eventually modify its user interface. Keep the lock during the update loop
+					 * to avoid showing inconsistent state during the loop.
+					 */		
+
+					//Following is null if data loading in this thread
+					//was faster than UI initialisation in another thread
+if (view.getEntryTable().getUI() != null) {
+	Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
 					tableLock.lock();
 					try {
-						final int COUNT = 300;
-
 						removeAllItems();
 
-						Random rnd = new Random();
-
-						StorageEntry entry;
-
-						for (int i = 0; i < COUNT; i++) {
-							entry = new StorageEntry();
-
-							entry.setDate(RandomUtil.getRandomDate(rnd, 2011));
-							entry.setUsername(RandomUtil.getRandomUserName(rnd));
-							entry.setSize(Math.abs(rnd.nextInt(rnd.nextInt(9000000))*1000l));
-							entry.setName(RandomUtil.getRandomSessionName(rnd));
-
+						for (StorageEntry entry : replyListener.getEntries()) {
 							addBean(entry);
 						}
 
 					} finally {
 						tableLock.unlock();
 					}
-				}
-//								}
-//							});
-//
-//					//Wait for responses									
-//					e.g. api.areAllServicesUp(true);					
-//
-//					endpoint.close();										
-
+}
+					
+					// TODO should be in the last finally?
 					view.entryUpdateDone();
 
-//				} catch (MicroarrayException e) {
-//					e.printStackTrace();
-//				} catch (JMSException e) {
-//					e.printStackTrace();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				} 
-			}
-		});
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					if (endpoint != null) {
+						try {
+							endpoint.close();
+						} catch (JMSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+				}
+			}});
 	}
 
 	public void showUser(String username) {
@@ -125,4 +136,40 @@ Serializable {
 			this.addContainerFilter(USERNAME, username, false, true);
 		}
 	}
+
+	
+
+	
+	
+	private class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
+		
+		private CountDownLatch latch;
+		private List<StorageEntry> entries;
+		
+		public StorageEntryMessageListener(CountDownLatch latch) {
+			this.latch = latch;
+		}
+		
+		public void onChipsterMessage(ChipsterMessage msg) {
+			ParameterMessage resultMessage = (ParameterMessage) msg;
+			
+			entries = new LinkedList<StorageEntry>();
+			StorageEntry entry = new StorageEntry();
+			entry.setDate(new Date());
+			entry.setUsername(resultMessage.getNamedParameter("neppi"));
+			entry.setSize(122);
+			entry.setName("sessssio");
+			entries.add(entry);
+			
+			latch.countDown();
+		}
+
+		public List<StorageEntry> getEntries() {
+			return entries;
+		}
+		
+	}
+
+
+
 }
