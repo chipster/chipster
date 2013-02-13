@@ -255,9 +255,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 		fireAreaRequests();
 		
-		if (!disableDrawing) {
-			dispatchRegionChange();
-		}
+		dispatchRegionChange();
 	}
 
 	public RegionDouble getBpRegionDouble() {

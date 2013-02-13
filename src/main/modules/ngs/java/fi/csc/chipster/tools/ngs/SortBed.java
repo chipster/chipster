@@ -4,8 +4,8 @@ import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.ChromosomeNormaliser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.TsvSorter;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
 
 public class SortBed extends JavaAnalysisJobBase {

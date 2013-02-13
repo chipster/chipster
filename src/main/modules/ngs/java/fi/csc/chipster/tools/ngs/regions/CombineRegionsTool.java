@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 
 public class CombineRegionsTool extends RegionTool {
 

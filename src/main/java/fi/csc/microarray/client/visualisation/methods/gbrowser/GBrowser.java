@@ -61,13 +61,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.GBrowserException;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.RegionOperations;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.UnsortedDataException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.IOUtils;

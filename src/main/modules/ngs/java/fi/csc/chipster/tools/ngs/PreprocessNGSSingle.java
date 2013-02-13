@@ -3,9 +3,9 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils.SamBamUtilState;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.SamBamUtils.SamBamUtilStateListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilStateListener;
 import fi.csc.microarray.messaging.JobState;
 
 public class PreprocessNGSSingle extends JavaAnalysisJobBase {

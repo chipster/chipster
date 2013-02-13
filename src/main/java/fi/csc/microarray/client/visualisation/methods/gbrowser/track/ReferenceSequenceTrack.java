@@ -22,7 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.tools.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.Sequence;
 
 /**
  * Track for showing the reference sequence. Useful only for low zoom levels.

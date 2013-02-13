@@ -227,24 +227,30 @@ public class TableColumnProvider extends FeatureProviderBase {
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
-						//TODO this will fail if the last row of header isn't unique
 						String line = null;
-						int i = 1;
-						while (line == null || source.peekLine(i).startsWith("#")) {
-							line = source.peekLine(i);
-							i++;
+						if (source.peekLine().startsWith("#")) {
+							//TODO this will fail if the last row of header isn't unique
+							int i = 1;
+							while (source.peekLine(i).startsWith("#")) {
+								line = source.peekLine(i);
+								i++;
+							}
 						}
+						
 						settings.headerTerminator = line;
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
-						//TODO this will fail if the last row of header isn't unique
 						String line = null;
-						int i = 1;
-						while (line == null || source.peekLine(i).startsWith("##")) {
-							line = source.peekLine(i);
-							i++;
+						if (source.peekLine().startsWith("##")) {
+							//TODO this will fail if the last row of header isn't unique
+							int i = 1;
+							while (source.peekLine(i).startsWith("##")) {
+								line = source.peekLine(i);
+								i++;
+							}
 						}
+						
 						settings.headerTerminator = line;
 					}
 					

@@ -91,6 +91,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertJobTemplate;
+    private SimpleJdbcInsert insertAccountTemplate;
     private String feedbackEmail;
 
 	private static final String CREATE_JOBS_TABLE = 
@@ -106,7 +107,16 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		"username VARCHAR(200), " +
 		"compHost VARCHAR(500)" +
 		");";
-
+	
+	/**
+	 * Used in admin-web statistics to ignore test accounts 
+	 */
+	private static final String CREATE_ACCOUNTS_TABLE = 
+			"CREATE TABLE IF NOT EXISTS accounts (" +
+			"username VARCHAR(200) PRIMARY KEY, " +
+			"ignoreInStatistics BOOLEAN DEFAULT FALSE" + 			
+			");";
+	
 	private static final String ADMIN_ROLE = "admin_role";
 	
 	
@@ -153,9 +163,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		
         this.jdbcTemplate = new JdbcTemplate(dataSource);
 	    this.insertJobTemplate = new SimpleJdbcInsert(dataSource).withTableName("jobs");
+	    this.insertAccountTemplate = new SimpleJdbcInsert(dataSource).withTableName("accounts");
 
 	    // create tables if they do not exist
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
+	    jdbcTemplate.execute(CREATE_ACCOUNTS_TABLE);
 		
 	    // schedule backups
 	    int backupInterval = configuration.getInt("manager", "backup-interval");
@@ -187,10 +199,16 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	} catch (Exception e) {
     		logger.info("could not load additional tasks");
     	}
+    	
+    	//CSC specific configurations 
     	if (additionalTask != null) {
+    		//Schedule Askare updates
     		Scheduler scheduler = new Scheduler();
     		scheduler.schedule("10 0 * * *", additionalTask);
     		scheduler.start();
+    		
+    		//Define test account (username key prevents duplicates)
+    		insertTestAccounts(new String[] {"nagios", "demo"});
     	}
     	
     	
@@ -202,7 +220,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		jobLogTopic.setListener(this);
 		
 	    // listen for feedback messages
-        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
+        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FEEDBACK_TOPIC, AccessMode.READ);
         feedbackTopic.setListener(this);
 
 		// start h2 web console
@@ -223,6 +241,21 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		
 		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+	}
+
+	private void insertTestAccounts(String[] accounts) {
+		try {
+
+			for (String account : accounts) {
+				Map<String, Object> parameters = new HashMap<String, Object>(); 
+				parameters.put("username", account);
+				parameters.put("ignoreInStatistics", true);
+
+				this.insertAccountTemplate.execute(parameters);
+			}
+		} catch (Exception e) {
+		    logger.error("Could not insert test account", e);
+		}
 	}
 
 	private void startAdmin(Configuration configuration) throws IOException,
@@ -309,6 +342,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		            feedback.getSessionURL() : "[not available]";
 		    String emailBody =
 		        feedback.getDetails() + "\n\n" +
+		        "Username: " + feedback.getUsername() + "\n" +
 		        "Email: " + replyEmail + "\n" +
 		        "Session file: " + sessURL + "\n";		    
 		    for (String[] log : feedback.getLogs()) {

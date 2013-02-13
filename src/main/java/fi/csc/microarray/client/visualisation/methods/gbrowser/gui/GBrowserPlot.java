@@ -91,6 +91,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 			}
 		});
 		
+		//Mouse click on the overview shows that region in data view
 		overviewView.addOverviewRegionListener(new RegionListener() {
 
 			@Override

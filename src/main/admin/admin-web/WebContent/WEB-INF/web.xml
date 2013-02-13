@@ -8,27 +8,20 @@
 		<param-value>true</param-value>
 	</context-param>
 	<servlet>
-		<servlet-name>Chipster admin application</servlet-name>
-		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+		<servlet-name>Chipster admin</servlet-name>
+		<!--   <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>-->
+		<servlet-class>fi.csc.microarray.manager.web.ChipsterVaadinServlet</servlet-class>
 		<init-param>
 			<description>
-			Vaadin application class to start</description>
+			Vaadin UI class to use</description>
 			<param-name>UI</param-name>
 			<param-value>fi.csc.microarray.manager.web.ChipsterAdminUI</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Chipster admin application</servlet-name>
+		<servlet-name>Chipster admin</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-	<filter>
-		<filter-name>HibernateServletFilter</filter-name>
-		<filter-class>fi.csc.microarray.manager.web.hbncontainer.HibernateServletFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>HibernateServletFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
