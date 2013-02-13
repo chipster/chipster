@@ -93,21 +93,21 @@ Serializable {
 
 					//Following is null if data loading in this thread
 					//was faster than UI initialisation in another thread
-if (view.getEntryTable().getUI() != null) {
-	Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-					tableLock.lock();
-					try {
-						removeAllItems();
+					if (view.getEntryTable().getUI() != null) {
+						Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+						tableLock.lock();
+						try {
+							removeAllItems();
 
-						for (StorageEntry entry : replyListener.getEntries()) {
-							addBean(entry);
+							for (StorageEntry entry : replyListener.getEntries()) {
+								addBean(entry);
+							}
+
+						} finally {
+							tableLock.unlock();
 						}
-
-					} finally {
-						tableLock.unlock();
 					}
-}
-					
+
 					// TODO should be in the last finally?
 					view.entryUpdateDone();
 
@@ -123,7 +123,7 @@ if (view.getEntryTable().getUI() != null) {
 							e.printStackTrace();
 						}
 					}
-					
+
 				}
 			}});
 	}
