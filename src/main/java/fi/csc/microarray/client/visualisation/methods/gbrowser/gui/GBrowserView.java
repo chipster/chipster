@@ -245,14 +245,18 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		
 		RegionDouble limitedRegion = region.clone();
 		
-		if (limitedRegion.start.bp < 0 ) {
-			limitedRegion.move(-limitedRegion.start.bp);
+		//Enabled scrolling to minus coordinates for 1/30 of width to 
+		//make it easier to navigate to the beginning of chromosome  
+		long minBp = (long) (-limitedRegion.getLength() / 30);
+		
+		if (limitedRegion.start.bp < minBp ) {
+			limitedRegion.move(minBp-limitedRegion.start.bp);
 		}
 		
 		if (viewLimiter != null && viewLimiter.getLimit() != null) {
 			BpCoord maxBp = viewLimiter.getLimit();
 
-			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {
+			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {		
 				
 				//Little bit extra space to the end
 				maxBp.bp += 100000;

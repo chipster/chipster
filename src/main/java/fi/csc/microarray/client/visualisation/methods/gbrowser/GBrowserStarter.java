@@ -44,8 +44,8 @@ public class GBrowserStarter {
 		//Define data
 		
 		String dataPath = System.getProperty("user.home") + "/chipster/";
-//		File BAM_DATA_FILE = new File(dataPath + "hg19_chr20.bam");
-//		File BAI_DATA_FILE = new File(dataPath + "hg19_chr20.bam.bai");
+		File BAM_DATA_FILE = new File(dataPath + "hg19_chr20.bam");
+		File BAI_DATA_FILE = new File(dataPath + "hg19_chr20.bam.bai");
 		File VCF_DATA_FILE = new File(dataPath + "var.flt.vcf");
 		
 //		String dataPath = System.getProperty("user.home") + "/chipster/ohtu/"; 
@@ -56,9 +56,9 @@ public class GBrowserStarter {
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
 		for (int i = 0; i < 6; i++) {
-//			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
-//			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
-//			interpretations.add(reads);
+			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
+			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
+			interpretations.add(reads);
 		}
 
 		//Bed with or without header
@@ -67,7 +67,7 @@ public class GBrowserStarter {
 //		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
 		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));
 
-//		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
+		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 
 		//Create gui
 		

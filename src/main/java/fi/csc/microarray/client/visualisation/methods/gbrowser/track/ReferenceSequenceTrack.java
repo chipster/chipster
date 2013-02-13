@@ -125,11 +125,13 @@ public class ReferenceSequenceTrack extends Track {
 			
 			String seq = ((String) rc.values.get(ColumnType.SEQUENCE));
 			
-			for ( int i = 0; i < seq.length(); i++ ) {
-				
-				BpCoord bp = new BpCoord(rc.region.start.bp + i, rc.region.start.chr);
-								
-				reads.put(bp, "" + seq.charAt(i));
+			if (seq != null) { //when showing negative coordinates
+				for ( int i = 0; i < seq.length(); i++ ) {
+
+					BpCoord bp = new BpCoord(rc.region.start.bp + i, rc.region.start.chr);
+
+					reads.put(bp, "" + seq.charAt(i));
+				}
 			}
 		}
 		
