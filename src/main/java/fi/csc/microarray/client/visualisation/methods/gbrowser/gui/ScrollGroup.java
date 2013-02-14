@@ -13,7 +13,7 @@ import java.util.List;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
@@ -168,7 +168,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 					// currently only used for tracks that contain information
 					// about reads
 					if (expandDrawables && 
-							(track instanceof CoverageAndSNPTrack ||
+							(track instanceof CoverageTrack ||
 									track instanceof QualityCoverageTrack)) {
 
 						if (view.parentPlot.getReadScale() == ReadScale.AUTO) {

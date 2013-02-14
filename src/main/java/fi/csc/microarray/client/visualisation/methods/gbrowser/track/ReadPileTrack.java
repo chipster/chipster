@@ -182,7 +182,7 @@ public class ReadPileTrack extends Track {
 						// Enough space - show color coding for each nucleotide
 
 						// Complement the read if on reverse strand
-						if ((Strand) readPart.getRead().values.get(ColumnType.STRAND) == Strand.REVERSED) {
+						if ((Strand) readPart.getRead().values.get(ColumnType.STRAND) == Strand.REVERSE) {
 
 							StringBuffer buf = new StringBuffer(seq.toUpperCase());
 
@@ -281,12 +281,9 @@ public class ReadPileTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false ) {
-
-			for (RegionContent regCont : areaResult.getContents()) {
-				if (regCont.values.get(ColumnType.STRAND) == this.getStrand()) {
-					this.reads.add(regCont);
-				}
+		for (RegionContent regCont : areaResult.getContents()) {
+			if (regCont.values.get(ColumnType.STRAND) == this.getStrand() && regCont.values.containsKey(ColumnType.SEQUENCE)) {
+				this.reads.add(regCont);
 			}
 		}
 
@@ -313,11 +310,6 @@ public class ReadPileTrack extends Track {
 		}
 
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 
 	/**
@@ -365,7 +357,7 @@ public class ReadPileTrack extends Track {
 			// we might need to reverse reference sequence
 			char[] readBases = null;
 			if (read.values.get(ColumnType.SEQUENCE) != null) { //when showing negative coordinates
-				if (strand == Strand.REVERSED) {
+				if (strand == Strand.REVERSE) {
 					readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
 				} else {
 					readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();

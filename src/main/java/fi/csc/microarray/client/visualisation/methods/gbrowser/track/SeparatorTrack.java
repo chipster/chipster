@@ -77,9 +77,4 @@ public class SeparatorTrack extends Track {
     public Map<DataSource, Set<ColumnType>> requestedData() {
         return null;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 }

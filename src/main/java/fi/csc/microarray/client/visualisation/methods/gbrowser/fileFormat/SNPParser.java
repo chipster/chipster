@@ -100,7 +100,7 @@ public class SNPParser extends TsvParser{
 
 			if (col == ColumnType.STRAND) {
 				return string.equals("-1") || string.equalsIgnoreCase("r") 
-				|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
+				|| string.equals("-") ? Strand.REVERSE	: Strand.FORWARD;
 
 			} else if (col == ColumnType.CHROMOSOME) { 
 				return new Chromosome(string);

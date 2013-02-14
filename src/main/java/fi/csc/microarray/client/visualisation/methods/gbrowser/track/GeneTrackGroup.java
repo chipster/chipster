@@ -20,11 +20,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.La
 public class GeneTrackGroup extends TrackGroup {
 	
 	protected TranscriptTrack transcript;
-	protected IntensityTrack geneOverview;
+	protected CoverageEstimateTrack geneOverview;
 	protected Track gene;
 	protected ReferenceSNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
-	protected IntensityTrack geneOverviewReversed;
+	protected CoverageEstimateTrack geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
@@ -36,7 +36,7 @@ public class GeneTrackGroup extends TrackGroup {
 			transcript = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setStrand(Strand.FORWARD);
 
-			geneOverview = new IntensityTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 			geneOverview.setStrand(Strand.FORWARD);
 
@@ -50,16 +50,16 @@ public class GeneTrackGroup extends TrackGroup {
 		}
 		
 		if (annotationDataSource != null) {
-			geneOverviewReversed = new IntensityTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+			geneOverviewReversed = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
-			geneOverviewReversed.setStrand(Strand.REVERSED);
+			geneOverviewReversed.setStrand(Strand.REVERSE);
 
 			geneReversed = new GeneTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
-			geneReversed.setStrand(Strand.REVERSED);
+			geneReversed.setStrand(Strand.REVERSE);
 
 			transcriptReversed = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
-			transcriptReversed.setStrand(Strand.REVERSED);
+			transcriptReversed.setStrand(Strand.REVERSE);
 		}
 		
 		adds();

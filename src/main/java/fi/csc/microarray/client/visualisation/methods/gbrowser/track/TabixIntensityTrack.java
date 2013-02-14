@@ -109,8 +109,7 @@ public class TabixIntensityTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 		
 		for (RegionContent content : areaResult.getContents()) {
-			if (areaResult.getStatus().concise == this.isConcised() && 
-					content.values.get(ColumnType.VALUE) != null &&
+			if (	content.values.get(ColumnType.VALUE) != null &&
 					content.values.get(ColumnType.VALUE) instanceof Float &&
 					content.region.intersects(getView().getBpRegion())) { 
 
@@ -136,9 +135,4 @@ public class TabixIntensityTrack extends Track {
         datas.put(file, new HashSet<ColumnType>());
         return datas;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 }

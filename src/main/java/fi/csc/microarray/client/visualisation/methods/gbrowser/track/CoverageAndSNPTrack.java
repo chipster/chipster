@@ -184,7 +184,7 @@ public class CoverageAndSNPTrack extends Track {
 			
 			// add drawables of both strands separately
 			drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
-			drawables.addAll(getDrawableReads(Strand.REVERSED, reverseColor));
+			drawables.addAll(getDrawableReads(Strand.REVERSE, reverseColor));
 
 		}
 
@@ -226,11 +226,6 @@ public class CoverageAndSNPTrack extends Track {
 				ColumnType.CIGAR})));
 		
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 
 	/**
