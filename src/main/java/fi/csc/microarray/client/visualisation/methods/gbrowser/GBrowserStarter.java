@@ -55,7 +55,7 @@ public class GBrowserStarter {
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 2; i++) {
 			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
 			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
 			interpretations.add(reads);
