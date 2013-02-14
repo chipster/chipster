@@ -47,6 +47,8 @@ public class GBrowserStarter {
 		File BAM_DATA_FILE = new File(dataPath + "hg19_chr20.bam");
 		File BAI_DATA_FILE = new File(dataPath + "hg19_chr20.bam.bai");
 		File VCF_DATA_FILE = new File(dataPath + "var.flt.vcf");
+		File GTF1_DATA_FILE = new File(dataPath + "cufflinks-gtf/merged.gtf");
+		File GTF2_DATA_FILE = new File(dataPath + "cufflinks-gtf/transcripts.gtf");
 		
 //		String dataPath = System.getProperty("user.home") + "/chipster/ohtu/"; 
 //		File BAM_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam");
@@ -65,7 +67,8 @@ public class GBrowserStarter {
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
 //		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
-		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));
+		interpretations.add(new Interpretation(TrackType.GTF, new DataFile(GTF1_DATA_FILE)));
+		interpretations.add(new Interpretation(TrackType.GTF, new DataFile(GTF2_DATA_FILE)));
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 

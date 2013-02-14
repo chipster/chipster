@@ -298,6 +298,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/vcf"))) {
 				// Vcf file
 				interpretations.add(new DataBeanInterpretation(TrackType.VCF, new BeanDataFile(data)));
+			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
+				// Gtf file
+				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
 			}
 		}
 

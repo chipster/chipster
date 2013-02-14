@@ -91,7 +91,8 @@ public class GBrowser implements ComponentListener {
 		REGIONS_WITH_HEADER(true), 
 		READS(true),
 		HIDDEN(false), 
-		VCF(true);
+		VCF(true), 
+		GTF(true);
 
 		public boolean isToggleable;
 
@@ -536,6 +537,20 @@ public class GBrowser implements ComponentListener {
 
 					try {
 						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
+						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
+						
+					} catch (FileNotFoundException e) {
+						reportException(e);
+					} catch (URISyntaxException e) {
+						reportException(e);
+					}
+					break;
+				case GTF:
+
+					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
+
+					try {
+						regionData = new ChunkDataSource(fileUrl, new GtfParser(), ChunkTreeHandlerThread.class);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
 						
 					} catch (FileNotFoundException e) {
