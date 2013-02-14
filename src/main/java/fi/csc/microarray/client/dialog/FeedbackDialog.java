@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -23,10 +22,10 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.ServiceAccessor;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
 
 /**
@@ -155,7 +154,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
 							
 							try {
 								application.getDataManager().saveFeedbackSession(sessionFile);
-								sessionURL = serviceAccessor.getFileBrokerClient().addFile(new FileInputStream(sessionFile), sessionFile.length(), null).toString();
+								sessionURL = serviceAccessor.getFileBrokerClient().addFile(FileBrokerArea.CACHE, new FileInputStream(sessionFile), sessionFile.length(), null).toString();
 							} catch (Exception e) {
 								logger.warn(e); // do not care that much about failing session backups
 								// lol
@@ -181,7 +180,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
     	                    for (File logFile : logDir.listFiles()) {
     	                        // save it with the file broker
     	                    	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-    	                        String logURL = fileBroker.addFile(new FileInputStream(logFile), logFile.length(), null).toString();
+    	                        String logURL = fileBroker.addFile(FileBrokerArea.CACHE, new FileInputStream(logFile), logFile.length(), null).toString();
     	                        message.addLog(logFile.getName(), logURL);
     	                    }
     	                }

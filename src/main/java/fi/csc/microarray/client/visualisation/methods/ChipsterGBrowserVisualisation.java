@@ -33,6 +33,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 
@@ -68,9 +69,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 * @see fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.DataFile#getInputStream()
 		 */
 		public InputStream getInputStream() throws IOException {
-							
-			return bean.getContentByteStream();
+			return bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 		}
+
 		public File getLocalFile() throws IOException {
 			return Session.getSession().getDataManager().getLocalFile(bean);
 		}

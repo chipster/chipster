@@ -8,8 +8,6 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,6 +15,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,7 +61,6 @@ import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.dataimport.ImportUtils.FileLoaderProcess;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
-import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
@@ -85,7 +83,8 @@ import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
-import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
+import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -95,6 +94,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
@@ -109,15 +109,19 @@ import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
+import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.GeneralFileFilter;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.Strings;
 
@@ -140,7 +144,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFrame mainFrame = null;
 	private JPanel rightSideViewChanger = null;
-	private JPanel leftSideContentPane = null;
 	private JSplitPane rightSplit = null;
 	private JSplitPane leftSplit = null;
 	private JSplitPane mainSplit = null;
@@ -152,11 +155,9 @@ public class SwingClientApplication extends ClientApplication {
 	private SimpleInternalFrame graphFrame;
 	private SimpleInternalFrame operationsFrame;
 	private JPanel visualisationArea;
-	private SimpleInternalFrame detailsFrame;
 
 	private ChildScreenPool childScreens;
 	private TreePanel tree;
-	private DetailsPanel details;
 	private GraphPanel graphPanel;
 	private ToolPanel toolPanel;
 	private VisualisationFrameManager visualisationFrameManager;
@@ -169,7 +170,6 @@ public class SwingClientApplication extends ClientApplication {
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
 
 	private JFileChooser importExportFileChooser;
-	private JFileChooser sessionFileChooser;
 	private JFileChooser workflowFileChooser;
 
 	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
@@ -245,16 +245,44 @@ public class SwingClientApplication extends ClientApplication {
 		childScreens = new ChildScreenPool(mainFrame);
 		Frames frames = new Frames(mainFrame);
 		Session.getSession().setFrames(frames);
+		
+		// add application wide keyboard shortcuts
+		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();
+		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), 
+				new AbstractAction("DEBUG_PRINT_SESSION") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showDebugDialog(1);
+			}
+		});
+		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e) {
+				KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+				if (shortcutActionMap.containsKey(keyStroke) ) {
+					final Action a = shortcutActionMap.get(keyStroke);
+					final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), null );
+					SwingUtilities.invokeLater( new Runnable() {
+						@Override
+						public void run() {
+							a.actionPerformed(ae);
+						}
+					}); 
+					return true;
+				}
+				return false;
+			}
+		});
 
-		// Sets look 'n' feel
+		// set look'n'feel
 		setPlastic3DLookAndFeel(mainFrame);
 
 		// set location
 		mainFrame.setLocationByPlatform(true);
 
 		// initialise joblist popup menu
-		// do this method before getStatusBar to avoid null pointer exception
-		this.taskManagerScreen = this.getTaskManagerScreen();
+		this.taskManagerScreen = this.getTaskManagerScreen(); // call this method before getStatusBar to avoid null pointer exception
 
 		// initialise child screens
 		historyScreen = new HistoryScreen();
@@ -281,11 +309,6 @@ public class SwingClientApplication extends ClientApplication {
 		rightSplit.setDividerLocation(VisualConstants.TREE_PANEL_HEIGHT);
 		rightSplit.setResizeWeight(0.1);
 
-		// initialise left side
-		leftSideContentPane = new JPanel(new BorderLayout());
-		details = new DetailsPanel(leftSideContentPane);
-		leftSideContentPane.setBorder(BorderFactory.createEmptyBorder());
-
 		/* Initialize tree and graph */
 		
 		//moved to getTreeFrame
@@ -299,10 +322,6 @@ public class SwingClientApplication extends ClientApplication {
 		leftSplit.setDividerLocation(VisualConstants.TREE_PANEL_HEIGHT);
 		leftSplit.setResizeWeight(0.1);
 
-		detailsFrame = getDetailsFrame();
-
-		leftSideContentPane.add(leftSplit, BorderLayout.CENTER);
-		leftSideContentPane.add(detailsFrame, BorderLayout.SOUTH);
 
 		rightSideViewChanger = new JPanel(new BorderLayout());
 
@@ -314,7 +333,7 @@ public class SwingClientApplication extends ClientApplication {
 		rightSideViewChanger.setBorder(BorderFactory.createEmptyBorder());
 
 		// construct the whole main content pane
-		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSideContentPane, rightSideViewChanger);
+		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplit, rightSideViewChanger);
 		mainSplit.setDividerLocation(VisualConstants.LEFT_PANEL_WIDTH);
 		mainSplit.setResizeWeight(0.1);
 
@@ -369,7 +388,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// final touches
-		customiseFocusTraversal();
+		updateFocusTraversal();
 		restoreDefaultView();
 		enableKeyboardShortcuts();
 		
@@ -382,11 +401,20 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private void customiseFocusTraversal() throws MicroarrayException {
+	protected void showDebugDialog(int type) {
+		
+		switch (type) {
+		default:
+			String dump = manager.printSession();
+			ChipsterDialog.showDialog(this, new DialogInfo(Severity.INFO, "Session URL dump", "See details for URL's of data beans.", dump), DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
+		}
+	}
+
+	public void updateFocusTraversal() {
 		Vector<Component> order = new Vector<Component>();
+		order.addAll(visualisationFrameManager.getFocusComponents());
 		order.addAll(tree.getFocusComponents());
 		order.addAll(toolPanel.getFocusComponents());
-		order.addAll(visualisationFrameManager.getFocusComponents());
 
 		getMainFrame().setFocusTraversalPolicy(new ClientFocusTraversalPolicy(order));
 
@@ -462,38 +490,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public SimpleInternalFrame getDetailsFrame() throws MicroarrayException {
-		if (detailsFrame == null) {
 
-			class DetailsFrame extends SimpleInternalFrame implements PropertyChangeListener {
-				public DetailsFrame() {
-					super("Notes for dataset");
-				}
-
-				public void propertyChange(PropertyChangeEvent evt) {
-					if (evt instanceof DatasetChoiceEvent) {
-						DatasetChoiceEvent dce = (DatasetChoiceEvent) evt;
-						if (dce.getNewValue() != null) {
-							this.setTitle("Notes for dataset " + dce.getNewValue());
-						} else {
-							this.setTitle("Notes for dataset");
-						}
-					}
-				}
-			}
-
-			DetailsFrame detailsFrameWithListener = new DetailsFrame();
-			addClientEventListener(detailsFrameWithListener);
-
-			this.detailsFrame = detailsFrameWithListener;
-
-			detailsFrame.add(details);
-			return detailsFrame;
-
-		} else {
-			return detailsFrame;
-		}
-	}
 
 	/**
 	 * ExperienceBlue is very nice color theme, but it has ugly orange borders
@@ -746,7 +743,7 @@ public class SwingClientApplication extends ClientApplication {
 						data.setOperationRecord(new OperationRecord(importOperation));
 
 						// data is ready now, make it visible
-						folder.addChild(data);
+						manager.connectChild(data, folder);
 
 						// Create group links only if both datas are raw type
 						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
@@ -884,20 +881,11 @@ public class SwingClientApplication extends ClientApplication {
 		childScreens.show("History", true);
 	}
 
-	public void showDetailsFor(DataBean data) {
-		details.setViewedData(data);
-	}
-
 	public Icon getIconFor(DataItem element) {
 		if (element instanceof DataFolder) {
 			return VisualConstants.ICON_TYPE_FOLDER;
 		} else {
-			DataBean bean = (DataBean) element;
-			if (bean.queryFeatures("/phenodata").exists()) {
-				return VisualConstants.ICON_TYPE_PHENODATA;
-			} else {
-				return bean.getContentType().getIcon();
-			}
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}
 	}
 
@@ -912,7 +900,6 @@ public class SwingClientApplication extends ClientApplication {
 		String title;
 		String message;
 		
-		//
 		boolean userFixable = task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("");
 		
 		// user-friendly message
@@ -1211,15 +1198,27 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void openURLImport() throws MicroarrayException, IOException {
+	public void openURLImport(boolean downloadURL) throws MicroarrayException, IOException {
 		URLImportDialog urlImportDlg = new URLImportDialog(this);
 		URL selectedURL = urlImportDlg.getSelectedURL();
 		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
-
-			File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
-
-			ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
+			
+			if (downloadURL) {
+				File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
+				ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
+			
+			} else {
+				
+				// TODO a bit of ImportUtils functionality is repeated here, should refactor
+				String name = IOUtils.getFilenameWithoutPath(selectedURL);
+				DataFolder folder = initializeFolderForImport(importFolder);
+				DataBean data = manager.createDataBean(name);
+				manager.addUrl(data, StorageMethod.REMOTE_STORAGE, selectedURL);
+				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+				data.setOperationRecord(new OperationRecord(importOperation));
+				manager.connectChild(data, folder);
+			}
 		}
 	}
 	
@@ -1253,11 +1252,11 @@ public class SwingClientApplication extends ClientApplication {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved to server before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 			if (returnValue == 0) {
 				try {
-					saveSessionAndQuit();
+					saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1549,20 +1548,67 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSessionFileChooser(JComponent accessory) {
-		if (sessionFileChooser == null) {
-			sessionFileChooser = ImportUtils.getFixedFileChooser();
+	private JFileChooser getSessionManagementFileChooser() throws RuntimeException {
 
-			String[] extensions = { UserSession.SESSION_FILE_EXTENSION };
-			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", extensions));
-			sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
-			sessionFileChooser.setAcceptAllFileFilterUsed(false);
-			sessionFileChooser.setMultiSelectionEnabled(false);
+		JFileChooser sessionFileChooser = null;
 
+		try {
+			// fetch current sessions to show in the dialog and create it
+			sessionFileChooser = populateFileChooserFromServer();
+			sessionFileChooser.setApproveButtonText("Remove");
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		sessionFileChooser.setAccessory(accessory);
 
+		// hide buttons that we don't need
+		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		return sessionFileChooser;
+	}
+
+	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
+		JFileChooser sessionFileChooser;
+		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
+		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
+		sessionFileChooser.putClientProperty("sessions", sessions);
+		sessionFileChooser.setMultiSelectionEnabled(false);
 		fixFileChooserFontSize(sessionFileChooser);
+		return sessionFileChooser;
+	}
+
+	private JFileChooser getSessionFileChooser(JComponent accessory, boolean remote, boolean preselectFile) throws RuntimeException {
+		
+		
+		JFileChooser sessionFileChooser = null;
+		
+		if (remote) {
+			try {
+				sessionFileChooser = populateFileChooserFromServer();
+				if (preselectFile) {
+					sessionFileChooser.setSelectedFile(new File("server-session." + UserSession.SESSION_FILE_EXTENSION));
+				}
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+			ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		} else {
+			// create local dialog
+			sessionFileChooser = ImportUtils.getFixedFileChooser();
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", new String[] { UserSession.SESSION_FILE_EXTENSION }));
+			sessionFileChooser.setAcceptAllFileFilterUsed(false);
+			sessionFileChooser.setAccessory(accessory);
+			sessionFileChooser.setMultiSelectionEnabled(false);
+			fixFileChooserFontSize(sessionFileChooser);
+			if (preselectFile) {
+				sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
+			}
+		}
+
 
 		return sessionFileChooser;
 	}
@@ -1684,15 +1730,9 @@ public class SwingClientApplication extends ClientApplication {
 		openImportTool(importSession);
 	}
 
-
-	@Override
-	public void loadSessionFrom(File file) {
-		loadSessionImpl(file, false);
-	}
-
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, true);
+		loadSessionImpl(file, null, true, true);
 	}
 
 	@Override
@@ -1704,7 +1744,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile, false);
+					loadSessionImpl(tempFile, null, false, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1714,56 +1754,86 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 	
-	
 	@Override
-	public void loadSession() {
-		loadSession(false);
-	}
-	
-	public void loadSession(boolean lightWeightSession) {
+	public void loadSession(boolean remote) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
-		final JFileChooser fileChooser = getSessionFileChooser(accessory);
+		// create filechooser dialog
+		final JFileChooser fileChooser;
+		try {
+			fileChooser = getSessionFileChooser(null,  remote, true);
+			
+		} catch (RuntimeException e) {
+			if (remote) {
+				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", Exceptions.getStackTrace(e), Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_HIDDEN, true);
+				return;
+			} else {
+				throw e;
+			}
+		}
+
+
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-		
+
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
-			File sessionFile = fileChooser.getSelectedFile();
-			
-			// check that file exists
-			if (!sessionFile.exists()) {
-				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' not found.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				return;
+			File selectedFile = fileChooser.getSelectedFile();
+			File sessionFile = null;
+			URL sessionURL = null;
+
+			if (remote) {
+				try {
+					sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+					if (sessionURL == null) {
+						throw new RuntimeException();
+					}
+					
+				} catch (Exception e) {
+					throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+				}
+
+			} else {
+				// check that file exists
+				if (!selectedFile.exists()) {
+					DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + selectedFile.getName() + "' not found.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+					return;
+				}
+
+				// check that the file is a session file
+				if (!UserSession.isValidSessionFile(selectedFile)) {
+					DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + selectedFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+					return;
+				}
+				
+				sessionFile = selectedFile;
 			}
-			
-			// check that the file is a session file
-			if (!UserSession.isValidSessionFile(sessionFile)) {
-				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				return;
-			}
-			
+
 			// clear previous session 
 			if (accessory.clearSession()) {
 				if (!clearSession()) {
 					return; // loading cancelled
 				}
-			}								
+			}		
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile(), lightWeightSession);		
+			loadSessionImpl(sessionFile, sessionURL, remote, false);		
+
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
+	private void loadSessionImpl(final File sessionFile, final URL sessionURL, final boolean isDataless, final boolean clearDeadTempDirs) {
 		
 		// check that it's a valid session file 
-		if (!UserSession.isValidSessionFile(sessionFile)) {
-			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
-			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-			return;
+		if (!isDataless) {
+			if (!UserSession.isValidSessionFile(sessionFile)) {
+				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
+				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				return;
+			}
 		}
 		
 		// start loading the session
@@ -1772,15 +1842,28 @@ public class SwingClientApplication extends ClientApplication {
 					
 				/* If there wasn't data or it was just cleared, there is no need to warn about
 				 * saving after opening session. However, if there was datasets already, combination
-				 * of them and new session can be necessary to save. This has to set after the import, because 
+				 * of them and new session can be necessary to save. This has to set after the import. 
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile, restoreSession);
-
+				try {
+					if (sessionFile != null) {
+						manager.loadSession(sessionFile, isDataless);
+					} else {
+						manager.loadStorageSession(sessionURL);
+					}
+					
+				} catch (Exception e) {
+					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					logger.error("loading session failed", e);
+				}
+				
 				unsavedChanges = somethingToSave;
 				
-				if (restoreSession) {
+				// If this was restored session, clear dead temp directories in the end.
+				// It is done inside this method to avoid building synchronization between
+				// session loading and temp directory cleaning during restore. 
+				if (clearDeadTempDirs) {
 					clearDeadTempDirectories();
 				}
 			}
@@ -1789,27 +1872,67 @@ public class SwingClientApplication extends ClientApplication {
 	
 	
 	@Override
-	public void saveSession() {
-		saveSession(false);
-	}
+	public void saveSession(final boolean quit, final SessionSavingMethod savingMethod) {
 
-	public void saveSessionAndQuit() {
-		saveSession(true);
-	}
-	
-	public void saveSession(final boolean quit) {
+		// remote and local saves are quite different, first check which one this is
+		final boolean remote;
+		switch (savingMethod) {
+		case INCLUDE_DATA_INTO_ZIP:
+			remote = false;
+			break;
+		case UPLOAD_DATA_TO_SERVER:
+			remote = true;
+			break;
+		default: 
+			throw new IllegalArgumentException("internal error, not supported: " + savingMethod);
+		}
 
-		JFileChooser fileChooser = getSessionFileChooser(null);
+		// create filechooser dialog
+		JFileChooser fileChooser;
+		try {
+			fileChooser = getSessionFileChooser(null,  remote, true);
+			
+		} catch (RuntimeException e) {
+			if (remote) {
+				DialogInfo info = new DialogInfo(Severity.ERROR, "Could not connect to server.", "Currently there is a problem in the network connection or the file server. During that time remote sessions are not accessible, but data can still be saved locally.", Exceptions.getStackTrace(e), Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_HIDDEN, true);
+				return;
+			} else {
+				throw e;
+			}
+		}
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
-		
+
+		// if was approved, then save it
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
+				final File file;
+				boolean exists;
+				
+				if (remote) {
+					// use filename as it is (remote sessions use more human readable names)
+					file = fileChooser.getSelectedFile();
+					exists = false;
+					
+					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+					for (int i = 0; i < sessions[0].length; i++) {
+						if (file.getName().equals(sessions[0][i])) {
+							exists = true;
+							break;
+						}
+					}
+					
+				} else {
+					// add extension if needed
+					file = fileChooser.getSelectedFile().getName().endsWith("." + UserSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + UserSession.SESSION_FILE_EXTENSION);
+					exists = file.exists();
+				}
 
-				if (file.exists()) {
+				// check if file (local or remote) exists
+				if (exists) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;
 
-					String message = "The file " + file.getCanonicalPath() + " already exists. Do you want " + "to replace it?";
+					String message = "The file " + file.getName() + " already exists. Do you want to replace it?";
 
 					Object[] options = { "Cancel", "Replace" };
 
@@ -1818,19 +1941,32 @@ public class SwingClientApplication extends ClientApplication {
 					if (returnValue != 1) {
 						return;
 					}
-
 				}
 
-				// save
+				// block GUI while saving
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						// save
-						boolean saveSuccessful;
-						saveSuccessful = getDataManager().saveSession(file);
+						boolean saveFailed = false;
+						try {
+							if (remote) {
+								getDataManager().saveStorageSession(file.getName());
+							} else {
+								getDataManager().saveSession(file);
+							}
+							
+						} catch (ValidationException e) {
+							Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							saveFailed = true;
 
-						if (saveSuccessful) {
+						} catch (Exception e) {
+							Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							saveFailed = true;
+						}
+						
+						if (!saveFailed) {
 
 							// quit
 							if (quit) {
@@ -1906,7 +2042,60 @@ public class SwingClientApplication extends ClientApplication {
 	public Screen getTaskListScreen() {
 		return childScreens.get("TaskList");
 	}
-	
+
+	public void showRenameView() {
+		Variable renameVariable = new Variable(DataDetails.COMMAND, DataDetails.RENAME_COMMAND);
+		
+		setVisualisationMethod(
+				VisualisationMethods.DATA_DETAILS, Arrays.asList(new Variable[] {renameVariable}), 
+				getSelectionManager().getSelectedDataBeans(), 
+				FrameType.MAIN); 
+	}
+
+	@Override
+	public void manageRemoteSessions() {
+		
+		final JFileChooser fileChooser = getSessionManagementFileChooser();
+		int ret = fileChooser.showOpenDialog(this.getMainFrame());
+
+		// user has selected a file
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			URL sessionURL = null;
+
+			try {
+				sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+				if (sessionURL == null) {
+					throw new RuntimeException();
+				}
+
+				// remote the selected session
+				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionURL);		
+
+				// confirm to user
+				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+
+			} catch (JMSException e) {
+				reportException(e);
+
+			} catch (Exception e) {
+				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+			}
+		}
+	}
+
+	private URL findMatchingSessionURL(final JFileChooser fileChooser, File selectedFile, URL sessionURL) throws MalformedURLException {
+		String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+		for (int i = 0; i < sessions[0].length; i++) {
+			if (selectedFile.getName().equals(sessions[0][i])) {
+				sessionURL = new URL(sessions[1][i]);
+				break;
+			}
+		}
+		return sessionURL;
+	}
+
 	private void enableKeyboardShortcuts() {
 		// add application wide keyboard shortcuts
 		final HashMap<KeyStroke, Action> shortcutActionMap = new 
@@ -1942,6 +2131,4 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		});
 	}
-	
-	
 }

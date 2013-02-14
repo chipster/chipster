@@ -115,7 +115,7 @@ public class QuickLinkPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					application.openURLImport();
+					application.openURLImport(true);
 				} catch (Exception exception) {
 					application.reportException(exception);
 				}
@@ -124,7 +124,7 @@ public class QuickLinkPanel extends JPanel {
 		sessionLink = LinkUtil.createLink("Open session ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				application.loadSession();
+				application.loadSession(false); // TODO change to remote?
 			}
 		});
 

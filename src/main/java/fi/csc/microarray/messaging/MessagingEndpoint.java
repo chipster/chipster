@@ -216,16 +216,26 @@ public class MessagingEndpoint implements MessagingListener {
 		return new AuthenticatedTopic(session, topicName.toString(), Type.NORMAL, accessMode, authenticationListener, this);		
 	}
 	
+
+	/**
+	 * Not multithread safe.
+	 */
     public void replyToMessage(ChipsterMessage original, ChipsterMessage reply) throws JMSException {
     	replyToMessage(original, reply, DEFAULT_REPLY_CHANNEL);
     }
 
+	/**
+	 * Not multithread safe.
+	 */
     public void replyToMessage(ChipsterMessage original, ChipsterMessage reply, String replyChannel) throws JMSException {
     	reply.setMultiplexChannel(replyChannel);
     	Destination replyToDest = original.getReplyTo();
     	replyToMessage(replyToDest, reply);
     }
 
+	/**
+	 * Not multithread safe.
+	 */
     private void replyToMessage(Destination replyToDest, ChipsterMessage reply) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     	try {
