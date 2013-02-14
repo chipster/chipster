@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -138,6 +139,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
+		
 		Rectangle scrollGroupViewPort = (Rectangle) viewArea.clone();
 		
 		for (ScrollGroup scrollGroup : scrollGroups) {
@@ -147,6 +149,12 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			scrollGroup.draw(g, plotArea, scrollGroupViewPort, this);	
 			
 			scrollGroupViewPort.y += scrollGroupViewPort.height;
+		}
+		
+		// draw simple vertical cursor line
+		if (isCursorLineEnabled()) {
+			g.setColor(new Color(0f, 0f, 0f, 0.25f));
+			g.drawLine((int)plotArea.getWidth()/2, 0, (int)plotArea.getWidth()/2, (int)plotArea.getHeight());
 		}
 		
 		// Print fps
@@ -162,6 +170,10 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	// Used above
 //	private int frameCount = 0;
 //	private long resetTime = 0;
+
+	public boolean isCursorLineEnabled() {
+		return true;
+	}
 
 	public int getWidth() {
 		return this.viewArea.width;
@@ -245,14 +257,18 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		
 		RegionDouble limitedRegion = region.clone();
 		
-		if (limitedRegion.start.bp < 0 ) {
-			limitedRegion.move(-limitedRegion.start.bp);
+		//Enabled scrolling to minus coordinates for 1/30 of width to 
+		//make it easier to navigate to the beginning of chromosome  
+		long minBp = (long) (-limitedRegion.getLength() / 30);
+		
+		if (limitedRegion.start.bp < minBp ) {
+			limitedRegion.move(minBp-limitedRegion.start.bp);
 		}
 		
 		if (viewLimiter != null && viewLimiter.getLimit() != null) {
 			BpCoord maxBp = viewLimiter.getLimit();
 
-			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {
+			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {		
 				
 				//Little bit extra space to the end
 				maxBp.bp += 100000;
