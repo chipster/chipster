@@ -187,7 +187,7 @@ public class FastaFileFetcherThread extends Thread {
 		resultList.add(new RegionContent(new Region(request), values));
 
 
-		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.status);
+		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.getStatus());
 
 		fileResultQueue.add(result);		
 		areaRequestThread.notifyAreaRequestHandler();

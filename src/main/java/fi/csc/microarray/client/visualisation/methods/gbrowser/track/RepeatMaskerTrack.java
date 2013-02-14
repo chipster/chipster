@@ -82,12 +82,6 @@ public class RepeatMaskerTrack extends Track{
 	}
 
 	@Override
-	public boolean isConcised() {
-
-		return false;
-	}
-
-	@Override
 	public int getHeight() {
 		return 5;
 	}

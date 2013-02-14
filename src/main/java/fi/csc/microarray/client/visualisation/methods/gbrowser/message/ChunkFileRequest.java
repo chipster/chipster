@@ -8,18 +8,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeN
  */
 public class ChunkFileRequest {
 
-	public AreaRequest areaRequest;
+	public ChunkFileAreaRequest areaRequest;
 	public ByteRegion byteRegion;
 	public TreeNode node;
 
-	public FsfStatus status;
+	public ChunkFileStatus status;
 
-	public ChunkFileRequest(AreaRequest areaRequest, ByteRegion rowRegion, TreeNode node, FsfStatus status) {
+	public ChunkFileRequest(ChunkFileAreaRequest areaRequest, ByteRegion rowRegion, TreeNode node, ChunkFileStatus status) {
 		super();
 		this.byteRegion = rowRegion;
 		this.node = node;
 		this.status = status;
 		this.areaRequest = areaRequest;
 	}
-
 }

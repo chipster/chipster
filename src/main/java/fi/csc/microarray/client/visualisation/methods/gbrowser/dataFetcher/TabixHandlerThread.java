@@ -54,13 +54,13 @@ public abstract class TabixHandlerThread extends AreaRequestHandler {
     	
 		super.processAreaRequest(areaRequest);
 		
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 			
-			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.getStatus());
 			fileRequestQueue.add(fileRequest);
 			return;
 		}
     	
-		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
     }
 }

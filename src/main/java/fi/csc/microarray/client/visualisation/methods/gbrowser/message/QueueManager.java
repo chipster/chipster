@@ -63,10 +63,10 @@ public class QueueManager implements AreaResultListener {
 	}
 	
 	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
-		req.status.file = file;
+		req.getStatus().file = file;
 		QueueContext context = queues.get(file);
 
-		req.status.maybeClearQueue(context.queue);
+		req.getStatus().maybeClearQueue(context.queue);
 		context.queue.add(req);
 		
 		if (context.thread != null) {
@@ -94,7 +94,7 @@ public class QueueManager implements AreaResultListener {
 		
 		for (Entry<DataSource, QueueContext> entry : queues.entrySet()) {
 			
-			FsfStatus status = new FsfStatus();
+			DataRetrievalStatus status = new DataRetrievalStatus();
 			status.poison = true;
 			AreaRequest request = new AreaRequest(new Region(), null, status);
 						

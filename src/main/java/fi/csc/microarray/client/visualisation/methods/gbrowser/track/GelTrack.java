@@ -169,11 +169,6 @@ public class GelTrack extends Track {
                 ColumnType.CIGAR})));
         return datas;
     }
-
-    @Override
-    public boolean isConcised() {
-        return false;
-    }
     
     @Override
     public String getName() {

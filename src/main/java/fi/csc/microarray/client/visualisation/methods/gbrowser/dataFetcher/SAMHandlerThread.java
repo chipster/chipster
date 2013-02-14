@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -14,15 +15,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 
 /**
  * The processing layer thread for SAM compatible files.
@@ -67,21 +68,30 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
     private void processFileResult(ParsedFileResult fileResult) {
 
-    	if (fileResult.getStatus().concise) {
+    	if (fileResult.getAreaRequest().getRequestedContents().contains(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
 
     		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>();
     		for (RegionContent content : fileResult.getContents()) {
-    			int countForward = (Integer) content.values.get(ColumnType.VALUE_FORWARD); 
-    			int countReverse = (Integer) content.values.get(ColumnType.VALUE_REVERSE);
+    			int countForward = (Integer) content.values.get(ColumnType.COVERAGE_ESTIMATE_FORWARD); 
+    			int countReverse = (Integer) content.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE);
     			cache.store(new BpCoord(content.region.getMid(), content.region.start.chr), countForward, countReverse);
-    			addConcisedRegionContents(fileResult.areaRequest, responseList, content.region.start.bp, content.region.end.bp, countForward, countReverse);
+
+    			responseList.add(content);
     		}
     		
     		createAreaResult(new AreaResult(fileResult.getStatus(), responseList));
     		
+    	} else if (fileResult.getAreaRequest().getRequestedContents().contains(ColumnType.COVERAGE)) {
+    		LinkedList<RegionContent> coverage = getCoverage(fileResult);
+    		createAreaResult(new AreaResult(fileResult.getStatus(), coverage));
     	} else {
     		createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContents()));
     	}
+	}
+
+	private LinkedList<RegionContent> getCoverage(ParsedFileResult fileResult) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
@@ -92,18 +102,27 @@ public class SAMHandlerThread extends AreaRequestHandler {
     	
 		super.processAreaRequest(areaRequest);
 		
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 			
-			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.getStatus());
 			fileRequestQueue.add(fileRequest);
 			return;
 		}
     	
-		if (areaRequest.status.concise) {
-			processConcisedAreaRequest(areaRequest);
+		if (areaRequest.getRequestedContents().contains(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
+			processCoverageEstimateRequest(areaRequest);
+
+		} else if (areaRequest.getRequestedContents().contains(ColumnType.COVERAGE)) {
+			
+			areaRequest.getRequestedContents().addAll(Arrays.asList(new ColumnType[] {
+			ColumnType.ID, 
+			ColumnType.SEQUENCE,
+			ColumnType.STRAND,
+			ColumnType.QUALITY,
+			ColumnType.CIGAR}));
 
 		} else {
-			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
 		}
 		
     }
@@ -119,10 +138,10 @@ public class SAMHandlerThread extends AreaRequestHandler {
 	 * @param request
 	 * @return
 	 */
-	public void processConcisedAreaRequest(AreaRequest request) {
+	public void processCoverageEstimateRequest(AreaRequest request) {
 
 		// How many times file is read
-		int step = request.getLength().intValue() / IntensityTrack.SAMPLING_GRANULARITY;
+		int step = request.getLength().intValue() / CoverageEstimateTrack.SAMPLING_GRANULARITY;
 
 		// Divide visible region into subregions and iterate over them
 		for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
@@ -137,9 +156,9 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 			} else {
 				
-				request.status.maybeClearQueue(fileRequestQueue);
+				request.getStatus().maybeClearQueue(fileRequestQueue);
 				
-				fileRequestQueue.add(new BpCoordFileRequest(request, from, to, request.status));
+				fileRequestQueue.add(new BpCoordFileRequest(request, from, to, request.getStatus()));
 			}
 
 		}
@@ -165,32 +184,19 @@ public class SAMHandlerThread extends AreaRequestHandler {
 			} else {
 				endPos = (pos + step);
 			}
-
-			addConcisedRegionContents(request, responseList, startPos, endPos, indexedValues.get(coord).forwardCount, indexedValues.get(coord).reverseCount);
+			
+			Region recordRegion = new Region(startPos, endPos, request.start.chr);
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
+			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);
+			responseList.add(new RegionContent(recordRegion, values));
+			
 			cacheHitsPerRegion++;
 
 			// Move to next region
 			startPos += endPos;
 		}
 		
-		createAreaResult(new AreaResult(request.status, responseList));
+		createAreaResult(new AreaResult(request.getStatus(), responseList));
 	}
-
-	private void addConcisedRegionContents(AreaRequest request, List<RegionContent> responseList, long startPos, long endPos, int countForward, int countReverse) {
-		// Create two approximated response objects: one for each strand
-		Region recordRegion = new Region(startPos, endPos, request.start.chr);
-
-		// Forward
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.VALUE, (float) countForward);
-		values.put(ColumnType.STRAND, Strand.FORWARD);
-		responseList.add(new RegionContent(recordRegion, values));
-
-		// Reverse
-		values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.VALUE, (float) countReverse);
-		values.put(ColumnType.STRAND, Strand.REVERSED);
-		responseList.add(new RegionContent(recordRegion, values));
-	}
-
 }

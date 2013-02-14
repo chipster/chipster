@@ -78,11 +78,6 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	public abstract Map<DataSource, Set<ColumnType>> requestedData();
 
 	/**
-	 * If track is concised, it is not showing exact data but approximations calculated from the data.
-	 */
-	public abstract boolean isConcised();
-
-	/**
 	 * Utility method, return empty Drawable collection.
 	 */
 	public Collection<Drawable> getEmptyDrawCollection() {
@@ -134,7 +129,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * false otherwise.
 	 */
     public boolean isReversed() {
-        return strand == Strand.REVERSED;
+        return strand == Strand.REVERSE;
     }
     
     /**

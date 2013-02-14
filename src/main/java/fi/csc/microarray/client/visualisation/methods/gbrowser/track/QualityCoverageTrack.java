@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * If track's strand is set to {@link Strand#BOTH}, two profiles are drawn, one for
  * each strand.
  *
- * @see IntensityTrack
+ * @see CoverageEstimateTrack
  */
 public class QualityCoverageTrack extends Track {
 
@@ -190,14 +190,12 @@ public class QualityCoverageTrack extends Track {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			// check that areaResult has same concised status (currently always false)
-			// and correct strand
-			if (areaResult.getStatus().concise == isConcised()) {
-				if (getStrand() == content.values.get(ColumnType.STRAND) || 
-						getStrand() == Strand.BOTH) {
+			// check that areaResult has 
+			// correct strand
+			if (getStrand() == content.values.get(ColumnType.STRAND) || 
+					getStrand() == Strand.BOTH) {
 
-					forwardReads.add(content);
-				}
+				forwardReads.add(content);
 			}
 		}
 		getView().redraw();
@@ -226,11 +224,6 @@ public class QualityCoverageTrack extends Track {
 				ColumnType.QUALITY,
 				ColumnType.CIGAR })));
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 
 	/**
