@@ -57,11 +57,11 @@ public class GBrowserStarter {
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
-		for (int i = 0; i < 2; i++) {
-			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
-			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
-			interpretations.add(reads);
-		}
+//		for (int i = 0; i < 2; i++) {
+//			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
+//			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
+//			interpretations.add(reads);
+//		}
 
 		//Bed with or without header
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));

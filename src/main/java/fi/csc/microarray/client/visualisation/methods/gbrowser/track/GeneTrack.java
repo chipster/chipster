@@ -137,7 +137,6 @@ public class GeneTrack extends Track {
 				this.genes.remove(gene);
 
 				this.genes.add(gene);
-
 			}
 		}
 		getView().redraw();

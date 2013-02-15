@@ -14,6 +14,7 @@ public class Exon implements Comparable<Exon> {
 		EXON("exon"),
 		START_CODON("start_codon"),
 		STOP_CODON("stop_codon"),
+		TRANSCRIPT("transcript"), //Cufflinks gtf
 		UNRECOGNIZED(null);
 
 		private String id;

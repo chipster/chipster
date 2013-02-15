@@ -170,18 +170,24 @@ public class TranscriptTrack extends Track {
 					case STOP_CODON:
 						c = PartColor.CDS.c;
 						break;
+					case TRANSCRIPT:
+						c = null;
+						break;
 					default:
 						System.err.println("Gene description not recognised: " + feature);
-						c = Color.blue;
+						c = Color.gray;
 					}
 
+					
 					rect.x = getView().bpToTrack(exon.getRegion().start);
 					//End has to be increased by one, because the transcript includes the base at the end location
 					BpCoord exonEnd = new BpCoord(exon.getRegion().end.bp + 1, exon.getRegion().end.chr);
 					rect.width = getView().bpToTrack(exonEnd) - rect.x;
 					rect.height = 4;
 
-					geneDrawables.add(new RectDrawable(rect, c, null));
+					if (c != null) {
+						geneDrawables.add(new RectDrawable(rect, c, null));
+					}
 				}
 			}
 

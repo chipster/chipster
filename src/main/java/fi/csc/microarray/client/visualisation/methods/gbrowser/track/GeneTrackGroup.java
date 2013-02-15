@@ -29,7 +29,7 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 
-	public GeneTrackGroup(GBrowserView dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource) {
+	public GeneTrackGroup(GBrowserView dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource, boolean isUserData) {
 		super(dataView);
 		
 		if (annotationDataSource != null) {
@@ -62,14 +62,17 @@ public class GeneTrackGroup extends TrackGroup {
 			transcriptReversed.setStrand(Strand.REVERSE);
 		}
 		
-		adds();
+		adds(isUserData);
 	}
 
-	public void adds() {
+	public void adds(boolean isUserData) {
 		
 		this.tracks = new LinkedList<Track>();
-		// Top separator and title
-        tracks.add(new TitleTrack(view, "Annotations", Color.black));
+		
+		if (!isUserData) {
+			// title
+			tracks.add(new TitleTrack(view, "Annotations", Color.black));
+		}
 		
         if (transcript != null) { // no annotation data source 
         	// Transcript, detailed, forward
@@ -87,8 +90,12 @@ public class GeneTrackGroup extends TrackGroup {
 			tracks.add(snpTrack);
 		}
 
-		// Ruler track
-		tracks.add(new RulerTrack(view));
+		if (isUserData) {
+			tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+		} else {
+			// Ruler track
+			tracks.add(new RulerTrack(view));			
+		}
 
 		if (snpTrackReversed != null) {
 			// SNP track Reversed

@@ -337,4 +337,8 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 	public void setDefaultLayoutMode() {
 		// decided in getLayoutMode()
 	}
+
+	public void setScrollEnabled(boolean enabled) {
+		this.scrollEnabled = enabled;
+	}
 }

@@ -61,10 +61,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GtfUtil;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.PositionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -338,7 +340,7 @@ public class GBrowser implements ComponentListener {
 						}
 
 						//Show ruler track even if there are now data sources
-						TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfDataSource, repeatDataSource);
+						TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfDataSource, repeatDataSource, false);
 						track.setTrackGroup(geneGroup);
 						annotations.addTrackGroup(geneGroup);
 
@@ -431,6 +433,8 @@ public class GBrowser implements ComponentListener {
 
 		if (firstReadTrack) {// there wasn't any read tracks, add a separate reference  track
 
+			//This track has fixed size now, layout system understands it only when the scrolling is disabled
+			samples.setScrollEnabled(false);
 
 			URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
 			URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
@@ -458,7 +462,7 @@ public class GBrowser implements ComponentListener {
 
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
-		ScrollGroup analysis = new ScrollGroup("Analysis");
+		ScrollGroup analysis = new ScrollGroup("Analysis", true);
 
 		boolean firstPeakTrack = true;
 		
@@ -484,6 +488,7 @@ public class GBrowser implements ComponentListener {
 				case REGIONS:
 				case REGIONS_WITH_HEADER:
 				case VCF:
+				case GTF:
 					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
@@ -550,8 +555,8 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 
 					try {
-						regionData = new ChunkDataSource(fileUrl, new GtfParser(), ChunkTreeHandlerThread.class);
-						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
+						DataSource gtfData = new LineDataSource(fileUrl, GtfToFeatureConversion.class);
+						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfData, null, true));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -843,19 +848,25 @@ public class GBrowser implements ComponentListener {
 				
 				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
+				boolean isGtf = (interpretation.type == TrackType.GTF);
 				
-				if (isBed || isVcf) {
+				if (isBed || isVcf || isGtf) {
+					
 					DataFile data = interpretation.primaryData;
 					File file = data.getLocalFile();
 					List<RegionContent> rows = null;
+					
 					try {
 						if (isBed) {
-							//FIXME remove Chipster dependency
 							rows = new RegionOperations().loadFile(file);
-						} else {
-							//FIXME remove Chipster dependency
-							rows = new PositionOperations().loadFile(file);	
+							
+						} else if (isVcf) {
+							rows = new PositionOperations().loadFile(file);
+							
+						} else if (isGtf) {
+							rows = GtfUtil.loadFile(file);	
 						}
+						
 						for (RegionContent row : rows) {
 							chromosomeNames.add(row.region.start.chr.toNormalisedString());
 						}
