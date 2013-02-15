@@ -1,63 +1,54 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import org.apache.commons.io.input.BoundedInputStream;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
-import fi.csc.microarray.util.IOUtils;
 
+/**
+ * Data source for reading lines from file or http, starting from defined position. 
+ * The defined position is located with random access calls, so that reading is 
+ * equally fast from any part of the file, regardless of its size.
+ * 
+ * @author klemela
+ *
+ */
 public class RandomAccessLineDataSource extends DataSource {
-
-	private Long length = null;
-	private BufferedReader lineReader;
+	
+	private LineReader lineReader;
 
 	public RandomAccessLineDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
+		
+		if (file != null) {
+			this.lineReader = new FileLineReader(url);
+		} else {
+			this.lineReader = new HttpLineReader(url);
+		}
 	}
 
 	public RandomAccessLineDataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler)
 			throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		
 		super(urlRoot, path, requestHandler);
+		
+		if (file != null) {
+			this.lineReader = new FileLineReader(url);
+		} else {
+			this.lineReader = new HttpLineReader(url);
+		}
 	}	
 	
 	public void setLineReaderPosition(long position) throws IOException, GBrowserException {
 		
-		if (lineReader != null) {
-			IOUtils.closeIfPossible(lineReader);
-		}
-
-		if (file != null) {
-			FileInputStream in = new FileInputStream(file);
-			in.skip(position);
-			lineReader = new BufferedReader(new InputStreamReader(in));
-
-		} else {
-
-			HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-			InputStream in = connection.getInputStream();
-			in.skip(position);
-			lineReader = new BufferedReader(new InputStreamReader(in));
-			
-		}
-
-		if (!lineReader.markSupported()) {
-			throw new GBrowserException("File '" + file + "' does't support random access line reading.");
-		}
+		lineReader.setPosition(position);
 	}
 	
 	public String getNextLine() throws IOException {
@@ -82,46 +73,26 @@ public class RandomAccessLineDataSource extends DataSource {
 		
 		String line;
 		String lastLine = null;
+		String lineBeforeLast = null;
 		
 		while ((line = lineReader.readLine()) != null) {
+			lineBeforeLast = lastLine;
 			lastLine = line;
 		}
 		
-		return lastLine;
+		if (lineBeforeLast != null) {
+			return lastLine;
+		} else {
+			return null;
+		}	
 	}
 
 	public void close() {
-		if (lineReader != null) {
-			try {
-				lineReader.close();
-			} catch (IOException e) {
-				//No problem
-			}
-			lineReader = null;
-		}
+		lineReader.close();
 	}
 	
 	public long length() throws IOException {
-		if (file != null) {
-			return file.length();
-
-		} else {
-			if (length == null) {
-				HttpURLConnection connection = null;
-				try {
-					connection = (HttpURLConnection)url.openConnection();
-					// connection.getContentLength() returns int, which is not enough
-					String string = connection.getHeaderField("content-length");
-					if (string == null) {
-						throw new IOException("content-length unavailable for " + url);
-					}
-					length = Long.parseLong(connection.getHeaderField("content-length"));
-				} finally {
-					IOUtils.disconnectIfPossible(connection);
-				}       
-			} 
-			return length;
-		}
+		return lineReader.length();
 	}
 
 	public void checkSorting() throws IOException, UnsortedDataException {
@@ -160,11 +131,14 @@ public class RandomAccessLineDataSource extends DataSource {
 			throws IOException, GBrowserException {
 		long t = System.currentTimeMillis();
 		
-		System.out.println("First 3 lines: ");
+		System.out.println("First 100 lines: ");
 		file.setLineReaderPosition(0);
 		System.out.println("\t1: " + file.getNextLine());
-		System.out.println("\t2: " + file.getNextLine());
-		System.out.println("\t3: " + file.getNextLine());
+		
+		for (int i = 0; i < 100; i++) {
+			file.getNextLine();
+		}
+		System.out.println("\t100: " + file.getNextLine());
 		
 		System.out.println(System.currentTimeMillis() - t + " ms ");
 		t = System.currentTimeMillis();
