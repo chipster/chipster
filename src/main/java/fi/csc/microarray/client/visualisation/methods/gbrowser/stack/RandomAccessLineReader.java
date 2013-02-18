@@ -10,18 +10,22 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkD
 import fi.csc.microarray.util.IOUtils;
 
 /**
- * Custom implementation of line reading over http, because HttpInputStream.skip() method 
- * doesn't support random access and is therefore useless for random access of big files. 
- * This is fast for implementation is fast getting a few lines anywhere in the file, 
- * but sequential performance is poor (maybe 10 kB/s) because Jetty server gives only a few
- * kilobytes per range request and request are made sequentially at the moment.
+ * Custom implementation of random access line reading, because method HttpInputStream.skip()  
+ * doesn't support random access and is therefore useless with big files. File implementation
+ * FileInputStream.skip() is workable, but this is used also with files because of consistency and 
+ * speed. This implementation is fast for getting a few lines anywhere in the file, 
+ * but sequential performance is poor over http, because requests are made sequentially at the moment.
+ * 
+ * Jetty server sends only a few kilobytes (seems to vary from 8 to 100) per range request.
+ * Sequential bandwidth varies greatly with ping, from 1 MB/s in local network (1 ms ping)
+ * to 10 kB/s (~50 ms ping).
  * 
  * @author klemela
  */
-public class HttpLineReader implements LineReader {
+public class RandomAccessLineReader implements LineReader {
 	
 	//Must be greater than length of longest row
-	private static final int HTTP_BUFFER_SIZE = 1024*2;
+	private static final int HTTP_BUFFER_SIZE = 1024*8;
 	private long position = -1;
 	private String buffer;
 
@@ -29,7 +33,7 @@ public class HttpLineReader implements LineReader {
 	private ChunkDataSource chunkDataSource;
 	private URL url;
 
-	public HttpLineReader(URL url) throws FileNotFoundException, URISyntaxException {
+	public RandomAccessLineReader(URL url) throws FileNotFoundException, URISyntaxException {
 		this.url = url;
 		chunkDataSource = new ChunkDataSource(url, null, null);
 	}
@@ -58,7 +62,7 @@ public class HttpLineReader implements LineReader {
 			}
 		}
 
-		String line = buffer.substring(0, indexOfNewLine - 1);
+		String line = buffer.substring(0, indexOfNewLine);
 		buffer = buffer.substring(indexOfNewLine + 1);
 		position += indexOfNewLine + 1;
 
@@ -69,7 +73,7 @@ public class HttpLineReader implements LineReader {
 
 		byte[] bytes = new byte[HTTP_BUFFER_SIZE];
 		chunkDataSource.read(position, bytes);
-		buffer = new String(bytes);
+		buffer = new String(bytes);		
 	}
 
 

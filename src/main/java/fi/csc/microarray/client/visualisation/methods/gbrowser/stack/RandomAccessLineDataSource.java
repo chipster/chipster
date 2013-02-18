@@ -13,7 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
 /**
- * Data source for reading lines from file or http, starting from defined position. 
+ * Data source for reading lines from file or over http, starting from defined position. 
  * The defined position is located with random access calls, so that reading is 
  * equally fast from any part of the file, regardless of its size.
  * 
@@ -27,11 +27,7 @@ public class RandomAccessLineDataSource extends DataSource {
 	public RandomAccessLineDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 		
-		if (file != null) {
-			this.lineReader = new FileLineReader(url);
-		} else {
-			this.lineReader = new HttpLineReader(url);
-		}
+		this.lineReader = new RandomAccessLineReader(url);
 	}
 
 	public RandomAccessLineDataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler)
@@ -39,11 +35,7 @@ public class RandomAccessLineDataSource extends DataSource {
 		
 		super(urlRoot, path, requestHandler);
 		
-		if (file != null) {
-			this.lineReader = new FileLineReader(url);
-		} else {
-			this.lineReader = new HttpLineReader(url);
-		}
+		this.lineReader = new RandomAccessLineReader(url);
 	}	
 	
 	public void setLineReaderPosition(long position) throws IOException, GBrowserException {
@@ -115,30 +107,61 @@ public class RandomAccessLineDataSource extends DataSource {
 	
 	public static void main (String args[]) throws URISyntaxException, IOException, GBrowserException {
 		
-		URL url = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66.gtf").toURI().toURL();
-		RandomAccessLineDataSource file = new RandomAccessLineDataSource(url, GtfToFeatureConversion.class);
+		URL fileUrl = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66.gtf").toURI().toURL();
+		RandomAccessLineDataSource file = new RandomAccessLineDataSource(fileUrl, GtfToFeatureConversion.class);
 		
-		test(file);
 		
-		url = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.66.gtf");
-		file = new RandomAccessLineDataSource(url, GtfToFeatureConversion.class);
+		URL httpUrl = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.66.gtf");
+		RandomAccessLineDataSource http = new RandomAccessLineDataSource(httpUrl, GtfToFeatureConversion.class);
 		
-		test(file);
-
+		manualTest(file);
+		manualTest(http);
+		
+		iterativeTest(file, http);
 	}
 
-	private static void test(RandomAccessLineDataSource file)
+	private static void iterativeTest(RandomAccessLineDataSource file,
+			RandomAccessLineDataSource http) throws IOException, GBrowserException {
+		
+		for (int i = 0; i < 1000; i++) {
+			file.setLineReaderPosition(i);
+			http.setLineReaderPosition(i);
+			
+			testCompare(file.getNextLine(), http.getNextLine(), "" + i);
+		}
+		
+		for (int i = 1000000; i < 1001000; i++) {
+			file.setLineReaderPosition(i);
+			http.setLineReaderPosition(i);
+			
+			testCompare(file.getNextLine(), http.getNextLine(), "" + i);
+		}
+		
+		testCompare(file.getLastLine(), http.getLastLine(), "lastLine");
+		
+		System.out.println("Test done");		
+	}
+
+	private static void testCompare(String line1, String line2, String description) {
+		if (!line1.equals(line2)) {
+			System.out.println("Lines are different!" + description);
+			System.out.println("\t" + line1);
+			System.out.println("\t" + line2);
+		}
+	}
+
+	private static void manualTest(RandomAccessLineDataSource file)
 			throws IOException, GBrowserException {
 		long t = System.currentTimeMillis();
 		
-		System.out.println("First 100 lines: ");
+		System.out.println("First 10000 lines: ");
 		file.setLineReaderPosition(0);
 		System.out.println("\t1: " + file.getNextLine());
 		
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10000; i++) {
 			file.getNextLine();
 		}
-		System.out.println("\t100: " + file.getNextLine());
+		System.out.println("\t10000: " + file.getNextLine());
 		
 		System.out.println(System.currentTimeMillis() - t + " ms ");
 		t = System.currentTimeMillis();

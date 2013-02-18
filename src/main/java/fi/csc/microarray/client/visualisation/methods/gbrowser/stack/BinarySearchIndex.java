@@ -4,81 +4,72 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 public class BinarySearchIndex extends Index {
 
-	private ChunkDataSource file;
+	private RandomAccessLineDataSource file;
 	private Parser parser;
 	private TreeMap<BpCoord, Long> index = new TreeMap<BpCoord, Long>();
 	
 	private static final int CHUNK_LENGTH = 1024;
 	private static final int INDEX_INTERVAL = 128;
 
-	public BinarySearchIndex(DataSource file, Parser parser) throws IOException {
-		this.file = (ChunkDataSource) file;
+	public BinarySearchIndex(DataSource file, Parser parser) throws IOException, GBrowserException {
+		this.file = (RandomAccessLineDataSource) file;
 		this.parser = parser;
 		
 		readEnds();
 	}
 
-	private void readEnds() throws IOException {
-		byte[] chunk = new byte[CHUNK_LENGTH];
+	private void readEnds() throws IOException, GBrowserException {
 		
 		//Add first row to index
-		file.read(0, chunk);
-		String chunkString = new String(chunk);
-		String firstLine = chunkString.substring(0, chunkString.indexOf("\n"));
-		
+		file.setLineReaderPosition(0);
+		String firstLine = file.getNextLine();		
 		parser.setLine(firstLine);
 		Region region = parser.getRegion();
 		index.put(region.start, 0l);
 		
 		//Add last row to index
-		long chunkPosition = file.length() - CHUNK_LENGTH;
-		file.read(chunkPosition, chunk);
-		chunkString = new String(chunk);
-		chunkString = chunkString.substring(0, chunkString.lastIndexOf("\n"));
-		int indexOfLastLine = chunkString.lastIndexOf("\n") + 1;
-		String lastLine = chunkString.substring(indexOfLastLine);
-		
+		String lastLine = file.getLastLine();		
 		parser.setLine(lastLine);
 		region = parser.getRegion();
-		index.put(region.start, chunkPosition + indexOfLastLine);
+		index.put(region.start, file.length() - lastLine.length());
 	}
 
-	public List<String> getFileLines(Region request) {
+	public List<String> getFileLines(Region request) throws IOException, GBrowserException {
 		
-		//Update index around request start
-		binarySearch(request.start);
+		//Search start position
+		long floorFilePosition = binarySearch(request.start);
 		
-		Entry<BpCoord, Long> floorEntry = index.floorEntry(request.start);
+		file.setLineReaderPosition(floorFilePosition);
 		
-		long floorFilePosition = floorEntry.getValue();
+		LinkedList<String> lines = new LinkedList<String>();
 		
-		//Get requested region from index
-		SortedMap<BpCoord, Long> requestIndex = index.subMap(request.start, request.end);
-		
-		LinkedList<String> lines = new LinkedList<String>();				
-		
-		for (Entry<Region, String> entry : lineMap.entrySet()) {
+		while (true) {
+			String line = file.getNextLine();
+			parser.setLine(line);
+			Region region = parser.getRegion();
 			
-			if (entry.getKey().intersects(requestRegion)) {
-				lines.add(entry.getValue());
+			if (request.intersects(region)) {
+				lines.add(line);
+			}
+			
+			if (request.end.compareTo(region.start) < 0) {
+				break;
 			}
 		}
 		
 		return lines;
 	}
 	
-	private long binarySearch(BpCoord position) throws IOException {
+	private long binarySearch(BpCoord position) throws IOException, GBrowserException {
 		
 			Entry<BpCoord, Long> floorEntry = index.floorEntry(position);
 			Entry<BpCoord, Long> ceilingEntry = index.ceilingEntry(position);
@@ -97,20 +88,20 @@ public class BinarySearchIndex extends Index {
 	}
 
 	private void splitIndexRegion(long floorFilePosition,
-			long ceilingFilePosition) throws IOException {
+			long ceilingFilePosition) throws IOException, GBrowserException {
 		
 		long centerFilePosition = (floorFilePosition + ceilingFilePosition) / 2;
 		
-		byte[] chunk = new byte[CHUNK_LENGTH];
-
-		file.read(centerFilePosition, chunk);
-		String chunkString = new String(chunk);
-		int indexOfFirstLine = chunkString.indexOf("\n") + 1;
-		chunkString = chunkString.substring(indexOfFirstLine);
-		String firstLine = chunkString.substring(0, chunkString.lastIndexOf("\n"));
+		file.setLineReaderPosition(centerFilePosition);
+		//Skip the first line, because we don't know if it is complete or partial 		
+		long partialLineLength = file.getNextLine().length() + 1; //plus one because of new line character
+		String firstLine = file.getNextLine();		
 		
 		parser.setLine(firstLine);
 		Region region = parser.getRegion();
-		index.put(region.start, centerFilePosition + indexOfFirstLine);
+		//File position should be the last new line character before the parsed line.
+		//File position cannot be set to actual line start, because then the first line is lost,
+		//because we don't know if it is partial or not.
+		index.put(region.start, centerFilePosition + partialLineLength + firstLine.length());
 	}
 }

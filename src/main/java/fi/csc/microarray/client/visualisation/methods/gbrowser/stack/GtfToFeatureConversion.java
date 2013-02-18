@@ -47,7 +47,7 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 		long start = request.start.bp;
 		long end = request.end.bp;
 		
-		//Extend area to be able to draw introns at screen edge, but don't go over MAX_VALUE, or below 1
+		//Extend area to be able to draw introns at screen edge, but don't below 1
 		//TODO Be more clever to avoid getting so much useless data
 		int EXTRA = 500000; //O,5M should be enough for the longest human introns http://www.bioinfo.de/isb/2004040032/
 		
