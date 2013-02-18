@@ -17,8 +17,7 @@ public class BinarySearchIndex extends Index {
 	private Parser parser;
 	private TreeMap<BpCoord, Long> index = new TreeMap<BpCoord, Long>();
 	
-	private static final int CHUNK_LENGTH = 1024;
-	private static final int INDEX_INTERVAL = 128;
+	private static final int INDEX_INTERVAL = 128*1024;
 
 	public BinarySearchIndex(DataSource file, Parser parser) throws IOException, GBrowserException {
 		this.file = (RandomAccessLineDataSource) file;
@@ -52,12 +51,19 @@ public class BinarySearchIndex extends Index {
 		
 		LinkedList<String> lines = new LinkedList<String>();
 		
-		while (true) {
-			String line = file.getNextLine();
+		String line = null;
+		
+		while ((line = file.getNextLine()) != null) {
+			
+			if ("".equals(line)) {
+				//First byte was new line character
+				continue;
+			}
+			
 			parser.setLine(line);
 			Region region = parser.getRegion();
 			
-			if (request.intersects(region)) {
+			if (request.contains(region.start)) {
 				lines.add(line);
 			}
 			
@@ -74,10 +80,15 @@ public class BinarySearchIndex extends Index {
 			Entry<BpCoord, Long> floorEntry = index.floorEntry(position);
 			Entry<BpCoord, Long> ceilingEntry = index.ceilingEntry(position);
 			
+			if (floorEntry == null) {
+				//Request start is less than smallest index entry
+				floorEntry = ceilingEntry;			
+			}
+				
 			long floorFilePosition = floorEntry.getValue();
 			long ceilingFilePosition = ceilingEntry.getValue();
 			
-			if (ceilingFilePosition - floorFilePosition > CHUNK_LENGTH * INDEX_INTERVAL) {
+			if (ceilingFilePosition - floorFilePosition > INDEX_INTERVAL) {
 			
 				splitIndexRegion(floorFilePosition, ceilingFilePosition);
 				

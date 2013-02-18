@@ -13,10 +13,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 public class GtfToFeatureConversion extends AreaRequestHandler {
 
-	private InMemoryIndex index;
+	private Index index;
 
 	private StackGtfParser parser;
 
@@ -29,9 +30,19 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 		
 		try {
 			this.index = new InMemoryIndex(file, parser);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+//		try {
+//			this.index = new BinarySearchIndex(file, parser);
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (GBrowserException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -55,7 +66,16 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 		end = end + EXTRA;
 		
 		Region requestRegion = new Region(start, end, request.start.chr);
-		List<String> lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+		
+		List<String> lines = null;
+		try {		
+			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (GBrowserException e) {
+			e.printStackTrace();
+		}
 		
 		GeneSet geneSet = new GeneSet();
 		

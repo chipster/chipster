@@ -10,6 +10,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
+/**
+ * In-memory index, which keeps the whole file in RAM. This is practical for small files
+ * below 10 MB, where file reading takes less than 1 second. Files don't need to be sorted. 
+ * Memory usage is about 400% in comparison to original file.
+ * 
+ * @author klemela
+ */
 public class InMemoryIndex extends Index {
 
 	private LineDataSource file;
@@ -48,15 +55,16 @@ public class InMemoryIndex extends Index {
 		return lines;
 	}
 
-	public List<String> getFileLines(Region requestRegion) {
+	public List<String> getFileLines(Region request) {
 		
-		LinkedList<String> lines = new LinkedList<String>();				
+		LinkedList<String> lines = new LinkedList<String>();
 		
-		for (Entry<Region, String> entry : lineMap.entrySet()) {
-			
-			if (entry.getKey().intersects(requestRegion)) {
-				lines.add(entry.getValue());
-			}
+		Region startRegion = new Region(request.start, request.start);
+		Region endRegion = new Region(request.end, request.end);
+		
+		for (Entry<Region, String> entry : lineMap.subMap(startRegion, endRegion).entrySet()) {
+
+			lines.add(entry.getValue());
 		}
 		
 		return lines;

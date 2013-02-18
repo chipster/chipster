@@ -2,12 +2,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
-import fi.csc.microarray.util.IOUtils;
 
 /**
  * Custom implementation of random access line reading, because method HttpInputStream.skip()  
@@ -87,20 +85,6 @@ public class RandomAccessLineReader implements LineReader {
 	
 	public long length() throws IOException {
 
-		if (length == null) {
-			HttpURLConnection connection = null;
-			try {
-				connection = (HttpURLConnection)url.openConnection();
-				// connection.getContentLength() returns int, which is not enough
-				String string = connection.getHeaderField("content-length");
-				if (string == null) {
-					throw new IOException("content-length unavailable for " + url);
-				}
-				length = Long.parseLong(connection.getHeaderField("content-length"));
-			} finally {
-				IOUtils.disconnectIfPossible(connection);
-			}       
-		} 
-		return length;
+		return chunkDataSource.length();
 	}
 }
