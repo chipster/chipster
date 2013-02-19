@@ -112,6 +112,15 @@
         <tool runtime="R-2.12">
 			<resource>test-data-in-out.R</resource>
 		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-predict.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-statistics.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-trim.R</resource>
+		</tool>	
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">
