@@ -22,9 +22,18 @@ public class GtfSort {
 	
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, IOException, URISyntaxException, GBrowserException {
 		
-		File file = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66.gtf");
+		//String fileString = System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66.gtf";
+		//String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/merged.gtf";
+		String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/transcripts.gtf";
 		
-		File outFile = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66-sort.gtf");
+		File file = new File(fileString);				
+		File outFile = new File(fileString.replace(".gtf", "-sort.gtf"));
+		
+		if (outFile.exists()) {
+			System.err.println("Outpu file exists already!");
+			System.exit(1);
+		}
+		
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 		
 		InMemoryIndex index;

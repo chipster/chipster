@@ -1,31 +1,27 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import javax.swing.SwingUtilities;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
-/**
- * The active thread of the processing layer. Receives area requests and sends out
- * file request to the lower data source layer.
- *  
- * @author Petri Klemelä, Aleksi Kallio
- *
- */
-public abstract class AreaRequestHandler extends Thread {
 
-	private Queue<AreaRequest> areaRequestQueue;
+public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler {
+
+	private BlockingQueue<AreaRequest> areaRequestQueue;
 	private AreaResultListener areaResultListener;
 
 	private boolean poison = false;
 
-	public AreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
+	public SingleThreadAreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
-		super();
-		this.areaRequestQueue = areaRequestQueue;
+		super(areaRequestQueue, areaResultListener);
+		this.areaRequestQueue = (BlockingQueue<AreaRequest>) areaRequestQueue;
 		this.areaResultListener = areaResultListener;
 		this.setDaemon(true);
 		this.setName(getClass().getSimpleName());
@@ -39,32 +35,15 @@ public abstract class AreaRequestHandler extends Thread {
 
 		while (!poison) {
 			AreaRequest areaRequest;
-			if ((areaRequest = areaRequestQueue.poll()) != null) {
-				areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
-				processAreaRequest(areaRequest);
-			}
-
-			boolean isWorkToDo = checkOtherQueues();
-
-			if (areaRequest == null && !isWorkToDo) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					// just poll the queues and wait again
+			try {
+				if ((areaRequest = areaRequestQueue.take()) != null) {
+					areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
+					processAreaRequest(areaRequest);
 				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * @return true if should be called again before putting thread to wait
-	 */
-	protected boolean checkOtherQueues() {		
-		return false; // hook for checking fileFetcherQueue
-	}
-
-	public synchronized void notifyAreaRequestHandler() {
-		notifyAll();
 	}
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
@@ -93,5 +72,5 @@ public abstract class AreaRequestHandler extends Thread {
 				}
 			}						
 		});
-	}
+	}	
 }

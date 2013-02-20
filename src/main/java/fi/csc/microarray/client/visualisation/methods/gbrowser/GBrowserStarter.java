@@ -47,8 +47,9 @@ public class GBrowserStarter {
 		File BAM_DATA_FILE = new File(dataPath + "hg19_chr20.bam");
 		File BAI_DATA_FILE = new File(dataPath + "hg19_chr20.bam.bai");
 		File VCF_DATA_FILE = new File(dataPath + "var.flt.vcf");
-		File GTF1_DATA_FILE = new File(dataPath + "cufflinks-gtf/merged.gtf");
-		File GTF2_DATA_FILE = new File(dataPath + "cufflinks-gtf/transcripts.gtf");
+		File GTF1_DATA_FILE = new File(dataPath + "cufflinks-gtf/merged-sort.gtf");
+		//File GTF2_DATA_FILE = new File(dataPath + "cufflinks-gtf/transcripts-sort.gtf");		
+		File GTF2_DATA_FILE = new File(dataPath + "Homo_sapiens.GRCh37.69-sort.gtf");
 		
 //		String dataPath = System.getProperty("user.home") + "/chipster/ohtu/"; 
 //		File BAM_DATA_FILE = new File(dataPath + "SRR064438-chr17-chr20.bam");
@@ -57,16 +58,17 @@ public class GBrowserStarter {
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
-//		for (int i = 0; i < 2; i++) {
-//			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
-//			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
-//			interpretations.add(reads);
-//		}
+		for (int i = 0; i < 2; i++) {
+			Interpretation reads = new Interpretation(TrackType.READS, new DataFile(BAM_DATA_FILE));
+			reads.setIndexData(new DataFile(BAI_DATA_FILE));			
+			interpretations.add(reads);
+		}
 
 		//Bed with or without header
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
-//		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));
+//		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));		
+//		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));		
 		interpretations.add(new Interpretation(TrackType.GTF, new DataFile(GTF1_DATA_FILE)));
 		interpretations.add(new Interpretation(TrackType.GTF, new DataFile(GTF2_DATA_FILE)));
 

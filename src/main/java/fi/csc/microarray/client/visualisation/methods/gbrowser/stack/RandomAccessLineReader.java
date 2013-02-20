@@ -37,10 +37,14 @@ public class RandomAccessLineReader implements LineReader {
 	}
 	
 	public void setPosition(long position) throws IOException {
-		
-		if (this.position == -1 || position < this.position || position >= this.position + buffer.length()) {
+				
+		if (buffer != null && position >= this.position && position < this.position + buffer.length()) {
+			buffer = buffer.substring((int) (position - this.position));
+		} else {
+			
 			buffer = null;
 		}
+		
 		this.position = position;
 	}
 
@@ -66,7 +70,7 @@ public class RandomAccessLineReader implements LineReader {
 
 		return line;
 	}
-
+	
 	public void fillBuffer() throws IOException {
 
 		byte[] bytes = new byte[HTTP_BUFFER_SIZE];

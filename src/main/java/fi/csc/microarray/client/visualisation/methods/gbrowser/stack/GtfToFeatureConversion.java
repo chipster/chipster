@@ -1,21 +1,25 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
-public class GtfToFeatureConversion extends AreaRequestHandler {
+public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 
 	private Index index;
 
@@ -28,21 +32,24 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 
 		this.parser = new StackGtfParser();
 		
-		try {
-			this.index = new InMemoryIndex(file, parser);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 //		try {
-//			this.index = new BinarySearchIndex(file, parser);
+//			this.index = new InMemoryIndex(file, parser);
 //			
 //		} catch (IOException e) {
 //			e.printStackTrace();
-//		} catch (GBrowserException e) {
-//			e.printStackTrace();
 //		}
+		
+		try {
+			this.index = new BinarySearchIndex(file, parser);
+		
+		} catch (UnsortedDataException e) {
+			e.printStackTrace();
+			index = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (GBrowserException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -51,6 +58,10 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 		super.processAreaRequest(request);	
 		
 		if (request.getStatus().poison) {
+			return;
+		}
+		
+		if (index == null) {
 			return;
 		}
 		
@@ -67,9 +78,16 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 		
 		Region requestRegion = new Region(start, end, request.start.chr);
 		
+//		long t = System.currentTimeMillis();
+		
 		List<String> lines = null;
 		try {		
+			
+			
 			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+			
+//			System.out.println("getFileLines\t " + (System.currentTimeMillis() - t) + " ms, lines:\t " + lines.size());
+//			t = System.currentTimeMillis();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,11 +118,22 @@ public class GtfToFeatureConversion extends AreaRequestHandler {
 			Exon exon = new Exon(region, feature, exonNumber);
 			
 			geneSet.addExon(exon, geneId, transcId, geneName, transcName, biotype);
-		}
+		}				
+		
+//		System.out.println("parser\t " + (System.currentTimeMillis() - t) + " ms, genes:\t " + geneSet.size());
+//		t = System.currentTimeMillis();
+		
+		List<RegionContent> list = new LinkedList<RegionContent>();
 		
 		for (Gene gene : geneSet.values()) {
 						
-			super.createAreaResult(new AreaResult(request.getStatus(), gene.getRegion(), gene));
-		}
+			LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();			
+			valueMap.put(ColumnType.VALUE, gene);			
+			RegionContent regionContent = new RegionContent(gene.getRegion(), valueMap);
+			
+			list.add(regionContent);
+		}		
+		
+		super.createAreaResult(new AreaResult(request.getStatus(), list));
 	}
 }

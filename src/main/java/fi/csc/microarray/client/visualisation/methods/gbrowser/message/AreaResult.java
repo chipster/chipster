@@ -19,22 +19,7 @@ public class AreaResult {
 	public AreaResult(DataRetrievalStatus status, List<RegionContent> contents) {
 		this.status = status;
 		this.contents = contents;
-	}
-	
-	public AreaResult(DataRetrievalStatus status, Region region, Object value) {
-		this.status = status;
-		
-		LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();
-		
-		valueMap.put(ColumnType.VALUE, value);
-		
-		RegionContent regionContent = new RegionContent(region, valueMap);
-		
-		List<RegionContent> list = new LinkedList<RegionContent>();
-		list.add(regionContent);
-		
-		this.contents = list;
-	}
+	}	
 
 	public DataRetrievalStatus getStatus() {
 		return status;

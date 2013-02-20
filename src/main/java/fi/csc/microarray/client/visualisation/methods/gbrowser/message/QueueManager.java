@@ -7,11 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.SingleThreadAreaRequestHandler;
 
 /**
  * Collects and resends area results. Used by the {@link GBrowserView} objects to manage incoming area results.
@@ -33,7 +36,14 @@ public class QueueManager implements AreaResultListener {
 
 		if (!queues.containsKey(file)) {
 			QueueContext context = new QueueContext();
-			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
+			
+			if (file.getRequestHandler().equals(GtfToFeatureConversion.class)) {
+				
+				context.queue = new LinkedBlockingQueue<AreaRequest>();				
+			} else {
+				context.queue = new ConcurrentLinkedQueue<AreaRequest>();
+			}
+			
 			try {
 			    // create a thread which is an instance of class which is passed
 			    // as data fetcher to this method
@@ -63,6 +73,7 @@ public class QueueManager implements AreaResultListener {
 	}
 	
 	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
+		
 		req.getStatus().file = file;
 		QueueContext context = queues.get(file);
 
@@ -70,8 +81,12 @@ public class QueueManager implements AreaResultListener {
 		context.queue.add(req);
 		
 		if (context.thread != null) {
-			context.thread.notifyAreaRequestHandler();
-		}
+		
+			//BlockinQueue takes of care of notifyin of SingleThreadAreaRequestHandlers
+			if (!(context.thread instanceof SingleThreadAreaRequestHandler)) {
+				context.thread.notifyAreaRequestHandler();
+			}
+		}		
 	}
 
 	public void addResultListener(DataSource file, AreaResultListener listener) {

@@ -215,6 +215,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			}
 
 			for (DataSource file : trackDatas.keySet()) {
+				
 				if (file != null) {
 					// Add columns for this requested file
 					Set<ColumnType> columns = datas.get(file);

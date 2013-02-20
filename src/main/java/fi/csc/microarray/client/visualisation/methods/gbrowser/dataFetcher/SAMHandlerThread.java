@@ -114,12 +114,16 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 		} else if (areaRequest.getRequestedContents().contains(ColumnType.COVERAGE)) {
 			
+			areaRequest.getRequestedContents().remove(ColumnType.COVERAGE);
+			
 			areaRequest.getRequestedContents().addAll(Arrays.asList(new ColumnType[] {
 			ColumnType.ID, 
 			ColumnType.SEQUENCE,
 			ColumnType.STRAND,
 			ColumnType.QUALITY,
 			ColumnType.CIGAR}));
+			
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
 
 		} else {
 			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));

@@ -8,6 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixD
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
@@ -20,25 +21,30 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.La
 public class GeneTrackGroup extends TrackGroup {
 	
 	protected TranscriptTrack transcript;
-	protected CoverageEstimateTrack geneOverview;
+	protected Track geneOverview;
 	protected Track gene;
 	protected ReferenceSNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
-	protected CoverageEstimateTrack geneOverviewReversed;
+	protected Track geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
+	private boolean isUserData;
 
 	public GeneTrackGroup(GBrowserView dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource, boolean isUserData) {
 		super(dataView);
+		
+		this.isUserData = isUserData;
 		
 		if (annotationDataSource != null) {
 			transcript = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setStrand(Strand.FORWARD);
 
-			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
-			geneOverview.setStrand(Strand.FORWARD);
+//			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+//					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+//			geneOverview.setStrand(Strand.FORWARD);
+			geneOverview = new EmptyTrack(dataView, transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			
 
 			gene = new GeneTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
@@ -50,9 +56,10 @@ public class GeneTrackGroup extends TrackGroup {
 		}
 		
 		if (annotationDataSource != null) {
-			geneOverviewReversed = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
-			geneOverviewReversed.setStrand(Strand.REVERSE);
+//			geneOverviewReversed = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
+//					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
+//			geneOverviewReversed.setStrand(Strand.REVERSE);
+			geneOverviewReversed = new EmptyTrack(dataView, transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 
 			geneReversed = new GeneTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
@@ -147,13 +154,17 @@ public class GeneTrackGroup extends TrackGroup {
 		}
 	}
 	
-	@Override
-	public LayoutMode getLayoutMode() {
-		return LayoutMode.FIXED;
-	}
+//	@Override
+//	public LayoutMode getLayoutMode() {
+//		return LayoutMode.FILL;
+//	}
 	
 	@Override
-	public int getHeight() {
-		return 250;
+	public int getMinHeight() {
+		if (isUserData) {
+			return super.getMinHeight();
+		} else {
+			return 250;
+		}
 	}	
 }

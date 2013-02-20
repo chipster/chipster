@@ -14,6 +14,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatur
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.InMemoryIndex;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
 
+/**
+ * FIXME Find out why 400 MB file is only 150 MB after sorting. 
+ * 
+ * 
+ * @author klemela
+ */
 public class GtfUtil {
 
 	public static List<RegionContent> loadFile(File file) {

@@ -41,6 +41,13 @@ public class TsvSorter {
 		this.chromosomeNormaliser = chromosomeNormaliser;
 		sort(in, out, parser);
 	}
+	
+	public void sort(File in, File out,  ChromosomeNormaliser chromosomeNormaliser, int chrColumn, int startColumn) throws Exception {
+		this.chromosomeNormaliser = chromosomeNormaliser;
+		this.chrCol = chrColumn;
+		this.bpCol = startColumn;
+		externalSort(in, out);
+	}	
 
 	private class Row extends BpCoord {
 
@@ -71,6 +78,14 @@ public class TsvSorter {
 		}
 	}
 
+	/**
+	 * Based on http://www.codeodor.com/index.cfm/2007/5/14/Re-Sorting-really-BIG-files---the-Java-source-code/1208
+	 * 
+	 * @param infile
+	 * @param outfile
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private void externalSort(File infile, File outfile) throws IOException, GBrowserException {
 
 		// Start reading
@@ -78,7 +93,7 @@ public class TsvSorter {
 		
 		// Read header row, if exists
 		String headerRow = null;
-		if (parser.getHeaderLength(infile) > 0) {
+		if (parser != null && parser.getHeaderLength(infile) > 0) {
 			headerRow = initReader.readLine(); // we assume header is always a single row!
 		}
 

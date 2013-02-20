@@ -86,24 +86,6 @@ public class RandomAccessLineDataSource extends DataSource {
 	public long length() throws IOException {
 		return lineReader.length();
 	}
-
-	public void checkSorting() throws IOException, UnsortedDataException {
-//		byte[] bytes = new byte[100000];
-//		this.read(getHeaderLength(), bytes);
-//		Chunk chunk = new Chunk(new String(bytes));
-//		List<RegionContent> regions = fileParser.getAll(chunk, new LinkedList<ColumnType>());
-//		
-//		Region previousRegion = null;
-//		for (RegionContent region : regions) {
-//			if (previousRegion != null) {
-//				if (previousRegion.compareTo(region.region) > 0) {
-//					throw new UnsortedDataException("File " + file + " isn't sorted correctly. " +
-//							"Please sort the file first.");
-//				}
-//			}
-//			previousRegion = region.region;
-//		}		
-	}
 	
 	public static void main (String args[]) throws URISyntaxException, IOException, GBrowserException {
 		

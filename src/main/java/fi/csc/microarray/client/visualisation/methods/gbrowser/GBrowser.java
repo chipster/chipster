@@ -61,12 +61,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GtfUtil;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.PositionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -552,10 +554,11 @@ public class GBrowser implements ComponentListener {
 					break;
 				case GTF:
 
-					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
+					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 
 					try {
-						DataSource gtfData = new LineDataSource(fileUrl, GtfToFeatureConversion.class);
+						//DataSource gtfData = new LineDataSource(fileUrl, GtfToFeatureConversion.class);
+						DataSource gtfData = new RandomAccessLineDataSource(fileUrl, GtfToFeatureConversion.class);
 						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfData, null, true));
 						
 					} catch (FileNotFoundException e) {
@@ -860,17 +863,30 @@ public class GBrowser implements ComponentListener {
 						if (isBed) {
 							rows = new RegionOperations().loadFile(file);
 							
+							for (RegionContent row : rows) {
+								chromosomeNames.add(row.region.start.chr.toNormalisedString());
+							}
+							
 						} else if (isVcf) {
 							rows = new PositionOperations().loadFile(file);
 							
+							for (RegionContent row : rows) {
+								chromosomeNames.add(row.region.start.chr.toNormalisedString());
+							}
+							
 						} else if (isGtf) {
-							rows = GtfUtil.loadFile(file);	
-						}
-						
-						for (RegionContent row : rows) {
-							chromosomeNames.add(row.region.start.chr.toNormalisedString());
+
+
+							ChromosomeBinarySearch chrSearch;
+							chrSearch = new ChromosomeBinarySearch(file.toURI().toURL(), new StackGtfParser());
+
+							for (Chromosome chr : chrSearch.getChromosomes()) {
+								chromosomeNames.add(chr.toNormalisedString());
+							}
 						}
 					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					} catch (GBrowserException e) {
 						e.printStackTrace();
 					}
 				}

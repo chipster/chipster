@@ -18,9 +18,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  */
 public class EmptyTrack extends Track {
 
+	private Long minBp;
+
 	public EmptyTrack(GBrowserView view, int height) {
 		super(view, null);
 		this.layoutHeight = height;
+	}
+	
+	public EmptyTrack(GBrowserView view, int height, long minBp) {
+		super(view, null);
+		this.layoutHeight = height;
+		this.minBp = minBp;
 	}
 
 	@Override
@@ -43,4 +51,12 @@ public class EmptyTrack extends Track {
 	public String getName() {
 		return "empty";
 	}
+	
+    public boolean isVisible() {
+    	if (minBp == null) {
+    		return visible;
+    	} else {
+    		return view.getBpRegion().getLength() >= minBp;
+    	}
+    }
 }
