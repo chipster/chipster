@@ -3,9 +3,12 @@
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
+# PARAMETER keep.annotations: keep.annotations TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing)
+# PARAMETER keep.flags: keep.flags TYPE [yes: yes, no: no] DEFAULT no (Keep or discard flag-columns after preprocessing. Please note that flag columns must have been named as "flag")
 
 # Process prenormalized affy
 # MG 6.4.2010
+# MK 18.02.2013
 
 # Loads the libraries
 library(limma)
@@ -13,22 +16,36 @@ library(affy)
 library(gcrma)
 
 # Reading data
-
 columns<-list(R="sample")
 annotation<-c("identifier")
-columns.other<-c("flag", "annotation")
+columns.other<-c("flag", "Flag", "FLAG", "annotation", "Annotation", "ANNOTATION")
 
 files<-dir()
 files<-files[files!="phenodata.tsv"]
+#seems to check columns from the first file only. If the column is not there, attribute is ignored. If the column is there, but not
+#in the others, function crashes
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
-
+	
 #dat <- read.table(file="normalized.tsvt", header=TRUE, sep="\t")
 
 # Extract annotations
-#if (keep.annotations=="yes") {
-#	annotation.info <- dat$other[[1]]
-#	annotation.info <- as.character (annotation.info[,1])
-#}
+annotation.info <- NULL;
+if (keep.annotations=="yes") {
+	if(length(grep("^annotation$", unlist(attributes(dat$other)), ignore.case=T))) {
+		annotation.col <- unlist(attributes(dat$other))[grep("^annotation$", unlist(attributes(dat$other)), ignore.case=T)]
+		annotation.info	<- dat$other[[annotation.col]];
+		annotation.info <- as.character(annotation.info[,1]);
+	}
+}
+
+flag.info <- NULL;
+if (keep.flags=="yes") {
+	if(length(grep("^flag$", unlist(attributes(dat$other)), ignore.case=T))) {
+		flag.col 			<- unlist(attributes(dat$other))[grep("^flag$", unlist(attributes(dat$other)), ignore.case=T)]
+		flag.info 			<- dat$other$flag;
+		colnames(flag.info)	<-paste("flag.", colnames(flag.info), sep="")
+	}
+}
 
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$E, method="none")
@@ -46,26 +63,48 @@ if(chiptype=="empty") {
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group, description=sample), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-
 # Writing out data
 a<-try(library(chiptype, character.only=T))
+if(class(a)=="try-error") { a<-try(library(paste(chiptype, ".db", sep=""), character.only=T)) }
+
 if(chiptype!="empty" & class(a)!="try-error") {
 	# Including gene names to data
-	lib2<-sub('.db','',chiptype)
-	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
+	lib2		<-sub('.db','',chiptype)
+	symbol		<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
+	genename	<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
 	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
-	genename <- gsub("#", "", genename)
-	symbol <- gsub("'", "", symbol)
-	genename <- gsub("'", "", genename)
+	genename 	<- gsub("#", "", genename)
+	symbol 		<- gsub("'", "", symbol)
+	genename	<- gsub("'", "", genename)
+
 	# Writes the results into a file
-	output_table <- data.frame(symbol, description=genename, dat2)
+	if (keep.flags=="yes" & keep.annotations=="yes") {
+		output_table <- data.frame(symbol=annotation.info, description=genename, dat2, flag.info);
+	} else if (keep.flags=="yes" & keep.annotations=="no") {
+		output_table <- data.frame(symbol, description=genename, dat2, flag.info);
+	} else if (keep.flags=="no" & keep.annotations=="yes") {
+		output_table <- data.frame(symbol=annotation.info, description=genename, dat2);
+	} else {
+		output_table <- data.frame(symbol, description=genename, dat2);		
+	}
+	
 	rownames (output_table) <- unlist(dat$genes)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-} 
+}
 
 if(chiptype=="empty" | class(a)=="try-error") {
-	output_table <- data.frame(dat2)
+
+	# Writes the results into a file
+	if (keep.flags=="yes" & keep.annotations=="yes") {
+		output_table <- data.frame(symbol=annotation.info, dat2, flag.info);
+	} else if (keep.flags=="yes" & keep.annotations=="no") {
+		output_table <- data.frame(dat2, flag.info);
+	} else if (keep.flags=="no" & keep.annotations=="yes") {
+		output_table <- data.frame(symbol=annotation.info, dat2);	
+	} else {
+		output_table <- data.frame(dat2);		
+	}
+	
 	rownames (output_table) <- unlist(dat$genes)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
