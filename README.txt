@@ -2,7 +2,7 @@ Chipster Source Package
 -----------------------
 
 #Out-of-the-box this project can be built with Ant and used with Eclipse.
-#Source package structure follows Maven layout, but this is not a Maven project. 
+Source package structure follows Maven layout, but this is not a Maven project. 
 #Unlike in Maven, xternal dependencies are located in "ext" directory.
 
 For license, see LICENSE.TXT.
