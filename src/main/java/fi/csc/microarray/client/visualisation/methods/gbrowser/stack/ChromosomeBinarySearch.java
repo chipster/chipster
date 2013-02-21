@@ -11,7 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
 
 public class ChromosomeBinarySearch {
 
-	private static final long ITERATIVE_SEARCH_LIMIT = 10*1024;
+	private static final long ITERATIVE_SEARCH_LIMIT = 8*1024;
 	
 	private RandomAccessLineDataSource file;
 	
@@ -145,20 +145,26 @@ public class ChromosomeBinarySearch {
 		//String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/merged-sort.gtf";
 		//String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/transcripts-sort.gtf";
 		
-		URL url = new File(fileString).toURI().toURL();
+		URL fileUrl = new File(fileString).toURI().toURL();			
+		printTestTime(fileUrl, "File: ");
 		
-		//URL url = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.66.gtf");
-			
+		URL httpUrl = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.69-sort.gtf");
+		
+		printTestTime(httpUrl, "Http: ");
+	}
+
+	private static void printTestTime(URL url, String description) throws IOException,
+			GBrowserException, URISyntaxException {
 		ChromosomeBinarySearch index = new ChromosomeBinarySearch(url, new StackGtfParser());
 
 		long t = System.currentTimeMillis();
 		
 		TreeSet<Chromosome> chrs = index.getChromosomes();
 		
-		System.out.println((System.currentTimeMillis() - t) + " ms");
+		System.out.println(description + (System.currentTimeMillis() - t) + " ms");
 		
-		for (Chromosome chr : chrs) {
-			System.out.println(chr);
-		}
+//		for (Chromosome chr : chrs) {
+//			System.out.println(chr);
+//		}
 	}
 }

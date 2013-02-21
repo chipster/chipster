@@ -16,6 +16,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
 
 public class IndexTest {
 	
+	/**
+	 * Requires -Xmx2048m
+	 * 
+	 * @param args
+	 * @throws FileNotFoundException
+	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws GBrowserException
+	 */
 	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, IOException, URISyntaxException, GBrowserException {
 		
 		printMemoryUsage();
@@ -23,7 +33,7 @@ public class IndexTest {
 		long t = System.currentTimeMillis();
 
 		//File has to be sorted
-		File file = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66-sort.gtf");
+		File file = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.69-sort.gtf");
 		
 		InMemoryIndex memIndex;
 		BinarySearchIndex searchIndex;
@@ -40,7 +50,8 @@ public class IndexTest {
 		t = System.currentTimeMillis();
 		printMemoryUsage();		
 
-		Region chr1 = new Region(0l, 300*1000*1000l, new Chromosome("1"));
+		//First 100 MB of chr1		
+		Region chr1 = new Region(0l, 100*1000*1000l, new Chromosome("1"));
 				
 		System.out.println("Troughput test");
 		troughputTest("memIndex:    ", memIndex, chr1);
@@ -122,7 +133,7 @@ public class IndexTest {
 			
 			if (!testCompare(lines1, lines2)) {
 				System.err.println("\tRequest region: " + region);
-			}
+			} 
 		}		
 		System.out.println("Agreement test done");
 	}

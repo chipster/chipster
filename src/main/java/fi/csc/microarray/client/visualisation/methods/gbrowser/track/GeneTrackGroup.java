@@ -8,7 +8,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixD
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
@@ -29,12 +28,9 @@ public class GeneTrackGroup extends TrackGroup {
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
-	private boolean isUserData;
 
 	public GeneTrackGroup(GBrowserView dataView, DataSource annotationDataSource, TabixDataSource repeatDataSource, boolean isUserData) {
 		super(dataView);
-		
-		this.isUserData = isUserData;
 		
 		if (annotationDataSource != null) {
 			transcript = new TranscriptTrack(dataView, annotationDataSource, GBrowserConstants.SWITCH_VIEWS_AT);
@@ -154,17 +150,13 @@ public class GeneTrackGroup extends TrackGroup {
 		}
 	}
 	
-//	@Override
-//	public LayoutMode getLayoutMode() {
-//		return LayoutMode.FILL;
-//	}
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutMode.FIXED;
+	}
 	
 	@Override
-	public int getMinHeight() {
-		if (isUserData) {
-			return super.getMinHeight();
-		} else {
-			return 250;
-		}
+	public int getHeight() {
+		return 250;
 	}	
 }

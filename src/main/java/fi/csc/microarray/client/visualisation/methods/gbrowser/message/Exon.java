@@ -10,12 +10,12 @@ public class Exon implements Comparable<Exon> {
 
 	public static enum Feature {
 
-		CDS("CDS"), 
-		EXON("exon"),
-		START_CODON("start_codon"),
-		STOP_CODON("stop_codon"),
+		UNRECOGNIZED(null),
 		TRANSCRIPT("transcript"), //Cufflinks gtf
-		UNRECOGNIZED(null);
+		EXON("exon"),
+		CDS("CDS"), 
+		START_CODON("start_codon"),
+		STOP_CODON("stop_codon");
 
 		private String id;
 
@@ -45,39 +45,35 @@ public class Exon implements Comparable<Exon> {
 
 	public int compareTo(Exon other) {
 		
-		int transcriptComparison = this.transcript.compareTo(other.transcript);
-		int exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
-		int featureComparison = this.feature.compareTo(other.feature);
+		//All exons here should be from same transcript
+		int transcriptComparison = this.transcript.compareTo(other.transcript);		
+		//Sort higher level features (transcript, exon) before lower level features (CDS, start codon),
+		//because this is a practical drawing order
+		int featureComparison = this.feature.compareTo(other.feature);		
+		//Together, transcript, feature and start position should make an unique identifier, so that data isn't lost
+		int startComparison = region.start.compareTo(other.region.start);
 		
 		if (transcriptComparison != 0) {
 			return transcriptComparison;
-		} else if (exonNumberComparison != 0){
-			return exonNumberComparison;
-		} else {
+		} else if (featureComparison != 0){
 			return featureComparison;
+		} else {
+			return startComparison;
 		}
-
-//		int featureComparison = 0;
-//		int exonNumberComparison = 0;
-//
-//		int regionComparison = this.region.compareTo(other.region);
+		
+//		int transcriptComparison = this.transcript.compareTo(other.transcript);
+//				
+//		int exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
+//				
+//		int featureComparison = this.feature.compareTo(other.feature);
 //		
-//		if (regionComparison != 0) {
-//			return regionComparison;
-//		}
-//
-//		if (this.feature != null) {
-//			featureComparison = this.feature.compareTo(other.getFeature());
-//		} else if (other.getFeature() != null) {
-//			featureComparison = 1;
-//		}
-//		
-//		exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
-//
-//		if (featureComparison != 0) {
+//		if (transcriptComparison != 0) {
+//			return transcriptComparison;
+//		} else if (exonNumberComparison != 0){
+//			return exonNumberComparison;
+//		} else {
 //			return featureComparison;
 //		}
-//		return exonNumberComparison;
 	}	
 	
 	private Object getExonNumber() {
