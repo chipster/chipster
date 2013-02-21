@@ -111,13 +111,11 @@ mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
   ## Runtime:
-  # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk # (117 packages)
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk
 elif [ $mode == "devel" ]
 then
   ## Devel:
-  # aptitude -y install build-essential gfortran libcurl4-openssl-dev libglib2.0-dev libglu1-mesa-dev libgsl0-dev libpng-dev libreadline-dev libxml2-dev mesa-common-dev tcl-dev tk-dev xorg-dev (181 packages)
-  aptitude -y --without-recommends install build-essential gfortran libcurl4-openssl-dev libglib2.0-dev libglu1-mesa-dev libgsl0-dev libpng-dev libreadline-dev libxml2-dev mesa-common-dev tcl-dev tk-dev xorg-dev python-dev unixodbc-dev #libopenmpi-dev # (167 packages)
+  aptitude -y --without-recommends install build-essential gfortran libcurl4-openssl-dev libglib2.0-dev libglu1-mesa-dev libgsl0-dev libpng-dev libreadline-dev libxml2-dev mesa-common-dev tcl-dev tk-dev xorg-dev python-dev unixodbc-dev libnetcdf-dev 
 else
   echo "PROBLEM!!"
   exit 1
@@ -162,9 +160,7 @@ curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER
 mv chipster/ ${CHIP_PATH}/
 
 # Make some config "corrections"
-sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/environment.xml
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/runtimes.xml
-sed -i'~' 's;http://www.bioconductor.org;http://mirrors.ebi.ac.uk/bioconductor/;' ${CHIP_PATH}/comp/conf/environment.xml
 # TODO The below should be made dynamic
 sed -i'~' '/<configuration-module moduleId="comp">/a <!-- make compute service access filebroker file repository locally -->\
 <entry entryKey="local-filebroker-user-data-path" type="string" \
@@ -243,9 +239,9 @@ then
 #
 #  ## R Libraries:
 #  cd ${CHIP_PATH}/
-#  echo | ./setup.sh
+#  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-${R_VER}/install-libs.R
 
-  # Add R package outside of setup.sh/environment.xml
+  # Add R package outside of install-libs.R
   cd ${TMPDIR_PATH}/
   wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
   ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
@@ -292,7 +288,7 @@ then
 
 
   ## R-2.15.1_bioc-2.11	
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 	
 
   ## External apps:
@@ -511,27 +507,42 @@ then
   mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
   ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
 
+  # Fasta files for genome browser
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Homo_sapiens.MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Yersinia.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/contents2.txt
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/contents2.txt
+
   
   # DEXSeq
 	cd ${TMPDIR_PATH}/

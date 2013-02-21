@@ -11,11 +11,11 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -29,7 +29,7 @@ public class TabixIntensityTrack extends Track {
 	private long maxBpLength;
 	private Color color;
 
-	public TabixIntensityTrack(View view, DataSource file, Color c, long minBpLength, long maxBpLength) {
+	public TabixIntensityTrack(GBrowserView view, DataSource file, Color c, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.color = c;
 		this.minBpLength = minBpLength;
@@ -60,7 +60,7 @@ public class TabixIntensityTrack extends Track {
 			int startX = getView().bpToTrack(regCont.region.start);
 			int endX = getView().bpToTrack(regCont.region.end);
 			int height = (int) Math.min( (Math.log((Float)regCont.values.get(ColumnType.VALUE)) / regCont.region.getLength() * 1000), 
-					getView().getStretchableTrackHeight());
+					getHeight());
 			
 			// Update profile at the start location
 			if (profileDerivate.get(startX) == null) {
@@ -120,20 +120,6 @@ public class TabixIntensityTrack extends Track {
 		
 		getView().redraw();
 	}
-
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-	   
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
     
     @Override
     public boolean isVisible() {

@@ -3,36 +3,40 @@
 <head><title></title></head>
 <body>
 
-<h2>Bowtie for single-end reads</h2>
+<h2>Weeder</h2>
 
 <h3>Description</h3>
 
-<p>This tools aligns single-end reads to publicly available genomes or transcriptomes. If you would like other reference genomes to be added, please contact us.
-If you would like to align reads against your own datasets, please use the tool "Bowtie against own genomes"
+<p>This tools retrieves promoter sequences for a set of genes and finds shared sequence motifs in them. Currently the tool works only for human, mouse, rat, drosophila and yeast genes.</p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Genome or transcriptome (human genome hg19, mouse genome mm9, rat genome rn4, mouse miRBase17) [mouse genome mm9]</li>
-<li>Number of mismatches allowed (0, 1, 2, 3) [2]</li>
-<li>Consider mismatches only in the seed region (yes, no) [no]</li>
-<li>Length of the seed region (5-100) [28]</li>
-<li>Allowed total of mismatch qualities (1-100) [70]</li>
-<li>Quality value format used (Sanger, Illumina GA v1.3 or later) [Sanger]</li>
-<li>How many best category hits is a read allowed to have (1, 2, no limit) [no limit]</li>
-<li>Put multireads to a separate file (yes, no) [no]</li>
-<li>How many valid alignments are reported per read (1, 2, 3) [1]</li>
-<li>Put unaligned reads to a separate file (yes, no) [no]</li>
+<li>Species (human, mouse, rat, drosophila, yeast) [human]</li>
+<li>Promoter size (small, medium, large) [small]</li>
+<li>Analyze strands (single, both) [single] </li>
+<li>Motif appears more than once per sequence (yes, no) [no]</li>
+<li>Number of motifs to return (1-100) [10]</li>
+<li>Percentage of sequences the motif should appear in (1-100) [50]</li>
+<li>Transcription factor binding site size (small, medium) [small]</li>
 </ul>
 
 <h3>Details</h3>
 
 
-<p>Bowtie aligns reads to a reference sequence such as genome or transcriptome. There are two modes: mismatches are considered either throughout the read, 
-or only in the user-defined left part of the read. In the latter case also quality values are taken into account. The Chipster implementation 
-Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-Note that this Bowtie tool uses public genomes provided by Chipster. If you would like to align reads against your own datasets, please use the tool "Bowtie against own genomes".</p>
+<p>This tool retrieves upstream sequences for the specified genes and submits them to the Weeder program. It needs to access the
+chip-specific annotations, so if you have not specified the chiptype
+during normalization of, e.g., Illumina data, it will not work. RefSeq IDs are used for retrieving 
+promoter sequences constructed and annotated by UCSC genome browser staff. The same promoter sequences can be downloaded 
+as a single FastA-formatted file from <a href="http://hgdownload.cse.ucsc.edu/downloads.html">UCSC Golden Path folder</a>. 
+User can define how long promoter sequences are used for the analysis:</p>
 
+<pre>
+		Human		Mouse		Rat		Drosophila	Yeast
+Small		1000 bp		1000 bp		1000 bp		1000 bp 	500 bp
+Medium		2000 bp		2000 bp		2000 bp		2000 bp		1000 bp
+Large		5000 bp		5000 bp		5000 bp		5000 bp		2500 bp
+</pre>
 
 <p>After retrieving the promoter sequences, they are submitted to the Weeder program that finds common motifs
 (putative transcription factor binding sites). Weeder can find motifs of two different sizes. The sizes are the same for all species. The length of the common motif and 

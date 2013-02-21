@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +13,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutContainer;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 
 /**
  * <p>A collection of tracks representing a single data source or
@@ -24,17 +29,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
  * switching tracks inside the group and changing properties of
  * individual groups.</p>
  * 
- * @author Rimvydas Naktinis
+ * @author Rimvydas Naktinis, Petri Klemelä
  *
  */
-public class TrackGroup {
+public class TrackGroup implements LayoutComponent, LayoutContainer {
     
     protected List<Track> tracks = new LinkedList<Track>();
-    protected View view;
+    protected GBrowserView view;
     protected boolean menuVisible = false;
     protected boolean visible = true;
     public SideMenu menu;
     private JButton resize;
+	private int layoutHeight;
         
     public class SideMenu extends JPanel implements ActionListener {
         
@@ -116,13 +122,13 @@ public class TrackGroup {
         }
     }
 
-    public TrackGroup(View view) {
+    public TrackGroup(GBrowserView view) {
         this.view = view;
         
         // Add side menu
         menu = new SideMenu();
         
-        //Memory leak, the reference isn't removed when the visualization is changed to none.
+        //FIXME Memory leak, the reference isn't removed when the visualization is changed to none.
         //Fix if the side panel is needed
         //this.view.parentPlot.chartPanel.add(menu);
     }
@@ -156,15 +162,7 @@ public class TrackGroup {
         return tracks;
     }
     
-    public int getHeight() {
-        int height = 0;
-        for (Track track : getTracks()) {
-            height += track.getHeight();
-        }
-        return height;
-    }
-    
-    public View getView() {
+    public GBrowserView getView() {
         return view;
     }
     
@@ -217,4 +215,46 @@ public class TrackGroup {
     		}
     	}
     }
+
+	@Override
+	public Collection<? extends LayoutComponent> getLayoutComponents() {
+		return tracks;
+	}
+
+	@Override
+	public int getHeight() {
+		return LayoutTool.getHeight(this, layoutHeight);
+	}
+
+	@Override
+	public void setHeight(int height) {
+		this.layoutHeight = height;
+	}
+
+	@Override
+	public int getMinHeight() {
+		return LayoutTool.getMinHeightSum(this);
+	}
+	
+	@Override
+	public int getFullHeight() {
+		return LayoutTool.getFullHeight(this);
+	}
+
+	@Override
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferLayoutMode(this);
+	}
+
+	@Override
+	public void setLayoutMode(LayoutMode mode) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDefaultLayoutMode() {
+		// TODO Auto-generated method stub
+		
+	}
 }

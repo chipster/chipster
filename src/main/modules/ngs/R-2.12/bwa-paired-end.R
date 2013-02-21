@@ -5,7 +5,7 @@
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17", ovis_aries_texel.fa: "Sheep (oar3.1\), Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (10.2\)", Arabidopsis_lyrata.v.1.0.16.fa: "A. Lyrata (1.0.16\)" ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17", ovis_aries_texel.fa: "Sheep (oar3.1\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (10.2\)", Arabidopsis_lyrata.v.1.0.16.fa: "A. Lyrata (1.0.16\)" ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 (Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled. Corresponds to the command line parameter -l) 
 # PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 (Maximum differences in the seed. Corresponds to the command line parameter -k )
 # PARAMETER total.edit: "Maximum edit distance for the whole read" TYPE DECIMAL DEFAULT 0.04 ( Maximum edit distance if the value is more than one. If the value is between 1 and 0 then it defines the fraction of missing alignments given 2% uniform base error rate. In the latter case, the maximum edit distance is automatically chosen for different read lengths. Corresponds to the command line parameter -n.)
@@ -15,7 +15,7 @@
 # PARAMETER OPTIONAL gap.opening: "Gap open penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty. Corresponds to the command line parameter -O.)
 # PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty. Corresponds to the command line parameter -E.)
 # PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 3 (BWA will not search for suboptimal hits with a score lower than defined. Corresponds to the command line parameter -M.)
-# PARAMETER OPTIONAL disallow.gaps: "Disallow gaps in region"  TYPE INTEGER DEFAULT 16 (Disallow a long deletion within the given number of bp towards the 3\’-end. Corresponds to the command line parameter -d.)
+# PARAMETER OPTIONAL disallow.gaps: "Disallow gaps in region"  TYPE INTEGER DEFAULT 16 (Disallow a long deletion within the given number of bp towards the 3\'-end. Corresponds to the command line parameter -d.)
 # PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of pb towards the ends"  TYPE INTEGER DEFAULT 5 (Do not put an indel within the defined value of bp towards the ends. Corresponds to the command line parameter -i.)
 # PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (Quality threshold for read trimming down to 35bp. Corresponds to the command line parameter -q.)
 # PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 (Length of barcode starting from the 5 pime-end. The barcode of each read will be trimmed before mapping. Corresponds to the command line parameter -B.)
@@ -30,7 +30,7 @@
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("reads1.txt")
-unzipIfGZipFile("reads1.txt")
+unzipIfGZipFile("reads2.txt")
 
 # bwa
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")

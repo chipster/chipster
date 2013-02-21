@@ -70,7 +70,7 @@ Serializable {
 									 * eventually modify its user interface. Keep the lock during the update loop
 									 * to avoid showing inconsistent state during the loop.
 									 */
-									Lock tableLock = view.getTable().getUI().getSession().getLock();
+									Lock tableLock = view.getTable().getUI().getSession().getLockInstance();
 									tableLock.lock();
 									try {
 										

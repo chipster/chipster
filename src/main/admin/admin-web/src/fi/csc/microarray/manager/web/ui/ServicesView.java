@@ -121,15 +121,17 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 							break;
 						}
 
-						//First case happens in initialisation, second if another view is chosen during the data update 
-						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
+						//This happens in initialisation 
+						if (progressIndicator.getUI() != null ) {
+							
+							Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
 							
 							//Component has to be locked before modification from background thread
-							progressIndicator.getUI().getSession().getLock().lock();					
+							indicatorLock.lock();					
 							try {
 								progressIndicator.setValue((float)i/DELAY);
 							} finally {
-								progressIndicator.getUI().getSession().getLock().unlock();
+								indicatorLock.unlock();
 							}
 						}
 
@@ -143,12 +145,16 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 				} finally {
 					refreshButton.setEnabled(true);
 					
-					progressIndicator.getUI().getSession().getLock().lock();					
-					try {
-						progressIndicator.setValue(1.0f);
-						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
-					} finally {
-						progressIndicator.getUI().getSession().getLock().unlock();
+					if (progressIndicator.getUI() != null) {
+						Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+
+						indicatorLock.lock();					
+						try {
+							progressIndicator.setValue(1.0f);
+							progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+						} finally {
+							indicatorLock.unlock();
+						}
 					}
 				}
 			}
@@ -176,20 +182,22 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 	 */
 	public void updateDone() {
 			
-		Lock tableLock = table.getUI().getSession().getLock();
-		tableLock.lock();
-		try {
+		if (table.getUI() != null) {
+			Lock tableLock = table.getUI().getSession().getLockInstance();
+			tableLock.lock();
+			try {
 
-			for (ServiceEntry entry : dataSource.getItemIds()) {
-				if (Status.UNKNOWN.equals(entry.getStatus())) {
-					entry.setStatus(Status.DOWN);
+				for (ServiceEntry entry : dataSource.getItemIds()) {
+					if (Status.UNKNOWN.equals(entry.getStatus())) {
+						entry.setStatus(Status.DOWN);
+					}
 				}
+
+				table.markAsDirtyRecursive();						
+
+			} finally {
+				tableLock.unlock();
 			}
-
-			table.markAsDirtyRecursive();						
-
-		} finally {
-			tableLock.unlock();
 		}
 
 		this.updateDone = true;

@@ -1,6 +1,10 @@
 package fi.csc.microarray.manager.web.data;
 
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.context.internal.ThreadLocalSessionContext;
+
 import com.vaadin.data.hbnutil.HbnContainer;
 
 import fi.csc.microarray.manager.web.hbncontainer.HibernateUtil;
@@ -29,9 +33,29 @@ public class JobLogContainer extends HbnContainer<JobLogEntry> {
 	
 	
 	public static final String STATUS_FAIL_VALUE = "FAILED";
+	
+	private TestAccountFilter testAccountFilter = new TestAccountFilter();
+	private boolean ignoreTestAccounts;
 
 	public JobLogContainer(JobLogView view) {
 
 		super(JobLogEntry.class, HibernateUtil.getSessionFactory());
+	}
+	
+	@Override
+	protected Criteria getBaseCriteria() {
+		//Fix for incompatibility or bug of hbncontainer and hibernate
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		ThreadLocalSessionContext.bind(session);
+		
+		//Filter test accounts
+		Criteria criteria = super.getBaseCriteria();		
+		testAccountFilter.addCriteriaForTestAccounts(session, ignoreTestAccounts, criteria);
+		
+		return criteria;
+	}
+
+	public void setIgnoreTestAccounts(boolean ignoreTestAccounts) {
+		this.ignoreTestAccounts = ignoreTestAccounts;
 	}
 }

@@ -20,5 +20,5 @@ cat *.fa > toplevel.fa
 # clean headers
 sed 's/>gi.*chromosome />/g' toplevel.fa | sed 's/, whole genome shotgun sequence//g' > toplevel-rename.fa
 
-mv toplevel-rename.fa Gallus_gallus.4.0.fa
+mv toplevel-rename.fa Gallus_gallus.Gallus_gallus-4.0.pre.fa
 

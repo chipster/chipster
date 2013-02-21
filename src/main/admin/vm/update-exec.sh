@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.3.1
+LATEST_VERSION=2.4.0
 
 # Exit immediately if some command fails
 set -e
@@ -341,9 +341,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.3.2 not released yet, remember to change the LATEST_VERSION variable above!!
+# 2.3.2
 compare_to_current "2.3.2"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   echo "** Updating R-2.15 with Bioconductor 2.11"
   mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
@@ -351,9 +351,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   echo "** Installing Arabidopsis lyrata fasta, bwa index and bowtie2 index"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/		
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-  
+
   echo "** Installing Sus scrofa fasta, bwa index and bowtie2 index"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -363,17 +363,65 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Creating link for cufflinks2"
   ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
 
-  echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations/Arabidopsis_lyrata* ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt ${BACKUPDIR_PATH}/
+fi
 
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/Homo_sapiens.MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.2/contents2.txt
+# 2.4.0
+compare_to_current "2.4.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Installing genome browser fasta files"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Updating genome browser annotations"
+  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/contents2.txt
+
+  echo "** Updating activemq.xml"
+  cp ${CHIP_PATH}/activemq/conf/activemq.xml ${BACKUPDIR_PATH}/
+  sed -i'~' "s:<authorizationEntry topic=\"feedback-topic\" write=\"clients\" read=\"managers\" admin=\"all\" />:<authorizationEntry admin=\"all\" read=\"authenticators\" topic=\"feedback-topic\" write=\"clients\"/>\n\t\t\t\t\t<authorizationEntry admin=\"all\" read=\"managers\" topic=\"authorised-feedback-topic\" write=\"authenticators\"/>:" ${CHIP_PATH}/activemq/conf/activemq.xml
 
 fi
+
+# 2.4.1, not released yet, check LATEST_VERSION above
+compare_to_current "2.4.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "** Updating R-2.15, Bioconductor 2.11"
+  mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+fi
+
 
 
 #####################################

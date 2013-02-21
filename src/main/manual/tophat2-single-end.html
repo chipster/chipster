@@ -8,7 +8,7 @@
 <h3>Description</h3>
 
 <p>This tool aligns Illumina single end RNA-seq reads to publicly available genomes. 
-You need to supply the reads in a FASTQ file. 
+You need to supply the reads in a FASTQ file. You can also supply a GTF file, if you would like TopHat to use existing splice site information. 
 If you would like us to add new reference genomes to Chipster, please contact us.
 
 <h3>Parameters</h3> 
@@ -19,6 +19,9 @@ If you would like us to add new reference genomes to Chipster, please contact us
 <li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
 <li>Minimum intron length (10-1000) [70]</li>
 <li>Maximum intron length (1000-1,000,000) [500,000]</li>
+<li>How many hits is a read allowed to have (1-1000000) [20]</li>
+<li>Use annotation GTF (yes, no) [yes]</li>
+<li>When GTF file is used, ignore novel junctions (yes, no) [yes]</li>
 </ul>
 
 <h3>Details</h3>
@@ -46,7 +49,11 @@ TopHat2 will ignore donor-acceptor pairs which are closer than the minimum intro
 With long (>=75bp) reads, "GT-AG", "GC-AG" and "AT-AC" introns can be found ab initio. 
 With shorter reads, TopHat only reports alignments across "GT-AG" introns.
 </p>
-
+<p>
+TopHat can optionally use existing gene model annotations (splice sites). If GTF file is supplied (by the user or available from the server), TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, 
+and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. 
+If the GTF file is used, the user can specify if TopHat should look for reads across the known splice junctions only.
+</p>
 
 <p>After running TopHat2, Chipster indexes the BAM file using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package. This way the results are ready to be visualized in the genome browser.</p>
 

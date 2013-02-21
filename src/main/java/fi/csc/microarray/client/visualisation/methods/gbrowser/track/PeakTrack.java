@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -38,7 +38,7 @@ public class PeakTrack extends Track {
 	private Color color;
 
 
-	public PeakTrack(View view, DataSource file, Color color, long minBpLength, long maxBpLength) {
+	public PeakTrack(GBrowserView view, DataSource file, Color color, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
@@ -78,7 +78,7 @@ public class PeakTrack extends Track {
 			rect.width = MIN_VISIBLE_PEAK_SIZE;
 		}
 
-		rect.y = (int) (getView().getStretchableTrackHeight() / 2);
+		rect.y = getHeight() / 2;
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, c.darker()));
@@ -91,21 +91,6 @@ public class PeakTrack extends Track {
 			getView().redraw();
 		}
 	}
-
-	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-    
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
     
     @Override
     public boolean isVisible() {
@@ -129,5 +114,10 @@ public class PeakTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
+	}
+	
+	@Override
+	public int getHeight() {
+		return PEAK_SYMBOL_HEIGHT * 2;
 	}
 }
