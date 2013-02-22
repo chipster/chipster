@@ -3,7 +3,7 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT two-sample.tsv: two-sample.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-macthed data or you have interested of comparing expression in one tissue against the expression in another collected from same individuals, etc.)
+# PARAMETER OPTIONAL pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-macthed data or you have expression data at multiple tissue sites from the same individuals, etc. LPE, F-test and fast-t-test does not support pairing information.)
 # PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
