@@ -9,12 +9,21 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
+/**
+ * Sorted files make it possible to find quickly requested region, but there is no way 
+ * to know what to request without information about chromosome names. This class searches 
+ * chromosme names from sorted file relatively quickly with binary search.
+ * 
+ * @author klemela
+ */
 public class ChromosomeBinarySearch {
 
+	//Read through smaller regions than this
 	private static final long ITERATIVE_SEARCH_LIMIT = 8*1024;
 	
 	private RandomAccessLineDataSource file;
 	
+	//Set of chromosome names, prevents duplicates
 	private TreeSet<Chromosome> chrSet = new TreeSet<Chromosome>();
 
 	private Parser parser;
@@ -22,28 +31,27 @@ public class ChromosomeBinarySearch {
 	public ChromosomeBinarySearch(URL url, Parser parser)
 			throws IOException, GBrowserException, URISyntaxException {
 		
-		file = new RandomAccessLineDataSource(url, null);	
-				
+		this.file = new RandomAccessLineDataSource(url);					
 		this.parser = parser;
 	}
 	
 	public TreeSet<Chromosome> getChromosomes() throws IOException, GBrowserException {
 		
+		//Only for sorting check
 		BinarySearchIndex index = new BinarySearchIndex(file, parser);
 		index.checkSorting();
 		
+		//Do the work
 		searchChromosomeChange(0, Long.MAX_VALUE, null, null);
 		
 		return chrSet;
 	}
 
 	private Chromosome getChr(long pos) throws IOException, GBrowserException {
-		
-		
-		//Usually partial line
+				
 		if (pos != 0) {
-			//Make sure we get the whole line
-			file.setLineReaderPosition(pos - 1);
+			file.setLineReaderPosition(pos);			
+			//Usually partial line
 			file.getNextLine();
 		} else {
 			file.setLineReaderPosition(0);
@@ -57,22 +65,36 @@ public class ChromosomeBinarySearch {
 		} else {
 			return null;
 		}
-		
 	}
 	
+	/**
+	 * Search chromosome change recursively between the given file positions. Corresponding
+	 * chromosomes can be supplied to avoid unnecessary file reading, or null if they are not known yet.
+	 * 
+	 * @param pos1
+	 * @param pos2
+	 * @param chr1
+	 * @param chr2
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private void searchChromosomeChange(long pos1, long pos2, Chromosome chr1, Chromosome chr2) throws IOException, GBrowserException {
+		
+		if (pos1 >= pos2) {
+			return;
+		}
 		
 		if (chr1 == null) {
 			chr1 = getChr(pos1);
 		}
 		
-				
+		//Special case in search start
 		if (pos2 == Long.MAX_VALUE) {
 			
 			String lastLine = file.getLastLine();
 			parser.setLine(lastLine);
 			chr2 = parser.getRegion().start.chr;
-			
+			//Minus one to point to preceding new line character
 			pos2 = file.length() - lastLine.length() - 1;
 			
 		} else {
@@ -82,12 +104,8 @@ public class ChromosomeBinarySearch {
 			}
 		}
 				
-		chrSet.add(chr1);
-		
-		//Null in end of file
-		if (chr2 != null) {
-			chrSet.add(chr2);
-		}
+		chrSet.add(chr1);		
+		chrSet.add(chr2);
 		
 		if (chr1.equals(chr2)) {
 			//There is no change
@@ -99,14 +117,27 @@ public class ChromosomeBinarySearch {
 				
 			} else {
 				
-				long centerPos = (pos1 + pos2) / 2;
+				long centerPos = (pos1 + pos2) / 2;		
 				
-				searchChromosomeChange(pos1, centerPos, chr1, null);
-				searchChromosomeChange(centerPos, pos2, null, chr2);
+				//This is same for both calls, so its more efficient to read it here
+				Chromosome centerChr = getChr(centerPos);
+				
+				searchChromosomeChange(pos1, centerPos, chr1, centerChr);
+				searchChromosomeChange(centerPos, pos2, centerChr, chr2);
 			}						
 		}
 	}
 
+	/**
+	 * Search chromosome changes line-by-line, until a chr2 is found.
+	 * 
+	 * @param pos1
+	 * @param pos2
+	 * @param chr1
+	 * @param chr2
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private void iterativeSearch(long pos1, long pos2, Chromosome chr1,
 			Chromosome chr2) throws IOException, GBrowserException {
 			
@@ -116,34 +147,42 @@ public class ChromosomeBinarySearch {
 
 		//Usually partial line
 		if (pos != 0) {
-			pos += file.getNextLine().length() + 1;
+			pos += file.getNextLine().length() + 1; //new line character
 		}
 
 		while (pos < pos2) {
 			String line = file.getNextLine();
 			parser.setLine(line);
 			Chromosome searchChr = parser.getRegion().start.chr;
-			pos += line.length() + 1;
+			pos += line.length() + 1; //new line character
 
 			if (!chr1.equals(searchChr)) {
 
 				//Found new chr 
 				chrSet.add(searchChr);
 				
-
 				if (chr2.equals(searchChr)) {
 
-					//There is another change
-					searchChromosomeChange(pos, pos2, searchChr, chr2);
+					//No more chromosome changes
+					break;					
 				}								
 			}
 		}								
 	}
 	
+	/**
+	 * Example results for 500 MB gtf file with 200 chromosomes:
+	 * 
+	 * File: 295 ms
+	 * Http: 2386 ms (ping <1ms)
+	 * 
+	 * @param args
+	 * @throws IOException
+	 * @throws GBrowserException
+	 * @throws URISyntaxException
+	 */
 	public static void main(String[] args) throws IOException, GBrowserException, URISyntaxException {
-		String fileString = System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.66-sort.gtf";
-		//String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/merged-sort.gtf";
-		//String fileString = System.getProperty("user.home") + "/chipster/cufflinks-gtf/transcripts-sort.gtf";
+		String fileString = System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.69-sort.gtf";
 		
 		URL fileUrl = new File(fileString).toURI().toURL();			
 		printTestTime(fileUrl, "File: ");
@@ -159,6 +198,7 @@ public class ChromosomeBinarySearch {
 
 		long t = System.currentTimeMillis();
 		
+		@SuppressWarnings("unused")
 		TreeSet<Chromosome> chrs = index.getChromosomes();
 		
 		System.out.println(description + (System.currentTimeMillis() - t) + " ms");

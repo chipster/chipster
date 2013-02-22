@@ -19,6 +19,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
  * Sequential throughput varies greatly with ping, from 1 MB/s in local network (1 ms ping)
  * to 10 kB/s (~50 ms ping).
  * 
+ * Buffering is needed in http, but with local files it might not be necessary. Probably RandomAccessFile 
+ * could be queried directly, because file reading is buffered anyway in operating system level. 
+ * Currently the buffer is used also with files, but the performance penalty doesn't seem to be too bad, 
+ * because this implementation is still faster than FileInputStream.skip() (but there hasn't been a direct 
+ * comparison with bare RandomAccessFile).   
+ * 
  * @author klemela
  */
 public class RandomAccessLineReader {
@@ -113,12 +119,16 @@ public class RandomAccessLineReader {
 		return line;
 	}
 	
+	//private int fillBufferCount = 0;
+	
 	/**
 	 * Fill internal buffer starting from the this.position.
 	 * 
 	 * @throws IOException
 	 */
 	private void fillBuffer() throws IOException {
+		
+		//System.out.println("FillbufferCount: " + fillBufferCount++);
 			
 		byte[] bytes = new byte[HTTP_BUFFER_SIZE];
 		

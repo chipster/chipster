@@ -8,6 +8,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
 
 public abstract class Index {
 
+	/**
+	 * Get lines from file. Only lines with start position within the requestRegion are returned, request start position
+	 * is inclusive, end position is exclusive.
+	 * 
+	 * @param requestRegion
+	 * @return
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	public abstract List<String> getFileLines(Region requestRegion) throws IOException, GBrowserException;
 
 }

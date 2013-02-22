@@ -14,10 +14,34 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
-public class IndexTest {
+public class IndexPerformanceTest {
 	
 	/**
 	 * Requires -Xmx2048m
+	 * 
+	 * 
+	 * 
+	 * Example output:
+	 * 
+	 * Memory usage: 0 MB
+	 * Init memIndex: 24705 ms
+	 * Memory usage: 1528 MB
+	 * Init  searchIndex: 10 ms
+	 * Memory usage: 1528 MB
+	 * Troughput test
+	 * memIndex:     	Bytes: 20 MB 	Time: 54 ms 	Bandwidth: 377.79705612747756MB/s
+	 * searchIndex:  	Bytes: 20 MB 	Time: 3575 ms 	Bandwidth: 5.706584903743717MB/s
+	 * Random access test
+	 * memIndex:     Seek 1000, first: 18 ms
+	 * Memory usage: 1573 MB
+	 * memIndex:    Seek 1000, second: 11 ms
+	 * Memory usage: 1576 MB
+	 * searchIndex:  Seek 1000, first: 13673 ms
+	 * Memory usage: 1587 MB
+	 * searchIndex: Seek 1000, second: 13862 ms
+	 * Memory usage: 1540 MB
+	 * Agreement test
+	 * Agreement test done
 	 * 
 	 * @param args
 	 * @throws FileNotFoundException
@@ -44,7 +68,7 @@ public class IndexTest {
 		t = System.currentTimeMillis();
 		printMemoryUsage();;
 		
-		searchIndex = new BinarySearchIndex(new RandomAccessLineDataSource(file.toURI().toURL(), null), new StackGtfParser());
+		searchIndex = new BinarySearchIndex(new RandomAccessLineDataSource(file.toURI().toURL()), new StackGtfParser());
 		
 		System.out.println("Init  searchIndex: " + (System.currentTimeMillis() - t)  + " ms");
 		t = System.currentTimeMillis();

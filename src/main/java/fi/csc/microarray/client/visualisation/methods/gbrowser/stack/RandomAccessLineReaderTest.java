@@ -25,10 +25,18 @@ public class RandomAccessLineReaderTest {
 		
 	public static void main (String[] args) throws IOException, URISyntaxException, GBrowserException {
 		
-		File testFile = getTestFile();				
+		//Test empty file
+		File emptyFile = File.createTempFile("RandomAccesLineReaderTest", ".txt");
+		RandomAccessLineReader lineReader = new RandomAccessLineReader(emptyFile.toURI().toURL());
+		System.out.println(lineReader.setPosition(0) == false);		
+		emptyFile.delete();
+		
+		//Create some artificial content
+		File testFile = getTestFile();	
+		//Read the file with standard tools for reference
 		List<String> lines = getTestReferenceList(testFile);
 		
-		RandomAccessLineReader lineReader = new RandomAccessLineReader(testFile.toURI().toURL());
+		lineReader = new RandomAccessLineReader(testFile.toURI().toURL());
 		
 		//Check that lineReader reports correct file length
 		System.out.println(lineReader.length() == testFile.length());		

@@ -14,29 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 /**
  * In-memory index, which keeps the whole file in RAM. This is practical for small files
  * below 10 MB, where file reading takes less than 1 second. Files don't need to be sorted. 
- * Memory usage is about 300% in comparison to original file.
- * 
- * Example output:
- * 
- * Memory usage: 0 MB
- * Init memIndex: 24705 ms
- * Memory usage: 1528 MB
- * Init  searchIndex: 10 ms
- * Memory usage: 1528 MB
- * Troughput test
- * memIndex:     	Bytes: 20 MB 	Time: 54 ms 	Bandwidth: 377.79705612747756MB/s
- * searchIndex:  	Bytes: 20 MB 	Time: 3575 ms 	Bandwidth: 5.706584903743717MB/s
- * Random access test
- * memIndex:     Seek 1000, first: 18 ms
- * Memory usage: 1573 MB
- * memIndex:    Seek 1000, second: 11 ms
- * Memory usage: 1576 MB
- * searchIndex:  Seek 1000, first: 13673 ms
- * Memory usage: 1587 MB
- * searchIndex: Seek 1000, second: 13862 ms
- * Memory usage: 1540 MB
- * Agreement test
- * Agreement test done
+ * Memory usage is about 300% in comparison to original file size.
  * 
  * @author klemela
  */
@@ -44,6 +22,14 @@ public class InMemoryIndex extends Index {
 	
 	private class IndexKey  implements Comparable<IndexKey> {
 		
+		/**
+		 * The natural order of these keys is primarily according to start positions. Line number
+		 * is the secondary sort condition so that lines with identical start position aren't lost and are 
+		 * kept in original order.
+		 * 
+		 * @param start
+		 * @param lineNumber
+		 */
 		public IndexKey(BpCoord start, long lineNumber) {
 			this.start = start;
 			this.lineNumber = lineNumber;
@@ -81,6 +67,8 @@ public class InMemoryIndex extends Index {
 
 	private LineDataSource file;
 	private Parser parser;
+	
+	//TreeMap for storing all lines of the file sorted according to start positions 
 	private TreeMap<IndexKey, String> lineMap;
 
 	public InMemoryIndex(DataSource file, Parser parser) throws IOException {
@@ -90,6 +78,11 @@ public class InMemoryIndex extends Index {
 		readFile();		
 	}
 
+	/**
+	 * Read the whole file from disk to RAM
+	 * 
+	 * @throws IOException
+	 */
 	private void readFile() throws IOException {
 		
 		lineMap = new TreeMap<IndexKey, String>();
@@ -107,6 +100,12 @@ public class InMemoryIndex extends Index {
 		}
 	}
 	
+	/**
+	 * Get all lines from the file. Use overloaded version {@link #getFileLines(Region)} to get only lines inside specific 
+	 * region.
+	 * 
+	 * @return
+	 */
 	public List<String> getFileLines() {
 		
 		LinkedList<String> lines = new LinkedList<String>();				
@@ -124,7 +123,9 @@ public class InMemoryIndex extends Index {
 		LinkedList<String> lines = new LinkedList<String>();
 		
 		IndexKey startKey = new IndexKey(request.start, 0l);
-		IndexKey endKey = new IndexKey(request.end, Long.MAX_VALUE);
+		//zero second parameter makes this enKey smaller than lines with equal start position 
+		//and thus excludes the lines with equal start position
+		IndexKey endKey = new IndexKey(request.end, 0);
 		
 		for (Entry<IndexKey, String> entry : lineMap.subMap(startKey, endKey).entrySet()) {
 

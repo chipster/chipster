@@ -12,10 +12,27 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
+/**
+ * BinarySearchIndex locates requested region from the sorted file. The requested region is 
+ * located by binary search algorithm. First searches require disk seeks, but most subsequent 
+ * searches can be satisfied with RAM index, which is build dynamically during the searches.
+ * The actual content is read always from the file, keeping the memory usage minimal. 
+ * 
+ * @author klemela
+ */
 public class BinarySearchIndex extends Index {
 
 	private RandomAccessLineDataSource file;
-	private Parser parser;
+	private Parser parser; 
+	
+	/**
+	 * Index maps BpCoordinates (i.e. the value of start column of line) to file position of the
+	 * preceding new line character (in bytes).  
+	 *  
+	 * The file positions in the index don't point to the first character of the line, but to the 
+	 * last new line character before it. When that location is read from file, the new line character 
+	 * is interpreted to mean that next line is complete.
+	 */
 	private TreeMap<BpCoord, Long> index = new TreeMap<BpCoord, Long>();
 	
 	private static final int INDEX_INTERVAL = 128*1024;
@@ -24,15 +41,24 @@ public class BinarySearchIndex extends Index {
 		this.file = (RandomAccessLineDataSource) file;
 		this.parser = parser;
 		
-		checkSorting();
-		
+		checkSorting();		
 		readEnds();
 	}
 
+	/**
+	 * Check that file is sorted correctly. Small files are checked completely, but
+	 * in bigger files only 10 chunks of 10 lines are picked for this sorting check.
+	 *  
+	 * @throws UnsortedDataException Is thrown if the sorting isn't correct. 
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	public void checkSorting() throws IOException, GBrowserException {
 
 		List<String> lines;
 
+		// the limit should be greater than blockLineCount * blockCount * maxLineLength to avoid
+		// problems in big file implementation
 		if (getFile().length() < 100*1024) {
 			lines = getFileLines();
 
@@ -61,6 +87,12 @@ public class BinarySearchIndex extends Index {
 		checkSorting(lines);
 	}
 
+	/**
+	 * Check that given lines are sorted correctly and throw and exception if that is not the case.
+	 * 
+	 * @param lines
+	 * @throws UnsortedDataException
+	 */
 	private void checkSorting(List<String> lines) throws UnsortedDataException {
 		
 		String previousLine = null;
@@ -74,7 +106,7 @@ public class BinarySearchIndex extends Index {
 			if (previousRegion != null) {
 				if (previousRegion.start.compareTo(region.start) > 0) {
 					throw new UnsortedDataException("File " + getFile() + " isn't sorted correctly. " +
-							"Please sort the file first. First line: " + previousLine + " Second line: " + line);
+							"Please sort the file first. Incorrect order of line '" + previousLine + "' and line '" + line + "'");
 				}
 			}
 			previousRegion = region;
@@ -82,6 +114,12 @@ public class BinarySearchIndex extends Index {
 		}	
 	}
 
+	/**
+	 * Initialize index with the location of first and last row.
+	 * 
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private void readEnds() throws IOException, GBrowserException {
 		
 		//Add first row to index
@@ -95,7 +133,7 @@ public class BinarySearchIndex extends Index {
 		String lastLine = getFile().getLastLine();		
 		getParser().setLine(lastLine);
 		region = getParser().getRegion();
-		index.put(region.start, getFile().length() - lastLine.length());
+		index.put(region.start, getFile().length() - lastLine.length() - 1);
 	}
 	
 	/**
@@ -115,10 +153,7 @@ public class BinarySearchIndex extends Index {
 		String line = null;
 		
 		while ((line = getFile().getNextLine()) != null) {
-						
-			getParser().setLine(line);
-			Region region = getParser().getRegion();
-			
+									
 			lines.add(line);
 		}
 		
@@ -127,8 +162,16 @@ public class BinarySearchIndex extends Index {
 
 	public List<String> getFileLines(Region request) throws IOException, GBrowserException {
 		
+		if (request.start.compareTo(request.end) > 0) {
+			throw new IllegalArgumentException();
+		}
+		
 		//Search start position
-		long floorFilePosition = binarySearch(request.start);
+		
+		//Decrease request start position by one to make sure that we get all lines when there  
+		//are equal lines (in sort order) with the index entry in the file also before that index entry.
+		BpCoord requestFloor = new BpCoord(request.start.bp - 1, request.start.chr);
+		long floorFilePosition = binarySearch(requestFloor);
 		
 		getFile().setLineReaderPosition(floorFilePosition);
 		
@@ -158,6 +201,17 @@ public class BinarySearchIndex extends Index {
 		return lines;
 	}
 	
+	/**
+	 * Search previous and following index entries around the requested position from the index. Create a new 
+	 * index entry between these entries, if the distance between them is too big for line-by-line reading.
+	 * Effectively makes a binary search on the file to find a location that is reasonably close to request position
+	 * and precedes it.  
+	 * 
+	 * @param position
+	 * @return
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private long binarySearch(BpCoord position) throws IOException, GBrowserException {
 		
 			Entry<BpCoord, Long> floorEntry = index.floorEntry(position);
@@ -186,6 +240,14 @@ public class BinarySearchIndex extends Index {
 			return floorEntry.getValue();
 	}
 
+	/**
+	 * Create a new index entry between the given file positions.
+	 * 
+	 * @param floorFilePosition
+	 * @param ceilingFilePosition
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private void splitIndexRegion(long floorFilePosition,
 			long ceilingFilePosition) throws IOException, GBrowserException {
 		
@@ -194,14 +256,13 @@ public class BinarySearchIndex extends Index {
 		getFile().setLineReaderPosition(centerFilePosition);
 		//Skip the first line, because we don't know if it is complete or partial 		
 		long partialLineLength = getFile().getNextLine().length() + 1; //plus one because of new line character
-		String firstLine = getFile().getNextLine();		
+		String line = getFile().getNextLine();		
 		
-		getParser().setLine(firstLine);
+		getParser().setLine(line);
 		Region region = getParser().getRegion();
-		//File position should be the last new line character before the parsed line.
-		//File position cannot be set to actual line start, because then the first line is lost,
-		//because we don't know if it is partial or not.
-		index.put(region.start, centerFilePosition + partialLineLength + firstLine.length());
+
+		//index file positions point to preceding new line character
+		index.put(region.start, centerFilePosition + partialLineLength + line.length());
 	}
 
 	public RandomAccessLineDataSource getFile() {
