@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Let's pretend we're using Python 3
 # from __future__ import division, absolute_import, print_function  # , unicode_literals
@@ -22,9 +22,15 @@ def load_available_bundles(filename):
     return bundlesYaml
 
 def load_installed_bundles(filename):
-    bundlesYaml = yaml.load(open(filename, "r"))
-    print("load_installed_bundles: ")
-    pprint(bundlesYaml)
+    try:
+        bundlesYaml = yaml.load(open(filename, "r"))
+        print("load_installed_bundles: ")
+        pprint(bundlesYaml)
+    except IOError as e:
+        if e.errno == 2:
+            print(e)
+            bundlesYaml = None
+        else: raise
     return bundlesYaml
 
 def save_installed_bundles(filename):
@@ -103,6 +109,9 @@ def are_updates_available():
     updated_bundles = {}
     personal_bundles = {}
     deprecated_bundles = {}
+    
+    if not installed_bundles:
+        return (None, None, None)
     
     for i_name, i_version in installed_bundles.items():
         print("i_name:", i_name)
