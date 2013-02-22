@@ -16,6 +16,9 @@ set -e
 # Set fail on pipe
 set -o pipefail
 
+# Set exit on unset variable
+set -u
+
 # Wrapper function to run commands and check return values
 #run ()
 #{
