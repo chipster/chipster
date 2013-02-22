@@ -29,7 +29,7 @@ def load_installed_bundles(filename):
     except IOError as e:
         if e.errno == 2:
             print(e)
-            bundlesYaml = None
+            bundlesYaml = {}
         else: raise
     return bundlesYaml
 
