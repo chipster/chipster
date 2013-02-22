@@ -114,7 +114,7 @@ public class QuickLinkPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					application.openURLImport(true);
+					application.openURLImport();
 				} catch (Exception exception) {
 					application.reportException(exception);
 				}

@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -19,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -121,7 +121,6 @@ import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.GeneralFileFilter;
-import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.Strings;
 
@@ -671,7 +670,7 @@ public class SwingClientApplication extends ClientApplication {
 
 					for (ImportItem item : datas) {
 
-						String dataSetName = item.getOutput().getName();
+						String dataSetName = item.getInputFilename();
 						ContentType contentType = item.getType();
 						Object dataSource = item.getInput();
 
@@ -685,53 +684,18 @@ public class SwingClientApplication extends ClientApplication {
 
 						
 						// create the DataBean
-						DataBean data = null;
+						DataBean data = manager.createDataBean(dataSetName);
 
 						if (dataSource instanceof File) {
-							data = manager.createDataBean(dataSetName, (File) dataSource);
+							manager.addUrl(data, StorageMethod.LOCAL_USER, ((File) dataSource).toURI().toURL());
 							
 						} else if (dataSource instanceof URL) {
-							// TODO Not used anymore, URL-files are saved to the
-							// temp file
-							URL url = (URL) dataSource;
-							try {
-								input = url.openStream();
-								manager.createDataBean(dataSetName, input);
-							} catch (FileNotFoundException fnfe) {
-								SwingUtilities.invokeAndWait(new Runnable() {
-									public void run() {
-										showDialog("File not found.", null, "File not found. Check that the typed URL is pointing to a valid location", Severity.ERROR, false);
-									}
-								});
-								break;
-
-							} catch (IOException ioe) {
-								SwingUtilities.invokeAndWait(new Runnable() {
-									public void run() {
-										showDialog("Import failed.", null, "Error occured while importing data from URL", Severity.ERROR, false);
-									}
-								});
-								break;
-							}
-
-						} else if (dataSource instanceof InputStream) {
-							logger.info("loading data from a plain stream, caching can not be used!");
-							input = (InputStream) dataSource;
-
+							manager.addUrl(data, StorageMethod.REMOTE_STORAGE, (URL)dataSource);
+							
 						} else {
-							throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
+							throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
 						}
 
-						// make sure that the new bean is not null
-						if (data == null) {
-							SwingUtilities.invokeAndWait(new Runnable() {
-								public void run() {
-									showDialog("Importing dataset filed.", null, "Created DataBean was null.", Severity.WARNING, false);
-								}
-							});
-							return;
-						}
-						
 						// set the content type
 						data.setContentType(contentType);
 
@@ -1176,13 +1140,13 @@ public class SwingClientApplication extends ClientApplication {
 		access.setDefaults();
 		int ret = fc.showOpenDialog(getMainFrame());
 		if (ret == JFileChooser.APPROVE_OPTION) {
-			List<File> files = new ArrayList<File>();
+			List<Object> files = new LinkedList<Object>();
 
 			for (File file : fc.getSelectedFiles()) {
 				files.add(file);
 			}
 
-			ImportSession importSession = new ImportSession(ImportSession.Source.FILES, files, access.getImportFolder(), access.skipActionChooser());
+			ImportSession importSession = new ImportSession(ImportSession.Source.FILE, files, access.getImportFolder(), access.skipActionChooser());
 			ImportUtils.executeImport(importSession);
 		}
 	}
@@ -1197,27 +1161,12 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void openURLImport(boolean downloadURL) throws MicroarrayException, IOException {
+	public void openURLImport() throws MicroarrayException, IOException {
 		URLImportDialog urlImportDlg = new URLImportDialog(this);
 		URL selectedURL = urlImportDlg.getSelectedURL();
 		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
-			
-			if (downloadURL) {
-				File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
-				ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
-			
-			} else {
-				
-				// TODO a bit of ImportUtils functionality is repeated here, should refactor
-				String name = IOUtils.getFilenameWithoutPath(selectedURL);
-				DataFolder folder = initializeFolderForImport(importFolder);
-				DataBean data = manager.createDataBean(name);
-				manager.addUrl(data, StorageMethod.REMOTE_STORAGE, selectedURL);
-				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
-				data.setOperationRecord(new OperationRecord(importOperation));
-				manager.connectChild(data, folder);
-			}
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new URL[] { selectedURL }, importFolder, urlImportDlg.isSkipSelected()));
 		}
 	}
 	
@@ -1635,6 +1584,15 @@ public class SwingClientApplication extends ClientApplication {
 	 * @param file
 	 */
 	public void openImportTool(ImportSession importSession) {
+		
+		// make ImportSession compatible with import tool
+		try {
+			importSession.makeLocal();
+		} catch (IOException e) {
+			reportException(e);
+		}
+		
+		// fire up import tool
 		ImportScreen importScreen = (ImportScreen) childScreens.get("Import");
 		importScreen.setImportSession(importSession);
 		importScreen.updateTable(false);
@@ -1725,7 +1683,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-		ImportSession importSession = new ImportSession(ImportSession.Source.FILES, new File[] { file }, destinationFolder, skipActionChooser);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, new File[] { file }, destinationFolder, skipActionChooser);
 		openImportTool(importSession);
 	}
 

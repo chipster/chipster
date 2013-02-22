@@ -248,4 +248,25 @@ public class IOUtils {
 		return (ch2 == -1);
 	}
 
+	
+	/**
+	 * Gets filename of various object types, currently supporting: File, URL. If type is unknown, null
+	 * is returned.
+	 *  
+	 * @param input some object with "filename" type of property
+	 * @return
+	 */
+	public static String getFilename(Object o) {
+		
+		if (o instanceof File) {
+			return ((File)o).getName();
+		
+		} else if (o instanceof URL) {
+			return getFilenameWithoutPath((URL)o);
+
+		} else {
+			return null;
+		}
+	}
+
 }
