@@ -1,4 +1,4 @@
-# TOOL acgh-pathways-go.R: "GO enrichment for called gene copy numbers" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called copy number data from probes to genes.)
+# TOOL acgh-pathways-go.R: "GO enrichment for called gene copy numbers" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Detect genes from called copy number data.)
 # INPUT gene-aberrations.tsv: gene-aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 
@@ -12,7 +12,7 @@
 # PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-02-24
 
 # load packages
 library(org.Hs.eg.db)
@@ -29,7 +29,7 @@ reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
 
 # check that we have something (i.e. that input file was in fact Ensembl IDs)
 if (length(reference.genes)==0)
-  stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Convert called aCGH data from probes to genes.')
+  stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Detect genes from called copy number data.')
 
 # detect the frequency column to use
 if (aberrations == 'all_aberrations') {

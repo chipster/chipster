@@ -114,6 +114,7 @@
 		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-segment.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-call-aberrations.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-identify-regions.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-cluster.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-group-test.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-survival-test.R</resource></tool>
