@@ -10,6 +10,8 @@ import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
@@ -67,7 +69,7 @@ public class LocalNGSPreprocess implements Runnable {
 
 				"<p>-SAM files: yes</p>" +
 				"<p>-BAM files: yes, unless your file is already sorted and you have an index file for it</p>" +
-				"<p>-BED files: yes, unless your file is already sorted</p>";
+				"<p>-BED, GTF and VCF files: yes, unless your file is already sorted</p>";
 		
 		
 		return 	"TOOL LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
@@ -88,6 +90,10 @@ public class LocalNGSPreprocess implements Runnable {
 				if ("bed".equals(extension)) {
 					preprocessBed(dataManager, inputFile);
 					
+				} else if ("gtf".equals(extension)) {
+					preprocessGtf(dataManager, inputFile);
+				} else if ("vcf".equals(extension)) {
+					preprocessVcf(dataManager, inputFile);
 				} else if ("bai".equals(extension)) {
 					preprocessBai(dataManager, inputFile);
 				} else {
@@ -165,18 +171,42 @@ public class LocalNGSPreprocess implements Runnable {
 		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 		
-		// Create outputs in the client
-		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
-		
-		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
-		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
-		dataManager.getRootFolder().addChild(outputBean);
+		createOutput(dataManager, outputName, outputFile);
 	}
+
+	private void preprocessGtf(DataManager dataManager, File inputFile) throws Exception {
+		String outputName = generateFilename(inputFile, "gtf");
+		File outputFile = dataManager.createNewRepositoryFile(outputName);		
+		
+		// Sort		
+		new TsvSorter().sort(
+				inputFile, outputFile, CHROMOSOME_NORMALISER, 
+				StackGtfParser.Column.SEQNAME.ordinal(), 
+				StackGtfParser.Column.START.ordinal());
+		
+		createOutput(dataManager, outputName, outputFile);
+	}
+	
+	private void preprocessVcf(DataManager dataManager, File inputFile) throws Exception {
+		String outputName = generateFilename(inputFile, "vcf");
+		File outputFile = dataManager.createNewRepositoryFile(outputName);		
+
+		// Sort
+		new TsvSorter().sort(inputFile, outputFile, new VcfParser(), CHROMOSOME_NORMALISER);
+		
+		createOutput(dataManager, outputName, outputFile);
+	}
+
 
 	private void preprocessBai(DataManager dataManager, File inputFile) throws Exception {
 		String outputName = inputFile.getName();		
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 		
+		createOutput(dataManager, outputName, outputFile);
+	}
+	
+	private void createOutput(DataManager dataManager, String outputName,
+			File outputFile) throws MicroarrayException {
 		// Create outputs in the client
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
@@ -184,5 +214,4 @@ public class LocalNGSPreprocess implements Runnable {
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
-	
 }

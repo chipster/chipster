@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -25,7 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * The result is an approximation.
  *
  */
-public class IntensityTrack extends Track {
+public class CoverageEstimateTrack extends Track {
 
     final public static int SAMPLING_GRANULARITY = 200;
 
@@ -38,7 +40,7 @@ public class IntensityTrack extends Track {
 	private boolean doLog;
 	private boolean removeTooWide;
 
-	public IntensityTrack(GBrowserView view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
+	public CoverageEstimateTrack(GBrowserView view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
 		super(view, file);
 		this.color = c;
 		this.doLog = doLog;
@@ -85,8 +87,14 @@ public class IntensityTrack extends Track {
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end) + 2;
 			int y = 0;						
-
-			double count = (Float) (regCont.values.get(ColumnType.VALUE));
+			
+			double count;
+			if (this.getStrand() == Strand.FORWARD) {				
+				count = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_FORWARD));
+			} else  {
+				count = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE));
+			}
+			
 			if (doLog) {
 				count = Math.log(count);
 			}
@@ -103,11 +111,8 @@ public class IntensityTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {		
 
 		for (RegionContent content : areaResult.getContents()) {
-			if (areaResult.getStatus().concise == this.isConcised() && 
-					content.values.get(ColumnType.STRAND) == getStrand() && 
-					content.values.get(ColumnType.VALUE) != null &&
-					content.region.intersects(getView().getBpRegion())) { 
-				
+			if (content.region.intersects(getView().getBpRegion()) && content.values.containsKey(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
+								
 				values.add(content);
 				valueStorageOrder.add(content);
 			}
@@ -127,14 +132,11 @@ public class IntensityTrack extends Track {
     public Map<DataSource, Set<ColumnType>> requestedData() {
         HashMap<DataSource, Set<ColumnType>> datas = new
                 HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>());
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+				ColumnType.COVERAGE_ESTIMATE_FORWARD,
+				ColumnType.COVERAGE_ESTIMATE_REVERSE})));
         return datas;
     }
-
-	@Override
-	public boolean isConcised() {
-		return true;
-	}
 	
 	@Override
 	public int getHeight() {

@@ -239,10 +239,13 @@ public class GBrowserChartPanel extends ChartPanel {
 	 * @return
 	 */
 	public int getScrollValue(ScrollGroup scrollGroup) {
-		if (scrollBarsMap.containsKey(scrollGroup)) {
-			return scrollBarsMap.get(scrollGroup).getValue();
-		} else {
-			return 0;
-		}
+		if (scrollBarsMap.containsKey(scrollGroup)) {			
+			ScrollGroupBar bar = scrollBarsMap.get(scrollGroup);
+			
+			if (bar.isVisible()) {
+				return bar.getValue();
+			}
+		} 			
+		return 0;
 	}
 }

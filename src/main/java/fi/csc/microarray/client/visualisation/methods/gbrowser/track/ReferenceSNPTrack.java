@@ -181,11 +181,6 @@ public class ReferenceSNPTrack extends Track {
 	}
 
 	@Override
-	public boolean isConcised() {
-		return false;
-	}
-
-	@Override
     public int getHeight() {
         return 12;
     }

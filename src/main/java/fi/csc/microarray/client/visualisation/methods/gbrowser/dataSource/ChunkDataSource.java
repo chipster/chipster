@@ -53,6 +53,10 @@ public class ChunkDataSource extends DataSource {
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
 	}
+	
+	public int read(long filePosition, byte[] chunk) throws IOException {
+		return read(filePosition, chunk, true);
+	}
 
 	/**
 	 * Method for getting a range from the file. When using url, we might not get very long ranges
@@ -60,10 +64,12 @@ public class ChunkDataSource extends DataSource {
 	 * 
 	 * @param filePosition
 	 * @param chunk
+	 * @param retry Set true to do another requests when server doesn't send as meny bytes as requested, false
+	 * to try just ones.  
 	 * @return
 	 * @throws IOException
 	 */
-	public int read(long filePosition, byte[] chunk) throws IOException {       
+	public int read(long filePosition, byte[] chunk, boolean retry) throws IOException {       
 
 		if (raFile != null) {
 			raFile.seek(filePosition);
@@ -87,21 +93,23 @@ public class ChunkDataSource extends DataSource {
 
 				int bytes = connection.getInputStream().read(chunk);
 
+				if (retry) {
 
-				/* reading seems to give only the beginning of the range (e.g. 24576 bytes) if 
-				 * too big range is requested. Here we try to read again the missing part of the 
-				 * range, recursively if needed. If we didn't get any bytes, there is probably no
-				 * point to continue.
-				 */
+					/* reading seems to give only the beginning of the range (e.g. 24576 bytes) if 
+					 * too big range is requested. Here we try to read again the missing part of the 
+					 * range, recursively if needed. If we didn't get any bytes, there is probably no
+					 * point to continue.
+					 */
 
-				if (bytes < endFilePosition - filePosition && bytes != 0) {
+					if (bytes < endFilePosition - filePosition && bytes != 0) {
 
-					byte[] nextBytes = new byte[(int) (endFilePosition - filePosition - bytes)];
+						byte[] nextBytes = new byte[(int) (endFilePosition - filePosition - bytes)];
 
-					int nextLength = read(filePosition + bytes, nextBytes);
+						int nextLength = read(filePosition + bytes, nextBytes);
 
-					for (int i = 0; i < nextLength; i++) {
-						chunk[bytes + i] = nextBytes[i];
+						for (int i = 0; i < nextLength; i++) {
+							chunk[bytes + i] = nextBytes[i];
+						}
 					}
 				}
 
@@ -120,6 +128,7 @@ public class ChunkDataSource extends DataSource {
 		}
 		return -1;   
 	}
+	
 
 	/**
 	 * Get all bytes from the file. Obviously this shouldn't be used for huge files, because

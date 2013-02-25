@@ -86,10 +86,8 @@ public class PeakTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		if (areaResult.getStatus().concise == this.isConcised()) {
-			this.peaks.addAll(areaResult.getContents());
-			getView().redraw();
-		}
+		this.peaks.addAll(areaResult.getContents());
+		getView().redraw();
 	}
     
     @Override
@@ -110,11 +108,6 @@ public class PeakTrack extends Track {
                 ColumnType.BP_END })));
         return datas;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public int getHeight() {

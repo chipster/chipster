@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Queue;
 
 import javax.swing.SwingUtilities;
@@ -27,6 +28,7 @@ public abstract class AreaRequestHandler extends Thread {
 		this.areaRequestQueue = areaRequestQueue;
 		this.areaResultListener = areaResultListener;
 		this.setDaemon(true);
+		this.setName(getClass().getSimpleName());
 	}
 
 	/**
@@ -38,7 +40,7 @@ public abstract class AreaRequestHandler extends Thread {
 		while (!poison) {
 			AreaRequest areaRequest;
 			if ((areaRequest = areaRequestQueue.poll()) != null) {
-				areaRequest.status.areaRequestCount = areaRequestQueue.size();
+				areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 				processAreaRequest(areaRequest);
 			}
 
@@ -67,7 +69,7 @@ public abstract class AreaRequestHandler extends Thread {
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
 
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 
 			this.areaResultListener = null;
 			this.poison = true;
@@ -82,11 +84,14 @@ public abstract class AreaRequestHandler extends Thread {
 	public void createAreaResult(final AreaResult areaResult) {
 
 		SwingUtilities.invokeLater(new Runnable() {
+						
 			public void run() {
+				
+				long t = System.currentTimeMillis();
 				if (areaResultListener != null) {
 					areaResultListener.processAreaResult(areaResult);
 				}
-			}
+			}						
 		});
 	}
 }

@@ -204,7 +204,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 		if ("+".equals(strand)) {
 			return Strand.FORWARD;
 		} else if ("-".equals(strand)) {
-			return Strand.REVERSED;
+			return Strand.REVERSE;
 		} else if (".".equals(strand)) {
 			return Strand.NONE;
 		}

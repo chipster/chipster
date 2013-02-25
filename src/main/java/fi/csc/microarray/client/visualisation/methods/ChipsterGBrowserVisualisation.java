@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -24,7 +25,7 @@ import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataFile;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
@@ -49,12 +50,12 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	
 	private static final String ANNOTATIONS_PATH = "annotations";
 	
-	public static class BeanDataFile extends DataFile {
+	public static class BeanDataFile extends DataUrl {
 		
 		private DataBean bean;
 		
 		public BeanDataFile(DataBean data) {
-			super(null);
+			super(null, data.getName());
 			this.bean = data;
 		}
 
@@ -168,15 +169,19 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
-				for (DataFile summaryData : interpretation.getSummaryDatas()) {
+				for (DataUrl summaryData : interpretation.getSummaryDatas()) {
 					initialiseUserData(summaryData);
 				}
 			}
 		}
 
-		protected void initialiseUserData(DataFile data) throws IOException {
+		protected void initialiseUserData(DataUrl data) throws IOException {
 			if (data != null) {				
-				data.getLocalFile();
+				try {
+					data.getLocalFile();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -298,6 +303,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/vcf"))) {
 				// Vcf file
 				interpretations.add(new DataBeanInterpretation(TrackType.VCF, new BeanDataFile(data)));
+			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
+				// Gtf file
+				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
 			}
 		}
 

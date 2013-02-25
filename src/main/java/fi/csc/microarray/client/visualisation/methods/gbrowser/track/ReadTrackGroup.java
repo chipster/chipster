@@ -23,13 +23,13 @@ public class ReadTrackGroup extends TrackGroup {
 
     // Tracks
     protected TitleTrack titleTrack;
-    protected IntensityTrack readOverview;
+    protected CoverageEstimateTrack readOverview;
     protected ReadPileTrack reads;
     protected ReferenceSequenceTrack seq;
-    protected IntensityTrack readOverviewReversed;
+    protected CoverageEstimateTrack readOverviewReversed;
     protected ReadPileTrack readsReversed;
-    protected CoverageAndSNPTrack profileTrack;
-    protected CoverageAndSNPTrack profileSNPTrack;
+    protected CoverageTrack profileTrack;
+    protected CoverageTrack profileSNPTrack;
 //    protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
     protected SeparatorTrack sepTrackReads;
@@ -93,60 +93,52 @@ public class ReadTrackGroup extends TrackGroup {
         }
         
         if (userData != null) {
-        	// Overview - reversed
-        	addReadOverviewReversedTrack();
-
-        	// Detailed - reversed
-        	readsReversed = new ReadPileTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
-        	readsReversed.setStrand(Strand.REVERSED);
-        	tracks.add(readsReversed);
-        	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
-        	sepTrackReads2.setName("Reads");
-        	tracks.add(sepTrackReads2);
-
-        	// Profile
-
-        	Color forwardColor = new Color(0,0,0, 64);
-        	Color reverseColor = new Color(
-        			GBrowserConstants.COLOR_BLUE.getRed(), 
-        			GBrowserConstants.COLOR_BLUE.getGreen(), 
-        			GBrowserConstants.COLOR_BLUE.getBlue(), 
-        			64);
-        	Color totalColor = Color.gray;
-
-        	//        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
-        	//        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        	//        profileTrack.setStrand(Strand.BOTH);
-        	//        tracks.add(profileTrack);
-        	//    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
-        	//    	sepTrackProfile.setName("ProfileTrack");
-        	//        tracks.add(sepTrackProfile);
-
-        	profileTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, forwardColor, reverseColor, 0, 
-        			GBrowserConstants.SWITCH_VIEWS_AT);
-        	profileTrack.setName("ProfileTrack");
-        	tracks.add(profileTrack);
-        	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
-        	sepTrackProfile.setName("ProfileTrack");
-        	tracks.add(sepTrackProfile);
-
-        	// SNP profile
-        	profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, seqFile, totalColor, null, 0, 
-        			GBrowserConstants.SWITCH_VIEWS_AT);
-        	profileSNPTrack.setName("ProfileSNPTrack");
-        	tracks.add(profileSNPTrack);
-        	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
-        	sepTrackProfileSNP.setName("ProfileSNPTrack");
-        	tracks.add(sepTrackProfileSNP);
-
-        	// Quality coverage
-        	//        qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
-        	//        		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        	//        tracks.add(qualityCoverageTrack);
-        	//    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        	//    	sepTrackQualityCoverage.setName("QualityCoverageTrack");
-        	//    	tracks.add(sepTrackQualityCoverage);
-
+	        // Overview - reversed
+	        addReadOverviewReversedTrack();
+	        
+	        // Detailed - reversed
+	        readsReversed = new ReadPileTrack(view, userData, readpartProvider, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+	        readsReversed.setStrand(Strand.REVERSE);
+	        tracks.add(readsReversed);
+	    	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
+	    	sepTrackReads2.setName("Reads");
+	        tracks.add(sepTrackReads2);
+	        
+	        // Profile
+	        
+	        Color forwardColor = new Color(0,0,0, 64);
+	        Color reverseColor = new Color(
+	        		GBrowserConstants.COLOR_BLUE.getRed(), 
+	        		GBrowserConstants.COLOR_BLUE.getGreen(), 
+	        		GBrowserConstants.COLOR_BLUE.getBlue(), 
+	        		64);
+	        Color totalColor = Color.gray;
+	        
+	//        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
+	//        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+	//        profileTrack.setStrand(Strand.BOTH);
+	//        tracks.add(profileTrack);
+	//    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+	//    	sepTrackProfile.setName("ProfileTrack");
+	//        tracks.add(sepTrackProfile);
+	        
+	        profileTrack = new CoverageTrack(view, userData, readpartProvider, seqFile, forwardColor, reverseColor, 0, 
+	        		GBrowserConstants.SWITCH_VIEWS_AT);
+	        profileTrack.setName("ProfileTrack");
+	        tracks.add(profileTrack);
+	        sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+	        sepTrackProfile.setName("ProfileTrack");
+	    	tracks.add(sepTrackProfile);
+	        
+	        // SNP profile
+	        profileSNPTrack = new CoverageTrack(view, userData, readpartProvider, seqFile, totalColor, null, 0, 
+	        		GBrowserConstants.SWITCH_VIEWS_AT);
+	        profileSNPTrack.setName("ProfileSNPTrack");
+	        tracks.add(profileSNPTrack);
+	    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+	    	sepTrackProfileSNP.setName("ProfileSNPTrack");
+	    	tracks.add(sepTrackProfileSNP);
+	
         	// Gel
         	gelTrack = new GelTrack(view, userData, readpartProvider, Color.WHITE, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         	gelTrack.setStrand(Strand.BOTH);
@@ -161,15 +153,15 @@ public class ReadTrackGroup extends TrackGroup {
 
 
 	protected void addReadOverviewReversedTrack() {
-		readOverviewReversed = new IntensityTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
+		readOverviewReversed = new CoverageEstimateTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
-        readOverviewReversed.setStrand(Strand.REVERSED);
+        readOverviewReversed.setStrand(Strand.REVERSE);
         readOverviewReversed.setName("ReadOverview");
 		tracks.add(readOverviewReversed);
 	}
 
 	protected void addReadOverviewTrack() {
-		readOverview = new IntensityTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
+		readOverview = new CoverageEstimateTrack(view, userData, histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
 				false, true);
 		readOverview.setName("ReadOverview");
 		tracks.add(readOverview);

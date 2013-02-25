@@ -19,11 +19,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
  */
 public class TrackFactory {
 	
-    public static TrackGroup getGeneTrackGroup(GBrowserPlot genomePlot, DataSource annotationDataSource, TabixDataSource repeatDataSource) throws FileNotFoundException {
+    public static TrackGroup getGeneTrackGroup(GBrowserPlot genomePlot, DataSource annotationDataSource, TabixDataSource repeatDataSource, boolean isUserData) throws FileNotFoundException {
         
 		GBrowserView dataView = genomePlot.getDataView();
 		
-		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource, repeatDataSource);
+		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource, repeatDataSource, isUserData);
 			    
 	    return geneGroup;
 	}

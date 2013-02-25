@@ -61,6 +61,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -76,7 +80,7 @@ import fi.csc.microarray.util.IOUtils;
 /**
  * Main class of genome browser visualisation. Depends on JFreeChart, SwingX, tribble, Picard and 
  * Chipster util package, but should not depend on any other Chipster code. All Chipster specific 
- * functionality must be in class ChipsterGBrowserVisualisation.
+ * functionality is in class ChipsterGBrowserVisualisation.
  * 
  * @author klemela
  */
@@ -91,7 +95,8 @@ public class GBrowser implements ComponentListener {
 		REGIONS_WITH_HEADER(true), 
 		READS(true),
 		HIDDEN(false), 
-		VCF(true);
+		VCF(true), 
+		GTF(true);
 
 		public boolean isToggleable;
 
@@ -100,37 +105,44 @@ public class GBrowser implements ComponentListener {
 		}
 	}
 		
-	public static class DataFile {
+	public static class DataUrl {
 
-		private File file;
+		private URL url;
+		private String name;
 
-		public DataFile(File data) {
-			this.file = data;
+		public DataUrl(URL data, String name) {
+			this.url = data;
+			this.name = name;
 		}
 
 		public String getName() {
-			return file.getName();
+			return name;
 		}
 
-		public InputStream getInputStream() throws IOException {
+		public InputStream getInputStream() throws IOException, URISyntaxException {
 
-			return new FileInputStream(file);
-		}
-
-		public File getLocalFile() throws IOException {
 			//Assume local
-			return file;
+			return new FileInputStream(new File(url.toURI()));
+		}
+
+		public File getLocalFile() throws IOException, URISyntaxException {
+			//Assume local
+			return new File(url.toURI());
+		}
+
+		public URL getUrl() {
+			return url;
 		}
 	}
 	
 	public static class Interpretation {
 		
 		private TrackType type;
-		private List<DataFile> summaryDatas = new LinkedList<DataFile>();
-		private DataFile primaryData;
-		private DataFile indexData;
+		private List<DataUrl> summaryDatas = new LinkedList<DataUrl>();
+		private DataUrl primaryData;
+		private DataUrl indexData;
 
-		public Interpretation(TrackType type, DataFile primaryData) {
+		public Interpretation(TrackType type, DataUrl primaryData) {
 			this.type = type;
 			this.primaryData = primaryData;
 		}
@@ -143,27 +155,27 @@ public class GBrowser implements ComponentListener {
 			this.type = type;
 		}
 
-		public List<DataFile> getSummaryDatas() {
+		public List<DataUrl> getSummaryDatas() {
 			return summaryDatas;
 		}
 
-		public void setSummaryDatas(List<DataFile> summaryDatas) {
+		public void setSummaryDatas(List<DataUrl> summaryDatas) {
 			this.summaryDatas = summaryDatas;
 		}
 
-		public DataFile getPrimaryData() {
+		public DataUrl getPrimaryData() {
 			return primaryData;
 		}
 
-		public void setPrimaryData(DataFile primaryData) {
+		public void setPrimaryData(DataUrl primaryData) {
 			this.primaryData = primaryData;
 		}
 
-		public DataFile getIndexData() {
+		public DataUrl getIndexData() {
 			return indexData;
 		}
 
-		public void setIndexData(DataFile indexData) {
+		public void setIndexData(DataUrl indexData) {
 			this.indexData = indexData;
 		}
 	}
@@ -337,7 +349,7 @@ public class GBrowser implements ComponentListener {
 						}
 
 						//Show ruler track even if there are now data sources
-						TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfDataSource, repeatDataSource);
+						TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfDataSource, repeatDataSource, false);
 						track.setTrackGroup(geneGroup);
 						annotations.addTrackGroup(geneGroup);
 
@@ -372,9 +384,9 @@ public class GBrowser implements ComponentListener {
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
 
-				File file;
+				DataUrl dataUrl;
 				try {
-					file = track.interpretation.primaryData == null ? null : track.interpretation.primaryData.getLocalFile();
+					dataUrl = track.interpretation.primaryData;
 					DataSource treatmentData;
 					if (track.interpretation.type == TrackType.READS) {
 						
@@ -412,7 +424,7 @@ public class GBrowser implements ComponentListener {
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 							TrackGroup readGroupWithSummary = TrackFactory.getReadSummaryTrackGroup(
 									plot, treatmentData, refSeqDataSource, 
-									track.interpretation.primaryData.getName(), new TabixDataSource(file.toURI().toURL(), null, TabixSummaryHandlerThread.class));
+									track.interpretation.primaryData.getName(), new TabixDataSource(dataUrl.getUrl(), null, TabixSummaryHandlerThread.class));
 							track.setTrackGroup(readGroupWithSummary);
 							samples.addTrackGroup(readGroupWithSummary);
 						}
@@ -430,6 +442,8 @@ public class GBrowser implements ComponentListener {
 
 		if (firstReadTrack) {// there wasn't any read tracks, add a separate reference  track
 
+			//This track has fixed size now, layout system understands it only when the scrolling is disabled
+			samples.setScrollEnabled(false);
 
 			URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
 			URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
@@ -457,7 +471,7 @@ public class GBrowser implements ComponentListener {
 
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
-		ScrollGroup analysis = new ScrollGroup("Analysis");
+		ScrollGroup analysis = new ScrollGroup("Analysis", true);
 
 		boolean firstPeakTrack = true;
 		
@@ -465,24 +479,14 @@ public class GBrowser implements ComponentListener {
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
 
-				URL fileUrl = null;
-
-				if (track.interpretation.primaryData != null) {
-					File file;
-					try {
-						file = track.interpretation.primaryData.getLocalFile();
-						fileUrl = file.toURI().toURL();
-
-					} catch (IOException e) {
-						reportException(e);
-					}
-				}
+				DataUrl dataUrl = track.interpretation.primaryData;
 				
 				//Add separators
 				switch (track.interpretation.type) {
 				case REGIONS:
 				case REGIONS_WITH_HEADER:
 				case VCF:
+				case GTF:
 					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
@@ -502,7 +506,7 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 					
 					try {
-						regionData = new ChunkDataSource(fileUrl, new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
+						regionData = new ChunkDataSource(dataUrl.getUrl(), new BEDParserWithCoordinateConversion(), ChunkTreeHandlerThread.class);
 						((ChunkDataSource)regionData).checkSorting();
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
 
@@ -521,7 +525,7 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 
 					try {
-						regionData = new ChunkDataSource(fileUrl, new HeaderTsvParser(), ChunkTreeHandlerThread.class);
+						regionData = new ChunkDataSource(dataUrl.getUrl(), new HeaderTsvParser(), ChunkTreeHandlerThread.class);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
 
 					} catch (FileNotFoundException e) {
@@ -535,8 +539,23 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 
 					try {
-						regionData = new ChunkDataSource(fileUrl, new VcfParser(), ChunkTreeHandlerThread.class);
+						regionData = new ChunkDataSource(dataUrl.getUrl(), new VcfParser(), ChunkTreeHandlerThread.class);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionData));
+						
+					} catch (FileNotFoundException e) {
+						reportException(e);
+					} catch (URISyntaxException e) {
+						reportException(e);
+					}
+					break;
+				case GTF:
+
+					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
+
+					try {
+						//DataSource gtfData = new LineDataSource(fileUrl, GtfToFeatureConversion.class);
+						DataSource gtfData = new RandomAccessLineDataSource(dataUrl.getUrl(), GtfToFeatureConversion.class);
+						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfData, null, true));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -565,7 +584,7 @@ public class GBrowser implements ComponentListener {
 	 * 
 	 * @param tracks
 	 * 
-	 * @param file
+	 * @param url
 	 * @return
 	 * @throws MicroarrayException
 	 *             if index file is not selected properly
@@ -574,7 +593,7 @@ public class GBrowser implements ComponentListener {
 	 * @throws URISyntaxException 
 	 * @throws GBrowserException 
 	 */
-	public DataSource createReadDataSource(DataFile data, DataFile indexData, List<TrackDefinition> tracks)
+	public DataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
 			throws IOException, URISyntaxException, GBrowserException {
 		DataSource dataSource = null;
 
@@ -816,6 +835,8 @@ public class GBrowser implements ComponentListener {
 				try {
 					in  = interpretation.primaryData.getInputStream();
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
 				} finally { 
 					IOUtils.closeIfPossible(in);
 				}
@@ -828,23 +849,42 @@ public class GBrowser implements ComponentListener {
 				
 				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
+				boolean isGtf = (interpretation.type == TrackType.GTF);
 				
-				if (isBed || isVcf) {
-					DataFile data = interpretation.primaryData;
-					File file = data.getLocalFile();
-					List<RegionContent> rows = null;
+				if (isBed || isVcf || isGtf) {
+										
 					try {
+						
+						DataUrl data = interpretation.primaryData;
+						
+						List<RegionContent> rows = null;
+						
 						if (isBed) {
-							//FIXME remove Chipster dependency
-							rows = new RegionOperations().loadFile(file);
-						} else {
-							//FIXME remove Chipster dependency
-							rows = new PositionOperations().loadFile(file);	
-						}
-						for (RegionContent row : rows) {
-							chromosomeNames.add(row.region.start.chr.toNormalisedString());
+							rows = new RegionOperations().loadFile(data.getLocalFile());
+							
+							for (RegionContent row : rows) {
+								chromosomeNames.add(row.region.start.chr.toNormalisedString());
+							}
+							
+						} else if (isVcf) {
+							rows = new PositionOperations().loadFile(data.getLocalFile());
+							
+							for (RegionContent row : rows) {
+								chromosomeNames.add(row.region.start.chr.toNormalisedString());
+							}
+							
+						} else if (isGtf) {
+
+							ChromosomeBinarySearch chrSearch;
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackGtfParser());
+
+							for (Chromosome chr : chrSearch.getChromosomes()) {
+								chromosomeNames.add(chr.toNormalisedString());
+							}
 						}
 					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					} catch (GBrowserException e) {
 						e.printStackTrace();
 					}
 				}

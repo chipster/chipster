@@ -7,8 +7,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileAreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -69,9 +71,9 @@ public class TreeNode {
 	 * @param areaRequest
 	 * @param source
 	 */
-	private void updateNodeBpStart(AreaRequest areaRequest, TreeNode source) {
+	private void updateNodeBpStart(ChunkFileAreaRequest areaRequest, TreeNode source) {
 		if (this.isLeaf) {
-			areaRequest.status.bpSearchSource = source;
+			((ChunkFileStatus)areaRequest.getStatus()).bpSearchSource = source;
 			tree.createFileRequest(areaRequest, this.byteRegion, this);
 
 		} else {
@@ -89,7 +91,7 @@ public class TreeNode {
 	 * 
 	 * @param areaRequest
 	 */
-	public void processAreaRequest(AreaRequest areaRequest) {
+	public void processAreaRequest(ChunkFileAreaRequest areaRequest) {
 
 		// if on leaf, do not recurse down but read file (if needed) and return result
 		if (this.isLeaf) {
@@ -120,13 +122,13 @@ public class TreeNode {
 
 					// recurse to left
 					if (recurseLeft) {
-						AreaRequest clone = areaRequest.clone();
+						ChunkFileAreaRequest clone = areaRequest.clone();
 						left.processAreaRequest(clone);
 					}
 
 					// recurse to right
 					if (recurseRight) {
-						AreaRequest clone = areaRequest.clone();
+						ChunkFileAreaRequest clone = areaRequest.clone();
 						right.processAreaRequest(clone);
 					}
 
@@ -233,11 +235,11 @@ public class TreeNode {
 	 * @param areaRequest
 	 * @param status
 	 */
-	public void createAreaResultOfAllRows(Chunk chunk, FileParser chunkParser, AreaRequest areaRequest, FsfStatus status) {
+	public void createAreaResultOfAllRows(Chunk chunk, FileParser chunkParser, AreaRequest areaRequest, DataRetrievalStatus status) {
 
 		LinkedList<RegionContent> contents = new LinkedList<RegionContent>();
 
-		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
+		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.getRequestedContents())) {
 			if (areaRequest.intersects(rc.region)) {
 				contents.add(rc);
 			}
