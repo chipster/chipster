@@ -591,7 +591,7 @@ public abstract class ClientApplication {
 	}
 		
 	public void importWholeDirectory(File root) {
-		List<File> onlyFiles = new LinkedList<File>();
+		List<Object> onlyFiles = new LinkedList<Object>();
 		
 		for (File file : root.listFiles()) {				
 			if (file.isFile()) { //not a folder
@@ -599,7 +599,7 @@ public abstract class ClientApplication {
 			}
 		}
 		
-		ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, onlyFiles, root.getName(), true);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, onlyFiles, root.getName(), true);
 		ImportUtils.executeImport(importSession);
 	}
 

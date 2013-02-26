@@ -37,7 +37,7 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri Klemel√§
+ * @author Petri Klemelä
  */
 public class ImportUtils {
 
@@ -87,8 +87,6 @@ public class ImportUtils {
 		Set<String> folderNameList = new HashSet<String>();
 		DataFolder root = application.getDataManager().getRootFolder();
 
-		// TODO Is it necessary to put file into root Folder?
-		// folderNameList.add(root.getName());
 		for (DataItem item : root.getChildren()) {
 			if (item instanceof DataFolder) {
 				folderNameList.add(item.getName());
@@ -202,7 +200,7 @@ public class ImportUtils {
 		
 		@Override
 		protected void postProcess() {
-			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new File[] { outputFile }, importFolder, skipActionChooser));
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new Object[] { outputFile }, importFolder, skipActionChooser));
 		}
 	}
 
@@ -225,14 +223,14 @@ public class ImportUtils {
 	 * Iterates through the files and returns true if any of the files is not
 	 * accepted with the isFileSupported() method.
 	 * 
-	 * @param files
+	 * @param items
 	 * @return false if all files are supported type
 	 */
-	public static boolean containsUnsupportedTypes(File[] files) {
+	public static boolean containsUnsupportedTypes(List<ImportItem> items) {
 		boolean isUnsupported = false;
 
-		for (File file : files) {
-			if (!ImportUtils.isFileSupported(file)) {
+		for (ImportItem item : items) {
+			if (!isFileSupported(IOUtils.getFilename(item.getInput()))) {
 				isUnsupported = true;
 			}
 		}
@@ -244,8 +242,8 @@ public class ImportUtils {
 	 * @param file
 	 * @return true if Microarray Files -filefilter accepts the given file
 	 */
-	public static boolean isFileSupported(File file) {
-		return application.getDataManager().guessContentType(file).isSupported();
+	public static boolean isFileSupported(String filename) {
+		return application.getDataManager().guessContentType(filename).isSupported();
 	}
 
 	public static String getExtension(String fileName) {
@@ -277,15 +275,15 @@ public class ImportUtils {
 	public static void executeImport(ImportSession importSession) {
 
 		if (!application.isStandalone()) {
-			List<File> files = importSession.getInputFiles();
+			List<ImportItem> files = importSession.getInputFiles();
 			
 			// bam sam and bed go always to preprocess dialog
 			boolean allBamSamOrBed = true;
-			for (File file : files) {
-				if (!file.getName().toLowerCase().endsWith(".bam") &&
-					!file.getName().toLowerCase().endsWith(".bai") &&
-					!file.getName().toLowerCase().endsWith(".sam") &&
-					!file.getName().toLowerCase().endsWith(".bed")) {
+			for (ImportItem file : files) {
+				if (!file.getInputFilename().toLowerCase().endsWith(".bam") &&
+					!file.getInputFilename().toLowerCase().endsWith(".bai") &&
+					!file.getInputFilename().toLowerCase().endsWith(".sam") &&
+					!file.getInputFilename().toLowerCase().endsWith(".bed")) {
 					allBamSamOrBed = false;
 					break;
 				}
@@ -302,7 +300,7 @@ public class ImportUtils {
 				boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
 
 				// import directly
-				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
+				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files))) {
 					// skip requested and all of the files are supported => import directly and don't show action chooser			
 					application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 				} 
@@ -330,12 +328,16 @@ public class ImportUtils {
 	}
 
 	private static void openPreprocessDialog(ImportSession importSession) {
-		// input files to input DataBeans
+		
 		try {
+			// make sure that we are only importing from files
+			importSession.makeLocal();
+
+			// convert input files to input DataBeans
 			List<DataBean> inputBeans = new LinkedList<DataBean>();
 			int i = 0;
-			for (File inputFile: importSession.getInputFiles()) {
-				inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+			for (ImportItem inputFile: importSession.getInputFiles()) {
+				inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, (File)inputFile.getInput()));
 				i++;
 			}
 
