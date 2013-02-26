@@ -121,10 +121,10 @@
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-survival.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-pathways-go.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-match-probes.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-plot-combined-profile.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-expression-test.R</resource></tool>	
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-plot-combined-expression.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-match-probes.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-expression-test.R</resource></tool>	
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-fetch-probe-positions-from-geo.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-add-cytobands.R</resource></tool>

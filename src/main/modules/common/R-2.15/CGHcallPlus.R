@@ -87,6 +87,8 @@ CGHregions <- CGHregionsPlus
 regioningPlus <- function (cghdata.called, threshold = 0.00001, cghdata.regions = NULL) 
 {
     find.reg.modus <- function(x) {
+        if (nrow(x) == 1)
+            return(x)
         splitter <- list()
         splitter[[1]] <- c(1)
         index.temp <- 1
