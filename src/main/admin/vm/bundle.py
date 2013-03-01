@@ -414,7 +414,7 @@ def parse_commandline():
         install_bundle(name, version)
     elif args.action == "uninstall":
         print("Uninstall something!")
-        remove_bundle(name, version)
+        remove_bundle(name)
     elif args.action == "update":
         print("Update something!")
         update_bundle(name, version)
