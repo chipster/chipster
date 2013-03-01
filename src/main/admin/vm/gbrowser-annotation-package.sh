@@ -11,10 +11,11 @@ package () # parameters 1:package 2:fasta 3:files1 4:files2
 {
 	#Hide the real fasta
 	mkdir "real-fasta"
-	mv "$2" "real-fasta"
+	FASTA=$(basename $2)
+	mv "$FASTA" "real-fasta"
 
 	#Replace real file with link to genomes in Chipster virtual machine
-	ln -s "../../genomes/fasta/$2" "$2"
+	ln -s "../../genomes/fasta/$2" "$FASTA"
 
 	if [ "$3" ] #if threre are additional files
 	then
@@ -30,7 +31,7 @@ package () # parameters 1:package 2:fasta 3:files1 4:files2
 	fi
 
 	#Move original files back so that script setup-genome-browser.sh won't download those again
-	mv "real-fasta/$2" .
+	mv "real-fasta/$FASTA" .
 
 	rmdir "real-fasta"
 
@@ -72,7 +73,7 @@ package "Mus_musculus.GRCm38.70" 		"nochr/mm10.fa" 					"Mus_musculus.GRCm38.70*
 package "Mus_musculus.NCBIM37.67" 		"nochr/mm9.fa" 						"Mus_musculus.NCBIM37.67*" 	"mm9.fa*"
 package "N916Ysi" 				"N916Ysi.fa"
 package "Ovis_aries_v3.1" 			"ovis_aries_texel.fa" 					"ovis_aries_texel.fa*"
-package "Rattus_norvegicus.RGSC3.4.69" 		"nochr/rn4.fa" 						"Rattus_norvegicus.RGSC3.4.70*"	"rn4.fa*"
+package "Rattus_norvegicus.RGSC3.4.69" 		"nochr/rn4.fa" 						"rn4.fa*"
 package "Rattus_norvegicus.Rnor_5.0.70"		"nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa" 
 package "R1-RT" 				"R1-RT.fa"
 package "Sus_scrofa.Sscrofa10.2.70" 		"nochr/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa"	"Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa"
