@@ -30,22 +30,18 @@ download_and_extract () # parameters 1:url 2:file
 
 		if [[ $1 == *.tar.gz ]]
 		then
-			if [[ $1 == fasta_nochr_* ]]
-			then
-							
-				tar -zxf "$2.tar.gz"
+			tar -zxf "$2.tar.gz"
+
+			if [[ "$(ls -A genomes/fasta/nochr)" ]] #dir exists
+			then							
 				mv genomes/fasta/nochr/* .
 				rmdir -p genomes/fasta/nochr
 
-			elif [[ $1 == fasta_* ]]
+			elif [[ "$(ls -A genomes/fasta)" ]] #dir exists
 			then							
-				tar -zxf "$2.tar.gz"
 				mv genomes/fasta/* .
 				rmdir -p genomes/fasta
-
-			else 
-				tar -zxf "$2.tar.gz"
-			fi
+			fi			
 		else
 			gzip -dq "$2.gz"	
 		fi
@@ -353,7 +349,7 @@ VERSION="rn5 (Rnor_5.0.70)"
 
 process_gtf "ftp://ftp.ensembl.org/pub/release-70/gtf/rattus_norvegicus/Rattus_norvegicus.Rnor_5.0.70.gtf.gz"
 ensembl_mysql "ftp://ftp.ensembl.org/pub/release-70/mysql/rattus_norvegicus_core_70_5/" "Rattus_norvegicus.Rnor_5.0.70."
-download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Rattus_norvegicus.Rnor_5.0.70.tar.gz" "rn4.fa"
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Rattus_norvegicus.Rnor_5.0.70.tar.gz" "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa"
 contents_append_url "Ensembl" "http://www.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn5&position=chr[CHR]%3A[START]-[END]"
 
