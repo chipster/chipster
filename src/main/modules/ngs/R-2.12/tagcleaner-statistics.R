@@ -21,7 +21,7 @@ options <- paste("")
 if (input.type == "FASTQ"){
 	options <- paste(options, "-fastq reads")
 }
-if (input.type == "FASTA"){
+if (input.type == "FASTA+QUAL"){
 	options <- paste(options, "-fasta reads")
 	if (file.exists("qual")){
 		options <- paste(options, "-qual qual")
