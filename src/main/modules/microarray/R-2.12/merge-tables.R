@@ -15,6 +15,15 @@ name2<-c("normalized-too.tsv")
 table1<-read.table(file=name1, sep="\t", header=T, row.names=1)
 table2<-read.table(file=name2, sep="\t", header=T, row.names=1)
 
+for (i in 1:ncol(table1)) {
+	table1[,i] <- gsub("\t+", " ", table1[,i], perl=T)
+	table1[,i] <- gsub("\n+", " ", table1[,i], perl=T)
+	table1[,i] <- gsub(" +", " ", table1[,i], perl=T)
+	
+	table1[,i] <- gsub("\"+", ",", table1[,i], perl=T)
+	table1[,i] <- gsub("\'+", ",", table1[,i], perl=T)
+}
+
 # Combines tables using row names
 include=FALSE
 if( include.everything == "yes" ) include=TRUE
