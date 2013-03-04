@@ -124,11 +124,14 @@
 			<value>100</value>
 		</entry>
 
-
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		
         <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
+        </entry>
+
+        <entry entryKey="metadata-port" type="int" description="server port to use for web interface to metadata server or 0 for no interface">
+			<value>0</value>
         </entry>
 
 		<entry entryKey="jetty-debug" type="boolean" description="should Jetty web server run in debug mode (logs/wrapper.log)">

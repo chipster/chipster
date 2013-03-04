@@ -1,8 +1,8 @@
 package fi.csc.microarray.module;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -126,7 +126,7 @@ public interface Module {
 	 * @return url or null
 	 * @throws MalformedURLException
 	 */
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException;
+	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException;
 
 	/**
 	 * If module is bundled with a repository of workflows, returns them.

@@ -64,7 +64,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private int cleanUpMinimumFileAge;
 	private long minimumSpaceForAcceptUpload;
 	
-	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool(); 
+	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
+
+	private int metadataPort; 
 
 	public static void main(String[] args) {
 		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
@@ -95,11 +97,17 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
 
     		// initialise metadata database
+    		logger.info("starting derby metadata server");
+    		this.metadataPort = configuration.getInt("filebroker", "metadata-port");
     		this.metadataServer = new DerbyMetadataServer();
-    		Server h2WebConsoleServer;
-    		h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(8082)});
-    		h2WebConsoleServer.start();
-    		logger.info(h2WebConsoleServer.getStatus());
+    		if (metadataPort > 0) {
+    			Server h2WebConsoleServer;
+    			h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(this.metadataPort)});
+    			h2WebConsoleServer.start();
+    			logger.info("started metadata server web interface: " + h2WebConsoleServer.getStatus());
+    		} else {
+    			logger.info("not starting metadata server web interface");        			
+    		}
     		
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);

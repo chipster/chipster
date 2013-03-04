@@ -164,7 +164,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void loadSessionFrom(URL url) {
+		public void loadExampleSession(File url) {
 			// do nothing
 		}
 

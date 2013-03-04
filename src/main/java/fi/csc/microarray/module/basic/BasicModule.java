@@ -1,8 +1,8 @@
 package fi.csc.microarray.module.basic;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -134,7 +134,7 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
 		return null;
 	}
 

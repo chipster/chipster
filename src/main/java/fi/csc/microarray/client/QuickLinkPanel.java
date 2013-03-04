@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
@@ -51,7 +52,7 @@ public class QuickLinkPanel extends JPanel {
 		exampleLinkAlternative = null;
 
 		try {
-			final URL[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone);
+			final File[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone);
 			if (urls != null) {
 
 				if (urls.length == 1) {
@@ -59,7 +60,7 @@ public class QuickLinkPanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadSessionFrom(urls[0]);
+								application.loadExampleSession(urls[0]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}
@@ -72,7 +73,7 @@ public class QuickLinkPanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadSessionFrom(urls[0]);
+								application.loadExampleSession(urls[0]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}
@@ -83,7 +84,7 @@ public class QuickLinkPanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadSessionFrom(urls[1]);
+								application.loadExampleSession(urls[1]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}

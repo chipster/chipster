@@ -1,9 +1,9 @@
 package fi.csc.microarray.module.sequence;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,8 +35,7 @@ import fi.csc.microarray.util.LinkUtil;
 
 public class SequenceModule implements Module {
 
-	private static final String CATEGORY_PART_SEPARATOR = ":";
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
+	private static final String EXAMPLE_SESSION_FILE = "sequence-example-session.cs";
 
 	@Override
 	public void plugContentTypes(DataManager manager) {
@@ -145,8 +144,8 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
-		return new URL[] {  new URL(EXAMPLE_SESSION_URL) };
+	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+		return new File[] {  new File(EXAMPLE_SESSION_FILE) };
 	}
 
 	@Override

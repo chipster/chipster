@@ -5,11 +5,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -79,9 +79,9 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL_ARRAY = "http://chipster.csc.fi/examples/chipster2-example-microarray.zip";
-	private static final String EXAMPLE_SESSION_URL_NGS = "http://chipster.csc.fi/examples/chipster2-example.zip";
-	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
+	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "microarray-example-session.zip";
+	private static final String EXAMPLE_SESSION_FILE_NGS = "ngs-example-session.zip";
+	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "standalone-example-session.zip";
 	
 	public static class TypeTags {
 		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
@@ -276,13 +276,13 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
 		
 		if (isStandalone) {
-			return new URL[] { new URL(STANDALONE_EXAMPLE_SESSION_URL) };
+			return new File[] { new File(EXAMPLE_SESSION_FILE_STANDALONE) };
 		}
 		
-		return new URL[] { new URL(EXAMPLE_SESSION_URL_ARRAY), new URL(EXAMPLE_SESSION_URL_NGS)};
+		return new File[] { new File(EXAMPLE_SESSION_FILE_MICROARRAY), new File(EXAMPLE_SESSION_FILE_NGS)};
 	}
 
 	@Override

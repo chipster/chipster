@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,8 +58,6 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportScreen;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
-import fi.csc.microarray.client.dataimport.ImportUtils.FileLoaderProcess;
-import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
@@ -680,10 +677,6 @@ public class SwingClientApplication extends ClientApplication {
 						// new one
 						DataFolder folder = initializeFolderForImport(folderName);
 
-						// get the InputStream for the data source
-						InputStream input;
-
-						
 						// create the DataBean
 						DataBean data = manager.createDataBean(dataSetName);
 
@@ -1694,20 +1687,13 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadSessionFrom(URL url) {
+	public void loadExampleSession(File selectedFile) {
 		try {
-			final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
-			InformationDialog info = new InformationDialog("Loading session", "Loading session from the specified URL", null);
-			
-			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
-				@Override
-				protected void postProcess() {
-					loadSessionImpl(tempFile, null, false, false);
-				};
-			};			
-			fileLoaderProcess.runProcess();
-			
-		} catch (IOException e) {
+			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+			URL sessionURL = findMatchingSessionURL(sessions, selectedFile);
+			loadSessionImpl(null, sessionURL, true, false);		
+
+		} catch (Exception e) {
 			reportException(e);
 		}
 	}
@@ -1742,7 +1728,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (remote) {
 				try {
-					sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+					sessionURL = findMatchingSessionURL(sessions, selectedFile);
 					if (sessionURL == null) {
 						throw new RuntimeException();
 					}
@@ -2022,7 +2009,8 @@ public class SwingClientApplication extends ClientApplication {
 			URL sessionURL = null;
 
 			try {
-				sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+				String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+				sessionURL = findMatchingSessionURL(sessions, selectedFile);
 				if (sessionURL == null) {
 					throw new RuntimeException();
 				}
@@ -2043,8 +2031,8 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(final JFileChooser fileChooser, File selectedFile, URL sessionURL) throws MalformedURLException {
-		String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+	private URL findMatchingSessionURL(String[][] sessions, File selectedFile) throws MalformedURLException {
+		URL sessionURL = null;
 		for (int i = 0; i < sessions[0].length; i++) {
 			if (selectedFile.getName().equals(sessions[0][i])) {
 				sessionURL = new URL(sessions[1][i]);
