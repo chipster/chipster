@@ -363,20 +363,22 @@ public class ReadPileTrack extends Track {
 			}
 
 			// we might need to reverse reference sequence
-			char[] readBases;
-			if (strand == Strand.REVERSED) {
-				readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
-			} else {
-				readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
-			}
+			char[] readBases = null;
+			if (read.values.get(ColumnType.SEQUENCE) != null) { //when showing negative coordinates
+				if (strand == Strand.REVERSED) {
+					readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+				} else {
+					readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+				}
 
-			int readStart = read.region.start.bp.intValue();
-			int readNum = 0;
-			int nextPos = 0;
-			for (char c : readBases) {
-				nextPos = readStart + readNum++;
-				if (nextPos >= startBp && nextPos <= endBp) {
-					refSeq[nextPos - startBp] = c;
+				int readStart = read.region.start.bp.intValue();
+				int readNum = 0;
+				int nextPos = 0;
+				for (char c : readBases) {
+					nextPos = readStart + readNum++;
+					if (nextPos >= startBp && nextPos <= endBp) {
+						refSeq[nextPos - startBp] = c;
+					}
 				}
 			}
 		}

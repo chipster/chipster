@@ -65,6 +65,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.PositionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
@@ -426,7 +427,34 @@ public class GBrowser implements ComponentListener {
 				}
 			}
 		}
-		
+
+		if (firstReadTrack) {// there wasn't any read tracks, add a separate reference  track
+
+
+			URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
+			URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
+
+			IndexedFastaDataSource refSeqDataSource = null;
+
+			if (fastaUrl != null && fastaIndexUrl != null) {
+				try {
+					refSeqDataSource = new IndexedFastaDataSource(fastaUrl, fastaIndexUrl);
+
+					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
+							plot, null, 
+							refSeqDataSource, 
+							settings.getGenome().toString());
+
+					samples.addTrackGroup(readGroup);
+
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
 		ScrollGroup analysis = new ScrollGroup("Analysis");
@@ -797,13 +825,22 @@ public class GBrowser implements ComponentListener {
 		// If we still don't have names, go through non-indexed datasets
 		if (chromosomeNames.isEmpty()) {
 			for (Interpretation interpretation : getInterpretations()) {
-				if (interpretation.type == TrackType.REGIONS) {
+				
+				boolean isBed = (interpretation.type == TrackType.REGIONS);
+				boolean isVcf = (interpretation.type == TrackType.VCF);
+				
+				if (isBed || isVcf) {
 					DataFile data = interpretation.primaryData;
 					File file = data.getLocalFile();
 					List<RegionContent> rows = null;
 					try {
-						//FIXME remove Chipster dependency 
-						rows = new RegionOperations().loadFile(file);
+						if (isBed) {
+							//FIXME remove Chipster dependency
+							rows = new RegionOperations().loadFile(file);
+						} else {
+							//FIXME remove Chipster dependency
+							rows = new PositionOperations().loadFile(file);	
+						}
 						for (RegionContent row : rows) {
 							chromosomeNames.add(row.region.start.chr.toNormalisedString());
 						}

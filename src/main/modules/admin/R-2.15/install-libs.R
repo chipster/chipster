@@ -1,6 +1,13 @@
 ## Install packages, and dependencies, from CRAN
 install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="locfit")
 
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="MKmisc")
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="e1071")
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="GeneCycle")
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="fastICA")
+
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", c('flexmix', 'R2HTML', 'snowfall'))
+
 ## Install packages from Bioconductor
 
 source("http://bioconductor.org/biocLite.R")
@@ -34,8 +41,5 @@ biocLite("BiodiversityR")
 biocLite("pegas")
 biocLite("labdsv")
 
-# from CRAN
-install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="MKmisc")
-install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="e1071")
-install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="GeneCycle")
-install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="fastICA")
+biocLite(c('CGHregions', 'CGHcall', 'CGHbase', 'GOstats', 'impute'))
+

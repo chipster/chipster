@@ -185,6 +185,9 @@
 				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${admin-web}/WebContent/WEB-INF/lib-ivy">
+					<include name="**/*.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 
@@ -203,6 +206,8 @@
 			<fileset dir="${admin-web}/">
 				<include name="WebContent/**/*" />
 				<exclude name="WebContent/WEB-INF/lib/*" />
+				<exclude name="WebContent/WEB-INF/lib-ext/*" />
+				<exclude name="WebContent/WEB-INF/lib-ivy/*" />
 			</fileset>
 		</jar>
 	</target>

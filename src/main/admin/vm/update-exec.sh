@@ -409,7 +409,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   echo "** Updating activemq.xml"
   cp ${CHIP_PATH}/activemq/conf/activemq.xml ${BACKUPDIR_PATH}/
-  sed -i'~' "s:<authorizationEntry topic=\"feedback-topic\" write=\"clients\" read=\"managers\" admin=\"all\" />:<authorizationEntry admin=\"all\" read=\"authenticators\" topic=\"feedback-topic\" write=\"clients\"/>\n\t\t\t\t\t<authorizationEntry admin=\"all\" read=\"managers\" topic=\"authorised-feedback-topic\" write=\"authenticators\"/>:" ${CHIP_PATH}/activemq/conf/activemq.xml
+  sed -i'~' "s:<authorizationEntry admin=\"all\" read=\"managers\" topic=\"feedback-topic\" write=\"clients\"/>:<authorizationEntry admin=\"all\" read=\"authenticators\" topic=\"feedback-topic\" write=\"clients\"/>\n\t\t\t\t\t<authorizationEntry admin=\"all\" read=\"managers\" topic=\"authorised-feedback-topic\" write=\"authenticators\"/>:" ${CHIP_PATH}/activemq/conf/activemq.xml
 
 fi
 
