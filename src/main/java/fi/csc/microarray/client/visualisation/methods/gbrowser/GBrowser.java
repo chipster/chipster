@@ -86,7 +86,6 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class GBrowser implements ComponentListener {
 	
-	
 	public static enum TrackType {
 		CYTOBANDS(false), 
 		GENES(false), 
