@@ -16,7 +16,7 @@ Given mapped reads in a BAM file, this tool calculates how many reads map to eac
 <ul>
 <li>Does the alignment file contain paired-end data (yes, no) [no]</li>
 <li>Was the data produced with a strand-specific RNA-seq protocol (yes, no, reverse) [no]</li>
-<li>Organism (human hg19.65, mouse mm9.65, rn4.65) [human hg19.65]</li>
+<li>Organism (human hg19.68, mouse mm9.68, rn4.68) [human hg19.68]</li>
 <li>Mode to handle reads overlapping more than one gene (union, intersection-strict, intersection-nonempty) [union]</li>
 <li>Minimum mapping quality (0-100) [0]</li>
 <li>Feature type to count (exon, CDS) [exon]</li>
@@ -37,8 +37,7 @@ There are three different modes to handle reads which overlap with more than one
  These are illustrated in the <a href="http://www-huber.embl.de/users/anders/HTSeq/doc/count.html">HTSeq manual</a>.
 </p>
 <p>
-By default all aligned reads are mapped to genes, but users can choose to filter them by mapping (alignment) quality 
-(note that unlike BWA, Bowtie doesn't calculate mapping quality, it just inserts 255 to the field 5 of BAM file if the read aligns, and 0 if it doesn't align).
+By default all aligned reads are mapped to genes, but users can choose to filter them by mapping (alignment) quality.
 </p>
 
 <h3>Output</h3>
