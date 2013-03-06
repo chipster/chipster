@@ -1,4 +1,4 @@
-# TOOL mothur-analyses: mothur-analyses (Analysis tool for metagenomic experiment. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples, and columns are taxa or equivalent.)
+# TOOL mothur-analyses: Mothur-analyses (Analysis tool for metagenomic experiment. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples, and columns are taxa or equivalent.)
 # INPUT counttable.tvs: counttable.tsv TYPE GENERIC
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT results.pdf: results.pdf
