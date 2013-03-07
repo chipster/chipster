@@ -57,7 +57,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	private class UrlMessageListener extends TempTopicMessagingListenerBase {
 		
-		private URL newUrl;
+		private URL newUrl = null;
 		private CountDownLatch latch = new CountDownLatch(1);
 		
 		public void onChipsterMessage(ChipsterMessage msg) {
@@ -131,7 +131,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// Get new url
 		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
-			throw new FileBrokerException("New URL is null.");
+			throw new FileBrokerException("filebroker is not responding");
 		}
 
 		// Try to move/copy it locally, or otherwise upload the file
