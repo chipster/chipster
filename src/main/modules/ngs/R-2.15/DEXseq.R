@@ -1,4 +1,4 @@
-# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment. Please use the group column of the phenodata file to indicate your experimental groups. It is highly recommended to that all the groups have replicates. If they do not, you have to estimate the dispersion manually by defining the parameter dispersion.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups. It is highly recommended to that all the groups have replicates. If they do not, you have to estimate the dispersion manually by defining the parameter dispersion.)
 # INPUT countfile.tsv: countfile.tsv TYPE GENERIC 
 # INPUT phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL DEXSeq-exons.pdf: DEXSeq-exons.pdf
