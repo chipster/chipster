@@ -13,7 +13,7 @@
 # PARAMETER OPTIONAL c: "For each entry in A, report the number of overlaps with B" TYPE [yes, no] DEFAULT no (For each entry in A, report the number of overlaps with B)
 # PARAMETER OPTIONAL f: "Minimum overlap required as a fraction of A" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.000000001 (Minimum overlap required as a fraction of A. Default is 1E-9 (effectively 1bp\))
 # PARAMETER OPTIONAL r: "Require that the fraction overlap be reciprocal for A and B" TYPE [yes, no] DEFAULT no (Require that the fraction overlap be reciprocal for A and B. In other words, if minumum overlap is 0.90 and this option is selected, this requires that B overlap 90% of A and A also overlaps 90% of B.)
-# PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is a BAM file.)
+# PARAMETER OPTIONAL abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is a BAM file.)
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes, no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.)
 # PARAMETER OPTIONAL bed: "When using BAM input, write output as BED" TYPE [yes, no] DEFAULT no (When using BAM input, the default is to write output in BAM.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM (i.e., having an “N” CIGAR operation\) or BED12 entries as distinct BED intervals.)
