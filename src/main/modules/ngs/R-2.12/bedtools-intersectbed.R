@@ -8,7 +8,7 @@
 # PARAMETER v: "Only report those entries in A that have no overlaps with B" TYPE [yes, no] DEFAULT no (Only report those entries in A that have no overlaps with B)
 # PARAMETER wb: "Write the original entry in B for each overlap" TYPE [yes, no] DEFAULT no (Report the original B feature when an overlap is found. The entire B feature is reported, not just the portion that overlaps with the A feature.)
 # PARAMETER s: "Force strandedness" TYPE [yes, no] DEFAULT no (Only report hits in B that overlap A on the same strand. By default, overlaps are reported without respect to strand.)
-# PARAMETER OPTIONAL abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is a BAM file.)
+# PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is a BAM file.)
 # PARAMETER OPTIONAL wo: "Write the original A and B entries for overlapped A features" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two feature. Only A features with overlap are reported.)
 # PARAMETER OPTIONAL wao: "Write the original A and B entries for all A features" TYPE [yes, no] DEFAULT no (Write the original A and B entries plus the number of base pairs of overlap between the two features. However, A features w/o overlap are also reported with a NULL B feature and overlap = 0.)
 # PARAMETER OPTIONAL c: "For each entry in A, report the number of overlaps with B" TYPE [yes, no] DEFAULT no (For each entry in A, report the number of overlaps with B)
