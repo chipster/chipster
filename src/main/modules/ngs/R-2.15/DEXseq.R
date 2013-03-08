@@ -1,10 +1,10 @@
-# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment. In it highly recommended that all the groups defined by the phenodata group column have replicates.  If they do not, you have to estimate the dispersion manually by defining the parameter dispersion.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment. Please use the group column of the phenodata file to indicate your experimental groups. It is highly recommended to that all the groups have replicates. If they do not, you have to estimate the dispersion manually by defining the parameter dispersion.)
 # INPUT countfile.tsv: countfile.tsv TYPE GENERIC 
 # INPUT phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL DEXSeq-exons.pdf: DEXSeq-exons.pdf
 # OUTPUT DEXSeq-result-table.tsv: DEXSeq-result-table.tsv
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf: "Human (hg19.68)", Mus_musculus.GRCm38.68.chr.DEXSeq.gtf: "Mouse (mm10.68)", Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf (Which organism is your data from.)
-# PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 1 (The common dispersion used automatically for all transcripts, if there are no replicates, or if the correct way to estimate the dispersions runs into problem. If the dispersions can not be estimated, no graphical output is generated.)
+# PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (The common dispersion used automatically for all transcripts, if there are no replicates, or if the correct way to estimate the dispersions runs into problem. If the dispersions can not be estimated, no graphical output is generated.)
 
 # JTT 23.9.2012
 
