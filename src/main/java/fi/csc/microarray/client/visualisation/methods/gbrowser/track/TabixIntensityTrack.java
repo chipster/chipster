@@ -11,11 +11,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -29,8 +28,8 @@ public class TabixIntensityTrack extends Track {
 	private long maxBpLength;
 	private Color color;
 
-	public TabixIntensityTrack(GBrowserView view, DataSource file, Color c, long minBpLength, long maxBpLength) {
-		super(view, file);
+	public TabixIntensityTrack(Color c, long minBpLength, long maxBpLength) {
+
 		this.color = c;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -129,10 +128,10 @@ public class TabixIntensityTrack extends Track {
     }
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-                HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>());
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+                HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>());
         return datas;
     }
 }

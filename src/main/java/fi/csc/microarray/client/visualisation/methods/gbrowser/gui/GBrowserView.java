@@ -23,7 +23,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel.TooltipRequestProcessor;
@@ -203,18 +203,18 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	 */
 	public void fireAreaRequests() {
 
-		Map<DataSource, Set<ColumnType>> datas = new HashMap<DataSource, Set<ColumnType>>();
+		Map<AreaRequestHandler, Set<ColumnType>> datas = new HashMap<AreaRequestHandler, Set<ColumnType>>();
 
 		// Add all requested columns for each requested file
 		for (Track t : getTracks()) {
-			Map<DataSource, Set<ColumnType>> trackDatas = t.requestedData();
+			Map<AreaRequestHandler, Set<ColumnType>> trackDatas = t.requestedData();
 
 			// Don't do anything for hidden tracks or tracks without data
 			if (trackDatas == null || !t.isVisible()) {
 				continue;
 			}
 
-			for (DataSource file : trackDatas.keySet()) {
+			for (AreaRequestHandler file : trackDatas.keySet()) {
 				
 				if (file != null) {
 					// Add columns for this requested file
@@ -228,8 +228,8 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		
 		Region requestRegion = getBpRegion();
 
-		// Fire area requests for precise requests
-		for (DataSource file : datas.keySet()) {
+		// Fire area requests
+		for (AreaRequestHandler file : datas.keySet()) {
 			DataRetrievalStatus status = new DataRetrievalStatus();
 			status.clearQueues = true;
 			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -47,13 +47,13 @@ public class CoverageTrack extends Track {
 	private boolean highlightSNP = false;
 
 	private BaseStorage theBaseCacheThang = new BaseStorage();
-	private DataSource refFile;
+	private AreaRequestHandler refFile;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 
-	public CoverageTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, DataSource refFile, 
+	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refFile, 
 			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
-		super(view, file);
+
 		this.forwardColor = forwardColor;
 		this.reverseColor = reverseColor;
 		this.minBpLength = minBpLength;
@@ -70,7 +70,7 @@ public class CoverageTrack extends Track {
 		super.initializeListener();
 		
 		// Add listener for reference file
-		if (file != null && refFile != null) {
+		if (areaRequestHandler != null && refFile != null) {
 			view.getQueueManager().addResultListener(refFile, this);
 		}
 	}
@@ -193,7 +193,7 @@ public class CoverageTrack extends Track {
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
-		if (areaResult.getStatus().file == refFile) {
+		if (areaResult.getStatus().areaRequestHandler == refFile) {
 			this.refReads.addAll(areaResult.getContents());
 		}
 	}
@@ -212,10 +212,10 @@ public class CoverageTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-		HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+		HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
 		
 		return datas;
 	}

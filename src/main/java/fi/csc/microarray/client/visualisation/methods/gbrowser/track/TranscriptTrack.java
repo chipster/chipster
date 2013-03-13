@@ -16,14 +16,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -53,9 +52,8 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(GBrowserView view, DataSource file, long maxBpLength) {
+	public TranscriptTrack(long maxBpLength) {
 
-		super(view, file);
 		this.maxBpLength = maxBpLength;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
@@ -242,10 +240,10 @@ public class TranscriptTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-				HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+				HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.VALUE })));
 		return datas;
 	}

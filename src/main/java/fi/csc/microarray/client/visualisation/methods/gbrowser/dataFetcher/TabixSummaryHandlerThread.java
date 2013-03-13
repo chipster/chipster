@@ -25,6 +25,10 @@ public class TabixSummaryHandlerThread extends AreaRequestHandler {
 		tabixData = (TabixSummaryDataSource) file;
 	}
 
+	public TabixSummaryHandlerThread(DataSource file) {
+		this(file, null, null);
+	}
+
 	/**
 	 * Handles normal and concised area requests by using TabixFile.
 	 */

@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -59,6 +60,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			this.bean = data;
 		}
 
+		@Override
 		public String getName() {
 			return bean.getName();
 		}
@@ -68,12 +70,27 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 * 
 		 * @see fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.DataFile#getInputStream()
 		 */
+		@Override
 		public InputStream getInputStream() throws IOException {
 							
 			return bean.getContentByteStream();
 		}
+		
+		@Override
 		public File getLocalFile() throws IOException {
 			return Session.getSession().getDataManager().getLocalFile(bean);
+		}
+		
+		@Override
+		public URL getUrl() {
+			try {
+				return getLocalFile().toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 	}
 	
@@ -282,7 +299,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
 		// Find interpretations for all primary data types
-		for (DataBean data : datas) {
+		for (DataBean data : datas) {		
 			
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// ELAND result / export
@@ -306,7 +323,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
 				// Gtf file
 				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
-			}
+			}						
 		}
 
 		// Find interpretations for all secondary data types
@@ -346,7 +363,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 				return null; // BAM is missing BAI
 			}
 		}
-
 
 		return interpretations;
 	}

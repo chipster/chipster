@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -20,13 +20,13 @@ public class EmptyTrack extends Track {
 
 	private Long minBp;
 
-	public EmptyTrack(GBrowserView view, int height) {
-		super(view, null);
+	public EmptyTrack(int height) {
+
 		this.layoutHeight = height;
 	}
 	
-	public EmptyTrack(GBrowserView view, int height, long minBp) {
-		super(view, null);
+	public EmptyTrack(int height, long minBp) {
+
 		this.layoutHeight = height;
 		this.minBp = minBp;
 	}
@@ -43,7 +43,7 @@ public class EmptyTrack extends Track {
 	}
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         return null;
     }
 	

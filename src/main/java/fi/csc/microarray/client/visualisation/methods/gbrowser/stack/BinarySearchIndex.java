@@ -37,7 +37,7 @@ public class BinarySearchIndex extends Index {
 	
 	private static final int INDEX_INTERVAL = 128*1024;
 
-	public BinarySearchIndex(DataSource file, Parser parser) throws IOException, GBrowserException {
+	public BinarySearchIndex(DataSource file, Parser parser) throws IOException, GBrowserException, UnsortedDataException {
 		this.file = (RandomAccessLineDataSource) file;
 		this.parser = parser;
 		
@@ -53,7 +53,7 @@ public class BinarySearchIndex extends Index {
 	 * @throws IOException
 	 * @throws GBrowserException
 	 */
-	public void checkSorting() throws IOException, GBrowserException {
+	public void checkSorting() throws IOException, GBrowserException, UnsortedDataException {
 
 		List<String> lines;
 
@@ -160,7 +160,7 @@ public class BinarySearchIndex extends Index {
 		return lines;
 	}
 
-	public List<String> getFileLines(Region request) throws IOException, GBrowserException {
+	public TreeMap<IndexKey, String> getFileLines(Region request) throws IOException, GBrowserException {
 		
 		if (request.start.compareTo(request.end) > 0) {
 			throw new IllegalArgumentException();
@@ -175,9 +175,10 @@ public class BinarySearchIndex extends Index {
 		
 		getFile().setLineReaderPosition(floorFilePosition);
 		
-		LinkedList<String> lines = new LinkedList<String>();
+		TreeMap<IndexKey, String> lines = new TreeMap<IndexKey, String>();
 		
 		String line = null;
+		long lineBytePosition = floorFilePosition;
 		
 		while ((line = getFile().getNextLine()) != null) {
 			
@@ -190,12 +191,14 @@ public class BinarySearchIndex extends Index {
 			Region region = getParser().getRegion();
 			
 			if (request.contains(region.start)) {
-				lines.add(line);
+				lines.put(new IndexKey(region.start, lineBytePosition), line);
 			}
 			
 			if (request.end.compareTo(region.start) < 0) {
 				break;
 			}
+			
+			lineBytePosition += line.length() + 1; // plus one for new line character
 		}
 		
 		return lines;

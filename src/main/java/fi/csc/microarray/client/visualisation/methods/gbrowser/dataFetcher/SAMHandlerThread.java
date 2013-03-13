@@ -47,15 +47,19 @@ public class SAMHandlerThread extends AreaRequestHandler {
         samData = (SAMDataSource) file;
     }
 
+	public SAMHandlerThread(DataSource file) {
+		this(file, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new SAMFileFetcherThread(fileRequestQueue, fileResultQueue, this, samData);
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {

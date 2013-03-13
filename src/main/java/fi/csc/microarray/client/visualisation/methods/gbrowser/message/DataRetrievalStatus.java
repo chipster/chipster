@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 
 /**
@@ -29,7 +30,7 @@ public class DataRetrievalStatus implements Cloneable {
 	 */
 	private Set<Object> clearedAlready = new HashSet<Object>();
 	
-	public DataSource file;
+	public AreaRequestHandler areaRequestHandler;
 
 	public void maybeClearQueue(Object requestQueue) {
 		

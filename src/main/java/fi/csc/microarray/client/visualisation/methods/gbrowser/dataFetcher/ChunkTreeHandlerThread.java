@@ -48,15 +48,19 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		this.inputParser = this.file.getFileParser();
 	}
 
+	public ChunkTreeHandlerThread(DataSource file) {
+		this(file, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		try {
 			fileFetcher = new ChunkFileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
 			createTree(fileFetcher.getFileLength());
 			fileFetcher.start();
 
-			super.run();
+			super.runThread();
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -80,13 +84,16 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		fileResult.request.node.processFileResult(fileResult);
 	}
 
-	protected void processAreaRequest(ChunkFileAreaRequest areaRequest) {
+	@Override
+	protected void processAreaRequest(AreaRequest areaRequest) {
 		
 		super.processAreaRequest(areaRequest);
 		
+		ChunkFileAreaRequest chunkAreaRequest = new ChunkFileAreaRequest(areaRequest, areaRequest.getRequestedContents(), areaRequest.getStatus());
+		
 		if (areaRequest.getStatus().poison) {
 			
-			ChunkFileRequest fileRequest = new ChunkFileRequest(areaRequest, null, null, (ChunkFileStatus) areaRequest.getStatus());
+			ChunkFileRequest fileRequest = new ChunkFileRequest(chunkAreaRequest, null, null, (ChunkFileStatus) areaRequest.getStatus());
 			fileRequestQueue.add(fileRequest);
 			return;
 		}
@@ -94,7 +101,7 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		if (DEBUG) {
 			System.out.println("Tree: Got area request " + areaRequest);
 		}
-		rootNode.processAreaRequest(areaRequest);
+		rootNode.processAreaRequest(chunkAreaRequest);
 	}
 
 	/**

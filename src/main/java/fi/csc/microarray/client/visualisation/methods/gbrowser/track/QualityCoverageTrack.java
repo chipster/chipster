@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -42,8 +42,8 @@ public class QualityCoverageTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(GBrowserView view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file);
+	public QualityCoverageTrack(Color forwardColor, long minBpLength, long maxBpLength) {
+
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -215,10 +215,10 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-		HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+		HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.ID, 
 				ColumnType.STRAND,
 				ColumnType.QUALITY,

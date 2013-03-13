@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -38,8 +38,8 @@ public class PeakTrack extends Track {
 	private Color color;
 
 
-	public PeakTrack(GBrowserView view, DataSource file, Color color, long minBpLength, long maxBpLength) {
-		super(view, file);
+	public PeakTrack(Color color, long minBpLength, long maxBpLength) {
+
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -99,10 +99,10 @@ public class PeakTrack extends Track {
     }
 	
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-        HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+        HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
                 ColumnType.CHROMOSOME,
                 ColumnType.BP_START,
                 ColumnType.BP_END })));

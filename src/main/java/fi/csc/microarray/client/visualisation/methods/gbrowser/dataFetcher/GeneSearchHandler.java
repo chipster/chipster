@@ -27,15 +27,19 @@ public class GeneSearchHandler extends AreaRequestHandler {
         data = (LineDataSource) file;
     }
 
+	public GeneSearchHandler(LineDataSource file) {
+		this(file, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new GeneSearchFileFetcherThread(fileRequestQueue, fileResultQueue, this, data);
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {

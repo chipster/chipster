@@ -27,15 +27,19 @@ public class IndexedFastaHandlerThread extends AreaRequestHandler {
         data = (IndexedFastaDataSource) file;
     }
 
+	public IndexedFastaHandlerThread(IndexedFastaDataSource file) {
+		this(file, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new IndexedFastaFileFetcherThread(fileRequestQueue, fileResultQueue, this, data);
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {

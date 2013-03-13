@@ -10,9 +10,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
@@ -36,11 +35,11 @@ public class GeneIndexActions implements AreaResultListener {
 	}
 
 	private QueueManager queueManager;
-	private TabixDataSource gtfDataSource;
-	private LineDataSource geneDataSource;
+	private AreaRequestHandler gtfDataSource;
+	private AreaRequestHandler geneDataSource;
 	private Map<String, GeneLocationListener> listenerMap = new HashMap<String, GeneLocationListener>();
 
-	public GeneIndexActions(QueueManager queueManager, TabixDataSource gtfDataSource, LineDataSource geneDataSource) {
+	public GeneIndexActions(QueueManager queueManager, AreaRequestHandler gtfDataSource, AreaRequestHandler geneDataSource) {
 
 		this.queueManager = queueManager;
 		this.gtfDataSource = gtfDataSource;

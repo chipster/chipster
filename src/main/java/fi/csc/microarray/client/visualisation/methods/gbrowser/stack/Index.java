@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
@@ -17,6 +17,6 @@ public abstract class Index {
 	 * @throws IOException
 	 * @throws GBrowserException
 	 */
-	public abstract List<String> getFileLines(Region requestRegion) throws IOException, GBrowserException;
+	public abstract TreeMap<IndexKey, String> getFileLines(Region requestRegion) throws IOException, GBrowserException;
 
 }

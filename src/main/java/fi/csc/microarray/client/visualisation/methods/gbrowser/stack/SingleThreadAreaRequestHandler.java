@@ -14,7 +14,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler {
 
 	private BlockingQueue<AreaRequest> areaRequestQueue;
-	private AreaResultListener areaResultListener;
 
 	private boolean poison = false;
 
@@ -23,28 +22,36 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 		super(areaRequestQueue, areaResultListener);
 		this.areaRequestQueue = (BlockingQueue<AreaRequest>) areaRequestQueue;
 		this.areaResultListener = areaResultListener;
-		this.setDaemon(true);
-		this.setName(getClass().getSimpleName());
 	}
 
 	/**
 	 * Constantly look for new area requests in the request queue
 	 * and pass all incoming requests to request processor.
 	 */
-	public synchronized void run() {
+	public void runThread() {
 
-		while (!poison) {
-			AreaRequest areaRequest;
-			try {
-				if ((areaRequest = areaRequestQueue.take()) != null) {
-					areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
-					processAreaRequest(areaRequest);
+		thread = new Thread() {
+			public synchronized void run() {		
+
+				while (!poison) {
+					AreaRequest areaRequest;
+					try {
+						if ((areaRequest = areaRequestQueue.take()) != null) {
+							areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
+							processAreaRequest(areaRequest);
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
-		}
+		};
+
+		thread.setDaemon(true);
+		thread.setName(getClass().getSimpleName());
+		thread.start();
 	}
+
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
 
@@ -66,11 +73,15 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 						
 			public void run() {
 				
-				long t = System.currentTimeMillis();
 				if (areaResultListener != null) {
 					areaResultListener.processAreaResult(areaResult);
 				}
 			}						
 		});
 	}	
+	
+	@Override
+	public void setQueue(Queue<AreaRequest> queue) {
+		this.areaRequestQueue = (BlockingQueue<AreaRequest>) queue;
+	}
 }

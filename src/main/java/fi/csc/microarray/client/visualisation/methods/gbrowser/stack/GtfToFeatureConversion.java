@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
+import javax.swing.SwingUtilities;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
@@ -25,10 +27,9 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 
 	private StackGtfParser parser;
 
-	public GtfToFeatureConversion(DataSource file, Queue<AreaRequest> areaRequestQueue,
-	        AreaResultListener areaResultListener) {
+	public GtfToFeatureConversion(DataSource file, final GBrowser browser) {
 	    
-		super(areaRequestQueue, areaResultListener);
+		super(null, null);
 
 		this.parser = new StackGtfParser();
 		
@@ -42,8 +43,14 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		try {
 			this.index = new BinarySearchIndex(file, parser);
 		
-		} catch (UnsortedDataException e) {
-			e.printStackTrace();
+		} catch (final UnsortedDataException e) {
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {				
+					browser.showDialog("Unsorted data", e.getMessage(), null, true, false, true);
+				}
+			});
 			index = null;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -80,10 +87,9 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		
 //		long t = System.currentTimeMillis();
 		
-		List<String> lines = null;
+		TreeMap<IndexKey, String> lines = null;
 		try {		
-			
-			
+						
 			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
 			
 //			System.out.println("getFileLines\t " + (System.currentTimeMillis() - t) + " ms, lines:\t " + lines.size());
@@ -97,7 +103,8 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		
 		GeneSet geneSet = new GeneSet();
 		
-		for (String line : lines) {
+		//IndexKeys are not needed, because gtf contains unique identifiers for lines
+		for (String line : lines.values()) {
 			
 			parser.setLine(line);					
 			

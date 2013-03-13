@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
@@ -26,14 +26,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class ReadpartDataProvider implements AreaResultListener {
 
 	private GBrowserView view;
-	private DataSource readData;
+	private AreaRequestHandler readData;
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	private LinkedList<ReadPart> readParts = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsF = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsR = new LinkedList<ReadPart>();
 	private boolean needsRefresh = false;
 
-	public ReadpartDataProvider(GBrowserView view, DataSource readData) {
+	public ReadpartDataProvider(GBrowserView view, AreaRequestHandler readData) {
 		this.view = view;
 		this.readData = readData;
 		
@@ -51,7 +51,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 			// Here identical region contents are removed (set semantics, no duplicates)
 			// So it is essential that reads have their unique ID's.
 			for (RegionContent read : areaResult.getContents()) {	  
-				if (areaResult.getStatus().file == readData && 
+				if (areaResult.getStatus().areaRequestHandler == readData && 
 						read.values.containsKey(ColumnType.STRAND) &&
 						read.values.containsKey(ColumnType.SEQUENCE) && 
 						read.values.containsKey(ColumnType.CIGAR)) {

@@ -11,12 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -47,9 +46,9 @@ public class GelTrack extends Track {
     private Color BACKGROUND = Color.WHITE;
 	private ReadpartDataProvider readpartProvider;
 
-    public GelTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, 
+    public GelTrack(ReadpartDataProvider readpartProvider, 
     		Color color, long minBpLength, long maxBpLength) {
-        super(view, file);
+    	
         this.color = color;
         this.minBpLength = minBpLength;
         this.maxBpLength = maxBpLength;
@@ -159,10 +158,10 @@ public class GelTrack extends Track {
     }
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-        HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+        HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
         		ColumnType.ID, 
                 ColumnType.SEQUENCE,
                 ColumnType.STRAND,

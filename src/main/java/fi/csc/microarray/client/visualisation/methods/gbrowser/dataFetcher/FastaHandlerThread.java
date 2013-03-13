@@ -34,7 +34,7 @@ public class FastaHandlerThread extends AreaRequestHandler {
     }
 
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new FastaFileFetcherThread(fileRequestQueue, fileResultQueue, this,
@@ -43,7 +43,7 @@ public class FastaHandlerThread extends AreaRequestHandler {
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {

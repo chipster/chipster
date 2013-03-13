@@ -12,13 +12,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -40,8 +39,8 @@ public class CoverageEstimateTrack extends Track {
 	private boolean doLog;
 	private boolean removeTooWide;
 
-	public CoverageEstimateTrack(GBrowserView view, DataSource file, Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
-		super(view, file);
+	public CoverageEstimateTrack(Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
+
 		this.color = c;
 		this.doLog = doLog;
 		this.minBpLength = maxBpLength;
@@ -129,10 +128,10 @@ public class CoverageEstimateTrack extends Track {
     }
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-                HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+                HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.COVERAGE_ESTIMATE_FORWARD,
 				ColumnType.COVERAGE_ESTIMATE_REVERSE})));
         return datas;

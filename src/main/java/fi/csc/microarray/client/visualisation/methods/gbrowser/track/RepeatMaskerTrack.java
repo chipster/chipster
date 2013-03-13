@@ -11,12 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -29,9 +27,8 @@ public class RepeatMaskerTrack extends Track{
 
 	private Collection<RegionContent> regions = new TreeSet<RegionContent>();
 
-	public RepeatMaskerTrack(GBrowserView view, TabixDataSource file, long minBpLength, long maxBpLength){
+	public RepeatMaskerTrack(long minBpLength, long maxBpLength){
 
-		super(view, file);
 		this.color = Color.lightGray;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -95,10 +92,10 @@ public class RepeatMaskerTrack extends Track{
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-				HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {})));
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+				HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {})));
 		return datas;
 	}
 	

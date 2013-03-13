@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
@@ -19,7 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
  */
 public class TrackFactory {
 	
-    public static TrackGroup getGeneTrackGroup(GBrowserPlot genomePlot, DataSource annotationDataSource, TabixDataSource repeatDataSource, boolean isUserData) throws FileNotFoundException {
+    public static TrackGroup getGeneTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) throws FileNotFoundException {
         
 		GBrowserView dataView = genomePlot.getDataView();
 		
@@ -31,21 +29,32 @@ public class TrackFactory {
 	public static TrackGroup getThinSeparatorTrackGroup(GBrowserPlot genomePlot) {
 		GBrowserView view = genomePlot.getDataView();
 		TrackGroup group = new TrackGroup(view);
-		group.addTrack(new SeparatorTrack(view, Color.LIGHT_GRAY, 3, 0, Long.MAX_VALUE));
+		SeparatorTrack separator = new SeparatorTrack(Color.LIGHT_GRAY, 3, 0, Long.MAX_VALUE); 
+		separator.setView(view);
+		group.addTrack(separator);
 		return group;
 	}
 
 	public static TrackGroup getThickSeparatorTrackGroup(GBrowserPlot genomePlot) {
 		GBrowserView view = genomePlot.getDataView();
 		TrackGroup group = new TrackGroup(view);
-		group.addTrack(new SeparatorTrack3D(view, 0, Long.MAX_VALUE, false));
-		group.addTrack(new EmptyTrack(view, 2));
-		group.addTrack(new SeparatorTrack3D(view, 0, Long.MAX_VALUE, true));
+		
+		SeparatorTrack separator1 = new SeparatorTrack3D(0, Long.MAX_VALUE, false);		
+		separator1.setView(view);	
+		group.addTrack(separator1);
+		
+		EmptyTrack empty = new EmptyTrack(2);
+		empty.setView(view);		
+		group.addTrack(empty);
+		
+		SeparatorTrack separator2 = new SeparatorTrack3D(0, Long.MAX_VALUE, true);		
+		separator2.setView(view);	
+		group.addTrack(separator2);
 		
 		return group;
 	}
 	
-	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, DataSource userData, DataSource seqFile, String title)
+	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler userData, AreaRequestHandler seqFile, String title)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		GBrowserView dataView = genomePlot.getDataView();
@@ -57,8 +66,8 @@ public class TrackFactory {
         return readGroup;
 	}
 
-	public static TrackGroup getReadSummaryTrackGroup(GBrowserPlot genomePlot, DataSource userData,
-	        DataSource seqFile, String title, TabixDataSource summaryDataSource)
+	public static TrackGroup getReadSummaryTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler userData,
+			AreaRequestHandler seqFile, String title, AreaRequestHandler summaryDataSource)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		GBrowserView dataView = genomePlot.getDataView();
@@ -69,30 +78,32 @@ public class TrackFactory {
         
         return readGroup;
 	}
-
-	public static TrackGroup getWigTrackGroup(GBrowserPlot plot, DataSource peakFile) {
-		WIGTrack annotation = new WIGTrack(plot.getDataView(), peakFile,
-		        Color.BLUE, 0, Long.MAX_VALUE);
-		return new TrackGroup(annotation);
-	}
 	
-	public static TrackGroup getPeakTrackGroup(GBrowserPlot plot, DataSource peaks) {
+	public static TrackGroup getPeakTrackGroup(GBrowserPlot plot, AreaRequestHandler areaRequestHandler) {
 		GBrowserView dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
+		
+		PeakTrack annotation = new PeakTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
+		annotation.setView(dataView);
+		annotation.setAreaRequestHandler(areaRequestHandler);
 		
 		return new TrackGroup(annotation);
 	}
 
-	public static TrackGroup getCytobandTrackGroup(GBrowserPlot plot, CytobandDataSource cytobandData) {
+	public static TrackGroup getCytobandTrackGroup(GBrowserPlot plot, AreaRequestHandler cytobandData) {
 		
-		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, false);
+		CytobandTrack overviewCytobands = new CytobandTrack(false);
+		overviewCytobands.setView(plot.getOverviewView());
+		overviewCytobands.setAreaRequestHandler(cytobandData);
+		
 		return new TrackGroup(overviewCytobands);
 	}
 
 	public static TitleTrack getTitleTrack(GBrowserPlot genomePlot, String title) {
 		GBrowserView dataView = genomePlot.getDataView();
-		return new TitleTrack(dataView, title, Color.black);
+		
+		TitleTrack titleTrack = new TitleTrack(title, Color.black);
+		titleTrack.setView(dataView);
+		return titleTrack;
 	}
-	
 }

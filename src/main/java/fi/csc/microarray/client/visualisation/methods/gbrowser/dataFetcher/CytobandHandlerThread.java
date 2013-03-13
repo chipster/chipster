@@ -30,11 +30,16 @@ public class CytobandHandlerThread extends AreaRequestHandler {
             AreaResultListener areaResultListener) {
         
         super(areaRequestQueue, areaResultListener);
+        
         dataSource = (CytobandDataSource) file;
     }
 
+	public CytobandHandlerThread(DataSource cytobandDataSource) {
+		this(cytobandDataSource, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new CytobandFileFetcherThread(fileRequestQueue, fileResultQueue, this,
@@ -43,7 +48,7 @@ public class CytobandHandlerThread extends AreaRequestHandler {
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {

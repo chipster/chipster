@@ -13,7 +13,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.SingleThreadAreaRequestHandler;
 
 /**
@@ -23,21 +22,21 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.SingleThrea
  *
  */
 public class QueueManager implements AreaResultListener {
-
+	
 	private class QueueContext {
 		public Queue<AreaRequest> queue;
 		public Collection<AreaResultListener> listeners = new ArrayList<AreaResultListener>();
-		public AreaRequestHandler thread;
+		public AreaRequestHandler requestHandler;
 	}
 
-	private Map<DataSource, QueueContext> queues = new HashMap<DataSource, QueueContext>();
+	private Map<AreaRequestHandler, QueueContext> queues = new HashMap<AreaRequestHandler, QueueContext>();
 
-	private QueueContext createQueue(DataSource file) {
+	private QueueContext createQueue(AreaRequestHandler areaRequestHandler) {
 
-		if (!queues.containsKey(file)) {
+		if (!queues.containsKey(areaRequestHandler)) {
 			QueueContext context = new QueueContext();
 			
-			if (file.getRequestHandler().equals(GtfToFeatureConversion.class)) {
+			if (areaRequestHandler instanceof SingleThreadAreaRequestHandler) {
 				
 				context.queue = new LinkedBlockingQueue<AreaRequest>();				
 			} else {
@@ -47,12 +46,20 @@ public class QueueManager implements AreaResultListener {
 			try {
 			    // create a thread which is an instance of class which is passed
 			    // as data fetcher to this method
-				context.thread = file.getRequestHandler().getConstructor(DataSource.class,
-				        Queue.class, AreaResultListener.class).
-				        newInstance(file, context.queue, this);
-
-				queues.put(file, context);
-				context.thread.start();
+				areaRequestHandler.setQueue(context.queue);
+				areaRequestHandler.setAreaResultListener(this);
+				
+				context.requestHandler = areaRequestHandler;
+				queues.put(areaRequestHandler, context);
+				
+				if (context.requestHandler.isAlive()) {
+					System.err.println(
+							"Thread '" + context.requestHandler + "' is poisoned, but still alive. " +
+									"A new thread will be started for the upcoming requests.");
+					context.requestHandler = (AreaRequestHandler) context.requestHandler.clone();
+				} 
+				
+				context.requestHandler.runThread();
 				
 				return context;
 
@@ -72,42 +79,42 @@ public class QueueManager implements AreaResultListener {
 	    queues.remove(file);
 	}
 	
-	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
+	public void addAreaRequest(AreaRequestHandler areaRequestHandler, AreaRequest req, boolean clearQueues) {
 		
-		req.getStatus().file = file;
-		QueueContext context = queues.get(file);
+		req.getStatus().areaRequestHandler = areaRequestHandler;
+		QueueContext context = queues.get(areaRequestHandler);
 
 		req.getStatus().maybeClearQueue(context.queue);
 		context.queue.add(req);
 		
-		if (context.thread != null) {
+		if (context.requestHandler != null) {
 		
 			//BlockinQueue takes of care of notifyin of SingleThreadAreaRequestHandlers
-			if (!(context.thread instanceof SingleThreadAreaRequestHandler)) {
-				context.thread.notifyAreaRequestHandler();
+			if (!(context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
+				context.requestHandler.notifyAreaRequestHandler();
 			}
 		}		
 	}
 
-	public void addResultListener(DataSource file, AreaResultListener listener) {
+	public void addResultListener(AreaRequestHandler areaRequestHandler, AreaResultListener listener) {
 		
-		QueueContext qContext = queues.get(file);
+		QueueContext qContext = queues.get(areaRequestHandler);
 		if (qContext == null) {
-			qContext = createQueue(file);
+			qContext = createQueue(areaRequestHandler);
 		}
 		qContext.listeners.add(listener);
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
+		for (AreaResultListener listener : queues.get(areaResult.getStatus().areaRequestHandler).listeners) {
 			listener.processAreaResult(areaResult);
 		}
 	}
 
 	public void poisonAll() {
 		
-		for (Entry<DataSource, QueueContext> entry : queues.entrySet()) {
+		for (Entry<AreaRequestHandler, QueueContext> entry : queues.entrySet()) {
 			
 			DataRetrievalStatus status = new DataRetrievalStatus();
 			status.poison = true;
@@ -115,7 +122,7 @@ public class QueueManager implements AreaResultListener {
 						
 			QueueContext context = entry.getValue();
 			context.queue.add(request);
-			context.thread.notifyAreaRequestHandler();		
+			context.requestHandler.notifyAreaRequestHandler();		
 		}
 	}
 }

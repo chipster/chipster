@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -39,19 +39,18 @@ public class ReadPileTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private DataSource refData;
+	private AreaRequestHandler refData;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 
 	private boolean highlightSNP = false;
 
-	private DataSource readData;
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 
-	public ReadPileTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, Color fontColor, 
+	public ReadPileTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refData, Color fontColor, 
 			long minBpLength, long maxBpLength) {
-		super(view, file);
-		this.readData = file;
+
+		this.refData = refData;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FILL;
@@ -288,7 +287,7 @@ public class ReadPileTrack extends Track {
 		}
 
 		// "Spy" on reference sequence data, if available
-		if (areaResult.getStatus().file == refData) {
+		if (areaResult.getStatus().areaRequestHandler == refData) {
 			this.refReads.addAll(areaResult.getContents());
 		}
 	}
@@ -300,9 +299,9 @@ public class ReadPileTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
 
 		// We might also need reference sequence data
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
@@ -318,7 +317,7 @@ public class ReadPileTrack extends Track {
 	 * @param highlightSNP
 	 * @see ReadPileTrack.setReferenceSeq
 	 */
-	public void enableSNPHighlight(DataSource file) {
+	public void enableSNPHighlight(AreaRequestHandler file) {
 		// turn on highlighting mode
 		highlightSNP = true;
 
@@ -330,7 +329,7 @@ public class ReadPileTrack extends Track {
 	/**
 	 * Disable SNP highlighting.
 	 * 
-	 * @param file
+	 * @param areaRequestHandler
 	 */
 	public void disableSNPHiglight() {
 		// turn off highlighting mode

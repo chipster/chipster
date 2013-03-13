@@ -5,11 +5,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 /**
@@ -24,14 +23,15 @@ public class SeparatorTrack extends Track {
 	private int thickness;
 	private String name = "separator";
 	
-	protected SeparatorTrack(GBrowserView view, long minBpLength, long maxBpLength) {
-		super(view, null);
+	protected SeparatorTrack(long minBpLength, long maxBpLength) {
+
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
 	
-	public SeparatorTrack(GBrowserView view, Color color, int thickness, long minBpLength, long maxBpLength) {
-		this(view, minBpLength, maxBpLength);
+	public SeparatorTrack(Color color, int thickness, long minBpLength, long maxBpLength) {
+
+		this(minBpLength, maxBpLength);
 		this.color = color;
 		this.thickness = thickness;
 	}
@@ -74,7 +74,7 @@ public class SeparatorTrack extends Track {
     }    
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         return null;
     }
 }
