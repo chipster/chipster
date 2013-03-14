@@ -57,7 +57,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
@@ -70,7 +69,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.PositionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
@@ -840,35 +838,21 @@ public class GBrowser implements ComponentListener {
 										
 					try {
 						
-						DataUrl data = interpretation.primaryData;
+						DataUrl data = interpretation.primaryData;						
+						ChromosomeBinarySearch chrSearch = null;
 						
-						List<RegionContent> rows = null;
-						
-						if (isBed) {
-														
-							ChromosomeBinarySearch chrSearch;
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackBedParser(true));
-
-							for (Chromosome chr : chrSearch.getChromosomes()) {
-								chromosomeNames.add(chr.toNormalisedString());
-							}
-							
-						} else if (isVcf) {
-							rows = new PositionOperations().loadFile(data.getLocalFile());
-							
-							for (RegionContent row : rows) {
-								chromosomeNames.add(row.region.start.chr.toNormalisedString());
-							}
-							
+						if (isBed) {														
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackBedParser(true));														
+						} else if (isVcf) {							
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackVcfParser());							
 						} else if (isGtf) {
-
-							ChromosomeBinarySearch chrSearch;
 							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackGtfParser());
-
-							for (Chromosome chr : chrSearch.getChromosomes()) {
-								chromosomeNames.add(chr.toNormalisedString());
-							}
 						}
+						
+						for (Chromosome chr : chrSearch.getChromosomes()) {
+							chromosomeNames.add(chr.toNormalisedString());
+						}
+						
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					} catch (GBrowserException e) {

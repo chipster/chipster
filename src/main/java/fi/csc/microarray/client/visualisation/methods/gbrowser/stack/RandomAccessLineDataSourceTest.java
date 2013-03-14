@@ -12,15 +12,14 @@ public class RandomAccessLineDataSourceTest {
 	public static void main (String args[]) throws URISyntaxException, IOException, GBrowserException {
 		
 		//Functionality
-		
 		testFunctionality();
 		
 		//Performance
 		URL fileUrl = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.69-sort.gtf").toURI().toURL();
-		RandomAccessLineDataSource file = new RandomAccessLineDataSource(fileUrl, GtfToFeatureConversion.class);		
+		RandomAccessLineDataSource file = new RandomAccessLineDataSource(fileUrl);		
 		
 		URL httpUrl = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.69-sort.gtf");
-		RandomAccessLineDataSource http = new RandomAccessLineDataSource(httpUrl, GtfToFeatureConversion.class);
+		RandomAccessLineDataSource http = new RandomAccessLineDataSource(httpUrl);
 		
 		manualTest(file);
 		manualTest(http);
@@ -33,7 +32,7 @@ public class RandomAccessLineDataSourceTest {
 		File testFile = RandomAccessLineReaderTest.getTestFile();
 		List<String> lines = RandomAccessLineReaderTest.getTestReferenceList(testFile);
 		
-		RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(testFile.toURI().toURL(), null);
+		RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(testFile.toURI().toURL());
 		
 		System.out.println(lines.get(lines.size() - 1).equals(dataSource.getLastLine()));
 		

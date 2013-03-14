@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -252,7 +251,7 @@ public class RegionOperations {
 	 * @throws URISyntaxException 
 	 */
 	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException {
-		ChunkDataSource dataSource = new ChunkDataSource(input.toURI().toURL(), new BEDParser(), ChunkTreeHandlerThread.class);
+		ChunkDataSource dataSource = new ChunkDataSource(input.toURI().toURL(), new BEDParser(), null);
 		byte[] fileChunk = dataSource.readAll();
 		return parseString(new String(fileChunk));
 	}

@@ -9,8 +9,8 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackVcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
@@ -189,7 +189,10 @@ public class LocalNGSPreprocess implements Runnable {
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
-		new TsvSorter().sort(inputFile, outputFile, new VcfParser(), CHROMOSOME_NORMALISER);
+		new TsvSorter().sort(
+				inputFile, outputFile, CHROMOSOME_NORMALISER,
+				StackVcfParser.Column.CHROM.ordinal(),
+				StackVcfParser.Column.POS.ordinal());
 		
 		createOutput(dataManager, outputName, outputFile);
 	}
