@@ -4,7 +4,6 @@
 	<description>
 		The Chipster server installation package (incl. clients and everything)
     </description>
-	
 
 	<!-- get the environment variables -->
 	<property environment="env" />
