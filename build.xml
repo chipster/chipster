@@ -8,6 +8,7 @@
 	<!-- get the environment variables -->
 	<property environment="env" />
 
+	
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="admin-src" location="src/main/admin" />
