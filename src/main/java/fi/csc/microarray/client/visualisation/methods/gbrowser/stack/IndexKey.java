@@ -15,11 +15,11 @@ public class IndexKey  implements Comparable<IndexKey> {
 	 */
 	public IndexKey(BpCoord start, long lineId) {
 		this.start = start;
-		this.lineNumber = lineId;
+		this.lineId = lineId;
 	}
 	
 	private BpCoord start;
-	private long lineNumber;
+	private long lineId;
 
 	@Override
 	public boolean equals(Object o) {
@@ -43,7 +43,12 @@ public class IndexKey  implements Comparable<IndexKey> {
 			return startComparison;
 
 		} else {
-			return ((Long)lineNumber).compareTo(o.lineNumber);
+			return ((Long)lineId).compareTo(o.lineId);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "IndexKey [Start: " + start + " Id: " + lineId + "]";
 	}
 }

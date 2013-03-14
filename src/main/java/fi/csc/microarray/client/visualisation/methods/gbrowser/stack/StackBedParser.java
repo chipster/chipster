@@ -4,9 +4,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class StackBedParser implements Parser {		
-		
-	private static final String BED_HEADER_START = "track";	
+public class StackBedParser extends StackTsvParser {		
 	
 	public enum Column {
 			
@@ -33,8 +31,7 @@ public class StackBedParser implements Parser {
 			return name;
 		}
 	}
-
-	private String[] values;
+	
 	private boolean convertCoordinates;
 	
 	/** 
@@ -43,43 +40,31 @@ public class StackBedParser implements Parser {
 	public StackBedParser(boolean convertCoordinates) {
 		this.convertCoordinates = convertCoordinates;
 	}
-	
-	private long getLong(Column column) {
-		String string = values[column.ordinal()];
-		return new Long(string);
-	}
-	
-	private String getString(Column column) {
-		return values[column.ordinal()];
-	}
 
 	@Override
 	public Region getRegion() {
-			
-		long start = getLong(Column.START);
-		long end = getLong(Column.END);
-		Chromosome chr = new Chromosome(getString(Column.CHROMOSOME));
 		
-		if (convertCoordinates) {
-			start++;
-			end++;
-		}
-		
-		return new Region(start, end, chr);		
-	}
+		if (isContentLinle()) {
 
-	@Override
-	public boolean setLine(String line) {
-		if (line.startsWith(BED_HEADER_START)) {
-			return false;
+			long start = getLong(Column.START.ordinal());
+			long end = getLong(Column.END.ordinal());
+			Chromosome chr = new Chromosome(getString(Column.CHROMOSOME.ordinal()));
+
+			if (convertCoordinates) {
+				start++;
+				end++;
+			}
+
+			return new Region(start, end, chr);
+			
 		} else {
-			this.values = line.split("\t"); 
-			return true; 
+			
+			return null;
 		}
 	}
 	
 	public Strand getStrand() {
-		String strandString = getString(Column.STRAND);
+		String strandString = getString(Column.STRAND.ordinal());
 		
 		Strand strand = null;
 		
@@ -95,6 +80,11 @@ public class StackBedParser implements Parser {
 	}
 
 	public String getScore() {
-		return getString(Column.SCORE);
+		return getString(Column.SCORE.ordinal());
+	}
+
+	@Override
+	public String getHeaderStart() {
+		return "track";
 	}
 }

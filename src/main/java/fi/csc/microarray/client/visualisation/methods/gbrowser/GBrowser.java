@@ -29,14 +29,12 @@ import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.CytobandHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
@@ -44,7 +42,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixSummaryDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.VcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
@@ -68,6 +65,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackBedParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackVcfParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -457,8 +455,7 @@ public class GBrowser implements ComponentListener {
 				} catch (URISyntaxException e) {
 					reportException(e);
 				} catch (GBrowserException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					reportException(e);
 				}
 			}
 		}
@@ -496,7 +493,7 @@ public class GBrowser implements ComponentListener {
 
 		plot.getDataView().addScrollGroup(samples);
 		plot.getDataView().addTrackGroup(TrackFactory.getThickSeparatorTrackGroup(plot));
-		ScrollGroup analysis = new ScrollGroup("Analysis", true);
+		ScrollGroup analysis = new ScrollGroup("Analysis", false);
 
 		boolean firstPeakTrack = true;
 		
@@ -522,8 +519,6 @@ public class GBrowser implements ComponentListener {
 				default:
 					break;
 				}	
-
-				DataSource regionData;
 				
 				switch (track.interpretation.type) {
 				case REGIONS:
@@ -546,10 +541,9 @@ public class GBrowser implements ComponentListener {
 
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 
-					try {
-						regionData = new ChunkDataSource(dataUrl.getUrl(), new VcfParser(), ChunkTreeHandlerThread.class);
-						AreaRequestHandler regionRequestHandler = new ChunkTreeHandlerThread(regionData);
-						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, regionRequestHandler));
+					try {						
+						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new StackVcfParser());
+						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -560,6 +554,7 @@ public class GBrowser implements ComponentListener {
 				case GTF:
 
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
+					analysis.setScrollEnabled(true);
 
 					try {
 						//DataSource gtfData = new LineDataSource(fileUrl, GtfToFeatureConversion.class);

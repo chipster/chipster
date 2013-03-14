@@ -21,31 +21,29 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
+/**
+ * This is a general conversion class for tracks that need only the region information. All file parsing
+ * should happen here, and the data should be converted so that the track drawing is as fast as possible.
+ * The results include the original line, but for performance reasons it should be used only for debug 
+ * etc. purposes.
+ *  
+ * Conversion class that extracts region information from the lines using the supplied parser.
+ * Results are in RegionContent objects. These objects contain:
+ * <ul>
+ * <li>the region
+ * <li>an unique line identifier stored with key ColumnType.ID
+ * <li>the original line stored with key ColumnType.VALUE
+ * </ul> 
+ * 
+ * @author klemela
+ *
+ */
 public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 
 	private Index index;
 
 	private Parser parser;
 
-	/**
-	 * This is a general conversion class for tracks that need only the region information. All file parsing
-	 * should happen here, and the data should be converted so that the track drawing is as fast as possible.
-	 * The results include the original line, but for performance reasons it should be used only for debug 
-	 * etc. purposes.
-	 *  
-	 * Conversion class that extracts region information from the lines using the supplied parser.
-	 * Results are in RegionContent objects. These objects contain:
-	 * <ul>
-	 * <li>the region
-	 * <li>an unique line identifier stored with key ColumnType.ID
-	 * <li>the original line stored with key ColumnType.VALUE
-	 * </ul> 
-	 * 
-	 * @param file
-	 * @param parser
-	 * @param areaRequestQueue
-	 * @param areaResultListener
-	 */
 	public LineToRegionConversion(DataSource file, Parser parser, Queue<AreaRequest> areaRequestQueue,
 	        AreaResultListener areaResultListener) {
 	    
@@ -90,10 +88,16 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 			return;
 		}
 		
-		//limit to integer range
 		long start = request.start.bp;
 		long end = request.end.bp;
-				
+		
+		//Extend area to be able to draw introns at screen edge, but don't below 1
+		//TODO Be more clever to avoid getting so much useless data
+		int EXTRA = 1000000; 
+		
+		start = Math.max((long)start - EXTRA, 1);
+		end = end + EXTRA;
+		
 		Region requestRegion = new Region(start, end, request.start.chr);
 				
 		TreeMap<IndexKey, String> lines = null;

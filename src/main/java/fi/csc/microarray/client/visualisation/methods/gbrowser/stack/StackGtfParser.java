@@ -48,28 +48,35 @@ public class StackGtfParser implements Parser {
 
 	@Override
 	public Region getRegion() {
+		
+		if (values == null ){
+			return null;
 			
-		long start = getLong(Column.START);
-		long end = getLong(Column.END);
-		Chromosome chr = new Chromosome(getString(Column.SEQNAME));
-		String strandString = getString(Column.STRAND);
-		
-		Strand strand = null;
-		
-		if ("+".equals(strandString)) {
-			strand = Strand.FORWARD;
+		} else {
+
+			long start = getLong(Column.START);
+			long end = getLong(Column.END);
+			Chromosome chr = new Chromosome(getString(Column.SEQNAME));
+			String strandString = getString(Column.STRAND);
+
+			Strand strand = null;
+
+			if ("+".equals(strandString)) {
+				strand = Strand.FORWARD;
+			}
+
+			if ("-".equals(strandString)) {
+				strand = Strand.REVERSE;
+			}
+
+			return new Region(start, end, chr, strand);
 		}
-		
-		if ("-".equals(strandString)) {
-			strand = Strand.REVERSE;
-		}
-		
-		return new Region(start, end, chr, strand);		
 	}
 
 	@Override
 	public boolean setLine(String line) {
 		if (line.startsWith(GTF_HEADER_START)) {
+			this.values = null;
 			return false;
 		} else {
 			this.attributes = null;

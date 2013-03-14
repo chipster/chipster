@@ -72,7 +72,6 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 			return;
 		}
 		
-		//limit to integer range
 		long start = request.start.bp;
 		long end = request.end.bp;
 		

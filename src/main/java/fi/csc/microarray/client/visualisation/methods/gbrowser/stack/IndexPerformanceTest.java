@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
@@ -21,7 +21,7 @@ public class IndexPerformanceTest {
 	 * 
 	 * 
 	 * 
-	 * Example output:
+	 * Example output on ThinkPad X220:
 	 * 
 	 * Memory usage: 0 MB
 	 * Init memIndex: 24705 ms
@@ -95,7 +95,7 @@ public class IndexPerformanceTest {
 
 		long bytes = 0;
 		
-		for (String line : index.getFileLines(chr1)) {
+		for (String line : index.getFileLines(chr1).values()) {
 			bytes += line.length() + 1;
 		}
 		
@@ -152,8 +152,8 @@ public class IndexPerformanceTest {
 			
 			Region region = new Region(start, end, chr);
 			
-			List<String> lines1 = index1.getFileLines(region);
-			List<String> lines2 = index2.getFileLines(region);
+			Collection<String> lines1 = index1.getFileLines(region).values();
+			Collection<String> lines2 = index2.getFileLines(region).values();
 			
 			if (!testCompare(lines1, lines2)) {
 				System.err.println("\tRequest region: " + region);
@@ -162,7 +162,7 @@ public class IndexPerformanceTest {
 		System.out.println("Agreement test done");
 	}
 	
-	private static boolean testCompare(List<String> lines1, List<String> lines2) {
+	private static boolean testCompare(Collection<String> lines1, Collection<String> lines2) {
 		if (lines1.size() != lines2.size()) {
 			System.err.println("Unequal line count: " + lines1.size() + ", " + lines2.size());
 

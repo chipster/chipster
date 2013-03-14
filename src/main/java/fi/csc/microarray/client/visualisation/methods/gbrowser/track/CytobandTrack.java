@@ -30,7 +30,7 @@ public class CytobandTrack extends Track {
 
 	private static final int THICKNESS = 11;
 
-	private static final int MARGIN = 2;
+	private static final int MARGIN = 7;
 
 	private SortedSet<Cytoband> cbands = new TreeSet<Cytoband>();
 
@@ -188,7 +188,7 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public int getHeight() {
-		return showText ? 40 : 25;
+		return showText ? 40 : 22;
 	}
 
     @Override

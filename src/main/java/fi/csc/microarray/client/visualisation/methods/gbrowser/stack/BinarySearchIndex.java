@@ -122,12 +122,24 @@ public class BinarySearchIndex extends Index {
 	 */
 	private void readEnds() throws IOException, GBrowserException {
 		
-		//Add first row to index
-		getFile().setLineReaderPosition(0);
-		String firstLine = getFile().getNextLine();		
-		getParser().setLine(firstLine);
-		Region region = getParser().getRegion();
-		index.put(region.start, 0l);
+		long firstLinePosition = 0;
+		Region region = null;
+		
+		//Find the first line of real content
+		do {
+			//Add first row to index
+			getFile().setLineReaderPosition(firstLinePosition);
+			String firstLine = getFile().getNextLine();		
+			getParser().setLine(firstLine);
+			region = getParser().getRegion();
+			
+			if (region != null) {
+				index.put(region.start, firstLinePosition);
+			} else {
+				firstLinePosition += firstLine.length() + 1; //plus one for new line character
+			}
+			
+		} while (region == null);
 		
 		//Add last row to index
 		String lastLine = getFile().getLastLine();		
