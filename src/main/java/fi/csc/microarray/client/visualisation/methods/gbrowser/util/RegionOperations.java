@@ -13,12 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineReader;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -31,7 +30,7 @@ public class RegionOperations {
 
 	private static final String EMPTY_EXTRA_FIELDS = "";
 
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, GBrowserException {
 		RegionOperations tool = new RegionOperations();
 		List<RegionContent> file1 = null;
 		List<RegionContent> file2 = null;
@@ -249,38 +248,79 @@ public class RegionOperations {
 	 * @param input BED file
 	 * @return regions and their extra data
 	 * @throws URISyntaxException 
+	 * @throws GBrowserException 
 	 */
-	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException {
-		ChunkDataSource dataSource = new ChunkDataSource(input.toURI().toURL(), new BEDParser(), null);
-		byte[] fileChunk = dataSource.readAll();
-		return parseString(new String(fileChunk));
+	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException, GBrowserException {
+		
+		RandomAccessLineReader lineReader = new RandomAccessLineReader(input.toURI().toURL());
+		lineReader.setPosition(0);
+		
+		String line;
+		List<RegionContent> regions = new LinkedList<RegionContent>();
+		
+		while ((line = lineReader.readLine()) != null) {	
+			
+			RegionContent region = parseString(line);
+			
+			if (region != null) {
+				regions.add(region);
+			}
+		}
+		
+		lineReader.close();
+		
+		return regions;
 	}
 
 	/**
-	 * Parses regions from a BED text formatted String.
+	 * Parses region from a BED text formatted String.
 	 * 
 	 * @param string BED string
 	 * @return  regions and their extra data
 	 */
-	public List<RegionContent> parseString(String string) throws FileNotFoundException, IOException {
+	public RegionContent parseString(String string) throws FileNotFoundException, IOException {
 		
 		// Process track name, if exists
-		BEDParser parser = new BEDParser();
-		int headerLength = (int)parser.getHeaderLength(string);
-		string = string.substring(headerLength > 0 ? (headerLength + 1) : 0);
+		BedLineParser parser = new BedLineParser(false);
+		parser.setLine(string);
+		Region region = parser.getRegion();
 		
+		if (region == null) {
+			//header
+			return null;
+		}
+						
 		// Count fields and create list of what extra types we need
-		int fieldCount = string.split("\n")[0].split("\t").length;
+		int fieldCount = parser.getColumnCount();
 		if (fieldCount < 3) {
 			throw new IllegalArgumentException("BED must have at least chromosome, start and end fields");
 		}
-		LinkedList<ColumnType> extraTypes = new LinkedList<ColumnType>();
+		
+		ColumnType[] legacyBedColumns = new ColumnType[] {
+				ColumnType.CHROMOSOME,
+				ColumnType.BP_START,
+				ColumnType.BP_END,
+				ColumnType.ID,
+				ColumnType.VALUE,
+				ColumnType.STRAND,
+				ColumnType.THICK_START,
+				ColumnType.THICK_END,
+				ColumnType.ITEM_RGB,
+				ColumnType.BLOCK_COUNT,
+				ColumnType.BLOCK_SIZES,
+				ColumnType.BLOCK_STARTS
+		};
+		
+		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+		
 		for (int i = 3; i < fieldCount; i++) {
-			extraTypes.add(BEDParser.completeBedColumns.get(i).content);
+						
+			ColumnType key = legacyBedColumns[i];
+			String value = parser.getString(i);
+			values.put(key, value);
 		}
 		
-		// Parse it
-		return parser.getAll(new Chunk(string), extraTypes);
+		return new RegionContent(region, values);
 	}
 
 

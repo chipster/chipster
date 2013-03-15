@@ -7,10 +7,11 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackVcfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
@@ -37,8 +38,6 @@ public class LocalNGSPreprocess implements Runnable {
 			return chromosomeName;
 		}
 	};
-
-	private static TsvParser[] parsers = new TsvParser[0];
 	
 	private Task task;
 	
@@ -47,15 +46,6 @@ public class LocalNGSPreprocess implements Runnable {
 	}
 	
 	public static String getSADL() {
-		
-		StringBuffer fileFormats = new StringBuffer();
-		for (int i = 0; i < parsers.length; i++) {
-			fileFormats.append(parsers[i].getName() + ": " + parsers[i].getName());
-			
-			if (i < parsers.length - 1) {
-				fileFormats.append(", ");
-			}
-		}
 		
 //		String description = "Chipster genome browser is able to show BAM and BED files. BAM files need to be " + 
 //		"sorted and indexed, and Chipster can perform this preprocessing for you.\n\n " +
@@ -85,12 +75,17 @@ public class LocalNGSPreprocess implements Runnable {
 				String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
 				
 				if ("bed".equals(extension)) {
-					preprocessBed(dataManager, inputFile);
+					preprocess(dataManager, inputFile, "bed", new BedLineParser(false), 
+							BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal());
 					
 				} else if ("gtf".equals(extension)) {
-					preprocessGtf(dataManager, inputFile);
+					preprocess(dataManager, inputFile, "gtf", new GtfLineParser(), 
+							GtfLineParser.Column.SEQNAME.ordinal(), GtfLineParser.Column.START.ordinal());
+					
 				} else if ("vcf".equals(extension)) {
-					preprocessVcf(dataManager, inputFile);
+					preprocess(dataManager, inputFile, "vcf", new VcfLineParser(), 
+							VcfLineParser.Column.CHROM.ordinal(), VcfLineParser.Column.POS.ordinal());
+					
 				} else if ("bai".equals(extension)) {
 					preprocessBai(dataManager, inputFile);
 				} else {
@@ -159,44 +154,18 @@ public class LocalNGSPreprocess implements Runnable {
 		dataManager.getRootFolder().addChild(indexOutputBean);
 	}
 	
-	private void preprocessBed(DataManager dataManager, File inputFile) throws Exception {
+	private void preprocess(DataManager dataManager, File inputFile, String fileExtension, TsvLineParser lineParser, int chrColumn, int startColumn) throws Exception {
 		
-		String outputName = generateFilename(inputFile, "bed");
+		String outputName = generateFilename(inputFile, fileExtension);
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
-		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
-		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
-		
-		createOutput(dataManager, outputName, outputFile);
-	}
-
-	private void preprocessGtf(DataManager dataManager, File inputFile) throws Exception {
-		String outputName = generateFilename(inputFile, "gtf");
-		File outputFile = dataManager.createNewRepositoryFile(outputName);		
-		
-		// Sort		
 		new TsvSorter().sort(
 				inputFile, outputFile, CHROMOSOME_NORMALISER, 
-				StackGtfParser.Column.SEQNAME.ordinal(), 
-				StackGtfParser.Column.START.ordinal());
+				chrColumn, startColumn, lineParser);
 		
 		createOutput(dataManager, outputName, outputFile);
 	}
-	
-	private void preprocessVcf(DataManager dataManager, File inputFile) throws Exception {
-		String outputName = generateFilename(inputFile, "vcf");
-		File outputFile = dataManager.createNewRepositoryFile(outputName);		
-
-		// Sort
-		new TsvSorter().sort(
-				inputFile, outputFile, CHROMOSOME_NORMALISER,
-				StackVcfParser.Column.CHROM.ordinal(),
-				StackVcfParser.Column.POS.ordinal());
-		
-		createOutput(dataManager, outputName, outputFile);
-	}
-
 
 	private void preprocessBai(DataManager dataManager, File inputFile) throws Exception {
 		String outputName = inputFile.getName();		

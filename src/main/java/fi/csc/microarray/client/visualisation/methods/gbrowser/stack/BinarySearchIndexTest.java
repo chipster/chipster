@@ -41,7 +41,7 @@ public class BinarySearchIndexTest {
 			GBrowserException, UnsortedDataException, FileNotFoundException,
 			URISyntaxException, MalformedURLException {
 		
-		Index index = new BinarySearchIndex(new RandomAccessLineDataSource(testFile.toURI().toURL()), new StackGtfParser());		
+		Index index = new BinarySearchIndex(new RandomAccessLineDataSource(testFile.toURI().toURL()), new GtfLineParser());		
 		//Index index = new InMemoryIndex(new LineDataSource(testFile.toURI().toURL(), null), new StackGtfParser());
 		
 		//Empty region

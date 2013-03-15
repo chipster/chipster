@@ -1,13 +1,18 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 
-public abstract class StackTsvParser implements Parser {
+public abstract class TsvLineParser implements LineParser {
 	
 	protected String[] values;
 	
 	public Long getLong(int column) {
 		String string = values[column];
 		return new Long(string);		
+	}
+	
+	public Float getFloat(int column) {
+		String string = values[column];
+		return new Float(string);		
 	}
 	
 	public String getString(int column) {
@@ -25,7 +30,7 @@ public abstract class StackTsvParser implements Parser {
 		}
 	}
 	
-	public boolean isContentLinle() {
+	public boolean isContentLine() {
 		return values != null;
 	}
 

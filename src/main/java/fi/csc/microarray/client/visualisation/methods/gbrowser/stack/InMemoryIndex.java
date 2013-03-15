@@ -20,12 +20,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 public class InMemoryIndex extends Index {
 
 	private LineDataSource file;
-	private Parser parser;
+	private LineParser parser;
 	
 	//TreeMap for storing all lines of the file sorted according to start positions 
 	private TreeMap<IndexKey, String> lineMap;
 
-	public InMemoryIndex(DataSource file, Parser parser) throws IOException {
+	public InMemoryIndex(DataSource file, LineParser parser) throws IOException {
 		this.file = (LineDataSource) file;
 		this.parser = parser;
 		

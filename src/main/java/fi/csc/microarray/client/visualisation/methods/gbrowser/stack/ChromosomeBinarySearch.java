@@ -26,9 +26,9 @@ public class ChromosomeBinarySearch {
 	//Set of chromosome names, prevents duplicates
 	private TreeSet<Chromosome> chrSet = new TreeSet<Chromosome>();
 
-	private Parser parser;
+	private LineParser parser;
 
-	public ChromosomeBinarySearch(URL url, Parser parser)
+	public ChromosomeBinarySearch(URL url, LineParser parser)
 			throws IOException, GBrowserException, URISyntaxException {
 		
 		this.file = new RandomAccessLineDataSource(url);					
@@ -61,7 +61,12 @@ public class ChromosomeBinarySearch {
 		
 		if (line != null) {
 			parser.setLine(line);
-			return parser.getRegion().start.chr;
+			if (parser.isContentLine()) {
+				return parser.getRegion().start.chr;
+			} else {
+				//Header or comment line, read the next one
+				return getChr(pos + line.length() + 1); 
+			}
 		} else {
 			return null;
 		}
@@ -153,6 +158,10 @@ public class ChromosomeBinarySearch {
 		while (pos < pos2) {
 			String line = file.getNextLine();
 			parser.setLine(line);
+			if (!parser.isContentLine()) {
+				//header or comment
+				continue;
+			}
 			Chromosome searchChr = parser.getRegion().start.chr;
 			pos += line.length() + 1; //new line character
 
@@ -194,7 +203,7 @@ public class ChromosomeBinarySearch {
 
 	private static void printTestTime(URL url, String description) throws IOException,
 			GBrowserException, URISyntaxException {
-		ChromosomeBinarySearch index = new ChromosomeBinarySearch(url, new StackGtfParser());
+		ChromosomeBinarySearch index = new ChromosomeBinarySearch(url, new GtfLineParser());
 
 		long t = System.currentTimeMillis();
 		

@@ -4,7 +4,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class StackBedParser extends StackTsvParser {		
+public class BedLineParser extends TsvLineParser {		
 	
 	public enum Column {
 			
@@ -37,14 +37,14 @@ public class StackBedParser extends StackTsvParser {
 	/** 
 	 * @param convertCoordinates Convert coordinates from bed file 0-based coordinate system to genome browser 1-based coordinates.
 	 */
-	public StackBedParser(boolean convertCoordinates) {
+	public BedLineParser(boolean convertCoordinates) {
 		this.convertCoordinates = convertCoordinates;
 	}
 
 	@Override
 	public Region getRegion() {
 		
-		if (isContentLinle()) {
+		if (isContentLine()) {
 
 			long start = getLong(Column.START.ordinal());
 			long end = getLong(Column.END.ordinal());
@@ -63,6 +63,16 @@ public class StackBedParser extends StackTsvParser {
 		}
 	}
 	
+
+	
+	public String getName() {
+		return getString(Column.NAME.ordinal());
+	}
+
+	public Float getScore() {
+		return getFloat(Column.SCORE.ordinal());
+	}
+	
 	public Strand getStrand() {
 		String strandString = getString(Column.STRAND.ordinal());
 		
@@ -78,9 +88,27 @@ public class StackBedParser extends StackTsvParser {
 		
 		return strand;
 	}
-
-	public String getScore() {
-		return getString(Column.SCORE.ordinal());
+	
+	public Long getThickStart() {
+		return getLong(Column.THICK_START.ordinal());
+	}
+	
+	public Long getThickEnd() {
+		return getLong(Column.THICK_END.ordinal());
+	}
+	
+	public String getItemRgb() {
+		return getString(Column.ITEM_RGB.ordinal());
+	}
+	public Long getBlockCount() {
+		return getLong(Column.BLOCK_COUNT.ordinal());
+	}
+	public String getBlockStarts() {
+		return getString(Column.BLOCK_STARTS.ordinal());
+	}
+	
+	public int getColumnCount() {
+		return values.length;
 	}
 
 	@Override

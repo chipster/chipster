@@ -7,9 +7,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class StackGtfParser implements Parser {
-		
-	private static final String GTF_HEADER_START = "#";	
+public class GtfLineParser extends TsvLineParser {
 	
 	public enum Column {
 			
@@ -34,17 +32,7 @@ public class StackGtfParser implements Parser {
 		}
 	}
 
-	private String[] values;
 	private Map<String, String> attributes;
-	
-	private long getLong(Column column) {
-		String string = values[column.ordinal()];
-		return new Long(string);
-	}
-	
-	private String getString(Column column) {
-		return values[column.ordinal()];
-	}
 
 	@Override
 	public Region getRegion() {
@@ -54,10 +42,11 @@ public class StackGtfParser implements Parser {
 			
 		} else {
 
-			long start = getLong(Column.START);
-			long end = getLong(Column.END);
-			Chromosome chr = new Chromosome(getString(Column.SEQNAME));
-			String strandString = getString(Column.STRAND);
+			long start = getLong(Column.START.ordinal());
+			long end = getLong(Column.END.ordinal());
+			Chromosome chr = new Chromosome(getString(Column.SEQNAME.ordinal()));
+			
+			String strandString = getString(Column.STRAND.ordinal());
 
 			Strand strand = null;
 
@@ -75,18 +64,16 @@ public class StackGtfParser implements Parser {
 
 	@Override
 	public boolean setLine(String line) {
-		if (line.startsWith(GTF_HEADER_START)) {
-			this.values = null;
-			return false;
-		} else {
+		
+		if (!line.startsWith(getHeaderStart())) {
 			this.attributes = null;
-			this.values = line.split("\t"); 
-			return true; 
 		}
+		
+		return super.setLine(line);
 	}
 
 	public String getFeature() {
-		return getString(Column.FEATURE);
+		return getString(Column.FEATURE.ordinal());
 	}
 	
 	public String getGeneId() {
@@ -99,7 +86,7 @@ public class StackGtfParser implements Parser {
 	
 	public String getAttribute(String key) {
 		if (this.attributes == null) {
-			this.attributes = parseAttributes(getString(Column.ATTRIBUTES));			
+			this.attributes = parseAttributes(getString(Column.ATTRIBUTES.ordinal()));			
 		}
 		return attributes.get(key);
 	}
@@ -125,5 +112,10 @@ public class StackGtfParser implements Parser {
 		}
 
 		return attributeMap;
+	}
+
+	@Override
+	public String getHeaderStart() {
+		return "#";
 	}
 }

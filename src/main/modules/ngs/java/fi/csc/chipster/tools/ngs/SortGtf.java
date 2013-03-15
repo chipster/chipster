@@ -3,7 +3,7 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
@@ -48,8 +48,8 @@ public class SortGtf extends JavaAnalysisJobBase {
 			// run sort
 			new TsvSorter().sort(
 					inputFile, outputFile, CHROMOSOME_NORMALISER, 
-					StackGtfParser.Column.SEQNAME.ordinal(), 
-					StackGtfParser.Column.START.ordinal());
+					GtfLineParser.Column.SEQNAME.ordinal(), 
+					GtfLineParser.Column.START.ordinal(), new GtfLineParser());
 
 		} catch (Exception e) {
 			updateState(JobState.FAILED, e.getMessage());

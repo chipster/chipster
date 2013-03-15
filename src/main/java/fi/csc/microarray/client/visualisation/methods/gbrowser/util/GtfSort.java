@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.InMemoryIndex;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 
 /**
  * In memory sort, not for huge files.
@@ -38,7 +38,7 @@ public class GtfSort {
 		
 		InMemoryIndex index;
 
-		index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), null), new StackGtfParser());		
+		index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), null), new GtfLineParser());		
 				
 		for (String line : index.getFileLines()) {
 			out.append(line);

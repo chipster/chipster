@@ -97,8 +97,10 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag CHROMOSOME_IN_SECOND_TABLE_COLUMN = new TypeTag("chromosome-in-second-table-column", "second column of table is chromosome");
 		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
 		public static final TypeTag START_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("start-position-in-third-table-column", "third column of table is start position");
+		public static final TypeTag START_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("start-position-in-fourth-table-column", "fourth column of table is start position");
 		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("end-position-in-third-table-column", "third column of table is end position");
 		public static final TypeTag END_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("end-position-in-fourth-table-column", "fourth column of table is end position");
+		public static final TypeTag END_POSITION_IN_FIFTH_TABLE_COLUMN = new TypeTag("end-position-in-fifth-table-column", "fifth column of table is end position");
 	}
 	
 	public static class VisualisationMethods {
@@ -552,7 +554,9 @@ public class MicroarrayModule implements Module {
 				data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN));  //1
 		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN) ||
 				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)); //2
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)||
+				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)); //4
 		
 		for (int i = 4; i < columns.getColumnCount(); i++) {
 			flags.add(false);
@@ -569,30 +573,52 @@ public class MicroarrayModule implements Module {
 		final String START_KEY = "start";
 		final String END_KEY = "end";
 		
+		
+		int chrColumn = -1;
+		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
-			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[0]));
+			chrColumn = 0;
 		}
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
+			chrColumn = 1;
+		}
+		
+		entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[chrColumn]));
+		
+		
+		int startColumn = -1;
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
-			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[1]));
-		}
-		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
-			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[2]));
-		}
-		
-		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
-			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[1]));
+			startColumn = 1;
 		}
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)) {
-			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[2]));
+			startColumn = 2;
+		}
+
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+			startColumn = 3;
+		}
+
+		entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[startColumn]));				
+		
+		
+		int endColumn = -1;
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
+			endColumn = 2;
+		}
+
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+			endColumn = 3;
 		}
 		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
-			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[3]));
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)) {
+			endColumn = 4;
 		}
+		
+		entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[endColumn]));
+		
 
 		return entity;
 	}

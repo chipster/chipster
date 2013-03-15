@@ -62,9 +62,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeB
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackBedParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackVcfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -525,7 +525,7 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 
 					try {						
-						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new StackBedParser(true));
+						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new BedLineParser(true));
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
 						
 					} catch (FileNotFoundException e) {
@@ -540,7 +540,7 @@ public class GBrowser implements ComponentListener {
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
 
 					try {						
-						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new StackVcfParser());
+						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new VcfLineParser());
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
 						
 					} catch (FileNotFoundException e) {
@@ -842,11 +842,11 @@ public class GBrowser implements ComponentListener {
 						ChromosomeBinarySearch chrSearch = null;
 						
 						if (isBed) {														
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackBedParser(true));														
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new BedLineParser(true));														
 						} else if (isVcf) {							
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackVcfParser());							
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new VcfLineParser());							
 						} else if (isGtf) {
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new StackGtfParser());
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new GtfLineParser());
 						}
 						
 						for (Chromosome chr : chrSearch.getChromosomes()) {

@@ -23,7 +23,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
 public class BinarySearchIndex extends Index {
 
 	private RandomAccessLineDataSource file;
-	private Parser parser; 
+	private LineParser parser; 
 	
 	/**
 	 * Index maps BpCoordinates (i.e. the value of start column of line) to file position of the
@@ -37,7 +37,7 @@ public class BinarySearchIndex extends Index {
 	
 	private static final int INDEX_INTERVAL = 128*1024;
 
-	public BinarySearchIndex(DataSource file, Parser parser) throws IOException, GBrowserException, UnsortedDataException {
+	public BinarySearchIndex(DataSource file, LineParser parser) throws IOException, GBrowserException, UnsortedDataException {
 		this.file = (RandomAccessLineDataSource) file;
 		this.parser = parser;
 		
@@ -284,7 +284,7 @@ public class BinarySearchIndex extends Index {
 		return file;
 	}
 
-	public Parser getParser() {
+	public LineParser getParser() {
 		return parser;
 	}
 }

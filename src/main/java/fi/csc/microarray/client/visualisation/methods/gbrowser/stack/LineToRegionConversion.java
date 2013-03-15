@@ -42,9 +42,9 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 
 	private Index index;
 
-	private Parser parser;
+	private LineParser parser;
 
-	public LineToRegionConversion(DataSource file, Parser parser, Queue<AreaRequest> areaRequestQueue,
+	public LineToRegionConversion(DataSource file, LineParser parser, Queue<AreaRequest> areaRequestQueue,
 	        AreaResultListener areaResultListener) {
 	    
 		super(areaRequestQueue, areaResultListener);
@@ -71,7 +71,7 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 		}
 	}
 
-	public LineToRegionConversion(URL url, Parser parser) throws FileNotFoundException, URISyntaxException {
+	public LineToRegionConversion(URL url, LineParser parser) throws FileNotFoundException, URISyntaxException {
 		this(new RandomAccessLineDataSource(url), parser, null, null);
 	}
 

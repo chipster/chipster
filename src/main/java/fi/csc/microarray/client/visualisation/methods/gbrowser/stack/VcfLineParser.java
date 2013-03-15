@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class StackVcfParser extends StackTsvParser {		 
+public class VcfLineParser extends TsvLineParser {		 
 	
 	public enum Column {
 
@@ -30,7 +30,7 @@ public class StackVcfParser extends StackTsvParser {
 	@Override
 	public Region getRegion() {
 		
-		if (isContentLinle()) {
+		if (isContentLine()) {
 			
 			long start = getLong(Column.POS.ordinal());
 			

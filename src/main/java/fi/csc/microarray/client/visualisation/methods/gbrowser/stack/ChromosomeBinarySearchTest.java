@@ -17,7 +17,7 @@ public class ChromosomeBinarySearchTest {
 
 		File testFile = getTestFile();
 		
-		ChromosomeBinarySearch search = new ChromosomeBinarySearch(testFile.toURI().toURL(), new StackGtfParser());
+		ChromosomeBinarySearch search = new ChromosomeBinarySearch(testFile.toURI().toURL(), new GtfLineParser());
 		TreeSet<Chromosome> chrs = search.getChromosomes();
 		
 		Iterator<Chromosome> chrIter = chrs.iterator();

@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
@@ -41,9 +43,15 @@ public class RandomAccessLineReader {
 	private ChunkDataSource chunkDataSource;
 
 	public RandomAccessLineReader(URL url) throws FileNotFoundException, URISyntaxException {
-		chunkDataSource = new ChunkDataSource(url, null, null);
+		chunkDataSource = new ChunkDataSource(url, null);
 	}
 	
+
+	public RandomAccessLineReader(URL url, BedLineParser bedLineParser,
+			File outputFile, ChromosomeNormaliser chromosomeNormaliser) {
+		// TODO Auto-generated constructor stub
+	}
+
 
 	/**
 	 * Set file position (in bytes) where to start reading. Return value is false, if the

@@ -53,18 +53,33 @@ public class RegionOperationsTest {
 		String fileContentsWithHeader = 
 			"track name=pairedReads description=\"Clone Paired Reads\" useScore=1\n" +
 			fileContents;
-		List<RegionContent> rows1 = tool.parseString(fileContentsWithHeader);
+		
+		List<RegionContent> rows1 = new LinkedList<RegionContent>();
+		for (String line : fileContentsWithHeader.split("\n")) {
+			RegionContent region = tool.parseString(line);
+			if (region != null) {
+				rows1.add(region);
+			}
+		}
 		
 		// Check that parsing was ok
 		Assert.assertEquals(rows1.size(), 4);
-		Assert.assertEquals(rows1.get(0).values.get(ColumnType.STRAND), Strand.FORWARD);
+		Assert.assertEquals(rows1.get(0).values.get(ColumnType.STRAND), "+");
 		Assert.assertEquals(rows1.get(0).values.get(ColumnType.ID), "cloneA");
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1.fa"));
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1"));
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("1"));
 		
+		List<RegionContent> rowsNoHeader = new LinkedList<RegionContent>();
+		for (String line : fileContents.split("\n")) {
+			RegionContent region = tool.parseString(line);
+			if (region != null) {
+				rowsNoHeader.add(region);
+			}
+		}
+		
 		// Check that track header row does not cause trouble
-		Assert.assertEquals(tool.parseString(fileContents), rows1);
+		Assert.assertEquals(rowsNoHeader, rows1);
 		
 		// Check that printed output matches parsed input
 		String normalisedFileContents = fileContents.replace("chr", "");

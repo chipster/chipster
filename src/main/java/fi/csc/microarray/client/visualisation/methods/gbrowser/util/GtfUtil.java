@@ -12,7 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.InMemoryIndex;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.StackGtfParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 
 /**
  * FIXME Find out why 400 MB file is only 150 MB after sorting. 
@@ -27,9 +27,9 @@ public class GtfUtil {
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
 		try {
-			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), GtfToFeatureConversion.class), new StackGtfParser());
+			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), GtfToFeatureConversion.class), new GtfLineParser());
 			
-			StackGtfParser parser = new StackGtfParser();
+			GtfLineParser parser = new GtfLineParser();
 			
 			for (String line : index.getFileLines()) {
 				parser.setLine(line);

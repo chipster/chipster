@@ -9,16 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -32,22 +24,20 @@ import fi.csc.microarray.util.IOUtils;
 public class ChunkDataSource extends DataSource {
 
 	private RandomAccessFile raFile;
-	private TsvParser fileParser;
+
 	private Long length = null;
 
-	public ChunkDataSource(URL url, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public ChunkDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
-		this.fileParser = fileParser;
 
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
 	}
 
-	public ChunkDataSource(URL urlRoot, String path, TsvParser fileParser, Class<? extends AreaRequestHandler> requestHandler)
+	public ChunkDataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler)
 			throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		super(urlRoot, path, requestHandler);
-		this.fileParser = fileParser;
 
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
@@ -206,15 +196,6 @@ public class ChunkDataSource extends DataSource {
 		}
 	}
 
-	public long getHeaderLength() throws IOException {
-		return fileParser.getHeaderLength(file);
-	}
-
-	public TsvParser getFileParser() {
-		return fileParser;
-	}
-
-
 	public RandomAccessFile getFile() {
 		return raFile;
 	}
@@ -228,24 +209,5 @@ public class ChunkDataSource extends DataSource {
 			}
 			raFile = null;
 		}
-	}
-
-	public void checkSorting() throws IOException, UnsortedDataException {
-		byte[] bytes = new byte[100000];
-		this.read(getHeaderLength(), bytes);
-		Chunk chunk = new Chunk(new String(bytes));
-		List<RegionContent> regions = fileParser.getAll(chunk, new LinkedList<ColumnType>());
-		
-		Region previousRegion = null;
-		for (RegionContent region : regions) {
-			if (previousRegion != null) {
-				if (previousRegion.compareTo(region.region) > 0) {
-					throw new UnsortedDataException("File " + file + " isn't sorted correctly. " +
-							"Please sort the file first.");
-				}
-			}
-			previousRegion = region.region;
-		}
-		
 	}
 }

@@ -25,13 +25,13 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 
 	private Index index;
 
-	private StackGtfParser parser;
+	private GtfLineParser parser;
 
 	public GtfToFeatureConversion(DataSource file, final GBrowser browser) {
 	    
 		super(null, null);
 
-		this.parser = new StackGtfParser();
+		this.parser = new GtfLineParser();
 		
 //		try {
 //			this.index = new InMemoryIndex(file, parser);
