@@ -284,8 +284,12 @@ public class GBrowser implements ComponentListener {
 	 */
 	public void updateTracks() {
 
+		//Remove tracks
 		plot.getOverviewView().clean();
 		plot.getDataView().clean();
+		
+		//There is a reference to track objects in scroll bars
+		plot.chartPanel.clean();
 
 		Genome genome = getGenome();
 		
@@ -791,7 +795,7 @@ public class GBrowser implements ComponentListener {
 	}
 	
 	public void removeVisualisation() {
-
+		
 		plotPanel.removeComponentListener(this);
 		plotPanel.removeAll();
 

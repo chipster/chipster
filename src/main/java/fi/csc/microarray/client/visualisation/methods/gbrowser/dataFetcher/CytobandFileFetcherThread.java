@@ -54,6 +54,8 @@ public class CytobandFileFetcherThread extends Thread {
 
 	public void run() {
 
+		this.setName(getClass().getName());
+		
 		while (!poison) {
 			try {
 
