@@ -272,8 +272,8 @@ public class MicroarrayModule implements Module {
 				VisualisationMethods.EXPRESSION_PROFILE,
 				VisualisationMethods.CLUSTERED_PROFILES,
 				VisualisationMethods.VENN_DIAGRAM,
-				VisualisationMethods.GBROWSER,
-				VisualisationMethods.SAMBAM_VIEWER
+				VisualisationMethods.SAMBAM_VIEWER,
+				VisualisationMethods.GBROWSER
 		};
 	}
 

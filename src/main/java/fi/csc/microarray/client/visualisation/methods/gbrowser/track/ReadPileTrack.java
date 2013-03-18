@@ -317,13 +317,9 @@ public class ReadPileTrack extends Track {
 	 * @param highlightSNP
 	 * @see ReadPileTrack.setReferenceSeq
 	 */
-	public void enableSNPHighlight(AreaRequestHandler file) {
+	public void enableSNPHighlight() {
 		// turn on highlighting mode
 		highlightSNP = true;
-
-		// set reference data
-		refData = file;
-		view.getQueueManager().addResultListener(file, this);
 	}
 
 	/**
@@ -384,5 +380,15 @@ public class ReadPileTrack extends Track {
 	@Override
 	public int getMinHeight() {
 		return 100;
+	}
+	
+	@Override	
+	public void initializeListener() {
+		super.initializeListener();
+		
+		// Add listener for reference file
+		if (areaRequestHandler != null && refData != null) {
+			view.getQueueManager().addResultListener(refData, this);
+		}
 	}
 }

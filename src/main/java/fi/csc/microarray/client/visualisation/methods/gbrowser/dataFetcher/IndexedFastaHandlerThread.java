@@ -36,6 +36,7 @@ public class IndexedFastaHandlerThread extends AreaRequestHandler {
 
 		// Start file processing layer thread
 		fileFetcher = new IndexedFastaFileFetcherThread(fileRequestQueue, fileResultQueue, this, data);
+		fileFetcher.start();
 		
 		// Start this thread
 		super.runThread();

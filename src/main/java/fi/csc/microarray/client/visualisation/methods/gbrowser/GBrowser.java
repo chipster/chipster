@@ -70,6 +70,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactor
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.IOUtils;
@@ -90,7 +91,6 @@ public class GBrowser implements ComponentListener {
 		TRANSCRIPTS(true), 
 		REFERENCE(true),
 		REGIONS(true),
-		REGIONS_WITH_HEADER(true), 
 		READS(true),
 		HIDDEN(false), 
 		VCF(true), 
@@ -508,7 +508,6 @@ public class GBrowser implements ComponentListener {
 				//Add separators
 				switch (track.interpretation.type) {
 				case REGIONS:
-				case REGIONS_WITH_HEADER:
 				case VCF:
 				case GTF:
 					
@@ -524,7 +523,6 @@ public class GBrowser implements ComponentListener {
 				
 				switch (track.interpretation.type) {
 				case REGIONS:
-				case REGIONS_WITH_HEADER:
 					
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 
@@ -688,7 +686,7 @@ public class GBrowser implements ComponentListener {
 	private GeneIndexActions getGeneIndexActions() {
 
 		if (gia == null) {
-			showDialog("Gene search failed", "Gene search is not initialized, is annotation data missing?", null, true, false, true);
+			showDialog("Gene search failed", "Gene search is not initialized, is annotation data missing?", null, true, false, true, false);
 		}
 		return gia;
 	}
@@ -732,7 +730,7 @@ public class GBrowser implements ComponentListener {
 
 							showDialog("Search failed",
 									"Unexpected error happened in the search. Please inform the developers if the problem persists.", null,
-									true, false, false);
+									true, false, false, false);
 						}
 
 					});
@@ -753,7 +751,7 @@ public class GBrowser implements ComponentListener {
 					settings.processLocationPanelInput();
 
 					// Tell the user 
-					showDialog("Not found", "Gene was not found", null,	false, false, false);
+					showDialog("Not found", "Gene was not found", null,	false, false, false, false);
 
 				} else {
 
@@ -767,7 +765,7 @@ public class GBrowser implements ComponentListener {
 					} else {
 						showDialog("Different chromosome", 
 								"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
-								true, false, false);
+								true, false, false, false);
 					}
 				}
 			}
@@ -834,7 +832,7 @@ public class GBrowser implements ComponentListener {
 		if (chromosomeNames.isEmpty()) {
 			for (Interpretation interpretation : getInterpretations()) {
 				
-				boolean isBed = (interpretation.type == TrackType.REGIONS) || (interpretation.type == TrackType.REGIONS_WITH_HEADER);
+				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
 				boolean isGtf = (interpretation.type == TrackType.GTF);
 				
@@ -857,11 +855,14 @@ public class GBrowser implements ComponentListener {
 							chromosomeNames.add(chr.toNormalisedString());
 						}
 						
+					} catch (UnsortedDataException e) {
+						this.showDialog("Unsorted data", e.getMessage(), null, true, false, true, true);					
+						
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					} catch (GBrowserException e) {
 						e.printStackTrace();
-					}
+					} 
 				}
 			}
 		}
@@ -875,7 +876,7 @@ public class GBrowser implements ComponentListener {
 
 		return chromosomes;
 	}
-	
+
 	@Override
 	public void componentShown(ComponentEvent arg0) {
 		// Ignore
@@ -961,9 +962,9 @@ public class GBrowser implements ComponentListener {
 	 * @param dialogShowDetails Show details by default
 	 * @param modal
 	 */
-	public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
+	public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal, boolean closeBrowser) {
 		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details);
-	}
+	}		
 	
 	/** 
 	 * Override this method to lock the gui during heavy tasks

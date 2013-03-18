@@ -217,6 +217,11 @@ public class CoverageTrack extends Track {
 		HashMap<AreaRequestHandler, Set<ColumnType>>();
 		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
 		
+		// We might also need reference sequence data
+		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
+			datas.put(refFile, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
+		}
+		
 		return datas;
 	}
 

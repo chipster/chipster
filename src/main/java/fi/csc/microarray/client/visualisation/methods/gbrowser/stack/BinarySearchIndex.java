@@ -95,7 +95,6 @@ public class BinarySearchIndex extends Index {
 	 */
 	private void checkSorting(List<String> lines) throws UnsortedDataException {
 		
-		String previousLine = null;
 		Region previousRegion = null;
 		
 		for (String line : lines) {
@@ -106,11 +105,10 @@ public class BinarySearchIndex extends Index {
 			if (previousRegion != null) {
 				if (previousRegion.start.compareTo(region.start) > 0) {
 					throw new UnsortedDataException("File " + getFile() + " isn't sorted correctly. " +
-							"Please sort the file first. Incorrect order of line '" + previousLine + "' and line '" + line + "'");
+							"Please sort the file first.");
 				}
 			}
 			previousRegion = region;
-			previousLine = line;
 		}	
 	}
 

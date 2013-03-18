@@ -48,7 +48,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 				
 				@Override
 				public void run() {				
-					browser.showDialog("Unsorted data", e.getMessage(), null, true, false, true);
+					browser.showDialog("Unsorted data", e.getMessage(), null, true, false, true, true);
 				}
 			});
 			index = null;

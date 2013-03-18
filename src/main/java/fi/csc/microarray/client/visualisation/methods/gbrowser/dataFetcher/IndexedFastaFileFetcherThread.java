@@ -74,9 +74,6 @@ public class IndexedFastaFileFetcherThread extends Thread {
 			return;
 		}
 
-
-		AreaRequest request = fileRequest.areaRequest;
-
 		fetchSequence(fileRequest);
 	}
 

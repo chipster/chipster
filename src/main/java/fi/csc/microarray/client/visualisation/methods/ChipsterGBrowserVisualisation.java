@@ -25,6 +25,8 @@ import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
@@ -124,7 +126,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		}
 		
 		@Override
-		public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
+		public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal, boolean closeBrowser) {
 			
 			Severity severity;
 			
@@ -142,7 +144,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 				detailsVisibility = DetailsVisibility.DETAILS_ALWAYS_HIDDEN;
 			}
 			
-			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);			
+			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);
+			
+			if (closeBrowser) {
+				application.setVisualisationMethod(VisualisationMethod.NONE, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+			}
 		}
 		
 		public void showVisualisation() {
@@ -301,17 +307,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		// Find interpretations for all primary data types
 		for (DataBean data : datas) {		
 			
-			if (data.isContentTypeCompatitible("text/plain")) {
-				// ELAND result / export
-				interpretations.add(new DataBeanInterpretation(TrackType.READS, new BeanDataFile(data)));
-
-			} else if (data.isContentTypeCompatitible("text/bed")) {
+			if (data.isContentTypeCompatitible("text/bed")) {
 				// BED (ChIP-seq peaks)
 				interpretations.add(new DataBeanInterpretation(TrackType.REGIONS, new BeanDataFile(data)));
-
-			} else if (data.isContentTypeCompatitible("text/tab")) {
-				// peaks (with header in the file)
-				interpretations.add(new DataBeanInterpretation(TrackType.REGIONS_WITH_HEADER, new BeanDataFile(data)));
 
 			} else if ((data.isContentTypeCompatitible("application/bam"))) {
 				// BAM file
@@ -339,6 +337,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 
 			if (primaryInterpretation == null) {
+								
 				return null; // could not bound this secondary data to any primary data
 			}
 
@@ -360,7 +359,16 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		// Check that interpretations are now fully initialised
 		for (Interpretation interpretation : interpretations) {
 			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
-				return null; // BAM is missing BAI
+				
+				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				DataBean indexBean = application.getDataManager().getDataBean(indexName);
+				
+				if (indexBean == null) {
+				
+					return null; // BAM is missing BAI
+				} else {
+					interpretation.setIndexData(new BeanDataFile(indexBean));
+				}
 			}
 		}
 

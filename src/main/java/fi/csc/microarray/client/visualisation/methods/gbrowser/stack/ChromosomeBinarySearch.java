@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
 /**
  * Sorted files make it possible to find quickly requested region, but there is no way 
@@ -29,13 +30,13 @@ public class ChromosomeBinarySearch {
 	private LineParser parser;
 
 	public ChromosomeBinarySearch(URL url, LineParser parser)
-			throws IOException, GBrowserException, URISyntaxException {
+			throws IOException, GBrowserException, URISyntaxException, UnsortedDataException {
 		
 		this.file = new RandomAccessLineDataSource(url);					
 		this.parser = parser;
 	}
 	
-	public TreeSet<Chromosome> getChromosomes() throws IOException, GBrowserException {
+	public TreeSet<Chromosome> getChromosomes() throws IOException, GBrowserException, UnsortedDataException {
 		
 		//Only for sorting check
 		BinarySearchIndex index = new BinarySearchIndex(file, parser);

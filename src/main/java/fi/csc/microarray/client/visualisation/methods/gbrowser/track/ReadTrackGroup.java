@@ -192,8 +192,8 @@ public class ReadTrackGroup extends TrackGroup {
     public void setVisibleSNP(boolean b) {
     	check();
     	if (b) {
-            reads.enableSNPHighlight(seqFile);
-            readsReversed.enableSNPHighlight(seqFile);
+            reads.enableSNPHighlight();
+            readsReversed.enableSNPHighlight();
             profileSNPTrack.enableSNPHighlight();
         } else {
             reads.disableSNPHiglight();
