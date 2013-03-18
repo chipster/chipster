@@ -4,16 +4,19 @@
 <h2>Importing Illumina data</h2>
 
 <p>
-You have two alternatives for importing Illumina data:
-<ul>
-<li><b>Import the file directly</b>. When you get the "Import files" dialog window, change the Action to "Import directly" and click "OK". 
-Note that your all your samples need to be in the same, intact BeadStudio/GenomeStudio file. In addition to the identifier column (TargetID, PROBE_ID) the file needs to have
+You have <b><u>two alternative ways</u></b> to import Illumina data. Your choice of import method affects the choice of the subsequent normalization method as described below:
+<ol>
+<li><b>Import the file directly</b>
+ <br>When you get the "Import files" dialog window, change the Action to "Import directly" and click "OK". 
+Note that your all your samples need to be in the same, intact BeadStudio/GenomeStudio file. In addition to the identifier column (preferably ProbeID) the file needs to have
  the columns AVG, BEAD_STDERR, Avg_NBEADS and DetectionPval. When you have imported your data this way, you have to use the normalization
- "Illumina - lumi pipeline".</li>
- <li><b>Use import tool</b>. When you get the "Import files" dialog window, leave the Action to "Use Import tool" and click "OK". 
+ <b>Illumina - lumi pipeline</b>.</li>
+ <li><b>Use import tool</b> 
+ <br>When you get the "Import files" dialog window, leave the Action to "Use Import tool" and click "OK". 
  This gives full control on what samples from the BeadSummaryData files you would like to import and which samples
-you would like to normalize together. Below is a short description on how to use the Import tool for Illumina data. For more information, please see the <a href="import-help.html">Import tool manual</a></li>
-</ul>
+you would like to normalize together. Below is a short description on how to use the Import tool for Illumina data. For more information, please see the <a href="import-help.html">Import tool manual</a>. 
+Note that when you have imported your data this way, you have to use the normalization tool <b>Illumina</b>.</li>
+</ol>
 </p>
 
 <p>When you have selected file(s) to import, the "Import files" dialog opens. Select the Action "Use Import tool" for all your files.</p>
