@@ -59,6 +59,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
@@ -94,7 +96,8 @@ public class GBrowser implements ComponentListener {
 		READS(true),
 		HIDDEN(false), 
 		VCF(true), 
-		GTF(true);
+		GTF(true),
+		CNA(true);
 
 		public boolean isToggleable;
 
@@ -510,6 +513,7 @@ public class GBrowser implements ComponentListener {
 				case REGIONS:
 				case VCF:
 				case GTF:
+				case CNA:
 					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
@@ -561,6 +565,23 @@ public class GBrowser implements ComponentListener {
 						DataSource gtfData = new RandomAccessLineDataSource(dataUrl.getUrl());
 						GtfToFeatureConversion gtfConversion = new GtfToFeatureConversion(gtfData, this);						
 						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfConversion, null, true));
+						
+					} catch (FileNotFoundException e) {
+						reportException(e);
+					} catch (URISyntaxException e) {
+						reportException(e);
+					} 
+					break;
+				case CNA:
+
+					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
+					analysis.setScrollEnabled(true);
+
+					try {
+
+						DataSource cnaData = new RandomAccessLineDataSource(dataUrl.getUrl());
+						CnaConversion conversion = new CnaConversion(cnaData, this);						
+						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -836,6 +857,7 @@ public class GBrowser implements ComponentListener {
 				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
 				boolean isGtf = (interpretation.type == TrackType.GTF);
+				boolean isCna = (interpretation.type == TrackType.CNA);
 				
 				if (isBed || isVcf || isGtf) {
 										
@@ -850,6 +872,8 @@ public class GBrowser implements ComponentListener {
 							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new VcfLineParser());							
 						} else if (isGtf) {
 							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new GtfLineParser());
+						} else if (isCna) {
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new CnaLineParser());
 						}
 						
 						for (Chromosome chr : chrSearch.getChromosomes()) {

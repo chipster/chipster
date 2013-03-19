@@ -8,6 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 
 /**
  * Utility class for creating predefined {@link TrackGroup} objects.  
@@ -105,5 +106,36 @@ public class TrackFactory {
 		TitleTrack titleTrack = new TitleTrack(title, Color.black);
 		titleTrack.setView(dataView);
 		return titleTrack;
+	}
+
+	public static TrackGroup getCnaTrackGroup(GBrowserPlot plot,
+			CnaConversion conversion) {
+		
+		SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+		SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+	
+		CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, Color.RED, 0, Long.MAX_VALUE);
+		ScatterplotTrack freq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
+		ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
+				
+		GBrowserView view = plot.getDataView();
+		separator1.setView(view);
+		separator2.setView(view);
+		flag.setView(view);
+		freq.setView(view);
+		logRatio.setView(view);
+		
+		flag.setAreaRequestHandler(conversion);
+		freq.setAreaRequestHandler(conversion);
+		logRatio.setAreaRequestHandler(conversion);
+		
+		TrackGroup group = new TrackGroup(view);
+		group.addTrack(flag);
+		group.addTrack(separator1);
+		group.addTrack(freq);
+		group.addTrack(separator2);
+		group.addTrack(logRatio);
+		
+		return group;
 	}
 }
