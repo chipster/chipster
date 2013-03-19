@@ -60,7 +60,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 	if (!is.na(package)) {
 		
 		repos = ifelse(is.na(mirror), getOption("repos"), mirror)
-		install.packages(packages=c(package), repos)
+		install.packages(packages=c(package), repos=repos)
 	
 	} else if (!is.na(bioconductor.package)) {
 		

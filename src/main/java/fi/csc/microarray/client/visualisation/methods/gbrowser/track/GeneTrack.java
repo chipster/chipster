@@ -14,14 +14,15 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -40,11 +41,12 @@ public class GeneTrack extends Track {
 	private Color color;
 
 
-	public GeneTrack(View view, DataSource file, Color color, long minBpLength, long maxBpLength) {
+	public GeneTrack(GBrowserView view, DataSource file, Color color, long minBpLength, long maxBpLength) {
 		super(view, file);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
 	@Override
@@ -142,22 +144,7 @@ public class GeneTrack extends Track {
 		}
 		getView().redraw();
 	}
-
-	@Override
-	public Integer getHeight() {
-		if (isVisible()) {
-			return super.getHeight();
-		} else {
-			return 0;
-		}
-	}
-	   
-    @Override
-    public boolean isStretchable() {
-        // stretchable unless hidden
-        return isVisible();
-    }
-    
+	
     @Override
     public boolean isVisible() {
         // visible region is not suitable
@@ -178,5 +165,10 @@ public class GeneTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
+	}
+	
+	@Override
+	public int getMinHeight() {
+		return 100;
 	}
 }

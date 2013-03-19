@@ -67,33 +67,35 @@ Serializable {
 									 * to avoid showing inconsistent state during the loop.
 									 */		
 				
-									//Following will throw nullPointerException if data loading in this thread
+									//Following is null if data loading in this thread
 									//was faster than UI initialisation in another thread
-									Lock tableLock = view.getEntryTable().getUI().getSession().getLock();
-									tableLock.lock();
-									try {
-										final int COUNT = 300;
+				if (view.getEntryTable().getUI() != null) {
+					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+					tableLock.lock();
+					try {
+						final int COUNT = 300;
 
-										removeAllItems();
+						removeAllItems();
 
-										Random rnd = new Random();
+						Random rnd = new Random();
 
-										StorageEntry entry;
+						StorageEntry entry;
 
-										for (int i = 0; i < COUNT; i++) {
-											entry = new StorageEntry();
+						for (int i = 0; i < COUNT; i++) {
+							entry = new StorageEntry();
 
-											entry.setDate(RandomUtil.getRandomDate(rnd, 2011));
-											entry.setUsername(RandomUtil.getRandomUserName(rnd));
-											entry.setSize(Math.abs(rnd.nextInt(rnd.nextInt(9000000))*1000l));
-											entry.setName(RandomUtil.getRandomSessionName(rnd));
+							entry.setDate(RandomUtil.getRandomDate(rnd, 2011));
+							entry.setUsername(RandomUtil.getRandomUserName(rnd));
+							entry.setSize(Math.abs(rnd.nextInt(rnd.nextInt(9000000))*1000l));
+							entry.setName(RandomUtil.getRandomSessionName(rnd));
 
-											addBean(entry);
-										}
+							addBean(entry);
+						}
 
-									} finally {
-										tableLock.unlock();
-									}
+					} finally {
+						tableLock.unlock();
+					}
+				}
 //								}
 //							});
 //

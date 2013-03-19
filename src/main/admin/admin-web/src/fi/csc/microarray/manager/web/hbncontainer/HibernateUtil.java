@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fi.csc.microarray.manager.web.ChipsterConfiguration;
+import fi.csc.microarray.manager.web.data.AccountEntry;
 import fi.csc.microarray.manager.web.data.JobLogEntry;
+import fi.csc.microarray.util.Exceptions;
 
 //import java.util.Date;
 //import java.util.Random;
@@ -23,16 +25,18 @@ public class HibernateUtil {
 	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
 
-
-	
-
-
     static {
     	
     	
 		logger.debug("Initializing HibernateUtil");
 		
-		fi.csc.microarray.config.Configuration chiptserConf = ChipsterConfiguration.getConfiguration();
+		fi.csc.microarray.config.Configuration chiptserConf;
+		try {
+			chiptserConf = ChipsterConfiguration.getConfiguration();
+		} catch (Exception e) {
+    		System.err.println("Initialising Chipster configuration failed.\n" + Exceptions.getStackTrace(e));
+    		throw new ExceptionInInitializerError(e);
+		}
 		
 		final Configuration hibernateConf = new org.hibernate.cfg.Configuration();
 
@@ -69,10 +73,11 @@ public class HibernateUtil {
     		hibernateConf.setProperty(Environment.USER, dbUsername);
     		hibernateConf.setProperty(Environment.PASS, dbPassword);
     		hibernateConf.setProperty(Environment.DIALECT, H2Dialect.class.getName());          
-    		hibernateConf.setProperty(Environment.SHOW_SQL, "true");
+    		hibernateConf.setProperty(Environment.SHOW_SQL, "false");
     		hibernateConf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 
     		hibernateConf.addAnnotatedClass(JobLogEntry.class);
+    		hibernateConf.addAnnotatedClass(AccountEntry.class);
 			
 			final ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder();
 
@@ -94,8 +99,9 @@ public class HibernateUtil {
     }
     
 //    public static void insertExampleData(int count) {
-//        Session sess = getSessionFactory().getCurrentSession();
-//        //sess.beginTransaction();
+//        //Session sess = getSessionFactory().getCurrentSession();
+//        Session sess = getSessionFactory().openSession();
+//        Transaction tran = sess.beginTransaction();        
 //
 //    	String[] states = new String[] { "COMPLETED", "FAILED" };
 //    	Date startTime;
@@ -136,5 +142,6 @@ public class HibernateUtil {
 //
 //            sess.save(job);
 //        }
+//        tran.commit();
 //    }
 }

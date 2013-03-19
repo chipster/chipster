@@ -16,12 +16,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -34,7 +29,6 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class AnnotationManager {
 	private static final String CONTENTS_FILE = "contents2.txt";
-	private static final String ANNOTATIONS_PATH = "annotations";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
 	
@@ -50,6 +44,7 @@ public class AnnotationManager {
 	private final String CHR_UNSPECIFIED =  "*";
 
 	private LinkedList<GenomeAnnotation> annotations = new LinkedList<GenomeAnnotation>();
+	private GBrowser browser;
 
 	/**
 	 * Model for single annotation file.
@@ -169,6 +164,10 @@ public class AnnotationManager {
 		}
 	}
 
+	public AnnotationManager(GBrowser browser) {
+		this.browser = browser;
+	}
+
 	/**
 	 * Get and parse the contents.txt, which describes available annotations.
 	 * 
@@ -177,8 +176,8 @@ public class AnnotationManager {
 	public void initialize() throws Exception {
 
 		// get annotation locations
-		this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
-		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
+		this.remoteAnnotationsRoot = browser.getRemoteAnnotationsUrl();
+		this.localAnnotationsRoot = browser.getLocalAnnotationDir();
 
 		// try to parse the remote contents file
 		boolean remoteContentsOk = false;
@@ -339,7 +338,7 @@ public class AnnotationManager {
 	 * @throws IOException
 	 */
 	public void downloadAnnotations(final Genome genome) throws IOException {
-		Session.getSession().getApplication().runBlockingTask("downloading annotations", new Runnable() {
+		browser.runBlockingTask("downloading annotations", new Runnable() {
 
 			@Override
 			public void run() {
@@ -360,29 +359,6 @@ public class AnnotationManager {
 				}
 			}
 		});
-	}
-
-	public void openDownloadAnnotationsDialog(final Genome genome) {
-		Session.getSession().getApplication().showDialog(
-				"Download annotations for " + genome + "?",
-				"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
-				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
-
-					@Override
-					public void actionPerformed() {
-						try {
-							downloadAnnotations(genome);
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					}
-
-					@Override
-					public String getText() {
-						return "Download ";
-					}
-				});
-
 	}
 
 	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
@@ -467,17 +443,5 @@ public class AnnotationManager {
 
 	public void addAnnotation(GenomeAnnotation annotation) {
 		annotations.add(annotation);
-	}
-
-	private URL getRemoteAnnotationsUrl() throws Exception {
-		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-		
-		URL publicURL = fileBroker.getPublicUrl();
-		if (publicURL != null) {
-			return new URL(publicURL + "/" + ANNOTATIONS_PATH);
-
-		} else {
-			return null;
-		}
 	}
 }

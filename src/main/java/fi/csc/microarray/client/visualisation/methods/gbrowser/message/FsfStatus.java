@@ -5,7 +5,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 
 /**
  * <p>Fast seek file status.</p>
