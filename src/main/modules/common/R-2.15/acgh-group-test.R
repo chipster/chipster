@@ -9,7 +9,7 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-03-06
 
 file <- 'regions.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -28,7 +28,7 @@ datacgh <- data.frame()
 group.sizes <- integer()
 for (group in groupnames) {
   group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
-  group.calls <- calls[,group.samples]
+  group.calls <- calls[,group.samples, drop=FALSE]
   if (nrow(datacgh)==0) {
     datacgh <- group.calls
   } else {
@@ -82,7 +82,9 @@ FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
   ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
   axis(side=1, at=ax, labels=unique(chromosomes))
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
-  points(-log10(fdr) - 1, type='l')
+  logfdr <- -log10(fdr)
+  logfdr[logfdr == Inf] <- 10
+  points(logfdr - 1, type='l')
   labels <- c(0.01, 0.05, 0.025, 0.1, 0.25, 0.5, 1)
   axis(side=4, at=-log10(labels) - 1, labels=labels, las=1)
   mtext('FDR', side=4, line=3)
