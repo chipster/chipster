@@ -4,7 +4,7 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (The accession of the platform.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-13
+# 2013-03-18
 
 # check for valid accession
 platform <- toupper(platform)
@@ -43,6 +43,12 @@ if ('CHROMOSOMAL_LOCATION' %in% colnames(plat)) {
   dat$start <- as.integer(gsub('.*:|-.*','', plat$CHROMOSOMAL_LOCATION))
   dat$end <- as.integer(gsub('.*-|','', plat$CHROMOSOMAL_LOCATION))
 }
+if (all(is.na(dat$chromosome)) && 'SYSTEMATICNAME' %in% colnames(plat)) {
+  plat$SYSTEMATICNAME[grep('^.*:[0-9]*-[0-9]*$', plat$SYSTEMATICNAME, invert=TRUE)] <- ''
+  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$SYSTEMATICNAME)
+  dat$start <- as.integer(gsub('.*:|-.*','', plat$SYSTEMATICNAME))
+  dat$end <- as.integer(gsub('.*-|','', plat$SYSTEMATICNAME))
+}
 if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(plat))
   dat$cytoband <- gsub('hs\\|', '', plat$CYTOBAND)
 if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(plat))
@@ -67,6 +73,8 @@ if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
   dat$start <- as.integer(plat$START)
 if (all(is.na(dat$start)) && 'POSITION' %in% colnames(plat))
   dat$start <- as.integer(plat$POSITION)
+if (all(is.na(dat$start)) && 'KB POSITION' %in% colnames(plat))
+  dat$start <- as.integer(plat$'KB POSITION') * 1000
 if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
   dat$end <- as.integer(plat$END)
 if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
