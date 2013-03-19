@@ -644,7 +644,6 @@ public class GBrowser implements ComponentListener {
 		// Create the chart panel with tooltip support				
 		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 		this.plot = new GBrowserPlot(chartPanel, true);
-		plot.addDataRegionListener(settings);
 		
 		((GBrowserChartPanel)chartPanel).setPlot(plot);
 
@@ -652,6 +651,8 @@ public class GBrowser implements ComponentListener {
 		plot.getDataView().setBpRegion(new RegionDouble(
 				settings.getLocation() - settings.getViewSize() / 2.0, settings.getLocation() + settings.getViewSize() / 2.0, 
 				settings.getChromosome()), true);
+		
+		plot.addDataRegionListener(settings);
 				
 		updateCoverageScale();
 		

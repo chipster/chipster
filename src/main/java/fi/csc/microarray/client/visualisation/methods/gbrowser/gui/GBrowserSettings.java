@@ -502,7 +502,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 							
 							// Update UI in Event Dispatch Thread, update location only after this block task 
 							// has quit to be able to show gene search blocking task. It isn't critical if the timing
-							// fails, search will still work, but there the fancy white glass pane won't show.
+							// fails, search will still work, but the fancy white glass pane won't show.
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
