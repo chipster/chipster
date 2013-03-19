@@ -5,15 +5,15 @@
 # PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
 
-# plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-09
+# 2012-12-05
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
 
 # read the input files
-dat <- read.table('matched-cn-and-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'matched-cn-and-expression.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
 # check if the matched data was produced with an old version
@@ -47,7 +47,7 @@ dat$chromosome <- as.integer(dat$chromosome)
 
 exprs <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
-copynumber <- as.matrix(dat[,grep("^copynumber\\.", names(dat))])
+copynumber <- as.matrix(dat[,grep("^logratio\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
 probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])

@@ -6,21 +6,16 @@
 # OUTPUT merged.tsv: merged.tsv 
 # OUTPUT phenodata-merged.tsv: phenodata-merged.tsv 
 
-# merge-datasets.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
-
-# Parameter settings (default) for testing purposes
-#dat<-read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-#dat2 <- read.table('imputed.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-#phenodata1 <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
-#phenodata2 <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
+# 2012-10-12
 
 # read data set 1
-dat <- read.table('normalized_1.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file1 <- 'normalized_1.tsv'
+dat <- read.table(file1, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # read data set 2
-dat2 <- read.table('normalized_2.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file2 <- 'normalized_2.tsv'
+dat2 <- read.table(file2, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # take common rows
 common.rows <- intersect(rownames(dat), rownames(dat2))
@@ -79,6 +74,7 @@ phenodata <- rbind(phenodata1, phenodata2)
 phenodata$sample <- microarrays
 
 # write files
+options(scipen=10)
 write.table(dat, file='merged.tsv', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
 write.table(phenodata, file='phenodata-merged.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE, col.names=TRUE)
 

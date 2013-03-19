@@ -4,17 +4,21 @@
 # OUTPUT cgh-profile.pdf: cgh-profile.pdf 
 # PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
-# plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-20
+# 2012-11-07
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
 # read input files
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
+
+pos <- c('chromosome','start','end')
+if (length(setdiff(pos, colnames(dat)))!=0)
+  stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # parse samples to be plotted
 if (samples=='0')
@@ -49,6 +53,8 @@ dat$chromosome[dat$chromosome=='MT'] <- 25
 dat$chromosome <- as.integer(dat$chromosome)
 
 dat <- dat[dat$chromosome %in% 1:24,]
+
+dat <- dat[order(dat$chromosome, dat$start),]
 
 calls <- as.matrix(dat[,grep("flag", names(dat))])
 copynumber <- as.matrix(dat[,grep("chip", names(dat))])

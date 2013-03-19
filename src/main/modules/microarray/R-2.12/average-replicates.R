@@ -12,9 +12,11 @@
 # modified by MG, 12.4.2010
 # rewritten by IS, 6.9.2010
 # modified by IS, 16.2.2011
+# modified by IS,12.10.2012
 
 # load inputs
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
 # identify replicates
@@ -68,6 +70,7 @@ for (m in matrices) {
 }
 
 # write output
+options(scipen=10)
 write.table(dat2, file='average-replicates.tsv', quote=FALSE, sep='\t')
 write.table(phenodata2, file='phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 

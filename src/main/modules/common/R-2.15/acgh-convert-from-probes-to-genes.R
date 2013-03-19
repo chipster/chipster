@@ -1,15 +1,15 @@
-# TOOL acgh-convert-from-probes-to-genes.R: "Detect genes from called copy number data" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
+# TOOL acgh-convert-from-probes-to-genes.R: "Detect genes from called copy number data" (Using the chromosomal locations of the data points of a copy number data set, convert the data from probe/bin-based to gene-based. The probes/bins from which the copy number call for a given gene are determined as follows. If there are probes/bins overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe/bin are used.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT gene-aberrations.tsv: gene-aberrations.tsv 
-# PARAMETER method.for.calls: method.for.calls TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
-# PARAMETER method.for.others: method.for.others TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
-# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
+# PARAMETER method.for.calls: "method for calls" TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes/bins give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes/bins have the same call, otherwise the gene will be labeled as normal.)
+# PARAMETER method.for.others: "method for others" TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
+# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
-# convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-20
+# 2013-02-24
 
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -26,7 +26,7 @@ colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.per.Mb'
 # remove genes from chromosomes not present in the array data
 genes <- genes[genes$chromosome %in% dat$chromosome,]
 
-# define the functions for calculating gene copy numbers from probe copy numbers
+# define the functions for calculating gene copy numbers from probe/bin copy numbers
 unambiguous <- function(values) {
   values <- values[!is.na(values)]
   uniques <- unique(values)
@@ -63,16 +63,16 @@ get.gene.data <- function(x) {
   chr <- x['chromosome']
   start <- as.integer(x['start'])
   end <- as.integer(x['end'])
-  # are there probes overlapping with the position of the gene
+  # are there probes/bins overlapping with the position of the gene
   overlapping.probes <- which(dat$chromosome == chr &
                                      dat$end >= start &
                                    dat$start <= end)
   if (length(overlapping.probes) > 0) {
-    # if yes, use those probes to calculate the copy number
+    # if yes, use those probes/bins to calculate the copy number
     gene.calls <- apply(calls[overlapping.probes,], 2, method.for.calls)
     gene.logratios <- apply(logratios[overlapping.probes,], 2, method.for.others, na.rm=TRUE)
   } else {
-    # if not, use the last preceding and the first tailing probe
+    # if not, use the last preceding and the first tailing probe/bin
     preceding.probes <- which(dat$chromosome == chr &
                                      dat$end <  start)
     tailing.probes <- which(dat$chromosome == chr &
@@ -112,6 +112,7 @@ if (2 %in% calls.bygene)
     genes$amp.freq <- mean(as.data.frame(t(calls.bygene==2)))
 genes <- cbind(genes, gene.calls.and.logratios)
 
+options(scipen=10)
 write.table(genes, file='gene-aberrations.tsv', sep="\t", quote=FALSE, row.names=TRUE, col.names=TRUE)
 
 # EOF

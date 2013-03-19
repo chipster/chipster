@@ -6,10 +6,10 @@
 	<title></title>
 </head>
 <body>
-	<h2>aCGH / Convert called copy number data from probes to genes</h2>
+	<h2>Copy number aberrations / Detect genes from called copy number data</h2>
 	
 	<h3>Description</h3>
-	<p>Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.</p>
+	<p>Using the chromosomal locations of the data points in copy number data set, convert the data from probe/bin-based to gene-based. The probes/bins from which the copy number call for a given gene are determined as follows. If there are probes/bins overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe/bin are used.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
@@ -19,10 +19,10 @@
 	</ul>
 	
 	<h3>Details</h3>
-	<p>The list of Ensembl genes is retrieved, and the input data converted from probe-based to gene-based. For a given gene, the probes to use are determined as described in the referenced CanGEM paper. The majority method means that the gene is marked as a loss (or gain), if more than 50% of the determined probes show a loss (or a gain). The unambiguous method requires that all of the probes have to give the same signal, or otherwise the gene is marked as normal copy number.</p>
+	<p>The list of Ensembl genes is retrieved, and the input data converted from probe/bin-based to gene-based. For a given gene, the probes/bins to use are determined as described in the referenced CanGEM paper. The majority method means that the gene is marked as a loss (or gain), if more than 50% of the determined probes/bins show a loss (or a gain). The unambiguous method requires that all of the probes/bins have to give the same signal, or otherwise the gene is marked as normal copy number.</p>
 	
 	<h3>Output</h3>
-	<p>Input data set transferred from probe-based to gene-based measurements.</p>
+	<p>Input data set transferred from probe/bin-based to gene-based measurements.</p>
 	
 	<h3>References</h3>
 	<p>CanGEM:<br />Scheinin et al. (2008) CanGEM: mining gene copy number changes in cancer. Nucleic Acids Res 36: D830-D835</p>

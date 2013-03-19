@@ -7,11 +7,12 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-02
+# 2012-11-08
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
-dat <- read.table('segmented.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'segmented.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 if (length(grep("^segmented\\.", names(dat))) == 0)
   stop('CHIPSTER-NOTE: This tool needs segmented input, so please first run the tool Segment copy number data.')
@@ -36,7 +37,7 @@ cgh.seg <- cgh.seg[chromosomes(cgh.seg) < 24,]
 chips <- colnames(dat)[grep("^chip\\.", names(dat))]
 
 cgh.psn <- postsegnormalize(cgh.seg)
-cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
+cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build, ncpus=4)
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
 
 dat3 <- data.frame(cgh@featureData@data)

@@ -2,12 +2,12 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT aberration-frequencies.tsv: aberration-frequencies.tsv 
 
-# calculate-aberration-frequencies.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-10-12
 
 # read data set
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 calls <- dat[,grep('flag', colnames(dat))]
 
 # calculate aberration frequencies
@@ -19,6 +19,7 @@ if (2 %in% calls) {
   dat$amp.freq <- NULL
 }
 
+options(scipen=10)
 write.table(dat, file='aberration-frequencies.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

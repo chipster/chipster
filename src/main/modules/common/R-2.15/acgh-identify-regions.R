@@ -5,13 +5,14 @@
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-20
+# 2013-02-24
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(CGHregions)
 library(WECCA)
 
-dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'aberrations.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 dat$chromosome[dat$chromosome=='X'] <- '23'
 dat$chromosome[dat$chromosome=='Y'] <- '24'
@@ -48,8 +49,8 @@ if (length(grep("^probnorm\\.", names(dat)))>0) { # input contains probabilities
 colnames(dat2)[1:5] <- c('chromosome', 'start', 'end', 'num.probes', 'ave.dist')
 dat2$ave.dist <- NULL
 
-# end column contains starting positions of the last probes of a region
-# change them to the end positions of those probes
+# end column contains starting positions of the last probes/bin of a region
+# change them to the end positions of those probes/bins
 if (nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$start,]) >= nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$end,]))
   for (row in rownames(dat2))
     dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]

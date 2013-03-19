@@ -6,6 +6,7 @@
 # JTT, 13.7.2005
 # Heavily modified on 7.6.2006
 # Even heavier modifications on 20.9.2007
+# modified, IS, 16.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Parameter settings (default) for testing purposes
 #percentage.to.filter.out<-c(0.997)
@@ -14,8 +15,8 @@
 percentage<-percentage.to.filter.out
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- c('normalized.tsv')
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Sanity checks
 if(ncol(dat)==1) {
@@ -34,4 +35,7 @@ sel<-(sds>quantile(sds,percentage))
 set<-dat[sel, ]
 
 # Saving the results
+options(scipen=10)
 write.table(data.frame(set), file=("sd-filter.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
+
+# EOF

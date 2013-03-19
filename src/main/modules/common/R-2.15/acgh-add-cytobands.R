@@ -1,13 +1,13 @@
-# TOOL acgh-add-cytobands.R: "Add cytogenetic bands" (Adds the cytogenetic band information using chromosome names and start end base pair positions. If this position information is not present in your data set, please first run the Fetch probe positions from CanGEM tool.)
+# TOOL acgh-add-cytobands.R: "Add cytogenetic bands" (Adds the cytogenetic band information using chromosome names and start end base pair positions. If this position information is not present in your data set, please first run the Fetch probe positions from GEO/CanGEM tool.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT cytobands.tsv: cytobands.tsv 
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
-# add-cytobands.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2013-02-24
 
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -40,14 +40,18 @@ for (band in rownames(bands)) {
     dat[index, 'endband'] <- bands[band, 'band']
 }
 
-dat[!is.na(dat$startband), 'cytoband'] <- paste(dat[!is.na(dat$startband), 'startband'], '-', dat[!is.na(dat$startband), 'endband'], sep='')
-dat[!is.na(dat$startband) & dat$startband==dat$endband, 'cytoband'] <- dat[!is.na(dat$startband) & dat$startband==dat$endband, 'startband']
+dat$startband[is.na(dat$startband)] <- 'unknown'
+dat$endband[is.na(dat$endband)] <- 'unknown'
+
+dat$cytoband <- paste(dat$startband, '-', dat$endband, sep='')
+dat$cytoband[dat$startband==dat$endband] <- dat$startband[dat$startband==dat$endband]
 
 dat$startband <- NULL
 dat$endband <- NULL
 
 dat <- rbind(dat, dat.na)
 
-write.table(dat, file='cytobands.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+options(scipen=10)
+write.table(dat, file='cytobands.tsv', quote=FALSE, sep='\t')
 
 # EOF

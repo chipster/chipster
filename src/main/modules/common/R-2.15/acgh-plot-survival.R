@@ -6,11 +6,12 @@
 # PARAMETER status: status TYPE METACOLUMN_SEL DEFAULT status (Phenodata column with patient status: alive=0, dead=1)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-03-02
+# 2012-10-12
 
 library(survival)
 
-dat <- read.table('survival-test.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
+file <- 'survival-test.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
 
 s <- Surv(phenodata[,survival], phenodata[,status])

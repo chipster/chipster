@@ -13,9 +13,11 @@
 # range of values
 # IS, 12.10.2010 removed the restrictive range from the cutoff parameter
 # IS, 7.4.2011 fixed a bug where certain column names (e.g. 'p-value' did not work)
+# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Loads the normalized data
-dat <- read.table('normalized.tsv', header=TRUE, sep="\t", row.names=1, check.names=FALSE)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Extract the data to a vector
 f <- dat[, column]
@@ -39,4 +41,7 @@ if(smaller.or.larger=="within") {
 }
 
 # Writing the data to disk
+options(scipen=10)
 write.table(dat2, "column-value-filter.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+# EOF

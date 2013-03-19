@@ -4,14 +4,14 @@
 # PARAMETER gene.ids: gene.ids TYPE STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER genes: genes TYPE STRING DEFAULT empty (Gene symbols or probe names to be plotted, separated by commas. If this field is filled, the gene.ids parameter will be ignored.)
 
-# plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-05-25
+# 2012-10-12
 
 library(intCNGEan)
 
 # read input file
-dat <- read.table('cn-induced-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+file <- 'cn-induced-expression.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 # parse the input string
 if (genes == '' || genes == 'empty') {
