@@ -574,6 +574,7 @@ public class MicroarrayModule implements Module {
 		final String END_KEY = "end";
 		
 		
+		//Chromosome
 		int chrColumn = -1;
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
@@ -583,9 +584,11 @@ public class MicroarrayModule implements Module {
 			chrColumn = 1;
 		}
 		
-		entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[chrColumn]));
+		if (chrColumn != -1) {
+			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[chrColumn]));
+		}
 		
-		
+		//Start
 		int startColumn = -1;
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
@@ -600,9 +603,11 @@ public class MicroarrayModule implements Module {
 			startColumn = 3;
 		}
 
-		entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[startColumn]));				
+		if (startColumn != -1) {
+			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[startColumn]));
+		}
 		
-		
+		//End
 		int endColumn = -1;
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
@@ -617,8 +622,9 @@ public class MicroarrayModule implements Module {
 			endColumn = 4;
 		}
 		
-		entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[endColumn]));
-		
+		if (endColumn != -1) {
+			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[endColumn]));
+		}		
 
 		return entity;
 	}
