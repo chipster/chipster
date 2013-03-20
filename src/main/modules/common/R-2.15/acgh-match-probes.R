@@ -1,4 +1,4 @@
-# TOOL acgh-match-probes.R: "Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
+# TOOL acgh-match-probes.R: "Match copy number and expression features" (Matches the data points of a copy number data set with data points of an expression data set using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression. See manual page for more details.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT phenodata_cgh.tsv: phenodata_cgh.tsv TYPE GENERIC 
@@ -8,11 +8,11 @@
 # OUTPUT META phenodata-matched.tsv: phenodata-matched.tsv 
 # PARAMETER sample.identifiers.1: sample.identifiers.1 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
 # PARAMETER sample.identifiers.2: sample.identifiers.2 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
-# PARAMETER method: method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
+# PARAMETER method: method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression data points together.)
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-16
+# 2013-03-20
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
@@ -40,7 +40,7 @@ if (length(grep("^probnorm\\.", names(dat1)))!=0) {
   samples_cgh <- sample.identifiers.2
   samples_exp <- sample.identifiers.1
 } else {
-  stop('CHIPSTER-NOTE: Could not detect the aCGH data set.')
+  stop('CHIPSTER-NOTE: Could not detect the copy number data set.')
 }
 
 # check that both data sets have the probe position information
@@ -52,7 +52,7 @@ if (length(setdiff(pos, colnames(exp)))!=0)
 
 # check for unambiguity of sample identifiers
 if (nrow(phenodata_cgh)!=length(unique(phenodata_cgh[,samples_cgh])))
-  stop('CHIPSTER-NOTE: Unambigous aCGH sample identifiers: ', paste(phenodata_cgh[duplicated(phenodata_cgh[,samples_cgh]),samples_cgh], collapse=', ')) 
+  stop('CHIPSTER-NOTE: Unambigous copy number sample identifiers: ', paste(phenodata_cgh[duplicated(phenodata_cgh[,samples_cgh]),samples_cgh], collapse=', ')) 
 if (nrow(phenodata_exp)!=length(unique(phenodata_exp[,samples_exp])))
   stop('CHIPSTER-NOTE: Unambigous expression sample identifiers: ', paste(phenodata_exp[duplicated(phenodata_exp[,samples_exp]),samples_exp], collapse=', ')) 
 

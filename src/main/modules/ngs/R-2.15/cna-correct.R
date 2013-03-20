@@ -1,11 +1,11 @@
 # TOOL cna-correct.R: "Correct for GC content" (This tool corrects NGS data for GC content for copy number analysis.)
 # INPUT cna-data-table.tsv: "Data table with log-transformed read counts" TYPE GENE_EXPRS
 # OUTPUT corrected-cna-data-table.tsv: "Data table with log-transformed read counts corrected for GC content"
-# PARAMETER span: "degree of smoothing" TYPE DECIMAL DEFAULT 0.35 (The alpha/span parameter for the degree of smoothing, controls the neighboorhood used for the fitting. For alpha < 1, the neighbourhood includes proportion alpha of the points, and these have tricubic weighting. For alpha > 1, all points are used, with the ‘maximum distance’ assumed to be alpha^1/2.)
+# PARAMETER span: "degree of smoothing" TYPE DECIMAL DEFAULT 0.65 (The alpha/span parameter for the degree of smoothing, controls the neighboorhood used for the fitting. For alpha < 1, the neighbourhood includes proportion alpha of the points, and these have tricubic weighting. For alpha > 1, all points are used, with the ‘maximum distance’ assumed to be alpha^1/2.)
 # PARAMETER family: family TYPE [gaussian: gaussian, symmetric: symmetric] DEFAULT gaussian (Family used for the fitting. For gaussian, fittins is done by weighted least squares. For symmetric, a few iterations of an M-estimation procedure with Tukey's biweight are used.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-20
+# 2013-03-20
 
 file <- 'cna-data-table.tsv'
 input <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
