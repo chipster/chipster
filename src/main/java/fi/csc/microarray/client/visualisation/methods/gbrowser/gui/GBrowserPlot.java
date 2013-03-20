@@ -86,8 +86,16 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
+				
 				overviewView.highlight = bpRegion;
-				overviewView.setBpRegion(new RegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
+				
+				ViewLimiter limiter = ((OverviewHorizontalView) overviewView).getViewLimiter();
+				
+				if (limiter != null && limiter.getLimit() != null) {
+					overviewView.setLimitedRegion();
+				} else {
+					overviewView.setBpRegion(new RegionDouble(0d, 250*1000*1000.0d, bpRegion.start.chr), false);
+				}
 			}
 		});
 		

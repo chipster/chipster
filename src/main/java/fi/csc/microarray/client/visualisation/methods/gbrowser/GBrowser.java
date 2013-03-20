@@ -859,7 +859,7 @@ public class GBrowser implements ComponentListener {
 				boolean isGtf = (interpretation.type == TrackType.GTF);
 				boolean isCna = (interpretation.type == TrackType.CNA);
 				
-				if (isBed || isVcf || isGtf) {
+				if (isBed || isVcf || isGtf || isCna) {
 										
 					try {
 						

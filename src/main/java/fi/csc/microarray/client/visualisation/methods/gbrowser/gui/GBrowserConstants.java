@@ -22,6 +22,7 @@ public class GBrowserConstants {
 	};
 	
 	public static final Color BED_COLOR = new Color(1, 119, 183);
+	public static final Color COLOR_RED = new Color(0xd53833);
 	public static final Color COLOR_BLUE = new Color(0x0177b7);
 	public static final Color COLOR_BLUE_BRIGHTER = new Color(0x0199EB);
 	public static final Color COLOR_ORANGE = new Color(0xe7881c);

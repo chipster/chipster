@@ -103,6 +103,7 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 			Region region = parser.getRegion();
 			
 			CnaRow row = new CnaRow();
+			row.setRegion(region);
 			row.setGainFreg(parser.getGainFreq());
 			row.setLossFreg(parser.getLossFreq());
 			

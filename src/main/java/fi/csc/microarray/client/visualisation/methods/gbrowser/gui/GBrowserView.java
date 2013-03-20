@@ -235,6 +235,14 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);
 		}
 	}
+	
+	public long getMinBp(RegionDouble limitRegion) {
+		return (long) (-limitRegion.getLength() / 30);
+	}
+	
+	public long getMaxBp(RegionDouble limitRegion) {
+		return (long) (limitRegion.getLength() * (1 + 1.0 / 30));
+	}
 
 	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
 		
@@ -242,7 +250,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		
 		//Enable scrolling to minus coordinates for 1/30 of width to 
 		//make it easier to navigate to the beginning of chromosome  
-		long minBp = (long) (-limitedRegion.getLength() / 30);
+		long minBp = getMinBp(limitedRegion);
 		
 		if (limitedRegion.start.bp < minBp ) {
 			limitedRegion.move(minBp-limitedRegion.start.bp);
@@ -254,7 +262,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {		
 				
 				//Little bit extra space to the end
-				maxBp.bp += 100000;
+				maxBp.bp = getMaxBp(new RegionDouble(0d, (double)viewLimiter.getLimit().bp, viewLimiter.getLimit().chr));
 
 				if (limitedRegion.getLength() > maxBp.bp) {
 
@@ -546,6 +554,10 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void setViewLimiter(ViewLimiter viewLimiter) {
 		this.viewLimiter = viewLimiter;
+	}
+	
+	public ViewLimiter getViewLimiter() {
+		return this.viewLimiter; 
 	}
 
 	@Override

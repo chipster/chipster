@@ -111,30 +111,32 @@ public class TrackFactory {
 	public static TrackGroup getCnaTrackGroup(GBrowserPlot plot,
 			CnaConversion conversion) {
 		
-		SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
-		SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+		GBrowserView view = plot.getDataView();
+		TrackGroup group = new TrackGroup(view);
+		
 	
 		CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, Color.RED, 0, Long.MAX_VALUE);
-		ScatterplotTrack freq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
-		ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
-				
-		GBrowserView view = plot.getDataView();
-		separator1.setView(view);
-		separator2.setView(view);
 		flag.setView(view);
-		freq.setView(view);
-		logRatio.setView(view);
-		
 		flag.setAreaRequestHandler(conversion);
-		freq.setAreaRequestHandler(conversion);
-		logRatio.setAreaRequestHandler(conversion);
-		
-		TrackGroup group = new TrackGroup(view);
 		group.addTrack(flag);
-		group.addTrack(separator1);
-		group.addTrack(freq);
-		group.addTrack(separator2);
-		group.addTrack(logRatio);
+		
+//		SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+//		separator1.setView(view);
+//		group.addTrack(separator1);
+//
+//		ScatterplotTrack freq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
+//		freq.setView(view);
+//		freq.setAreaRequestHandler(conversion);
+//		group.addTrack(freq);
+//		
+//		SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+//		separator2.setView(view);
+//		group.addTrack(separator2);
+//		
+//		ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);				
+//		logRatio.setView(view);
+//		logRatio.setAreaRequestHandler(conversion);		
+//		group.addTrack(logRatio);
 		
 		return group;
 	}

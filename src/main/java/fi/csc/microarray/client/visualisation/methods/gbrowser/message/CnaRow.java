@@ -29,11 +29,18 @@ public class CnaRow {
 			this.name = name;
 		}
 	}
-			
+	
+	private Region region;
 	private LinkedList<Sample> samples;
 	private float lossFreg;
 	private float gainFreg;
 	
+	public Region getRegion() {
+		return region;
+	}
+	public void setRegion(Region region) {
+		this.region = region;
+	}
 	public LinkedList<Sample> getSamples() {
 		return samples;
 	}

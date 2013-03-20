@@ -54,6 +54,10 @@ public class CnaLineParser extends TsvLineParser {
 
 	private void parseHeader(String line) {
 		
+		flagColumns = new LinkedList<Integer>();
+		sampleNames = new LinkedList<String>();
+		logRatioColumns = new LinkedList<Integer>();
+		
 		String[] cols = line.split("\t");
 		
 		for (int i = Column.END.ordinal() + 1; i < cols.length; i++) {

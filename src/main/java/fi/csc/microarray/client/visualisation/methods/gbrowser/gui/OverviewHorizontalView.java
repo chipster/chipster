@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
@@ -119,9 +120,24 @@ public class OverviewHorizontalView extends HorizontalView {
 			
 			@Override
 			public void regionChanged(Region bpRegion) {
-				setBpRegion(new RegionDouble(bpRegion), false);
+				
+				setLimitedRegion();
 			}
+
 		});
+	}
+	
+	public void setLimitedRegion() {
+		
+		if (getViewLimiter() != null && getViewLimiter().getLimit() != null) {
+			BpCoord limit = getViewLimiter().getLimit();
+			RegionDouble limitRegion = new RegionDouble(0d, (double)limit.bp, limit.chr); 
+
+			double start = getMinBp(limitRegion);
+			double end = getMaxBp(limitRegion);
+
+			setBpRegion(new RegionDouble(start, end, bpRegion.start.chr), false);
+		}
 	}
 	
 	@Override

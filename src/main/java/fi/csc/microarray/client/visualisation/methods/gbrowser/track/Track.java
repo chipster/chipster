@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -76,9 +78,16 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
      * Get a map of data sources and column types that this
      * track needs to operate.
      * 
-     * Can also return null if this track does not need any data.
+     * Can also return null if this track does not need any data, or column set 
+     * can be empty, if the data layer sends the required data anyway (in case of 
+     * Conversion classes). 
      */
-	public abstract Map<AreaRequestHandler, Set<ColumnType>> requestedData();
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+        HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>());
+        return datas;
+    }
 
 	/**
 	 * Utility method, return empty Drawable collection.
