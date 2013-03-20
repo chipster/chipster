@@ -1,4 +1,4 @@
-# TOOL acgh-expression-test.R: "Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
+# TOOL acgh-expression-test.R: "Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. Before running this tool, the copy number and expression data must be first matched together using the Match copy number and expression data sets tool.)
 # INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT cn-induced-expression.tsv: cn-induced-expression.tsv 
@@ -7,7 +7,7 @@
 # PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-03-20
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
