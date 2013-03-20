@@ -345,7 +345,6 @@
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-add-cytobands.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-update-aberration-frequencies.R</resource></tool>
 	</category>
 
 	<category name="Methyl-seq" color="#83010b">

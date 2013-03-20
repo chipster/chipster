@@ -6,7 +6,7 @@
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-23
+# 2013-03-06
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
@@ -89,7 +89,7 @@ pdf(file='group-frequencies.pdf', paper='a4r', width=0, height=0)
 if (column == 'EMPTY') {
   frequencyPlot(cgh[cond,])
 } else {
-  for (group in unique(phenodata[,column])) {
+  for (group in sort(unique(phenodata[,column]))) {
     if (is.na(group)) {
       frequencyPlot(cgh[cond,is.na(phenodata[,column])], main=paste(column, ' = ', group, sep=''))
     } else {
