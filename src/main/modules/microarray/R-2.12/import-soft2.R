@@ -5,7 +5,7 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: "Affymetrix/Illumina chiptype" TYPE STRING DEFAULT other (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package. For Illumina arrays, fill in Illumina. For everything else, either cDNA or other.)
 
-# 2013-02-13
+# 2013-03-18
 # Ilari Scheinin <firstname.lastname@gmail.com>
 
 # JTT 9.8.2007
@@ -68,6 +68,12 @@ if ('CHROMOSOMAL_LOCATION' %in% colnames(plat)) {
   dat$start <- as.integer(gsub('.*:|-.*','', plat$CHROMOSOMAL_LOCATION))
   dat$end <- as.integer(gsub('.*-|','', plat$CHROMOSOMAL_LOCATION))
 }
+if (all(is.na(dat$chromosome)) && 'SYSTEMATICNAME' %in% colnames(plat)) {
+  plat$SYSTEMATICNAME[grep('^.*:[0-9]*-[0-9]*$', plat$SYSTEMATICNAME, invert=TRUE)] <- ''
+  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$SYSTEMATICNAME)
+  dat$start <- as.integer(gsub('.*:|-.*','', plat$SYSTEMATICNAME))
+  dat$end <- as.integer(gsub('.*-|','', plat$SYSTEMATICNAME))
+}
 if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(plat))
   dat$cytoband <- gsub('hs\\|', '', plat$CYTOBAND)
 if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(plat))
@@ -92,6 +98,8 @@ if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
   dat$start <- as.integer(plat$START)
 if (all(is.na(dat$start)) && 'POSITION' %in% colnames(plat))
   dat$start <- as.integer(plat$POSITION)
+if (all(is.na(dat$start)) && 'KB POSITION' %in% colnames(plat))
+  dat$start <- as.integer(plat$'KB POSITION') * 1000
 if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
   dat$end <- as.integer(plat$END)
 if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
