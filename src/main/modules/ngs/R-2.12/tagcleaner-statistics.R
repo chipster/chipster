@@ -1,10 +1,9 @@
-# TOOL tagcleaner-statistics.R: "Statistics for primers/adaptors" (Prints the number of tag sequences matching for different numbers of mismatches. No trimming will be performed. This tool is based on TagCleaner.)
+# TOOL tagcleaner-statistics.R: "Statistics for primers/adaptors" (Prints the number of tag (i.e. the primer/adapter\) sequences matching for different numbers of mismatches. No trimming will be performed. This tool is based on TagCleaner.)
 # INPUT reads: "FASTQ/FASTA file" TYPE GENERIC
-# INPUT OPTIONAL qual: "QUAL file" TYPE GENERIC
 # OUTPUT tag.statistics.tsv
-# PARAMETER input.type: "Input type" TYPE [FASTQ, FASTA+QUAL] DEFAULT FASTQ (Input type. If using a FASTA file you can also optionally provide a QUAL file.)
-# PARAMETER tag3: "Tag sequence at 3'-end" TYPE STRING DEFAULT "-" (Tag sequence at 3'-end.)
+# PARAMETER input.type: "Input type" TYPE [FASTQ, FASTA] DEFAULT FASTQ (Input type.)
 # PARAMETER tag5: "Tag sequence at 5'-end" TYPE STRING DEFAULT "-" (Tag sequence at 5'-end.)
+# PARAMETER tag3: "Tag sequence at 3'-end" TYPE STRING DEFAULT "-" (Tag sequence at 3'-end.)
 
 
 # AMS 2013.02.18
@@ -21,11 +20,8 @@ options <- paste("")
 if (input.type == "FASTQ"){
 	options <- paste(options, "-fastq reads")
 }
-if (input.type == "FASTA+QUAL"){
+if (input.type == "FASTA"){
 	options <- paste(options, "-fasta reads")
-	if (file.exists("qual")){
-		options <- paste(options, "-qual qual")
-	}
 }
 # options for parameters
 notags <- TRUE

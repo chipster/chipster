@@ -14,7 +14,7 @@ Trim tags from sequences.
 <h3>Parameters</h3>
 
 <ul>
-<li>Input type (FASTQ, FASTA+QUAL) [FASTQ]</li>
+<li>Input type (FASTQ, FASTA) [FASTQ]</li>
 <li>Tag sequence at 3'-end (String) [-]</li>
 <li>Maximum  mismatches at the 3'-end (Integer) [0]</li>
 <li>Tag sequence at 5'-end (String) [-]</li>
@@ -27,7 +27,7 @@ Trim tags from sequences.
 <h3>Details</h3>
 
 <p>
-The sequence of the tag could occur not only at the sequence end, but also at any other position of the 
+The sequence of the tag (i.e. primer/adapter) could occur not only at the sequence end, but also at any other position of the 
 sequence. To assure that only tags are trimmed, the tag sequences can be defined to occur only at the 
 ends allowing a certain number of variable bases with the "Trim within" parameter. If specified, the 
 value has to be at least the number of bases in the tag sequence. A typical value would be about 1.5x 
@@ -40,6 +40,9 @@ mismatches" value specifies the maximum number of allowed mismatches for the int
 sequence(s). This feature should be used with caution for inputs with only a 5' or 3' tag sequence (likely 
 splits too many false positive that naturally occur for single tags compared to much longer concatenated 
 5' and 3' tags). This option will cause a decrease in speed.
+</p>
+<p>
+Input can be a FASTQ file or a FASTA file. If using a FASTA file you can provide an optional QUAL file to trim sequences and their quality scores.
 </p>
 
 

@@ -14,13 +14,13 @@ Tool to predict primer/adaptor sequences.
 <h3>Parameters</h3>
 
 <ul>
-<li>Input type (FASTQ, FASTA+QUAL) [FASTQ]</li>
+<li>Input type (FASTQ, FASTA) [FASTQ]</li>
 </ul>
 
 <h3>Details</h3>
 
 <p>
-Tool will attempt to predict the tag at either or both sites, if possible. The algorithm implemented 
+Tool will attempt to predict the tag (i.e. primer/adapter) at either or both sites, if possible. The algorithm implemented 
 for the tag prediction assumes the randomness of a typical metagenome. Datasets that do not contain 
 random sequences from organisms in an environment, but rather contain, for example, 16S data may 
 cause incorrect detection of the tag sequences. However, the tag sequences will most likely be 
@@ -30,7 +30,7 @@ as it accounts for incomplete and shifted tag sequences. If no tags are reported
 be identified in the data set. 
 </p>
 <p>
-Input can be a FASTQ file or a FASTA file with an optional QUAL file.
+Input can be a FASTQ file or a FASTA file.
 </p>
 <p>
 No trimming will be performed. 
