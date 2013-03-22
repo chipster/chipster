@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
 
 import javax.jms.JMSException;
 
@@ -61,17 +62,23 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL saveRemoteSession(String name) throws JMSException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String[][] listRemoteSessions() throws JMSException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void removeRemoteSession(URL sessionURL) throws JMSException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls)
+			throws JMSException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public URL addSessionFile() throws JMSException, FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 

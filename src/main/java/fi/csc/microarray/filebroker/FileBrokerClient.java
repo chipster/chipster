@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.LinkedList;
 
 import javax.jms.JMSException;
 
@@ -119,8 +120,20 @@ public interface FileBrokerClient {
 	
 	
 	public abstract URL moveFileToStorage(URL url, long contentLength) throws JMSException;
-	public abstract URL saveRemoteSession(String name) throws JMSException;
+	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException;
 	public abstract String[][] listRemoteSessions() throws JMSException;
 	public void removeRemoteSession(URL sessionURL) throws JMSException;
+
+
+	/**
+	 * Retrieves new URL to upload session metadata file into. File size is not needed, but
+	 * assumes 'a big enough' file size when requesting the URL (metadata files are small text files).
+	 * 
+	 * @return url to upload to
+	 * 
+	 * @throws JMSException
+	 * @throws FileBrokerException
+	 */
+	public URL addSessionFile() throws JMSException, FileBrokerException;
 
 }

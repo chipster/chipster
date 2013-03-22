@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
@@ -131,16 +132,22 @@ public class SessionSaver {
 		writeSessionToFile(false);
 	}
 
-	public void saveStorageSession() throws Exception {
+	public LinkedList<URL> saveStorageSession() throws Exception {
 
 		// move data bean contents to storage
+		LinkedList<URL> urls = new LinkedList<URL>();
 		for (DataBean dataBean : dataManager.databeans()) {
-			dataManager.putToStorage(dataBean);
+			URL url = dataManager.putToStorage(dataBean);
+			if (url != null) {
+				urls.add(url);				
+			}
 		}
 		
 		// save metadata
 		gatherMetadata(false, true);
 		writeSessionToUrl(false);
+		
+		return urls;
 	}
 	
 	

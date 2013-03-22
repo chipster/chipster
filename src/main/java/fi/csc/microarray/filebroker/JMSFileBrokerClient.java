@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
@@ -28,6 +29,7 @@ import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -112,7 +114,18 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		this(urlTopic, null);
 	}
 
-
+	@Override
+	public URL addSessionFile() throws JMSException, FileBrokerException {
+		// quota checks are not needed for session files (metadata xml file)
+		
+		// return new url
+		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, 1024*1024); // assume 1 MB is enough for all session files
+		if (url == null) {
+			throw new FileBrokerException("filebroker is not responding");
+		}
+		
+		return url;
+	}
 
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
@@ -128,13 +141,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			throw new NotEnoughDiskSpaceException();
 		}
 		
-		// Get new url
+		// get new url
 		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
 
-		// Try to move/copy it locally, or otherwise upload the file
+		// try to move/copy it locally, or otherwise upload the file
 		if (localFilebrokerPath != null && !useCompression) {
 			String filename = IOUtils.getFilenameWithoutPath(url);
 			File dest = new File(localFilebrokerPath, filename);
@@ -377,21 +390,20 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL saveRemoteSession(String sessionName) throws JMSException {
+	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException {
 		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL url;
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm());
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_URL_LIST, Strings.delimit(dataUrls, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-			url = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
 			
 		} finally {
 			replyListener.cleanUp();
 		}
-
-		return url;	
 	}
 
 	@Override

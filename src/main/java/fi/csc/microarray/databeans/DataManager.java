@@ -624,9 +624,16 @@ public class DataManager {
 	}
 
 	public void saveStorageSession(String name) throws Exception {
-		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name);
+		
+		// get url for the metadata file
+		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().addSessionFile();				
+		
+		// upload/move data files and upload metadata files, if needed
 		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
-		sessionSaver.saveStorageSession();
+		LinkedList<URL> dataFileUrls = sessionSaver.saveStorageSession();
+		
+		// add metadata to file broker database (make session visible)
+		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionUrl, dataFileUrls);
 	}
 
 	
@@ -951,17 +958,17 @@ public class DataManager {
 		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
 	}
 
-	public void putToStorage(DataBean dataBean) throws Exception {
+	public URL putToStorage(DataBean dataBean) throws Exception {
 
 		// check if content is still available
 		if (dataBean.getContentLocations().size() == 0) {
-			return; // no content, nothing to put to storage
+			return null; // no content, nothing to put to storage
 		}
 		
 		// check if already in storage
 		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_STORAGE); 
 		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
-			return;
+			return storageLocation.getUrl();
 		}
 		
 		// move from cache to storage, if in cache
@@ -974,7 +981,7 @@ public class DataManager {
 
 				// remove cache location(s), because it is now obsolete  
 				dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
-				return;
+				return storageURL;
 			}
 		}
 
@@ -982,6 +989,7 @@ public class DataManager {
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
 		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
 		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		
+		return storageURL;		
 	}
 
 	/**
