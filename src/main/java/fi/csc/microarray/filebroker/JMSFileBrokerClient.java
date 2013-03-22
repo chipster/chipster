@@ -119,7 +119,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// quota checks are not needed for session files (metadata xml file)
 		
 		// return new url
-		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, 1024*1024); // assume 1 MB is enough for all session files
+		URL url = getNewUrl(useCompression, FileBrokerArea.STORAGE, 1024*1024); // assume 1 MB is enough for all session files
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
@@ -391,7 +391,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException {
-		UrlMessageListener replyListener = new UrlMessageListener();  
+		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
@@ -399,7 +399,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_URL_LIST, Strings.delimit(dataUrls, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-			replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			
+			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				throw new JMSException("failed to save session metadata remotely");
+			}
+
 			
 		} finally {
 			replyListener.cleanUp();

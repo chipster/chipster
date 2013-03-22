@@ -337,13 +337,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private void handleStoreSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		String username = requestMessage.getUsername();
-		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);
-		URL url = urlRepository.createAuthorisedUrl(false, FileBrokerArea.STORAGE);
+		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
+		String sessionUuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID))));
 		
 		ChipsterMessage reply; 
 		try {
 			// store session
-			String sessionUuid = IOUtils.getFilenameWithoutPath(url);
 			metadataServer.addSession(username, name, sessionUuid);
 			
 			// link files (they have been added when uploaded)

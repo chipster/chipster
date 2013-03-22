@@ -75,7 +75,7 @@ public class DerbyMetadataServer {
 	private static String SQL_INSERT_BELONGS_TO  = "INSERT INTO " + SCHEMA + "." + BELONGS_TO_DBTABLE + " (session_uuid, file_uuid) VALUES (?, ?)";
 	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM " + SCHEMA + "." + FILE_DBTABLE + " WHERE uuid = ?";
 	
-	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " (username) VALUES (?, ?, ?, ?)";
+	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " (username) VALUES (?)";
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " WHERE username = ?";
 
 	private Connection connection = null;
@@ -94,7 +94,7 @@ public class DerbyMetadataServer {
 		// initialise connection
 		System.setProperty("derby.system.home", "db-root");
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
-		String strUrl = "jdbc:derby:MetadataDatabase;create=true";
+		String strUrl = "jdbc:derby:ChipsterFilebrokerMetadataDatabase;create=true";
 		connection = DriverManager.getConnection(strUrl);
 		
 		// initialise database, if needed
@@ -165,8 +165,8 @@ public class DerbyMetadataServer {
 	 */
 	public void markFileAccessed(String uuid) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_UPDATE_FILE_ACCESSED);
-		ps.setString(1, uuid);
-		ps.setTimestamp(2, new Timestamp(new Date().getTime()));
+		ps.setTimestamp(1, new Timestamp(new Date().getTime()));
+		ps.setString(2, uuid);
 		ps.execute();
 	}
 
