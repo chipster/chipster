@@ -423,16 +423,15 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating fasta files"
-
-  mv ${TOOLS_PATH}/genomes/fasta/Arabidopsis_thaliana.TAIR10.16.fa  ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Bos_taurus.UMD3.1.69.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Canis_familiaris.BROADD2.67.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Canis_familiaris.CanFam3.1.69.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Gallus_gallus.Gallus_gallus-4.0.pre.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Gasterosteus_aculeatus.BROADS1.69.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Homo_sapiens.NCBI36.54.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Human-MT.NC_012920.1.fa ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/fasta/Vitis_vinifera.IGGP_12x.16.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Arabidopsis_thaliana.TAIR10.16.dna.toplevel.fa  ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Bos_taurus.UMD3.1.69.dna.toplevel.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Canis_familiaris.BROADD2.67.dna.toplevel.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Canis_familiaris.CanFam3.1.69.dna.toplevel.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Gallus_gallus.Gallus_gallus-4.0.pre.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Gasterosteus_aculeatus.BROADS1.69.dna.toplevel.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Homo_sapiens.NCBI36.54.dna.toplevel.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Human-MT.NC_012920.1.fa ${BACKUPDIR_PATH}/
+  rm -f ${TOOLS_PATH}/genomes/fasta/Vitis_vinifera.IGGP_12x.16.dna.toplevel.fa ${BACKUPDIR_PATH}/
 
   # New fasta packages with 'nochr' folder
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Arabidopsis_thaliana.TAIR10.17.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -480,7 +479,6 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  
 
 fi
 
