@@ -27,7 +27,13 @@ public interface ServiceAccessor {
 
 	public String checkRemoteServices() throws Exception;
 
-	public void fetchDescriptions(Module primaryModule) throws Exception;
+	/**
+	 * 
+	 * @param primaryModule
+	 * @return error messages if fetching involved errors, otherwise empty string
+	 * @throws Exception
+	 */
+	public String fetchDescriptions(Module primaryModule) throws Exception;
 
 	public TaskExecutor getTaskExecutor();
 
