@@ -244,39 +244,11 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return (long) (limitRegion.getLength() * (1 + 1.0 / 30));
 	}
 
-	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
+	public void setBpRegion(RegionDouble region, boolean disableDrawing) {				
+
+		this.bpRegion = region;
 		
-		RegionDouble limitedRegion = region.clone();
-		
-		//Enable scrolling to minus coordinates for 1/30 of width to 
-		//make it easier to navigate to the beginning of chromosome  
-		long minBp = getMinBp(limitedRegion);
-		
-		if (limitedRegion.start.bp < minBp ) {
-			limitedRegion.move(minBp-limitedRegion.start.bp);
-		}
-		
-		if (viewLimiter != null && viewLimiter.getLimit() != null) {
-			BpCoord maxBp = viewLimiter.getLimit();
-
-			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {		
-				
-				//Little bit extra space to the end
-				maxBp.bp = getMaxBp(new RegionDouble(0d, (double)viewLimiter.getLimit().bp, viewLimiter.getLimit().chr));
-
-				if (limitedRegion.getLength() > maxBp.bp) {
-
-					limitedRegion.end.bp = (double)maxBp.bp;
-
-				} else if (limitedRegion.end.bp > maxBp.bp) {
-
-					double delta = limitedRegion.end.bp - maxBp.bp;
-					limitedRegion.move(-delta);
-				}
-			}
-		}
-
-		this.bpRegion = limitedRegion;
+		limitedRegion();
 
 		fireAreaRequests();
 		
@@ -553,7 +525,53 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	public void setViewLimiter(ViewLimiter viewLimiter) {
+
 		this.viewLimiter = viewLimiter;
+		viewLimiter.addLimitChangeListener(new RegionListener() {
+			
+			@Override
+			public void regionChanged(Region bpRegion) {
+				
+				limitedRegion();
+				redraw();
+			}
+
+		});
+	}
+	
+	public void limitedRegion() {
+		
+		RegionDouble limitedRegion = this.bpRegion.clone();
+		
+		//Enable scrolling to minus coordinates for 1/30 of width to 
+		//make it easier to navigate to the beginning of chromosome  
+		long minBp = getMinBp(limitedRegion);
+		
+		if (limitedRegion.start.bp < minBp ) {
+			limitedRegion.move(minBp-limitedRegion.start.bp);
+		}
+		
+		if (viewLimiter != null && viewLimiter.getLimit() != null) {
+			BpCoord maxBp = viewLimiter.getLimit();
+
+			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(bpRegion.start.chr) && maxBp != null && maxBp.bp != 0) {		
+				
+				//Little bit extra space to the end
+				maxBp.bp = getMaxBp(new RegionDouble(0d, (double)viewLimiter.getLimit().bp, viewLimiter.getLimit().chr));
+
+				if (limitedRegion.getLength() > maxBp.bp) {
+
+					limitedRegion.end.bp = (double)maxBp.bp;
+
+				} else if (limitedRegion.end.bp > maxBp.bp) {
+
+					double delta = limitedRegion.end.bp - maxBp.bp;
+					limitedRegion.move(-delta);
+				}
+			}
+		}
+
+		this.bpRegion = limitedRegion;
 	}
 	
 	public ViewLimiter getViewLimiter() {

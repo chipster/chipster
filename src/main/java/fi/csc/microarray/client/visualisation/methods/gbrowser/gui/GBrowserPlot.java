@@ -86,16 +86,12 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
-				
+						
+				//Change chromosome 
+				overviewView.setBpRegion(new RegionDouble(0d, 250*1000*1000.0d, bpRegion.start.chr), false);
 				overviewView.highlight = bpRegion;
 				
-				ViewLimiter limiter = ((OverviewHorizontalView) overviewView).getViewLimiter();
-				
-				if (limiter != null && limiter.getLimit() != null) {
-					overviewView.setLimitedRegion();
-				} else {
-					overviewView.setBpRegion(new RegionDouble(0d, 250*1000*1000.0d, bpRegion.start.chr), false);
-				}
+				overviewView.limitedRegion();
 			}
 		});
 		

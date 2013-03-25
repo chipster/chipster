@@ -75,11 +75,8 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 		long start = request.start.bp;
 		long end = request.end.bp;
 		
-		//TODO Be more clever to avoid getting so much useless data
-		int EXTRA = 500000;
-		
-		start = Math.max((long)start - EXTRA, 1);
-		end = end + EXTRA;
+		//TODO Be more clever to avoid getting so much useless data, get now the whole beginning of the chromosome, because cna regions can be tens of megabytes long
+		start = 1;
 		
 		Region requestRegion = new Region(start, end, request.start.chr);		
 		

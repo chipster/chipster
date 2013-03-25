@@ -4,9 +4,7 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
  * Special version of horizontal view of tracks. It is used for the chromosome overview panel.
@@ -110,33 +108,6 @@ public class OverviewHorizontalView extends HorizontalView {
 	public void dispatchOverviewRegionChange(Region selectedRegion) {
 		for (RegionListener listener : overviewListeners) {
 			listener.regionChanged(selectedRegion);
-		}
-	}
-	
-	@Override
-	public void setViewLimiter(ViewLimiter viewLimiter) {
-		super.setViewLimiter(viewLimiter);
-		viewLimiter.addLimitChangeListener(new RegionListener() {
-			
-			@Override
-			public void regionChanged(Region bpRegion) {
-				
-				setLimitedRegion();
-			}
-
-		});
-	}
-	
-	public void setLimitedRegion() {
-		
-		if (getViewLimiter() != null && getViewLimiter().getLimit() != null) {
-			BpCoord limit = getViewLimiter().getLimit();
-			RegionDouble limitRegion = new RegionDouble(0d, (double)limit.bp, limit.chr); 
-
-			double start = getMinBp(limitRegion);
-			double end = getMaxBp(limitRegion);
-
-			setBpRegion(new RegionDouble(start, end, bpRegion.start.chr), false);
 		}
 	}
 	

@@ -55,7 +55,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
 			Rectangle rect = g.getClip().getBounds();
-
+						
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(3, bpToTrack(highlight.end) - rect.x);
 			rect.height = 20;
