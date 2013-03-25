@@ -381,6 +381,8 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
 
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -395,7 +397,8 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
 
 	# Bowtie2 indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -410,6 +413,7 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
 				
   # FastQC, GPL v3 or later
@@ -496,6 +500,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/	
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
