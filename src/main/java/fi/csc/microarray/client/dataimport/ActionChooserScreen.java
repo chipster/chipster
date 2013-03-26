@@ -154,6 +154,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
 		dialog.pack();
 		dialog.pack();
+		okButton.requestFocusInWindow();
 		dialog.setVisible(true);
 	}
 
