@@ -77,45 +77,22 @@ public class ToolParameterPanel extends ParameterPanel {
         paneContainer.setLayout(verticalLayout);
         paneContainer.setBackground(this.getBackground());
 	    
-        
-        // Divide parameters into required and optional
-        List<Parameter> requiredParameters = new LinkedList<Parameter>();
-        List<Parameter> optionalParameters = new LinkedList<Parameter>();
-        for (Parameter param : operation.getParameters()) {
-            if (param.isOptional()) {
-                optionalParameters.add(param);
-            } else {
-                requiredParameters.add(param);
-            }
-        }
-
         // Parameters
         paramPane = new JPanel(new GridBagLayout());
         con = prepareBagConstraints(); 
-        
-        // Required parameters
-        if (requiredParameters.size() > 0) {
-    		for (Parameter param : requiredParameters) {
+        for (Parameter param : operation.getParameters()) {
+            if (param.isOptional()) {
+                ParameterInputComponent component = createInputComponent(param);
+                addParameter(paramPane, component, component.getLabel(), con);
+            } else {
     			ParameterInputComponent component = createInputComponent(param);
                 JLabel label = component.getLabel();
                 label.setFont(label.getFont().deriveFont(label.getFont().getStyle() ^ Font.BOLD));
     			addParameter(paramPane, component, label, con);
-    		}
-    		
-            // Add required parameters to the collapsible pane
-	        paneContainer.add(paramPane);
-		}
-        
-        // Optional parameters
-        if (optionalParameters.size() > 0) {
-            for (Parameter param : optionalParameters) {
-                ParameterInputComponent component = createInputComponent(param);
-                addParameter(paramPane, component, component.getLabel(), con);
+
             }
-            
-            // Add optional parameters to the collapsible pane
-            paneContainer.add(paramPane);
         }
+        paneContainer.add(paramPane);
         
         // Input file mappings
         pane = new JXTaskPane();
