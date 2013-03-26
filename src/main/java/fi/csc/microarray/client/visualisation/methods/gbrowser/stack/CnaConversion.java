@@ -128,7 +128,13 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 			LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();			
 			
 			valueMap.put(ColumnType.ID, id);
-			valueMap.put(ColumnType.VALUE, row);			
+			valueMap.put(ColumnType.VALUE, row);
+			valueMap.put(ColumnType.LOSS, row.getLossFreg());
+			valueMap.put(ColumnType.GAIN, row.getGainFreg());
+			
+			//Add logRatios in general format to make it possible to view them with ScatterploTrack			
+			valueMap.put(ColumnType.FLOAT_LIST, logRatioValues);
+			
 			RegionContent regionContent = new RegionContent(region, valueMap);
 			
 			list.add(regionContent);

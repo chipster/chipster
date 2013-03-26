@@ -8,10 +8,8 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow;
@@ -33,9 +31,12 @@ public class CnaFlagTrack extends Track {
 	private Color gainColor = GBrowserConstants.COLOR_RED;
 	private Color lossColor = GBrowserConstants.COLOR_BLUE;
 
+	private int sampleIndex;
 
-	public CnaFlagTrack(Color gainColor, Color lossColor, long minBpLength, long maxBpLength) {
 
+	public CnaFlagTrack(Color gainColor, int sampleIndex, Color lossColor, long minBpLength, long maxBpLength) {
+
+		this.sampleIndex = sampleIndex;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
@@ -46,8 +47,6 @@ public class CnaFlagTrack extends Track {
 
 		if (rows != null) {
 			
-			boolean firstCnaRow = true;
-
 			Iterator<IndexKey> iter = rows.keySet().iterator();
 			while (iter.hasNext()) {
 
@@ -58,31 +57,22 @@ public class CnaFlagTrack extends Track {
 					continue;
 				}
 				
-				int y = row.getSamples().size() * SYMBOL_HEIGHT * 2;
+				int y = 0;
 				
-				for (Sample sample : row.getSamples()) {
-					Color color = Color.lightGray;
-					if (sample.getFlag() < 0) {
-						color = gainColor;
-					} else if (sample.getFlag() > 0) {
-						color = lossColor;					
-					}
-					
-					int alpha = 255 - (int) Math.min(1.0, (Math.abs(sample.getFlag())) * 255.0);
-					
-					Color aColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-					
-					createDrawable(row.getRegion().start, row.getRegion().end, y, SYMBOL_HEIGHT, aColor, drawables);
-					
-					if (firstCnaRow) {
-						
-						createTextDrawable(y, sample.getName(), drawables);
-					}
-					
-					y -= SYMBOL_HEIGHT*2;
+				Sample sample = row.getSamples().get(sampleIndex);
+				
+				Color color = Color.lightGray;
+				if (sample.getFlag() < 0) {
+					color = gainColor;
+				} else if (sample.getFlag() > 0) {
+					color = lossColor;					
 				}
-				
-				firstCnaRow = false;
+
+				int alpha = 255 - (int) Math.min(1.0, (Math.abs(sample.getFlag())) * 255.0);
+
+				Color aColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+
+				createDrawable(row.getRegion().start, row.getRegion().end, y, SYMBOL_HEIGHT, aColor, drawables);
 			}
 		}
 
@@ -104,13 +94,6 @@ public class CnaFlagTrack extends Track {
 
 		drawables.add(new RectDrawable(rect, c, c));
 	}
-	
-	private void createTextDrawable(int y, String text, Collection<Drawable> drawables) {
-
-		int x = 0;				
-
-		drawables.add(new TextDrawable(x, y + SYMBOL_HEIGHT * 2, text, Color.black));
-	}
 
 	public void processAreaResult(AreaResult areaResult) {
 
@@ -129,7 +112,8 @@ public class CnaFlagTrack extends Track {
                 getView().getBpRegion().getLength() <= maxBpLength);
     }
     
-	public LayoutMode getLayoutMode() {
-		return LayoutMode.FULL;
-	}
+    @Override 
+    public int getMinHeight() {
+    	return SYMBOL_HEIGHT;
+    }
 }

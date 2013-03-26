@@ -3,8 +3,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
@@ -109,34 +111,59 @@ public class TrackFactory {
 	}
 
 	public static TrackGroup getCnaTrackGroup(GBrowserPlot plot,
-			CnaConversion conversion) {
+			CnaConversion conversion, LinkedList<String> sampleNames) {
 		
 		GBrowserView view = plot.getDataView();
 		TrackGroup group = new TrackGroup(view);
+				
+		for (int i = 0; i < sampleNames.size(); i++) {
+			
+			String name = sampleNames.get(i);
+			
+			TitleTrack title = new TitleTrack(name, Color.gray);
+			title.setView(view);
+			group.addTrack(title);
+
+			CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, i, Color.RED, 0, Long.MAX_VALUE);
+			flag.setView(view);
+			flag.setAreaRequestHandler(conversion);
+			group.addTrack(flag);
+			
+			SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+			separator1.setView(view);
+			group.addTrack(separator1);			
+						
+			ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 10, 1.0f, i, 0, Long.MAX_VALUE);				
+			logRatio.setView(view);
+			logRatio.setAreaRequestHandler(conversion);		
+			group.addTrack(logRatio);
+			
+			SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+			separator2.setView(view);
+			group.addTrack(separator2);
+		}
 		
-	
-		CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, Color.RED, 0, Long.MAX_VALUE);
-		flag.setView(view);
-		flag.setAreaRequestHandler(conversion);
-		group.addTrack(flag);
+		TitleTrack title2 = new TitleTrack("loss.freq", Color.gray);
+		title2.setView(view);
+		group.addTrack(title2);
+
+		ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 1.0f, ColumnType.LOSS, 0, Long.MAX_VALUE);
+		lossFreq.setView(view);
+		lossFreq.setAreaRequestHandler(conversion);
+		group.addTrack(lossFreq);
 		
-//		SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
-//		separator1.setView(view);
-//		group.addTrack(separator1);
-//
-//		ScatterplotTrack freq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
-//		freq.setView(view);
-//		freq.setAreaRequestHandler(conversion);
-//		group.addTrack(freq);
-//		
-//		SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
-//		separator2.setView(view);
-//		group.addTrack(separator2);
-//		
-//		ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);				
-//		logRatio.setView(view);
-//		logRatio.setAreaRequestHandler(conversion);		
-//		group.addTrack(logRatio);
+		SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+		separator2.setView(view);
+		group.addTrack(separator2);
+		
+		TitleTrack title3 = new TitleTrack("gain.freq", Color.gray);
+		title3.setView(view);
+		group.addTrack(title3);
+
+		ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
+		gainFreq.setView(view);
+		gainFreq.setAreaRequestHandler(conversion);
+		group.addTrack(gainFreq);
 		
 		return group;
 	}

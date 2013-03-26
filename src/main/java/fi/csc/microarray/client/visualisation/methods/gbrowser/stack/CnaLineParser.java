@@ -69,11 +69,11 @@ public class CnaLineParser extends TsvLineParser {
 				this.flagColumns.add(i);
 				this.sampleNames.add(title.replace("flag.", ""));
 				
-			} else if (title.startsWith("loss.freq.")) {
+			} else if (title.startsWith("loss.freq")) {
 				
 				this.lossColumn = i;
 				
-			} else if (title.startsWith("gain.freg")) {
+			} else if (title.startsWith("gain.freq")) {
 				
 				this.gainColumn = i;
 				
@@ -137,8 +137,6 @@ public class CnaLineParser extends TsvLineParser {
 		return getFloat(gainColumn);
 	}
 	
-	
-
 	@Override
 	public String getHeaderStart() {
 		return "chromosome	start	end";

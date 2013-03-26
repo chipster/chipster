@@ -56,6 +56,7 @@ public class GBrowserStarter {
 		DataUrl GTF3_DATA_FILE = new DataUrl(new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.69-sort.gtf").toURI().toURL(), "Homo_sapiens.GRCh37.66-sort.gtf");
 		 
 		DataUrl CNA_DATA_FILE = new DataUrl(new File(dataPath + "cna/regions.tsv").toURI().toURL(), "regions.tsv");
+		DataUrl PHENODATA_FILE = new DataUrl(new File(dataPath + "cna/phenodata.tsv").toURI().toURL(), "phenodata.tsv");
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
@@ -72,7 +73,8 @@ public class GBrowserStarter {
 //		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));		
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF2_DATA_FILE));
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF3_DATA_FILE));
-		interpretations.add(new Interpretation(TrackType.CNA, CNA_DATA_FILE));
+		Interpretation cna = new Interpretation(TrackType.CNA, CNA_DATA_FILE);
+		interpretations.add(cna);
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 

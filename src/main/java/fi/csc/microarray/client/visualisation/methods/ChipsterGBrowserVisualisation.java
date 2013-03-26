@@ -39,6 +39,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
@@ -250,6 +251,29 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		public File getLocalAnnotationDir() throws IOException {
 			return DirectoryLayout.getInstance().getLocalAnnotationDir();
 		}
+		
+		@Override
+		public LinkedList<String> getSampleNames(LinkedList<String> sampleNames, String dataName) {
+						
+			DataBean bean = Session.getSession().getDataManager().getDataBean(dataName);
+			
+			try {
+				for (int i = 0; i < sampleNames.size(); i++) {
+
+					String internalName = sampleNames.get(i);
+
+					String sampleName;
+					sampleName = bean.queryFeatures("/phenodata/linked/describe/" + internalName).asString();
+
+					sampleNames.set(i, sampleName);				
+				}
+
+			} catch (MicroarrayException e) {
+				//Use internal names
+			}
+			
+			return sampleNames;
+		}
 	}
 	
 	private ChipsterGBrowser browser;
@@ -321,6 +345,12 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
 				// Gtf file
 				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
+			} else if ((data.isContentTypeCompatitible("text/tab") && 
+					data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
+				// Cna file
+				interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data)));
 			}						
 		}
 

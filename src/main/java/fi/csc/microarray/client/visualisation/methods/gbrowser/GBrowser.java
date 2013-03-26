@@ -58,14 +58,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
@@ -576,18 +576,35 @@ public class GBrowser implements ComponentListener {
 
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 					analysis.setScrollEnabled(true);
+					
+					//Header has to be read to know the number of samples
+
+					RandomAccessLineDataSource cnaData;
 
 					try {
-
-						DataSource cnaData = new RandomAccessLineDataSource(dataUrl.getUrl());
-						CnaConversion conversion = new CnaConversion(cnaData, this);						
-						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion));
+						cnaData = new RandomAccessLineDataSource(dataUrl.getUrl());
+						CnaConversion conversion = new CnaConversion(cnaData, this);			
+						
+						cnaData.setLineReaderPosition(0);
+						String header = cnaData.getNextLine();
+						CnaLineParser parser = new CnaLineParser();
+						parser.setLine(header);
+						
+						LinkedList<String> internalSampleNames = parser.getSampleNames();
+						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl.getName());
+						
+						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
 					} catch (URISyntaxException e) {
 						reportException(e);
-					} 
+					} catch (IOException e) {
+						reportException(e);
+					} catch (GBrowserException e) {
+						reportException(e);
+					}						
+					
 					break;
 				default:
 					break;
@@ -608,7 +625,7 @@ public class GBrowser implements ComponentListener {
 		//i.e. when the Go button is pressed or if dataset switches are used  
 		plot.initializeTracks();
 	}
-	
+
 	/**
 	 * Create DataSource for SAM/BAM files
 	 * 
@@ -1044,6 +1061,18 @@ public class GBrowser implements ComponentListener {
 		//"~/.chipster/annotations/"
 		System.out.println("getLocalAnnotationDir not implemented");
 		return null;
+	}
+	
+	/**
+	 * Override this convert internal sample names to prety names in phenodata
+	 * 
+	 * @param internalSampleNames
+	 * @param dataName 
+	 * @return
+	 */
+	public LinkedList<String> getSampleNames(
+			LinkedList<String> internalSampleNames, String dataName) {
+		return internalSampleNames;
 	}
 
 	/**
