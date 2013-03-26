@@ -575,7 +575,10 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/
   ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/GenomeAnalysisTK2
 
- 	 	 	 	  	 	 	 	  	 	 	 	 
+  # tagcleaner, GPLv3
+  curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
+ 	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
+ 	 	 	 	  	 	 	 	  	 	 	 	  	 	 	  	 	 	 	  	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
