@@ -73,7 +73,7 @@ public class DerbyMetadataServer {
 	private static String SQL_DELETE_FILE  = "DELETE FROM " + SCHEMA + "." + FILE_DBTABLE + " WHERE uuid = ?";
 	
 	private static String SQL_INSERT_BELONGS_TO  = "INSERT INTO " + SCHEMA + "." + BELONGS_TO_DBTABLE + " (session_uuid, file_uuid) VALUES (?, ?)";
-	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM " + SCHEMA + "." + FILE_DBTABLE + " WHERE uuid = ?";
+	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM " + SCHEMA + "." + BELONGS_TO_DBTABLE + " WHERE session_uuid = ?";
 	
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " (username) VALUES (?)";
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " WHERE username = ?";
@@ -269,31 +269,36 @@ public class DerbyMetadataServer {
 	 */
 	public void removeSession(String uuid) throws SQLException {
 
-		// unwind dependency structure: sessions, belongs_to, files
-		// start by removing session
-		PreparedStatement sessionPs = connection.prepareStatement(SQL_DELETE_SESSION);
-		sessionPs.setString(1, uuid);
-		sessionPs.execute();
-		
-		// find files that will be orphaned by removing this session
+		// find data files that will orphaned (must be done before removing belongs_to)
 		PreparedStatement selectPs = connection.prepareStatement(SQL_SELECT_FILES_TO_BE_ORPHANED);
 		selectPs.setString(1, uuid);
+		selectPs.setString(2, uuid);
 		ResultSet uuidRs = selectPs.executeQuery();
 		LinkedList<String> orphanUuids = new LinkedList<String>();
 		while (uuidRs.next()) {
 			orphanUuids.add(uuidRs.getString(1));
 		}
-		
-		// remove links
+
+		// remove belongs_to (must be done before sessions and files)
 		PreparedStatement belongsToPs = connection.prepareStatement(SQL_DELETE_BELONGS_TO);
 		belongsToPs.setString(1, uuid);
 		belongsToPs.execute();
+
+		// remove session
+		PreparedStatement sessionPs = connection.prepareStatement(SQL_DELETE_SESSION);
+		sessionPs.setString(1, uuid);
+		sessionPs.execute();
 		
-		// remove linked orphaned files
+		// remove session file
+		PreparedStatement sessionFilePs = connection.prepareStatement(SQL_DELETE_FILE);
+		sessionFilePs.setString(1, uuid);
+		sessionFilePs.execute();
+		
+		// remove orphaned data files
 		for (String orphanUuid : orphanUuids) {
-			PreparedStatement filePs = connection.prepareStatement(SQL_DELETE_FILE);
-			filePs.setString(1, orphanUuid);
-			filePs.execute();
+			PreparedStatement dataFilePs = connection.prepareStatement(SQL_DELETE_FILE);
+			dataFilePs.setString(1, orphanUuid);
+			dataFilePs.execute();
 		}
 	}
 	
