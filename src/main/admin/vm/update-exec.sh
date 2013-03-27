@@ -481,8 +481,18 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo " ** Installing TagCleaner"
-  curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -sL http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
   ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
+
+  echo " ** Installing EMBOSS 6.5.7"
+  #curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+  #cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+  #./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
+  #make
+  #make install
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
+  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
+  
 
 fi
 

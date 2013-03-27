@@ -578,6 +578,14 @@ then
   # tagcleaner, GPLv3
   curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
  	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
+ 	
+ 	# EMBOSS, GPL
+  curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+  ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
+  make
+  make install
+  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
  	 	 	 	  	 	 	 	  	 	 	 	  	 	 	  	 	 	 	  	 	 	 	 
   ## Create checksums
   cd ${TOOLS_PATH}/
