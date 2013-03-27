@@ -388,6 +388,11 @@ public class SwingClientApplication extends ClientApplication {
 		restoreDefaultView();
 		enableKeyboardShortcuts();
 		
+		// check for warnings generated at earlier non-GUI stages
+		if (!getInitialisationWarnings().isEmpty()) {
+			showDialog("Missing tools", "Some tools were not loaded during the startup and they will not be shown in the tool lists. This suggests that there are technical problems with the server you are connected to.", getInitialisationWarnings(), Severity.WARNING, true);
+		}
+		
 		// check for session restore need
 		File mostRecentDeadTempDirectory = checkTempDirectories();
 		if (mostRecentDeadTempDirectory != null) {

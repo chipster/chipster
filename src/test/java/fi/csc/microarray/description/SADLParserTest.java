@@ -178,8 +178,9 @@ public class SADLParserTest {
 		Assert.assertTrue(parsedDescription.inputs().get(0).isOptional());
 		Assert.assertEquals(parsedDescription.inputs().get(1).getName().getPrefix(), "input2");
 		Assert.assertEquals(parsedDescription.inputs().size(), 4);
-		Assert.assertEquals(parsedDescription.parameters().size(), 2);
+		Assert.assertEquals(parsedDescription.parameters().size(), 3);
 		Assert.assertEquals(parsedDescription.parameters().get(1).getFrom(), "1");
+		Assert.assertEquals(parsedDescription.parameters().get(2).getDefaultValue(), "");
 		
 	}
 
@@ -215,12 +216,12 @@ public class SADLParserTest {
 		description.addOutput(new Output(Name.createName("metaoutput1", "metaoutput1"), false, true));
 		description.addParameter(new Parameter(Name.createName("parameter1", "parameter1"), ParameterType.DECIMAL, null, "1", "3", "2", "param comment 1"));
 		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("3")}, "1", "2", new String[]{"1", "2"}, "param comment 2"));
+		description.addParameter(new Parameter(Name.createName("parameter3", "parameter3"), ParameterType.STRING, null, null, null, "", "empty default value"));
 		return description;
 	}
 	
 	public static void main(String[] args) throws MicroarrayException, IOException, IllegalConfigurationException {
 		
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		new SADLParserTest().testParsing();
 		new SADLParserTest().testRoundtrip();
 		new SADLParserTest().testEscapes();
