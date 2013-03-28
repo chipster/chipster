@@ -53,8 +53,8 @@ public class DerbyMetadataServer {
 		{
 			BELONGS_TO_DBTABLE,
 			"CREATE TABLE " + SCHEMA + ". " + BELONGS_TO_DBTABLE + " (" + 
-					"session_uuid VARCHAR(200) CONSTRAINT session_foreign_key REFERENCES " + SCHEMA + ". " + SESSION_DBTABLE + "," +
-					"file_uuid VARCHAR(200) CONSTRAINT file_foreign_key REFERENCES " + SCHEMA + ". " + FILE_DBTABLE + ")"
+					"session_uuid VARCHAR(200)," +
+					"file_uuid VARCHAR(200))"
 		},
 		{
 			SPECIAL_USERS_DBTABLE,
@@ -279,27 +279,35 @@ public class DerbyMetadataServer {
 			orphanUuids.add(uuidRs.getString(1));
 		}
 
-		// remove belongs_to (must be done before sessions and files)
+		// remove session entry from db 
+		// ("entry point" is removed first, so if something fails, broken session entry is not left behind)
+		PreparedStatement sessionPs = connection.prepareStatement(SQL_DELETE_SESSION);
+		sessionPs.setString(1, uuid);
+		sessionPs.execute();
+
+		// remove belongs_to entry from db
 		PreparedStatement belongsToPs = connection.prepareStatement(SQL_DELETE_BELONGS_TO);
 		belongsToPs.setString(1, uuid);
 		belongsToPs.execute();
 
-		// remove session
-		PreparedStatement sessionPs = connection.prepareStatement(SQL_DELETE_SESSION);
-		sessionPs.setString(1, uuid);
-		sessionPs.execute();
-		
-		// remove session file
+		// remove session file entry from db (db before the actual file on filesystem)
 		PreparedStatement sessionFilePs = connection.prepareStatement(SQL_DELETE_FILE);
 		sessionFilePs.setString(1, uuid);
 		sessionFilePs.execute();
+
+		// remove session file from filesystem
+		// FIXME
 		
-		// remove orphaned data files
+		// remove orphaned data file entries from db
 		for (String orphanUuid : orphanUuids) {
 			PreparedStatement dataFilePs = connection.prepareStatement(SQL_DELETE_FILE);
 			dataFilePs.setString(1, orphanUuid);
 			dataFilePs.execute();
 		}
+		
+		// remove orphaned data file entries from filesystem
+		// FIXME
+
 	}
 	
 	
