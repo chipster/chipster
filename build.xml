@@ -3,7 +3,7 @@
 <project name="Chipster" default="package" basedir=".">
 	<description>
 		The Chipster server installation package (incl. clients and everything)
-    </description>
+    	</description>
 
 	<!-- get the environment variables -->
 	<property environment="env" />

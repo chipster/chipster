@@ -6,20 +6,19 @@
 	<title></title>
 </head>
 <body>
-	<h2>aCGH / Plot copy-number-induced gene expression</h2>
+	<h2>Copy number aberrations / Plot copy-number-induced gene expression</h2>
 	
 	<h3>Description</h3>
-	<p>Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.</p>
+	<p>Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
 		<li>Gene IDs of the genes to be plotted (...) [1]</li>
-		<li>Image width (200...3200) [600]</li>
-		<li>Image height (200...3200) [600]</li>
+		<li>Gene symbols of the genes to be plotted (...) [empty]</li>
 	</ul>
 	
 	<h3>Details</h3>
-	<p>For each gene, the arrays are divided into two groups either &quot;loss vs. no-loss (normals and gains)&quot; or &quot;no-gain (losses and normals) vs. gain&quot; depending on the amount of gains and losses for that particular gene. This tool plots the expression values of specified gene(s) across the two groups. Each array is plotted as a circle, and the center of the circle marks the expression level of the particular gene for that array. The diameter of the circle tells the probability of the particular copy number call (e.g. a large circle in the &quot;loss&quot; group means that for this particular array, a call for loss was made with high probability). Group averages are shown in red.</p>
+	<p>For each gene, the samples are divided into two groups either &quot;loss vs. no-loss (normals and gains)&quot; or &quot;no-gain (losses and normals) vs. gain&quot; depending on the amount of gains and losses for that particular gene. This tool plots the expression values of specified gene(s) across the two groups. Each sample is plotted as a circle, and the center of the circle marks the expression level of the particular gene for that sample. The diameter of the circle tells the probability of the particular copy number call (e.g. a large circle in the &quot;loss&quot; group means that for this particular sample, a call for loss was made with high probability). Group averages are shown in red.</p>
 	
 	<h3>Output</h3>
 	<p>An image showing the expression levels for the gene(s) of interest in the two groups defined by copy number.</p>

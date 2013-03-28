@@ -34,33 +34,33 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
+import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
@@ -178,6 +178,8 @@ public abstract class ClientApplication {
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 
+	private String initialisationWarnings = "";
+
 	public ClientApplication() {
 		this(false, null);
 	}
@@ -229,7 +231,7 @@ public abstract class ClientApplication {
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
-	        serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
+	        this.initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
 			this.toolModules.addAll(serviceAccessor.getModules());
 
 			// Add local modules also when in remote mode
@@ -822,5 +824,10 @@ public abstract class ClientApplication {
 		}
 		return null;
 	}
+	
+	public String getInitialisationWarnings() {
+		return initialisationWarnings;
+	}
+
 	
 }

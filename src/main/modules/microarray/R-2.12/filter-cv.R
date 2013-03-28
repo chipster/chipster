@@ -3,8 +3,8 @@
 # OUTPUT cv-filter.tsv: cv-filter.tsv 
 # PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage to filter out)
 
-
 # JTT, 14.1.2008
+# modified, IS, 16.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Parameter settings (default) for testing purposes
 #percentage.to.filter.out<-c(0.5)
@@ -16,8 +16,8 @@ percentage<-percentage.to.filter.out
 library(genefilter)
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- c('normalized.tsv')
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -39,5 +39,7 @@ sel<-(g.cv>quantile(g.cv,percentage,na.rm=TRUE))
 set<-dat[sel, ]
 
 # Saving the results
+options(scipen=10)
 write.table(data.frame(set), file=("cv-filter.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
 
+# EOF

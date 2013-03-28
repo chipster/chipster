@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT extract.tsv: extract.tsv 
-# OUTPUT META phenodata.tsv: phenodata.tsv 
+# OUTPUT META phenodata-extract.tsv: phenodata-extract.tsv 
 # PARAMETER column.extract: column.extract TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be extracted)
 
 # Extracts subset of samples from a dataset
@@ -17,65 +17,71 @@
 #
 # Modified to handle 2-color array data when extracting single sample.
 # MG, 17.6.2011
+#
+# Modified to be able to handle any matrices (chip, flag, ...) and annotation columns present in the data.
+# IS, 18.3.2013
 
 # Parameter settings (default) for testing purposes
 #column.extract<-"group"
 
 # Loads the data file
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
-
-# Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
-
-# Handle average columns for 2-color arrays
-dat_average <- dat[,grep("average", names(dat))]
-
-# Check if there is annotation info available and if so extract it
-annotations <- dat[,-c(grep("chip",names(dat)), grep("flag", names(dat)), grep("average", names(dat)))]
-if (length(annotations)>0) {
-	rownames(annotations) <- rownames(dat)
-}
+file <- c('normalized.tsv')
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 # Loads phenodata
-phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
 # Extract the data from the phenodata column
-extract<-phenodata[,pmatch(column.extract,colnames(phenodata))]
+extract <- as.vector(phenodata[,column.extract])
+extract[extract == ''] <- NA
 
 # If there are samples with missing values, extract the ones that do have values.
-if (length(extract[is.na(extract)])>0) {
-	extract[!is.na(extract)] <- 1
-	extract[is.na(extract)] <- 0
+if (sum(is.na(extract)) > 0) {
+  extract <- ifelse(is.na(extract), 0, 1)
 }
+
+extract <- as.integer(extract)
 
 # Sanity checks
 if(length(unique(extract))>2) {
 	stop("CHIPSTER-NOTE: You have specified more than two groups! You need to define exactly two groups.")
 }
-if(max(extract>1)) {
+if(max(extract)>1) {
 	stop("CHIPSTER-NOTE: The groups should be defined with values of 0 and 1! You have numbers larger than 1 in the definitions.")
 }
 
-# Extracting the samples
-dat3<-dat2[,which(extract==1)]
-if (dim(dat_average)[2]>0) {
-	dat3<-data.frame (dat2[,which(extract==1)], dat_average[,which(extract==1)])
-	colnames(dat3) <- c(names(dat2)[which(extract==1)], names(dat_average)[which(extract==1)])
-} 
-if(ncol(calls)>=1) {
-	calls2<-calls[,which(extract==1)]
+# identify different matrices (chip, flag, ...) present in the data
+x <- colnames(dat)
+suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
+matrices <- sub(suffix, '', x[grep(suffix, x)])
+annotations <- 1:length(x)
+for (m in matrices) {
+  annotations <- setdiff(annotations, grep(m, x))
 }
+
+dat2 <- dat[,annotations]
+
+for (m in matrices) {
+  dat2 <- cbind(dat2, dat[,grep(m, x), drop=FALSE][,extract==1, drop=FALSE])
+}
+
 phenodata2<-phenodata[which(extract==1),]
 
+# update aberration frequencies if present
+if ('loss.freq' %in% x) {
+  calls <- dat2[,grep('^flag\\.', colnames(dat2)), drop=FALSE]
+  dat2$loss.freq <- round(rowMeans(calls < 0), digits=3)
+  dat2$gain.freq <- round(rowMeans(calls == 1), digits=3)
+  if (2 %in% calls) {
+    dat2$amp.freq <- round(rowMeans(calls == 2), digits=3)
+  } else {
+    dat2$amp.freq <- NULL
+  }
+}
+
 # Writing the data to disk
-if (length(annotations)>0) {
-	dat3 <- data.frame(annotations,dat3)
-}
-if(ncol(calls)>=1) {
-	write.table(data.frame(dat3, calls2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-} else {
-	write.table(data.frame(dat3), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-}
-write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F, na='')
+options(scipen=10)
+write.table(dat2, file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(phenodata2, file="phenodata-extract.tsv", sep="\t", row.names=F, col.names=T, quote=F, na='')
+
+# EOF

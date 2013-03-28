@@ -12,6 +12,7 @@
 # JTT 27.6.2006
 #
 # modified by MG, 29.3.2010 to enable coloring by cluster feature 
+# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Parameter settings (default) for testing purposes
 do.pca.on<-c("chips")
@@ -24,8 +25,8 @@ pcaon<-do.pca.on
 expvar<-explained.variation
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -98,3 +99,5 @@ if (pcaon=="chips") {
 
 # Saving the PCs with data
 write.table(data.frame(dat4), "pca.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+# EOF
