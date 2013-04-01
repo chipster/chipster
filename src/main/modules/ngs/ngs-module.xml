@@ -332,7 +332,7 @@
 		</tool>
 	</category>
 
-	<category name="FAIRE-seq and DNAse-seq" color="#66CCFF">
+	<category name="FAIRE-seq and DNase-seq" color="#66CCFF">
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-fseq.R</resource>
 		</tool>
