@@ -500,6 +500,15 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/read_extend_bed.pm -o ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
   chmod 775 ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
 
+  echo " ** Installing R library zinba and dependencies"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/zinba.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/R.utils.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/doMC.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/foreach.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/multicore.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/quantreg.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
+
 fi
 
 
