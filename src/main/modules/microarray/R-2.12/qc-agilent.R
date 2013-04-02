@@ -1,14 +1,15 @@
 # TOOL qc-agilent.R: "Agilent 2-color" (Agilent quality control using boxplots, density plots, and MA plots. This tool should be run on normalized data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
-# OUTPUT boxplot.png: boxplot.png 
+# OUTPUT boxplot.pdf: boxplot.pdf 
 # OUTPUT densityplot.pdf: densityplot.pdf 
-# OUTPUT MA-plot.png: MA-plot.png 
+# OUTPUT OPTIONAL MA-plot.pdf: MA-plot.pdf 
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Quality control of Agilent chips
 # 15.1.2008 JTT
+# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Loads the libraries
 library(limma)
@@ -18,8 +19,8 @@ w<-image.width
 h<-image.height
 
 # Reads in the data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -29,7 +30,7 @@ A<-dat[,grep("average", names(dat))]
 # Producing some basic plots of the data
 
 # Boxplot
-bitmap(file="boxplot.png", width=w/72, height=h/72)
+pdf(file="boxplot.pdf", width=w/72, height=h/72)
 boxplot(as.data.frame(dat2), las=2, cex.axis=0.5)
 dev.off()
 
@@ -49,13 +50,17 @@ legend(legend=colnames(dat2), x="topright", lty=1, cex=0.75, col=c(1:ncol(dat2))
 dev.off()
 
 # MA plot
-bitmap(file="MA-plot.png", width=w/72, height=h/72)
-par(mfrow=c(ceiling(sqrt(ncol(dat2))), ceiling(sqrt(ncol(dat2)))))
-ylim<-c(min(na.omit(dat2)), max(na.omit(dat2)))
-for(i in 1:ncol(dat2)) {
-   par(mar=c(0, 1, 1, 0)+0.1)
-   plot(A[,i], dat2[,i], xaxt="n", xlab=NULL, ylab=NULL, main=paste("Chip", i, sep=" "), cex.main=0.75, cex.axis=0.7, cex.lab=0.75, tck=-0.01, mgp=c(3,0.2,0), ylim=ylim)
-   d<-na.omit(data.frame(A=A[,i], dat=dat2[,i]))
-   lines(lowess(d$A, d$dat), col="red")
+if (ncol(A) > 0) {
+  pdf(file="MA-plot.pdf", width=w/72, height=h/72)
+  par(mfrow=c(ceiling(sqrt(ncol(dat2))), ceiling(sqrt(ncol(dat2)))))
+  ylim<-c(min(na.omit(dat2)), max(na.omit(dat2)))
+  for(i in 1:ncol(dat2)) {
+    par(mar=c(0, 1, 1, 0)+0.1)
+    plot(A[,i], dat2[,i], xaxt="n", xlab=NULL, ylab=NULL, main=paste("Chip", i, sep=" "), cex.main=0.75, cex.axis=0.7, cex.lab=0.75, tck=-0.01, mgp=c(3,0.2,0), ylim=ylim)
+    d<-na.omit(data.frame(A=A[,i], dat=dat2[,i]))
+    lines(lowess(d$A, d$dat), col="red")
+  }
+  dev.off()
 }
-dev.off()
+
+# EOF

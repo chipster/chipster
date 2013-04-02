@@ -6,7 +6,7 @@
 	<title></title>
 </head>
 <body>
-	<h2>aCGH / Call copy number aberrations</h2>
+	<h2>Copy number aberrations / Call copy number aberrations</h2>
 	
 	<h3>Description</h3>
 	<p>Call copy number aberrations from segmented data (either aCGH log ratios, or log2-transformed NGS data).</p>
@@ -19,7 +19,7 @@
 	</ul>
 	
 	<h3>Details</h3>
-	<p>After normalizing and segmenting the log ratios, this tool is used to obtain discrete copy number levels with CGHcall. Calling of three copy number states means separating losses, normals and gains. Amplifications can also be detected separately as the fourth copy number state. For each probe, the frequencies of arrays exhibiting a loss/gain/amplification are also included.</p>
+	<p>After normalizing and segmenting the log ratios, this tool is used to obtain discrete copy number levels with CGHcall. Calling of three copy number states means separating losses, normals and gains. Amplifications can also be detected separately as the fourth copy number state. For each data point, the frequencies of arrays exhibiting a loss/gain/amplification are also included.</p>
 	<p>The input data must be segmented and contain these columns: chromosome, start, end.</p>
 	
 	<h3>Output</h3>

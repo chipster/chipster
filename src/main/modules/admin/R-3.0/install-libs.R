@@ -35,6 +35,11 @@ smart.install.packages(package="sm", mirror=repo.cran)
 smart.install.packages(package="rda", mirror=repo.cran)
 smart.install.packages(package="flexmix", mirror=repo.cran) ## required by WECCA
 smart.install.packages(package="MKmisc", mirror=repo.cran)
+smart.install.packages(package="multicore", mirror=repo.cran) # required by zinba
+smart.install.packages(package="doMC", mirror=repo.cran) # required by zinba
+smart.install.packages(package="foreach", mirror=repo.cran) # required by zinba
+smart.install.packages(package="quantreg", mirror=repo.cran) # required by zinba
+smart.install.packages(package="R.utils", mirror=repo.cran) # required by zinba
 
 
 # Install packages, and their dependencies, from Bioconductor
@@ -154,6 +159,7 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.54.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.30.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/zinba_2.01.tar.gz")
 
 
 # Install the whole annotation repository from Bioconductor

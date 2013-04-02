@@ -650,9 +650,11 @@ public class ToolPanel extends JPanel
 	public void setInfoText(String text, Color color, boolean enable) {
 		detailField.setForeground(color);
 		detailField.setText(text);
+		detailField.setCaretPosition(0);
 		
 		// Increases text margins if the scrollbar appears
 		updateDetailFieldMargin();
+		
 	}
 	
 	public void showToolInfoText() {

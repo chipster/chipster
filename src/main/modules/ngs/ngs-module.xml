@@ -118,6 +118,15 @@
         <tool runtime="R-2.12">
 			<resource>test-data-in-out.R</resource>
 		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-predict.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-statistics.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-trim.R</resource>
+		</tool>	
 	</category>
 
 	<category name="Matching sets of genomic regions" color="#e7881c">
@@ -314,7 +323,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-macs-two.R</resource>
-		</tool>
+		</tool>		
 		<tool runtime="R-2.12">
 			<resource>ngs-find-motifs-jaspar.R</resource>
 		</tool>
@@ -329,22 +338,39 @@
 		</tool>
 	</category>
 
+	<category name="FAIRE-seq and DNAse-seq" color="#66CCFF">
+		<tool runtime="R-2.12">
+			<resource>ngs-find-peaks-fseq.R</resource>
+		</tool>
+		<!--
+		<tool runtime="R-2.15">
+			<resource>ngs-find-peaks-zinba.R</resource>
+		</tool>
+		-->
+	</category>
+
 	<category name="CNA-seq" color="#a49900">
-		<tool runtime="R-2.12">
-			<resource>cna-bin-hits.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>cna-pool-bins.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>cna-define-experiment.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>cna-segment-and-call-aberrations.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>cna-plot-profile.R</resource>
-		</tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>cna-bin-hits.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>cna-define-experiment.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>cna-correct.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-normalize.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-profile.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>cna-segment.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-call-aberrations.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-identify-regions.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-cluster.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-group-test.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-survival-test.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-survival.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-pathways-go.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-match-probes.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-expression-test.R</resource></tool>	
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-add-cytobands.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
 	</category>
 
 	<category name="Methyl-seq" color="#83010b">

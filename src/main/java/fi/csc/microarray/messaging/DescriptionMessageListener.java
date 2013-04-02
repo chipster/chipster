@@ -9,8 +9,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
@@ -23,6 +21,7 @@ import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Tool;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
+import fi.csc.microarray.util.Exceptions;
 
 public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
@@ -36,6 +35,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
 
     private boolean[] isModuleLoaded;
 	private ModuleDescriptionMessage[] messages;
+	private String parseErrors = "";
     
     public DescriptionMessageListener(String[] requiredModules) {
         this.requiredModules = requiredModules;
@@ -48,12 +48,16 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
 	public Collection<ToolModule> getModules() {
 		return modules.values();
 	}
+	
+	public String getParseErrors() {
+		return this.parseErrors ;
+	}
 
     public void waitForResponse() {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            logger.warn("interrupted while waiting for descriptions message", e);
+            logger.warn("interrupted while waiting for latch", e);
         }
     }
     
@@ -75,14 +79,15 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     			// Are we done now?
     			if (isAllModulesLoaded()) {
 
-    				for (ModuleDescriptionMessage mdMsg : messages) {
-    	    			try {
-    	    				parseMessage(mdMsg);
-    	    			} catch (ParseException e) {
-    	    				logger.warn("parsing descriptions message failed", e);
-    	    			}
-    				}
+    				// prevent new messages from being processed
     				finished = true;
+
+    				// parse all messages we have collected
+    				for (ModuleDescriptionMessage mdMsg : messages) {
+    					parseMessage(mdMsg);
+    				}
+    				
+    				// release the latch
     				latch.countDown();
     			}
     		}
@@ -104,13 +109,14 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
      * @param descriptionMsg
      * @throws ParseException
      */
-    private void parseMessage(ModuleDescriptionMessage descriptionMsg) throws ParseException {
+    private void parseMessage(ModuleDescriptionMessage descriptionMsg) {
         
-        // Fetch descriptions from the ModuleDescriptionMessage
+        // get descriptions from ModuleDescriptionMessage
         List<Category> categories = descriptionMsg.getCategories();
         logger.debug("generating operations from " + categories.size() + " categories");
         ToolModule module = new ToolModule(descriptionMsg.getModuleName());
         
+        // create categories
         for (Category category : categories) {
             ToolCategory toolCategory = new ToolCategory(category.getName());
             toolCategory.setColor(category.getColor());
@@ -123,37 +129,43 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
             }
             logger.debug("added category " + toolCategory.getName());
             
-            // Create operation definitions for tools in this category
-            for (Tool tool : category.getTools()) {
-                
-                SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
-                
-                // this also has the side effecth of adding the new tool to the category, argh
-                OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
-                                                                            sadl.getName().getDisplayName(), toolCategory,
-                                                                            sadl.getComment(), true,
-                                                                            tool.getHelpURL());
-                for (Input input : sadl.inputs()) {
-                    if (input.getName().isNameSet()) {
-                        newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
-                    } else {
-                        newDefinition.addInput(input.getName(), input.getComment(), input.getType(), input.isOptional());
-                    }
-                }
-    
-                newDefinition.setOutputCount(sadl.outputs().size());
-                for (Parameter parameter : sadl.parameters()) {
-                    newDefinition.addParameter(fi.csc.microarray.client.
-                                               operation.parameter.Parameter.createInstance(
-                        parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
-                        parameter.getComment(), parameter.getFrom(), parameter.getTo(),
-                        parameter.getDefaultValues(), parameter.isOptional()));      
-                }
+            // create operation definitions for tools in this category
+            for (Tool tool : category.getTools()) {                
+            	try {            		
+            		// parse
+            		SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
+
+            		// create definition (also has the side effect of adding the new tool to the category, argh..)
+            		OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
+            				sadl.getName().getDisplayName(), toolCategory,
+            				sadl.getComment(), true,
+            				tool.getHelpURL());
+            		
+            		for (Input input : sadl.inputs()) {
+            			if (input.getName().isNameSet()) {
+            				newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());
+            			} else {
+            				newDefinition.addInput(input.getName(), input.getComment(), input.getType(), input.isOptional());
+            			}
+            		}
+
+            		newDefinition.setOutputCount(sadl.outputs().size());
+            		for (Parameter parameter : sadl.parameters()) {
+            			newDefinition.addParameter(fi.csc.microarray.client.
+            					operation.parameter.Parameter.createInstance(
+            							parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
+            							parameter.getComment(), parameter.getFrom(), parameter.getTo(),
+            							parameter.getDefaultValues(), parameter.isOptional()));      
+            		}
+            		
+            	} catch (Exception e) {
+            		logger.warn("parsing tool failed", e);
+            		this.parseErrors += "\n" + Exceptions.getStackTrace(e);
+            	}
+
             }
         }
         
         modules.put(module.getModuleName(), module);
-
-        logger.debug("operation generation returning successfully");
     }
 };
