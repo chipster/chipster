@@ -1,11 +1,11 @@
-# TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool provide means to find broad peaks, such as regions of open chromatin or transcription factor / histone binding sites from DNase, FAIRE or Chip-seq data. Peaks are identified by calculating a kernel density estimate centered at each sequence.) 
+# TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool will search for statistically significantly enriched broad peaks, such as regions of open chromatin or transcription factor / histone binding sites, in sequencing data. Peaks are identified by smoothing read count data to a continuous sequence density estimation-based probabilites that are directly proportional to the probability of seeing a sequence read at that location.) 
 # INPUT alignment.txt: "Read file" TYPE GENERIC 
 # OUTPUT peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists)
-# PARAMETER fragment.size: "Fragment length" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (The estimated fragment length of the sequencing library. If set to -1, F-seq estimates this on the fly. Estimation however requires at least 50000 mappable reads)
-# PARAMETER feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 600 (The estimated feature length. The parameter controls the sharpness of the probability density function estimate. Larger features will lead to smoother density estimates. In the case of DNase-seq, this parameter may be set to 0)
-# PARAMETER extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Extend alignments from 5' this much, typically to the fragment length)
+# PARAMETER score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists.)
+# PARAMETER fragment.size: "Fragment size" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (Fragment size of the sequencing library. Set to -1, if your data contains more than 50000 mappable reads, in which case the fragment size is inferred from data.)
+# PARAMETER feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. In the case of DNase-seq, set this parameter to 0.)
+# PARAMETER extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
 
 ######################################################
 #                                                    #
