@@ -47,6 +47,15 @@
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>tagcleaner-predict.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-statistics.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-trim.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -111,15 +120,6 @@
 		</tool>	
         <tool runtime="R-2.12">
 			<resource>test-data-in-out.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>tagcleaner-predict.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>tagcleaner-statistics.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>tagcleaner-trim.R</resource>
 		</tool>	
 	</category>
 
@@ -311,7 +311,7 @@
 		</tool>
 	</category>
 
-	<category name="ChIP-seq" color="#c0d2de">
+	<category name="ChIP-seq and FAIRE-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
@@ -330,18 +330,21 @@
 		<tool runtime="R-2.12">
 			<resource>pathways-ngs-hyperg-go.R</resource>
 		</tool>
-	</category>
-
-	<category name="FAIRE-seq and DNAse-seq" color="#66CCFF">
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-fseq.R</resource>
 		</tool>
-		<!--
+	</category>
+
+	<!--<category name="FAIRE-seq and DNAse-seq" color="#66CCFF">
+		<tool runtime="R-2.12">
+			<resource>ngs-find-peaks-fseq.R</resource>
+		</tool>
+		
 		<tool runtime="R-2.15">
 			<resource>ngs-find-peaks-zinba.R</resource>
 		</tool>
-		-->
-	</category>
+		
+	</category>-->
 
 	<category name="CNA-seq" color="#a49900">
 		<tool runtime="R-2.15_bioc-2.11"><resource>cna-bin-hits.R</resource></tool>
