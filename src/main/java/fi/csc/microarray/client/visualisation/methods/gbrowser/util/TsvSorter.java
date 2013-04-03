@@ -109,9 +109,10 @@ public class TsvSorter {
 			//First content line is already consumed. Open file again, but do not read content yet.
 			initReader.close();
 			initReader = new BufferedReader(new FileReader(infile));
+			
 			for (int i = 0; i < StringUtils.countOccurrencesOf(header, "\n"); i++) {
 				initReader.readLine();
-			}						
+			}					
 		}
 
 		// Create and sort chunks
