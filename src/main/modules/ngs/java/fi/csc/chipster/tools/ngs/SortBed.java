@@ -3,7 +3,7 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
@@ -47,7 +47,9 @@ public class SortBed extends JavaAnalysisJobBase {
 
 			// run sort
 			//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
-			new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
+			new TsvSorter().sort(
+					inputFile, outputFile, CHROMOSOME_NORMALISER,
+					BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal(), new BedLineParser(false));
 
 		} catch (Exception e) {
 			updateState(JobState.FAILED, e.getMessage());

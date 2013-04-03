@@ -16,14 +16,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -53,9 +52,8 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(GBrowserView view, DataSource file, long maxBpLength) {
+	public TranscriptTrack(long maxBpLength) {
 
-		super(view, file);
 		this.maxBpLength = maxBpLength;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
@@ -126,7 +124,7 @@ public class TranscriptTrack extends Track {
 				rect.height = 4;
 
 				// draw arrow
-				if (transcript.getRegion().getStrand() == Strand.REVERSED) {
+				if (transcript.getRegion().getStrand() == Strand.REVERSE) {
 					drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
 				} else {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
@@ -170,18 +168,24 @@ public class TranscriptTrack extends Track {
 					case STOP_CODON:
 						c = PartColor.CDS.c;
 						break;
+					case TRANSCRIPT:
+						c = null;
+						break;
 					default:
 						System.err.println("Gene description not recognised: " + feature);
-						c = Color.blue;
+						c = Color.gray;
 					}
 
+					
 					rect.x = getView().bpToTrack(exon.getRegion().start);
 					//End has to be increased by one, because the transcript includes the base at the end location
 					BpCoord exonEnd = new BpCoord(exon.getRegion().end.bp + 1, exon.getRegion().end.chr);
 					rect.width = getView().bpToTrack(exonEnd) - rect.x;
 					rect.height = 4;
 
-					geneDrawables.add(new RectDrawable(rect, c, null));
+					if (c != null) {
+						geneDrawables.add(new RectDrawable(rect, c, null));
+					}
 				}
 			}
 
@@ -210,7 +214,7 @@ public class TranscriptTrack extends Track {
 		for (RegionContent content : areaResult.getContents()) {
 
 			// Sorting is needed to draw partly overlapping genes in the same order every time
-			if (!areaResult.getStatus().concise && content.region.getStrand() == getStrand()) {
+			if (content.region.getStrand() == getStrand()) {
 
 				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
 				
@@ -236,17 +240,12 @@ public class TranscriptTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-				HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+				HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.VALUE })));
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 	
 	@Override

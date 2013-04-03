@@ -27,15 +27,19 @@ public class IndexedFastaHandlerThread extends AreaRequestHandler {
         data = (IndexedFastaDataSource) file;
     }
 
+	public IndexedFastaHandlerThread(IndexedFastaDataSource file) {
+		this(file, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new IndexedFastaFileFetcherThread(fileRequestQueue, fileResultQueue, this, data);
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	protected boolean checkOtherQueues() {
@@ -59,13 +63,13 @@ public class IndexedFastaHandlerThread extends AreaRequestHandler {
     	
 		super.processAreaRequest(areaRequest);
 		
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 			
-			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.getStatus());
 			fileRequestQueue.add(fileRequest);
 			return;
 		}
     	
-		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
     }
 }

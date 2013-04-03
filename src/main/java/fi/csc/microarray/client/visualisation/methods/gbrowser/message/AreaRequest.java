@@ -9,21 +9,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
  *
  */
 public class AreaRequest extends Region {
-
-	private static int MAX_RECURSION_DEPTH = 8;
 	
-	public FsfStatus status;
-	public Collection<ColumnType> requestedContents;
-	public int depthToGo;
-
-	/**
-	 * Constructs a new request with max depth available (no splits done yet).
-	 *  
-	 * @see #AreaRequest(Region, Collection, FsfStatus, int)
-	 */
-	public AreaRequest(Region region, Collection<ColumnType> requestedContents, FsfStatus status) {
-		this(region, requestedContents, status, MAX_RECURSION_DEPTH);
-	}
+	private DataRetrievalStatus status;
+	private Collection<ColumnType> requestedContents;
 	
 	/**
 	 * Constructs a new request. 
@@ -33,11 +21,10 @@ public class AreaRequest extends Region {
 	 * @param status				status				
 	 * @param depthToGo				counter for counting tree split depth
 	 */
-	public AreaRequest(Region region, Collection<ColumnType> requestedContents, FsfStatus status, int depthToGo) {
+	public AreaRequest(Region region, Collection<ColumnType> requestedContents, DataRetrievalStatus status) {
 		super(region.start, region.end);
 		this.requestedContents = requestedContents;
 		this.status = status;
-		this.depthToGo = depthToGo;
 	}
 	
 	/**
@@ -45,6 +32,14 @@ public class AreaRequest extends Region {
 	 */
 	@Override
 	public AreaRequest clone() throws CloneNotSupportedException {
-		return new AreaRequest(this, this.requestedContents, this.status.clone(), this.depthToGo);
+		return new AreaRequest(this, this.requestedContents, this.getStatus().clone());
+	}
+	
+	public DataRetrievalStatus getStatus() {
+		return status;
+	}
+	
+	public Collection<ColumnType> getRequestedContents() {
+		return requestedContents;
 	}
 }

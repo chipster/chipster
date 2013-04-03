@@ -133,8 +133,8 @@
 		    <fatjar.jarsource file="${lib}/jetty-util-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
-		    
+		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>		    
+			<fatjar.jarsource file="${lib}/spring.jar" relpath=""/>
 		    </fatjar.build>
 
 		<!-- sign it -->
