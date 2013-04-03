@@ -62,10 +62,10 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			super(null, data.getName());
 			this.bean = data;
 		}
-
-		@Override
-		public String getName() {
-			return bean.getName();
+		
+		public BeanDataFile(DataBean data, String name) {
+			super(null, name);
+			this.bean = data;
 		}
 		
 		/* (non-Javadoc)
@@ -253,9 +253,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		}
 		
 		@Override
-		public LinkedList<String> getSampleNames(LinkedList<String> sampleNames, String dataName) {
+		public LinkedList<String> getSampleNames(LinkedList<String> sampleNames, DataUrl dataUrl) {
 						
-			DataBean bean = Session.getSession().getDataManager().getDataBean(dataName);
+			DataBean bean = ((BeanDataFile)dataUrl).bean;
 			
 			try {
 				for (int i = 0; i < sampleNames.size(); i++) {
@@ -350,7 +350,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
 				// Cna file
-				interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data)));
+				interpretations.add(new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName())));
+				//interpretations.add(new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName() + " calls")));
+				//interpretations.add(new DataBeanInterpretation(TrackType.CNA_LOGRATIOS, new BeanDataFile(data, data.getName() + " logratios")));
 			}						
 		}
 

@@ -73,7 +73,7 @@ public class GBrowserStarter {
 //		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));		
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF2_DATA_FILE));
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF3_DATA_FILE));
-		Interpretation cna = new Interpretation(TrackType.CNA, CNA_DATA_FILE);
+		Interpretation cna = new Interpretation(TrackType.CNA_CALLS, CNA_DATA_FILE);
 		interpretations.add(cna);
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);

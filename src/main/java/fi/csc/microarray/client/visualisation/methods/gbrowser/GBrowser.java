@@ -97,7 +97,8 @@ public class GBrowser implements ComponentListener {
 		HIDDEN(false), 
 		VCF(true), 
 		GTF(true),
-		CNA(true);
+		CNA_CALLS(true), 
+		CNA_LOGRATIOS(true);
 
 		public boolean isToggleable;
 
@@ -513,7 +514,8 @@ public class GBrowser implements ComponentListener {
 				case REGIONS:
 				case VCF:
 				case GTF:
-				case CNA:
+				case CNA_CALLS:
+				case CNA_LOGRATIOS:
 					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
@@ -572,7 +574,9 @@ public class GBrowser implements ComponentListener {
 						reportException(e);
 					} 
 					break;
-				case CNA:
+					
+				case CNA_CALLS:
+				case CNA_LOGRATIOS:
 
 					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 					analysis.setScrollEnabled(true);
@@ -591,9 +595,12 @@ public class GBrowser implements ComponentListener {
 						parser.setLine(header);
 						
 						LinkedList<String> internalSampleNames = parser.getSampleNames();
-						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl.getName());
+						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl);
 						
-						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames));
+						boolean showCalls = (track.interpretation.type == TrackType.CNA_CALLS);
+						boolean showLogratios = (track.interpretation.type == TrackType.CNA_LOGRATIOS);
+						
+						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames, showCalls, showLogratios));
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -606,6 +613,7 @@ public class GBrowser implements ComponentListener {
 					}						
 					
 					break;
+
 				default:
 					break;
 				}				
@@ -874,7 +882,7 @@ public class GBrowser implements ComponentListener {
 				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
 				boolean isGtf = (interpretation.type == TrackType.GTF);
-				boolean isCna = (interpretation.type == TrackType.CNA);
+				boolean isCna = (interpretation.type == TrackType.CNA_CALLS);
 				
 				if (isBed || isVcf || isGtf || isCna) {
 										
@@ -1067,11 +1075,11 @@ public class GBrowser implements ComponentListener {
 	 * Override this convert internal sample names to prety names in phenodata
 	 * 
 	 * @param internalSampleNames
-	 * @param dataName 
+	 * @param dataUrl 
 	 * @return
 	 */
 	public LinkedList<String> getSampleNames(
-			LinkedList<String> internalSampleNames, String dataName) {
+			LinkedList<String> internalSampleNames, DataUrl dataUrl) {
 		return internalSampleNames;
 	}
 
