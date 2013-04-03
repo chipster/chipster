@@ -3,41 +3,74 @@
 
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
-<h2>Version update 2.4.2013: What is new in Chipster 2.5</h2>
+<h2>Version update 3.4.2013: What is new in Chipster 2.5</h2>
 
-<br>Chipster 2.5 contains new NGS data analysis tools, improvements to the genome browser and fixes and updates to some microarray data analysis tools. 
+<br>Chipster 2.5 contains a lot of new analysis and visualization functionality for NGS data and improvements to some microarray analysis tools. 
+The new NGS data analysis tools include the TagCleaner package, F-seq peak detection software,
+ and a large number of CNA-seq analysis tools kindly contributed by Ilari Scheinin (VU University Medical Center Amsterdam).
 
 <ol>
 
 <li><b>New NGS analysis tools</b></li>
 <ul>
-<li><a href="tagcleaner-predict.html">Utilities / Predict primers/adaptors</a>. This TagCleaner based tool allows you to get the adaptor sequences in your reads.</li>
-<li><a href="tagcleaner-statistics.html">Utilities / Statistics for primers/adaptors</a>. This TagCleaner based tool calculates the number of adaptor sequences found allowing for different numbers of mismatches.</li>
-<li><a href="tagcleaner-trim.html">Utilities / Trim primers/adaptors</a>. This TagCleaner based tool trims adaptors allowing for mismatches. </li><br>
-<li><a href="tagcleaner-trim.html">ChIP-seq and FAIRE-seq / Trim primers/adaptors</a>. .</li><br>
+<li><a href="ngs-find-peaks-fseq.html">ChIP-seq and FAIRE-seq / Find broad peaks using F-seq</a>. Searches for statistically significantly enriched broad peaks, such as regions of open chromatin.</li>
+<li><a href="tagcleaner-predict.html">Utilities / Predict primers/adaptors (TagCleaner)</a>. Predicts adaptor sequences in reads.</li>
+<li><a href="tagcleaner-statistics.html">Utilities / Statistics for primers/adaptors (TagCleaner)</a>. Calculates the number of adaptor sequences found allowing for different numbers of mismatches.</li>
+<li><a href="tagcleaner-trim.html">Utilities / Trim primers/adaptors (TagCleaner)</a>. Trims adaptors allowing for mismatches. </li>
+<li><a href="SortGtf.html">Utilities / Sort GTF</a>. Sorts GTF files based on chromosomal location.</li>
+<li><a href="SortVcf.html">Utilities / Sort VCF</a>. Sorts VCF files based on chromosomal location.</li>
+<li><a href="cna-correct.html">CNA-seq / Correct for GC content</a>. Takes the counts per bin for a CNA-seq data set and corrects them for GC content.</li>
+<li><a href="acgh-normalize.html">CNA-seq / Normalize copy number data</a>. Normalizes copy number data before segementation.</li>
+<li><a href="acgh-segment.html">CNA-seq / Segment copy number data</a>. Replaces the tool "Segment and call copy number aberrations".</li>
+<li><a href="acgh-call-aberrations.html">CNA-seq / Call aberrations from segmented copy number data</a>. Replaces the tool "Segment and call copy number aberrations".</li>
+<li><a href="acgh-identify-regions.html">CNA-seq / Identify common regions from called copy number data</a>. Reduces dimensionality of called copy number data by identifying common breakpoints.</li>
+<li><a href="acgh-plot-frequencies.html">CNA-seq / Plot copy number aberration frequencies</a>. Makes a frequency plot of copy number aberrations in each group.</li>
+<li><a href="acgh-cluster.html">CNA-seq / Cluster called copy number data</a>. Clusters samples based on copy number aberrations.</li>
+<li><a href="acgh-group-test.html">CNA-seq / Group tests for called copy number data</a>. Statistical tests between two or more groups for called copy number data.</li>
+<li><a href="acgh-survival-test.html">CNA-seq / Survival test for called copy number data</a>. Logrank test for survival with called copy number data.</li>
+<li><a href="acgh-plot-survival.html">CNA-seq / Plot survival curves for called copy number data</a>. Plot Kaplan-Meier survival curves for called copy number data.</li>
+<li><a href="acgh-convert-from-probes-to-genes.html">CNA-seq / Detect genes from called copy number data</a>. Converts data from bin-based to gene-based using chromosomal locations.</li>
+<li><a href="acgh-pathways-go.html">CNA-seq / GO enrichment for called gene copy numbers</a>. Hypergeometric test for enrichment of GO terms in frequently aberrated genes.</li>
+<li><a href="acgh-match-probes.html">CNA-seq / Match copy number and expression features</a>. Matches copy number and expression data using chromosomal locations.</li>
+<li><a href="acgh-plot-combined-profile.html">CNA-seq / Plot profiles of matched copy number and expression</a>. Plots profiles of two priorly matched data sets of copy number and expression.</li>
+<li><a href="acgh-expression-test.html">CNA-seq / Test for copy number induced expression changes</a>. Nonparametric testing for changes in expression induced by a change in DNA copy number.</li>
+<li><a href="acgh-plot-combined-expression.html">CNA-seq / Plot copy number induced gene expression</a>. Plots the expression level of individual genes for a copy number vs. expression comparison.</li>
+<li><a href="acgh-add-cytobands.html">CNA-seq / Add cytogenetic bands</a>. Adds cytogenetic band information using chromosome names and start/end base pair positions.</li>
+<li><a href="acgh-count-overlapping-cnvs.html">CNA-seq / Count overlapping CNVs</a>. Counts overlapping CNVs from the database of genomic variants.</li>
 </ul>
-
+<br>
 <li><b>Updates to NGS analysis tools</b></li>
 <ul>
-<li>Rat genome rn5 (Rnor_5.0) has been added to all the primers.</li>
+<li>Rat genome rn5 (Rnor_5.0) has been added to all aligners.</li>
 </ul>
-
+<br>
 <li><b>Genome browser improvements</b></li>
 <ul>
+<li>Support for GTF files: You can view GTF features in the browser as a separate track. You can also use a GTF file for rapidly navigating through a list of variants in the browser: 
+Open GTF file as a spreadsheet and detach it. Clicking on chromosome position in the spreadsheet navigates the browser to that position in the genome.</li>
+<li>Center line has been added.</li>
+<li>When viewing BAM files, it is not necessary to select the index file (.bai) if it has the same name.</li>
+<li>Rat genome rn5 (Rnor_5.0) has been added.</li>
+<li>Scrolling to the beginning of chromosome has been made easier.</li>
 <li>VCF files can be viewed also in the absence of BAM files.</li>
 <li>Reference sequence is shown also in the absence of BAM files.</li>
-<li>Scrolling to the beginning of chromosome has been made easier.</li>
-<li>Center line has been added.</li>
 <li>Coverage track shows SNP locations also when the viewing of reads is disabled.</li>
-<li>The problem with human MT reverse strand annotations has been fixed.</li>
-<li>Rat genome rn5 (Rnor_5.0) has been added.</li>
-</ul>
+<li>A bug in showing human MT reverse strand annotations has been fixed.</li>
 
+</ul>
+<br>
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li><a href="acgh-fetch-probe-positions-from-geo.html">Copy number aberrations / Fetch probe positions from GEO</a>. Fetches microarray probe positions from the GEO database.</li>
+<li><a href="acgh-normalize.html">Copy number aberrations / Normalize copy number data</a>. Normalizes copy number data before segementation.</li>
+<li><a href="acgh-plot-frequencies.html">Copy number aberrations / Plot copy number aberration frequencies</a>. Makes a frequency plot of copy number aberrations in each group.</li>
+</ul>
+<br>
 <li><b>Updates and bug fixes to microarray analysis tools</b></li>
 <ul>
-<li><u> / </u>. .</li>
-<li><u> / </u>. .</li>
-<li><u> / </u>. .</li>
+<li><u> Utilities / Merge tables</u>. Changed to cope better with descriptions incling line-feeds, quotes and other unusual characters.</li>
+<li><u> Normalization / Process prenormalised Affy</u>. Parameters "keep.flags" and "keep.annotations" have been added to control keeping data-specific flags and annotations.</li>
+<li><u> Normalization / Illumina</u>. Changes to parameter names.</li>
 </ul>
 </ol>
 <hr>

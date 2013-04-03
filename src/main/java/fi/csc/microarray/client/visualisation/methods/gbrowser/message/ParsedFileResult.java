@@ -17,9 +17,9 @@ public class ParsedFileResult {
 	private List<RegionContent> content;
 	private BpCoordFileRequest fileRequest;
 	public AreaRequest areaRequest;
-	private FsfStatus status;
+	private DataRetrievalStatus status;
 
-	public ParsedFileResult(List<RegionContent> content, BpCoordFileRequest fileRequest, AreaRequest areaRequest, FsfStatus status) {
+	public ParsedFileResult(List<RegionContent> content, BpCoordFileRequest fileRequest, AreaRequest areaRequest, DataRetrievalStatus status) {
 		this.content = content;
 		this.fileRequest = fileRequest;
 		this.areaRequest = areaRequest;
@@ -38,7 +38,7 @@ public class ParsedFileResult {
 		return content;
 	}
 
-	public FsfStatus getStatus() {
+	public DataRetrievalStatus getStatus() {
 		return status;
 	}
 

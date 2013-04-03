@@ -5,6 +5,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -23,8 +25,10 @@ import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataFile;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
@@ -50,15 +54,16 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	
 	private static final String ANNOTATIONS_PATH = "annotations";
 	
-	public static class BeanDataFile extends DataFile {
+	public static class BeanDataFile extends DataUrl {
 		
 		private DataBean bean;
 		
 		public BeanDataFile(DataBean data) {
-			super(null);
+			super(null, data.getName());
 			this.bean = data;
 		}
 
+		@Override
 		public String getName() {
 			return bean.getName();
 		}
@@ -68,12 +73,26 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 * 
 		 * @see fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser.DataFile#getInputStream()
 		 */
+		@Override
 		public InputStream getInputStream() throws IOException {
 			return bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
 		}
 
+		@Override
 		public File getLocalFile() throws IOException {
 			return Session.getSession().getDataManager().getLocalFile(bean);
+		}
+		
+		@Override
+		public URL getUrl() {
+			try {
+				return getLocalFile().toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 	}
 	
@@ -107,7 +126,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		}
 		
 		@Override
-		public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal) {
+		public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal, boolean closeBrowser) {
 			
 			Severity severity;
 			
@@ -125,7 +144,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 				detailsVisibility = DetailsVisibility.DETAILS_ALWAYS_HIDDEN;
 			}
 			
-			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);			
+			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);
+			
+			if (closeBrowser) {
+				application.setVisualisationMethod(VisualisationMethod.NONE, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+			}
 		}
 		
 		public void showVisualisation() {
@@ -169,15 +192,19 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
-				for (DataFile summaryData : interpretation.getSummaryDatas()) {
+				for (DataUrl summaryData : interpretation.getSummaryDatas()) {
 					initialiseUserData(summaryData);
 				}
 			}
 		}
 
-		protected void initialiseUserData(DataFile data) throws IOException {
+		protected void initialiseUserData(DataUrl data) throws IOException {
 			if (data != null) {				
-				data.getLocalFile();
+				try {
+					data.getLocalFile();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -278,19 +305,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
 		// Find interpretations for all primary data types
-		for (DataBean data : datas) {
+		for (DataBean data : datas) {		
 			
-			if (data.isContentTypeCompatitible("text/plain")) {
-				// ELAND result / export
-				interpretations.add(new DataBeanInterpretation(TrackType.READS, new BeanDataFile(data)));
-
-			} else if (data.isContentTypeCompatitible("text/bed")) {
+			if (data.isContentTypeCompatitible("text/bed")) {
 				// BED (ChIP-seq peaks)
 				interpretations.add(new DataBeanInterpretation(TrackType.REGIONS, new BeanDataFile(data)));
-
-			} else if (data.isContentTypeCompatitible("text/tab")) {
-				// peaks (with header in the file)
-				interpretations.add(new DataBeanInterpretation(TrackType.REGIONS_WITH_HEADER, new BeanDataFile(data)));
 
 			} else if ((data.isContentTypeCompatitible("application/bam"))) {
 				// BAM file
@@ -299,7 +318,10 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/vcf"))) {
 				// Vcf file
 				interpretations.add(new DataBeanInterpretation(TrackType.VCF, new BeanDataFile(data)));
-			}
+			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
+				// Gtf file
+				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
+			}						
 		}
 
 		// Find interpretations for all secondary data types
@@ -315,6 +337,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 
 			if (primaryInterpretation == null) {
+								
 				return null; // could not bound this secondary data to any primary data
 			}
 
@@ -336,10 +359,18 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		// Check that interpretations are now fully initialised
 		for (Interpretation interpretation : interpretations) {
 			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
-				return null; // BAM is missing BAI
+				
+				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				DataBean indexBean = application.getDataManager().getDataBean(indexName);
+				
+				if (indexBean == null) {
+				
+					return null; // BAM is missing BAI
+				} else {
+					interpretation.setIndexData(new BeanDataFile(indexBean));
+				}
 			}
 		}
-
 
 		return interpretations;
 	}

@@ -13,6 +13,7 @@ import java.util.List;
 import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.java.JavaAnalysisHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.util.IOUtils;
@@ -30,7 +31,7 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 	}
 
 	@Override
-	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws FileNotFoundException, IOException, URISyntaxException {
+	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws FileNotFoundException, IOException, URISyntaxException, GBrowserException {
 
 		// Add DB regions to inputs
 		File dbDirectory = new File(((JavaAnalysisHandler)this.analysis.getHandler()).getParameters().get("externalToolPath"), "genomic_regions");

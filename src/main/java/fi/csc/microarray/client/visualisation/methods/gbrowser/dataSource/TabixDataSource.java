@@ -18,9 +18,9 @@ public class TabixDataSource extends DataSource {
 
 	private TabixReader reader;
 
-    public TabixDataSource(URL tabixFile, URL tabixIndexFile, Class<? extends AreaRequestHandler> requestHandler) throws URISyntaxException, IOException {
+    public TabixDataSource(URL tabixFile, URL tabixIndexFile) throws URISyntaxException, IOException {
     	//TODO use the provided index instead of guessing
-        super(tabixFile, requestHandler);
+        super(tabixFile, null);
         
         String fileString = null;
         

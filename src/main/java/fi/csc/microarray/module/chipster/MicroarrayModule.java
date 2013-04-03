@@ -104,8 +104,10 @@ public class MicroarrayModule implements Module {
 		public static final TypeTag CHROMOSOME_IN_SECOND_TABLE_COLUMN = new TypeTag("chromosome-in-second-table-column", "second column of table is chromosome");
 		public static final TypeTag START_POSITION_IN_SECOND_TABLE_COLUMN = new TypeTag("start-position-in-second-table-column", "second column of table is start position");
 		public static final TypeTag START_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("start-position-in-third-table-column", "third column of table is start position");
+		public static final TypeTag START_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("start-position-in-fourth-table-column", "fourth column of table is start position");
 		public static final TypeTag END_POSITION_IN_THIRD_TABLE_COLUMN = new TypeTag("end-position-in-third-table-column", "third column of table is end position");
 		public static final TypeTag END_POSITION_IN_FOURTH_TABLE_COLUMN = new TypeTag("end-position-in-fourth-table-column", "fourth column of table is end position");
+		public static final TypeTag END_POSITION_IN_FIFTH_TABLE_COLUMN = new TypeTag("end-position-in-fifth-table-column", "fifth column of table is end position");
 	}
 	
 	public static class VisualisationMethods {
@@ -272,8 +274,8 @@ public class MicroarrayModule implements Module {
 				VisualisationMethods.EXPRESSION_PROFILE,
 				VisualisationMethods.CLUSTERED_PROFILES,
 				VisualisationMethods.VENN_DIAGRAM,
-				VisualisationMethods.GBROWSER,
-				VisualisationMethods.SAMBAM_VIEWER
+				VisualisationMethods.SAMBAM_VIEWER,
+				VisualisationMethods.GBROWSER
 		};
 	}
 
@@ -559,7 +561,9 @@ public class MicroarrayModule implements Module {
 				data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN));  //1
 		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN) ||
 				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)); //2
-		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)||
+				data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)); //3
+		flags.add(data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)); //4
 		
 		for (int i = 4; i < columns.getColumnCount(); i++) {
 			flags.add(false);
@@ -576,30 +580,58 @@ public class MicroarrayModule implements Module {
 		final String START_KEY = "start";
 		final String END_KEY = "end";
 		
+		
+		//Chromosome
+		int chrColumn = -1;
+		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN)) {
-			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[0]));
+			chrColumn = 0;
 		}
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
+			chrColumn = 1;
+		}
+		
+		if (chrColumn != -1) {
+			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[chrColumn]));
+		}
+		
+		//Start
+		int startColumn = -1;
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN)) {
-			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[1]));
-		}
-		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
-			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[2]));
-		}
-		
-		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN)) {
-			entity.put(CHR_KEY, columns.getStringValue(columns.getColumnNames()[1]));
+			startColumn = 1;
 		}
 		
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN)) {
-			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[2]));
+			startColumn = 2;
+		}
+
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+			startColumn = 3;
+		}
+
+		if (startColumn != -1) {
+			entity.put(START_KEY, columns.getStringValue(columns.getColumnNames()[startColumn]));
 		}
 		
-		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
-			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[3]));
+		//End
+		int endColumn = -1;
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
+			endColumn = 2;
 		}
+
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+			endColumn = 3;
+		}
+		
+		if (data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN)) {
+			endColumn = 4;
+		}
+		
+		if (endColumn != -1) {
+			entity.put(END_KEY, columns.getStringValue(columns.getColumnNames()[endColumn]));
+		}		
 
 		return entity;
 	}
@@ -610,10 +642,29 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("application/cel")) {
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		}
+		
+		if (data.isContentTypeCompatitible("text/tab")) {
+			// Some special tags for the tsv output of tool Annotate variants
+			
+			String line = readFirstLine(data);
+			String[] split = line.split("\t");
+			if (split.length > 4 && 
+					"SEQNAMES".equals(split[1]) && 
+					"START".equals(split[2]) && 
+					"END".equals(split[3])) {
+
+				data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
+				data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
+				data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+			}
+		}
 
 		if (data.isContentTypeCompatitible("text/gtf")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+			data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
+			data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN);				
+			data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN);				
 			addTypeTagIfHashHeader(data);
 		}
 		

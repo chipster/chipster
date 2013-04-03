@@ -27,7 +27,7 @@ public class IndexedFastaDataSource extends DataSource {
         this.dataUrl = data;
         this.indexUrl = index;
         
-		ChunkDataSource dataSource = new ChunkDataSource(dataUrl, null, null);
+		ChunkDataSource dataSource = new ChunkDataSource(dataUrl, null);
 		LineDataSource indexSource = new LineDataSource(indexUrl, null);
 
 		picard = new ChipsterIndexedFastaSequenceFile(dataSource, indexSource);

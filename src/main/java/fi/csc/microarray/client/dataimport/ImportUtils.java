@@ -37,7 +37,7 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri KlemelŠ
+ * @author Petri Klemelï¿½
  */
 public class ImportUtils {
 
@@ -277,13 +277,16 @@ public class ImportUtils {
 		if (!application.isStandalone()) {
 			List<ImportItem> files = importSession.getInputFiles();
 			
-			// bam sam and bed go always to preprocess dialog
+			// bam sam bed gtf and vcf go always to preprocess dialog
 			boolean allBamSamOrBed = true;
+
 			for (ImportItem file : files) {
 				if (!file.getInputFilename().toLowerCase().endsWith(".bam") &&
 					!file.getInputFilename().toLowerCase().endsWith(".bai") &&
 					!file.getInputFilename().toLowerCase().endsWith(".sam") &&
-					!file.getInputFilename().toLowerCase().endsWith(".bed")) {
+					!file.getInputFilename().toLowerCase().endsWith(".bed") &&
+					!file.getInputFilename().toLowerCase().endsWith(".gtf") &&
+					!file.getInputFilename().toLowerCase().endsWith(".vcf")) {
 					allBamSamOrBed = false;
 					break;
 				}
