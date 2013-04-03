@@ -3,13 +3,14 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
@@ -22,6 +23,8 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class LocalNGSPreprocess implements Runnable {
+	
+	private static final Logger logger = Logger.getLogger(LocalNGSPreprocess.class);
 
 	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
@@ -95,6 +98,7 @@ public class LocalNGSPreprocess implements Runnable {
 				
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			throw new RuntimeException(e);
 		}
 	}

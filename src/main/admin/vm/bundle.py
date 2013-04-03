@@ -43,6 +43,8 @@ def install_bundle(name, version):
     # If version not given get the latest compatible
     if not version:
         version = max(get_compatible_bundle_versions(name))
+    elif version not in get_compatible_bundle_versions(name):
+        raise Exception("Bundle version not compatible or doesn't exist!")
     explode_bundle(name, version)
     installed_bundles[name] = version
     save_installed_bundles(installed_file)
@@ -65,9 +67,11 @@ def update_bundle(name, n_version):
         n_version = max(get_compatible_bundle_versions(name))
     if n_version == o_version:
         raise Exception("Bundle already this version!")
-    remove_bundle(name)
-    install_bundle(name, n_version)
-    # transform_bundle(name, o_version, n_version)
+    # remove_bundle(name)
+    # install_bundle(name, n_version)
+    transform_bundle(name, o_version, n_version)
+    installed_bundles[name] = n_version
+    save_installed_bundles(installed_file)
 
 def is_bundle_installed(name):
     if name in installed_bundles:
@@ -221,21 +225,38 @@ def remove_file(dst):
     print("Removed:", dst)
 
 def transform_bundle(bundle, o_version, n_version):
+    '''
+    Transform an installed bundle version to another version
+    
+    Functionality:
+        remove = delete files, w/o network traffic needed
+        move = move/rename files, w/o network traffic needed
+        add = explode package(s) containing new files, w/ network traffic needed
+    '''
+    def get_package_name_values(tuple, bundle, version):
+        print("get_package_name_values:", tuple, bundle, version)
+        for key, values in get_available_bundle_version(bundle, version)["packages"].items():
+            for file in values["files"]:
+                if file["source"] == tuple[0] and file["destination"] == tuple[1]:
+                    print("found:", (key, file["source"], file["destination"]))
+                    return key, values
+    
     add, rm, mv = diff_bundle(bundle, o_version, n_version)
     
     print("add", add)
     print("rm", rm)
     print("mv", mv)
     
-    # install_file(src, dst)
-    for a in add:
-        print(a)
-    
     for r in rm:
-        remove_file(r[1])
-        remove_tree(r[1])
+        print(r)
+        dst = r[1]
+        if not os.path.isabs(dst):
+            dst = installation_path + dst
+        remove_file(dst)
+        remove_tree(dst)
     
     for m in mv:
+        print(m)
         src = m[0]
         dst = m[1]
         if not os.path.isabs(src):
@@ -247,7 +268,13 @@ def transform_bundle(bundle, o_version, n_version):
             if e.errno == 2: print(e)
             else: raise
     
-    print("Bundle", name, o_version, "has transformed into", n_version, "!")
+    for a in add:
+        print(a)
+        pkg_name, pkg_values = get_package_name_values(a, bundle, n_version)
+        print(pkg_name, pkg_values)
+        explode_package(pkg_name, pkg_values)
+    
+    print("Bundle", bundle, o_version, "has transformed into", n_version, "!")
 
 def implode_package(pkg_name, pkg_values):
     print("pkg_name:", pkg_name)
