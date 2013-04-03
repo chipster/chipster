@@ -315,8 +315,7 @@ public class SessionSaver {
 			writeSourceCodesToZip(zipOutputStream);
 			
 			// close the zip stream
-			zipOutputStream.flush();
-//			zipOutputStream.close();
+			zipOutputStream.close();
 		} 
 		
 		catch (Exception e) {
