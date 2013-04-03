@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,13 +54,16 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
-			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
 
 			rect.x = bpToTrack(highlight.start);
-			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
-			rect.height = 24;
+			rect.width = Math.max(3, bpToTrack(highlight.end) - rect.x);
+			rect.height = 20;
+						
+			g.setPaint(new Color(0, 0, 0, 64));
 			g.fill(rect);
+			g.setPaint(new Color(0, 0, 0, 255));
+			g.draw(rect);
 		}
 	}
 

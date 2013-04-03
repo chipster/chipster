@@ -3,23 +3,28 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilStateListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class LocalNGSPreprocess implements Runnable {
+	
+	private static final Logger logger = Logger.getLogger(LocalNGSPreprocess.class);
 
 	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
@@ -36,10 +41,6 @@ public class LocalNGSPreprocess implements Runnable {
 			return chromosomeName;
 		}
 	};
-
-	private static TsvParser[] parsers = {
-			new ElandParser()
-	};
 	
 	private Task task;
 	
@@ -48,15 +49,6 @@ public class LocalNGSPreprocess implements Runnable {
 	}
 	
 	public static String getSADL() {
-		
-		StringBuffer fileFormats = new StringBuffer();
-		for (int i = 0; i < parsers.length; i++) {
-			fileFormats.append(parsers[i].getName() + ": " + parsers[i].getName());
-			
-			if (i < parsers.length - 1) {
-				fileFormats.append(", ");
-			}
-		}
 		
 //		String description = "Chipster genome browser is able to show BAM and BED files. BAM files need to be " + 
 //		"sorted and indexed, and Chipster can perform this preprocessing for you.\n\n " +
@@ -67,7 +59,7 @@ public class LocalNGSPreprocess implements Runnable {
 
 				"<p>-SAM files: yes</p>" +
 				"<p>-BAM files: yes, unless your file is already sorted and you have an index file for it</p>" +
-				"<p>-BED files: yes, unless your file is already sorted</p>";
+				"<p>-BED, GTF and VCF files: yes, unless your file is already sorted</p>";
 		
 		
 		return 	"TOOL LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
@@ -86,7 +78,16 @@ public class LocalNGSPreprocess implements Runnable {
 				String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
 				
 				if ("bed".equals(extension)) {
-					preprocessBed(dataManager, inputFile);
+					preprocess(dataManager, inputFile, "bed", new BedLineParser(false), 
+							BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal());
+					
+				} else if ("gtf".equals(extension)) {
+					preprocess(dataManager, inputFile, "gtf", new GtfLineParser(), 
+							GtfLineParser.Column.SEQNAME.ordinal(), GtfLineParser.Column.START.ordinal());
+					
+				} else if ("vcf".equals(extension)) {
+					preprocess(dataManager, inputFile, "vcf", new VcfLineParser(), 
+							VcfLineParser.Column.CHROM.ordinal(), VcfLineParser.Column.POS.ordinal());
 					
 				} else if ("bai".equals(extension)) {
 					preprocessBai(dataManager, inputFile);
@@ -97,6 +98,7 @@ public class LocalNGSPreprocess implements Runnable {
 				
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -156,27 +158,28 @@ public class LocalNGSPreprocess implements Runnable {
 		dataManager.getRootFolder().addChild(indexOutputBean);
 	}
 	
-	private void preprocessBed(DataManager dataManager, File inputFile) throws Exception {
+	private void preprocess(DataManager dataManager, File inputFile, String fileExtension, TsvLineParser lineParser, int chrColumn, int startColumn) throws Exception {
 		
-		String outputName = generateFilename(inputFile, "bed");
+		String outputName = generateFilename(inputFile, fileExtension);
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
-		//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
-		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
+		new TsvSorter().sort(
+				inputFile, outputFile, CHROMOSOME_NORMALISER, 
+				chrColumn, startColumn, lineParser);
 		
-		// Create outputs in the client
-		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
-		
-		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
-		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
-		dataManager.getRootFolder().addChild(outputBean);
+		createOutput(dataManager, outputName, outputFile);
 	}
 
 	private void preprocessBai(DataManager dataManager, File inputFile) throws Exception {
 		String outputName = inputFile.getName();		
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 		
+		createOutput(dataManager, outputName, outputFile);
+	}
+	
+	private void createOutput(DataManager dataManager, String outputName,
+			File outputFile) throws MicroarrayException {
 		// Create outputs in the client
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
@@ -184,5 +187,4 @@ public class LocalNGSPreprocess implements Runnable {
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
-	
 }

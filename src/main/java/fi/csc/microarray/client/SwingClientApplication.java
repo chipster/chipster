@@ -1592,7 +1592,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * 
 	 * @param useSameSettings
 	 * 
-	 * @param file
+	 * @param areaRequestHandler
 	 */
 	public void openImportTool(ImportSession importSession) {
 		ImportScreen importScreen = (ImportScreen) childScreens.get("Import");

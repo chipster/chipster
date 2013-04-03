@@ -8,7 +8,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
  */
 public enum Strand {
 	FORWARD, 
-	REVERSED, 
+	REVERSE, 
 	BOTH,
 	NONE,
 	UNRECOGNIZED;
@@ -18,7 +18,7 @@ public enum Strand {
 		switch (this) {
 		case FORWARD:
 			return "+";
-		case REVERSED:
+		case REVERSE:
 			return "-";
 		default:
 			return super.toString();

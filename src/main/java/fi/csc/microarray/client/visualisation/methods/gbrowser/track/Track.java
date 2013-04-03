@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
@@ -28,25 +28,28 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 
 	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
 	protected GBrowserView view;
-	protected DataSource file;
+	protected AreaRequestHandler areaRequestHandler;
 	protected Strand strand = Strand.FORWARD;
 	protected int layoutHeight;
 	protected boolean visible = true;
 	protected LayoutMode layoutMode = LayoutMode.FIXED;
-	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;
-	
-    public Track(GBrowserView view, DataSource file) {
-		this.view = view;
-		this.file = file;
-	}
+	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;	
+
+	public void setView(GBrowserView view) {
+    	this.view = view;
+    }
+    
+    public void setAreaRequestHandler (AreaRequestHandler areaRequestHandler) {
+    	this.areaRequestHandler = areaRequestHandler;
+    }
 
 	/**
 	 * Should be called after Track object is created, but can't be merged to constructor, because the coming areaResult event could cause
 	 * call to track object before it's constructed.
 	 */
 	public void initializeListener() {
-		if (file != null) {
-			view.getQueueManager().addResultListener(file, this);
+		if (areaRequestHandler != null) {
+			view.getQueueManager().addResultListener(areaRequestHandler, this);
 		} 
 	}
 
@@ -66,7 +69,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * Check if this track has data.
 	 */
 	public boolean hasData() {
-	    return file != null;
+	    return areaRequestHandler != null;
 	}
 	
     /**
@@ -75,12 +78,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
      * 
      * Can also return null if this track does not need any data.
      */
-	public abstract Map<DataSource, Set<ColumnType>> requestedData();
-
-	/**
-	 * If track is concised, it is not showing exact data but approximations calculated from the data.
-	 */
-	public abstract boolean isConcised();
+	public abstract Map<AreaRequestHandler, Set<ColumnType>> requestedData();
 
 	/**
 	 * Utility method, return empty Drawable collection.
@@ -134,7 +132,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * false otherwise.
 	 */
     public boolean isReversed() {
-        return strand == Strand.REVERSED;
+        return strand == Strand.REVERSE;
     }
     
     /**

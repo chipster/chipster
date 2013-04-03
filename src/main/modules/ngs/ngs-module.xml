@@ -108,7 +108,13 @@
 		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortBed</resource>
-		</tool>	
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.SortGtf</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.SortVcf</resource>
+		</tool>		
 		<tool runtime="R-2.12">
 			<resource>bedtools-slopbed.R</resource>
 		</tool>	

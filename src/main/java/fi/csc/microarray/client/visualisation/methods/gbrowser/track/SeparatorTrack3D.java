@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
 /**
  * 3D line that separates real tracks.
@@ -34,8 +33,9 @@ public class SeparatorTrack3D extends SeparatorTrack {
 	}
 	
 	
-	public SeparatorTrack3D(GBrowserView view, long minBpLength, long maxBpLength, boolean reversed) {
-		super(view, minBpLength, maxBpLength);
+	public SeparatorTrack3D(long minBpLength, long maxBpLength, boolean reversed) {
+		
+		super(minBpLength, maxBpLength);
 		this.reversed = reversed;
 	}
 
