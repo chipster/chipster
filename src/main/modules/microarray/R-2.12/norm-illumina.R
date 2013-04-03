@@ -1,24 +1,17 @@
-# TOOL norm-illumina.R: Illumina (Illumina preprocessing using individual files. Every file includes data for one array, i.e., the data that has been imported through Import tool. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# TOOL norm-illumina.R: Illumina (Normalization of Illumina data. The data needs to be imported to Chipster using the Import tool, which producdes one file for each sample. YOU HAVE TO SPECIFY THE CHIPTYPE.)
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER normalize.chips: normalize.chips TYPE [none: none, scale: scale, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER beadstudio.version: beadstudio.version TYPE [1: 1, 2: 2, 3: 3] DEFAULT 1 (BeadStudio version number)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-6v1: Human-6v1, HumanRef-8v1: HumanRef-8v1, Human-6v2: Human-6v2, HumanRef-8v2: HumanRef-8v2, Human-6v3: Human-6v3, HumanRef-8v3: HumanRef-8v3, Human-HT12: Human-HT12, Human-HT12v4: Human-HT12v4, Mouse-6v1.0a: Mouse-6v1.0a, MouseRef-8v1.0a: MouseRef-8v1.0a, Mouse-6v1.1: Mouse-6v1.1, MouseRef-8v1.1: MouseRef-8v1.1, Mouse-6v2: Mouse-6v2, MouseRef-8v2: MouseRef-8v2, RatRef-12: RatRef-12] DEFAULT empty ()
-# PARAMETER id.type: id.type TYPE [TargetID: TargetID, ProbeID: ProbeID] DEFAULT TargetID (Which annotations to use)
-# PARAMETER produce.flags: produce.flags TYPE [yes: yes, no: no] DEFAULT no (Automatic recoding of Detection-value as flags)
+# PARAMETER normalize.chips: "Normalization method" TYPE [none: none, scale: scale, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER beadstudio.version: "Illumina software version" TYPE [3: "GenomeStudio or BeadStudio 3", 2: "BeadStudio 2", 1: "BeadStudio 1"] DEFAULT 3 (Illumina software version)
+# PARAMETER chiptype: "Chip type" TYPE [empty: empty, Human-6v1: Human-6v1, HumanRef-8v1: HumanRef-8v1, Human-6v2: Human-6v2, HumanRef-8v2: HumanRef-8v2, Human-6v3: Human-6v3, HumanRef-8v3: HumanRef-8v3, Human-HT12: Human-HT12, Human-HT12v4: Human-HT12v4, Mouse-6v1.0a: Mouse-6v1.0a, MouseRef-8v1.0a: MouseRef-8v1.0a, Mouse-6v1.1: Mouse-6v1.1, MouseRef-8v1.1: MouseRef-8v1.1, Mouse-6v2: Mouse-6v2, MouseRef-8v2: MouseRef-8v2, RatRef-12: RatRef-12] DEFAULT empty ()
+# PARAMETER id.type: "Identifier type" TYPE [TargetID: TargetID, ProbeID: ProbeID] DEFAULT ProbeID (Which identifiers to use)
+# PARAMETER OPTIONAL produce.flags: "Produce flags" TYPE [yes: yes, no: no] DEFAULT no (Automatic recording of Detection-value as flags)
 
 # Illumina data preprocessing and normalization for separate files
 # JTT 17.10.2007
+# EK 3.4.2013 Changed parameter naming
 
-#normalize.chips<-"quantile"
-#beadstudio.version<-c(1)
-#chiptype<-"Human-6v1"
-#id.type<-"TargetID"
-#produce.flags<-"no"
-
-# PARAMETER produce.flags [yes, no] DEFAULT no (Automatic recoding of Detection-value as flags)
-# produce.flags<-c("no")
 
 # Loads the libraries
 library(limma)
