@@ -9,6 +9,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 public class Region implements Comparable<Region> {
 	public BpCoord start;
 	public BpCoord end;
+	
+	@Deprecated
 	public Strand strand;
 
 	public Region(BpCoord start, BpCoord end) {
@@ -16,12 +18,14 @@ public class Region implements Comparable<Region> {
 		this.end = end;
 	}
 	
+	@Deprecated
 	public Region(BpCoord start, BpCoord end, Strand strand) {
 		this.start = start;
 		this.end = end;
 		this.strand = strand;
 	}
 	
+	@Deprecated
 	public Region(Long start, Long end, Chromosome chr, Strand strand) {
 		this.start = new BpCoord(start, chr);
 		this.end = new BpCoord(end, chr);

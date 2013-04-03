@@ -38,7 +38,7 @@ public class FastaDataSource extends DataSource {
 
 	public void put(Chromosome chromosome, URL url) throws URISyntaxException {
 		try {
-			sources.put(chromosome, new ChunkDataSource(url, null, FastaHandlerThread.class));
+			sources.put(chromosome, new ChunkDataSource(url, FastaHandlerThread.class));
 		} catch (FileNotFoundException e) {
 			
 			e.printStackTrace();

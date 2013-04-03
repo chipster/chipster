@@ -8,208 +8,237 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Nucleotide;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
  * the number of nucleotides hitting each basepair location. Should look
- * similar to IntensityTrack, but is exact.
+ * similar to {@link CoverageEstimateTrack}, but is exact. Also shows where there are
+ * large amounts of SNP's as bars chart.
  * 
- * If track's strand is set to {@link Strand#BOTH}, two profiles are drawn, one for
- * each strand.
- *
- * @see IntensityTrack
+ * If reverseColor is not null, then strands are visualised separately and
+ * SNPs are disabled.
+ * 
  */
-public class CoverageTrack extends Track {
+public class CoverageTrack extends Track { 
 
 	private long maxBpLength;
 	private long minBpLength;
 
 	private Color forwardColor;
-	private Color backwardColor;
+	private Color reverseColor;
+
+	private boolean highlightSNP = false;
+
+	private BaseStorage theBaseCacheThang = new BaseStorage();
+	private AreaRequestHandler refFile;
+	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 
+	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refFile, 
+			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
 
-	public CoverageTrack(GBrowserView view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
-	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
-		super(view, file);
 		this.forwardColor = forwardColor;
-		this.backwardColor = backwardColor;
+		this.reverseColor = reverseColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.readpartProvider = readpartProvider;
+
+		setStrand(Strand.BOTH);
+		
+		this.refFile = refFile;
 	}
-	
+
+	@Override	
+	public void initializeListener() {
+		super.initializeListener();
+		
+		// Add listener for reference file
+		if (areaRequestHandler != null && refFile != null) {
+			view.getQueueManager().addResultListener(refFile, this);
+		}
+	}
+
 	/**
 	 * Get drawables for a collection of reads.
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Strand strand, Color color) {
-        Collection<Drawable> drawables = getEmptyDrawCollection();
-        
-        TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
-        Chromosome lastChromosome = null;
+	private Collection<Drawable> getDrawableReads(Strand dataStrand, Color color) {
+		
+		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		Iterable<ReadPart> readParts = readpartProvider.getReadparts(strand); 
+		Chromosome chr = getView().getBpRegion().start.chr;
+		
+		// If SNP highlight mode is on, we need reference sequence data
+		char[] refSeq = ReadPileTrack.getReferenceArray(refReads, view, Strand.FORWARD);
 
-		for (ReadPart element : readParts) {
+		// Count nucleotides for each location
+		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(dataStrand), view, refSeq); 
 
-			// Skip elements that are not in this view
-			if (!element.intersects(getView().getBpRegion())) {
-				continue;
+		// Count width of a single bp in pixels
+		float bpWidth = (float) (getView().getWidth() / getView().getBpRegionDouble().getLength());
+
+		// Count maximum y coordinate (the bottom of the track)
+		int bottomlineY = 0;
+
+		// prepare lines that make up the profile for drawing
+		Iterator<Base> bases = theBaseCacheThang.iterator();
+		
+		int previousValueY = 0;
+		int previousEndX = -1;
+		
+		//Line color is opaque
+		Color lineColor = new Color(color.getRGB(), false);
+
+		// draw lines for each bp region that has some items
+		while (bases.hasNext()) {
+			Base currentBase = bases.next();
+
+			float startX = getView().bpToTrackFloat(new BpCoord(currentBase.getBpLocation(), chr));
+			//Round together with position dividends to get the same result than where next block will start
+			int width = (int)(startX + bpWidth) - (int)startX;
+			int profileY = currentBase.getCoverage();
+			
+			int valueY = (int)(bottomlineY + profileY);
+			
+			drawables.add(new RectDrawable((int)startX, bottomlineY, width,  valueY, color, null));
+			
+			//Check if there was a gap between profile blocks
+			if (previousEndX < (int)startX) {
+				
+				//End last block with line
+				drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
+				
+				//Start next line from the bottom
+				previousValueY = 0;
 			}
 			
-			// Skip invisible types
-			if (!element.isVisible()) {
-				continue;
-			}
+			//Draw line between height difference of previous and current block
+			drawables.add(new LineDrawable((int)startX, previousValueY, (int)startX,  valueY, lineColor));
+			//Draw line on top of the current block
+			drawables.add(new LineDrawable((int)startX, valueY, (int)startX + width,  valueY, lineColor));
 
-			// collect relevant data for this read
-			BpCoord startBp = element.start;
-			BpCoord endBp = element.end;
-			lastChromosome = element.start.chr;
+			drawSNPBar(drawables, (int)bpWidth, bottomlineY, currentBase, (int)startX);
+			
+			previousValueY = valueY;
+			previousEndX = (int)startX + width;
+		}
+		
+		//End last block with line
+		drawables.add(new LineDrawable(previousEndX, bottomlineY, previousEndX,  previousValueY, lineColor));
 
-			int seqLength = (int) (endBp.minus(startBp) + 1);
+		return drawables;
+	}
 
-			for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
-				if (collector.containsKey(i)) {
-					collector.put(i, collector.get(i) + 1);
-				} else {
-					collector.put(i, 1L);
+	private void drawSNPBar(Collection<Drawable> drawables, int bpWidth, int bottomlineY, Base currentBase, int endX) {
+		
+		if (highlightSNP && currentBase.hasSignificantSNPs()) {
+			int y = bottomlineY;				
+
+			for (Nucleotide nt : Nucleotide.values()) {
+
+				int increment = currentBase.getSNPCounts()[nt.ordinal()];
+
+				if (increment > 0) {
+					Color c = GBrowserConstants.charColors[nt.ordinal()];
+
+					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, null));
+
+					y += increment;
 				}
 			}
 		}
-        
-        // width of a single bp in pixels
-        int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
-        
-        // maximum y coordinate
-        int baselineY = 0;
-
-        // prepare lines that make up the profile for drawing
-        Iterator<Long> bpLocations = collector.keySet().iterator();
-        if (bpLocations.hasNext()) {
-            Long lastBpLocation = bpLocations.next();
-            
-            // draw a line from the beginning of the graph to the first location
-            int startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
-            long startY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(0, baselineY,
-                    (int)(startX - bpWidth), baselineY, color));
-            drawables.add(new LineDrawable((int)(startX - bpWidth), baselineY,
-                    startX, (int)(baselineY + startY), color));
-
-            // draw lines for each bp region that has some items
-            while (bpLocations.hasNext()) {
-                Long currentBpLocation = bpLocations.next();
-
-                startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
-                startY = collector.get(lastBpLocation);
-                int endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
-                long endY = collector.get(currentBpLocation);
-                   
-                // TODO could be approximated using natural cubic spline interpolation,
-                //      then having a formula S(x) for each interval we could draw
-                //      several lines approximating the S(x)
-                
-                if (currentBpLocation - lastBpLocation == 1) {
-                    // join adjacent bp locations with a line
-                    drawables.add(new LineDrawable(startX, (int)(baselineY + startY),
-                            endX, (int)(baselineY + endY), color));
-                } else {
-                    // join locations that are more than one bp apart
-                    drawables.add(new LineDrawable((int)startX, (int)(baselineY + startY),
-                            (int)(startX + bpWidth), baselineY, color));
-                    drawables.add(new LineDrawable((int)(startX + bpWidth), baselineY,
-                            (int)(endX - bpWidth), baselineY, color));
-                    drawables.add(new LineDrawable((int)(endX - bpWidth), baselineY,
-                            (int)endX, (int)(baselineY + endY), color));
-                }
-                
-                lastBpLocation = currentBpLocation;
-            }
-
-            // draw a line from the last location to the end of the graph
-            int endX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
-            long endY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(endX, (int)(baselineY + endY),
-                    (int)(endX + bpWidth), baselineY, color));
-            drawables.add(new LineDrawable((int)(endX + bpWidth), baselineY,
-                    getView().getWidth(), baselineY, color));
-        }
-        
-        collector.clear();
-        
-        return drawables;
 	}
+
 
 	@Override
 	public Collection<Drawable> getDrawables() {
-        Collection<Drawable> drawables = getEmptyDrawCollection();
+		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
+		if (reverseColor == null) {
 
-        // add drawables from both reads (if present)
-		drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
-		drawables.addAll(getDrawableReads(Strand.REVERSED, backwardColor));
+			// add drawables according to sum of both strands
+			drawables.addAll(getDrawableReads(Strand.BOTH, forwardColor));
+			
+		} else {
+			
+			// add drawables of both strands separately
+			drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
+			drawables.addAll(getDrawableReads(Strand.REVERSE, reverseColor));
+
+		}
 
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
-		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
-	}
 
-    @Override
-    public int getHeight() {
-       	return 100;
-    }
-    
-    @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }
-    
-    @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
-        HashMap<DataSource, Set<ColumnType>> datas = new
-        HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-        		ColumnType.ID, 
-                ColumnType.SEQUENCE,
-                ColumnType.STRAND })));
-        return datas;
-    }
+		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
+		
+		// "Spy" on reference sequence data, if available
+		if (areaResult.getStatus().areaRequestHandler == refFile) {
+			this.refReads.addAll(areaResult.getContents());
+		}
+	}
 
 	@Override
-	public boolean isConcised() {
-		return false;
+	public int getHeight() {
+		return 100;
 	}
-	
+
+	@Override
+	public boolean isVisible() {
+		// visible region is not suitable
+		return (super.isVisible() &&
+				getView().getBpRegion().getLength() > minBpLength &&
+				getView().getBpRegion().getLength() <= maxBpLength);
+	}
+
+	@Override
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+		HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
+		
+		// We might also need reference sequence data
+		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
+			datas.put(refFile, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
+		}
+		
+		return datas;
+	}
+
 	/**
 	 * @see GBrowserView#drawView
 	 */
 	@Override
-    public boolean canExpandDrawables() {
-        return true;
-    }
-	
-	@Override
-	public String getName() {
-		return "ProfileTrack";
+	public boolean canExpandDrawables() {
+		return true;
+	}
+
+	public void enableSNPHighlight() {
+		// turn on highlighting mode
+		highlightSNP = true;
+	}
+
+	public void disableSNPHighlight() {
+		highlightSNP = false;
 	}
 }
