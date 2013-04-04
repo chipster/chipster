@@ -87,11 +87,10 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
 						
-				//Change chromosome 
-				overviewView.setBpRegion(new RegionDouble(-50*1000*1000.0d, 300*1000*1000.0d, bpRegion.start.chr), false);
+				//Change chromosome
+				//This region is bigger than real chromosomes and it will be limited to actual size of the chromosome
+				overviewView.setBpRegion(new RegionDouble(-50*1000*1000.0d, 300*1000*1000.0d, bpRegion.start.chr));
 				overviewView.highlight = bpRegion;
-				
-				overviewView.limitRegion();
 			}
 		});
 		
@@ -100,7 +99,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
 			@Override
 			public void regionChanged(Region bpRegion) {
-				dataView.setBpRegion(new RegionDouble(bpRegion), false);
+				dataView.setBpRegion(new RegionDouble(bpRegion));
 			}		
 		});
 		
@@ -124,7 +123,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 	 * @param length number of visible base pairs (zoom)
 	 */
 	public void start(String chromosome, Double chromosomeSizeBp, Long position, Long length) {
-		overviewView.setBpRegion(new RegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		overviewView.setBpRegion(new RegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)));
 		moveDataBpRegion(new Chromosome(chromosome), position, length);
 	}
 
@@ -141,7 +140,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 				new Double(moveToBp + (length/2)), 
 				moveToChr
 		);
-		dataView.setBpRegion(bpCoordRegion, false);
+		dataView.setBpRegion(bpCoordRegion);
 	}
 	
 	public void addDataRegionListener(RegionListener regionListener) {

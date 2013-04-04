@@ -130,7 +130,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 		RegionDouble newRegion = bpRegion.clone();
 		
 		newRegion.move(bpMove);
-		setBpRegion(newRegion, disableDrawing);
+		setBpRegion(newRegion);
 
 		if (!disableDrawing) {
 			parentPlot.redraw();
@@ -215,12 +215,12 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 										
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
-											setBpRegion(bpRegion, skipFrame);
+											setBpRegion(bpRegion);
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {
 											bpRegion.move(getBpRegion().getLength() / SPEED_DIVIDER);
-											setBpRegion(bpRegion, skipFrame);
+											setBpRegion(bpRegion);
 
 											if (!skipFrame) {
 												parentPlot.redraw();											

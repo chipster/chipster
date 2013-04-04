@@ -709,7 +709,7 @@ public class GBrowser implements ComponentListener {
 		//Set default location to plot to avoid trouble in track initialization. 
 		plot.getDataView().setBpRegion(new RegionDouble(
 				settings.getLocation() - settings.getViewSize() / 2.0, settings.getLocation() + settings.getViewSize() / 2.0, 
-				settings.getChromosome()), true);
+				settings.getChromosome()));
 		
 		plot.addDataRegionListener(settings);
 				

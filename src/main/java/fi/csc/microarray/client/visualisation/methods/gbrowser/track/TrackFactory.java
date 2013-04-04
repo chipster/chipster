@@ -150,7 +150,7 @@ public class TrackFactory {
 		}
 		
 		if (showCalls) {
-			TitleTrack title2 = new TitleTrack("loss frequency", Color.gray, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+			TitleTrack title2 = new TitleTrack("loss frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
 			title2.setView(view);
 			group.addTrack(title2);
 
@@ -159,10 +159,10 @@ public class TrackFactory {
 			lossFreq.setAreaRequestHandler(conversion);
 			group.addTrack(lossFreq);
 
-			TitleTrack title3 = new TitleTrack("gain frequency", Color.gray, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+			TitleTrack title3 = new TitleTrack("gain frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
 			title3.setView(view);
 			group.addTrack(title3);
-
+			
 			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
 			gainFreq.setView(view);
 			gainFreq.setAreaRequestHandler(conversion);
