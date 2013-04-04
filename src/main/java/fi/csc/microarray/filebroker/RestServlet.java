@@ -253,24 +253,7 @@ public class RestServlet extends DefaultServlet {
 	
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("RESTful file access: DELETE request for " + request.getRequestURI());
-		}
-		
-		File file = locateFile(request);
-		
-		if (!file.exists()) {
-			response.sendError(HttpURLConnection.HTTP_NOT_FOUND); // file not found
-			return;
-		} 
-		
-		boolean success = IO.delete(file); // actual delete operation
-		
-		if (success) {
-			response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
-		} else {
-			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // could not be deleted due to internal error
-		}
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
 	}
 	
 	@Override
