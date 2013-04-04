@@ -350,7 +350,12 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
 				
-				// Cna file				
+				// Cna file
+				
+				DataBeanInterpretation freqs = new DataBeanInterpretation(TrackType.CNA_FREQUENCIES, new BeanDataFile(data, data.getName()));
+				freqs.setName(data.getName() + " frequencies");
+				interpretations.add(freqs);
+				
 				DataBeanInterpretation calls = new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName()));
 				calls.setName(data.getName() + " calls");
 				interpretations.add(calls);
