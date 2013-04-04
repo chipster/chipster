@@ -267,8 +267,11 @@ public class DerbyMetadataServer {
 	 * @param uuid
 	 * @throws SQLException
 	 */
-	public void removeSession(String uuid) throws SQLException {
+	public List<String> removeSession(String uuid) throws SQLException {
 
+		// collect removed files so that they can be removed also physically
+		LinkedList<String> removed = new LinkedList<String>();
+		
 		// find data files that will orphaned (must be done before removing belongs_to)
 		PreparedStatement selectPs = connection.prepareStatement(SQL_SELECT_FILES_TO_BE_ORPHANED);
 		selectPs.setString(1, uuid);
@@ -290,24 +293,22 @@ public class DerbyMetadataServer {
 		belongsToPs.setString(1, uuid);
 		belongsToPs.execute();
 
-		// remove session file entry from db (db before the actual file on filesystem)
+		// remove session file entry from db and add to list of removed files
 		PreparedStatement sessionFilePs = connection.prepareStatement(SQL_DELETE_FILE);
 		sessionFilePs.setString(1, uuid);
 		sessionFilePs.execute();
-
-		// remove session file from filesystem
-		// FIXME
+		removed.add(uuid);
 		
-		// remove orphaned data file entries from db
+		
+		// remove orphaned data file entries from db and add to list of removed files
 		for (String orphanUuid : orphanUuids) {
 			PreparedStatement dataFilePs = connection.prepareStatement(SQL_DELETE_FILE);
 			dataFilePs.setString(1, orphanUuid);
 			dataFilePs.execute();
+			removed.add(orphanUuid);
 		}
-		
-		// remove orphaned data file entries from filesystem
-		// FIXME
 
+		return removed;
 	}
 	
 	
