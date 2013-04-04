@@ -26,26 +26,30 @@ public class ScatterplotTrack extends Track {
 
 	private Color color;
 	private int height;
+	private float minValue;
 	private float maxValue;
 
 	private ColumnType column = null;
 	private int floatListIndex;
 
-	public ScatterplotTrack(Color color, int height, float maxValue, ColumnType column, long minBpLength, long maxBpLength) {
+
+	public ScatterplotTrack(Color color, int height, float minValue, float maxValue, ColumnType column, long minBpLength, long maxBpLength) {
 
 		this.color = color;
 		this.height = height;
+		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.column = column;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;		
 	}
 
-	public ScatterplotTrack(Color color, int height, float maxValue,
+	public ScatterplotTrack(Color color, int height, float minValue, float maxValue,
 			int floatArrayIndex, int minBpLength, long maxBpLength) {
 		
 		this.color = color;
 		this.height = height;
+		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.floatListIndex = floatArrayIndex;
 		this.minBpLength = minBpLength;
@@ -58,10 +62,10 @@ public class ScatterplotTrack extends Track {
 
 		if (data != null) {
 			
-			if (getMinHeight() > 30) {
-				drawables.add(getRectDrawable(0, 17, 0, Color.gray));
+			if (getMinHeight() > 20) {
+				drawables.add(getRectDrawable(0, 17, minValue, Color.gray));
 				drawables.add(getRectDrawable(0, 17, maxValue, Color.gray));
-				drawables.add(new TextDrawable(1, 12, "0", Color.gray));
+				drawables.add(new TextDrawable(1, 12, "" + minValue, Color.gray));
 				drawables.add(new TextDrawable(1, height - TOP_MARGIN - 2, "" + maxValue, Color.gray));
 			}
 
@@ -92,7 +96,9 @@ public class ScatterplotTrack extends Track {
 					value = floatList.get(floatListIndex);
 				}
 				
-				drawables.add(getRectDrawable(x1, width, value, color));
+				if (value >= minValue && value <= maxValue) {
+					drawables.add(getRectDrawable(x1, width, value, color));
+				}
 			}
 		}
 
@@ -101,8 +107,7 @@ public class ScatterplotTrack extends Track {
 	
 	public RectDrawable getRectDrawable(int x1, int width, float value, Color color) {
 		
-		
-		int y = (int) (value / maxValue * (height - TOP_MARGIN - 2));
+		int y = (int) ((value - minValue) / (maxValue - minValue) * (height - TOP_MARGIN - 2));
 								
 		Rectangle rect = new Rectangle();
 

@@ -92,29 +92,33 @@ public class IndexedFastaFileFetcherThread extends Thread {
 	 */
 	public void fetchSequence(BpCoordFileRequest fileRequest) throws FileNotFoundException, URISyntaxException {
 
-		AreaRequest request = fileRequest.areaRequest;
+		Region requestRegion = new Region(fileRequest.areaRequest);
+		
+		if (requestRegion.start.bp < 1) {
+			requestRegion.start.bp = 1l;
+		}
 
 		List<RegionContent> responseList = new LinkedList<RegionContent>();
 
 		try {
 			
-			String chr = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
+			String chr = dataSource.getChromosomeNameUnnormaliser().unnormalise(requestRegion.start.chr);
 
 			//A few thousand byte buffer eliminates the need for downloading data on every frame. 
 			//Buffer has to be refreshed relatively rarely, maybe in 1 second intervals during heavy scrolling
-			if (buffer == null  || !buffer.contains(request.start.bp, request.end.bp, request.start.chr)) {
+			if (buffer == null  || !buffer.contains(requestRegion.start.bp, requestRegion.end.bp, requestRegion.start.chr)) {
 
-				long bufferStart = Math.max(request.start.bp - BUFFER_EXTRA, 0);
-				long bufferEnd = request.end.bp + BUFFER_EXTRA;				
+				long bufferStart = Math.max(requestRegion.start.bp - BUFFER_EXTRA, 0);
+				long bufferEnd = requestRegion.end.bp + BUFFER_EXTRA;				
 				
 				ReferenceSequence seq = dataSource.getPicard().getSubsequenceAt(chr, bufferStart, bufferEnd);
 				
-				buffer = new SequenceBuffer(new String(seq.getBases()), bufferStart, request.start.chr);
+				buffer = new SequenceBuffer(new String(seq.getBases()), bufferStart, requestRegion.start.chr);
 			}
 
-			String seqString = buffer.get(request.start.bp, request.end.bp, request.start.chr);
+			String seqString = buffer.get(requestRegion.start.bp, requestRegion.end.bp, requestRegion.start.chr);
 
-			Region recordRegion = new Region(request.start.bp, request.end.bp, request.start.chr);
+			Region recordRegion = new Region(requestRegion.start.bp, requestRegion.end.bp, requestRegion.start.chr);
 
 			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 			values.put(ColumnType.SEQUENCE, seqString);

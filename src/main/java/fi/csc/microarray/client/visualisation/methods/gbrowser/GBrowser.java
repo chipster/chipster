@@ -143,6 +143,7 @@ public class GBrowser implements ComponentListener {
 		private List<DataUrl> summaryDatas = new LinkedList<DataUrl>();
 		private DataUrl primaryData;
 		private DataUrl indexData;
+		private String name;
 
 		public Interpretation(TrackType type, DataUrl primaryData) {
 			this.type = type;
@@ -179,6 +180,18 @@ public class GBrowser implements ComponentListener {
 
 		public void setIndexData(DataUrl indexData) {
 			this.indexData = indexData;
+		}
+		
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public String getName() {
+			if (name != null) {
+				return name;
+			} else {
+				return primaryData.getName();
+			}
 		}
 	}
 
@@ -238,7 +251,7 @@ public class GBrowser implements ComponentListener {
 
 		for (int i = 0; i < interpretations.size(); i++) {
 			Interpretation interpretation = interpretations.get(i);
-			tracks.add(new TrackDefinition(interpretation.primaryData.getName(), interpretation));
+			tracks.add(new TrackDefinition(interpretation.getName(), interpretation));
 		}
 
 		// update the dataset switches in the settings panel

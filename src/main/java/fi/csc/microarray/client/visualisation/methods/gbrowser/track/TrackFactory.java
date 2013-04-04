@@ -120,11 +120,12 @@ public class TrackFactory {
 			
 			String name = sampleNames.get(i);
 
-			TitleTrack title = new TitleTrack(name, Color.gray);
-			title.setView(view);
-			group.addTrack(title);
-
 			if (showCalls) {
+				
+				TitleTrack title = new TitleTrack(name, Color.black);
+				title.setView(view);
+				group.addTrack(title);
+				
 				CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, i, Color.RED, 0, Long.MAX_VALUE);
 				flag.setView(view);
 				flag.setAreaRequestHandler(conversion);
@@ -136,36 +137,33 @@ public class TrackFactory {
 			}
 			
 			if (showLogratios) {
-				ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 10, 1.0f, i, 0, Long.MAX_VALUE);				
+				
+				TitleTrack title = new TitleTrack(name, Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+				title.setView(view);
+				group.addTrack(title);			
+				
+				ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 24, -1.0f, 1.0f, i, 0, Long.MAX_VALUE);				
 				logRatio.setView(view);
 				logRatio.setAreaRequestHandler(conversion);		
 				group.addTrack(logRatio);
-
-				SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
-				separator2.setView(view);
-				group.addTrack(separator2);
 			}
 		}
 		
 		if (showCalls) {
-			TitleTrack title2 = new TitleTrack("loss.freq", Color.gray);
+			TitleTrack title2 = new TitleTrack("loss frequency", Color.gray, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
 			title2.setView(view);
 			group.addTrack(title2);
 
-			ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 1.0f, ColumnType.LOSS, 0, Long.MAX_VALUE);
+			ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.LOSS, 0, Long.MAX_VALUE);
 			lossFreq.setView(view);
 			lossFreq.setAreaRequestHandler(conversion);
 			group.addTrack(lossFreq);
 
-			SeparatorTrack separator2 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
-			separator2.setView(view);
-			group.addTrack(separator2);
-
-			TitleTrack title3 = new TitleTrack("gain.freq", Color.gray);
+			TitleTrack title3 = new TitleTrack("gain frequency", Color.gray, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
 			title3.setView(view);
 			group.addTrack(title3);
 
-			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
+			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
 			gainFreq.setView(view);
 			gainFreq.setAreaRequestHandler(conversion);
 			group.addTrack(gainFreq);

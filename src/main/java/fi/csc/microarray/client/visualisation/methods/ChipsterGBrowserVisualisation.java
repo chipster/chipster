@@ -349,10 +349,15 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
-				// Cna file
-				interpretations.add(new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName())));
-				//interpretations.add(new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName() + " calls")));
-				//interpretations.add(new DataBeanInterpretation(TrackType.CNA_LOGRATIOS, new BeanDataFile(data, data.getName() + " logratios")));
+				
+				// Cna file				
+				DataBeanInterpretation calls = new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName()));
+				calls.setName(data.getName() + " calls");
+				interpretations.add(calls);
+				
+				DataBeanInterpretation logratios = new DataBeanInterpretation(TrackType.CNA_LOGRATIOS, new BeanDataFile(data, data.getName()));
+				logratios.setName(data.getName() + " log ratios");
+				interpretations.add(logratios);
 			}						
 		}
 

@@ -236,19 +236,19 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		}
 	}
 	
-	public long getMinBp(RegionDouble limitRegion) {
-		return (long) (-limitRegion.getLength() / 30);
+	public long getMinBp(long length) {
+		return (long) (-length / 30);
 	}
 	
-	public long getMaxBp(RegionDouble limitRegion) {
-		return (long) (limitRegion.getLength() * (1 + 1.0 / 30));
+	public long getMaxBp(long length) {
+		return (long) (length * (1 + 1.0 / 30));
 	}
 
 	public void setBpRegion(RegionDouble region, boolean disableDrawing) {				
 
 		this.bpRegion = region;
 		
-		limitedRegion();
+		limitRegion();
 
 		fireAreaRequests();
 		
@@ -532,45 +532,53 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			@Override
 			public void regionChanged(Region bpRegion) {
 				
-				limitedRegion();
+				limitRegion();
 				redraw();
 			}
 
 		});
 	}
 	
-	public void limitedRegion() {
+	public void limitRegion() {
 		
-		RegionDouble limitedRegion = this.bpRegion.clone();
-		
-		//Enable scrolling to minus coordinates for 1/30 of width to 
-		//make it easier to navigate to the beginning of chromosome  
-		long minBp = getMinBp(limitedRegion);
-		
-		if (limitedRegion.start.bp < minBp ) {
-			limitedRegion.move(minBp-limitedRegion.start.bp);
-		}
+		long maxBp = -1;
+		boolean isEndLimited = false;
 		
 		if (viewLimiter != null && viewLimiter.getLimit() != null) {
-			BpCoord maxBp = viewLimiter.getLimit();
-
-			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(bpRegion.start.chr) && maxBp != null && maxBp.bp != 0) {		
-				
-				//Little bit extra space to the end
-				maxBp.bp = getMaxBp(new RegionDouble(0d, (double)viewLimiter.getLimit().bp, viewLimiter.getLimit().chr));
-
-				if (limitedRegion.getLength() > maxBp.bp) {
-
-					limitedRegion.end.bp = (double)maxBp.bp;
-
-				} else if (limitedRegion.end.bp > maxBp.bp) {
-
-					double delta = limitedRegion.end.bp - maxBp.bp;
-					limitedRegion.move(-delta);
-				}
+			
+			BpCoord limit = viewLimiter.getLimit();
+			
+			if (limit.chr.equals(bpRegion.start.chr)) {
+				maxBp = getMaxBp(limit.bp);
 			}
+			
+		} 
+		
+		if (maxBp == -1) {
+			
+			maxBp = (long)(double)this.bpRegion.end.bp;
 		}
-
+				
+		RegionDouble limitedRegion = this.bpRegion.clone();
+		
+		if (limitedRegion.end.bp > maxBp) {
+			limitedRegion.move(maxBp - limitedRegion.end.bp);
+			isEndLimited = true;
+		}
+								
+		//Enable scrolling to minus coordinates for 1/30 of width to 
+		//make it easier to navigate to the beginning of chromosome  
+		long minBp = getMinBp((long) Math.min(maxBp,this.bpRegion.end.bp));
+		
+		if (limitedRegion.start.bp < minBp ) {
+			
+			if (isEndLimited) {
+				limitedRegion.start.bp = (double) minBp;				
+			} else {
+				limitedRegion.move(minBp-limitedRegion.start.bp);
+			}
+		}		
+		
 		this.bpRegion = limitedRegion;
 	}
 	

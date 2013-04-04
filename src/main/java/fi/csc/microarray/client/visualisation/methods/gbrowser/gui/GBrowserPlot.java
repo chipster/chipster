@@ -88,10 +88,10 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 			public void regionChanged(Region bpRegion) {
 						
 				//Change chromosome 
-				overviewView.setBpRegion(new RegionDouble(0d, 250*1000*1000.0d, bpRegion.start.chr), false);
+				overviewView.setBpRegion(new RegionDouble(-50*1000*1000.0d, 300*1000*1000.0d, bpRegion.start.chr), false);
 				overviewView.highlight = bpRegion;
 				
-				overviewView.limitedRegion();
+				overviewView.limitRegion();
 			}
 		});
 		
