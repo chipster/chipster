@@ -6,14 +6,14 @@
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-03-06
+# 2013-04-04
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
 # read input files
 file <- 'aberrations.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
+phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE, check.names=FALSE)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)

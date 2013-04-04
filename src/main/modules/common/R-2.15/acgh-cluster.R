@@ -6,13 +6,13 @@
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column to include in the output plot.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-04-04
 
 library(WECCA)
 
 file <- 'regions.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
+phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE, check.names=FALSE)
 
 dat$chromosome[dat$chromosome=='X'] <- '23'
 dat$chromosome[dat$chromosome=='Y'] <- '24'
