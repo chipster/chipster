@@ -9,11 +9,11 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-03-06
+# 2013-04-04
 
 file <- 'regions.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
+phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
 groupnames <- unique(phenodata[,column])
 groupnames <- groupnames[!is.na(groupnames)]
