@@ -1,6 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+
 
 /**
  * Result with content for some view area. The processing layer uses these results to send content back to view layer.
@@ -8,15 +13,15 @@ import java.util.List;
  */
 public class AreaResult {
 
-	private FsfStatus status;
+	private DataRetrievalStatus status;
 	private List<RegionContent> contents;
 
-	public AreaResult(FsfStatus status, List<RegionContent> contents) {
+	public AreaResult(DataRetrievalStatus status, List<RegionContent> contents) {
 		this.status = status;
 		this.contents = contents;
-	}
+	}	
 
-	public FsfStatus getStatus() {
+	public DataRetrievalStatus getStatus() {
 		return status;
 	}
 

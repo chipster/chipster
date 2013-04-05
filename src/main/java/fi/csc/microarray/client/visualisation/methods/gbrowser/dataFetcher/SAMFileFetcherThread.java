@@ -55,6 +55,8 @@ public class SAMFileFetcherThread extends Thread {
 	}
 
 	public void run() {
+		
+		this.setName(getClass().getName());
 
 		while (!poison) {
 			try {
@@ -83,10 +85,13 @@ public class SAMFileFetcherThread extends Thread {
 			return;
 		}
 		
-		if (fileRequest.areaRequest.status.concise) {
-			sampleToGetConcisedRegion(fileRequest);
-
-		} else {
+		boolean estimateRequest = fileRequest.areaRequest.getRequestedContents().contains(ColumnType.COVERAGE_ESTIMATE_FORWARD);
+		
+		if (estimateRequest) {
+			sampleToGetEstimateRegion(fileRequest);
+		}
+		
+		if (!estimateRequest) {
 			
 			// Process only new part of the requested area
 			// FIXME We rely on other layers to cache previous results, which is not very clean.
@@ -110,7 +115,7 @@ public class SAMFileFetcherThread extends Thread {
 						// Overlap inside request, do nothing, because would need splitting
 					}
 					
-					fileRequest.areaRequest = new AreaRequest(newRegion, request.requestedContents, request.status, request.depthToGo);
+					fileRequest.areaRequest = new AreaRequest(newRegion, request.getRequestedContents(), request.getStatus());
 				}
 				
 			}
@@ -156,30 +161,30 @@ public class SAMFileFetcherThread extends Thread {
 
 				RegionContent read = new RegionContent(recordRegion, values);
 
-				if (request.requestedContents.contains(ColumnType.ID)) {
+				if (request.getRequestedContents().contains(ColumnType.ID)) {
 					values.put(ColumnType.ID, record.getReadName());
 				}
 
-				if (request.requestedContents.contains(ColumnType.STRAND)) {
-					values.put(ColumnType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSED : Strand.FORWARD);
+				if (request.getRequestedContents().contains(ColumnType.STRAND)) {
+					values.put(ColumnType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD);
 				}
 
-				if (request.requestedContents.contains(ColumnType.QUALITY)) {
+				if (request.getRequestedContents().contains(ColumnType.QUALITY)) {
 					values.put(ColumnType.QUALITY, record.getBaseQualityString());
 				}
 
-				if (request.requestedContents.contains(ColumnType.CIGAR)) {
+				if (request.getRequestedContents().contains(ColumnType.CIGAR)) {
 					Cigar cigar = new Cigar(read, record.getCigar());
 					values.put(ColumnType.CIGAR, cigar);
 				}
 
 				// TODO Deal with "=" and "N" in read string
-				if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
+				if (request.getRequestedContents().contains(ColumnType.SEQUENCE)) {
 					String seq = record.getReadString();
 					values.put(ColumnType.SEQUENCE, seq);
 				}
 
-				if (request.requestedContents.contains(ColumnType.MATE_POSITION)) {
+				if (request.getRequestedContents().contains(ColumnType.MATE_POSITION)) {
 					
 					BpCoord mate = new BpCoord((Long)(long)record.getMateAlignmentStart(),
 							new Chromosome(record.getMateReferenceName()));
@@ -206,7 +211,7 @@ public class SAMFileFetcherThread extends Thread {
 		iterator.close();
 	}
 
-	private void sampleToGetConcisedRegion(BpCoordFileRequest request) {
+	private void sampleToGetEstimateRegion(BpCoordFileRequest request) {
 
 		BpCoord from = request.getFrom();
 		BpCoord to = request.getTo();
@@ -238,7 +243,13 @@ public class SAMFileFetcherThread extends Thread {
 
 		// Send result
 		LinkedList<RegionContent> content = new LinkedList<RegionContent>();
-		content.add(new RegionContent(new Region(from, to), countForward, countReverse));
+		
+		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+		values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, countForward);
+		values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE, countReverse);
+		
+		content.add(new RegionContent(new Region(from, to), values));
+		
 		ParsedFileResult result = new ParsedFileResult(content, request, request.areaRequest, request.getStatus());
 		fileResultQueue.add(result);
 		areaRequestThread.notifyAreaRequestHandler();

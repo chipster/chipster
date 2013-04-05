@@ -2,7 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
 
 /**
  * Request to {@link SAMFileFetcherThread}.
@@ -13,11 +13,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus
 public class BpCoordFileRequest {
 
 	public AreaRequest areaRequest;
-	private FsfStatus status;
+	private DataRetrievalStatus status;
 	private BpCoord from;
 	private BpCoord to;
 
-	public BpCoordFileRequest(AreaRequest request, BpCoord from, BpCoord to, FsfStatus status) {
+	public BpCoordFileRequest(AreaRequest request, BpCoord from, BpCoord to, DataRetrievalStatus status) {
 		this.areaRequest = request;
 		this.status = status;
 		this.from = from;
@@ -32,7 +32,7 @@ public class BpCoordFileRequest {
 		return to;
 	}
 
-	public FsfStatus getStatus() {
+	public DataRetrievalStatus getStatus() {
 		return status;
 	}
 }

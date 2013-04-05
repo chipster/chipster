@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * If track's strand is set to {@link Strand#BOTH}, two profiles are drawn, one for
  * each strand.
  *
- * @see IntensityTrack
+ * @see CoverageEstimateTrack
  */
 public class QualityCoverageTrack extends Track {
 
@@ -42,8 +42,8 @@ public class QualityCoverageTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(GBrowserView view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file);
+	public QualityCoverageTrack(Color forwardColor, long minBpLength, long maxBpLength) {
+
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -190,14 +190,12 @@ public class QualityCoverageTrack extends Track {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			// check that areaResult has same concised status (currently always false)
-			// and correct strand
-			if (areaResult.getStatus().concise == isConcised()) {
-				if (getStrand() == content.values.get(ColumnType.STRAND) || 
-						getStrand() == Strand.BOTH) {
+			// check that areaResult has 
+			// correct strand
+			if (getStrand() == content.values.get(ColumnType.STRAND) || 
+					getStrand() == Strand.BOTH) {
 
-					forwardReads.add(content);
-				}
+				forwardReads.add(content);
 			}
 		}
 		getView().redraw();
@@ -217,20 +215,15 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-		HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
+		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+		HashMap<AreaRequestHandler, Set<ColumnType>>();
+		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.ID, 
 				ColumnType.STRAND,
 				ColumnType.QUALITY,
 				ColumnType.CIGAR })));
 		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
 	}
 
 	/**

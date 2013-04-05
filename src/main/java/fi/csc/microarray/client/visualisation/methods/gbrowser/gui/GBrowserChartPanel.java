@@ -90,7 +90,7 @@ public class GBrowserChartPanel extends ChartPanel {
 	}
 
 	private GBrowserPlot plot;
-	//FIXME clean when visualization is closed
+
 	private Map<ScrollGroup, ScrollGroupBar> scrollBarsMap = new HashMap<ScrollGroup, ScrollGroupBar>();
 	//Preserves ScrollGroup order
 	private List<ScrollGroupBar> scrollBarsList = new LinkedList<ScrollGroupBar>();
@@ -239,10 +239,17 @@ public class GBrowserChartPanel extends ChartPanel {
 	 * @return
 	 */
 	public int getScrollValue(ScrollGroup scrollGroup) {
-		if (scrollBarsMap.containsKey(scrollGroup)) {
-			return scrollBarsMap.get(scrollGroup).getValue();
-		} else {
-			return 0;
-		}
+		if (scrollBarsMap.containsKey(scrollGroup)) {			
+			ScrollGroupBar bar = scrollBarsMap.get(scrollGroup);
+			
+			if (bar.isVisible()) {
+				return bar.getValue();
+			}
+		} 			
+		return 0;
+	}
+
+	public void clean() {
+		scrollBarsMap.clear();
 	}
 }

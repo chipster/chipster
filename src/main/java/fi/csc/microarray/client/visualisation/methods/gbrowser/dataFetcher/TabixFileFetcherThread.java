@@ -25,6 +25,8 @@ public abstract class TabixFileFetcherThread extends Thread {
 	protected boolean poison = false;
 
 	public void run() {
+		
+		this.setName(getClass().getName());
 
 		while (!poison) {
 

@@ -279,13 +279,15 @@ public class ImportUtils {
 		if (!application.isStandalone()) {
 			List<File> files = importSession.getInputFiles();
 			
-			// bam sam and bed go always to preprocess dialog
+			// bam sam bed gtf and vcf go always to preprocess dialog
 			boolean allBamSamOrBed = true;
 			for (File file : files) {
 				if (!file.getName().toLowerCase().endsWith(".bam") &&
 					!file.getName().toLowerCase().endsWith(".bai") &&
 					!file.getName().toLowerCase().endsWith(".sam") &&
-					!file.getName().toLowerCase().endsWith(".bed")) {
+					!file.getName().toLowerCase().endsWith(".bed") &&
+					!file.getName().toLowerCase().endsWith(".gtf") &&
+					!file.getName().toLowerCase().endsWith(".vcf")) {
 					allBamSamOrBed = false;
 					break;
 				}

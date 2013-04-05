@@ -249,8 +249,8 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
     	redraw();
     }
 
-	public void clean() {
-		chartPanel.removeTooltipRequestProcessor();
+	public void clean() {		
+		chartPanel.clean();
 		overviewView.clean();
 		dataView.clean();
 		dataView = null;

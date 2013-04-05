@@ -54,6 +54,8 @@ public class CytobandFileFetcherThread extends Thread {
 
 	public void run() {
 
+		this.setName(getClass().getName());
+		
 		while (!poison) {
 			try {
 
@@ -136,7 +138,7 @@ public class CytobandFileFetcherThread extends Thread {
 			resultList.add(new RegionContent(cband.getRegion(), values));
 		}
 
-		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.status);
+		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, request, request.getStatus());
 
 		fileResultQueue.add(result);		
 		areaRequestThread.notifyAreaRequestHandler();

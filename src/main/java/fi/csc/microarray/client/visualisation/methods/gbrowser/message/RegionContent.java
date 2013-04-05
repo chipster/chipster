@@ -20,19 +20,6 @@ public class RegionContent implements Comparable<RegionContent> {
 		this.values = values;
 	}
 
-	public RegionContent(Region region, Object concisedValue) {
-		this.region = region;
-		this.values = new LinkedHashMap<ColumnType, Object>();
-		this.values.put(ColumnType.VALUE, concisedValue);
-	}
-
-	public RegionContent(Region region, Object concisedValueForward,  Object concisedValueReverse) {
-		this.region = region;
-		this.values = new LinkedHashMap<ColumnType, Object>();
-		this.values.put(ColumnType.VALUE_FORWARD, concisedValueForward);
-		this.values.put(ColumnType.VALUE_REVERSE, concisedValueReverse);
-	}
-
 	public RegionContent(Region region) {
 		this.region = region;
 		this.values = new LinkedHashMap<ColumnType, Object>(); 

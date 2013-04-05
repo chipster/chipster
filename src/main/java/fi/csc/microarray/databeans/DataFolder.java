@@ -87,6 +87,9 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("text/gtf")) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
+				data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_FOURTH_TABLE_COLUMN);				
+				data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FIFTH_TABLE_COLUMN);				
 				addTypeTagIfHashHeader(data);
 			}
 			

@@ -42,7 +42,9 @@ public class IndexedFastaFileFetcherThread extends Thread {
 	}
 
 	public void run() {
-
+		
+		this.setName(getClass().getName());
+		
 		while (!poison) {
 			try {
 
@@ -71,9 +73,6 @@ public class IndexedFastaFileFetcherThread extends Thread {
 			poison = true;
 			return;
 		}
-
-
-		AreaRequest request = fileRequest.areaRequest;
 
 		fetchSequence(fileRequest);
 	}

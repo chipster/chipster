@@ -20,8 +20,9 @@ public class TooltipAugmentedChartPanel extends GBrowserChartPanel {
 		this.tooltipRequestProcessor = tooltipRequestProcessor;
 	}
 	
-	public void removeTooltipRequestProcessor() {
+	public void clean() {		
 		this.tooltipRequestProcessor = null;
+		super.clean();
 	}
 	
 	@Override

@@ -28,7 +28,7 @@ public class SAMDataSource extends DataSource {
      * Generally we would like to have both data and index files,
      * because otherwise we could not access random locations.
      * 
-     * @param file
+     * @param areaRequestHandler
      * @throws FileNotFoundException
      * @throws URISyntaxException 
      */
