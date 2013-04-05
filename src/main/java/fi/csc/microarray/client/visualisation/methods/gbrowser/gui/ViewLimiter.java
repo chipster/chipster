@@ -5,13 +5,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -19,21 +20,21 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class ViewLimiter implements RegionListener {
 
 	private QueueManager queueManager;
-	private CytobandDataSource cytobandDataSource;
+	private AreaRequestHandler cytobandDataSource;
 	private BpCoord limit;
 	
 	private List<RegionListener> limitChangeListeners = new LinkedList<RegionListener>();
 
 	/**
 	 * @param queueManager
-	 * @param cytobandDataSource
+	 * @param cytobandRequestHandler
 	 * @param view View to follow to notice chromosome changes
 	 */
-	public ViewLimiter(QueueManager queueManager, CytobandDataSource cytobandDataSource, GBrowserView view) {
+	public ViewLimiter(QueueManager queueManager, AreaRequestHandler cytobandRequestHandler, GBrowserView view) {
 		this.queueManager = queueManager;
-		this.cytobandDataSource = cytobandDataSource;
+		this.cytobandDataSource = cytobandRequestHandler;
 
-		queueManager.addResultListener(cytobandDataSource, new AreaResultListener() {
+		queueManager.addResultListener(cytobandRequestHandler, new AreaResultListener() {
 
 			@Override
 			public void processAreaResult(AreaResult areaResult) {
@@ -74,7 +75,7 @@ public class ViewLimiter implements RegionListener {
 			queueManager.addAreaRequest(
 					cytobandDataSource, new AreaRequest(new Region(0l, Long.MAX_VALUE, bpRegion.start.chr), 
 							new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.VALUE })), 
-							new FsfStatus()), false);
+							new DataRetrievalStatus()), false);
 		}
 	}
 

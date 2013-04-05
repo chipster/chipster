@@ -5,8 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 
@@ -20,10 +19,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListener {
         
     protected TabixIntensityTrack readOverviewSummary;
-	private TabixDataSource summaryDataSource;
+	private AreaRequestHandler summaryDataSource;
 
-    public ReadSummaryTrackGroup(GBrowserView view, DataSource userData, DataSource seqFile, String title, 
-    		TabixDataSource summaryDataSource) throws FileNotFoundException {
+    public ReadSummaryTrackGroup(GBrowserView view, AreaRequestHandler userData, AreaRequestHandler seqFile, String title, 
+    		AreaRequestHandler summaryDataSource) throws FileNotFoundException {
 
     	super(view, userData, seqFile, title);
     	this.summaryDataSource = summaryDataSource;
@@ -31,8 +30,10 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
 
     @Override
     protected void addReadOverviewTrack() {
-        readOverviewSummary = new TabixIntensityTrack(view, summaryDataSource, Color.black, 
+        readOverviewSummary = new TabixIntensityTrack(Color.black, 
         		GBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
+        readOverviewSummary.setView(view);
+        readOverviewSummary.setAreaRequestHandler(summaryDataSource);
         tracks.add(readOverviewSummary);
     }
 

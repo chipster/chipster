@@ -123,4 +123,9 @@ public class OverviewHorizontalView extends HorizontalView {
 			}
 		});
 	}
+	
+	@Override
+	public boolean isCursorLineEnabled() {
+		return false;
+	}
 }

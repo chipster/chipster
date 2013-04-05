@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 import java.util.Queue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
@@ -22,15 +23,19 @@ public class GtfTabixHandlerThread extends TabixHandlerThread {
 		super(file, areaRequestQueue, areaResultListener);
 	}
 
+	public GtfTabixHandlerThread(TabixDataSource gtfDataSource) {
+		this(gtfDataSource, null, null);
+	}
+
 	@Override
-	public synchronized void run() {
+	public void runThread() {
 
 		// Start file processing layer thread
 		fileFetcher = new GtfTabixFileFetcherThread(fileRequestQueue, fileResultQueue, this, dataSource);
 		fileFetcher.start();
 		
 		// Start this thread
-		super.run();
+		super.runThread();
 	}
 
 	@Override

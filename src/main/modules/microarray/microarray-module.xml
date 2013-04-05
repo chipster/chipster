@@ -94,7 +94,7 @@
 		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
-		<tool runtime="beanshell"><resource>annotate-cpdb.bsh</resource></tool>
+		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-reactome.bsh</resource></tool>
 	</category>
@@ -106,27 +106,30 @@
 		<tool runtime="R-2.12"><resource>promoter-retrprom.R</resource></tool>
 	</category>
 
-	<category name="aCGH" color="#c0d2de">
+	<category name="Copy number aberrations" color="#c0d2de">
+		<tool runtime="R-2.12"><resource>import-soft2.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-import-from-cangem.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-plot-profile.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-smooth.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-segment.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-call-aberrations.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-identify-regions.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-cluster.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-group-test.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-survival-test.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-plot-survival.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-pathways-go.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-match-probes.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-plot-combined-profile.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-expression-test.R</resource></tool>	
-		<tool runtime="R-2.12"><resource>acgh-plot-combined-expression.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-add-cytobands.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-update-aberration-frequencies.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-normalize.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-profile.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-smooth.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-segment.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-call-aberrations.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-identify-regions.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-cluster.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-group-test.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-survival-test.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-survival.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-pathways-go.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-match-probes.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-expression-test.R</resource></tool>	
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-fetch-probe-positions-from-geo.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-add-cytobands.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
 	</category>
 
 	<category name="Visualisation" color="#a49900">
@@ -144,6 +147,7 @@
 	<category name="Utilities" color="#83010b">
 		<tool runtime="R-2.12"><resource>search-correlation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>search-queryword.R</resource></tool>
+		<tool runtime="R-2.12"><resource>search-coordinates.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-datasets.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-clustering.R</resource></tool>

@@ -22,7 +22,7 @@ public class GeneRequest extends AreaRequest {
 				//chr is used only to optimize Gtf reading, every chromosome is search for the gene
 				new Region(0l, Long.MAX_VALUE, chr), 
 				new HashSet<ColumnType>(), 
-				new FsfStatus());
+				new DataRetrievalStatus());
 		
 		this.gene = gene;
 	}

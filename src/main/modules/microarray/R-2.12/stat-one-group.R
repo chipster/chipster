@@ -69,15 +69,36 @@ if(meth=="Wilcoxon") {
    p.raw<-p
 }
 
-# Multiple testing correction
-if(adj.method=="none") {
-   p.adjusted<-p.raw
-}
-if(adj.method!="none") {
-   p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-   p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+
+if(meth=="RankProd") {
+	library(RankProd)	
+	RPdata 	<- RP(scaled.dat2, cl=rep(0,ncol(scaled.dat2)), num.perm=100, logged=TRUE)
+	p.raw   <- cbind(RPdata$pval[,1],  RPdata$pval[,2]);
 }
 
+# Multiple testing correction
+if(meth=="RankProd") {
+	if(adj.method=="none") {
+		p.adjusted<-apply(p.raw, 1, min);
+	}
+	if(adj.method!="none") {
+		p.adjusted.1 <- mt.rawp2adjp(p.raw[, 1], adj.method)
+		p.adjusted.1 <- p.adjusted$adjp[order(p.adjusted$index),][,2]
+
+		p.adjusted.2 <- mt.rawp2adjp(p.raw[, 2], adj.method)
+		p.adjusted.2 <- p.adjusted$adjp[order(p.adjusted$index),][,2]
+		p.adjusted<-apply(cbind(p.adjusted.1, p.adjusted.2), 1, min);
+	}	
+} else {
+	if(adj.method=="none") {
+		p.adjusted<-p.raw
+	}
+	if(adj.method!="none") {
+		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+	}
+}
+	
 # Discarding p-values that do not fulfill the cutoff (p.cut)
 dat<-dat[p.adjusted<=p.cut,]   
 p.adjusted<-p.adjusted[p.adjusted<=p.cut]

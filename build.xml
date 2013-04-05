@@ -3,7 +3,7 @@
 <project name="Chipster" default="package" basedir=".">
 	<description>
 		The Chipster server installation package (incl. clients and everything)
-    </description>
+    	</description>
 
 	<!-- get the environment variables -->
 	<property environment="env" />
@@ -40,7 +40,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.4.0" />
+	<property name="release-version" value="2.4.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -80,7 +80,7 @@
 			<fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>			
 			<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
 			<!-- Viski has to be before jfreechart (maybe also before jcommon) 
         	to make it's files override ones from JFreeChart. -->
@@ -133,6 +133,7 @@
 			<fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/spring.jar" relpath=""/>
 		</fatjar.build>
 
 		<!-- sign it -->
@@ -185,6 +186,9 @@
 				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${admin-web}/WebContent/WEB-INF/lib-ivy">
+					<include name="**/*.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 
@@ -203,6 +207,8 @@
 			<fileset dir="${admin-web}/">
 				<include name="WebContent/**/*" />
 				<exclude name="WebContent/WEB-INF/lib/*" />
+				<exclude name="WebContent/WEB-INF/lib-ext/*" />
+				<exclude name="WebContent/WEB-INF/lib-ivy/*" />
 			</fileset>
 		</jar>
 	</target>

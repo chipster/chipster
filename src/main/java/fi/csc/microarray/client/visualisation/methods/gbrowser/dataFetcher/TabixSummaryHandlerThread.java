@@ -25,6 +25,10 @@ public class TabixSummaryHandlerThread extends AreaRequestHandler {
 		tabixData = (TabixSummaryDataSource) file;
 	}
 
+	public TabixSummaryHandlerThread(DataSource file) {
+		this(file, null, null);
+	}
+
 	/**
 	 * Handles normal and concised area requests by using TabixFile.
 	 */
@@ -34,12 +38,12 @@ public class TabixSummaryHandlerThread extends AreaRequestHandler {
 		//No other threads to poison, this one killed in parent class.
 		super.processAreaRequest(areaRequest);
 		
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 			return;
 		}
 		
 		try {
-			createAreaResult(new AreaResult(areaRequest.status, tabixData.getTabix().getReads(areaRequest)));
+			createAreaResult(new AreaResult(areaRequest.getStatus(), tabixData.getTabix().getReads(areaRequest)));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

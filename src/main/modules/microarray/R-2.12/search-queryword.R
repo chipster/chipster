@@ -10,6 +10,7 @@
 # JTT 4.7.2006
 #
 # modified, MG, 23.2.2010, to allow option to exclude query genes or chromosomes
+# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
 
 # Renaming variables
 meth<-search.for
@@ -32,8 +33,10 @@ if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata
 }
 
 # Loads data (which file to search)
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- 'normalized.tsv'
+dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
+
+options(scipen=10)
 
 if(meth=="rowname") {
 	if(mode=="include") dat2<-dat[grep(query, row.names(dat), invert=FALSE),]
@@ -66,6 +69,4 @@ if(meth=="ChromosomeLocation") {
    write.table(dat2, file="search.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-
-
-
+# EOF

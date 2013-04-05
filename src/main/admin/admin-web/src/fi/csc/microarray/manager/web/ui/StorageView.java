@@ -132,15 +132,17 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 							break;
 						}
 
-						//First case happens in initialisation, second if another view is chosen during the data update 
-						if (progressIndicator.getUI() != null && progressIndicator.getUI().getSession().getLock() != null ) {
+						//This happens in initialisation 
+						if (progressIndicator.getUI() != null ) {
+							
+							Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
 							
 							//Component has to be locked before modification from background thread
-							progressIndicator.getUI().getSession().getLock().lock();					
+							indicatorLock.lock();					
 							try {
 								progressIndicator.setValue((float)i/DELAY);
 							} finally {
-								progressIndicator.getUI().getSession().getLock().unlock();
+								indicatorLock.unlock();
 							}
 						}
 
@@ -154,12 +156,16 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 				} finally {
 					refreshButton.setEnabled(true);
 					
-					progressIndicator.getUI().getSession().getLock().lock();					
-					try {
-						progressIndicator.setValue(1.0f);
-						progressIndicator.setPollingInterval(Integer.MAX_VALUE);
-					} finally {
-						progressIndicator.getUI().getSession().getLock().unlock();
+					if (progressIndicator.getUI() != null) {
+						Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+
+						indicatorLock.lock();					
+						try {
+							progressIndicator.setValue(1.0f);
+							progressIndicator.setPollingInterval(Integer.MAX_VALUE);
+						} finally {
+							indicatorLock.unlock();
+						}
 					}
 				}
 			}
@@ -273,37 +279,42 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	public void entryUpdateDone() {
 					
 				
+		if (entryTable.getUI() != null) {
+			Lock entryTableLock = entryTable.getUI().getSession().getLockInstance();
+			entryTableLock.lock();
+			try {
 
-		Lock entryTableLock = entryTable.getUI().getSession().getLock();
-		entryTableLock.lock();
-		try {
+				entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
+				entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
 
-			entryTable.setVisibleColumns(StorageEntryContainer.NATURAL_COL_ORDER);
-			entryTable.setColumnHeaders(StorageEntryContainer.COL_HEADERS_ENGLISH);
-
-		} finally {
-			entryTableLock.unlock();
+			} finally {
+				entryTableLock.unlock();
+			}
 		}
 		
-		Lock aggregateTableLock = aggregateTable.getUI().getSession().getLock();
-		aggregateTableLock.lock();
-		try {						
-			StorageAggregate totalItem = aggregateDataSource.update(this);
-			
-			aggregateTable.select(totalItem);
-			aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-			aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+		if (aggregateTable.getUI() != null) {
+			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
+			aggregateTableLock.lock();
+			try {						
+				StorageAggregate totalItem = aggregateDataSource.update(this);
 
-		} finally {
-			aggregateTableLock.unlock();
+				aggregateTable.select(totalItem);
+				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
+				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+
+			} finally {
+				aggregateTableLock.unlock();
+			}
 		}
 		
-		Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLock();
-		proggressIndicatorLock.lock();
-		try {						
-			updateDiskUsageBar();
-		} finally {
-			proggressIndicatorLock.unlock();
+		if (progressIndicator.getUI() != null) {
+			Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+			proggressIndicatorLock.lock();
+			try {						
+				updateDiskUsageBar();
+			} finally {
+				proggressIndicatorLock.unlock();
+			}
 		}
 
 		this.updateDone = true;
