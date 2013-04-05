@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.4.0
+LATEST_VERSION=2.5.0
 
 # Exit immediately if some command fails
 set -e
@@ -414,8 +414,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 
-# 2.4.1, not released yet
-compare_to_current "2.4.1"
+# 2.5.0, not released yet
+compare_to_current "2.5.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
   echo "** Updating R-2.15, Bioconductor 2.11"

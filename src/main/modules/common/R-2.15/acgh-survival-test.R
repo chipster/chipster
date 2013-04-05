@@ -8,11 +8,11 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-04-04
 
 file <- 'regions.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
+phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
 
 first.data.col <- min(grep('^chip\\.', names(dat)), grep('^flag\\.', names(dat)))
 data.info <- dat[,1:(first.data.col-1)]
@@ -22,14 +22,14 @@ calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 prob <- TRUE
 try({
   library(CGHtestpar)
-  pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=survival, whstatus=status, lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
+  pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations, ncpus=4)
   fdrs <- fdrperm(pvs)
   prob <- FALSE
 }, silent=TRUE)
 # if problems, fall back to sequential computing
 if (prob) {
   library(CGHtest)
-  pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=survival, whstatus=status, lgonly=as.integer(test.aberrations), niter=number.of.permutations)
+  pvs <-  pvalstest_logrank(calls, data.info, dataclinvar=phenodata, whtime=which(colnames(phenodata) == survival), whstatus=which(colnames(phenodata) == status), lgonly=as.integer(test.aberrations), niter=number.of.permutations)
   fdrs <- fdrperm(pvs)
 }
 
