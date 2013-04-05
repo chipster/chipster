@@ -515,7 +515,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/
-
+  mv ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
 
 fi
 
