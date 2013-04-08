@@ -62,17 +62,19 @@ public class CnaFlagTrack extends Track {
 				Sample sample = row.getSamples().get(sampleIndex);
 				
 				Color color = Color.lightGray;
-				if (sample.getFlag() < 0) {
-					color = gainColor;
-				} else if (sample.getFlag() > 0) {
-					color = lossColor;					
+				if (sample.getFlag() != null) {
+					if (sample.getFlag() < 0) {
+						color = gainColor;
+					} else if (sample.getFlag() > 0) {
+						color = lossColor;					
+					}
+
+					int alpha = 255 - (int) Math.min(1.0, (Math.abs(sample.getFlag())) * 255.0);
+
+					Color aColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+
+					createDrawable(row.getRegion().start, row.getRegion().end, y, SYMBOL_HEIGHT, aColor, drawables);
 				}
-
-				int alpha = 255 - (int) Math.min(1.0, (Math.abs(sample.getFlag())) * 255.0);
-
-				Color aColor = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-
-				createDrawable(row.getRegion().start, row.getRegion().end, y, SYMBOL_HEIGHT, aColor, drawables);
 			}
 		}
 

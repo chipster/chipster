@@ -34,8 +34,8 @@ public class CnaLineParser extends TsvLineParser {
 		}
 	}
 
-	private int gainColumn;
-	private int lossColumn;
+	private int gainColumn = -1;
+	private int lossColumn = -1;
 	private LinkedList<Integer> flagColumns;
 	private LinkedList<Integer> logRatioColumns;
 	private LinkedList<String> sampleNames;
@@ -66,8 +66,7 @@ public class CnaLineParser extends TsvLineParser {
 			
 			if (title.startsWith("flag.")) {
 				
-				this.flagColumns.add(i);
-				this.sampleNames.add(title.replace("flag.", ""));
+				this.flagColumns.add(i);				
 				
 			} else if (title.startsWith("loss.freq")) {
 				
@@ -77,9 +76,10 @@ public class CnaLineParser extends TsvLineParser {
 				
 				this.gainColumn = i;
 				
-			} else if (title.startsWith("chip.")) {
+			} else if (title.startsWith("segmented.")) {
 				
-				this.logRatioColumns.add(i);				
+				this.logRatioColumns.add(i);
+				this.sampleNames.add(title.replace("segmented.", ""));
 			}   			
 		}
 	}
@@ -127,14 +127,18 @@ public class CnaLineParser extends TsvLineParser {
 		return logRatioValues;
 	}
 	
-	public float getLossFreq() {
-		
-		return getFloat(lossColumn);
+	public Float getLossFreq() {
+		if (lossColumn != -1) {
+			return getFloat(lossColumn);
+		}
+		return null;
 	}
 	
-	public float getGainFreq() {
-		
-		return getFloat(gainColumn);
+	public Float getGainFreq() {
+		if (gainColumn != -1) {
+			return getFloat(gainColumn);
+		}
+		return null;
 	}
 	
 	@Override

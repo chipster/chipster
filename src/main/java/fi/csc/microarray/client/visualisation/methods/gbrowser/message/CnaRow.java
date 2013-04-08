@@ -6,20 +6,20 @@ public class CnaRow {
 	
 	public static class Sample {
 		
-		private float flag;
-		private float logRatio;
+		private Float flag;
+		private Float logRatio;
 		private String name;
 		
-		public float getFlag() {
+		public Float getFlag() {
 			return flag;
 		}
-		public void setFlag(float flag) {
+		public void setFlag(Float flag) {
 			this.flag = flag;
 		}
-		public float getLogRatio() {
+		public Float getLogRatio() {
 			return logRatio;
 		}
-		public void setLogRatio(float logRatio) {
+		public void setLogRatio(Float logRatio) {
 			this.logRatio = logRatio;
 		}
 		public String getName() {
@@ -32,8 +32,8 @@ public class CnaRow {
 	
 	private Region region;
 	private LinkedList<Sample> samples;
-	private float lossFreg;
-	private float gainFreg;
+	private Float lossFreg;
+	private Float gainFreg;
 	
 	public Region getRegion() {
 		return region;
@@ -47,16 +47,16 @@ public class CnaRow {
 	public void setSamples(LinkedList<Sample> samples) {
 		this.samples = samples;
 	}
-	public float getLossFreg() {
+	public Float getLossFreg() {
 		return lossFreg;
 	}
-	public void setLossFreg(float lossFreg) {
+	public void setLossFreg(Float lossFreg) {
 		this.lossFreg = lossFreg;
 	}
-	public float getGainFreg() {
+	public Float getGainFreg() {
 		return gainFreg;
 	}
-	public void setGainFreg(float gainFreg) {
+	public void setGainFreg(Float gainFreg) {
 		this.gainFreg = gainFreg;
 	}
 }

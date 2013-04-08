@@ -611,7 +611,7 @@ public class GBrowser implements ComponentListener {
 						parser.setLine(header);
 						
 						LinkedList<String> internalSampleNames = parser.getSampleNames();
-						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl);
+						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl);												
 						
 						boolean showFrequencies = (track.interpretation.type == TrackType.CNA_FREQUENCIES);
 						boolean showCalls = (track.interpretation.type == TrackType.CNA_CALLS);

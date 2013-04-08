@@ -85,10 +85,13 @@ public class ScatterplotTrack extends Track {
 				
 				width = Math.max(width, 2);
 				
-				float value;
+				Float value = null;
 				
 				if (column != null) {
-					value = (Float) regionContent.values.get(column);
+					Object obj = regionContent.values.get(column);
+					if (obj != null) {
+						value = (Float) obj;
+					}
 				} else {
 					
 					@SuppressWarnings("unchecked")
@@ -96,7 +99,7 @@ public class ScatterplotTrack extends Track {
 					value = floatList.get(floatListIndex);
 				}
 				
-				if (value >= minValue && value <= maxValue) {
+				if (value != null && value >= minValue && value <= maxValue) {
 					drawables.add(getRectDrawable(x1, width, value, color));
 				}
 			}

@@ -99,10 +99,22 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 			
 			Region region = parser.getRegion();
 			
+			if (!region.intersects(request)) {
+				continue;
+			}
+			
 			CnaRow row = new CnaRow();
 			row.setRegion(region);
-			row.setGainFreg(parser.getGainFreq());
-			row.setLossFreg(parser.getLossFreq());
+			
+			Float gainFreq = parser.getGainFreq();
+			if (gainFreq != null) {
+				row.setGainFreg(gainFreq);
+			}
+			
+			Float lossFreq = parser.getLossFreq();
+			if (lossFreq != null) {
+				row.setLossFreg(parser.getLossFreq());
+			}
 			
 			List<String> sampleNames = parser.getSampleNames();
 			List<Float> flagValues = parser.getFlagValues();
@@ -115,7 +127,11 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 				Sample sample = new Sample();
 				
 				sample.setName(sampleNames.get(i));
-				sample.setFlag(flagValues.get(i));
+				
+				if (flagValues.size() > 0) {
+					sample.setFlag(flagValues.get(i));
+				}
+				
 				sample.setLogRatio(logRatioValues.get(i));
 				
 				samples.add(sample);
