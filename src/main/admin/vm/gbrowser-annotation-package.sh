@@ -70,7 +70,7 @@ mkdir annotations
 
 set -e # exit on errors
 
-package "Arabidopsis_lyrata.v.1.0.17" 		"nochr/Arabidopsis_lyrata.v.1.0.16.fa"			"Arabidopsis_lyrata.v.1.0.17"	"Arabidopsis_lyrata.v.1.0.16.fa"
+package "Arabidopsis_lyrata.v.1.0.17" 		"Arabidopsis_lyrata.v.1.0.16.fa"			"Arabidopsis_lyrata.v.1.0.17"	"Arabidopsis_lyrata.v.1.0.16.fa"
 package "Arabidopsis_thaliana.TAIR10.17" 	"nochr/Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa"
 package "Bos_taurus.UMD3.1.70" 			"nochr/Bos_taurus.UMD3.1.70.dna.toplevel.fa"
 package "Canis_familiaris.BROADD2.67" 		"nochr/Canis_familiaris.BROADD2.67.dna.toplevel.fa"
