@@ -12,7 +12,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-03-20
+# 2013-04-04
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(intCNGEan)
@@ -21,8 +21,8 @@ file1 <- 'aberrations.tsv'
 file2 <- 'normalized.tsv'
 dat1 <- read.table(file1, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 dat2 <- read.table(file2, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep='\t', quote='', as.is=TRUE)
-phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep='\t', quote='', as.is=TRUE)
+phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
+phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep='\t', quote='', as.is=TRUE, check.names=FALSE)
 
 # determine which dataset is cgh
 if (length(grep("^probnorm\\.", names(dat1)))!=0) {
