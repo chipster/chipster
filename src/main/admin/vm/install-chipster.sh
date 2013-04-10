@@ -593,6 +593,7 @@ then
   ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
   make
   make install
+  # curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
   ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
   
   # fseq, GPLv3
