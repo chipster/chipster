@@ -5,11 +5,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 /**
@@ -21,8 +20,8 @@ public class TitleTrack extends Track {
 	private Color color;
 	private String title;
 
-	public TitleTrack(GBrowserView view, String title, Color color) {
-		super(view, null);
+	public TitleTrack(String title, Color color) {
+
 		this.color = color;
 		this.title = title;
 		layoutHeight = 10;
@@ -45,15 +44,10 @@ public class TitleTrack extends Track {
 	}
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         return null;
     }
 
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
-	
 	@Override
 	public String getName() {
 		return "title";

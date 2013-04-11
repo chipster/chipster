@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -18,9 +18,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  */
 public class EmptyTrack extends Track {
 
-	public EmptyTrack(GBrowserView view, int height) {
-		super(view, null);
+	private Long minBp;
+
+	public EmptyTrack(int height) {
+
 		this.layoutHeight = height;
+	}
+	
+	public EmptyTrack(int height, long minBp) {
+
+		this.layoutHeight = height;
+		this.minBp = minBp;
 	}
 
 	@Override
@@ -35,17 +43,20 @@ public class EmptyTrack extends Track {
 	}
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         return null;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public String getName() {
 		return "empty";
 	}
+	
+    public boolean isVisible() {
+    	if (minBp == null) {
+    		return visible;
+    	} else {
+    		return view.getBpRegion().getLength() >= minBp;
+    	}
+    }
 }

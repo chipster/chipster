@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.SingleThreadAreaRequestHandler;
 
 /**
  * Collects and resends area results. Used by the {@link GBrowserView} objects to manage incoming area results.
@@ -20,29 +22,44 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
  *
  */
 public class QueueManager implements AreaResultListener {
-
+	
 	private class QueueContext {
 		public Queue<AreaRequest> queue;
 		public Collection<AreaResultListener> listeners = new ArrayList<AreaResultListener>();
-		public AreaRequestHandler thread;
+		public AreaRequestHandler requestHandler;
 	}
 
-	private Map<DataSource, QueueContext> queues = new HashMap<DataSource, QueueContext>();
+	private Map<AreaRequestHandler, QueueContext> queues = new HashMap<AreaRequestHandler, QueueContext>();
 
-	private QueueContext createQueue(DataSource file) {
+	private QueueContext createQueue(AreaRequestHandler areaRequestHandler) {
 
-		if (!queues.containsKey(file)) {
+		if (!queues.containsKey(areaRequestHandler)) {
 			QueueContext context = new QueueContext();
-			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
+			
+			if (areaRequestHandler instanceof SingleThreadAreaRequestHandler) {
+				
+				context.queue = new LinkedBlockingQueue<AreaRequest>();				
+			} else {
+				context.queue = new ConcurrentLinkedQueue<AreaRequest>();
+			}
+			
 			try {
 			    // create a thread which is an instance of class which is passed
 			    // as data fetcher to this method
-				context.thread = file.getRequestHandler().getConstructor(DataSource.class,
-				        Queue.class, AreaResultListener.class).
-				        newInstance(file, context.queue, this);
-
-				queues.put(file, context);
-				context.thread.start();
+				areaRequestHandler.setQueue(context.queue);
+				areaRequestHandler.setAreaResultListener(this);
+				
+				context.requestHandler = areaRequestHandler;
+				queues.put(areaRequestHandler, context);
+				
+				if (context.requestHandler.isAlive()) {
+					System.err.println(
+							"Thread '" + context.requestHandler + "' is poisoned, but still alive. " +
+									"A new thread will be started for the upcoming requests.");
+					context.requestHandler = (AreaRequestHandler) context.requestHandler.clone();
+				} 
+				
+				context.requestHandler.runThread();
 				
 				return context;
 
@@ -62,45 +79,50 @@ public class QueueManager implements AreaResultListener {
 	    queues.remove(file);
 	}
 	
-	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
-		req.status.file = file;
-		QueueContext context = queues.get(file);
+	public void addAreaRequest(AreaRequestHandler areaRequestHandler, AreaRequest req, boolean clearQueues) {
+		
+		req.getStatus().areaRequestHandler = areaRequestHandler;
+		QueueContext context = queues.get(areaRequestHandler);
 
-		req.status.maybeClearQueue(context.queue);
+		req.getStatus().maybeClearQueue(context.queue);
 		context.queue.add(req);
 		
-		if (context.thread != null) {
-			context.thread.notifyAreaRequestHandler();
-		}
+		if (context.requestHandler != null) {
+		
+			//BlockinQueue takes of care of notifyin of SingleThreadAreaRequestHandlers
+			if (!(context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
+				context.requestHandler.notifyAreaRequestHandler();
+			}
+		}		
 	}
 
-	public void addResultListener(DataSource file, AreaResultListener listener) {
+	public void addResultListener(AreaRequestHandler areaRequestHandler, AreaResultListener listener) {
 		
-		QueueContext qContext = queues.get(file);
+		QueueContext qContext = queues.get(areaRequestHandler);
 		if (qContext == null) {
-			qContext = createQueue(file);
+			qContext = createQueue(areaRequestHandler);
 		}
 		qContext.listeners.add(listener);
 	}
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
+		for (AreaResultListener listener : queues.get(areaResult.getStatus().areaRequestHandler).listeners) {
 			listener.processAreaResult(areaResult);
 		}
 	}
 
 	public void poisonAll() {
 		
-		for (Entry<DataSource, QueueContext> entry : queues.entrySet()) {
+		for (Entry<AreaRequestHandler, QueueContext> entry : queues.entrySet()) {
 			
-			FsfStatus status = new FsfStatus();
+			DataRetrievalStatus status = new DataRetrievalStatus();
 			status.poison = true;
 			AreaRequest request = new AreaRequest(new Region(), null, status);
 						
 			QueueContext context = entry.getValue();
 			context.queue.add(request);
-			context.thread.notifyAreaRequestHandler();		
+			context.requestHandler.notifyAreaRequestHandler();		
 		}
 	}
 }

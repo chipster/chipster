@@ -77,7 +77,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			try {
 				latch.await(timeout, unit);
 			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+	            logger.warn("interrupted while waiting for latch", e);
 			}
 			return this.newUrl;
 		}

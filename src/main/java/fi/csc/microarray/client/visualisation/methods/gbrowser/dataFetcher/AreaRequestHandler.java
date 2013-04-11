@@ -14,44 +14,56 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  * @author Petri Klemelä, Aleksi Kallio
  *
  */
-public abstract class AreaRequestHandler extends Thread {
+public abstract class AreaRequestHandler implements Cloneable {
 
 	private Queue<AreaRequest> areaRequestQueue;
-	private AreaResultListener areaResultListener;
+	protected AreaResultListener areaResultListener;
 
 	private boolean poison = false;
+	protected Thread thread;
 
 	public AreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
 		super();
 		this.areaRequestQueue = areaRequestQueue;
 		this.areaResultListener = areaResultListener;
-		this.setDaemon(true);
 	}
 
 	/**
 	 * Constantly look for new area requests in the request queue
 	 * and pass all incoming requests to request processor.
 	 */
-	public synchronized void run() {
+	public void runThread() {
+		
+		thread = new Thread() {
+			public synchronized void run() {		
 
-		while (!poison) {
-			AreaRequest areaRequest;
-			if ((areaRequest = areaRequestQueue.poll()) != null) {
-				areaRequest.status.areaRequestCount = areaRequestQueue.size();
-				processAreaRequest(areaRequest);
-			}
+				while (!poison) {
+					AreaRequest areaRequest;
+					if ((areaRequest = areaRequestQueue.poll()) != null) {
+						areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
+						processAreaRequest(areaRequest);
+					}
 
-			boolean isWorkToDo = checkOtherQueues();
+					boolean isWorkToDo = checkOtherQueues();
 
-			if (areaRequest == null && !isWorkToDo) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					// just poll the queues and wait again
+					if (areaRequest == null && !isWorkToDo) {
+						try {
+							thread.wait();
+						} catch (InterruptedException e) {
+							// just poll the queues and wait again
+						} catch (IllegalMonitorStateException e) {
+							e.printStackTrace();
+							poison = true;
+						}
+					}
 				}
 			}
-		}
+		};
+		
+		thread.setDaemon(true);
+		thread.setName(getClass().getSimpleName());
+		thread.start();
 	}
 
 	/**
@@ -62,12 +74,14 @@ public abstract class AreaRequestHandler extends Thread {
 	}
 
 	public synchronized void notifyAreaRequestHandler() {
-		notifyAll();
+		synchronized (thread) {			
+			thread.notifyAll();
+		}
 	}
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
 
-		if (areaRequest.status.poison) {
+		if (areaRequest.getStatus().poison) {
 
 			this.areaResultListener = null;
 			this.poison = true;
@@ -82,11 +96,34 @@ public abstract class AreaRequestHandler extends Thread {
 	public void createAreaResult(final AreaResult areaResult) {
 
 		SwingUtilities.invokeLater(new Runnable() {
+						
 			public void run() {
+				
 				if (areaResultListener != null) {
 					areaResultListener.processAreaResult(areaResult);
 				}
-			}
+			}						
 		});
+	}
+
+	public void setAreaResultListener(AreaResultListener areaResultListener) {
+		this.areaResultListener = areaResultListener;
+	}
+
+	public void setQueue(Queue<AreaRequest> queue) {
+		this.areaRequestQueue = queue;
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	public boolean isAlive() {
+		if (thread == null) {
+			return false;
+		} else {
+			return thread.isAlive();
+		}
 	}
 }

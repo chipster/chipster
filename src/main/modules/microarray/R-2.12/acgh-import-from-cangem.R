@@ -13,9 +13,8 @@
 # PARAMETER affymetrix.normalization: affymetrix.normalization TYPE [gcrma: gcrma, rma: rma, mas5: mas5] DEFAULT gcrma (Normalization method for Affymetrix arrays. Will be ignored, if downloaded files are not in Affymetrix file format.)
 # PARAMETER genome.build: genome.build TYPE [none: none, GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
-# import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-05-03
+# 2012-10-12
 
 # check for valid accession
 accession <- toupper(accession)

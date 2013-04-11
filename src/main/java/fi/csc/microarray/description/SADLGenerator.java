@@ -141,7 +141,7 @@ public class SADLGenerator {
 	}
 	
 	private static String quoteIfNeeded(String string) {
-		if (string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
+		if (string.isEmpty() || string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
 			return "\"" + escapeIfNeeded(string) + "\"";
 		} else {
 			return string;

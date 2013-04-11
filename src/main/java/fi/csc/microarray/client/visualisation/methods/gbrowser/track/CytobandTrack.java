@@ -12,15 +12,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytoband;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -32,7 +30,7 @@ public class CytobandTrack extends Track {
 
 	private static final int THICKNESS = 11;
 
-	private static final int MARGIN = 2;
+	private static final int MARGIN = 7;
 
 	private SortedSet<Cytoband> cbands = new TreeSet<Cytoband>();
 
@@ -56,9 +54,8 @@ public class CytobandTrack extends Track {
 		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
 	}
 
-	public CytobandTrack(GBrowserView view, CytobandDataSource data, boolean showText) {
-		super(view, data); 
-
+	public CytobandTrack(boolean showText) {
+		
 		this.showText = showText;
 	}
 
@@ -191,23 +188,18 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public int getHeight() {
-		return showText ? 40 : 25;
+		return showText ? 40 : 22;
 	}
 
     @Override
-    public Map<DataSource, Set<ColumnType>> requestedData() {
+    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
     	    	
-        HashMap<DataSource, Set<ColumnType>> datas = new
-        HashMap<DataSource, Set<ColumnType>>();
-        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
+        HashMap<AreaRequestHandler, Set<ColumnType>>();
+        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
                 ColumnType.VALUE })));
         return datas;
     }
-
-	@Override
-	public boolean isConcised() {
-		return false;
-	}
 	
 	@Override
 	public String getName() {

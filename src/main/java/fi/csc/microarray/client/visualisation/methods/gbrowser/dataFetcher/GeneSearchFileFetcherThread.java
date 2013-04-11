@@ -42,6 +42,8 @@ public class GeneSearchFileFetcherThread extends Thread {
 	}
 
 	public void run() {
+		
+		this.setName(getClass().getName());
 
 		while (!poison) {
 			try {
