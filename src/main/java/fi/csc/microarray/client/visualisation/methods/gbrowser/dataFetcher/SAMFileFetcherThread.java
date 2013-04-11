@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFil
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
  * The data processing layer thread for SAM compatible files. Uses the main file and index file.
@@ -63,6 +64,8 @@ public class SAMFileFetcherThread extends Thread {
 				
 				for (BpCoordFileRequest fileRequest : fileRequestQueue) {
 					if (fileRequest.getStatus().poison) {
+						
+						SamBamUtils.closeIfPossible(dataSource.getReader());
 						poison = true;
 						return;
 					}
@@ -80,7 +83,7 @@ public class SAMFileFetcherThread extends Thread {
 
 	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
 		
-		if (fileRequest.getStatus().poison) {
+		if (fileRequest.getStatus().poison) {			
 			poison = true;
 			return;
 		}

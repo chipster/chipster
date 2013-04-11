@@ -795,6 +795,32 @@ public class DataManager {
 		return handler.getFile(location);
 	}
 	
+	/**
+	 * Get a local file with random access support, in practice a temp file. If random access support 
+	 * isn't really needed, please use method getLocalFile().
+	 * 
+	 * 
+	 * @param bean
+	 * @return
+	 * @throws IOException
+	 */
+	public File getLocalRandomAccessFile(DataBean bean) throws IOException {
+		
+		//Check if there is a suitable location already
+		ContentLocation location = bean.getClosestRandomAccessContentLocation();		
+		if (!location.getMethod().isLocal()) {
+			//Closest random access location isn't local, make a local copy (temp files do support random access)
+			this.convertToLocalTempDataBean(bean);
+		}
+				
+		//Now this is a local random access copy
+		location = bean.getClosestRandomAccessContentLocation();
+		
+		// get the file
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
+	}
+	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
 

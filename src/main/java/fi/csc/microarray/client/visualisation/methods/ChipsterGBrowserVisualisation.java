@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -25,18 +24,20 @@ import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.ContentLocation;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -80,19 +81,19 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		@Override
 		public File getLocalFile() throws IOException {
-			return Session.getSession().getDataManager().getLocalFile(bean);
+			
+			return Session.getSession().getDataManager().getLocalRandomAccessFile(bean);
 		}
 		
 		@Override
-		public URL getUrl() {
-			try {
-				return getLocalFile().toURI().toURL();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+		public URL getUrl() throws IOException {
+			ContentLocation contentLocation = bean.getClosestRandomAccessContentLocation();
+			
+			if (contentLocation == null) {				
+				getLocalFile();
+				contentLocation = bean.getClosestRandomAccessContentLocation();
 			}
-			return null;
+			return contentLocation.getUrl();
 		}
 	}
 	

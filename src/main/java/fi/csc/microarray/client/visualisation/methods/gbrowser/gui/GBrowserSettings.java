@@ -484,7 +484,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 					@Override
 					public void run() {
 						try {
-							// Preload datas in background thread
+							// Create a local random access copy of all files in background thread
 							browser.initialiseUserDatas();
 
 							// Update UI in Event Dispatch Thread

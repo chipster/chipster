@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
@@ -11,6 +10,7 @@ import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
  * Data source for indexed SAM compatible files (.sam/.bam). Because index is required, in practice
@@ -39,7 +39,8 @@ public class SAMDataSource extends DataSource {
     	// so we direct it to other stream and discard. 
     	PrintStream originalErr = System.err;
     	System.setErr(new PrintStream(new ByteArrayOutputStream()));
-        this.reader = new SAMFileReader(this.file, new File(indexFile.toURI()));
+    	
+    	this.reader = SamBamUtils.getSAMReader(samFile, indexFile);
 
         // Iterate chromosomes to check naming convention
         for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {

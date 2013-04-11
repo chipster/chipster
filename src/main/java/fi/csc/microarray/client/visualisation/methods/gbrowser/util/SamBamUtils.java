@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +23,10 @@ import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
+import net.sf.samtools.seekablestream.SeekableBufferedStream;
+import net.sf.samtools.seekablestream.SeekableFileStream;
+import net.sf.samtools.seekablestream.SeekableHTTPStream;
+import net.sf.samtools.seekablestream.SeekableStream;
 import fi.csc.microarray.util.IOUtils;
 
 public class SamBamUtils {
@@ -186,19 +193,55 @@ public class SamBamUtils {
 		updateState("done", 100);
 	}
 
-	public static List<String> readChromosomeNames(InputStream in) {
-		SAMFileReader reader = null; 
-		try {
-			reader = new SAMFileReader(in);
+	public static List<String> readChromosomeNames(URL bam, URL index) throws FileNotFoundException, URISyntaxException {
+									
+			SAMFileReader reader = getSAMReader(bam, index);
 			
 			LinkedList<String> chromosomes = new LinkedList<String>();
 			for (SAMSequenceRecord record : reader.getFileHeader().getSequenceDictionary().getSequences()) {
 				chromosomes.add(record.getSequenceName());
 			}
 			
-			return chromosomes;
+			closeIfPossible(reader);
 			
-		} finally {
+			return chromosomes;		
+	}
+
+	public static SAMFileReader getSAMReader(URL bam, URL index) throws FileNotFoundException, URISyntaxException {
+		
+		SAMFileReader reader = null; 
+		SeekableStream bamStream = null;
+		SeekableStream indexStream = null;
+		
+		try {
+			
+			if ("file".equals(bam.getProtocol())) {
+			
+				bamStream = new SeekableFileStream(new File(bam.toURI()));
+			} else {				
+				bamStream = new SeekableHTTPStream(bam);
+			}
+
+			// Picard requires file to have a 'bam' extension, but our hashed url doesn't have it
+			SeekableBufferedStream bamBufferedStream = new SeekableBufferedStream(bamStream) {
+				@Override
+				public String getSource() {
+					return super.getSource() + "_fake-source.bam";
+				}
+			};
+
+			if ("file".equals(index.getProtocol())) {
+				
+				indexStream = new SeekableFileStream(new File(index.toURI()));
+			} else {				
+				indexStream = new SeekableHTTPStream(index);
+			}
+			
+			SeekableBufferedStream indexBufferedStream = new SeekableBufferedStream(indexStream);
+
+			return new SAMFileReader(bamBufferedStream, indexBufferedStream, false);
+
+		} finally {			
 			closeIfPossible(reader);
 		}
 	}
@@ -213,7 +256,7 @@ public class SamBamUtils {
 		}
 	}
 
-	private static void closeIfPossible(SAMFileReader reader) {
+	public static void closeIfPossible(SAMFileReader reader) {
 		if (reader != null) {
 			try {
 				reader.close();

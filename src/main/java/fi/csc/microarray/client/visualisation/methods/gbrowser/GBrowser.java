@@ -58,12 +58,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
@@ -73,7 +73,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
-import fi.csc.microarray.util.IOUtils;
 
 /**
  * Main class of genome browser visualisation. Depends on JFreeChart, SwingX, tribble, Picard and 
@@ -128,7 +127,7 @@ public class GBrowser implements ComponentListener {
 			return new File(url.toURI());
 		}
 
-		public URL getUrl() {
+		public URL getUrl() throws IOException {
 			return url;
 		}
 	}
@@ -534,6 +533,8 @@ public class GBrowser implements ComponentListener {
 						reportException(e);
 					} catch (URISyntaxException e) {
 						reportException(e);
+					} catch (IOException e) {
+						reportException(e);
 					}
 					break;
 					
@@ -548,6 +549,8 @@ public class GBrowser implements ComponentListener {
 					} catch (FileNotFoundException e) {
 						reportException(e);
 					} catch (URISyntaxException e) {
+						reportException(e);
+					} catch (IOException e) {
 						reportException(e);
 					}
 					break;
@@ -565,6 +568,8 @@ public class GBrowser implements ComponentListener {
 					} catch (FileNotFoundException e) {
 						reportException(e);
 					} catch (URISyntaxException e) {
+						reportException(e);
+					} catch (IOException e) {
 						reportException(e);
 					} 
 					break;
@@ -607,16 +612,20 @@ public class GBrowser implements ComponentListener {
 		DataSource dataSource = null;
 
 		// Convert data bean into file
-		File file = data == null ? null : data.getLocalFile();
-
-		URL fileUrl = file.toURI().toURL();
+//		File file = data == null ? null : data.getLocalFile();
+//
+//		URL fileUrl = file.toURI().toURL();
+		
+		URL fileUrl = data.getUrl();
 
 		if (data.getName().contains(".bam-summary")) {
 			dataSource = new TabixSummaryDataSource(fileUrl);
 
 		} else if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
-			File indexFile = indexData.getLocalFile();
-			URL indexFileUrl = indexFile.toURI().toURL();
+//			File indexFile = indexData.getLocalFile();
+//			URL indexFileUrl = indexFile.toURI().toURL();
+			
+			URL indexFileUrl = indexData.getUrl();
 			dataSource = new SAMDataSource(fileUrl, indexFileUrl);
 
 		}
@@ -817,14 +826,14 @@ public class GBrowser implements ComponentListener {
 		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
 		for (Interpretation interpretation : interpretations) {
 			if (interpretation.type == TrackType.READS) {
-				InputStream in = null;
+
+				URL bam  = interpretation.primaryData.getUrl();
+				URL index  = interpretation.indexData.getUrl();
+
 				try {
-					in  = interpretation.primaryData.getInputStream();
-					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
+					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(bam, index));
 				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				} finally { 
-					IOUtils.closeIfPossible(in);
+					reportException(e);
 				}
 			}
 		}
