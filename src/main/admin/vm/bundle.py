@@ -16,32 +16,40 @@ import zipfile
 
 
 def load_available_bundles(filename):
-    bundlesYaml = yaml.load(open(filename, "r"))
+    """
+    """
+    bundles_yaml = yaml.load(open(filename, "r"))
     print("load_available_bundles: ")
-    pprint(bundlesYaml)
-    return bundlesYaml
+    pprint(bundles_yaml)
+    return bundles_yaml
 
 
 def load_installed_bundles(filename):
-    bundlesYaml = {}
+    """
+    """
+    bundles_yaml = {}
     try:
-        bundlesYaml = yaml.load(open(filename, "r"))
+        bundles_yaml = yaml.load(open(filename, "r"))
         print("load_installed_bundles: ")
-        pprint(bundlesYaml)
+        pprint(bundles_yaml)
     except IOError as e:
         if e.errno == 2:
             print(e)
         else:
             raise
-    return bundlesYaml
+    return bundles_yaml
 
 
 def save_installed_bundles(filename):
+    """
+    """
     yaml.dump(installed_bundles, open(filename, "w"), default_flow_style=False)
     print("save_installed_bundles: Saved!")
 
 
 def install_bundle(name, version):
+    """
+    """
     if is_bundle_installed(name):
         raise Exception("Bundle already installed!")
 
@@ -56,6 +64,8 @@ def install_bundle(name, version):
 
 
 def remove_bundle(name):
+    """
+    """
     if not is_bundle_installed(name):
         raise Exception("Bundle not installed!")
 
@@ -67,6 +77,8 @@ def remove_bundle(name):
 
 
 def update_bundle(name, n_version):
+    """
+    """
     # For now o_version can only be what is already installed
     o_version = is_bundle_installed(name)
     if not o_version:
@@ -84,6 +96,8 @@ def update_bundle(name, n_version):
 
 
 def is_bundle_installed(name):
+    """
+    """
     if name in installed_bundles:
         return installed_bundles[name]
     else:
@@ -91,6 +105,8 @@ def is_bundle_installed(name):
 
 
 def get_available_bundle(name):
+    """
+    """
     retval = None
     if name in available_bundles:
         retval = available_bundles[name]
@@ -98,12 +114,16 @@ def get_available_bundle(name):
     return retval
 
 # def get_available_bundle_versions(name):
+#   """
+#   """
 #    retval = [elem["version"] for elem in get_available_bundle(name)]
 #    print("get_available_bundle_versions:", retval)
 #    return retval
 
 
 def get_compatible_bundle_versions(name):
+    """
+    """
     retval = [elem["version"] for elem in get_available_bundle(name)
               if "chipster" in elem and float(elem["chipster"]) <= chipster_version]
     print("get_compatible_bundle_versions:", retval)
@@ -111,12 +131,16 @@ def get_compatible_bundle_versions(name):
 
 
 def get_available_bundle_version(name, version):
+    """
+    """
     retval = [elem for elem in get_available_bundle(name) if elem["version"] == version]
     print("get_available_bundle_version:", retval)
     return retval[0]
 
 
 def is_bundle_deprecated(name, version):
+    """
+    """
     retval = [elem["version"] for elem in get_available_bundle(name)
               if "deprecated" in elem and float(elem["deprecated"]) < chipster_version]
     print("is_bundle_deprecated:", retval)
@@ -127,6 +151,8 @@ def is_bundle_deprecated(name, version):
 
 
 def are_updates_available():
+    """
+    """
     #
     # Function code
     #
@@ -140,18 +166,18 @@ def are_updates_available():
             print("i_version:", i_version)
 
             if not get_available_bundle(i_name):
-                print("Bundle is personal!\n")
+                print("Bundle is personal!")
                 personal_bundles[i_name] = i_version
             elif is_bundle_deprecated(i_name, i_version):
-                print("Bundle is deprecated!\n")
+                print("Bundle is deprecated!")
                 deprecated_bundles[i_name] = i_version
             elif max(get_compatible_bundle_versions(i_name)) > i_version:
                 a_version = max(get_compatible_bundle_versions(i_name))
                 print("a_version:", a_version)
-                print("Update available!\n")
+                print("Update available!")
                 updated_bundles[i_name] = a_version
             else:
-                print("No update available!\n")
+                print("No update available!")
 
     print("updated_bundles:", updated_bundles)
     print("personal_bundles:", personal_bundles)
@@ -162,12 +188,14 @@ def are_updates_available():
 
 def print_available_bundles():
     # TODO: Complete this!
-    def complement_version_id(tuple):
+    """
+    """
+    def complement_version_id(tup):
         """
         Complement version number given for visual effects
         """
         print("complement_version_id")
-        print("tuple:", tuple)
+        print("tuple:", tup)
         if is_bundle_installed(name) == version:
             return version + "*"
         else:
@@ -267,11 +295,11 @@ def transform_bundle(bundle, o_version, n_version):
         add = explode package(s) containing new files, w/ network traffic needed
     """
 
-    def get_package_name_values(tuple, bundle, version):
-        print("get_package_name_values:", tuple, bundle, version)
+    def get_package_name_values(tup, bundle, version):
+        print("get_package_name_values:", tup, bundle, version)
         for key, values in get_available_bundle_version(bundle, version)["packages"].items():
             for file in values["files"]:
-                if file["source"] == tuple[0] and file["destination"] == tuple[1]:
+                if file["source"] == tup[0] and file["destination"] == tup[1]:
                     print("found:", (key, file["source"], file["destination"]))
                     return key, values
 
@@ -315,6 +343,8 @@ def transform_bundle(bundle, o_version, n_version):
 
 
 def implode_package(pkg_name, pkg_values):
+    """
+    """
     print("pkg_name:", pkg_name)
     print("pkg_values:", pkg_values)
 
@@ -324,10 +354,10 @@ def implode_package(pkg_name, pkg_values):
         files = files + pkg_values["symlinks"]
     for file in files:
         dst = file["destination"]
-        chksum = file["checksum"] if "checksum" in file else None
+        checksum = file["checksum"] if "checksum" in file else None
 
         print("destination:", dst)
-        print("checksum:", chksum)
+        print("checksum:", checksum)
 
         if not os.path.isabs(dst):
             dst = installation_path + dst
@@ -338,6 +368,8 @@ def implode_package(pkg_name, pkg_values):
 
 
 def explode_package(pkg_name, pkg_values):
+    """
+    """
     print("pkg_name:", pkg_name)
     print("pkg_values:", pkg_values)
 
@@ -514,6 +546,8 @@ def diff_bundle(name, version_a, version_b):
         return checksums
 
     def get_file_for_checksum(checksum, tup):
+        """
+        """
         return [s[:2] for s in tup if s[2] == checksum][0]
 
     def get_move_for_checksum(checksum, tuple_a, tuple_b):
