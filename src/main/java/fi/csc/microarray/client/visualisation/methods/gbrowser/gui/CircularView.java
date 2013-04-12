@@ -207,7 +207,7 @@ public class CircularView extends GBrowserView {
 				startBp = 0;
 			}
 
-			setBpRegion(new RegionDouble(startBp, endBp, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(startBp, endBp, new Chromosome("1")));
 		}
 	}
 
@@ -235,7 +235,7 @@ public class CircularView extends GBrowserView {
 		}
 
 		bpRegion.move(bpMove);
-		setBpRegion(bpRegion, disableDrawing);
+		setBpRegion(bpRegion);
 
 		parentPlot.redraw();
 	}

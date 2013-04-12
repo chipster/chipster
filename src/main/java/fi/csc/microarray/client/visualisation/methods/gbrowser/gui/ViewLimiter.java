@@ -7,7 +7,6 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -68,7 +67,7 @@ public class ViewLimiter implements RegionListener {
 
 	public void regionChanged(Region bpRegion) {
 		
-		if (limit == null || !limit.chr.equals(bpRegion.start.chr)) {
+ 		if (limit == null || !limit.chr.equals(bpRegion.start.chr)) {
 
 			limit = new BpCoord(0l, bpRegion.start.chr);
 
@@ -80,7 +79,7 @@ public class ViewLimiter implements RegionListener {
 	}
 
 	public BpCoord getLimit() {
-		if (limit != null) {
+		if (limit != null && limit.bp != 0) {
 			return limit.clone();
 		} else {
 			return null;

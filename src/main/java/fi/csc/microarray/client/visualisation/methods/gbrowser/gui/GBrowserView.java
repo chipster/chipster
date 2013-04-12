@@ -136,7 +136,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		}
 
 		if (bpRegion == null) {
-			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
+			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")));
 		}
 		
 		
@@ -235,40 +235,18 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);
 		}
 	}
+	
+	public long getMinBp(long length) {
+		return (long) (-length / 30);
+	}
+	
+	public long getMaxBp(long length) {
+		return (long) (length * (1 + 1.0 / 30));
+	}
 
-	public void setBpRegion(RegionDouble region, boolean disableDrawing) {
-		
-		RegionDouble limitedRegion = region.clone();
-		
-		//Enable scrolling to minus coordinates for 1/30 of width to 
-		//make it easier to navigate to the beginning of chromosome  
-		long minBp = (long) (-limitedRegion.getLength() / 30);
-		
-		if (limitedRegion.start.bp < minBp ) {
-			limitedRegion.move(minBp-limitedRegion.start.bp);
-		}
-		
-		if (viewLimiter != null && viewLimiter.getLimit() != null) {
-			BpCoord maxBp = viewLimiter.getLimit();
+	public void setBpRegion(RegionDouble region) {				
 
-			if (viewLimiter.getLimit() != null && viewLimiter.getLimit().chr.equals(region.start.chr) && maxBp != null && maxBp.bp != 0) {		
-				
-				//Little bit extra space to the end
-				maxBp.bp += 100000;
-
-				if (limitedRegion.getLength() > maxBp.bp) {
-
-					limitedRegion.end.bp = (double)maxBp.bp;
-
-				} else if (limitedRegion.end.bp > maxBp.bp) {
-
-					double delta = limitedRegion.end.bp - maxBp.bp;
-					limitedRegion.move(-delta);
-				}
-			}
-		}
-
-		this.bpRegion = limitedRegion;
+		this.bpRegion = limitRegion(region);
 
 		fireAreaRequests();
 		
@@ -446,7 +424,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
 			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
 			
-			setBpRegion(new RegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
+			setBpRegion(new RegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr));
 			
 			if (!disableDrawing) {
 				parentPlot.redraw();
@@ -545,7 +523,65 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	public void setViewLimiter(ViewLimiter viewLimiter) {
+
 		this.viewLimiter = viewLimiter;
+		viewLimiter.addLimitChangeListener(new RegionListener() {
+			
+			@Override
+			public void regionChanged(Region bpRegion) {
+				
+				setBpRegion(getBpRegionDouble());
+				redraw();
+			}
+
+		});
+	}
+	
+	public RegionDouble limitRegion(RegionDouble region) {
+		
+		long maxBp = -1;
+		boolean isEndLimited = false;
+		
+		if (viewLimiter != null && viewLimiter.getLimit() != null) {
+			
+			BpCoord limit = viewLimiter.getLimit();
+			
+			if (limit.chr.equals(region.start.chr)) {
+				maxBp = getMaxBp(limit.bp);
+			}
+			
+		} 
+		
+		if (maxBp == -1) {
+			
+			maxBp = (long)(double)region.end.bp;
+		}
+				
+		RegionDouble limitedRegion = region.clone();
+		
+		if (limitedRegion.end.bp > maxBp) {
+			limitedRegion.move(maxBp - limitedRegion.end.bp);
+			isEndLimited = true;
+		}
+								
+		//Enable scrolling to minus coordinates for 1/30 of width to 
+		//make it easier to navigate to the beginning of chromosome  
+		long minBp = getMinBp((long) Math.min(maxBp,region.end.bp));
+		
+		if (limitedRegion.start.bp < minBp ) {
+			
+			if (isEndLimited) {
+				limitedRegion.start.bp = (double) minBp;				
+			} else {
+				limitedRegion.move(minBp-limitedRegion.start.bp);
+			}
+		}		
+		
+		return limitedRegion;
+	}
+	
+	public ViewLimiter getViewLimiter() {
+		return this.viewLimiter; 
 	}
 
 	@Override

@@ -61,6 +61,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDou
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
@@ -93,7 +96,10 @@ public class GBrowser implements ComponentListener {
 		READS(true),
 		HIDDEN(false), 
 		VCF(true), 
-		GTF(true);
+		GTF(true),
+		CNA_CALLS(true), 
+		CNA_LOGRATIOS(true), 
+		CNA_FREQUENCIES(true);
 
 		public boolean isToggleable;
 
@@ -138,6 +144,7 @@ public class GBrowser implements ComponentListener {
 		private List<DataUrl> summaryDatas = new LinkedList<DataUrl>();
 		private DataUrl primaryData;
 		private DataUrl indexData;
+		private String name;
 
 		public Interpretation(TrackType type, DataUrl primaryData) {
 			this.type = type;
@@ -174,6 +181,18 @@ public class GBrowser implements ComponentListener {
 
 		public void setIndexData(DataUrl indexData) {
 			this.indexData = indexData;
+		}
+		
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public String getName() {
+			if (name != null) {
+				return name;
+			} else {
+				return primaryData.getName();
+			}
 		}
 	}
 
@@ -233,7 +252,7 @@ public class GBrowser implements ComponentListener {
 
 		for (int i = 0; i < interpretations.size(); i++) {
 			Interpretation interpretation = interpretations.get(i);
-			tracks.add(new TrackDefinition(interpretation.primaryData.getName(), interpretation));
+			tracks.add(new TrackDefinition(interpretation.getName(), interpretation));
 		}
 
 		// update the dataset switches in the settings panel
@@ -509,6 +528,9 @@ public class GBrowser implements ComponentListener {
 				case REGIONS:
 				case VCF:
 				case GTF:
+				case CNA_FREQUENCIES:
+				case CNA_CALLS:
+				case CNA_LOGRATIOS:
 					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
@@ -573,6 +595,48 @@ public class GBrowser implements ComponentListener {
 						reportException(e);
 					} 
 					break;
+					
+				case CNA_FREQUENCIES:
+				case CNA_CALLS:
+				case CNA_LOGRATIOS:
+
+					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
+					analysis.setScrollEnabled(true);
+					
+					//Header has to be read to know the number of samples
+
+					RandomAccessLineDataSource cnaData;
+
+					try {
+						cnaData = new RandomAccessLineDataSource(dataUrl.getUrl());
+						CnaConversion conversion = new CnaConversion(cnaData, this);			
+						
+						cnaData.setLineReaderPosition(0);
+						String header = cnaData.getNextLine();
+						CnaLineParser parser = new CnaLineParser();
+						parser.setLine(header);
+						
+						LinkedList<String> internalSampleNames = parser.getSampleNames();
+						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl);												
+						
+						boolean showFrequencies = (track.interpretation.type == TrackType.CNA_FREQUENCIES);
+						boolean showCalls = (track.interpretation.type == TrackType.CNA_CALLS);
+						boolean showLogratios = (track.interpretation.type == TrackType.CNA_LOGRATIOS);
+						
+						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames, showFrequencies, showCalls, showLogratios));
+						
+					} catch (FileNotFoundException e) {
+						reportException(e);
+					} catch (URISyntaxException e) {
+						reportException(e);
+					} catch (IOException e) {
+						reportException(e);
+					} catch (GBrowserException e) {
+						reportException(e);
+					}						
+					
+					break;
+
 				default:
 					break;
 				}				
@@ -592,7 +656,7 @@ public class GBrowser implements ComponentListener {
 		//i.e. when the Go button is pressed or if dataset switches are used  
 		plot.initializeTracks();
 	}
-	
+
 	/**
 	 * Create DataSource for SAM/BAM files
 	 * 
@@ -659,7 +723,7 @@ public class GBrowser implements ComponentListener {
 		//Set default location to plot to avoid trouble in track initialization. 
 		plot.getDataView().setBpRegion(new RegionDouble(
 				settings.getLocation() - settings.getViewSize() / 2.0, settings.getLocation() + settings.getViewSize() / 2.0, 
-				settings.getChromosome()), true);
+				settings.getChromosome()));
 		
 		plot.addDataRegionListener(settings);
 				
@@ -845,8 +909,12 @@ public class GBrowser implements ComponentListener {
 				boolean isBed = (interpretation.type == TrackType.REGIONS);
 				boolean isVcf = (interpretation.type == TrackType.VCF);
 				boolean isGtf = (interpretation.type == TrackType.GTF);
+				boolean isCna = (
+						interpretation.type == TrackType.CNA_FREQUENCIES ||
+						interpretation.type == TrackType.CNA_CALLS ||
+						interpretation.type == TrackType.CNA_LOGRATIOS);
 				
-				if (isBed || isVcf || isGtf) {
+				if (isBed || isVcf || isGtf || isCna) {
 										
 					try {
 						
@@ -859,6 +927,8 @@ public class GBrowser implements ComponentListener {
 							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new VcfLineParser());							
 						} else if (isGtf) {
 							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new GtfLineParser());
+						} else if (isCna) {
+							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new CnaLineParser());
 						}
 						
 						for (Chromosome chr : chrSearch.getChromosomes()) {
@@ -1029,6 +1099,18 @@ public class GBrowser implements ComponentListener {
 		//"~/.chipster/annotations/"
 		System.out.println("getLocalAnnotationDir not implemented");
 		return null;
+	}
+	
+	/**
+	 * Override this convert internal sample names to prety names in phenodata
+	 * 
+	 * @param internalSampleNames
+	 * @param dataUrl 
+	 * @return
+	 */
+	public LinkedList<String> getSampleNames(
+			LinkedList<String> internalSampleNames, DataUrl dataUrl) {
+		return internalSampleNames;
 	}
 
 	/**

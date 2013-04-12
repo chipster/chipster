@@ -40,8 +40,8 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 //					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 //			geneOverview.setStrand(Strand.FORWARD);
-			geneOverview = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
-			geneOverview.setView(dataView);
+//			geneOverview = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+//			geneOverview.setView(dataView);
 
 			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
@@ -60,8 +60,8 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverviewReversed = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 //					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
 //			geneOverviewReversed.setStrand(Strand.REVERSE);
-			geneOverviewReversed = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
-			geneOverviewReversed.setView(dataView);
+//			geneOverviewReversed = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+//			geneOverviewReversed.setView(dataView);
 
 			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
@@ -95,7 +95,7 @@ public class GeneTrackGroup extends TrackGroup {
         	tracks.add(transcript);
 
         	// Gene, overview, forward 
-        	tracks.add(geneOverview);
+        	//tracks.add(geneOverview);
 
         	// Gene, detailed, forward
         	tracks.add(gene);
@@ -129,7 +129,7 @@ public class GeneTrackGroup extends TrackGroup {
 		
 		if (transcript != null) { //no annotation data source
 			// Gene, overview, reverse
-			tracks.add(geneOverviewReversed);
+			//tracks.add(geneOverviewReversed);
 
 			// Gene, detailed, reverse
 			tracks.add(geneReversed);
@@ -174,6 +174,10 @@ public class GeneTrackGroup extends TrackGroup {
 	
 	@Override
 	public int getHeight() {
-		return 250;
+		if ( getView().getBpRegion().getLength() <  GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2) {
+			return 250;
+		} else {
+			return 40;
+		}
 	}	
 }
