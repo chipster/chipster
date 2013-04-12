@@ -55,7 +55,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
 			Rectangle rect = g.getClip().getBounds();
-
+						
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(3, bpToTrack(highlight.end) - rect.x);
 			rect.height = 20;
@@ -130,7 +130,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 		RegionDouble newRegion = bpRegion.clone();
 		
 		newRegion.move(bpMove);
-		setBpRegion(newRegion, disableDrawing);
+		setBpRegion(newRegion);
 
 		if (!disableDrawing) {
 			parentPlot.redraw();
@@ -215,12 +215,12 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 										
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
-											setBpRegion(bpRegion, skipFrame);
+											setBpRegion(bpRegion);
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {
 											bpRegion.move(getBpRegion().getLength() / SPEED_DIVIDER);
-											setBpRegion(bpRegion, skipFrame);
+											setBpRegion(bpRegion);
 
 											if (!skipFrame) {
 												parentPlot.redraw();											
