@@ -1,5 +1,7 @@
 package fi.csc.microarray.messaging;
 
+import java.util.Arrays;
+
 import org.apache.log4j.Logger;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -52,7 +54,7 @@ public abstract class MessagingTestBase {
 		System.out.println("initialising client");
 		DirectoryLayout.uninitialise();
 		if (configURL == null) {
-			DirectoryLayout.initialiseSimpleLayout().getConfiguration();
+			DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[]{"client"}));
 		} else {
 			try {
 				DirectoryLayout.initialiseClientLayout(configURL);
