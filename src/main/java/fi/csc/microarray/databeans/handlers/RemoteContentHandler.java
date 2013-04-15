@@ -73,11 +73,11 @@ public class RemoteContentHandler implements ContentHandler {
 		checkCompatibility(location);
 		try {
 			HttpURLConnection connection = (HttpURLConnection)location.getUrl().openConnection();
-			connection.connect () ; 
+			connection.setConnectTimeout(1000);
+			connection.connect() ; 
 			return connection.getResponseCode() == 200;
 		} catch (IOException e) {
 			return false;
 		}
 	}
-
 }

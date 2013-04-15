@@ -808,7 +808,7 @@ public class DataManager {
 		
 		//Check if there is a suitable location already
 		ContentLocation location = bean.getClosestRandomAccessContentLocation();		
-		if (!location.getMethod().isLocal()) {
+		if (location == null || !location.getMethod().isLocal()) {
 			//Closest random access location isn't local, make a local copy (temp files do support random access)
 			this.convertToLocalTempDataBean(bean);
 		}
