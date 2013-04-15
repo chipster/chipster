@@ -1534,7 +1534,7 @@ public class SwingClientApplication extends ClientApplication {
 			try {
 				sessionFileChooser = populateFileChooserFromServer();
 				if (preselectFile) {
-					sessionFileChooser.setSelectedFile(new File("server-session." + UserSession.SESSION_FILE_EXTENSION));
+					sessionFileChooser.setSelectedFile(new File("Session name"));
 				}
 
 			} catch (Exception e) {

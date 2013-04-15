@@ -210,14 +210,14 @@ public class MicroarrayModule implements Module {
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 
-		importLinks.add(LinkUtil.createLink("Import from ArrayExpress ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from ArrayExpress", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromArrayExpress();
 			}
 		}));
 
-		importLinks.add(LinkUtil.createLink("Import from GEO ", new AbstractAction() {
+		importLinks.add(LinkUtil.createLink("Import from GEO", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doImportFromGEO();

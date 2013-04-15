@@ -622,8 +622,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu.add(getStartedMenuItem());
 			helpInfoMenu.add(getContentMenuItem());
 			if (DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-contact-support")) {
-				// disabled for server side sessions
-				// helpInfoMenu.add(getSendFeedbackMenuItem());
+				helpInfoMenu.add(getSendFeedbackMenuItem());
 			}
 
 			helpInfoMenu.add(getAboutMenuItem());
@@ -748,7 +747,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem() {
 		if (loadSessionMenuItem == null) {
 			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open server session...");
+			loadSessionMenuItem.setText("Open session...");
 			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -785,7 +784,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save server session...");
+			saveSessionMenuItem.setText("Save session...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -799,7 +798,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Server sessions...");
+			manageSessionsMenuItem.setText("Manage sessions...");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.manageRemoteSessions();
