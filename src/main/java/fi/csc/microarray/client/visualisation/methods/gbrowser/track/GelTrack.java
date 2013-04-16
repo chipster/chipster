@@ -73,7 +73,7 @@ public class GelTrack extends Track {
         for (ReadPart element : readParts) {
 
         	// Skip elements that are not in this view
-        	if (!element.intersects(getView().getBpRegion())) {
+        	if (!getView().viewIntersects(element)) {
         		continue;
         	}
         	

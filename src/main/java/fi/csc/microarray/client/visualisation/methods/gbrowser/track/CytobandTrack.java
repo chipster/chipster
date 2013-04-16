@@ -77,7 +77,7 @@ public class CytobandTrack extends Track {
 				Cytoband cband = cbandIter.next();
 				
 				//Remove items that don't belong to this view area
-				if (!getView().getBpRegion().intersects(cband.getRegion())) {
+				if (!getView().requestIntersects(cband.getRegion())) {
 					cbandIter.remove();
 					continue;
 				}

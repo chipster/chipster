@@ -88,6 +88,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
     	} else if (fileResult.getAreaRequest().getRequestedContents().contains(ColumnType.COVERAGE)) {
     		LinkedList<RegionContent> coverage = getCoverage(fileResult);
     		createAreaResult(new AreaResult(fileResult.getStatus(), coverage));
+			
     	} else {
     		createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContents()));
     	}
@@ -114,7 +115,8 @@ public class SAMHandlerThread extends AreaRequestHandler {
 		}
     	
 		if (areaRequest.getRequestedContents().contains(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
-			processCoverageEstimateRequest(areaRequest);
+			
+			processCoverageEstimateRequest(areaRequest);					
 
 		} else if (areaRequest.getRequestedContents().contains(ColumnType.COVERAGE)) {
 			
@@ -127,10 +129,11 @@ public class SAMHandlerThread extends AreaRequestHandler {
 			ColumnType.QUALITY,
 			ColumnType.CIGAR}));
 			
-			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));		
 
 		} else {
-			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));
+			
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.getStatus()));			
 		}
 		
     }
@@ -176,6 +179,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 		// Return one result pair for each region covered by one cache hit
 		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>(); 
+		long cachePos = 0; 
 		long startPos = pos;
 		int cacheHitsPerRegion = 0;
 		for (BpCoord coord : indexedValues.keySet()) {
@@ -188,12 +192,16 @@ public class SAMHandlerThread extends AreaRequestHandler {
 				iterator.next(); // read away this cache hit
 				BpCoord next = iterator.next();
 				endPos = (startPos + next.bp) / 2;
-
+				cachePos = next.bp;
 			} else {
 				endPos = (pos + step);
 			}
 			
-			Region recordRegion = new Region(startPos, endPos, request.start.chr);
+			//Region recordRegion = new Region(startPos, endPos, request.start.chr);
+			Region recordRegion = new Region(
+					cachePos - SAMFileFetcherThread.SAMPLE_SIZE_BP / 2, 
+					cachePos + SAMFileFetcherThread.SAMPLE_SIZE_BP / 2, request.start.chr);
+			
 			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
 			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);

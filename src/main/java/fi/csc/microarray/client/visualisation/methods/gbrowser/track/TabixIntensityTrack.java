@@ -50,7 +50,7 @@ public class TabixIntensityTrack extends Track {
 			RegionContent regCont = iterator.next();
 			
 			// Remove values that have gone out of view
-			if (!regCont.region.intersects(getView().getBpRegion())) {
+			if (!getView().requestIntersects(regCont.region)) {
 				iterator.remove();
 				continue;
 			}

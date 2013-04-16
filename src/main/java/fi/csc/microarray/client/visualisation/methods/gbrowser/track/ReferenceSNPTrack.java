@@ -95,7 +95,7 @@ public class ReferenceSNPTrack extends Track {
 				RegionContent value = iter.next();
 				
 				// remove those that are not in this view
-	            if (!value.region.intersects(getView().getBpRegion())) {
+	            if (!getView().requestIntersects(value.region)) {
 	                iter.remove();
 	                continue;
 	            }

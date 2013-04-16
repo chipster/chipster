@@ -74,7 +74,7 @@ public class ScatterplotTrack extends Track {
 
 				RegionContent regionContent = data.get(iter.next());
 
-				if (!regionContent.region.intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(regionContent.region)) {
 					iter.remove();
 					continue;
 				}

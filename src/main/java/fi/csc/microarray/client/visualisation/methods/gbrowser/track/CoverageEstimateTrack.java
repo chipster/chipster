@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CoverageEstimateTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 200;
+    final public static int SAMPLING_GRANULARITY = 100;
 
 	private static final int MAX_VALUE_COUNT = SAMPLING_GRANULARITY * 2;
 
@@ -65,16 +65,16 @@ public class CoverageEstimateTrack extends Track {
 			RegionContent regCont = iterator.next();
 			
 			// remove values that have gone out of view
-			if (!regCont.region.intersects(getView().getBpRegion())) {
+			if (!getView().requestIntersects(regCont.region)) {
 				iterator.remove();
 				continue;
 			}
 			
 			// remove values that are too wide for this view (when zooming in)
-			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
-				iterator.remove();
-				continue;
-			}
+//			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
+//				iterator.remove();
+//				continue;
+//			}
 			
 //			// remove values that are too narrow to show (when zooming out)
 //			if (regCont.region.getLength() < (getView().getBpRegion().getLength() / (SAMPLING_GRANULARITY * 4))) {
@@ -98,7 +98,7 @@ public class CoverageEstimateTrack extends Track {
 				count = Math.log(count);
 			}
 			
-			int height = (int) Math.min(count * (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS), getHeight());			
+			int height = (int) Math.min(count * (2), getHeight());			
 
 			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 

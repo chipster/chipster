@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  */
 public class SAMFileFetcherThread extends Thread {
 
-	final private int SAMPLE_SIZE_BP = 100;
+	final static int SAMPLE_SIZE_BP = 1000;
 
 	private static final int RESULT_CHUNK_SIZE = 100;
 
@@ -214,10 +214,12 @@ public class SAMFileFetcherThread extends Thread {
 		iterator.close();
 	}
 
-	private void sampleToGetEstimateRegion(BpCoordFileRequest request) {
+	private void sampleToGetEstimateRegion(BpCoordFileRequest request) {	
 
 		BpCoord from = request.getFrom();
 		BpCoord to = request.getTo();
+		
+		long t = System.currentTimeMillis();
 		
 		// Fetch new content by taking sample from the middle of this area
 		long stepMiddlepoint = (from.bp + to.bp) / 2;
@@ -228,19 +230,38 @@ public class SAMFileFetcherThread extends Thread {
 		// Count reads in this sample area
 		int countForward = 0;
 		int countReverse = 0;
-		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
+
+		int countRejected1 = 0;
+		int countRejected2 = 0;
+		
+		
+		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {			
+			
 			SAMRecord record = i.next();
 
 			// Accept only records that start in this area (very rough approximation for spliced reads)
-			if (record.getAlignmentStart() >= start && record.getAlignmentEnd() <= end) {
-				if (record.getReadNegativeStrandFlag()) {
-					countReverse++;
+			if (record.getAlignmentStart() >= start) { 
+				if (record.getAlignmentEnd() <= end) {
+
+
+					if (record.getReadNegativeStrandFlag()) {
+						countReverse++;
+					} else {
+						countForward++;
+					}
 				} else {
-					countForward++;
+					countRejected2++;
+					 
+					//Stop iteration, because Picard may return many reads after the requested reqion  
+					break;
 				}
+			}else {
+				countRejected1++;
 			}
 		}
 
+//		System.out.println("Forward: " + countForward + "\tReverse: " + countReverse + "\tRejected1: " + countRejected1 + "\tRejected2: " + countRejected2 + "\t" + (System.currentTimeMillis() - t) + " ms");
+		
 		// We are done
 		iterator.close();
 
@@ -251,7 +272,8 @@ public class SAMFileFetcherThread extends Thread {
 		values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, countForward);
 		values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE, countReverse);
 		
-		content.add(new RegionContent(new Region(from, to), values));
+		//content.add(new RegionContent(new Region(from, to), values));
+		content.add(new RegionContent(new Region(start, end, from.chr), values));
 		
 		ParsedFileResult result = new ParsedFileResult(content, request, request.areaRequest, request.getStatus());
 		fileResultQueue.add(result);

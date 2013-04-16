@@ -52,7 +52,7 @@ public class CnaFlagTrack extends Track {
 
 				CnaRow row = rows.get(iter.next());
 
-				if (!row.getRegion().intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(row.getRegion())) {
 					iter.remove();
 					continue;
 				}
