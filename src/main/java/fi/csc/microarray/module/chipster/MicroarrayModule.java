@@ -661,7 +661,7 @@ public class MicroarrayModule implements Module {
 					data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
 				}
 				
-				//Cna data, first data column of rownames is missing in header
+				//Cna data, first data column (rownames) is missing in header
 				if (split.length > 3 && 
 						"chromosome".equals(split[0]) && 
 						"start".equals(split[1]) && 

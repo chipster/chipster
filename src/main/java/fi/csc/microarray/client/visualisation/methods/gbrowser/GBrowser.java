@@ -60,7 +60,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
@@ -232,6 +231,7 @@ public class GBrowser implements ComponentListener {
 	private GBrowserSettings settings;
 	
 	private List<Interpretation> interpretations;
+	private LinkedList<String> sampleNames;
 
 	public void initialise() throws Exception {
 
@@ -616,8 +616,10 @@ public class GBrowser implements ComponentListener {
 						CnaLineParser parser = new CnaLineParser();
 						parser.setLine(header);
 						
-						LinkedList<String> internalSampleNames = parser.getSampleNames();
-						LinkedList<String> sampleNames = this.getSampleNames(internalSampleNames, dataUrl);												
+						if (this.sampleNames == null) {
+							LinkedList<String> internalSampleNames = parser.getSampleNames();
+							this.sampleNames = this.getSampleNames(internalSampleNames, dataUrl);
+						}
 						
 						boolean showFrequencies = (track.interpretation.type == TrackType.CNA_FREQUENCIES);
 						boolean showCalls = (track.interpretation.type == TrackType.CNA_CALLS);
