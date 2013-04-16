@@ -7,7 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +29,7 @@ public class QuickLinkPanel extends JPanel {
 	private SwingClientApplication application;
 
 	private JXHyperlink sessionLink;
+	private JXHyperlink localSessionLink;
 	private JXHyperlink importLink;
 	private JXHyperlink exampleLink;
 	private JXHyperlink exampleLinkAlternative;
@@ -56,7 +56,7 @@ public class QuickLinkPanel extends JPanel {
 			if (urls != null) {
 
 				if (urls.length == 1) {
-					exampleLink = LinkUtil.createLink("Example session ", new AbstractAction() {
+					exampleLink = LinkUtil.createLink("Example session", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
@@ -96,7 +96,7 @@ public class QuickLinkPanel extends JPanel {
 			// ignore and let exampleLink be null
 		}
 		
-		importLink = LinkUtil.createLink("Import files ", new AbstractAction() {
+		importLink = LinkUtil.createLink("Import files", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -106,13 +106,13 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		importFolderLink = LinkUtil.createLink("Import folder ", new AbstractAction() {
+		importFolderLink = LinkUtil.createLink("Import folder", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.openDirectoryImportDialog();
 			}
 		});
-		importURLLink = LinkUtil.createLink("Import from URL ", new AbstractAction() {
+		importURLLink = LinkUtil.createLink("Import from URL", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -122,10 +122,16 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		sessionLink = LinkUtil.createLink("Open session ", new AbstractAction() {
+		sessionLink = LinkUtil.createLink("Open session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				application.loadSession(false); // TODO change to remote?
+				application.loadSession(true);
+			}
+		});
+		localSessionLink = LinkUtil.createLink("open", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.loadSession(false);
 			}
 		});
 
@@ -162,8 +168,11 @@ public class QuickLinkPanel extends JPanel {
 			}			
 		}
 	
+		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+		openLinks.add(sessionLink);
+		openLinks.add(localSessionLink);
 		
-		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		addLinks("*** to continue working on previous sessions. You can also *** a local session file.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
 
 		
 		// common links
