@@ -1,15 +1,29 @@
 package fi.csc.microarray.filebroker;
 
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
+import it.sauronsoftware.cron4j.Scheduler;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimerTask;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -26,6 +40,8 @@ public class DerbyMetadataServer {
 	 */
 	private static final Logger logger = Logger.getLogger(DerbyMetadataServer.class);
 	
+	private static final String METADATA_BACKUP_PREFIX="filebroker-metadata-db-backup-";
+
 	private static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
 
 	private static String SCHEMA = "chipster";
@@ -78,6 +94,8 @@ public class DerbyMetadataServer {
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " (username) VALUES (?)";
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " WHERE username = ?";
 
+	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
+	
 	private Connection connection = null;
 
 	/**
@@ -88,19 +106,48 @@ public class DerbyMetadataServer {
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
+	 * @throws IllegalConfigurationException 
+	 * @throws IOException 
 	 */
-	public DerbyMetadataServer() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+	public DerbyMetadataServer() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException, IllegalConfigurationException {
 		
 		// initialise connection
 		System.setProperty("derby.system.home", "db-root");
 		Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance(); // allows multiple connections in one JVM, but not from multiple JVM's
 		String strUrl = "jdbc:derby:ChipsterFilebrokerMetadataDatabase;create=true";
+		
+		// One way to restore a backup
+		// See http://db.apache.org/derby/docs/10.1/adminguide/tadminhubbkup44.html
+		//String strUrl = "jdbc:derby:ChipsterFilebrokerMetadataDatabase;restoreFrom=path";
+		
 		connection = DriverManager.getConnection(strUrl);
 		
 		// initialise database, if needed
 		initialise();
 
-		logger.info("Database started");
+		logger.info("metadata database started");
+		
+		
+		// initialise metadata database backup
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		if (configuration.getBoolean("filebroker", "enable-metadata-backups")) {
+		
+			// get backup configuration
+			File metadataBackupDir = DirectoryLayout.getInstance().getFilebrokerMetadataBackupDir();
+			int metadataBackupKeepCount = configuration.getInt("filebroker", "metadata-backup-keep-count");
+			String backupTime = configuration.getString("filebroker", "metadata-backup-time").trim();
+			
+			// schedule backup tasks
+			Scheduler scheduler = new Scheduler();
+			scheduler.schedule(backupTime, new MetadataBackupTimerTask(metadataBackupDir, metadataBackupKeepCount));
+			scheduler.start();
+			
+			logger.info("metadata backups enabled at: " + backupTime);
+		} else {
+			logger.info("metadata backups disabled");
+		}
+
+		
 	}
 	
 	private void initialise() throws SQLException {
@@ -311,5 +358,99 @@ public class DerbyMetadataServer {
 		return removed;
 	}
 	
+	/**
+	 * Backup the database using the online backup procedure.
+	 * 
+	 * During the interval the backup is running, the database can be read, but writes to the database are blocked.
+	 * 
+	 * @param backupDir directory which will contain the db backup
+	 * @throws SQLException
+	 */
+	public void backup(String backupDir) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_BACKUP);
+		ps.setString(1, backupDir.replace(File.separator, "/"));
+		ps.execute();
+	}
+	
+	
+	/**
+	 * TimerTask for running metadata database backup.
+	 * 
+	 * @author hupponen
+	 *
+	 */
+	private class MetadataBackupTimerTask extends TimerTask {
+
+		private File baseBackupDir;
+		private int backupKeepCount;
+		
+		/**
+		 * Backup result will be backupDir/filebroker-metadata-db-backup-yyyy-MM-dd_mm:ss/ChipsterFilebrokerMetadataDatabase
+		 * 
+		 * @param backupDir base directory for backups, individual backups will be subdirectories 
+		 */
+		public MetadataBackupTimerTask(File backupDir, int backupKeepCount) {
+			this.baseBackupDir = backupDir;
+			this.backupKeepCount = backupKeepCount;
+		}
+		
+		
+		@Override
+		public void run() {
+			logger.info("backing up metadata database");
+			long startTime = System.currentTimeMillis();
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss");
+			
+			String fileName = baseBackupDir.getAbsolutePath() + File.separator + METADATA_BACKUP_PREFIX + df.format(new Date());
+			try {
+				backup(fileName);
+			} catch (SQLException e) {
+				logger.error("backing up metadata database failed", e);
+			}
+			logger.info("metadata backup took " + (System.currentTimeMillis() - startTime) + " ms");
+
+			
+			// remove old backups
+			if (backupKeepCount >= 0) {
+
+				// get backup dirs
+				File[] backupDirs = baseBackupDir.listFiles(new FilenameFilter() {
+
+					@Override
+					public boolean accept(File dir, String name) {
+						if (name.startsWith(METADATA_BACKUP_PREFIX)) {
+							return true;
+						}
+						return false;
+					}
+				});
+
+				// need to delete old?
+				if (backupDirs.length > backupKeepCount) {
+					long deleteStartTime = System.currentTimeMillis();
+					
+					// sort according to file name
+					Arrays.sort(backupDirs, new Comparator<File>() {
+						@Override
+						public int compare(File o1, File o2) {
+							return o1.getName().compareTo(o2.getName());
+						}
+						
+					});
+	
+					// delete oldest until at keep limit
+					for (int i = 0; backupDirs.length - i > backupKeepCount; i++) {
+						logger.info("deleting old metadata backup: " + backupDirs[i].getName());
+						try {
+							FileUtils.deleteDirectory(backupDirs[i]);
+						} catch (IOException e) {
+							logger.error("could not delete old metadata backup directory: " + backupDirs[i]);
+						}
+					}
+					logger.info("deleting old metadata backups took " + (System.currentTimeMillis() - deleteStartTime) + " ms");
+				}
+			}
+		}
+	}
 	
 }
