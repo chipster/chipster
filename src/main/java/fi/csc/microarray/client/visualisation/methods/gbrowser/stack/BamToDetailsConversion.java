@@ -9,7 +9,7 @@ import java.util.List;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
@@ -30,11 +30,11 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 	
 	private static final int RESULT_CHUNK_SIZE = 100;
 
-	private SAMDataSource dataSource;
+	private BamDataSource dataSource;
 
 	private Region previousRequestedRegion;
 
-	public BamToDetailsConversion(SAMDataSource file, final GBrowser browser) {
+	public BamToDetailsConversion(BamDataSource file, final GBrowser browser) {
 	    
 		super(null, null);
 		

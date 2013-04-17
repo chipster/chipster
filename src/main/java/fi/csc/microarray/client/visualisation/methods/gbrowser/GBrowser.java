@@ -38,7 +38,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.Cytoba
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
@@ -442,8 +442,8 @@ public class GBrowser implements ComponentListener {
 
 						//create two identical datasources, because details and estimates are read in separate threads and Picard 
 						//doesn't support concurrent access
-						SAMDataSource detailsData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						SAMDataSource estimateData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						BamDataSource detailsData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						BamDataSource estimateData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 						
 						//treatmentRequestHandler = new SAMHandlerThread(treatmentData);
 						BamToDetailsConversion details = new BamToDetailsConversion(detailsData, this);
@@ -678,9 +678,9 @@ public class GBrowser implements ComponentListener {
 	 * @throws URISyntaxException 
 	 * @throws GBrowserException 
 	 */
-	public SAMDataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
+	public BamDataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
 			throws IOException, URISyntaxException, GBrowserException {
-		SAMDataSource dataSource = null;
+		BamDataSource dataSource = null;
 
 		// Convert data bean into file
 //		File file = data == null ? null : data.getLocalFile();
@@ -694,7 +694,7 @@ public class GBrowser implements ComponentListener {
 //			URL indexFileUrl = indexFile.toURI().toURL();
 			
 			URL indexFileUrl = indexData.getUrl();
-			dataSource = new SAMDataSource(fileUrl, indexFileUrl);
+			dataSource = new BamDataSource(fileUrl, indexFileUrl);
 
 		}
 

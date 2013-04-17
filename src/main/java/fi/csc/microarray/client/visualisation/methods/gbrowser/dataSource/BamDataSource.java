@@ -8,32 +8,30 @@ import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
- * Data source for indexed SAM compatible files (.sam/.bam). Because index is required, in practice
- * supports only .bam.
+ * Data source for indexed BAM compatible files (.bam)
  * 
  * @author Rimvydas Naktinis, Aleksi Kallio
  *
  */
-public class SAMDataSource extends DataSource {
+public class BamDataSource extends DataSource {
 	
 	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
 	private SAMFileReader reader;
 
     /**
      * Generally we would like to have both data and index files,
-     * because otherwise we could not access random locations.
+     * because otherwise we cannot access random locations.
      * 
      * @param areaRequestHandler
      * @throws FileNotFoundException
      * @throws URISyntaxException 
      */
-    public SAMDataSource(URL samFile, URL indexFile) throws FileNotFoundException, URISyntaxException {
-        super(samFile, SAMHandlerThread.class);
+    public BamDataSource(URL samFile, URL indexFile) throws FileNotFoundException, URISyntaxException {
+        super(samFile, null);
 
     	// BAMFileReader emits useless warning to System.err that can't be turned off,
     	// so we direct it to other stream and discard. 

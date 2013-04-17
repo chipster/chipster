@@ -8,7 +8,7 @@ import java.util.SortedMap;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
@@ -30,11 +30,11 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 	
 	final static int SAMPLE_SIZE_BP = 1000;
 
-	private SAMDataSource dataSource;
+	private BamDataSource dataSource;
 	
 	private ConcisedValueCache cache = new ConcisedValueCache();
 
-	public BamToCoverageEstimateConversion(SAMDataSource file, final GBrowser browser) {
+	public BamToCoverageEstimateConversion(BamDataSource file, final GBrowser browser) {
 	    
 		super(null, null);
 		
