@@ -21,10 +21,10 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
     protected TabixIntensityTrack readOverviewSummary;
 	private AreaRequestHandler summaryDataSource;
 
-    public ReadSummaryTrackGroup(GBrowserView view, AreaRequestHandler userData, AreaRequestHandler seqFile, String title, 
+    public ReadSummaryTrackGroup(GBrowserView view, AreaRequestHandler details, AreaRequestHandler estimate, AreaRequestHandler seqFile, String title, 
     		AreaRequestHandler summaryDataSource) throws FileNotFoundException {
 
-    	super(view, userData, seqFile, title);
+    	super(view, details, estimate, seqFile, title);
     	this.summaryDataSource = summaryDataSource;
     }
 

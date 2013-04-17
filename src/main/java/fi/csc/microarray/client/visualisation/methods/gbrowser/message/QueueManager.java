@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
@@ -38,7 +38,7 @@ public class QueueManager implements AreaResultListener {
 			
 			if (areaRequestHandler instanceof SingleThreadAreaRequestHandler) {
 				
-				context.queue = new LinkedBlockingQueue<AreaRequest>();				
+				context.queue = new LinkedBlockingDeque<AreaRequest>();				
 			} else {
 				context.queue = new ConcurrentLinkedQueue<AreaRequest>();
 			}
@@ -84,7 +84,8 @@ public class QueueManager implements AreaResultListener {
 		req.getStatus().areaRequestHandler = areaRequestHandler;
 		QueueContext context = queues.get(areaRequestHandler);
 
-		req.getStatus().maybeClearQueue(context.queue);
+		//req.getStatus().maybeClearQueue(context.queue);
+		context.queue.clear();
 		context.queue.add(req);
 		
 		if (context.requestHandler != null) {

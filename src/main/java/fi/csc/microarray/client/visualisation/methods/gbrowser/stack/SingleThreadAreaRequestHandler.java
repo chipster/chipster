@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.SwingUtilities;
 
@@ -13,14 +13,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 
 public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler {
 
-	private BlockingQueue<AreaRequest> areaRequestQueue;
+	private LinkedBlockingDeque<AreaRequest> areaRequestQueue;
 
 	private boolean poison = false;
 
 	public SingleThreadAreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
 		super(areaRequestQueue, areaResultListener);
-		this.areaRequestQueue = (BlockingQueue<AreaRequest>) areaRequestQueue;
+		this.areaRequestQueue = (LinkedBlockingDeque<AreaRequest>) areaRequestQueue;
 		this.areaResultListener = areaResultListener;
 	}
 
@@ -36,7 +36,9 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 				while (!poison) {
 					AreaRequest areaRequest;
 					try {
-						if ((areaRequest = areaRequestQueue.take()) != null) {
+						
+						//the queue is actually a stack, but it doesn't make any difference, because QueueManger clears it always anyway
+						if ((areaRequest = areaRequestQueue.takeLast()) != null) {
 							areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 							processAreaRequest(areaRequest);
 						}
@@ -44,7 +46,9 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 						e.printStackTrace();
 					}
 				}
+				clean();
 			}
+
 		};
 
 		thread.setDaemon(true);
@@ -52,6 +56,11 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 		thread.start();
 	}
 
+	/**
+	 * Override this method to close files etc.
+	 */
+	public void clean() {		
+	}
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
 
@@ -59,6 +68,8 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 
 			this.areaResultListener = null;
 			this.poison = true;
+			
+			clean();
 		}
 	}
 
@@ -82,6 +93,10 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 	
 	@Override
 	public void setQueue(Queue<AreaRequest> queue) {
-		this.areaRequestQueue = (BlockingQueue<AreaRequest>) queue;
+		this.areaRequestQueue = (LinkedBlockingDeque<AreaRequest>) queue;
+	}
+
+	public boolean hasNewRequest() {
+		return areaRequestQueue.size() > 0;
 	}
 }

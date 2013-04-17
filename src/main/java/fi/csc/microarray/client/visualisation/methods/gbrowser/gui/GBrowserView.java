@@ -287,9 +287,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			unchanged = false;
 		}	
 		
-		previousTracks = getVisibleTracks();
-		
-		System.out.println(unchanged);
+		previousTracks = getVisibleTracks();		
 		return unchanged;
 	}
 
