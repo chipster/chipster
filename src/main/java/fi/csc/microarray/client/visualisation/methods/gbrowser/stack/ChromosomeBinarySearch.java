@@ -159,7 +159,7 @@ public class ChromosomeBinarySearch {
 		while (pos < pos2) {
 			String line = file.getNextLine();
 			parser.setLine(line);
-			System.out.println(line);
+
 			if (!parser.isContentLine()) {
 				//header or comment
 				continue;
