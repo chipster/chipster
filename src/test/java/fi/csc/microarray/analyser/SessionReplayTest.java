@@ -48,6 +48,7 @@ import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.session.SessionLoader.LoadMethod;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -192,7 +193,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
 		// Load session
-		sourceManager.loadSession(session, false);
+		sourceManager.loadSession(session, LoadMethod.NORMAL);
 		
 		// Pick import operations and copy imported data beans to target manager 
 		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
