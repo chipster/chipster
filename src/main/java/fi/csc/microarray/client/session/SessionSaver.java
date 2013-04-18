@@ -117,7 +117,7 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		gatherMetadata(true, false);
+		gatherMetadata(true, true);
 		boolean metadataValid = validateMetadata();
 	
 		writeSessionToFile(true);
