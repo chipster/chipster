@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,17 @@ public class RandomAccessLineReaderTest {
 		
 		//Create some artificial content
 		File testFile = getTestFile();	
+		testFile(testFile, true);
+		
+		//Create some artificial content with really long rows
+		testFile = getTestFile(true, 100);	
+		testFile(testFile, false);	
+	}
+
+	private static void testFile(File testFile, boolean thoroughTest) throws FileNotFoundException,
+			IOException, URISyntaxException, MalformedURLException,
+			GBrowserException {
+		RandomAccessLineReader lineReader;
 		//Read the file with standard tools for reference
 		List<String> lines = getTestReferenceList(testFile);
 		
@@ -67,87 +79,89 @@ public class RandomAccessLineReaderTest {
 			testLineComparison(refernceLine, line);
 		}
 
-		
-		// Find out a location in the middle of the file for buffer tests
-		int testLinePosition = 0;
-		
-		for (int i = 0; i < 500; i++) {
-			testLinePosition += lines.get(i).length() + 1;
-		}
-		
-		//Right answers
-		String[] line500 = {"M499-", "499-", "99-", "9-", "-", "" };
-				
-		//Read something little bit before the actual place to make sure that buffer is ready
-		for (int i = 0; i < 6; i++) {
-			int j = testLinePosition - 6 + i;
-		
-			//Fill buffer by reading little bit before the actual place
-			lineReader.setPosition(j - 1024);
-			lineReader.readLine();
-			
-			//This should give the last characters of line number 499
-			
-			//Read from buffer
-			lineReader.setPosition(j);			
-			String line = lineReader.readLine();			
-			//System.out.println(line);			
-			testLineComparison(line500[i], line);
-		}
-		
-		//Force buffer update		
-		for (int i = 0; i < 6; i++) {
-			int j = testLinePosition - 6 + i;
-			
-			//Make buffer useless by reading somwhere else
-			lineReader.setPosition(RandomAccessLineReader.HTTP_BUFFER_SIZE*2);
-			lineReader.readLine();
-			
-			//Refresh buffer and read
-			lineReader.setPosition(j);
-			String line = lineReader.readLine();			
-			//System.out.println(line);			
-			testLineComparison(line500[i], line);
-		}
-		
-		//Buffer runs out	
-		for (int i = 0; i < 6; i++) {
-			int j = testLinePosition - 6 + i;
+		if (thoroughTest) {
 
-			//Fill buffer so that it has only one byte of the actual content
-			final int BUFFER_BYTES_LEFT = 1;
-			//Fill buffer
-			lineReader.setPosition(j - RandomAccessLineReader.HTTP_BUFFER_SIZE + BUFFER_BYTES_LEFT);			
-			lineReader.readLine();			
-						
-			if (lineReader.setPosition(j)) {
-			
-				//Check the buffer refill works
+			// Find out a location in the middle of the file for buffer tests
+			int testLinePosition = 0;
+
+			for (int i = 0; i < 500; i++) {
+				testLinePosition += lines.get(i).length() + 1;
+			}
+
+			//Right answers
+			String[] line500 = {"M499-", "499-", "99-", "9-", "-", "" };
+
+			//Read something little bit before the actual place to make sure that buffer is ready
+			for (int i = 0; i < 6; i++) {
+				int j = testLinePosition - 6 + i;
+
+				//Fill buffer by reading little bit before the actual place
+				lineReader.setPosition(j - 1024);
+				lineReader.readLine();
+
+				//This should give the last characters of line number 499
+
+				//Read from buffer
+				lineReader.setPosition(j);			
+				String line = lineReader.readLine();			
+				//System.out.println(line);			
+				testLineComparison(line500[i], line);
+			}
+
+			//Force buffer update		
+			for (int i = 0; i < 6; i++) {
+				int j = testLinePosition - 6 + i;
+
+				//Make buffer useless by reading somwhere else
+				lineReader.setPosition(RandomAccessLineReader.HTTP_BUFFER_SIZE*2);
+				lineReader.readLine();
+
+				//Refresh buffer and read
+				lineReader.setPosition(j);
+				String line = lineReader.readLine();			
+				//System.out.println(line);			
+				testLineComparison(line500[i], line);
+			}
+
+			//Buffer runs out	
+			for (int i = 0; i < 6; i++) {
+				int j = testLinePosition - 6 + i;
+
+				//Fill buffer so that it has only one byte of the actual content
+				final int BUFFER_BYTES_LEFT = 1;
+				//Fill buffer
+				lineReader.setPosition(j - RandomAccessLineReader.HTTP_BUFFER_SIZE + BUFFER_BYTES_LEFT);			
+				lineReader.readLine();			
+
+				if (lineReader.setPosition(j)) {
+
+					//Check the buffer refill works
+					String line = lineReader.readLine();			
+					//System.out.println(line);
+					testLineComparison(line500[i], line);
+
+				} else {
+					System.err.println("setPosition failed");
+				}
+			}
+
+			//Now some testing at the end of file
+			//Correct answers for end of file tests
+			String[] endOfFile = {"-M999-", "M999-", "999-", "99-", "9-", "-", "" };
+
+			//End of file		
+			for (int i =  0; i < 7; i++) {
+				int j = i - 7;
+				lineReader.setPosition(testFile.length() + j);
 				String line = lineReader.readLine();			
 				//System.out.println(line);
-				testLineComparison(line500[i], line);
-				
-			} else {
-				System.err.println("setPosition failed");
+				testLineComparison(endOfFile[i], line);
 			}
+
+			System.out.println(lineReader.readLine() == null);
 		}
 		
-		//No some testing at the end of file
-		//Correct answers for end of file tests
-		String[] endOfFile = {"-M999-", "M999-", "999-", "99-", "9-", "-", "" };
-		
-		//End of file		
-		for (int i =  0; i < 7; i++) {
-			int j = i - 7;
-			lineReader.setPosition(testFile.length() + j);
-			String line = lineReader.readLine();			
-			//System.out.println(line);
-			testLineComparison(endOfFile[i], line);
-		}
-		
-		System.out.println(lineReader.readLine() == null);
-		
-		testFile.delete();						
+		testFile.delete();
 	}
 
 	private static void testLineComparison(String refernceLine, String line) {
@@ -172,6 +186,10 @@ public class RandomAccessLineReaderTest {
 
 		return lines;
 	}
+	
+	public static File getTestFile() throws IOException {
+		return getTestFile(false, TEST_FILE_ROWS);
+	}
 
 	/**
 	 * Create a temp file with 1000 rows:
@@ -183,11 +201,12 @@ public class RandomAccessLineReaderTest {
 	 * A997-B997-C997-D997-E997-F997-G997-H997-I997-J997-K997-L997-M997-
 	 * A998-B998-C998-D998-E998-F998-G998-H998-I998-J998-K998-L998-M998-
 	 * A999-B999-C999-D999-E999-F999-G999-H999-I999-J999-K999-L999-M999-
+	 * @param testFileRows 
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
-	public static File getTestFile() throws IOException {
+	public static File getTestFile(boolean longRows, int testFileRows) throws IOException {
 		//Generate test file
 		File testFile = File.createTempFile("RandomAccessLineReader-test-file", ".txt");
 		
@@ -195,14 +214,23 @@ public class RandomAccessLineReaderTest {
 		
 		String[] cols = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M" };
 		
-		for (int i = 0; i < TEST_FILE_ROWS; i++) {
+		int rowRepeat = 1;
+		
+		if (longRows) {
+			rowRepeat = 100;
+		}
+		
+
+		for (int i = 0; i < testFileRows; i++) {
 			String row = String.format("%03d", i);
-						
+
 			String line = "";
-			for (String col : cols) {
-				line += col + row + "-";				
+			for (int j = 0; j < rowRepeat; j++) {
+				for (String col : cols) {
+					line += col + row + "-";				
+				}
 			}
-			
+
 			//System.out.println(line);
 			writer.write(line);
 			writer.newLine();

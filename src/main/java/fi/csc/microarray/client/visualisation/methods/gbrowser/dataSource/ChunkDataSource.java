@@ -174,11 +174,11 @@ public class ChunkDataSource extends DataSource {
 	}
 
 	public long length() throws IOException {
-		if (raFile != null) {
-			return raFile.length();
+		if (length == null) {
+			if (raFile != null) {
+				length = raFile.length();
 
-		} else {
-			if (length == null) {
+			} else {
 				HttpURLConnection connection = null;
 				try {
 					connection = (HttpURLConnection)url.openConnection();
@@ -192,8 +192,8 @@ public class ChunkDataSource extends DataSource {
 					IOUtils.disconnectIfPossible(connection);
 				}       
 			} 
-			return length;
 		}
+		return length;
 	}
 
 	public RandomAccessFile getFile() {

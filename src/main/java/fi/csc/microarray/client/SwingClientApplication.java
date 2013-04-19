@@ -86,6 +86,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.session.SessionLoader.LoadMethod;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
@@ -1692,12 +1693,12 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void loadSessionFrom(File file) {
-		loadSessionImpl(file, false);
+		loadSessionImpl(file, LoadMethod.NORMAL);
 	}
 
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, true);
+		loadSessionImpl(file, LoadMethod.LIGHTWEIGHT);
 	}
 
 	@Override
@@ -1709,7 +1710,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile, false);
+					loadSessionImpl(tempFile, LoadMethod.NORMAL);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1722,10 +1723,10 @@ public class SwingClientApplication extends ClientApplication {
 	
 	@Override
 	public void loadSession() {
-		loadSession(false);
+		loadSession(LoadMethod.NORMAL);
 	}
 	
-	public void loadSession(boolean lightWeightSession) {
+	public void loadSession(LoadMethod loadMethod) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
 		final JFileChooser fileChooser = getSessionFileChooser(accessory);
@@ -1757,12 +1758,12 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile(), lightWeightSession);		
+			loadSessionImpl(fileChooser.getSelectedFile(), loadMethod);		
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
+	private void loadSessionImpl(final File sessionFile, final LoadMethod loadMethod) {
 		
 		// check that it's a valid session file 
 		if (!UserSession.isValidSessionFile(sessionFile)) {
@@ -1781,11 +1782,12 @@ public class SwingClientApplication extends ClientApplication {
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile, restoreSession);
+				manager.loadSession(sessionFile, loadMethod);
 
 				unsavedChanges = somethingToSave;
 				
-				if (restoreSession) {
+				// should also be done for feedback sessions?
+				if (loadMethod.equals(LoadMethod.LIGHTWEIGHT)) {
 					clearDeadTempDirectories();
 				}
 			}
@@ -1922,7 +1924,7 @@ public class SwingClientApplication extends ClientApplication {
 				new AbstractAction("OPEN_LIGHTWEIGHT_SESSION") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadSession(true);
+				loadSession(LoadMethod.FEEDBACK);
 			}
 		});
 		KeyboardFocusManager kfm = 
