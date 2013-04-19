@@ -187,7 +187,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	logger.info("Next database backup is scheduled at " + firstBackupTime.getTime().toString());
     	
 	    Timer timer = new Timer("chipster-manager-backup", true);
-	    File backupDir = DirectoryLayout.getInstance().getBackupDir();
+	    File backupDir = DirectoryLayout.getInstance().getManagerBackupDir();
     	timer.scheduleAtFixedRate(new BackupTimerTask(backupDir), firstBackupTime.getTime(), backupInterval*60*60*1000);
 	    
     	
@@ -342,9 +342,10 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		            feedback.getSessionURL() : "[not available]";
 		    String emailBody =
 		        feedback.getDetails() + "\n\n" +
-		        "Username: " + feedback.getUsername() + "\n" +
-		        "Email: " + replyEmail + "\n" +
-		        "Session file: " + sessURL + "\n";		    
+		        "username: " + feedback.getUsername() + "\n" +
+		        "email: " + replyEmail + "\n" +
+		        "session file: " + sessURL + "\n\n" +
+		        "Download the session file as .zip and open it in Chipster using magic shortcut SHIFT-CTRL-ALT-O\n\n";		    
 		    for (String[] log : feedback.getLogs()) {
                 emailBody += log[0] + ": " + log[1] + "\n";
             }

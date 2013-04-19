@@ -75,7 +75,7 @@ public class ReadPileTrack extends Track {
 			read = readIter.next();
 
 			// Skip elements that are not in this view
-			if (!read.region.intersects(getView().getBpRegion())) {
+			if (!getView().requestIntersects(read.region)) {
 				readIter.remove();
 				continue;
 			}
@@ -95,8 +95,8 @@ public class ReadPileTrack extends Track {
 		while (splittedReadIter.hasNext()) {
 			splittedRead = splittedReadIter.next();
 
-			// Skip elements that are not in this view
-			if (!splittedRead.region.intersects(getView().getBpRegion())) {
+			// Skip elements that are not visible
+			if (!getView().viewIntersects(splittedRead.region)) {
 				continue;
 			}
 

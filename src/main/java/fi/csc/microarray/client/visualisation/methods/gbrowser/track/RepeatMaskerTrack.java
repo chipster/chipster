@@ -49,7 +49,7 @@ public class RepeatMaskerTrack extends Track{
 
 				regionContent = iter.next();
 
-				if (!regionContent.region.intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(regionContent.region)) {
 					iter.remove();
 					continue;
 				}

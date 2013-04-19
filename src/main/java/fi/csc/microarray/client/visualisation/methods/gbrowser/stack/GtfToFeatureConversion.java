@@ -84,12 +84,29 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		
 		Region requestRegion = new Region(start, end, request.start.chr);
 		
+		final long CHUNK_SIZE = 1*1000*1000;
+		if (requestRegion.getLength() > CHUNK_SIZE) {
+		
+			for (long chunkStart = requestRegion.start.bp; chunkStart <= requestRegion.end.bp; chunkStart += CHUNK_SIZE) {
+				Region chunkRegion = new Region(chunkStart, Math.min(chunkStart + CHUNK_SIZE, requestRegion.end.bp), requestRegion.start.chr);
+				
+				processAreaRequestChunk(request, chunkRegion);
+			}
+		}		
+	}
+	
+	protected void processAreaRequestChunk(AreaRequest request, Region chunkRegion) {
+		
 //		long t = System.currentTimeMillis();
 		
 		TreeMap<IndexKey, String> lines = null;
 		try {		
 						
-			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+			if (hasNewRequest()) {
+				return;
+			}
+			
+			lines = index.getFileLines(new AreaRequest(chunkRegion, request.getRequestedContents(), request.getStatus()));
 			
 //			System.out.println("getFileLines\t " + (System.currentTimeMillis() - t) + " ms, lines:\t " + lines.size());
 //			t = System.currentTimeMillis();
@@ -124,10 +141,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 			Exon exon = new Exon(region, feature, exonNumber);
 			
 			geneSet.addExon(exon, geneId, transcId, geneName, transcName, biotype);
-		}				
-		
-//		System.out.println("parser\t " + (System.currentTimeMillis() - t) + " ms, genes:\t " + geneSet.size());
-//		t = System.currentTimeMillis();
+		}					
 		
 		List<RegionContent> list = new LinkedList<RegionContent>();
 		

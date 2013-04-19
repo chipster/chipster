@@ -214,7 +214,7 @@ public class BaseStorage {
 			for (ReadPart readPart : readParts) {
 
 				// Skip elements that are not in this view
-				if (!readPart.intersects(view.getBpRegion())) {
+				if (!view.requestIntersects(readPart)) {
 					continue;
 				}
 				

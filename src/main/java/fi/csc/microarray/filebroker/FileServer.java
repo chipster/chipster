@@ -469,7 +469,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public URL getPublicUrL() throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + publicPath);		
 	}
-
+	
 }
 
 

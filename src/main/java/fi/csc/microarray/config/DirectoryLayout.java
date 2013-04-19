@@ -202,7 +202,7 @@ public class DirectoryLayout {
 		}
 	}
 
-	public File getBackupDir() throws IOException, IllegalConfigurationException {
+	public File getManagerBackupDir() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File backupDir = new File(getBaseDir(), configuration.getString("manager", "backup-dir"));
 			return initialise(backupDir);
@@ -211,6 +211,17 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
+
+	public File getFilebrokerMetadataBackupDir() throws IOException, IllegalConfigurationException {
+		if (type == Type.SERVER) {
+			File backupDir = new File(getBaseDir(), configuration.getString("filebroker", "metadata-backup-dir"));
+			return initialise(backupDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
 	
 	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {

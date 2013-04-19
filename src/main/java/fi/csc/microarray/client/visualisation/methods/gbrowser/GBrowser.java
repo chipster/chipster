@@ -33,15 +33,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytob
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.SAMDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixSummaryDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
@@ -58,6 +56,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BamToCoverageEstimateConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
@@ -421,7 +421,7 @@ public class GBrowser implements ComponentListener {
 				DataUrl dataUrl;
 				try {
 					dataUrl = track.interpretation.primaryData;
-					AreaRequestHandler treatmentRequestHandler;
+
 					if (track.interpretation.type == TrackType.READS) {
 						
 						if (!firstReadTrack) {
@@ -440,14 +440,21 @@ public class GBrowser implements ComponentListener {
 							refSeqRequestHandler = new IndexedFastaHandlerThread(refSeqDataSource);
 						}
 
+						//create two identical datasources, because details and estimates are read in separate threads and Picard 
+						//doesn't support concurrent access
+						BamDataSource detailsData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						BamDataSource estimateData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						
+						//treatmentRequestHandler = new SAMHandlerThread(treatmentData);
+						BamToDetailsConversion details = new BamToDetailsConversion(detailsData, this);
+						BamToCoverageEstimateConversion estimate = new BamToCoverageEstimateConversion(estimateData, this);
+						
 						if (track.interpretation.summaryDatas.size() == 0) {
 							// No precomputed summary data
 							
-							DataSource treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							treatmentRequestHandler = new SAMHandlerThread(treatmentData);
 
 							TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-									plot, treatmentRequestHandler, 
+									plot, details, estimate, 
 									refSeqRequestHandler, 
 									track.interpretation.primaryData.getName());
 
@@ -457,14 +464,12 @@ public class GBrowser implements ComponentListener {
 
 						} else { 
 							// Has precomputed summary data
-							DataSource treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							treatmentRequestHandler = new SAMHandlerThread(treatmentData);
 							
 							DataSource symmaryData = new TabixDataSource(dataUrl.getUrl(), null);
 							AreaRequestHandler summaryRequestHandler = new TabixSummaryHandlerThread(symmaryData);
 							
 							TrackGroup readGroupWithSummary = TrackFactory.getReadSummaryTrackGroup(
-									plot, treatmentRequestHandler, refSeqRequestHandler, 
+									plot, details, estimate, refSeqRequestHandler, 
 									track.interpretation.primaryData.getName(), summaryRequestHandler);
 							track.setTrackGroup(readGroupWithSummary);
 							samples.addTrackGroup(readGroupWithSummary);
@@ -497,7 +502,7 @@ public class GBrowser implements ComponentListener {
 					AreaRequestHandler refSeqRequestHandler = new IndexedFastaHandlerThread(refSeqDataSource);
 
 					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-							plot, null, 
+							plot, null, null,
 							refSeqRequestHandler, 
 							settings.getGenome().toString());
 
@@ -673,9 +678,9 @@ public class GBrowser implements ComponentListener {
 	 * @throws URISyntaxException 
 	 * @throws GBrowserException 
 	 */
-	public DataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
+	public BamDataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
 			throws IOException, URISyntaxException, GBrowserException {
-		DataSource dataSource = null;
+		BamDataSource dataSource = null;
 
 		// Convert data bean into file
 //		File file = data == null ? null : data.getLocalFile();
@@ -684,15 +689,12 @@ public class GBrowser implements ComponentListener {
 		
 		URL fileUrl = data.getUrl();
 
-		if (data.getName().contains(".bam-summary")) {
-			dataSource = new TabixSummaryDataSource(fileUrl);
-
-		} else if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
+		if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
 //			File indexFile = indexData.getLocalFile();
 //			URL indexFileUrl = indexFile.toURI().toURL();
 			
 			URL indexFileUrl = indexData.getUrl();
-			dataSource = new SAMDataSource(fileUrl, indexFileUrl);
+			dataSource = new BamDataSource(fileUrl, indexFileUrl);
 
 		}
 

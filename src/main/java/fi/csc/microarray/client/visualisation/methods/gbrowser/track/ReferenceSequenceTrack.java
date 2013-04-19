@@ -51,7 +51,7 @@ public class ReferenceSequenceTrack extends Track {
 
 				Entry<BpCoord, String> read = iter.next();
 
-				if (!getView().getBpRegion().contains(read.getKey())) {
+				if (!getView().requestContains(read.getKey())) {
 
 					iter.remove();
 					continue;

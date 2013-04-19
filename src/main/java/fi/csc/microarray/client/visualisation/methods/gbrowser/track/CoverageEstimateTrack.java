@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.emboss.jemboss.soap.GetWossname;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -28,7 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CoverageEstimateTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 200;
+    final public static int SAMPLING_GRANULARITY = 50;
 
 	private static final int MAX_VALUE_COUNT = SAMPLING_GRANULARITY * 2;
 
@@ -52,6 +54,9 @@ public class CoverageEstimateTrack extends Track {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
+//		Color bg = new Color(0f, 0f, 0f, 0.05f);
+//		drawables.add(new RectDrawable(0,  0,  getView().getWidth(), getHeight(), bg, bg));
+		
 		
 		// remove values when they get "too big"
 		while (values.size() > MAX_VALUE_COUNT) {
@@ -65,16 +70,16 @@ public class CoverageEstimateTrack extends Track {
 			RegionContent regCont = iterator.next();
 			
 			// remove values that have gone out of view
-			if (!regCont.region.intersects(getView().getBpRegion())) {
+			if (!getView().requestIntersects(regCont.region)) {
 				iterator.remove();
 				continue;
 			}
 			
 			// remove values that are too wide for this view (when zooming in)
-			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
-				iterator.remove();
-				continue;
-			}
+//			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
+//				iterator.remove();
+//				continue;
+//			}
 			
 //			// remove values that are too narrow to show (when zooming out)
 //			if (regCont.region.getLength() < (getView().getBpRegion().getLength() / (SAMPLING_GRANULARITY * 4))) {
@@ -98,8 +103,9 @@ public class CoverageEstimateTrack extends Track {
 				count = Math.log(count);
 			}
 			
-			int height = (int) Math.min(count * (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS), getHeight());			
-
+			int height = (int) Math.min(count * (2), getHeight());
+			
+//			drawables.add(new RectDrawable(x1, y, x2 - x1, getHeight(), Color.white, null));
 			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 
 		}

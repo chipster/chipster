@@ -119,7 +119,7 @@ public class ChromosomeBinarySearch {
 			
 			if (pos2 - pos1 < ITERATIVE_SEARCH_LIMIT) {
 
-				iterativeSearch(pos1, pos2, chr1, chr2);
+				linearSearch(pos1, pos2, chr1, chr2);
 				
 			} else {
 				
@@ -144,7 +144,7 @@ public class ChromosomeBinarySearch {
 	 * @throws IOException
 	 * @throws GBrowserException
 	 */
-	private void iterativeSearch(long pos1, long pos2, Chromosome chr1,
+	private void linearSearch(long pos1, long pos2, Chromosome chr1,
 			Chromosome chr2) throws IOException, GBrowserException {
 			
 		long pos = pos1;
@@ -159,6 +159,7 @@ public class ChromosomeBinarySearch {
 		while (pos < pos2) {
 			String line = file.getNextLine();
 			parser.setLine(line);
+
 			if (!parser.isContentLine()) {
 				//header or comment
 				continue;

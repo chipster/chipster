@@ -149,8 +149,8 @@ public class RandomAccessLineReader {
 		
 		//The last parameter 'retry' should be disabled, because it's much more
 		//efficient to retry downloading only after buffer runs out. 
-		chunkDataSource.read(refillPosition, bytes, false);
-		buffer = buffer + new String(bytes);		
+		int length = chunkDataSource.read(refillPosition, bytes, false);
+		buffer = buffer + new String(bytes, 0, length);		
 		
 		//System.out.println("RandomAccessLineReader.fillBuffer() Position: " + position/1024/1024 + " MB \t Length: " + buffer.lastIndexOf("\n") + " bytes");
 	}

@@ -74,8 +74,7 @@ public class TranscriptTrack extends Track {
 				//Use iterator to be able to remove genes that are out of sight
 				Gene gene = iter.next();
 
-				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!gene.getRegion().intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(gene.getRegion())) {
 					iter.remove();
 					continue;
 				}

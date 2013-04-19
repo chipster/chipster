@@ -57,26 +57,27 @@ public class TrackFactory {
 		return group;
 	}
 	
-	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler userData, AreaRequestHandler seqFile, String title)
+	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler details, AreaRequestHandler estimate, 
+			AreaRequestHandler seqFile, String title)	
 	        throws FileNotFoundException, MalformedURLException {
 	
 		GBrowserView dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, userData, seqFile, title);
+		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, details, estimate, seqFile, title);
 		readGroup.initialise();
         
         return readGroup;
 	}
 
-	public static TrackGroup getReadSummaryTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler userData,
+	public static TrackGroup getReadSummaryTrackGroup(GBrowserPlot genomePlot,  AreaRequestHandler details, AreaRequestHandler estimate, 
 			AreaRequestHandler seqFile, String title, AreaRequestHandler summaryDataSource)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		GBrowserView dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData, seqFile, title, summaryDataSource);
+		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, details, estimate, seqFile, title, summaryDataSource);
 		readGroup.initialise();
         
         return readGroup;

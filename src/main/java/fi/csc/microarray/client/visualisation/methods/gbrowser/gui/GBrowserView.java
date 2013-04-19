@@ -71,6 +71,8 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
 	private long dragEventTime;
+	private Region requestRegion;
+	private Collection<Track> previousTracks;
 
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
@@ -197,7 +199,17 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	/**
-	 * Fire area requests for all tracks in this view.
+	 * Fire area requests for all tracks in this view. Request is made only if the previous request
+	 * doesn't cover current area. Requests are enlarged to avoid an immediate need for new request when
+	 * the view is moved. However, requests can not be enlarged too much, because the result data has to
+	 * fit in the memory.
+	 * 
+	 * Data is requested from the region 
+	 * which is twice the size of the visible region, i.e. it extends to the region outside 
+	 * visible region on both sides for the length of half of the view size. A new request 
+	 * is made when the previous request covers only a quarter of the view length outside 
+	 * the visible region. This gives us little bit time to receive and process the data before the user
+	 * has moved outisde the data area of the previous request.
 	 * 
 	 * Only fire one request for a single file.
 	 */
@@ -226,16 +238,72 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			}
 		}
 		
-		Region requestRegion = getBpRegion();
-
-		// Fire area requests
-		for (AreaRequestHandler file : datas.keySet()) {
-			DataRetrievalStatus status = new DataRetrievalStatus();
-			status.clearQueues = true;
-			getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);
+		Region view = getBpRegion();
+		
+		long minBuffer = view.getLength() / 4;
+		long maxBuffer = view.getLength() / 2;
+		
+		long minStart = view.start.bp - maxBuffer;
+		long maxStart = view.start.bp - minBuffer;	
+		long minEnd = view.end.bp + minBuffer;
+		long maxEnd = view.end.bp + maxBuffer;
+		
+		boolean unchangedTracks = unchangedTracks();
+		
+		if (unchangedTracks && requestRegion != null && view.start.chr.equals(requestRegion.start.chr) &&
+				requestRegion.start.bp < maxStart && requestRegion.end.bp > minEnd &&
+				getBpRegion().getLength() > requestRegion.getLength() / 4) {
+			
+			//Previous request is enough
+			
+		} else {
+			
+			//Get new data
+			
+			requestRegion = new Region(minStart, maxEnd, view.start.chr);
+			
+			// Fire area requests
+			for (AreaRequestHandler file : datas.keySet()) {
+				DataRetrievalStatus status = new DataRetrievalStatus();
+				status.clearQueues = true;
+				getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);
+			}
 		}
 	}
 	
+	private boolean unchangedTracks() {
+		
+		Collection<Track> currentTracks = getVisibleTracks();
+		
+		boolean unchanged = false;
+		
+		if (previousTracks !=  null && 
+				previousTracks.containsAll(currentTracks) &&
+					currentTracks.containsAll(previousTracks)) {
+			
+			unchanged = true;			
+		} else {
+			
+			unchanged = false;
+		}	
+		
+		previousTracks = getVisibleTracks();		
+		return unchanged;
+	}
+
+	private LinkedList<Track> getVisibleTracks() {
+		
+		LinkedList<Track> list = new LinkedList<Track>();
+		
+		for (Track track : getTracks()) {
+			if (track.isVisible()) {
+				list.add(track);
+			}
+		}
+		
+		return list;
+	}
+
 	public long getMinBp(long length) {
 		return (long) (-length / 30);
 	}
@@ -610,5 +678,28 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	@Override
 	public Collection<? extends LayoutComponent> getLayoutComponents() {
 		return getScrollGroups();
+	}
+
+	public boolean requestIntersects(Region region) {
+		if (requestRegion != null) {			
+			return requestRegion.intersects(region);
+		} 
+		
+		//Keep everything
+		return true;
+	}
+
+	public boolean viewIntersects(Region region) {
+					
+		return getBpRegion().intersects(region);		
+	}
+
+	public boolean requestContains(BpCoord position) {
+		if (requestRegion != null) {			
+			return requestRegion.contains(position);
+		} 
+		
+		//Keep everything
+		return true;		
 	}
 }
