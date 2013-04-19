@@ -96,7 +96,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 			RegionContent read = iter.next();
 
 			// Remove reads that are not in this view
-			if (!read.region.intersects(view.getBpRegion())) {
+			if (!view.requestIntersects(read.region)) {
 				iter.remove();
 				continue;
 			}

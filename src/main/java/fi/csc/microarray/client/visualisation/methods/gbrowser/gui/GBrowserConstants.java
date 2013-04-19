@@ -28,6 +28,14 @@ public class GBrowserConstants {
 	public static final Color COLOR_ORANGE = new Color(0xe7881c);
 	
 	public static final Color SCATTERPLOT_TITLE_COLOR = new Color(0f, 0f, 0f, 0.1f);
+	
+	public static final Color FORWARD_COLOR = new Color(0,0,0, 64);
+	public static final Color REVERSE_COLOR = new Color(
+    		GBrowserConstants.COLOR_BLUE.getRed(), 
+    		GBrowserConstants.COLOR_BLUE.getGreen(), 
+    		GBrowserConstants.COLOR_BLUE.getBlue(), 
+    		64);
+	public static final Color COVERAGE_COLOR = Color.gray;
 
 	// Visibility level thresholds
 	public static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;

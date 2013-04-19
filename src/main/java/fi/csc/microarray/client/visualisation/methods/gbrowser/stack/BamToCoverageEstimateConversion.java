@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  */
 public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHandler {
 	
-	final static int SAMPLE_SIZE_BP = 1000;
+	public final static int SAMPLE_SIZE_BP = 1000;
 
 	private BamDataSource dataSource;
 	
@@ -77,7 +77,7 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		int step = request.getLength().intValue() / CoverageEstimateTrack.SAMPLING_GRANULARITY;
 
 		int countHits = 0;
-		int countReads = 0;
+		int countReads = 0;		
 		
 		// Divide visible region into subregions and iterate over them
 		for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
@@ -106,24 +106,11 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		// Return one result pair for each region covered by one cache hit
 		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>(); 
 		long cachePos = 0; 
-		long startPos = pos;
-		int cacheHitsPerRegion = 0;
+
 		for (BpCoord coord : indexedValues.keySet()) {
 
-			// Find end: either next cache hit or end of region
-			long endPos;
-			SortedMap<BpCoord, Counts> tailMap = indexedValues.tailMap(coord);
-			if (tailMap.size() > 1) {
-				Iterator<BpCoord> iterator = tailMap.keySet().iterator();
-				iterator.next(); // read away this cache hit
-				BpCoord next = iterator.next();
-				endPos = (startPos + next.bp) / 2;
-				cachePos = next.bp;
-			} else {
-				endPos = (pos + step);
-			}
+			cachePos = coord.bp;
 			
-			//Region recordRegion = new Region(startPos, endPos, request.start.chr);
 			Region recordRegion = new Region(
 					cachePos - SAMPLE_SIZE_BP / 2, 
 					cachePos + SAMPLE_SIZE_BP / 2, request.start.chr);
@@ -132,11 +119,6 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
 			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);
 			responseList.add(new RegionContent(recordRegion, values));
-			
-			cacheHitsPerRegion++;
-
-			// Move to next region
-			startPos += endPos;
 		}
 		
 		super.createAreaResult(new AreaResult(request.getStatus(), responseList));
@@ -159,11 +141,13 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		int countRejected1 = 0;
 		int countRejected2 = 0;
 		
+		boolean interrupted = false;
 		
 		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {			
 			
 			if (super.hasNewRequest()) {
 				//Stop iteration, but send results
+				interrupted = true;
 				break;
 			}
 			
@@ -175,9 +159,9 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 
 
 					if (record.getReadNegativeStrandFlag()) {
-						countReverse++;
+						countReverse += record.getReadLength();
 					} else {
-						countForward++;
+						countForward += record.getReadLength();
 					}
 				} else {
 					countRejected2++;
@@ -192,22 +176,23 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 
 		//System.out.println("Forward: " + countForward + "\tReverse: " + countReverse + "\tRejected1: " + countRejected1 + "\tRejected2: " + countRejected2 + "\t" + (System.currentTimeMillis() - t) + " ms");
 		
-		
-		cache.store(new BpCoord(stepMiddlepoint, from.chr), countForward, countReverse);
-		
 		// We are done
 		iterator.close();
+		
+		if (!interrupted) {
+			cache.store(new BpCoord(stepMiddlepoint, from.chr), countForward, countReverse);		
 
-		// Send result
-		LinkedList<RegionContent> content = new LinkedList<RegionContent>();
-		
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, countForward);
-		values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE, countReverse);
-		
-		content.add(new RegionContent(new Region(start, end, from.chr), values));
-		
-		super.createAreaResult(new AreaResult(request.getStatus(), content));						
+			// Send result
+			LinkedList<RegionContent> content = new LinkedList<RegionContent>();
+
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, countForward);
+			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE, countReverse);
+
+			content.add(new RegionContent(new Region(start, end, from.chr), values));
+
+			super.createAreaResult(new AreaResult(request.getStatus(), content));
+		}
 	}
 	
 	public String toString() {

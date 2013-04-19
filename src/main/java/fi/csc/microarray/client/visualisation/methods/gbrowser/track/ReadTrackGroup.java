@@ -17,8 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 public class ReadTrackGroup extends TrackGroup {
 
 	// Colors
-//    private final Color histogramColor = new Color(100, 100, 100, 100); // translucent color
-	private final Color histogramColor = new Color(100, 100, 100);
     private final Color fontColor = Color.black;
 
     // Tracks
@@ -68,8 +66,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(titleTrack);
         
         if (details != null) {
-        	// Overview
-        	addReadOverviewTrack();
+
         	sepTrackReadOverview = new SeparatorTrack(Color.gray, 1, GBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
         	sepTrackReadOverview.setView(view);
         	tracks.add(sepTrackReadOverview);
@@ -102,8 +99,9 @@ public class ReadTrackGroup extends TrackGroup {
         }
         
         if (details != null) {
-	        // Overview - reversed
-	        addReadOverviewReversedTrack();
+        	
+        	// Overview
+        	addReadOverviewTrack();
 	        
 	        // Detailed - reversed
 	        readsReversed = new ReadPileTrack(readpartProvider, seqFile, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
@@ -118,13 +116,7 @@ public class ReadTrackGroup extends TrackGroup {
 	        
 	        // Profile
 	        
-	        Color forwardColor = new Color(0,0,0, 64);
-	        Color reverseColor = new Color(
-	        		GBrowserConstants.COLOR_BLUE.getRed(), 
-	        		GBrowserConstants.COLOR_BLUE.getGreen(), 
-	        		GBrowserConstants.COLOR_BLUE.getBlue(), 
-	        		64);
-	        Color totalColor = Color.gray;
+
 	        
 	//        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
 	//        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
@@ -134,7 +126,7 @@ public class ReadTrackGroup extends TrackGroup {
 	//    	sepTrackProfile.setName("ProfileTrack");
 	//        tracks.add(sepTrackProfile);
 	        
-	        profileTrack = new CoverageTrack(readpartProvider, seqFile, forwardColor, reverseColor, 0, 
+	        profileTrack = new CoverageTrack(readpartProvider, seqFile, GBrowserConstants.FORWARD_COLOR, GBrowserConstants.REVERSE_COLOR, 0, 
 	        		GBrowserConstants.SWITCH_VIEWS_AT);
 	        profileTrack.setView(view);
 	        profileTrack.setAreaRequestHandler(details);
@@ -146,7 +138,7 @@ public class ReadTrackGroup extends TrackGroup {
 	    	tracks.add(sepTrackProfile);
 	        
 	        // SNP profile
-	        profileSNPTrack = new CoverageTrack(readpartProvider, seqFile, totalColor, null, 0, 
+	        profileSNPTrack = new CoverageTrack(readpartProvider, seqFile, GBrowserConstants.COVERAGE_COLOR, null, 0, 
 	        		GBrowserConstants.SWITCH_VIEWS_AT);
 	        profileSNPTrack.setView(view);
 	        profileSNPTrack.setAreaRequestHandler(details);
@@ -171,20 +163,8 @@ public class ReadTrackGroup extends TrackGroup {
         this.initialised  = true;
     }
 
-
-	protected void addReadOverviewReversedTrack() {
-		readOverviewReversed = new CoverageEstimateTrack(histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
-				false, true);
-		readOverviewReversed.setView(view);
-		readOverviewReversed.setAreaRequestHandler(estimate);
-        readOverviewReversed.setStrand(Strand.REVERSE);
-        readOverviewReversed.setName("ReadOverview");
-		tracks.add(readOverviewReversed);
-	}
-
 	protected void addReadOverviewTrack() {
-		readOverview = new CoverageEstimateTrack(histogramColor, GBrowserConstants.SWITCH_VIEWS_AT, 
-				false, true);
+		readOverview = new CoverageEstimateTrack(GBrowserConstants.FORWARD_COLOR, GBrowserConstants.REVERSE_COLOR, GBrowserConstants.SWITCH_VIEWS_AT);
 		readOverview.setView(view);
 		readOverview.setAreaRequestHandler(estimate);
 		readOverview.setName("ReadOverview");

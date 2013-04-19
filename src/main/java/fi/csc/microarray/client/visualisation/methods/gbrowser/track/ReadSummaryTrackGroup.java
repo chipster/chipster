@@ -36,12 +36,6 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
         readOverviewSummary.setAreaRequestHandler(summaryDataSource);
         tracks.add(readOverviewSummary);
     }
-
-    @Override
-    protected void addReadOverviewReversedTrack() {
-    	// TODO add reversed summary overview track
-    }
-
     
     public void actionPerformed(ActionEvent e) {
 
