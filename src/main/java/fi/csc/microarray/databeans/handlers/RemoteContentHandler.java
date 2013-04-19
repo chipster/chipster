@@ -15,7 +15,7 @@ import fi.csc.microarray.util.IOUtils;
 public class RemoteContentHandler implements ContentHandler {
 	
 	private static int HTTP_TIMEOUT_MILLISECONDS = 2000;
-	private static int BLACKLIST_LIFETIME_MILLISECONDS = 10*HTTP_TIMEOUT_MILLISECONDS;
+	private static int BLACKLIST_LIFETIME_MILLISECONDS = 30*HTTP_TIMEOUT_MILLISECONDS;
 
 	private LinkedList<BlacklistEntry> hostBlacklist = new LinkedList<BlacklistEntry>();
 	
