@@ -39,6 +39,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
@@ -61,10 +62,10 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			super(null, data.getName());
 			this.bean = data;
 		}
-
-		@Override
-		public String getName() {
-			return bean.getName();
+		
+		public BeanDataFile(DataBean data, String name) {
+			super(null, name);
+			this.bean = data;
 		}
 		
 		/* (non-Javadoc)
@@ -250,6 +251,29 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		public File getLocalAnnotationDir() throws IOException {
 			return DirectoryLayout.getInstance().getLocalAnnotationDir();
 		}
+		
+		@Override
+		public LinkedList<String> getSampleNames(LinkedList<String> sampleNames, DataUrl dataUrl) {
+						
+			DataBean bean = ((BeanDataFile)dataUrl).bean;
+			
+			try {
+				for (int i = 0; i < sampleNames.size(); i++) {
+
+					String internalName = sampleNames.get(i);
+
+					String sampleName;
+					sampleName = bean.queryFeatures("/phenodata/linked/describe/" + internalName).asString();
+
+					sampleNames.set(i, sampleName);				
+				}
+
+			} catch (MicroarrayException e) {
+				//Use internal names
+			}
+			
+			return sampleNames;
+		}
 	}
 	
 	private ChipsterGBrowser browser;
@@ -321,6 +345,24 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
 				// Gtf file
 				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
+			} else if ((data.isContentTypeCompatitible("text/tab") && 
+					data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
+				
+				// Cna file
+				
+				DataBeanInterpretation freqs = new DataBeanInterpretation(TrackType.CNA_FREQUENCIES, new BeanDataFile(data, data.getName()));
+				freqs.setName(data.getName() + " frequencies");
+				interpretations.add(freqs);
+				
+				DataBeanInterpretation calls = new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName()));
+				calls.setName(data.getName() + " calls");
+				interpretations.add(calls);
+				
+				DataBeanInterpretation logratios = new DataBeanInterpretation(TrackType.CNA_LOGRATIOS, new BeanDataFile(data, data.getName()));
+				logratios.setName(data.getName() + " log ratios");
+				interpretations.add(logratios);
 			}						
 		}
 

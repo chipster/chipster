@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.5.0
+LATEST_VERSION=2.5.1
 
 # Exit immediately if some command fails
 set -e
@@ -414,7 +414,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 
-# 2.5.0, not released yet
+# 2.5.0
 compare_to_current "2.5.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
@@ -509,16 +509,33 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/quantreg.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
 
   echo " ** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
   mv ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
 
 fi
 
+
+# 2.5.1
+compare_to_current "2.5.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo " ** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+
+  # remove wrong target location for mirbase bowtie indexes in 2.5.0 first version
+  rm -rf ${TOOLS_PATH}/indexes/
+
+fi
 
   
 

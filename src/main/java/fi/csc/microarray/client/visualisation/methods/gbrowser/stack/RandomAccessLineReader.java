@@ -106,17 +106,18 @@ public class RandomAccessLineReader {
 
 		int indexOfNewLine = buffer.indexOf("\n");
 
-		if (indexOfNewLine < 0) {
+		while (indexOfNewLine < 0 && position + buffer.length() < length()) {
 			
-			//Buffer run out or end of file
+			//Buffer run out
 			fillBuffer();
 			indexOfNewLine = buffer.indexOf("\n");
 			
-			if (indexOfNewLine < 0) {
-				return null; //End of file
-			}
 		}
 
+		if (indexOfNewLine < 0) {
+			return null; //End of file
+		}
+		
 		//Get the requested line from buffer
 		String line = buffer.substring(0, indexOfNewLine);
 		
@@ -140,10 +141,16 @@ public class RandomAccessLineReader {
 			
 		byte[] bytes = new byte[HTTP_BUFFER_SIZE];
 		
+		if (buffer == null) {
+			buffer = "";
+		}
+		
+		long refillPosition = position + buffer.length();
+		
 		//The last parameter 'retry' should be disabled, because it's much more
 		//efficient to retry downloading only after buffer runs out. 
-		chunkDataSource.read(position, bytes, false);
-		buffer = new String(bytes);		
+		chunkDataSource.read(refillPosition, bytes, false);
+		buffer = buffer + new String(bytes);		
 		
 		//System.out.println("RandomAccessLineReader.fillBuffer() Position: " + position/1024/1024 + " MB \t Length: " + buffer.lastIndexOf("\n") + " bytes");
 	}
