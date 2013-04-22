@@ -79,13 +79,19 @@ public class QueueManager implements AreaResultListener {
 	    queues.remove(file);
 	}
 	
-	public void addAreaRequest(AreaRequestHandler areaRequestHandler, AreaRequest req, boolean clearQueues) {
+	public void addAreaRequest(AreaRequestHandler areaRequestHandler, AreaRequest req, Region dataRegion) {
 		
 		req.getStatus().areaRequestHandler = areaRequestHandler;
 		QueueContext context = queues.get(areaRequestHandler);
 
 		//req.getStatus().maybeClearQueue(context.queue);
-		context.queue.clear();
+		//context.queue.clear();
+		
+		if ((context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
+			//Create a new Region instance for the background thread
+			((SingleThreadAreaRequestHandler)context.requestHandler).setDataRegion(new Region(dataRegion));
+		}
+		
 		context.queue.add(req);
 		
 		if (context.requestHandler != null) {

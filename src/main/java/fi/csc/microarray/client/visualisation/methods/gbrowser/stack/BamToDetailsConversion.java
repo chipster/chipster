@@ -85,33 +85,6 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 	}
 		
 	private void getDetails(AreaRequest request) throws IOException {
-
-		// Process only new part of the requested area
-		// FIXME We rely on other layers to cache previous results, which is not very clean.
-
-		if (previousRequestedRegion != null) {
-
-			if (request.intersects(previousRequestedRegion)) {
-				Region overlap = request.intersect(previousRequestedRegion);
-
-				Region newRegion = new Region(request.start, request.end);
-
-				if (overlap.start.equals(request.start)) {
-					// Overlaps from left
-					newRegion.start = overlap.end;
-
-				} else if (overlap.end.equals(request.end)) {
-					// Overlaps from right
-					newRegion.end = overlap.start;
-
-				} else {
-					// Overlap inside request, do nothing, because would need splitting
-				}
-
-				request = new AreaRequest(newRegion, request.getRequestedContents(), request.getStatus());
-			}
-		}
-		previousRequestedRegion = request;
 		
 		fetchReads(request);
 	}

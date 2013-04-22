@@ -56,10 +56,48 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		if (request.getStatus().poison) {
 			return;
 		}
-			
-		processCoverageEstimateRequest(request);									
+		
+		processCoverageEstimateRequest(request);
+		
+		if (!hasNewRequest()) {
+
+			createBetterEstimate(request, 10);
+		}
+		
+		if (!hasNewRequest()) {
+
+			createBetterEstimate(request, 100);
+		}
 	}
 	
+	private void createBetterEstimate(AreaRequest request, int partCount) {
+		
+		long step = getDataRegion().getLength() / partCount;
+		
+		if (step < SAMPLE_SIZE_BP) {
+			//no need for better estimate
+			return;
+		}
+		
+		for (long i = getDataRegion().start.bp; i < getDataRegion().end.bp - step; i += step) {
+			
+			Region region = new Region(i, Math.min(i + step, getDataRegion().end.bp), getDataRegion().start.chr);
+			AreaRequest requestPart;
+			try {
+				requestPart = new AreaRequest(region, request.getRequestedContents(), request.getStatus().clone());
+
+				if (this.hasNewRequest()) {
+					return;
+				} else {
+					processCoverageEstimateRequest(requestPart);
+				}
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			
+		}		
+	}
+
 	/**
 	 * Return approximation of reads in a given range.
 	 * <p>
@@ -98,7 +136,7 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 				sampleToGetEstimateRegion(request, from, to);				
 			}			
 		}
-		//System.out.println(countHits + "\t" + countReads);
+		//System.out.println("Cache: " + countHits + "\tFile: " + countReads);
 	}
 
 	private void convertCacheHits(AreaRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
@@ -145,11 +183,11 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		
 		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {			
 			
-			if (super.hasNewRequest()) {
-				//Stop iteration, but send results
-				interrupted = true;
-				break;
-			}
+//			if (super.hasNewRequest()) {
+//				//Stop iteration, but send results
+//				interrupted = true;
+//				break;
+//			}
 			
 			SAMRecord record = i.next();
 

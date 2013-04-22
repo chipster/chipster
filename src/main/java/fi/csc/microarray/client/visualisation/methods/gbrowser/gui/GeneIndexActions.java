@@ -59,14 +59,14 @@ public class GeneIndexActions implements AreaResultListener {
 		listenerMap.put(gene, listener);
 		
 		// Search for the chromosome of the gene
-		queueManager.addAreaRequest(geneDataSource, new GeneRequest(gene, null), false);
+		queueManager.addAreaRequest(geneDataSource, new GeneRequest(gene, null), null);
 	}
 
 
 	private void requestLocation(String gene, Chromosome chr) {
 		
 		// We know the chromosome, but search for location of the gene
-		queueManager.addAreaRequest(gtfDataSource, new GeneRequest(gene, chr), false);
+		queueManager.addAreaRequest(gtfDataSource, new GeneRequest(gene, chr), null);
 	}
 
 	public static boolean checkIfNumber(String name) {

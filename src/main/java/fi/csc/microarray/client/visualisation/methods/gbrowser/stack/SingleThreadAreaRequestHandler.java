@@ -9,6 +9,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 
 public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler {
@@ -16,6 +17,8 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 	private LinkedBlockingDeque<AreaRequest> areaRequestQueue;
 
 	private boolean poison = false;
+
+	private Region dataRegion;
 
 	public SingleThreadAreaRequestHandler(Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener) {
 
@@ -37,10 +40,16 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 					AreaRequest areaRequest;
 					try {
 						
-						//the queue is actually a stack, but it doesn't make any difference, because QueueManger clears it always anyway
-						if ((areaRequest = areaRequestQueue.takeLast()) != null) {
+						if ((areaRequest = areaRequestQueue.takeFirst()) != null) {
 							areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
-							processAreaRequest(areaRequest);
+							
+							synchronized (this) {								
+								if (dataRegion == null || (dataRegion != null && dataRegion.intersects(areaRequest))) {
+									processAreaRequest(areaRequest);
+								} else {
+									//skip this request, because the data isn't needed anymore
+								}							
+							}
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -98,5 +107,15 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 
 	public boolean hasNewRequest() {
 		return areaRequestQueue.size() > 0;
+	}
+
+	public void setDataRegion(Region dataRegion) {
+		synchronized (this) {			
+			this.dataRegion = dataRegion;
+		}
+	}
+
+	public Region getDataRegion() {
+		return dataRegion;
 	}
 }

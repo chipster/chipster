@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -28,20 +29,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CoverageEstimateTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 50;
+    final public static int SAMPLING_GRANULARITY = 10;
 
-	private static final int MAX_VALUE_COUNT = SAMPLING_GRANULARITY * 8;
+	private static final int MAX_VALUE_COUNT = 1000;
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
 	private long minBpLength;
-	private Color forwardColor;
-	private Color reverseColor;
 
-	public CoverageEstimateTrack(Color forwardColor, Color reverseColor, long maxBpLength) {
+	private boolean strandSpecificCoverageType;
 
-		this.forwardColor = forwardColor;
-		this.reverseColor = reverseColor;
+	public CoverageEstimateTrack(long maxBpLength) {
+		
 		this.minBpLength = maxBpLength;
 	}
 
@@ -49,7 +48,7 @@ public class CoverageEstimateTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		
+	
 //		Color bg = new Color(0f, 0f, 0f, 0.05f);
 //		drawables.add(new RectDrawable(0,  0,  getView().getWidth(), getHeight(), bg, bg));
 		
@@ -58,7 +57,6 @@ public class CoverageEstimateTrack extends Track {
 			RegionContent oldest = valueStorageOrder.pop();
 			values.remove(oldest);
 		}
-
 		
 		List<RegionValue> forward = new LinkedList<RegionValue>();
 		List<RegionValue> reverse = new LinkedList<RegionValue>();		
@@ -81,7 +79,12 @@ public class CoverageEstimateTrack extends Track {
 			x2 = Math.max(x2, x1 + 2);
 			
 			int fCount = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_FORWARD));
-			int rCount = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE));		
+			int rCount = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE));							
+			
+			if (!strandSpecificCoverageType) {				
+				fCount += rCount;
+				rCount = 0;
+			}
 
 			forward.add(new RegionValue(x1, x2, fCount / (float)regCont.region.getLength()));
 			reverse.add(new RegionValue(x1, x2, rCount / (float)regCont.region.getLength()));
@@ -93,15 +96,29 @@ public class CoverageEstimateTrack extends Track {
 		int[] smoohtForward = smooth(continuousForward);
 		int[] smoohtReverse = smooth(continuousReverse);
 		
-		int y = 0;						
+		int y = 0;
+		
+		Color forwardColor;
+		Color reverseColor;
+		
+		if (strandSpecificCoverageType) {
+			forwardColor = GBrowserConstants.FORWARD_COLOR;
+			reverseColor = GBrowserConstants.REVERSE_COLOR;
+		} else {
+			forwardColor = GBrowserConstants.COVERAGE_COLOR;
+			reverseColor = null;
+		}
 			
 		for (int i = 0; i < smoohtForward.length; i++) {
 			
 			int fValue = (int) smoohtForward[i];			
 			int rValue = (int) smoohtReverse[i];
-			
+									
 			drawables.add(new RectDrawable(i, y, 1, fValue, forwardColor, null));
-			drawables.add(new RectDrawable(i, y, 1, rValue, reverseColor, null));
+			
+			if (strandSpecificCoverageType) {
+				drawables.add(new RectDrawable(i, y, 1, rValue, reverseColor, null));
+			}
 		}
 		
 		return drawables;
@@ -214,5 +231,9 @@ public class CoverageEstimateTrack extends Track {
 	@Override
 	public boolean canExpandDrawables() {
 		return true;
+	}
+
+	public void setStrandSpecificCoverageType(boolean b) {
+		strandSpecificCoverageType = b;
 	}
 }

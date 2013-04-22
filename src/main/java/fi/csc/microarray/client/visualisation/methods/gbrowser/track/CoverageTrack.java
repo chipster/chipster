@@ -41,26 +41,19 @@ public class CoverageTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private Color forwardColor;
-	private Color reverseColor;
-
 	private boolean highlightSNP = false;
 
 	private BaseStorage theBaseCacheThang = new BaseStorage();
 	private AreaRequestHandler refFile;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
+	private boolean strandSpecificCoverageType;
 
-	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refFile, 
-			Color forwardColor, Color reverseColor, long minBpLength, long maxBpLength) {
+	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refFile, long minBpLength, long maxBpLength) {
 
-		this.forwardColor = forwardColor;
-		this.reverseColor = reverseColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.readpartProvider = readpartProvider;
-
-		setStrand(Strand.BOTH);
 		
 		this.refFile = refFile;
 	}
@@ -172,17 +165,16 @@ public class CoverageTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
-		if (reverseColor == null) {
+		if (strandSpecificCoverageType) {
 
-			// add drawables according to sum of both strands
-			drawables.addAll(getDrawableReads(Strand.BOTH, forwardColor));
+			// add drawables of both strands separately
+			drawables.addAll(getDrawableReads(Strand.FORWARD, GBrowserConstants.FORWARD_COLOR));
+			drawables.addAll(getDrawableReads(Strand.REVERSE, GBrowserConstants.REVERSE_COLOR));
 			
 		} else {
 			
-			// add drawables of both strands separately
-			drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
-			drawables.addAll(getDrawableReads(Strand.REVERSE, reverseColor));
-
+			// add drawables according to sum of both strands
+			drawables.addAll(getDrawableReads(Strand.BOTH, GBrowserConstants.COVERAGE_COLOR));
 		}
 
 		return drawables;
@@ -240,5 +232,9 @@ public class CoverageTrack extends Track {
 
 	public void disableSNPHighlight() {
 		highlightSNP = false;
+	}
+
+	public void setStrandSpecificCoverageType(boolean b) {
+		this.strandSpecificCoverageType = b;
 	}
 }

@@ -74,7 +74,7 @@ public class ViewLimiter implements RegionListener {
 			queueManager.addAreaRequest(
 					cytobandDataSource, new AreaRequest(new Region(0l, Long.MAX_VALUE, bpRegion.start.chr), 
 							new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.VALUE })), 
-							new DataRetrievalStatus()), false);
+							new DataRetrievalStatus()), null);
 		}
 	}
 

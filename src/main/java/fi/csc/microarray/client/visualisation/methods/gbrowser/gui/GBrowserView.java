@@ -23,6 +23,8 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -260,13 +262,33 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			
 			//Get new data
 			
-			requestRegion = new Region(minStart, maxEnd, view.start.chr);
-			
+			Region newRequest = new Region(minStart, maxEnd, view.start.chr);
+			Region previousRequest = requestRegion;
+			requestRegion = new Region(newRequest.start, newRequest.end);
+						
+			//if we have requested part of this data already, don't request that part again
+			if (unchangedTracks && previousRequest != null && newRequest.start.chr.equals(previousRequest.start.chr) && newRequest.intersects(previousRequest)) {
+				
+				Region overlap = newRequest.intersect(previousRequest);
+
+				if (overlap.start.equals(newRequest.start)) {
+					// Overlaps from left
+					newRequest.start = overlap.end;
+
+				} else if (overlap.end.equals(newRequest.end)) {
+					// Overlaps from right
+					newRequest.end = overlap.start;
+
+				} else {
+					// Overlap inside request, do nothing, because would need splitting
+				}
+			} 
+						
 			// Fire area requests
 			for (AreaRequestHandler file : datas.keySet()) {
 				DataRetrievalStatus status = new DataRetrievalStatus();
 				status.clearQueues = true;
-				getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, datas.get(file), status), true);
+				getQueueManager().addAreaRequest(file, new AreaRequest(newRequest, datas.get(file), status), requestRegion);
 			}
 		}
 	}

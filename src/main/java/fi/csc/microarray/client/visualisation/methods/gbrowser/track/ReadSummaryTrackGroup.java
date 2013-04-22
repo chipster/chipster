@@ -29,7 +29,7 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
     }
 
     @Override
-    protected void addReadOverviewTrack() {
+    protected void addCoverageEstimate() {
         readOverviewSummary = new TabixIntensityTrack(Color.black, 
         		GBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
         readOverviewSummary.setView(view);
