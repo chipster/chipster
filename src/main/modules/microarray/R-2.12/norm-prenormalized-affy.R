@@ -51,7 +51,7 @@ if (keep.flags=="yes") {
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$E, method="none")
 sample<-colnames(dat2)
-colnames(dat2)<-paste("chip.", colnames(dat2), ".tsv", sep="")
+colnames(dat2)<-paste("chip.", colnames(dat2), sep="")
 
 # Writes out a phenodata table
 # sample<-paste(sample, ".tsv", sep="")
