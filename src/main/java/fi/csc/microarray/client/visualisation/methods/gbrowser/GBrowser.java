@@ -30,16 +30,14 @@ import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BedTabixHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.CytobandHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GtfTabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.CytobandDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
@@ -63,6 +61,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLinePars
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CytobandConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegionConversion;
@@ -331,8 +330,10 @@ public class GBrowser implements ComponentListener {
 					try {
 						
 						if (cytobandUrl != null) {
-							CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl);
-							AreaRequestHandler cytobandRequestHandler = new CytobandHandlerThread(cytobandDataSource);
+//							CytobandDataSource cytobandDataSource = new CytobandDataSource(cytobandUrl);
+//							AreaRequestHandler cytobandRequestHandler = new CytobandHandlerThread(cytobandDataSource);
+							LineDataSource cytobandDataSource = new LineDataSource(cytobandUrl, null);
+							AreaRequestHandler cytobandRequestHandler = new CytobandConversion(cytobandDataSource, this);
 
 							overview.addTrackGroup(TrackFactory.getCytobandTrackGroup(plot, cytobandRequestHandler));
 

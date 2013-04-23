@@ -21,7 +21,7 @@ public abstract class TsvLineParser implements LineParser {
 	
 	@Override
 	public boolean setLine(String line) {
-		if (line.startsWith(getHeaderStart())) {
+		if (getHeaderStart() != null && line.startsWith(getHeaderStart())) {
 			this.values = null;
 			return false;
 		} else {
@@ -34,5 +34,7 @@ public abstract class TsvLineParser implements LineParser {
 		return values != null;
 	}
 
-	public abstract String getHeaderStart();
+	public String getHeaderStart() {
+		return null;
+	}
 }

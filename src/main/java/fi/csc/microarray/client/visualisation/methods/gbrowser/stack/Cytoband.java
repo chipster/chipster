@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;

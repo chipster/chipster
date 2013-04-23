@@ -59,7 +59,7 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 								
 
 								if (dataRegion == null || 
-										areaRequest.getStatus().poison || //poison requests cause nullPointer on the next line 
+										areaRequest.getStatus().poison || //poison requests would cause nullPointer on the next line 
 										(dataRegion != null && dataRegion.intersects(areaRequest))) {
 									
 									processAreaRequest(areaRequest);
@@ -136,9 +136,11 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 	 */
 	public void setDataRegion(Region dataRegion) {
 		synchronized (this) {			
-			//Create a new Region instance for this thread
-			Region region = new Region((long)dataRegion.start.bp, (long)dataRegion.end.bp, new Chromosome(dataRegion.start.chr));
-			this.dataRegion = region;
+			if (dataRegion != null && dataRegion.start != null && dataRegion.end != null) {
+				//Create a new Region instance for this thread
+				Region region = new Region((long)dataRegion.start.bp, (long)dataRegion.end.bp, new Chromosome(dataRegion.start.chr));
+				this.dataRegion = region;
+			}
 		}
 	}
 
