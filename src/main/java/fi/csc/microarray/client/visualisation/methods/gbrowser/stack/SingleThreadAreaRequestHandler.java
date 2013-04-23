@@ -11,6 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -54,8 +55,13 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 							
 							//areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 							
-							synchronized (this) {								
-								if (dataRegion == null || (dataRegion != null && dataRegion.intersects(areaRequest))) {
+							synchronized (this) {
+								
+
+								if (dataRegion == null || 
+										areaRequest.getStatus().poison || //poison requests cause nullPointer on the next line 
+										(dataRegion != null && dataRegion.intersects(areaRequest))) {
+									
 									processAreaRequest(areaRequest);
 								} else {
 									//skip this request, because the data isn't needed anymore
@@ -130,7 +136,9 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 	 */
 	public void setDataRegion(Region dataRegion) {
 		synchronized (this) {			
-			this.dataRegion = dataRegion;
+			//Create a new Region instance for this thread
+			Region region = new Region((long)dataRegion.start.bp, (long)dataRegion.end.bp, new Chromosome(dataRegion.start.chr));
+			this.dataRegion = region;
 		}
 	}
 

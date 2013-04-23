@@ -101,10 +101,6 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		
 		TreeMap<IndexKey, String> lines = null;
 		try {		
-						
-			if (hasNewRequest()) {
-				return;
-			}
 			
 			lines = index.getFileLines(new AreaRequest(chunkRegion, request.getRequestedContents(), request.getStatus()));
 			

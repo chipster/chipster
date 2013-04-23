@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -68,6 +69,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.LineToRegio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.StatusTitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
@@ -521,6 +523,7 @@ public class GBrowser implements ComponentListener {
 		ScrollGroup analysis = new ScrollGroup("Analysis", false);
 
 		boolean firstPeakTrack = true;
+		StatusTitleTrack titleTrack = null;
 		
 		// Add selected peak tracks
 		for (TrackDefinition track : tracks) {
@@ -537,24 +540,30 @@ public class GBrowser implements ComponentListener {
 				case CNA_CALLS:
 				case CNA_LOGRATIOS:
 					
+					
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
 					} else {
 						firstPeakTrack = false;
 					}
+					
+					titleTrack = new StatusTitleTrack(track.interpretation.primaryData.getName(), Color.black);
+					titleTrack.setView(plot.getDataView());
+					analysis.addTrack(titleTrack);					
 					break;
+					
 				default:
 					break;
 				}	
 				
 				switch (track.interpretation.type) {
 				case REGIONS:
-					
-					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 
 					try {						
 						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new BedLineParser(true));
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
+						
+						titleTrack.addAreaRequestHandler(conversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -567,11 +576,11 @@ public class GBrowser implements ComponentListener {
 					
 				case VCF:
 
-					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));
-
 					try {						
 						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new VcfLineParser());
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
+						
+						titleTrack.addAreaRequestHandler(conversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -583,7 +592,6 @@ public class GBrowser implements ComponentListener {
 					break;
 				case GTF:
 
-					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 					analysis.setScrollEnabled(true);
 
 					try {
@@ -591,6 +599,8 @@ public class GBrowser implements ComponentListener {
 						DataSource gtfData = new RandomAccessLineDataSource(dataUrl.getUrl());
 						GtfToFeatureConversion gtfConversion = new GtfToFeatureConversion(gtfData, this);						
 						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfConversion, null, true));
+						
+						titleTrack.addAreaRequestHandler(gtfConversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -605,7 +615,6 @@ public class GBrowser implements ComponentListener {
 				case CNA_CALLS:
 				case CNA_LOGRATIOS:
 
-					analysis.addTrack(TrackFactory.getTitleTrack(plot, track.interpretation.primaryData.getName()));										
 					analysis.setScrollEnabled(true);
 					
 					//Header has to be read to know the number of samples
@@ -631,6 +640,8 @@ public class GBrowser implements ComponentListener {
 						boolean showLogratios = (track.interpretation.type == TrackType.CNA_LOGRATIOS);
 						
 						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames, showFrequencies, showCalls, showLogratios));
+						
+						titleTrack.addAreaRequestHandler(conversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);

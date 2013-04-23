@@ -88,8 +88,8 @@ public class QueueManager implements AreaResultListener {
 		//context.queue.clear();
 		
 		if ((context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
-			//Create a new Region instance for the background thread
-			((SingleThreadAreaRequestHandler)context.requestHandler).setDataRegion(new Region(dataRegion));
+ 
+			((SingleThreadAreaRequestHandler)context.requestHandler).setDataRegion(dataRegion);
 		}
 		
 		context.queue.add(req);
