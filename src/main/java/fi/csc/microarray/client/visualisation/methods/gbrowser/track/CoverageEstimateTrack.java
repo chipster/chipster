@@ -214,7 +214,7 @@ public class CoverageEstimateTrack extends Track {
     public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
                 HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+        datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 				ColumnType.COVERAGE_ESTIMATE_FORWARD,
 				ColumnType.COVERAGE_ESTIMATE_REVERSE})));
         return datas;

@@ -19,7 +19,7 @@ public class DataRetrievalStatus implements Cloneable {
 	 */
 	public boolean poison;
 
-	public long areaRequestCount;
+	public long areaRequestCount = -1;
 	public long fileRequestCount;
 	public long fileResultCount;
 	public boolean clearQueues;

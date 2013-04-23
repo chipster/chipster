@@ -20,7 +20,7 @@ public class ReadTrackGroup extends TrackGroup {
     private final Color fontColor = Color.black;
 
     // Tracks
-    protected TitleTrack titleTrack;
+    protected StatusTitleTrack titleTrack;
     protected CoverageEstimateTrack coverageEstimate;
     protected ReadPileTrack readPileForward;
     protected ReferenceSequenceTrack referenceSequence;
@@ -60,7 +60,8 @@ public class ReadTrackGroup extends TrackGroup {
     public void initialise() {
         
         // Title
-        titleTrack = new TitleTrack(title, Color.black);
+        titleTrack = new StatusTitleTrack(title, Color.black);  
+        titleTrack.setView(view);
         tracks.add(titleTrack);
         
         if (details != null) {
@@ -68,28 +69,29 @@ public class ReadTrackGroup extends TrackGroup {
         	// Detailed
         	readPileForward = new ReadPileTrack(readpartProvider, referenceSequenceFile, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         	readPileForward.setView(view);
-        	readPileForward.setAreaRequestHandler(details);
+        	readPileForward.addAreaRequestHandler(details);
         	tracks.add(readPileForward);
         	separatorReadPile = new SeparatorTrack(Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         	separatorReadPile.setView(view);
         	separatorReadPile.setName("Reads");
         	tracks.add(separatorReadPile);
+        	
+        	titleTrack.addAreaRequestHandler(details);
         }
         
-        // Reference
         if (referenceSequenceFile != null) {
+        	
             // Reference sequence		
             referenceSequence = new ReferenceSequenceTrack(GBrowserConstants.SHOW_REFERENCE_AT);
             referenceSequence.setView(view);
-            referenceSequence.setAreaRequestHandler(referenceSequenceFile);
-                        
-            tracks.add(referenceSequence);
-            
+            referenceSequence.addAreaRequestHandler(referenceSequenceFile);                        
+            tracks.add(referenceSequence);            
             separatorReferenceSequence = new SeparatorTrack(Color.gray, 1, 0, GBrowserConstants.SHOW_REFERENCE_AT);
             separatorReferenceSequence.setView(view);
             separatorReferenceSequence.setName("Reads");
             tracks.add(separatorReferenceSequence);
-
+            
+            titleTrack.addAreaRequestHandler(referenceSequenceFile);
         }
         
         if (details != null) {
@@ -100,7 +102,7 @@ public class ReadTrackGroup extends TrackGroup {
 	        // Detailed - reversed
 	        readsReverse = new ReadPileTrack(readpartProvider, referenceSequenceFile, fontColor, 0, GBrowserConstants.SWITCH_VIEWS_AT);
 	        readsReverse.setView(view);
-	        readsReverse.setAreaRequestHandler(details);
+	        readsReverse.addAreaRequestHandler(details);
 	        readsReverse.setStrand(Strand.REVERSE);
 	        tracks.add(readsReverse);
 	    	SeparatorTrack sepTrackReads2 = new SeparatorTrack(Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
@@ -108,9 +110,7 @@ public class ReadTrackGroup extends TrackGroup {
 	    	sepTrackReads2.setName("Reads");
 	        tracks.add(sepTrackReads2);
 	        
-	        // Profile
-	        
-
+	        // Profile	   
 	        
 	//        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
 	//        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
@@ -120,9 +120,8 @@ public class ReadTrackGroup extends TrackGroup {
 	//    	sepTrackProfile.setName("ProfileTrack");
 	//        tracks.add(sepTrackProfile);
 	        
-	        coverage = new CoverageTrack(readpartProvider, referenceSequenceFile, 0, GBrowserConstants.SWITCH_VIEWS_AT);
+	        coverage = new CoverageTrack(readpartProvider, details, referenceSequenceFile, 0, GBrowserConstants.SWITCH_VIEWS_AT);
 	        coverage.setView(view);
-	        coverage.setAreaRequestHandler(details);
 	        coverage.setName("Coverage");
 	        tracks.add(coverage);
 	        separatorCoverage = new SeparatorTrack(Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT);
@@ -133,7 +132,7 @@ public class ReadTrackGroup extends TrackGroup {
         	// Gel
         	gelTrack = new GelTrack(readpartProvider, Color.WHITE, 0, GBrowserConstants.SWITCH_VIEWS_AT);
         	gelTrack.setView(view);
-        	gelTrack.setAreaRequestHandler(details);
+        	gelTrack.addAreaRequestHandler(details);
         	gelTrack.setStrand(Strand.BOTH);
         	tracks.add(gelTrack);
         	//    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GBrowserConstants.SWITCH_VIEWS_AT); 
@@ -147,9 +146,11 @@ public class ReadTrackGroup extends TrackGroup {
 	protected void addCoverageEstimate() {
 		coverageEstimate = new CoverageEstimateTrack(GBrowserConstants.SWITCH_VIEWS_AT);
 		coverageEstimate.setView(view);
-		coverageEstimate.setAreaRequestHandler(estimate);
+		coverageEstimate.addAreaRequestHandler(estimate);
 		coverageEstimate.setName("CoverageEstimate");
 		tracks.add(coverageEstimate);
+		
+		titleTrack.addAreaRequestHandler(estimate);
 	}
     
     public void setVisibleSNP(boolean b) {

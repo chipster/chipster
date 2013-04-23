@@ -41,7 +41,7 @@ public abstract class AreaRequestHandler implements Cloneable {
 				while (!poison) {
 					AreaRequest areaRequest;
 					if ((areaRequest = areaRequestQueue.poll()) != null) {
-						areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
+						//areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 						processAreaRequest(areaRequest);
 					}
 

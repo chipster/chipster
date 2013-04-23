@@ -152,7 +152,7 @@ public class ReferenceSequenceTrack extends Track {
     public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
         HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
         HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+        datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
                 ColumnType.SEQUENCE })));
         return datas;
     }

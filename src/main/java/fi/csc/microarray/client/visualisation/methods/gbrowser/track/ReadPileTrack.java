@@ -301,7 +301,7 @@ public class ReadPileTrack extends Track {
 	@Override
 	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
 		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
+		datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
 
 		// We might also need reference sequence data
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
@@ -325,7 +325,7 @@ public class ReadPileTrack extends Track {
 	/**
 	 * Disable SNP highlighting.
 	 * 
-	 * @param areaRequestHandler
+	 * @param areaRequestHandlers
 	 */
 	public void disableSNPHiglight() {
 		// turn off highlighting mode
@@ -387,7 +387,7 @@ public class ReadPileTrack extends Track {
 		super.initializeListener();
 		
 		// Add listener for reference file
-		if (areaRequestHandler != null && refData != null) {
+		if (areaRequestHandlers != null && refData != null) {
 			view.getQueueManager().addResultListener(refData, this);
 		}
 	}

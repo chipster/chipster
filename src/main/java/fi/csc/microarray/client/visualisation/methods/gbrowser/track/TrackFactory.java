@@ -89,7 +89,7 @@ public class TrackFactory {
 		
 		PeakTrack annotation = new PeakTrack(GBrowserConstants.BED_COLOR, 0, Long.MAX_VALUE);
 		annotation.setView(dataView);
-		annotation.setAreaRequestHandler(areaRequestHandler);
+		annotation.addAreaRequestHandler(areaRequestHandler);
 		
 		return new TrackGroup(annotation);
 	}
@@ -98,7 +98,7 @@ public class TrackFactory {
 		
 		CytobandTrack overviewCytobands = new CytobandTrack(false);
 		overviewCytobands.setView(plot.getOverviewView());
-		overviewCytobands.setAreaRequestHandler(cytobandData);
+		overviewCytobands.addAreaRequestHandler(cytobandData);
 		
 		return new TrackGroup(overviewCytobands);
 	}
@@ -124,7 +124,7 @@ public class TrackFactory {
 
 			ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.LOSS, 0, Long.MAX_VALUE);
 			lossFreq.setView(view);
-			lossFreq.setAreaRequestHandler(conversion);
+			lossFreq.addAreaRequestHandler(conversion);
 			group.addTrack(lossFreq);
 
 			TitleTrack title3 = new TitleTrack("gain frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
@@ -133,7 +133,7 @@ public class TrackFactory {
 			
 			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
 			gainFreq.setView(view);
-			gainFreq.setAreaRequestHandler(conversion);
+			gainFreq.addAreaRequestHandler(conversion);
 			group.addTrack(gainFreq);
 		}
 				
@@ -149,7 +149,7 @@ public class TrackFactory {
 				
 				CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, i, Color.RED, 0, Long.MAX_VALUE);
 				flag.setView(view);
-				flag.setAreaRequestHandler(conversion);
+				flag.addAreaRequestHandler(conversion);
 				group.addTrack(flag);
 
 				SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
@@ -165,7 +165,7 @@ public class TrackFactory {
 				
 				ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 24, -1.0f, 1.0f, i, 0, Long.MAX_VALUE);				
 				logRatio.setView(view);
-				logRatio.setAreaRequestHandler(conversion);		
+				logRatio.addAreaRequestHandler(conversion);		
 				group.addTrack(logRatio);
 			}
 		}		

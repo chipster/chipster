@@ -1,5 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -9,7 +11,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 
 public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler {
@@ -40,8 +44,15 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 					AreaRequest areaRequest;
 					try {
 						
+						//report before waiting in queue.take()
+						reportQueueSize(false);
+						
 						if ((areaRequest = areaRequestQueue.takeFirst()) != null) {
-							areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
+							
+							//report after wait
+							reportQueueSize(true);
+							
+							//areaRequest.getStatus().areaRequestCount = areaRequestQueue.size();
 							
 							synchronized (this) {								
 								if (dataRegion == null || (dataRegion != null && dataRegion.intersects(areaRequest))) {
@@ -109,6 +120,14 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 		return areaRequestQueue.size() > 0;
 	}
 
+	/**
+	 * This background thread is processing area requests in the order they appear from the queue. 
+	 * Sometimes the queue is so long that some request aren't needed anymore. This method
+	 * bypasses the queue and sets the current view region, so that old requests are removed, if those don't intercept
+	 * with this region.
+	 * 
+	 * @param dataRegion
+	 */
 	public void setDataRegion(Region dataRegion) {
 		synchronized (this) {			
 			this.dataRegion = dataRegion;
@@ -117,5 +136,19 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 
 	public Region getDataRegion() {
 		return dataRegion;
+	}
+
+	/**
+	 * @param increaseByOne set true to indicate that queue size should be increased by one to count the
+	 * request which is taken from the queue, but not processed yet
+	 */
+	private void reportQueueSize(boolean increaseByOne) {
+		
+		
+		DataRetrievalStatus status = new DataRetrievalStatus();
+		status.areaRequestHandler = this;
+		status.areaRequestCount = areaRequestQueue.size() + (increaseByOne ? 1 : 0);		
+		List<RegionContent> emptyList = new LinkedList<RegionContent>();
+		createAreaResult(new AreaResult(status, emptyList));		
 	}
 }

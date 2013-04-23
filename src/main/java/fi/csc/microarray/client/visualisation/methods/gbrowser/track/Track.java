@@ -5,9 +5,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 
 	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
 	protected GBrowserView view;
-	protected AreaRequestHandler areaRequestHandler;
+	protected List<AreaRequestHandler> areaRequestHandlers = new LinkedList<AreaRequestHandler>();
 	protected Strand strand = Strand.FORWARD;
 	protected int layoutHeight;
 	protected boolean visible = true;
@@ -41,8 +40,13 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
     	this.view = view;
     }
     
-    public void setAreaRequestHandler (AreaRequestHandler areaRequestHandler) {
-    	this.areaRequestHandler = areaRequestHandler;
+    /**
+     * @param areaRequestHandler
+     * @return index of added {@link AreaRequestHandler}
+     */
+    public int addAreaRequestHandler (AreaRequestHandler areaRequestHandler) {
+    	this.areaRequestHandlers.add(areaRequestHandler);
+    	return areaRequestHandlers.size() - 1;
     }
 
 	/**
@@ -50,8 +54,10 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * call to track object before it's constructed.
 	 */
 	public void initializeListener() {
-		if (areaRequestHandler != null) {
-			view.getQueueManager().addResultListener(areaRequestHandler, this);
+		if (areaRequestHandlers != null) {
+			for (AreaRequestHandler handler : areaRequestHandlers) {
+				view.getQueueManager().addResultListener(handler, this);
+			}
 		} 
 	}
 
@@ -71,7 +77,7 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * Check if this track has data.
 	 */
 	public boolean hasData() {
-	    return areaRequestHandler != null;
+	    return areaRequestHandlers != null;
 	}
 	
     /**
@@ -83,10 +89,8 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
      * Conversion classes). 
      */
     public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>());
-        return datas;
+    	
+    	return null;
     }
 
 	/**

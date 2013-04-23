@@ -33,7 +33,7 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
         readOverviewSummary = new TabixIntensityTrack(Color.black, 
         		GBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
         readOverviewSummary.setView(view);
-        readOverviewSummary.setAreaRequestHandler(summaryDataSource);
+        readOverviewSummary.addAreaRequestHandler(summaryDataSource);
         tracks.add(readOverviewSummary);
     }
     

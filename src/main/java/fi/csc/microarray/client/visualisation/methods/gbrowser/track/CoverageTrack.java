@@ -44,28 +44,28 @@ public class CoverageTrack extends Track {
 	private boolean highlightSNP = false;
 
 	private BaseStorage theBaseCacheThang = new BaseStorage();
-	private AreaRequestHandler refFile;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	private ReadpartDataProvider readpartProvider;
 	private boolean strandSpecificCoverageType;
+	private Integer detailsIndex = null;
+	private Integer referenceIndex = null;
 
-	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refFile, long minBpLength, long maxBpLength) {
+	public CoverageTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler details, AreaRequestHandler referenceSequenceFile, long minBpLength, long maxBpLength) {
 
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.readpartProvider = readpartProvider;
-		
-		this.refFile = refFile;
+
+		detailsIndex = addAreaRequestHandler(details);
+
+		if (referenceSequenceFile != null) {
+			referenceIndex = addAreaRequestHandler(referenceSequenceFile);
+		}
 	}
 
 	@Override	
 	public void initializeListener() {
 		super.initializeListener();
-		
-		// Add listener for reference file
-		if (areaRequestHandler != null && refFile != null) {
-			view.getQueueManager().addResultListener(refFile, this);
-		}
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class CoverageTrack extends Track {
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
-		if (areaResult.getStatus().areaRequestHandler == refFile) {
+		if (areaResult.getStatus().areaRequestHandler == areaRequestHandlers.get(referenceIndex)) {
 			this.refReads.addAll(areaResult.getContents());
 		}
 	}
@@ -207,11 +207,11 @@ public class CoverageTrack extends Track {
 	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
 		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
 		HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
+		datas.put(areaRequestHandlers.get(detailsIndex), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.COVERAGE}))); 
 		
 		// We might also need reference sequence data
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
-			datas.put(refFile, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
+			datas.put(areaRequestHandlers.get(referenceIndex), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
 		}
 		
 		return datas;

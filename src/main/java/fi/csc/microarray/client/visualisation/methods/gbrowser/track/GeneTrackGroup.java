@@ -21,12 +21,10 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcript;
 	protected Track geneOverview;
 	protected Track gene;
-	protected ReferenceSNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
 	protected Track geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
-	protected ReferenceSNPTrack snpTrackReversed;
 
 	public GeneTrackGroup(GBrowserView dataView, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) {
 		super(dataView);
@@ -34,7 +32,7 @@ public class GeneTrackGroup extends TrackGroup {
 		if (annotationDataSource != null) {
 			transcript = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setView(dataView);
-			transcript.setAreaRequestHandler(annotationDataSource);
+			transcript.addAreaRequestHandler(annotationDataSource);
 			transcript.setStrand(Strand.FORWARD);
 
 //			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
@@ -46,14 +44,14 @@ public class GeneTrackGroup extends TrackGroup {
 			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			gene.setView(dataView);
-			gene.setAreaRequestHandler(annotationDataSource);
+			gene.addAreaRequestHandler(annotationDataSource);
 			gene.setStrand(Strand.FORWARD);
 		}
 		
 		if (repeatDataSource != null) {
 			repeatMasker = new RepeatMaskerTrack(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			repeatMasker.setView(dataView);
-			repeatMasker.setAreaRequestHandler(repeatDataSource);
+			repeatMasker.addAreaRequestHandler(repeatDataSource);
 		}
 		
 		if (annotationDataSource != null) {
@@ -66,12 +64,12 @@ public class GeneTrackGroup extends TrackGroup {
 			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			geneReversed.setView(dataView);
-			geneReversed.setAreaRequestHandler(annotationDataSource);
+			geneReversed.addAreaRequestHandler(annotationDataSource);
 			geneReversed.setStrand(Strand.REVERSE);
 
 			transcriptReversed = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
 			transcriptReversed.setView(dataView);
-			transcriptReversed.setAreaRequestHandler(annotationDataSource);
+			transcriptReversed.addAreaRequestHandler(annotationDataSource);
 			transcriptReversed.setStrand(Strand.REVERSE);
 		}
 		
@@ -100,11 +98,6 @@ public class GeneTrackGroup extends TrackGroup {
         	// Gene, detailed, forward
         	tracks.add(gene);
         }
-		
-		if (snpTrack != null) {
-			// SNP track Forward
-			tracks.add(snpTrack);
-		}
 
 		if (isUserData) {
 			SeparatorTrack separator = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
@@ -115,11 +108,6 @@ public class GeneTrackGroup extends TrackGroup {
 			RulerTrack ruler = new RulerTrack();
 			ruler.setView(view);
 			tracks.add(ruler);			
-		}
-
-		if (snpTrackReversed != null) {
-			// SNP track Reversed
-			tracks.add(snpTrackReversed);
 		}
 
 		if (repeatMasker != null) {
@@ -147,24 +135,9 @@ public class GeneTrackGroup extends TrackGroup {
 		return "GeneTrackGroup";
 	}
 	
-	private void setChangeSNP(boolean change) {
-		if (change) {
-			snpTrack.changeSNPView();
-			snpTrackReversed.changeSNPView();
-		} else {
-			snpTrack.returnSNPView();
-			snpTrackReversed.returnSNPView();
-		}
-		view.fireAreaRequests();
-        view.redraw();
-	}
-	
 	@Override
 	public void showOrHide(String name, boolean state) {
 		super.showOrHide(name, state);
-		if (snpTrack != null && name.equals("changeSNP")) {
-			setChangeSNP(state);
-		}
 	}
 	
 	@Override
