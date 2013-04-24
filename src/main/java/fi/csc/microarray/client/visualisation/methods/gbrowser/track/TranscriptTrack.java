@@ -70,7 +70,7 @@ public class TranscriptTrack extends Track {
 		if (exons != null) {
 			
 			GeneSet geneSet = new GeneSet();				
-			geneSet.add(exons, view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));
+			geneSet.add(exons.iterator(), view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));
 
 			Iterator<Gene> iter = geneSet.values().iterator();
 			while (iter.hasNext()) {
@@ -216,18 +216,24 @@ public class TranscriptTrack extends Track {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			// Sorting is needed to draw partly overlapping genes in the same order every time
-			if (content.region.getStrand() == getStrand()) {
 
-				Exon exon = (Exon) content.values.get(ColumnType.VALUE);
-				
-				//Genes at edge of edge of screen may contain only visible exons, but moving should
-				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
-				//new ones with better information for the current view location.
-				this.exons.remove(exon);
+				// Sorting is needed to draw partly overlapping genes in the same order every time
+				if (content.region.getStrand() == getStrand()) {
 
-				exons.add(exon);
+					Object value = content.values.get(ColumnType.VALUE);
+					
+					if (value instanceof Exon) {
+						Exon exon = (Exon)value;
 
+
+					//Genes at edge of edge of screen may contain only visible exons, but moving should
+					//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
+					//new ones with better information for the current view location.
+					this.exons.remove(exon);
+
+					exons.add(exon);
+
+				}
 			}
 		}
 		getView().redraw();

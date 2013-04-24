@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 
 public class GeneSet extends HashMap<String, Gene>{
@@ -30,21 +29,20 @@ public class GeneSet extends HashMap<String, Gene>{
 	}
 	
 	/**
-	 * Add all exons in the given set and remove exons that don't intercept with the fitlerRegion.
+	 * Iterate over exons and add them to this GeneSet. Iterator.remove() is called
+	 * for all exons that don't intercept with the filterRegion.
 	 * 
-	 * @param exons
+	 * @param iterator
 	 * @param filterRegion
 	 */
-	public void add(HashSet<Exon> exons, Region filterRegion) {
+	public void add(Iterator<Exon> iterator, Region filterRegion) {	
 		
-		Iterator<Exon> exonIter = exons.iterator();
-		
-		while (exonIter.hasNext()) {
+		while (iterator.hasNext()) {
 			
-			Exon exon = exonIter.next();
+			Exon exon = iterator.next();
 			
 			if (!filterRegion.intersects(exon.getRegion())) {
-				exonIter.remove();
+				iterator.remove();
 			}
 			
 			addExon(exon, exon.getGeneId(), exon.getTranscriptId(), exon.getGeneName(), exon.getTranscName(), exon.getBiotype());

@@ -59,7 +59,7 @@ public class GeneTrack extends Track {
 		if (exons != null) {
 			
 			GeneSet geneSet = new GeneSet();				
-			geneSet.add(exons, view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));		
+			geneSet.add(exons.iterator(), view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));		
 			
 			TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
 
@@ -130,16 +130,20 @@ public class GeneTrack extends Track {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			Exon exon = (Exon) content.values.get(ColumnType.VALUE);
+			Object value = content.values.get(ColumnType.VALUE);
+			
+			if (value instanceof Exon) {
+				Exon exon = (Exon)value;
 
-			if (exon.getRegion().getStrand() == getStrand()) {
+				if (exon.getRegion().getStrand() == getStrand()) {
 
-				//Genes at edge of edge of screen may contain only visible exons, but moving should
-				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
-				//new ones with better information for the current view location.
-				this.exons.remove(exon);
+					//Genes at edge of edge of screen may contain only visible exons, but moving should
+					//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
+					//new ones with better information for the current view location.
+					this.exons.remove(exon);
 
-				this.exons.add(exon);
+					this.exons.add(exon);
+				}
 			}
 		}
 		getView().redraw();

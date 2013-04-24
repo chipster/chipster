@@ -13,6 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -59,7 +60,8 @@ public abstract class SingleThreadAreaRequestHandler extends AreaRequestHandler 
 								
 
 								if (dataRegion == null || 
-										areaRequest.getStatus().poison || //poison requests would cause nullPointer on the next line 
+										areaRequest.getStatus().poison || //poison requests would cause nullPointer on the next line
+										areaRequest instanceof GeneRequest || //searched gene may be in other chromosome
 										(dataRegion != null && dataRegion.intersects(areaRequest))) {
 									
 									processAreaRequest(areaRequest);

@@ -29,11 +29,9 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.GeneSearchHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
@@ -59,6 +57,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.ChromosomeB
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CytobandConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GeneSearchConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.IndexedFastaConversion;
@@ -350,35 +349,29 @@ public class GBrowser implements ComponentListener {
 					AreaRequestHandler gtfRequestHandler = null;
 					AreaRequestHandler repeatRequestHandler = null;
 					
-					try {
-						if (gtfUrl != null && gtfIndexUrl != null) {
+					if (gtfUrl != null && gtfIndexUrl != null) {
 
-							gtfRequestHandler = new GtfToFeatureConversion(gtfUrl, gtfIndexUrl, this);
-							
-							//Init gene search
-							URL geneUrl = annotationManager.getAnnotation(
-									genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
-							LineDataSource geneDataSource = new LineDataSource(geneUrl, GeneSearchHandler.class);
-							GeneSearchHandler geneRequestHandler = new GeneSearchHandler(geneDataSource);
+						gtfRequestHandler = new GtfToFeatureConversion(gtfUrl, gtfIndexUrl, this);
 
-							gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfRequestHandler, geneRequestHandler);
-							
-						}
+						//Init gene search
+						URL geneUrl = annotationManager.getAnnotation(
+								genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
 
-						if (repeatUrl != null && repeatIndexUrl != null) {							
-							repeatRequestHandler = new BedTabixToRegionConversion(repeatUrl, repeatIndexUrl, this);
-						}
+						GeneSearchConversion geneRequestHandler = new GeneSearchConversion(geneUrl, this);
 
-						//Show ruler track even if there are now data sources
-						TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfRequestHandler, repeatRequestHandler, false);
-						track.setTrackGroup(geneGroup);
-						annotations.addTrackGroup(geneGroup);
+						gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfRequestHandler, geneRequestHandler);
 
-					} catch (URISyntaxException e) {
-						reportException(e);
-					} catch (IOException e) {
-						reportException(e);
 					}
+
+					if (repeatUrl != null && repeatIndexUrl != null) {							
+						repeatRequestHandler = new BedTabixToRegionConversion(repeatUrl, repeatIndexUrl, this);
+					}
+
+					//Show ruler track even if there are now data sources
+					TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfRequestHandler, repeatRequestHandler, false);
+					track.setTrackGroup(geneGroup);
+					annotations.addTrackGroup(geneGroup);
+
 					break;
 
 				case REFERENCE:
