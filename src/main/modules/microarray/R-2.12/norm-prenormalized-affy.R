@@ -8,7 +8,8 @@
 
 # Process prenormalized affy
 # MG 6.4.2010
-# MK 18.02.2013
+# MK 18.2.2013
+# EK 23.4.2013 added .tsv ending to expression column names so that sample renaming is possible in interactive visualizations
 
 # Loads the libraries
 library(limma)

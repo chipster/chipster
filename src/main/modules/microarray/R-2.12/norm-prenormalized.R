@@ -8,8 +8,8 @@
 
 # Process prenormalized
 # JTT 26.1.2009
-#
-# modified MG 21.10.2009
+# MG 21.10.2009
+# EK 23.4.2013 added .tsv ending to expression column names so that sample renaming is possible in interactive visualizations
 
 # Loads the libraries
 library(limma)
@@ -33,8 +33,6 @@ if (keep.annotations=="yes") {
 dat2<-normalizeBetweenArrays(dat$R, method="none")
 
 # Writes out a phenodata table
-# sample<-paste(colnames(dat2), ".tsv", sep="")
-# sample<-colnames(dat2)
 sample<-paste(colnames(dat2), ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
@@ -47,7 +45,7 @@ write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phe
 
 # Preparing data for export
 M<-data.frame(dat2)
-colnames(M)<-paste("chip.", colnames(M), sep="")
+colnames(M)<-paste("chip.", colnames(M), ".tsv", sep="")
 M2<-aggregate(M, as.list(dat$genes), mean)
 rownames(M2)<-M2$identifier
 M2<-M2[,-1]
