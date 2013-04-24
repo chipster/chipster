@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -22,7 +24,7 @@ public class CytobandConversion extends SingleThreadAreaRequestHandler {
 
 	private CytobandLineParser parser;
 
-	public CytobandConversion(DataSource file, final GBrowser browser) {
+	public CytobandConversion(URL url, final GBrowser browser) {
 
 		super(null, null);
 
@@ -30,9 +32,12 @@ public class CytobandConversion extends SingleThreadAreaRequestHandler {
 
 		try {
 
-			this.index = new InMemoryIndex(file, parser);
+			LineDataSource cytobandDataSource = new LineDataSource(url, null);
+			this.index = new InMemoryIndex(cytobandDataSource, parser);
 
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}

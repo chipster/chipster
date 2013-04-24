@@ -20,7 +20,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversi
  */
 public class TrackFactory {
 	
-    public static TrackGroup getGeneTrackGroup(GBrowserPlot genomePlot, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) throws FileNotFoundException {
+    public static TrackGroup getGeneTrackGroup(
+    		GBrowserPlot genomePlot, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) {
         
 		GBrowserView dataView = genomePlot.getDataView();
 		

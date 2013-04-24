@@ -1,17 +1,24 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.stack;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.broad.tribble.readers.TabixReader;
 
+import net.sf.picard.PicardException;
+import net.sf.picard.reference.ReferenceSequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.BpCoordFileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.IndexedFastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
@@ -20,67 +27,77 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TabixUtil;
 
-/**
- * @author Aleksi Kallio, Petri Klemelä
- *
- */
-public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
+public class GtfTabixToFeatureConversion extends SingleThreadAreaRequestHandler {
 
-	private GtfTabixHandlerThread areaRequestThread;
+	private TabixDataSource dataSource;
+	private GtfLineParser parser = new GtfLineParser();
 
-	public GtfTabixFileFetcherThread(
-			BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
-			ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, 
-			GtfTabixHandlerThread areaRequestThread, TabixDataSource dataSource) {
+	public GtfTabixToFeatureConversion(URL data, URL index, final GBrowser browser) {
 
-		this.fileRequestQueue = fileRequestQueue;
-		this.fileResultQueue = fileResultQueue;
-		this.areaRequestThread = areaRequestThread;
-		this.dataSource = dataSource;
-		this.setDaemon(true);
+		super(null, null);
+
+		try {			
+			this.dataSource = new TabixDataSource(data, index);
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	protected void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
-		
-		if (fileRequest.getStatus().poison) {
-			poison = true;
+	public void clean() {
+	}
+
+
+	@Override
+	protected void processAreaRequest(AreaRequest request) {
+
+		super.processAreaRequest(request);
+
+		if (request.getStatus().poison) {
 			return;
 		}
-
+		
 		List<RegionContent> resultList = null;
 
-		if (fileRequest.areaRequest instanceof GeneRequest) {
+		if (request instanceof GeneRequest) {
 
-			resultList = processGeneSearch((GeneRequest)fileRequest.areaRequest, fileRequest);
+			try {
+				resultList = processGeneSearch((GeneRequest)request);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 		} else { 
 
-			Region region = new Region(fileRequest.getFrom(), fileRequest.getTo());
-
 			resultList = new LinkedList<RegionContent>();
 
-			GeneSet genes = fetchExons(region);
-			
-			for (Gene gene : genes.values()) {
+			GeneSet genes;
+			try {
+				genes = fetchExons(request);
 
-				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+				for (Gene gene : genes.values()) {
 
-				values.put(ColumnType.VALUE, gene);
+					LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 
-				resultList.add(new RegionContent(gene.getRegion(), values));
+					values.put(ColumnType.VALUE, gene);
+
+					resultList.add(new RegionContent(gene.getRegion(), values));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 
-		ParsedFileResult result = new ParsedFileResult(resultList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());
-
-		fileResultQueue.add(result);
-		areaRequestThread.notifyAreaRequestHandler();	
+		createAreaResult(new AreaResult(request.getStatus(), resultList));	
 	}
-
-	private List<RegionContent> processGeneSearch(GeneRequest areaRequest,
-			BpCoordFileRequest fileRequest) throws IOException {
+	
+	private List<RegionContent> processGeneSearch(GeneRequest areaRequest) throws IOException {
 
 		String searchString = areaRequest.getSearchString().toLowerCase();
 		Chromosome chr = areaRequest.start.chr;
@@ -115,7 +132,7 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 	 */
 	public GeneSet fetchExons(Region request) throws IOException {
 		// Read the given region
-		TabixReader.Iterator iter = getTabixIterator(request);
+		TabixReader.Iterator iter = TabixUtil.getTabixIterator(dataSource, request);
 
 		GeneSet genes = new GeneSet();		
 		String line;
@@ -123,6 +140,10 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 		if (iter != null) { //null if there isn't such chromosome in annotations
 
 			while ((line = iter.next()) != null) {
+				
+				parser.setLine(line);
+				
+				
 				parseGtfLine(line, genes);
 			}
 		}
@@ -244,5 +265,9 @@ public class GtfTabixFileFetcherThread extends TabixFileFetcherThread {
 
 		Region region;
 		List<Exon> exons;
+	}
+
+	public String toString() {
+		return this.getClass().getName() + " - " + dataSource;
 	}
 }

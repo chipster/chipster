@@ -150,4 +150,12 @@ public class Region implements Comparable<Region> {
 	public Strand getStrand() {
 		return strand;
 	}
+
+	public Region grow(long growLength) {
+		
+		double center = (start.bp + end.bp) / 2;
+		long length = getLength() + growLength;
+	
+		return new Region((long) (center - length / 2), (long) (center + length / 2), start.chr);  
+	}
 }

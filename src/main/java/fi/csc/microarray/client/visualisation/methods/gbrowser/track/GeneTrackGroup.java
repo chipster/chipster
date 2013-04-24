@@ -25,15 +25,21 @@ public class GeneTrackGroup extends TrackGroup {
 	protected Track geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
+	private StatusTitleTrack titleTrack;
 
 	public GeneTrackGroup(GBrowserView dataView, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) {
 		super(dataView);
 		
+		titleTrack = new StatusTitleTrack("Annotations", Color.black);
+		titleTrack.setView(view);
+		
 		if (annotationDataSource != null) {
+			
 			transcript = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setView(dataView);
 			transcript.addAreaRequestHandler(annotationDataSource);
 			transcript.setStrand(Strand.FORWARD);
+			
 
 //			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 //					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
@@ -46,12 +52,16 @@ public class GeneTrackGroup extends TrackGroup {
 			gene.setView(dataView);
 			gene.addAreaRequestHandler(annotationDataSource);
 			gene.setStrand(Strand.FORWARD);
+			
+			titleTrack.addAreaRequestHandler(annotationDataSource);
 		}
 		
 		if (repeatDataSource != null) {
 			repeatMasker = new RepeatMaskerTrack(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			repeatMasker.setView(dataView);
 			repeatMasker.addAreaRequestHandler(repeatDataSource);
+			
+			titleTrack.addAreaRequestHandler(repeatDataSource);
 		}
 		
 		if (annotationDataSource != null) {
@@ -82,10 +92,7 @@ public class GeneTrackGroup extends TrackGroup {
 		
 		if (!isUserData) {
 			// title
-			
-			TitleTrack title = new TitleTrack("Annotations", Color.black);
-			title.setView(view);
-			tracks.add(title);
+			tracks.add(titleTrack);
 		}
 		
         if (transcript != null) { // no annotation data source 

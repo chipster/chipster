@@ -1,56 +1,13 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
-
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.util;
 
 import org.broad.tribble.readers.TabixReader;
 import org.broad.tribble.readers.TabixReader.Iterator;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ParsedFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-/**
- * @author Aleksi Kallio, Petri Klemelä
- *
- */
-public abstract class TabixFileFetcherThread extends Thread {
-
-	protected BlockingQueue<BpCoordFileRequest> fileRequestQueue;
-	protected ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue;
-
-	protected TabixDataSource dataSource;
-
-	protected boolean poison = false;
-
-	public void run() {
-		
-		this.setName(getClass().getName());
-
-		while (!poison) {
-
-			try {
-				
-				for (BpCoordFileRequest fileRequest : fileRequestQueue) {
-					if (fileRequest.getStatus().poison) {
-						poison = true;
-					}
-				}
-				
-				processFileRequest(fileRequestQueue.take());
-
-			} catch (IOException e) {
-				e.printStackTrace(); // FIXME fix exception handling
-			} catch (InterruptedException e) {
-				e.printStackTrace(); // FIXME fix exception handling
-			}
-		}
-	}
-
-	abstract protected void processFileRequest(BpCoordFileRequest take) throws IOException;
-
-	protected Iterator getTabixIterator(Region request) {
+public class TabixUtil {
+	public static Iterator getTabixIterator(TabixDataSource dataSource, Region request) {
 		String chromosome = request.start.chr.toNormalisedString();
 
 		//limit to integer range
@@ -84,9 +41,5 @@ public abstract class TabixFileFetcherThread extends Thread {
 		}
 			
 		return iter;
-	}
-
-	public String toString() {
-		return this.getClass().getName() + " - " + dataSource;
 	}
 }

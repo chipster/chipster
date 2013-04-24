@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -28,9 +27,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcript;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 
 /**
  * Track for showing transcripts. Lower zoom level version of {@link GeneTrack}.
@@ -38,7 +39,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcrip
  */
 public class TranscriptTrack extends Track {
 
-	private Collection<Gene> genes = new TreeSet<Gene>();
+	private HashSet<Exon> exons = new HashSet<Exon>();
 
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
@@ -66,9 +67,12 @@ public class TranscriptTrack extends Track {
 
 		TreeMap<Region, Transcript> sortedTranscripts = new TreeMap<Region, Transcript>();
 
-		if (genes != null) {
+		if (exons != null) {
+			
+			GeneSet geneSet = new GeneSet();				
+			geneSet.add(exons, view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));
 
-			Iterator<Gene> iter = genes.iterator();
+			Iterator<Gene> iter = geneSet.values().iterator();
 			while (iter.hasNext()) {
 
 				//Use iterator to be able to remove genes that are out of sight
@@ -215,14 +219,14 @@ public class TranscriptTrack extends Track {
 			// Sorting is needed to draw partly overlapping genes in the same order every time
 			if (content.region.getStrand() == getStrand()) {
 
-				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+				Exon exon = (Exon) content.values.get(ColumnType.VALUE);
 				
 				//Genes at edge of edge of screen may contain only visible exons, but moving should
 				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
 				//new ones with better information for the current view location.
-				this.genes.remove(gene);
+				this.exons.remove(exon);
 
-				genes.add(gene);
+				exons.add(exon);
 
 			}
 		}

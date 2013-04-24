@@ -724,4 +724,8 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		//Keep everything
 		return true;		
 	}
+
+	public Region getRequestRegion() {
+		return requestRegion;
+	}
 }

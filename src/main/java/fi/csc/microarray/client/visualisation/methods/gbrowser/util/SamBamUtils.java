@@ -27,6 +27,9 @@ import net.sf.samtools.seekablestream.SeekableBufferedStream;
 import net.sf.samtools.seekablestream.SeekableFileStream;
 import net.sf.samtools.seekablestream.SeekableHTTPStream;
 import net.sf.samtools.seekablestream.SeekableStream;
+
+import org.broad.tribble.readers.TabixReader;
+
 import fi.csc.microarray.util.IOUtils;
 
 public class SamBamUtils {
@@ -265,6 +268,17 @@ public class SamBamUtils {
 			}
 		}
 	}
+	
+
+	public static void closeIfPossible(TabixReader reader) {
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (Exception e) {
+				// Ignore
+			}
+		}
+	}
 
 	public static boolean isSamBamExtension(String extension) {
 		if (extension == null) {
@@ -298,5 +312,4 @@ public class SamBamUtils {
 		
 		return buffer.toString();
 	}
-
 }

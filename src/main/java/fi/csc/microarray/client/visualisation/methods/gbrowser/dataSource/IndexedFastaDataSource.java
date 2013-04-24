@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.IndexedFastaHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
 
 /**
@@ -22,7 +21,7 @@ public class IndexedFastaDataSource extends DataSource {
 	private ChipsterIndexedFastaSequenceFile picard;
 
 	public IndexedFastaDataSource(URL data, URL index) throws URISyntaxException, IOException {
-        super(data, IndexedFastaHandlerThread.class);
+        super(data, null);
         
         this.dataUrl = data;
         this.indexUrl = index;

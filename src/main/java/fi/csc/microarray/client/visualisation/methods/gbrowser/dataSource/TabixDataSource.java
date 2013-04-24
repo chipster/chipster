@@ -7,8 +7,6 @@ import java.net.URL;
 
 import org.broad.tribble.readers.TabixReader;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-
 /**
  * 
  * @author Petri Klemelä

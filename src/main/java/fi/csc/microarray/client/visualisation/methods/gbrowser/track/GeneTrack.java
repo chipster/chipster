@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -21,9 +20,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
 
 /**
  * Track for genes. Higher zoom level version of {@link TranscriptTrack}.
@@ -31,7 +33,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class GeneTrack extends Track {
 
-	private Collection<Gene> genes = new TreeSet<Gene>();
+	private HashSet<Exon> exons = new HashSet<Exon>();
 	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private long maxBpLength;
@@ -53,18 +55,21 @@ public class GeneTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		occupiedSpace.clear();
-		
-		TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
-		
-		if (genes != null) {
+				
+		if (exons != null) {
+			
+			GeneSet geneSet = new GeneSet();				
+			geneSet.add(exons, view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));		
+			
+			TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
 
-			Iterator<Gene> iter = genes.iterator();
-			while (iter.hasNext()) {
+			Iterator<Gene> geneIter = geneSet.values().iterator();
+			while (geneIter.hasNext()) {
 
-				Gene gene = iter.next();
+				Gene gene = geneIter.next();
 
 				if (!getView().requestIntersects(gene.getRegion())) {
-					iter.remove();
+					geneIter.remove();
 					continue;
 				}
 
@@ -86,7 +91,7 @@ public class GeneTrack extends Track {
 				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
 			}
 		}
-
+		
 		return drawables;
 	}
 
@@ -125,16 +130,16 @@ public class GeneTrack extends Track {
 
 		for (RegionContent content : areaResult.getContents()) {
 
-			Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+			Exon exon = (Exon) content.values.get(ColumnType.VALUE);
 
-			if (gene.getRegion().getStrand() == getStrand()) {
+			if (exon.getRegion().getStrand() == getStrand()) {
 
 				//Genes at edge of edge of screen may contain only visible exons, but moving should
 				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
 				//new ones with better information for the current view location.
-				this.genes.remove(gene);
+				this.exons.remove(exon);
 
-				this.genes.add(gene);
+				this.exons.add(exon);
 			}
 		}
 		getView().redraw();

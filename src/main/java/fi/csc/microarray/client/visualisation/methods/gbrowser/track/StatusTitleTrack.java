@@ -21,12 +21,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
  */
 public class StatusTitleTrack extends Track {
 
+	private static final long VISIBLE_AFTER = 100; //ms
 	private Color color;
 	private String title;
 	private Color bgColor;
 	private Map<AreaRequestHandler, Long> queueLengths = new HashMap<AreaRequestHandler, Long>();
 	private double angle;
 	private long previousTime;
+	private long hideTime = 0;
 
 	public StatusTitleTrack(String title, Color color) {
 
@@ -52,24 +54,28 @@ public class StatusTitleTrack extends Track {
 		long queueLength = getMaxQueueLength();
 		
 		if (queueLength > 0) {
-			
-			for (double d = 0; d < 1; d += 0.1) {
-				int x = (int) (Math.sin(angle + d * Math.PI * 1.5) * 4);
-				int y = (int) (Math.cos(angle + d * Math.PI * 1.5) * 4);			
+		
+			if (System.currentTimeMillis() - hideTime > VISIBLE_AFTER) {
+				for (double d = 0; d < 1; d += 0.1) {
+					int x = (int) (Math.sin(angle + d * Math.PI * 1.5) * 4);
+					int y = (int) (Math.cos(angle + d * Math.PI * 1.5) * 4);			
 
-				angle += 0.005 * (System.currentTimeMillis() - previousTime);
-				previousTime = System.currentTimeMillis();
-				
-				if (angle < 0) {
-					angle += Math.PI * 2;
-				}
-				
-				Color c = GBrowserConstants.COLOR_BLUE;
-				c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) (d * 128));
+					angle += 0.005 * (System.currentTimeMillis() - previousTime);
+					previousTime = System.currentTimeMillis();
 
-				drawables.add(new RectDrawable(new Rectangle(x + 4, y + 3,  3, 3), c, c));
+					if (angle < 0) {
+						angle += Math.PI * 2;
+					}
+
+					Color c = GBrowserConstants.COLOR_BLUE;
+					c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) (d * 128));
+
+					drawables.add(new RectDrawable(new Rectangle(x + 4, y + 3,  3, 3), c, c));
+				} 		
 			}
-		}
+		} else {			
+			hideTime = System.currentTimeMillis();
+		}	
 		
 		drawables.add(new TextDrawable(13, 10, title, color));				
 		return drawables;
