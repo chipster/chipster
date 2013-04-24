@@ -5,10 +5,10 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
 
@@ -66,19 +66,6 @@ public class TrackFactory {
 		
 		// Group containing tracks for this data source
 		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, details, estimate, seqFile, title);
-		readGroup.initialise();
-        
-        return readGroup;
-	}
-
-	public static TrackGroup getReadSummaryTrackGroup(GBrowserPlot genomePlot,  AreaRequestHandler details, AreaRequestHandler estimate, 
-			AreaRequestHandler seqFile, String title, AreaRequestHandler summaryDataSource)
-	        throws FileNotFoundException, MalformedURLException {
-	
-		GBrowserView dataView = genomePlot.getDataView();
-		
-		// Group containing tracks for this data source
-		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, details, estimate, seqFile, title, summaryDataSource);
 		readGroup.initialise();
         
         return readGroup;

@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -8,6 +8,7 @@ import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 

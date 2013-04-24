@@ -9,7 +9,7 @@ import java.util.List;
 import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;

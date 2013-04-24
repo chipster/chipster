@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.util.IOUtils;
 
 /**

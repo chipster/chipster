@@ -8,11 +8,11 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.InMemoryIndex;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 
 /**
  * FIXME Find out why 400 MB file is only 150 MB after sorting. 

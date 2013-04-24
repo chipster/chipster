@@ -28,15 +28,15 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixSummaryHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.BamDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
@@ -46,9 +46,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GeneIndexActi
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ViewLimiter;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.GenomeAnnotation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
@@ -60,7 +58,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaL
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CytobandConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfLineParser;
@@ -428,31 +425,14 @@ public class GBrowser implements ComponentListener {
 						BamToDetailsConversion details = new BamToDetailsConversion(detailsData, this);
 						BamToCoverageEstimateConversion estimate = new BamToCoverageEstimateConversion(estimateData, this);
 						
-						if (track.interpretation.summaryDatas.size() == 0) {
-							// No precomputed summary data
-							
+						TrackGroup readGroup = TrackFactory.getReadTrackGroup(
+								plot, details, estimate, 
+								refSeqRequestHandler, 
+								track.interpretation.primaryData.getName());
 
-							TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-									plot, details, estimate, 
-									refSeqRequestHandler, 
-									track.interpretation.primaryData.getName());
+						track.setTrackGroup(readGroup);
 
-							track.setTrackGroup(readGroup);
-							
-							samples.addTrackGroup(readGroup);
-
-						} else { 
-							// Has precomputed summary data
-							
-							DataSource symmaryData = new TabixDataSource(dataUrl.getUrl(), null);
-							AreaRequestHandler summaryRequestHandler = new TabixSummaryHandlerThread(symmaryData);
-							
-							TrackGroup readGroupWithSummary = TrackFactory.getReadSummaryTrackGroup(
-									plot, details, estimate, refSeqRequestHandler, 
-									track.interpretation.primaryData.getName(), summaryRequestHandler);
-							track.setTrackGroup(readGroupWithSummary);
-							samples.addTrackGroup(readGroupWithSummary);
-						}
+						samples.addTrackGroup(readGroup);
 					}
 				} catch (IOException e) {
 					reportException(e);

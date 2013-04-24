@@ -4,8 +4,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 
 /**
  * <p>Fast seek file status.</p>

@@ -1,10 +1,13 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 
 /**

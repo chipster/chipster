@@ -1,11 +1,9 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.Queue;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 /**
  * The active thread of the processing layer. Receives area requests and sends out

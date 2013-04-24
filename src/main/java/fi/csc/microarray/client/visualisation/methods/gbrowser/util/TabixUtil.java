@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.util;
 import org.broad.tribble.readers.TabixReader;
 import org.broad.tribble.readers.TabixReader.Iterator;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 public class TabixUtil {

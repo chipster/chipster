@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
+package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,7 +13,6 @@ import javax.swing.SwingUtilities;
 import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -27,6 +26,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BinarySearchIndex;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Index;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TabixUtil;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;

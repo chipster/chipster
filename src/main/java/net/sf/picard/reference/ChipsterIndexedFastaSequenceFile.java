@@ -35,8 +35,8 @@ import net.sf.picard.PicardException;
 import net.sf.picard.reference.FastaSequenceIndex;
 import net.sf.picard.reference.FastaSequenceIndexEntry;
 import net.sf.picard.reference.ReferenceSequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 
 /**
  * Copy of Picard class modified to support urls and 
