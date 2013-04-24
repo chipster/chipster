@@ -6,16 +6,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow.Sample;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.IndexKey;
 
 public class CnaFlagTrack extends Track {
 

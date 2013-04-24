@@ -6,11 +6,11 @@ import java.net.MalformedURLException;
 import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
 
 /**
  * Utility class for creating predefined {@link TrackGroup} objects.  

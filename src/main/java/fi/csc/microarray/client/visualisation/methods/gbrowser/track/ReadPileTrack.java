@@ -14,19 +14,19 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.Sequence;
 
 /**
  * The read track, most important of all tracks. Shows actual content of reads using color coding.

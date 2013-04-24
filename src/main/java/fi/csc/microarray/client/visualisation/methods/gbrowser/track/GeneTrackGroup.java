@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp

@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.HashSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 /**
  * Class to disguise gene search as a areaRequest. Note that as this really is also AreaRequest, so it's

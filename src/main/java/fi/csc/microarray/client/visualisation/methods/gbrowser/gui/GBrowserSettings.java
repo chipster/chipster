@@ -33,9 +33,9 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackDefinition;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;

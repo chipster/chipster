@@ -32,7 +32,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpre
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;

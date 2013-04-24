@@ -8,7 +8,7 @@ import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**

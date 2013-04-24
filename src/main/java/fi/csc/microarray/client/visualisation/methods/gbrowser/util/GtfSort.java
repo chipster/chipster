@@ -9,8 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.InMemoryIndex;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.InMemoryIndex;
 
 /**
  * In memory sort, not for huge files.

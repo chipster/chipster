@@ -1,9 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Type;
 
 /**
  * Content for given genomic region. Content is data dependent, but basically it is data parsed from the 
@@ -53,9 +52,18 @@ public class RegionContent implements Comparable<RegionContent> {
 	
 	@Override
 	public String toString() {
+		
+		final DecimalFormat FLOAT_FORMAT = new DecimalFormat("0.#########");
 		String extra = "";
+		
 		for (Object value : values.values()) {
-			extra += "\t" + Type.toString(value);
+			
+			if (value instanceof Float) {
+				extra += "\t" + FLOAT_FORMAT.format((Float)value);
+				
+			} else {
+				extra += "\t" + value.toString();
+			}
 		}
 		return region.toString(true) + extra;
 	}

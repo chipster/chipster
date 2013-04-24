@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 
 /**
  * 

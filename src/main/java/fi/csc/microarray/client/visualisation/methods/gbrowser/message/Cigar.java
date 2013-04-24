@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.samtools.CigarElement;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 
 /**

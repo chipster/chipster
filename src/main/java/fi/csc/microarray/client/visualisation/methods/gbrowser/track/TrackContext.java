@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 
 /**
  * Helper class for collecting drawing related information for a {@link Drawable} 

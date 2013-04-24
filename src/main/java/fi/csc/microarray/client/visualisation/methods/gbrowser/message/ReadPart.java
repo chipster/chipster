@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 /**
  * Single spliced part of a spliced read. 

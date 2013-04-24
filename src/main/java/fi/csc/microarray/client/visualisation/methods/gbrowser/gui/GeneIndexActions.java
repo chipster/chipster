@@ -16,7 +16,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**

@@ -13,11 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineReader;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineReader;
 import fi.csc.microarray.util.Strings;
 
 /**

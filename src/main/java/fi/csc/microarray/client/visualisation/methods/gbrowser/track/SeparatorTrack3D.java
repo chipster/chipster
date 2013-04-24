@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 
 /**
  * 3D line that separates real tracks.

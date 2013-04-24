@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 
 /**
  * Region of genome limited by two {@link BpCoord} coordinates. 

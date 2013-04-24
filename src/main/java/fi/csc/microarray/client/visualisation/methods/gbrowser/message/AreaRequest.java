@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.Collection;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 /**
  * A request for content from the given view area. The view layer uses these requests to get data from the processing layer.  

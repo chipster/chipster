@@ -3,7 +3,7 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
