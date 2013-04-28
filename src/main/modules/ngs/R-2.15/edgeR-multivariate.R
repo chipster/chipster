@@ -1,8 +1,8 @@
-# TOOL edgeR-multivariate.R: "Differential expression using edgeR for multivariate experiments" (Differential expression analysis of genes from multivariate designs using the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment.)
+# TOOL edgeR-multivariate.R: "Differential expression using edgeR for multivariate experiments" (Differential expression analysis of genes from multivariate designs using the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool "\Utilities - Define NGS experiment\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
-# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the effect from sequencing biases.)
+# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER main.effect1: main.effect1 TYPE METACOLUMN_SEL DEFAULT group (Main effect 1)
 # PARAMETER main.effect2: main.effect2 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
 # PARAMETER main.effect3: main.effect3 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
@@ -33,7 +33,7 @@ library(edgeR)
 # Loads the count data
 dat <- read.table("data.tsv", header=T, sep="\t", row.names=1)
 
-# Separates expression values and flags
+# Extracts expression value columns
 annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
@@ -87,7 +87,7 @@ if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
 
 design<-with(phenodata, model.matrix(as.formula(formula)))
 
-# Estimate disersions
+# Estimate dispersions
 dge <- estimateCommonDisp(dge, design)
 dge <- estimateGLMTrendedDisp(dge, design)
 dge <- estimateGLMTagwiseDisp(dge, design)
