@@ -1,4 +1,4 @@
-# TOOL ngs-dea-edger.R: "Differential expression analysis using edgeR" (Differential expression analysis of genomic features using the edgeR Bioconductor package. You can create the input count table and phenodata file by the tool Utilities - Define NGS experiment.)
+# TOOL ngs-dea-edger.R: "Differential expression using edgeR" (Differential expression analysis using the exact statistical methods of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". Please note that this tool is suitable only for two group comparisons. For multifactor experiments please use the tool \"RNA-seq - Differential expression using edgeR for multivariate experiments\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
@@ -10,17 +10,17 @@
 # OUTPUT OPTIONAL edger-log.txt
 # OUTPUT OPTIONAL p-value-plot-edger.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the effect from sequencing biases.)
-# PARAMETER dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given genomic feature can be moderated across several genomic features with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genomic features. Common dispersion is used regardless of the setting if no biological replicates are available.)
-# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
-# PARAMETER p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
-# PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
-# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
-# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
+# PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
+# PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given genomic feature can be moderated across several genomic features with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genomic features. Common dispersion is used regardless of the setting if no biological replicates are available.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
+# PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
+# PARAMETER OPTIONAL image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
+# PARAMETER OPTIONAL image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
 
 ############################################################
-#                                                          #
+#                                                          
 # Analysis workflow using edgeR for normalization and statistical testing for finding differentially expressed sequence features
 # MG, 11.6.2011
 # MG, 23.8.2011, updated to include library size from phenodata file
@@ -28,6 +28,7 @@
 # MG, 22.2.2012, prettified plots, added p-value distribution plot
 # EK, 6.5.2012, clarified texts
 # AMS, 5.10.2012, added sorting to BED
+# EK 28.4.2013, clarified texts
 ############################################################
 
 # Loads the libraries
@@ -41,7 +42,7 @@ h <- image_height
 file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
-# Separates expression values and flags
+# Extracts expression value columns
 annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
