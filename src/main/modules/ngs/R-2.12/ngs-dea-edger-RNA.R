@@ -1,4 +1,4 @@
-# TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential expression analysis of genes using the edgeR Bioconductor package. You can create the input count table and phenodata file by the tool Utilities - Define NGS experiment.)
+# TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential gene expression analysis using the exact statistical methods of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". Please note that this tool is suitable only for two group comparisons. For multifactor experiments please use the tool \"Differential expression using edgeR for multivariate experiments\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
@@ -10,13 +10,13 @@
 # OUTPUT OPTIONAL edger-log.txt
 # OUTPUT OPTIONAL p-value-plot-edger.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the effect from sequencing biases.)
-# PARAMETER dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
-# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
-# PARAMETER p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
-# PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
-# PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
-# PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
+# PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
+# PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.) 
+# PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
+# PARAMETER OPTIONAL image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
+# PARAMETER OPTIONAL image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
 
 ############################################################
@@ -41,7 +41,7 @@ h <- image_height
 file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
-# Separates expression values and flags
+# Extracts expression value columns
 annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
@@ -117,7 +117,7 @@ if (normalization == "yes") {
 }
 
 ###################################
-# Anlysis using common dispersion #
+# Analysis using common dispersion #
 ###################################
 
 if (dispersion_method == "common") {
@@ -149,7 +149,7 @@ if (dispersion_method == "common") {
 }
 
 ##############################################
-# Anlysis using moderated tagwise dispersion #
+# Analysis using moderated tagwise dispersion #
 ##############################################
 
 if (dispersion_method == "tagwise") {
@@ -180,7 +180,7 @@ if (dispersion_method == "tagwise") {
 	dev.off()
 }
 
-# Create a tbale with the original counts per sample together with the statistical tests results
+# Create a table with the original counts per sample together with the statistical tests results
 # ready for output in Chipster
 # If there are no significant results return a message
 if (dim(significant_results)[1] > 0) {
@@ -192,7 +192,7 @@ if (dim(significant_results)[1] > 0) {
 	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
-# Also output a bed file for visualization and region matching tools
+# Also output a BED file for visualization and region matching tools
 source(file.path(chipster.common.path, "bed-utils.R"))
 if (dim(significant_results)[1] > 0) {
 	empty_column <- character(length(significant_indices))
@@ -205,7 +205,7 @@ if (dim(significant_results)[1] > 0) {
 
 # Output a message if no significant genes are found
 if (dim(significant_results)[1] == 0) {
-	cat("No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.", file="edger-log.txt")
+	cat("No statistically significantly expressed genes were found. Try again with a less stringent p-value cut-off or multiple testing correction method.", file="edger-log.txt")
 }
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution

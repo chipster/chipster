@@ -58,12 +58,12 @@ CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($
 echo Detected version $CURRENT_VERSION
 compare_to_current "$LATEST_VERSION"
 if [ $CURRENT_COMPARED -gt 0 ] ; then 
-	echo "Update error: current version $CURRENT_VERSION is newer than latest $LATEST_VERSION"
-	exit 1
+  echo "Update error: current version $CURRENT_VERSION is newer than latest $LATEST_VERSION"
+  exit 1
 fi
 if [ $CURRENT_COMPARED -eq 0 ] ; then 
-	echo "Already at latest version, nothing needs to be updated"
-	exit
+  echo "Already at latest version, nothing needs to be updated"
+  exit
 fi
 
 # Confirm update
@@ -91,7 +91,7 @@ mkdir ${TMPDIR_PATH}
 TIMESTAMP=$(date +"%Y%m%d%H%M")
 BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
 while [ -d "$BACKUPDIR_PATH" ] ; do
-	BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
+  BACKUPDIR_PATH=/tmp/$TIMESTAMP-$RANDOM
 done
 mkdir ${BACKUPDIR_PATH}
 
@@ -104,8 +104,8 @@ mkdir ${BACKUPDIR_PATH}
 compare_to_current "2.0.3"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-	echo "** Installing mm10 bowtie indexes"
-	curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
+  echo "** Installing mm10 bowtie indexes"
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 # 2.1.0 
@@ -113,7 +113,7 @@ compare_to_current "2.1.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
     echo "** Updating prinseq"
-	cd ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/
     curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
     chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
@@ -152,31 +152,31 @@ fi
 compare_to_current "2.2.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-	echo "** Updating samtools"
-	cd ${TMPDIR_PATH}/
+  echo "** Updating samtools"
+  cd ${TMPDIR_PATH}/
   mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
   rm ${TOOLS_PATH}/samtools
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
-	echo "** Relocating fasta files"
-	mkdir ${TOOLS_PATH}/genomes/fasta
-	rm -f ${TOOLS_PATH}/bowtie/indexes/nochr/*.fai
-	mv ${TOOLS_PATH}/bowtie/indexes/*.fa ${TOOLS_PATH}/genomes/fasta/
-	mv ${TOOLS_PATH}/bowtie/indexes/nochr ${TOOLS_PATH}/genomes/fasta/
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/e_coli.fa 
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Halorubrum_lacusprofundi_ATCC_49239.fa 
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/hg19.fa 
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/mm10.fa
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/mm9.fa
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Phytophthora_infestans1_1.12.fa
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Populus_trichocarpa.JGI2.0.12.fa
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/rn4.fa
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  echo "** Relocating fasta files"
+  mkdir ${TOOLS_PATH}/genomes/fasta
+  rm -f ${TOOLS_PATH}/bowtie/indexes/nochr/*.fai
+  mv ${TOOLS_PATH}/bowtie/indexes/*.fa ${TOOLS_PATH}/genomes/fasta/
+  mv ${TOOLS_PATH}/bowtie/indexes/nochr ${TOOLS_PATH}/genomes/fasta/
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/e_coli.fa 
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Halorubrum_lacusprofundi_ATCC_49239.fa 
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/hg19.fa 
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/mm10.fa
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/mm9.fa
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Phytophthora_infestans1_1.12.fa
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/Populus_trichocarpa.JGI2.0.12.fa
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/rn4.fa
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-	echo "** Installing bowtie2"
+  echo "** Installing bowtie2"
   cd ${TMPDIR_PATH}/
   wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
   unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
@@ -184,50 +184,50 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
   rm bowtie2-2.0.0-beta7-linux-x86_64.zip
 
-	echo "** Installing bowtie2 indexes"
+  echo "** Installing bowtie2 indexes"
   cd ${TMPDIR_PATH}/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
-	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
-	
-	echo "** Installing tophat2"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_athaliana.TAIR10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Halorubrum_lacusprofundi_ATCC_49239.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Phytophthora_infestans1_1.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Populus_trichocarpa.JGI2.0.12.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_saprolegnia_parasitica_cbs_223.65_2_contigs.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
+  
+  echo "** Installing tophat2"
   cd ${TMPDIR_PATH}/
   curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   echo "** Installing DEXSeq"
-	cd ${TMPDIR_PATH}/
-	curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
-	mkdir ${TOOLS_PATH}/dexseq-exoncounts
-	cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
-	cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
-	rm -rf DEXSeq	
+  cd ${TMPDIR_PATH}/
+  curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.2.1.tar.gz | tar -xz
+  mkdir ${TOOLS_PATH}/dexseq-exoncounts
+  cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+  cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+  rm -rf DEXSeq 
 
-	echo "** Updating gtf files"
-	mkdir -p ${BACKUPDIR_PATH}/genomes
-	mv ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
-	mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
-	mv ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  echo "** Updating gtf files"
+  mkdir -p ${BACKUPDIR_PATH}/genomes
+  mv ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-	echo "** Installing cufflinks2" 
-	cd ${TMPDIR_PATH}/
-	curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  echo "** Installing cufflinks2" 
+  cd ${TMPDIR_PATH}/
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Fixing vcftools"
   cd ${TMPDIR_PATH}/
   rm -rf ${TOOLS_PATH}/vcftools*
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.9.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
                         
 fi
@@ -243,7 +243,7 @@ compare_to_current "2.2.2"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
   echo "** Removing obsolete files"                      
   rm -f ${TOOLS_PATH}/admin/ngs
-  rm -rf ${TOOLS_PATH}/tophat-1.3.0.Linux_x86_64	
+  rm -rf ${TOOLS_PATH}/tophat-1.3.0.Linux_x86_64  
   rm -f ${TOOLS_PATH}/bwa_indexes/*.fa
   
   echo "** Adding sheep genome"
@@ -547,41 +547,41 @@ fi
 compare_to_current "$LATEST_VERSION"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
-	echo "** Updating Chipster installation to $LATEST_VERSION"
-	cd ${CHIP_PATH}/
-	
-	# Get install package (override, if exists)
-	rm -f chipster-$LATEST_VERSION.tar.gz
+  echo "** Updating Chipster installation to $LATEST_VERSION"
+  cd ${CHIP_PATH}/
+  
+  # Get install package (override, if exists)
+  rm -f chipster-$LATEST_VERSION.tar.gz
     wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
-	# Move away old libs to avoid conflicts when lib names change
+  # Move away old libs to avoid conflicts when lib names change
     mv shared ${BACKUPDIR_PATH}/
     mv webstart/web-root/lib ${BACKUPDIR_PATH}/
 
-	# Unpack libs
+  # Unpack libs
     echo "** Updating Chipster libs: shared/libs"
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
     echo "** Updating Chipster libs: webstart/web-root/lib"
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
 
-	# Copy away tool scripts in case there were important local changes
+  # Copy away tool scripts in case there were important local changes
     cp -r comp/modules ${BACKUPDIR_PATH}/
 
-	# Unpack tool scripts
+  # Unpack tool scripts
     echo "** Updating Chipster tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
-	# Update manuals
-	echo "** Updating Chipster manuals: webstart/web-root/manual"
-	mv webstart/web-root/manual ${BACKUPDIR_PATH}/
-	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/manual
+  # Update manuals
+  echo "** Updating Chipster manuals: webstart/web-root/manual"
+  mv webstart/web-root/manual ${BACKUPDIR_PATH}/
+  tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/manual
 
-	# Update runtimes.xml
-	echo "** Updating Chipster runtimes: comp/conf/runtimes.xml"
+  # Update runtimes.xml
+  echo "** Updating Chipster runtimes: comp/conf/runtimes.xml"
     cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
-	tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
+  tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
-	# Clean up
+  # Clean up
     rm chipster-$LATEST_VERSION.tar.gz
 fi
 

@@ -7,7 +7,11 @@
 
 <h3>Description</h3>
 
-This tool performs an analysis for differential expression using the edgeR Bioconductor package.
+Differential expression analysis using the exact statistical methods of the edgeR Bioconductor package ("classic edgeR"). 
+Please note that this tool is suitable only for two group comparisons. 
+For multifactor experiments you can use the tool "Differential expression using edgeR for multivariate experiments", 
+which uses generalized linear models -based statistical methods ("glm edgeR").
+
 
 <br>
 <br>
@@ -26,12 +30,8 @@ This tool performs an analysis for differential expression using the edgeR Bioco
 
 <h3><br>Details</h3>
 
-<br>
-Given an input table of raw counts, 
-the edgeR package performs statistical analysis to identify differentially expressed genomic features (genes, miRNAs,...) between two experimental conditions.
-Note that in its current implementation, the tool only supports single-factor experiment designs. The experiment
-conditions to be compared should be defined in the phenodata.tsv file, and the appropriate column selected using
-the 'Column describing groups' parameter.
+<br>This tool takes as input a table of raw counts from the different samples. The count file has to be associated with a phenodata file describing the experimental groups. 
+These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table, and creates a phenodata file for it.
 <br><br>
 Normalization factors are calculated using the library size given by the user in the phenodata.tsv or by summing the counts for each sample.
 TMM method is then used to calculate the normalization factors in order to reduce RNA compositon bias 
@@ -70,7 +70,7 @@ edgeR proceeds with testing for differential expression using the exact test, wh
 
 <p>This tool uses the edgeR package for statistical analysis. Please read the following article for more detailed information:</p>
 
-<p> MD Robinson, DJ McCarthy, and GK Smyth. <a href="http://www.ncbi.nlm.nih.gov/pubmed/19910308">edgeR: a bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics, 26 (1):139Ð40, Jan 2010.</a></p> 
+<p> MD Robinson, DJ McCarthy, and GK Smyth. <a href="http://www.ncbi.nlm.nih.gov/pubmed/19910308">edgeR: a bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics, 26 (1):139-40, Jan 2010.</a></p> 
 
 
 <p> </a>.</p> 

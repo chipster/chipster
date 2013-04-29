@@ -12,7 +12,7 @@
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="admin-src" location="src/main/admin" />
-	<property name="admin-web" location="src/main/admin/admin-web" />
+	<property name="admin-web" location="src/main/web/admin-web" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
@@ -57,8 +57,7 @@
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
-    <property name="keyalias" value="csc" />
-	<property name="keystorepass" value="chipster" />
+	<property name="keyalias" value="chipster" />
 	<property name="default-keystore" value="keystore.ks" />
 
 	<target name="clean" description="Remove previously compiled and generated files">
@@ -138,7 +137,9 @@
 		    </fatjar.build>
 
 		<!-- sign it -->
-		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
+		<input message="Give keystore passphrase for client JAR signing:" addproperty="keystorepass" />
+		<input message="Give key passphrase for client JAR signing:" addproperty="keypass" />
+		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}" keypass="${keypass}" />
 		<verifyjar jar="${client-jar}" />
 
     </target>

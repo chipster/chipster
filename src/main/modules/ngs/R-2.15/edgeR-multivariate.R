@@ -1,19 +1,20 @@
-# TOOL edgeR-multivariate.R: "Differential expression using edgeR for multivariate experiments" (Differential expression analysis of genes from multivariate designs using the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool Utilities - Define NGS experiment.)
+# TOOL edgeR-multivariate.R: "Differential expression using edgeR for multivariate experiments" (Differential expression analysis for multifactor experiments using the generalized linear models based statistical methods of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool "\Utilities - Define NGS experiment\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
-# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the effect from sequencing biases.)
-# PARAMETER main.effect1: main.effect1 TYPE METACOLUMN_SEL DEFAULT group (Main effect 1)
-# PARAMETER main.effect2: main.effect2 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
-# PARAMETER main.effect3: main.effect3 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
-# PARAMETER treat.main.effect1.as.factor: treat.main.effect1.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect1 be treated as a factor)
-# PARAMETER treat.main.effect2.as.factor: treat.main.effect2.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect2 be treated as a factor)
-# PARAMETER treat.main.effect3.as.factor: treat.main.effect3.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect3 be treated as a factor)
-# PARAMETER interactions: interactions TYPE [main: "main effects only", all: "main effects and interactions"] DEFAULT main (What to include in the model)
+# PARAMETER main.effect1: "Main effect 1" TYPE METACOLUMN_SEL DEFAULT group (Main effect 1)
+# PARAMETER OPTIONAL main.effect2: "Main effect 2" TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
+# PARAMETER OPTIONAL main.effect3: "Main effect 3" TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
+# PARAMETER OPTIONAL treat.main.effect1.as.factor: "Treat main effect 1 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect1 be treated as a factor)
+# PARAMETER OPTIONAL treat.main.effect2.as.factor: "Treat main effect 2 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect2 be treated as a factor)
+# PARAMETER OPTIONAL treat.main.effect3.as.factor: "Treat main effect 3 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect3 be treated as a factor)
+# PARAMETER OPTIONAL interactions: "Include interactions in the model" TYPE [main: "no", all: "yes"] DEFAULT main (Should interactions be included in the model in addition to the main effects.)
+# PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 
 
 
 # JTT 8.7.2012
+# EK 28.4.2013 rounding added, main effect treated as factor by default
 
 # Demo settings
 #normalization<-"yes"
@@ -33,7 +34,7 @@ library(edgeR)
 # Loads the count data
 dat <- read.table("data.tsv", header=T, sep="\t", row.names=1)
 
-# Separates expression values and flags
+# Extracts expression value columns
 annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
@@ -87,7 +88,7 @@ if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
 
 design<-with(phenodata, model.matrix(as.formula(formula)))
 
-# Estimate disersions
+# Estimate dispersions
 dge <- estimateCommonDisp(dge, design)
 dge <- estimateGLMTrendedDisp(dge, design)
 dge <- estimateGLMTagwiseDisp(dge, design)
@@ -111,5 +112,9 @@ for(i in 2:ncol(design)) {
    ttres<-cbind(ttres, tt)
 }
 
-write.table(ttres, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+# Rounding, etc.
+ttres2<-round(ttres,6)
+#ttres3<-merge(dat, ttres2, by.x=0, by.y=0)
+
+write.table(ttres2, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
