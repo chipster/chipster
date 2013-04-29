@@ -11,7 +11,7 @@
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="admin-src" location="src/main/admin" />
-	<property name="admin-web" location="src/main/admin/admin-web" />
+	<property name="admin-web" location="src/main/web/admin-web" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
