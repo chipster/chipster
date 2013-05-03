@@ -8,8 +8,7 @@
 <h3>Description</h3>
 
 <p>
-The tool takes a set of count files, merges them into a single data table and associates a phenodata file so that
-experiment setup can be defined and downstream analyses performed.
+Merges a set of count files into a single table and makes a phenodata file for it.
 </p>
 
 <h3>Parameters</h3>
@@ -23,21 +22,26 @@ experiment setup can be defined and downstream analyses performed.
 <h3>Details</h3>
 
 <p>
-Takes a set of individual files with counts data and merges them into a single data table to
-which a phenodata file is associated. The 'group' column of the phenodata file should be edited by the user as to include
-information on which input files belong to a certain experiment condition. In addition,  the initial - that is, before
-any filtering steps - library size (in bases) may be added in the 'library_size' column. If added, this information
-will be used for normalization purposes in downstream tools for differential expression analysis.
+This tool takes a set of count files for individual samples and merges them into one count table. 
+You can create the sample count files from BAM files using one of the following tools:
+</p>
+<ul>
+<li>RNA-seq / Map aligned reads to genes using HTSeq</li>
+<li>RNA-seq / Map aligned reads to exons using DEXSeq</li>
+<li>miRNA-seq / Convert genomic BAM file to count table</li>
+<li>miRNA-seq / Convert miRBased BAM file to count table</li>
+</ul>
+<p>
+In addition to merging count files, this tool also creates a phenodata file which allows you to assign samples to different experimental groups for statistical testing etc.
+The library size column of the phenodata file gives you an option to enter the initial library size of the samples. If you give the library sizes, 
+the differential expression analysis tools edgeR and DESeq tools will use them for normalization, rather than using column totals.
 </p>
 <p>
-The tool has two modes of operation, dpendning on whether alignment has been performed using something else than a
-reference genome or not. For reference genome alignments, information about genomic location including chromosome,
-start and end coordinate will be added to the data file.
+If your count files contain columns for genomic location information (chr, start, end), you can add this information to the count table.
 </p>
 <p>
-Since zero counts in data may cause issues for certain downstream applications that transform data or calculate ratios, the
-tool also offers the possibility to impute a fixed value to replace the zeros with. By default, the zeros are left untouched,
-relying on the downstream applications to handle the issue instead.
+Since zero counts can cause problems for downstream applications which transform data or calculate ratios, the tool also offers the possibility to impute a fixed value to replace the zeros. 
+ 
 </p>
 
 <h3>Output</h3>
