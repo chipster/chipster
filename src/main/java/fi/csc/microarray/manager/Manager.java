@@ -200,15 +200,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     		logger.info("could not load additional tasks");
     	}
     	
-    	//CSC specific configurations 
+    	// site specific configurations 
     	if (additionalTask != null) {
-    		//Schedule Askare updates
+    		// schedule site specific tasks
     		Scheduler scheduler = new Scheduler();
     		scheduler.schedule("10 0 * * *", additionalTask);
     		scheduler.start();
-    		
-    		//Define test account (username key prevents duplicates)
-    		insertTestAccounts(new String[] {"nagios", "demo"});
     	}
     	
     	
@@ -233,6 +230,10 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		// start admin
 		boolean startAdmin = configuration.getBoolean("manager", "start-admin");
 		if (startAdmin) {
+    		String s = configuration.getString("manager", "admin-test-account-list").trim();
+    		if (!s.isEmpty()) {
+    			insertTestAccounts(s.split(","));
+    		}
 			startAdmin(configuration);
 		}
 		
@@ -244,17 +245,23 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	}
 
 	private void insertTestAccounts(String[] accounts) {
-		try {
+			
+		for (String account : accounts) {
+			try {
+				
+				// add test accounts if they don't exist
+				if (jdbcTemplate.queryForList("SELECT * from accounts where username like ?", new String[] {account}).size() == 0) {
+					logger.info("adding " + account + " to test accounts");
+					
+					Map<String, Object> parameters = new HashMap<String, Object>(); 
+					parameters.put("username", account);
+					parameters.put("ignoreInStatistics", true);
 
-			for (String account : accounts) {
-				Map<String, Object> parameters = new HashMap<String, Object>(); 
-				parameters.put("username", account);
-				parameters.put("ignoreInStatistics", true);
-
-				this.insertAccountTemplate.execute(parameters);
+					this.insertAccountTemplate.execute(parameters);
+				}
+			} catch (Exception e) {
+				logger.warn("could not insert test account: " + account, e);
 			}
-		} catch (Exception e) {
-		    logger.error("Could not insert test account", e);
 		}
 	}
 

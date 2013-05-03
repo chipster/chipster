@@ -286,6 +286,10 @@
 	    <entry entryKey="admin-password" type="string" description="admin web console password">
 			<value>chipster</value>
 		</entry>
+
+	    <entry entryKey="admin-test-account-list" type="string" description="comma separated list of accounts, which are considered test accounts in admin web stats">
+			<value></value>
+		</entry>
 	
 			
 	</configuration-module>

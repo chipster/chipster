@@ -109,12 +109,13 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
+# libnetcdf6, for R
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
   ## Runtime:
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk libnetcdf6
 elif [ $mode == "devel" ]
 then
   ## Devel:
