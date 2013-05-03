@@ -12,7 +12,7 @@
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.)
-# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Filter out genes before statistical testing)
+# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least one count per million in at least this many samples)
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
@@ -61,8 +61,7 @@ if (length(unique(groups))==1 | length(unique(groups))>=3) {
 if (number_samples == 2) dispersion_method <- "common" 
 
 # Create a DGEList
-# Notice that library size is calculated from column totals if no library size
-# exist in the phenodata file
+# Notice that library size is calculated from column totals if no library size exist in the phenodata file
 if (estimate_lib_size) {
 	dge_list <- DGEList (count=dat2, group=groups)
 } else {
@@ -179,37 +178,34 @@ if (dispersion_method == "tagwise") {
 	# Make an MA-plot displaying the significant reads
 	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
 	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed genes")
+	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
 	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
+	legend (x="topleft", legend=c("significantly differentially expressed","not significant"), col=c("red","black"),
 			cex=1, pch=19)
 	dev.off()
 }
 
-# Create a output table with the original counts per sample together with the statistical tests results
-# If there are no significant results return a message
+# Dispersion plot
+pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
+plotBCV(dge_list, main="Biological coefficient of variation")
+dev.off()
+
+# If significant results are found, create an output table with the original counts per sample together with the statistical tests results
+# If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
 if (dim(significant_results)[1] > 0) {
 	output_table <- data.frame (dat[significant_indices,], significant_results)
-}
-
-# Output the table
-if (dim(significant_results)[1] > 0) {
 	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	these.colnames <- colnames(dat)
+	if("chr" %in% these.colnames) {
+		empty_column <- character(length(significant_indices))
+		bed_output <- output_table [,c("chr","start","end")]
+		bed_output <- cbind(bed_output,empty_column)
+		bed_output <- cbind(bed_output, output_table[,"logFC"])
+		source(file.path(chipster.common.path, "bed-utils.R"))
+		bed_output <- sort.bed(bed_output)
+		write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	}	
 }
-
-# If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
-#source(file.path(chipster.common.path, "bed-utils.R"))
-these.colnames <- colnames(significant_results)
-if("chr" %in% these.colnames) {
-	 if (dim(significant_results)[1] > 0) {
- 	empty_column <- character(length(significant_indices))
- 	bed_output <- output_table [,c("chr","start","end")]
- 	bed_output <- cbind(bed_output,empty_column)
- 	bed_output <- cbind(bed_output, output_table[,"logFC"])
- 	#bed_output <- sort.bed(bed_output)
- 	write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
-	}
- }
 
 
 # Output a message if no significant genes are found
@@ -217,11 +213,6 @@ if (dim(significant_results)[1] == 0) {
 	cat("No statistically significantly expressed genes were found.", file="edger-log.txt")
 }
 
-# Dispersion plot
-pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
-	plotBCV(dge_list, main="Biological coefficient of variation")
-#	legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
-	dev.off()
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution
 pdf (file="p-value-plot-edger.pdf")
