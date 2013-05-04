@@ -46,6 +46,7 @@
 		<tool runtime="R-2.12">
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
+		<tool runtime="R-2.12" module="common"><resource>extract-samples-from-dataset.R</resource></tool>
 		<tool runtime="R-2.12">
 			<resource>tagcleaner-predict.R</resource>
 		</tool>	
@@ -250,15 +251,17 @@
 		<tool runtime="R-2.12">
 			<resource>dexseq-exoncount.R</resource>
 		</tool>
-		<tool runtime="R-2.14">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>dea-deseq.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
+<!-- 	<tool runtime="R-2.15_bioc-2.11"><resource>edgeR-several_groups_V3.R</resource>
+		</tool>	 -->	
 		<tool runtime="R-2.15">
 			<resource>DEXseq.R</resource>
 		</tool>
@@ -291,10 +294,10 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		-->
-		<tool runtime="R-2.12">
-			<resource>ngs-dea-edger.R</resource>
+		<tool runtime="R-2.15">
+			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
-		<tool runtime="R-2.14">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>dea-deseq.R</resource>
 		</tool>
 		<tool runtime="R-2.12">

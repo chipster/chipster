@@ -3,7 +3,7 @@
 <head><title></title></head>
 <body>
 
-<h2>miRNA-seq / Convert genomic BAM file to edgeR input format</h2>
+<h2>miRNA-seq / Convert genomic BAM file to count table</h2>
 
 <h3>Description</h3>
 
@@ -24,7 +24,7 @@ the ones for which the count number is under the user defined threshold.</p>
 The tool takes as input a BAM file with reads that have been aligned to a reference genome,
 so that genomic location information for each mapped read is available. Depending on how the
 'Merge overlapping reads' parameter is set, the counts are calculated so that all
-reads mapping to the same location are summed up, or all the reads that start and/or end at the same genomic position are summed up.
+reads mapping to exactly the same location are summed up, or all the reads that start or/and end at the same genomic position are summed up.
 The latter option is set by default since it greatly reduces redundancy in the counts data. 
 </p>
 <p>
