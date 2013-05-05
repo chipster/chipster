@@ -19,6 +19,7 @@
 # JTT 8.7.2012
 # EK 28.4.2013 rounding added, main effect treated as factor by default
 # EK 2.5.2013 updated to BioC2.11
+# EK 4.5.2013 added dispersion plot and filtering
 
 
 # Loads the libraries
@@ -88,7 +89,7 @@ if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
 design<-with(phenodata, model.matrix(as.formula(formula)))
 
 # Estimate dispersions
-dge <- estimateCommonDisp(dge, design)
+dge <- estimateGLMCommonDisp(dge, design)
 dge <- estimateGLMTrendedDisp(dge, design)
 dge <- estimateGLMTagwiseDisp(dge, design)
 
@@ -96,7 +97,6 @@ dge <- estimateGLMTagwiseDisp(dge, design)
 pdf(file="dispersion-edger-glm.pdf", width=w/72, height=h/72)
 plotBCV(dge, main="Biological coefficient of variation")
 dev.off()
-
 
 # Estimate DE genes
 fit<-glmFit(dge, design)

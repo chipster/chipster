@@ -3,7 +3,7 @@
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
 # OUTPUT OPTIONAL de-list-edger.bed
-# OUTPUT OPTIONAL ma-plot-significant-edger.pdf
+# OUTPUT OPTIONAL ma-plot-edger.pdf
 # OUTPUT OPTIONAL mds-plot-edger.pdf
 # OUTPUT OPTIONAL edger-log.txt
 # OUTPUT OPTIONAL p-value-plot-edger.pdf
@@ -12,8 +12,8 @@
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.)
-# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least one count per million in at least this many samples)
-# PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
+# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least 5 counts in at least this many samples)
+# PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
 # PARAMETER OPTIONAL h: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
@@ -27,6 +27,7 @@
 # AMS 5.10.2012, added sorting to BED
 # EK 30.4.2013, changes to descriptions, made genomic location info optional so that external count tables can be used
 # EK 2.5.2013, added dispersion plot and filtering based on counts, disabled extra MA plots
+# EK 5.5.2013, modified filtering based on counts, removed fixed prior.n, added trended dispersion
 
 # OUTPUT OPTIONAL ma-plot-raw-edger.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-edger.pdf
@@ -60,21 +61,21 @@ if (length(unique(groups))==1 | length(unique(groups))>=3) {
 # if no biological replicates, force common dispersion
 if (number_samples == 2) dispersion_method <- "common" 
 
-# Create a DGEList
-# Notice that library size is calculated from column totals if no library size exist in the phenodata file
+# Create a DGEList. If no library size exist in the phenodata file, it is calculated from column totals 
 if (estimate_lib_size) {
 	dge_list <- DGEList (count=dat2, group=groups)
 } else {
 	dge_list <- DGEList (count=dat2, group=groups, lib.size=lib_size)
 }
 
-# filter out genes which have less than 1 cpm in user-defined number of samples 
+# filter out genes which have less than 5 counts in user-defined number of samples 
 if (filter > 0) {
-	keep <- rowSums(cpm(dge_list)>1) >= filter
+	keep <- rowSums(dge_list$counts>5) >= filter
 	dge_list <- dge_list[keep,]
 	dge_list$lib.size <- colSums(dge_list$counts)
 }
 
+# to be considered later: filter based on counts per million
 # m <- sweep(dge_list$counts, 2, 1e6 / dge_list$samples$lib.size, `*`)
 # ridx <- rowSums(m > 1) >= 3
 # dge_list <- dge_list[ridx,]
@@ -85,8 +86,7 @@ if (normalization == "yes") {
 }
 
 
-# Produce MDS plot of normalized data
-# NOTE: only possible when there are more than 2 samples in total
+# Produce MDS plot of normalized data (possible only when there are more than 2 samples)
 if (number_samples > 2) {
 	pdf(file="mds-plot-edger.pdf", width=w/72, height=h/72)
 	sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
@@ -95,17 +95,14 @@ if (number_samples > 2) {
 	dev.off()
 }
 
-# MA-plot comparison before and after normalization
+# MA plots before and after normalization (currently disabled output)
 pdf(file="ma-plot-raw-edger.pdf", width=w/72, height=h/72)
-maPlot(dge_list$counts[, 1], dge_list$counts[, 2], normalize = FALSE, pch = 19,
-		cex = 0.4, ylim = c(-8, 8))
+maPlot(dge_list$counts[, 1], dge_list$counts[, 2], normalize = FALSE, pch = 19, cex = 0.4, ylim = c(-8, 8))
 grid(col = "blue")
 title("Raw counts")
-abline(h = log2(dge_list$samples$norm.factors[2]/dge_list$samples$norm.factors[1]),
-		col = "red", lwd = 2)
+abline(h = log2(dge_list$samples$norm.factors[2]/dge_list$samples$norm.factors[1]), col = "red", lwd = 2)
 abline(h = 0, col = "darkgreen", lwd = 1)
-legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"),
-		cex=1, pch=19)
+legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"), cex=1, pch=19)
 dev.off()
 
 if (normalization == "yes") {
@@ -115,16 +112,12 @@ if (normalization == "yes") {
 			normalize = TRUE, pch = 19, cex = 0.4, ylim = c(-8, 8))
 	grid(col = "blue")
 	title("Normalized counts")
-	legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"),
-			cex=1, pch=19)
+	legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"), cex=1, pch=19)
 	abline(h = 0, col = "darkgreen", lwd = 1)
 	dev.off()
 }
 
-###################################
-# Analysis using common dispersion #
-###################################
-
+# Analysis using common dispersion
 if (dispersion_method == "common") {
 	# Calculate common dispersion
 	dge_list <- estimateCommonDisp(dge_list)
@@ -132,62 +125,37 @@ if (dispersion_method == "common") {
 	# Statistical testing
 	if (number_samples != 2) stat_test <- exactTest(dge_list) 
 	if (number_samples == 2) stat_test <- exactTest(dge_list, dispersion=dispersion_estimate)
-	
-	
-	# Extract results in a nice-looking table
-	number_tags <- dim (dge_list$counts) [1]
-	results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
-	results_table <- results_table$table
-	
-	# Extract the significant tags based on adjusted p-value cutoff
-	cutoff <- p_value_threshold
-	significant_results <- results_table[results_table$FDR<cutoff,]
-	
-	# Make an MA-plot displaying the significant reads
-	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
-	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot for significantly\ndifferentially expressed genomic features")
-	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-	legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
-			cex=1, pch=19)
-	dev.off()
-}
+}	
 
-##############################################
-# Analysis using moderated tagwise dispersion #
-##############################################
-
+# Analysis using moderated tagwise dispersion
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
-	number_moderating_tags <- 10
 	dge_list <- estimateCommonDisp(dge_list)
-	dge_list <- estimateTagwiseDisp(dge_list, prior.n = number_moderating_tags)
-	
+	dge_list <- estimateTrendedDisp(dge_list)
+	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
-	
-	# Extract results in a nice-looking table
-	number_tags <- dim (dge_list$counts) [1]
-	results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
-	results_table <- results_table$table
-	
-	# Extract the significant tags based on adjusted p-value cutoff
-	cutoff <- p_value_threshold
-	significant_results <- results_table[results_table$FDR<cutoff,]
-	
-	# Make an MA-plot displaying the significant reads
-	pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
-	significant_indices <- rownames (significant_results)
-	plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
-	abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-	legend (x="topleft", legend=c("significantly differentially expressed","not significant"), col=c("red","black"),
-			cex=1, pch=19)
+
+# Dispersion plot
+	pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
+	plotBCV(dge_list, main="Biological coefficient of variation")
 	dev.off()
 }
 
-# Dispersion plot
-pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
-plotBCV(dge_list, main="Biological coefficient of variation")
+# Extract results in a nice-looking table
+number_tags <- dim (dge_list$counts) [1]
+results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
+results_table <- results_table$table
+	
+# Extract the significant tags based on adjusted p-value cutoff
+significant_results <- results_table[results_table$FDR<p_value_threshold,]
+	
+# Make an MA-plot displaying the significant reads
+pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
+significant_indices <- rownames (significant_results)
+plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
+abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
+legend (x="topleft", legend=c("significantly differentially expressed","not significant"), col=c("red","black"),cex=1, pch=19)
 dev.off()
 
 # If significant results are found, create an output table with the original counts per sample together with the statistical tests results
@@ -212,7 +180,6 @@ if (dim(significant_results)[1] > 0) {
 if (dim(significant_results)[1] == 0) {
 	cat("No statistically significantly expressed genes were found.", file="edger-log.txt")
 }
-
 
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution
 pdf (file="p-value-plot-edger.pdf")
