@@ -75,6 +75,7 @@ package "Arabidopsis_thaliana.TAIR10.17" 	"nochr/Arabidopsis_thaliana.TAIR10.17.
 package "Bos_taurus.UMD3.1.70" 			"nochr/Bos_taurus.UMD3.1.70.dna.toplevel.fa"
 package "Canis_familiaris.BROADD2.67" 		"nochr/Canis_familiaris.BROADD2.67.dna.toplevel.fa"
 package "Canis_familiaris.CanFam3.1.70" 	"nochr/Canis_familiaris.CanFam3.1.70.dna.toplevel.fa"
+package "Drosophila_melanogaster.BDGP5.70"	"nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa"
 package "Gallus_gallus.Gallus_gallus-4.0.pre" 	"nochr/Gallus_gallus.Gallus_gallus-4.0.pre.fa"
 package "Gasterosteus_aculeatus.BROADS1.70" 	"nochr/Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa"
 package "Homo_sapiens.GRCh37.70" 		"nochr/hg19.fa" 					"Homo_sapiens.GRCh37.70" 	"hg19.fa"
