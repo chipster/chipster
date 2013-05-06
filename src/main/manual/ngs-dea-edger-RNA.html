@@ -19,11 +19,12 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 
 <ul>
 <li> Column describing groups [group]</li>
-<li> Apply normalization (yes, no) [yes]</li>
+<li> Apply TMM normalization (yes, no) [yes]</li>
 <li> Dispersion method (common, tagwise) [tagwise]</li>
-<li> Dispersion estimate (0-1) [0.1] </li>
+<li> Dispersion value used if no replicates are available (0-1) [0.1] </li>
 <li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
 <li> P-value cutoff (0-1) [0.05]</li>
+<li> Analyze only genes which have counts in at least this many samples (0-10000) [0]</li>
 <li> Plot width (200-3200 [600]</li>
 <li> Plot height (200-3200) [600]</li>
 </ul>
@@ -34,18 +35,15 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table, and creates a phenodata file for it.
 <br><br>
 Normalization factors are calculated using the library size given by the user in the phenodata.tsv or by summing the counts for each sample.
-TMM method is then used to calculate the normalization factors in order to reduce RNA compositon bias 
-(which can arise for example when only a small number of genes
-are very highly expressed in one experiment condition but not in the other).
+Trimmed mean of M-values (TMM) normalization is then used to calculate normalization factors in order to reduce RNA compositon bias 
+(which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other).
 <br><br>
 Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). It can estimate a common dispersion for all the genomic features,
 or a separate (tagwise) dispersion for each individual feature using an empirical Bayes strategy. 
 <br><br>
-It is highly recommended to always have at least two biological replicates for each experiment condition.
-If this is not possible, one can run the analysis by manually setting
-the dispersion factor through the 'Dispersion estimate' parameter.
-By default the dispersion estimate is set to 0.1, which is somewhere in-between what is usually observed for technical replicates (0.01) and human data (0.4). 
-It is recommended to experiment with different values for this parameter.
+You should always have at least two biological replicates for each experiment condition.
+If this is not possible, you can still run the analysis by guessing the dispersion value with the 'Dispersion value' parameter.
+The default value for this parameter is 0.1, which is somewhere in-between what is usually observed for technical replicates (0.01) and human data (0.4). 
 <br><br>
 Once negative binomial models are fitted and dispersion estimates are obtained, 
 edgeR proceeds with testing for differential expression using the exact test, which is based on the qCML methods.
@@ -57,14 +55,15 @@ edgeR proceeds with testing for differential expression using the exact test, wh
 
 
 <ul>
-<li>de-list-edger.tsv:	Table containing the results of the statistical testing, including fold change estimates and p-values.<br></li>
-<li>de-list-edger.bed:  The BED version of the results table contains genomic coordinates and log fold change values.<br></li>
-<li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.<br></li>
-<li>ma-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. <br></li>
-<li>ma-plot-significant-edger.pdf: A scatter plot where the significantly differentially expressed features are highlighted. <br></li>
-<li>mds-plot-edger.pdf: A plot showing the results of multidimensional scaling of the data to visualize sample similarities. <br></li>
-<li>edger-log.txt: Log file. <br></li>
-<li>p-value-plot-edger.pdf: Plot of the raw and adjusted p-value distributions of the statistical test. <br></li>
+<li>de-list-edger.tsv:	Result table from statistical testing, including fold change estimates and p-values.</li>
+<li>de-list-edger.bed:  If you data contained genomic coordinates, the result table is also given as a BED file for genome browser use. The score column contains log fold change values.</li>
+<!--  <li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.</li>-->
+<!--  <li>ma-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. </li>-->
+<li>ma-plot-edger.pdf: MA plot where significantly differentially expressed features are highlighted. </li>
+<li>mds-plot-edger.pdf: Multidimensional scaling plot to visualize sample similarities. </li>
+<li>dispersion-edger.pdf: Biological coefficient of variation plot. </li>
+<li>p-value-plot-edger.pdf: Raw and adjusted p-value distribution plot. </li>
+<li>edger-log.txt: Log file if no significantly different expression was found. </li>
 <br></ul>
 <h3><br>References</h3>
 
