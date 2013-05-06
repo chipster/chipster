@@ -401,6 +401,15 @@ download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extra
 contents_append_url "Ensembl" "http://www.ensembl.org/Bos_taurus/Location/View?r=[CHR]%3A[START]-[END]"
 contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Cow&db=bosTau6&position=chr[CHR]%3A[START]-[END]"
 
+SPECIES="Fruitfly"
+VERSION="(BDGP5.70)"
+
+process_gtf "ftp://ftp.ensembl.org/pub/release-70/gtf/drosophila_melanogaster/Drosophila_melanogaster.BDGP5.70.gtf.gz"
+ensembl_mysql "ftp://ftp.ensembl.org/pub/release-70/mysql/drosophila_melanogaster_core_70_546/" "Drosophila_melanogaster.BDGP5.70."
+download_fasta "http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz" "Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa"
+contents_append_url "Ensembl" "http://www.ensembl.org/Drosophila_melanogaster/Location/View?r=[CHR]%3A[START]-[END]"
+contents_append_url "UCSC" "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=insect&org=D.+melanogaster&db=dm3&position=chr[CHR]%3A[START]-[END]"
+
 SPECIES="Sheep"
 VERSION="(Oar_v3.1)"
 
