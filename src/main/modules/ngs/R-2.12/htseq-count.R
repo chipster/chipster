@@ -6,7 +6,7 @@
 # PARAMETER stranded: "Was the data produced with a strand-specific RNA-seq protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if your was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68: "Human (hg19.68)", Mus_musculus.GRCm38.68: "Mouse (mm10.68)", Mus_musculus.NCBIM37.62: "Mouse (mm9.62)", Rattus_norvegicus.RGSC3.4.68: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68 (Which organism is your data from.)
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT no (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
-# PARAMETER print.coord: "Print chromosomal coordinates to the output" TYPE [yes, no] DEFAULT yes (If you select yes, chromosomal coordinates are added to the output matrix. Given are the minimum and maximum coordinates of features (e.g. exons) associated with a given identifier)
+# PARAMETER print.coord: "Print chromosomal coordinates to the output" TYPE [yes, no] DEFAULT yes (If you select yes, chromosomal coordinates are added to the output matrix. Given are the minimum and maximum coordinates of features, e.g. exons, associated with a given identifier)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
@@ -33,7 +33,7 @@ samtools.view <- paste(samtools.binary, "view -")
 if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count")
 } else {
-	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count-chr")
+	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
 if(chr == "yes"){
@@ -56,10 +56,11 @@ system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
 # bring in file to R environment for formating
 file <- c("htseq-counts.tsv")
 dat <- read.table(file, header=F, sep="\t")
+
 if(print.coord == "no") {
 	names(dat) <- c("id", "count")
 } else {
-	names(dat) <- c("id", "chr", "start", "end", "strand", "count")
+	names(dat) <- c("id", "chr", "start", "end", "len", "strand", "count")
 }
 
 # write result table to output
