@@ -11,7 +11,7 @@
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
-# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.) 
 # PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least 5 counts in at least this many samples)
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
@@ -27,7 +27,7 @@
 # AMS 5.10.2012, added sorting to BED
 # EK 30.4.2013, changes to descriptions, made genomic location info optional so that external count tables can be used
 # EK 2.5.2013, added dispersion plot and filtering based on counts, disabled extra MA plots
-# EK 5.5.2013, modified filtering based on counts, removed fixed prior.n, added trended dispersion
+# EK 5.5.2013, modified filtering based on counts, removed fixed prior.n
 
 # OUTPUT OPTIONAL ma-plot-raw-edger.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-edger.pdf
@@ -131,7 +131,7 @@ if (dispersion_method == "common") {
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	dge_list <- estimateCommonDisp(dge_list)
-	dge_list <- estimateTrendedDisp(dge_list)
+	# dge_list <- estimateTrendedDisp(dge_list)
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
