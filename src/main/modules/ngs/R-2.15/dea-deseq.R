@@ -10,9 +10,9 @@
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
 # PARAMETER OPTIONAL replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (You need to have biological replicates of each experiment condition in order to estimate the biological and experimental variability. If biological replicates are available for only one condition, DESeq will estimate variability using the replicates of that single condition. However, this is only an approximation and reduces the reliability of the results. If there are no replicates at all, the variance is estimated using the samples from the different conditions as replicates. This approximation is even less reliable and affects results accordingly.)
 # PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value from the dispersion model always, or only when the fitted value is larger? The latter option is more conservative and minimizes false positives. Replacing always optimises the balance between false positives and false negatives.)
-# PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimate" TYPE [parametric: "parametric", local: "local"] DEFAULT local (The dispersion can be estimated either using a local fit, which is suitable in most cases - including when there are no biological independent replicate samples - or using a two-coefficient parametric model, which may be preferable under certain circumstances.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT local (Dispersion can be estimated using a local fit or a two-coefficient parametric model. Local fit is suitable in most cases, including when there are no biological replicates. The parametric model may be preferable under certain circumstances.)
 # PARAMETER OPTIONAL p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
-# PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
+# PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-value.)
 # PARAMETER OPTIONAL image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
 # PARAMETER OPTIONAL image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image.)
 
@@ -30,7 +30,7 @@ library(DESeq)
 file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
-# Separates expression values and flags
+# Extracts expression values
 annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
@@ -112,7 +112,7 @@ output_table <- cbind (dat, results_table[,-1])
 # Adjust p-values
 output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
 
-# Filter out the significant ones
+# Keep significant DEGs
 significant_table <- output_table[ (output_table$padj <  p.value.cutoff),]
 
 # Remove rows with NA adjusted p-values
@@ -128,7 +128,7 @@ if (dim(significant_table)[1] > 0) {
 
 # If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
 source(file.path(chipster.common.path, "bed-utils.R"))
-these.colnames <- colnames(significant_table)
+these.colnames <- colnames(dat)
 if("chr" %in% these.colnames) {
 	if (dim(significant_table)[1] > 0) {
 		empty_column <- character(length(significant_table[1]))
