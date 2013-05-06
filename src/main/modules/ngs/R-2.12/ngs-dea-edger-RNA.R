@@ -28,6 +28,7 @@
 # MG, 22.2.2012, prettified plots, added p-value  distribution plot
 # EK, 6.5.2012, clarified wording
 # AMS, 5.10.2012, added sorting to BED
+# EK, 28.4.2013 changes to descriptions
 ############################################################
 
 # Loads the libraries
@@ -193,15 +194,15 @@ if (dim(significant_results)[1] > 0) {
 }
 
 # Also output a BED file for visualization and region matching tools
-source(file.path(chipster.common.path, "bed-utils.R"))
-if (dim(significant_results)[1] > 0) {
-	empty_column <- character(length(significant_indices))
-	bed_output <- output_table [,c("chr","start","end")]
-	bed_output <- cbind(bed_output,empty_column)
-	bed_output <- cbind(bed_output, output_table[,"logFC"])
-	bed_output <- sort.bed(bed_output)
-	write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
-}
+# source(file.path(chipster.common.path, "bed-utils.R"))
+# if (dim(significant_results)[1] > 0) {
+# 	empty_column <- character(length(significant_indices))
+# 	bed_output <- output_table [,c("chr","start","end")]
+# 	bed_output <- cbind(bed_output,empty_column)
+# 	bed_output <- cbind(bed_output, output_table[,"logFC"])
+# 	bed_output <- sort.bed(bed_output)
+# 	write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
+# }
 
 # Output a message if no significant genes are found
 if (dim(significant_results)[1] == 0) {

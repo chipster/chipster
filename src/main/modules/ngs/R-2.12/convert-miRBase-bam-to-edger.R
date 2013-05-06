@@ -1,6 +1,6 @@
-# TOOL convert-miRBase-bam-to-edger.R: "Convert miRBased BAM file to edgeR input format" (This tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes the ones for which the count is under the user defined threshold.)
+# TOOL convert-miRBase-bam-to-edger.R: "Convert miRBased BAM file to count table" (This tool takes BAM files as an input, calculates the number of times each miRNA is identified and removes the ones for which the count is under the user defined threshold.)
 # INPUT bam_file.bam: "Alignment agains miRBase in BAM format" TYPE GENERIC
-# OUTPUT edgeR-input.tsv: "A converted BAM file suitable for edgeR analysis"
+# OUTPUT miRNA-counts.tsv: "A converted BAM file suitable for edgeR analysis"
 # PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 1000 DEFAULT 10 (Keep miRNAs which have more reads than this.)
 
 # EK 7.7.2011
@@ -16,7 +16,7 @@ headers <- paste("id\t","count", sep="")
 input.file <- "counts.tsv"
 header.file <- "header_file"
 system(paste("echo \"", headers, "\"", ">", header.file))
-merge.command <- paste("cat", header.file, input.file, "> edgeR-input.tsv")
+merge.command <- paste("cat", header.file, input.file, "> miRNA-counts.tsv")
 system(merge.command)
 
 #headers <- paste("id\t","count", sep="")

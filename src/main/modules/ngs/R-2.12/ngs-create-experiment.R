@@ -7,24 +7,10 @@
 # PARAMETER alignment_type: "Does your data contain genomic coordinates" TYPE [genome: yes, other: no] DEFAULT other (Does your data table contain genomic coordinates.)
 # PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.)
 
-##############################
-#                            #
-# MG, 21.3.2011              #
-#                            #
-# Takes as an input a set of #
-# of files with read counts. #
-# Additional information     #
-# includes:                  #
-#                            #
-# read sequence              #
-# chromosome name            #
-# start position             #
-# end position               #
-# read sequence length       #
-#                            #
-##############################
 
-# modified by MG, to accout for data that has been aligned to other than a genome
+# MG 21.3.2011, takes as an input a set of files with read counts. Can also take read sequence, genomic location (chr, start, end) and length 
+# MG, modified to deal with data that was aligned to other than a genome
+# MK 30.4.2013, added ability to leave out genomic location data
 
 # Sanity check the input data
 files <- dir()
@@ -106,16 +92,21 @@ for (count in 1:number_files) {
 # Generates the variables necessary to the phenodata file
 # sample<-colnames(dat2)
 groups <- c(rep("", number_files))
-# Check whether column names contain "chip." and, if so, remove from name
+# Check whether column names contain "chip." and if so, remove from name
 samples <- colnames (data_table) [(annotation_columns+1):(annotation_columns+number_files)]
 if (length (grep("chip.", samples)) >= 1) {
 	samples<-sub("chip.","",samples)
 }
 
-# Force identifiers to lower case if miRNA-seq data has been aligned against other
-# than a reference genome
+# Force identifiers to lower case if miRNA-seq data has been aligned against other than a reference genome
 if (experiment_type == "mirna_seq" && alignment_type == "other") {
 	rownames (data_table) <- tolower (rownames(data_table))
+}
+
+
+if(alignment_type == "other") {
+	drops <- c("chr", "start", "end", "length", "sequence")
+	data_table <- data_table[,!(names(data_table) %in% drops)]
 }
 
 # Writes out the data and the phenodata table
