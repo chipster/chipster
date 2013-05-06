@@ -197,6 +197,17 @@ ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
+# TODO Chipster announcements
+#mkdir /opt/chipster-announcements
+#/opt/chipster-announcements/get-chipster-announcements.sh
+# chown -R chipster:chipster /opt/chipster-announcements
+
+#/etc/cron.d/chipster-announcements.crontab
+#/etc/update-motd.d/31-vm-instructions
+echo "Chipster announcements not done yet"
+exit -1
+
+
 ##############################################
 # Install external applications and datasets #
 ##############################################
