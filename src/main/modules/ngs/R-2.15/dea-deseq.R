@@ -3,14 +3,13 @@
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
 # OUTPUT OPTIONAL de-list-deseq.bed
-# OUTPUT OPTIONAL ma-plot-significant-deseq.pdf
+# OUTPUT OPTIONAL ma-plot-deseq.pdf
 # OUTPUT OPTIONAL dispersion-plot-deseq.pdf
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
-# PARAMETER OPTIONAL replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (You need to have biological replicates of each experiment condition in order to estimate the biological and experimental variability. If biological replicates are available for only one condition, DESeq will estimate variability using the replicates of that single condition. However, this is only an approximation and reduces the reliability of the results. If there are no replicates at all, the variance is estimated using the samples from the different conditions as replicates. This approximation is even less reliable and affects results accordingly.)
-# PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value from the dispersion model always, or only when the fitted value is larger? The latter option is more conservative and minimizes false positives. Replacing always optimises the balance between false positives and false negatives.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT local (Dispersion can be estimated using a local fit or a two-coefficient parametric model. Local fit is suitable in most cases, including when there are no biological replicates. The parametric model may be preferable under certain circumstances.)
+# PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives.)
 # PARAMETER OPTIONAL p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-value.)
 # PARAMETER OPTIONAL image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
@@ -21,6 +20,7 @@
 # EK 6.5.2012, clarified texts
 # EK 12.5.2012, fixed the fitting method parameter
 # EK 30.4.2013, added BED sorting, made genomic location info optional so that external count tables can be used
+# EK 6.5.2013, removed replicates parameter
 
 
 # Loads the libraries
@@ -45,27 +45,16 @@ lib_size <- as.numeric(phenodata$library_size)
 if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
 lib_size <- lib_size/mean(lib_size)
 
-
-# Sanity checks
-# only 2 group comparison is supported
+# Sanity check: only 2 group comparison is supported
 if (length(unique(groups))==1 | length(unique(groups))>=3) {
 	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
-}
-# if no biological replicates, force blind mode in dispersion estimation
-if (number_samples == 2 && replicates == "no")  {
-	stop("CHIPSTER-NOTE: You need to have biological replicates in order to estimate dispersion. If this is not the case, you can still run the analysis by setting the Disregard replicates -parameter to yes, but this is not recommended.")
-}
-if (number_samples == 2 && replicates == "yes")  {
-	blind_dispersion <- TRUE
-} else {
-	blind_dispersion <- FALSE
 }
 
 # Create a counts data object
 counts_data <- newCountDataSet(dat2, groups)
 
-# Calculate scaling factors based on estimated library size, unless it is given in phenodata
-# If normalization is turned off, set the size factors to 1 for all samples
+# Calculate size factors based on estimated library size, unless it is given in phenodata
+# Set size factors to 1 if normalization is turned off
 if (normalization == "yes") {
 	if (estimate_lib_size) {
 		counts_data <- estimateSizeFactors(counts_data)
@@ -77,19 +66,21 @@ if (normalization == "yes") {
 	sizeFactors(counts_data) <- 1
 }
 
-# Estimate dispersion values for each gene and replace with fitted values
-# Use sharingMode parameter to control how conservative the replacement will be
+# For later use: filter out genes which have less than 5 counts in user-defined number of samples 
+#if (filter > 0) {
+#	keep <- rowSums(counts(counts_data) >5) >= filter
+#	counts_data <- counts_data[keep,]
+#}
+
+# Estimate dispersion values for each gene and replace with fitted values always or only when the fitted value is higher
 # Use fitType to control for parametric or local fit
-if (blind_dispersion) {
-	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode="fit-only",
-			fitType=dispersion_estimate)
+if (number_samples == 2 ) {
+	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode="fit-only", fitType=dispersion_estimate)
 } else {
-	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method,
-			fitType=dispersion_estimate)
+	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method, fitType=dispersion_estimate)
 }
 
-
-# Function that produces a qc plot to check dispersion estimates
+# Function that produces a dispersion plot
 plotDispEsts <- function(cds) {
 	plot(rowMeans( counts(cds, normalized=TRUE)), fitInfo(cds)$perGeneDispEsts,pch = '.', 
 			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion")
@@ -120,6 +111,32 @@ significant_table <- significant_table[! (is.na(significant_table$padj)),]
 
 # Order results based on raw p-values
 significant_table <- significant_table[ order(significant_table$pval), ] 
+
+
+#############################
+
+
+#significant_indices <- rownames (significant_table)
+
+# If significant results are found, create an output table with the original counts per sample together with the statistical tests results
+# If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
+#if (dim(significant_table)[1] > 0) {
+#	output_table <- data.frame (dat[significant_indices,], significant_table)
+#	write.table(output_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+#	these.colnames <- colnames(dat)
+#	if("chr" %in% these.colnames) {
+#		empty_column <- character(length(significant_indices))
+#		bed_output <- output_table [,c("chr","start","end")]
+#		bed_output <- cbind(bed_output,empty_column)
+#		bed_output <- cbind(bed_output, output_table[,"log2FoldChange"])
+#		source(file.path(chipster.common.path, "bed-utils.R"))
+#		bed_output <- sort.bed(bed_output)
+#		write.table(bed_output, file="de-list-deseq.bed", sep="\t", row.names=F, col.names=F, quote=F)
+#	}	
+#}
+
+#############################
+
 
 # Output the table
 if (dim(significant_table)[1] > 0) {
@@ -158,11 +175,11 @@ dev.off()
 plotDE <- function(res)
 	plot(res$baseMean, res$log2FoldChange,
 			log="x", pch=20, cex=.25, col = ifelse( res$padj < p.value.cutoff, "red", "black"),
-			main="MA plot for significantly\ndifferentially expressed genes", xlab="mean counts", ylab="log2(fold change)") 
+			main="MA plot", xlab="mean counts", ylab="log2(fold change)") 
 
 # Make MA-plot
-pdf(file="ma-plot-significant-deseq.pdf")
-plotDE(results_table)
+pdf(file="ma-plot-deseq.pdf")
+plotDE(output_table)
 legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
 		cex=1, pch=19)
 abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
