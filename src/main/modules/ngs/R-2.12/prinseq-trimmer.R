@@ -2,24 +2,26 @@
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
 # OUTPUT OPTIONAL trimmed.fastq
 # OUTPUT OPTIONAL trimmed.fasta
-# OUTPUT OPTIONAL trim.log3
+# OUTPUT OPTIONAL trim.log
 # PARAMETER input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
+# PARAMETER phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
 # PARAMETER OPTIONAL trim.to.len: "Trim to length" TYPE INTEGER (Trim reads from 3-prime end to this length.)
 # PARAMETER OPTIONAL trim.left: "Trim left" TYPE INTEGER (Trim reads at the 5-prime end by given number of bases.)
 # PARAMETER OPTIONAL trim.right: "Trim right" TYPE INTEGER (Trim reads at the 3-prime end by given number of bases.)
-# PARAMETER OPTIONAL trim.tail.left: "Trim left A/T tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 5-prime end.)
-# PARAMETER OPTIONAL trim.tail.right: "Trim right A/T tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 3-prime end.)
-# PARAMETER OPTIONAL trim.ns.left: "Trim left poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 5-prime end.)
-# PARAMETER OPTIONAL trim.ns.right: "Trim right poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 3-prime end.)		
 # PARAMETER OPTIONAL trim.qual.left: "Trim 5-prime end by quality" TYPE INTEGER (Trim reads from the 5-prime end based on the given quality threshold score.)
 # PARAMETER OPTIONAL trim.qual.right: "Trim 3-prime end by quality" TYPE INTEGER (Trim reads from the 3-prime end based on the given quality threshold score.)		
 # PARAMETER OPTIONAL trim.qual.type: "Quality score calculation method" TYPE [min: "minimum quality value", mean: "mean quality", max: "maximum quality value", sum: "total sum of quality values"] DEFAULT min (Type of quality score calculation to use.)
 # PARAMETER OPTIONAL trim.qual.rule: "Quality score comparison condition" TYPE [ lt: "less than", gr: "greater than", et: "equal to"] DEFAULT lt (Rule to use to compare quality score threshold to calculated value.)
 # PARAMETER OPTIONAL trim.qual.window: "Window size for quality calculation" TYPE INTEGER DEFAULT 1 (The sliding window size used to calculate quality score by type. Use 1 to stop at the first base that fails the defined rule.)
 # PARAMETER OPTIONAL trim.qual.step: "Step size used to move the quality window" TYPE INTEGER DEFAULT 1 (Step size to move the sliding window. To move the window over all quality scores without missing any, the step size should be less than or equal to the window size.)
-# PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
+# PARAMETER OPTIONAL trim.tail.left: "Trim left A/T tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 5-prime end.)
+# PARAMETER OPTIONAL trim.tail.right: "Trim right A/T tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 3-prime end.)
+# PARAMETER OPTIONAL trim.ns.left: "Trim left poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 5-prime end.)
+# PARAMETER OPTIONAL trim.ns.right: "Trim right poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 3-prime end.)		
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
+# KM 17.1.2012
+# EK 7.5.2013 Reorganized parameters
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
