@@ -151,7 +151,7 @@ results_table <- results_table$table
 significant_results <- results_table[results_table$FDR<p_value_threshold,]
 	
 # Make an MA-plot displaying the significant reads
-pdf(file="ma-plot-significant-edger.pdf", width=w/72, height=h/72)	
+pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
 significant_indices <- rownames (significant_results)
 plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
 abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
