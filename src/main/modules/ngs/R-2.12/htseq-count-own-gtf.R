@@ -5,6 +5,7 @@
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific RNA-seq protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if yours was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
+# PARAMETER print.coord: "Print chromosomal coordinates to the output" TYPE [yes, no] DEFAULT yes (If you select yes, chromosomal coordinates are added to the output matrix. Given are the minimum and maximum coordinates of features, e.g. exons, associated with a given identifier)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one gene" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
@@ -25,7 +26,12 @@ samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignm
 samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
-htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
+if(print.coord == "no") {
+	htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
+} else {
+	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
+}
+
 htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
 
 # run
@@ -39,7 +45,11 @@ system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
 # bring in file to R environment for formating
 file <- c("htseq-counts.tsv")
 dat <- read.table(file, header=F, sep="\t")
-names(dat) <- c("id", "count")
+if(print.coord == "no") {
+	names(dat) <- c("id", "count")
+} else {
+	names(dat) <- c("id", "chr", "start", "end", "len", "strand", "count")
+}
 
 # write result table to output
 write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
