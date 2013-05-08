@@ -43,7 +43,8 @@ if("chr" %in% colnames(data_1)) {
 	}
 
 	identifier_table <- identifier_table[!duplicated(identifier_table[,1]), ]	
-	rownames(identifier_table) <- identifier_table[,1] 
+	rownames(identifier_table) <- identifier_table[,1]
+	if(length(identifiers) != nrow(identifier_table)) { stop("CHIPSTER-NOTE: An error occurred in table matching"); }
 }
 
 print(identifier_table[1:10,])
