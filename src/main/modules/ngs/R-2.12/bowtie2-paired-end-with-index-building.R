@@ -31,7 +31,7 @@
 # PARAMETER OPTIONAL no.overlap: "Not concordant when mates overlap at all"  TYPE [yes, no] DEFAULT no (If one mate alignment overlaps the other at all, consider that to be non-concordant. Default: mates can overlap in a concordant alignment.)
 
 # KM 10-01.2012
-
+# EK 8.5.2013 replaced samtools -q 1 with Bowtie --no-unal to remove unaligned reads from BAM
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -54,10 +54,8 @@ bowtie2.genome <- file.path( genome.dir , "genome.txt")
 command.start <- paste("bash -c '", bowtie.binary)
 rdg.value <- paste (rdg.open ,rdg.ext , sep=",")
 rfg.value <- paste (rfg.open ,rfg.ext , sep=",")
-# common parameters
-#common.parameters <- paste("-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
 
-parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, "--minins", minins, "--maxins", maxins, pair.order, quality.format)
+parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, "--minins", minins, "--maxins", maxins, pair.order, quality.format, "--no-unal")
 
 if ( alignment.no>0){
 	if ( alignment.no==6){
@@ -120,7 +118,7 @@ system ("ls -l >>  bowtie2.log")
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
 # convert sam to bam
-system(paste(samtools.binary, "view -bS -q 1 alignment.sam -o alignment.bam"))
+system(paste(samtools.binary, "view -bS alignment.sam -o alignment.bam"))
 
 # sort bam
 system(paste(samtools.binary, "sort alignment.bam alignment.sorted"))
