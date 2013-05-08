@@ -212,7 +212,7 @@ rm macs_1.4.1.deb
 
 # HTSeq, GPL v3 or later
 # part 1
-pip install HTSeq==0.5.3p3
+pip install HTSeq==0.5.4p3
 
 ## In tools:
  
