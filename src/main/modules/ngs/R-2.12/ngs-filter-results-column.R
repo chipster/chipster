@@ -1,14 +1,15 @@
-# TOOL ngs-filter-results-column.R: "Filter table by column value" (Allows the user to filter the results on the basis of values in any numerical column.)
+# TOOL ngs-filter-results-column.R: "Filter table by column value" (Filters a data table based on values in any numerical column.)
 # INPUT results.tsv: results.tsv TYPE GENERIC 
 # OUTPUT filtered-NGS-results.tsv: filtered-NGS-results.tsv 
-# PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
-# PARAMETER has.rownames: "data with rownames" TYPE [yes: yes, no: no] DEFAULT no (Specifies whether the data has unique identifiers as rownmaes or lacks them.)
-# PARAMETER cutoff: cutoff TYPE DECIMAL FROM -10000000 TO 10000000 DEFAULT 1 (Cut-off for filtering)
-# PARAMETER smaller.or.larger: "filtering criteria" TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
+# PARAMETER column: "Column to filter by" TYPE COLUMN_SEL (Data column to filter by)
+# PARAMETER has.rownames: "Does the first column have a title" TYPE [yes: no, no: yes] DEFAULT no (Specifies whether the data has unique identifiers as rownames or lacks them.)
+# PARAMETER cutoff: Cutoff TYPE DECIMAL FROM -10000000 TO 10000000 DEFAULT 0.05 (Cut-off for filtering)
+# PARAMETER smaller.or.larger: "Filtering criteria" TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
 # Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
 
 # Filter NGS results on the basis of a continuous parameter in a column
-# MG 26.5.2010
+# 26.5.2010 MG 
+# 8.5.2013 EK clarified wording
 
 # Loads the data
 file <- c("results.tsv")
