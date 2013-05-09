@@ -20,6 +20,10 @@ if (number_files < 1) {
 	stop("CHIPSTER-NOTE: You need to have at least 1 data file to run this tool!")
 }
 
+if (count_column == "EMPTY") {
+	stop("CHIPSTER-NOTE: You must define the column containing count data!")
+}
+
 # Read in data files
 for (count in 1:number_files) {
 	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
@@ -46,8 +50,6 @@ if("chr" %in% colnames(data_1)) {
 	rownames(identifier_table) <- identifier_table[,1]
 	if(length(identifiers) != nrow(identifier_table)) { stop("CHIPSTER-NOTE: An error occurred in table matching"); }
 }
-
-print(identifier_table[1:10,])
 
 # Extract chromosome, start, end and length from id if aligned against genome
 if (alignment_type == "genome") {

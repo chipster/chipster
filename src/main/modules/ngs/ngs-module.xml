@@ -48,6 +48,9 @@
 		</tool>
 		<tool runtime="R-2.12" module="common"><resource>extract-samples-from-dataset.R</resource></tool>
 		<tool runtime="R-2.12">
+			<resource>process-preprocessed-counts.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>tagcleaner-predict.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
