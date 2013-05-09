@@ -28,7 +28,7 @@ samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
 if(print.coord == "no") {
-	htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
+	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count")
 } else {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
