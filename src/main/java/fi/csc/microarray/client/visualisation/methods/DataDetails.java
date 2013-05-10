@@ -39,6 +39,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -49,6 +50,36 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
+	
+	class LinkMouseListener implements MouseListener {
+		private JXHyperlink link;
+
+		public LinkMouseListener(JXHyperlink link) {
+			this.link = link;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			link.setOpaque(true);
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			link.setOpaque(false);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}				
+	}
 
 	private final String PLEASE_ADD_NOTES = "(Add your notes here)";
 
@@ -178,16 +209,25 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
 		
 		for (VisualisationMethod method : orderedMethods) {
-			
-//			JLabel icon = new JLabel(resizeImage(method.getIcon()));
+	
 			JLabel icon = new JLabel(method.getIcon());
+			
 			JXHyperlink link = new JXHyperlink();
+			
+			link.setBackground(new Color(0.95f, 0.95f, 0.95f));
+			
+			link.addMouseListener(new LinkMouseListener(link));
+			//hide focus border because it doesn't obey component size
+			link.setFocusPainted(false);
+
+			link.setIcon(method.getIcon());
+			link.setIconTextGap(16);
 			link.addActionListener(new VisualisationStarter(method, Session.getSession().getApplication()));
 			link.setText(method.getName());
 			c.gridx = 0;
-			c.weightx = 0;
-			panel.add(icon, c);
-			c.gridx = 1;
+//			c.weightx = 0;
+//			panel.add(icon, c);
+//			c.gridx = 1;
 			c.weightx = 1.0;
 			panel.add(link, c);
 			c.gridy++;
@@ -528,7 +568,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 					for (ParameterRecord parameterRecord : params) {
 
 						OperationDefinition tool = application.getOperationDefinition(operationRecord.getNameID().getID());
-						String defaultValue = tool.getParameter(parameterRecord.getNameID().getID()).getValueAsString();
+						
+						String defaultValue = "";
+
+						Parameter parameter = tool.getParameter(parameterRecord.getNameID().getID());
+						if (parameter != null) {
+							 defaultValue = parameter.getValueAsString();
+						}
 						
 						JLabel name = new JLabel(parameterRecord.getNameID().getDisplayName());
 						JLabel value = new JLabel(parameterRecord.getValue());
