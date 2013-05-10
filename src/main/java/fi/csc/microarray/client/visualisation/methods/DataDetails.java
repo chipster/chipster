@@ -255,29 +255,29 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.setBackground(BG);
 
 			JLabel dateLabel = new JLabel(data.getDate().toString());
-			JLabel locationLabel = new JLabel("Location: chipster.csc.fi ");
-
-			cachePanel = new JPanel(new BorderLayout());
-			cachePanel.setBackground(BG);
-
-
-			JLabel cacheStartLabel = new JLabel("(");
-			cachePanel.add(cacheStartLabel, BorderLayout.WEST);
-
-			JXHyperlink link = new JXHyperlink();
-			link.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					cachePanel.removeAll();
-					cachePanel.add(new JLabel("(cached locally)"));
-					cachePanel.validate();
-				}
-			});
-			link.setText("Get local copy");
-			cachePanel.add(link, BorderLayout.CENTER);
-
-			JLabel cacheEndLabel = new JLabel(")");
-			cachePanel.add(cacheEndLabel, BorderLayout.EAST);
+//			JLabel locationLabel = new JLabel("Location: chipster.csc.fi ");
+//
+//			cachePanel = new JPanel(new BorderLayout());
+//			cachePanel.setBackground(BG);
+//
+//
+//			JLabel cacheStartLabel = new JLabel("(");
+//			cachePanel.add(cacheStartLabel, BorderLayout.WEST);
+//
+//			JXHyperlink link = new JXHyperlink();
+//			link.addActionListener(new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent arg0) {
+//					cachePanel.removeAll();
+//					cachePanel.add(new JLabel("(cached locally)"));
+//					cachePanel.validate();
+//				}
+//			});
+//			link.setText("Get local copy");
+//			cachePanel.add(link, BorderLayout.CENTER);
+//
+//			JLabel cacheEndLabel = new JLabel(")");
+//			cachePanel.add(cacheEndLabel, BorderLayout.EAST);
 
 			//"Local file"
 			//"Remote file (chipster.csc.fi)"
@@ -293,13 +293,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 			panel.add(dateLabel, c);
 
-			c.gridy++;
-			c.gridx = 0;
+//			c.gridy++;
+//			c.gridx = 0;
 			c.gridwidth = 1;
-			panel.add(locationLabel, c);
-
-			c.gridx++;
-			panel.add(cachePanel, c);
+//			panel.add(locationLabel, c);
+//
+//			c.gridx++;
+//			panel.add(cachePanel, c);
 
 			c.gridx++;
 			c.weightx = 1.0;
@@ -314,7 +314,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			ySpaceFiller.setBackground(BG);
 			panel.add(ySpaceFiller, c);
 
-			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
+//			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
 			datasetPanel.add(panel, BorderLayout.CENTER);
 		}
 		return datasetPanel;
