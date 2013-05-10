@@ -11,7 +11,7 @@
 # PARAMETER OPTIONAL treat.main.effect3.as.factor: "Treat main effect 3 as factor" TYPE [no: no, yes: yes] DEFAULT yes (Should main.effect3 be treated as a factor)
 # PARAMETER OPTIONAL interactions: "Include interactions in the model" TYPE [main: "no", all: "yes"] DEFAULT main (Should interactions be included in the model in addition to the main effects.)
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
-# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least one count per million in at least this many samples)
+# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least 5 counts in at least this many samples)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
 # PARAMETER OPTIONAL h: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
@@ -19,6 +19,7 @@
 # JTT 8.7.2012
 # EK 28.4.2013 rounding added, main effect treated as factor by default
 # EK 2.5.2013 updated to BioC2.11
+# EK 4.5.2013 added dispersion plot and filtering
 
 
 # Loads the libraries
@@ -37,16 +38,23 @@ phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 # Forms the DGElist object
 dge<-DGEList(counts=dat2)
 
+# filter out genes which have less than 5 counts in user-defined number of samples 
+if (filter > 0) {
+	keep <- rowSums(dge$counts>5) >= filter
+	dge <- dge[keep,]
+	dge$lib.size <- colSums(dge$counts)
+}
+
 # Calculate normalization factors
 if(normalization=="yes") {
    dge<-calcNormFactors(dge)
 }
-# filter out genes which have less than 1 cpm in user-defined number of samples 
-if (filter > 0) {
-	keep <- rowSums(cpm(dge)>1) >= filter
-	dge <- dge[keep,]
-	dge$lib.size <- colSums(dge$counts)
-}
+# For later use: filter out genes which have less than 1 cpm in user-defined number of samples 
+# if (filter > 0) {
+# 	keep <- rowSums(cpm(dge)>1) >= filter
+# 	dge <- dge[keep,]
+# 	dge$lib.size <- colSums(dge$counts)
+# }
 
 # Form a model matrix
 formula<-"~"
@@ -88,7 +96,7 @@ if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
 design<-with(phenodata, model.matrix(as.formula(formula)))
 
 # Estimate dispersions
-dge <- estimateCommonDisp(dge, design)
+dge <- estimateGLMCommonDisp(dge, design)
 dge <- estimateGLMTrendedDisp(dge, design)
 dge <- estimateGLMTagwiseDisp(dge, design)
 
@@ -96,7 +104,6 @@ dge <- estimateGLMTagwiseDisp(dge, design)
 pdf(file="dispersion-edger-glm.pdf", width=w/72, height=h/72)
 plotBCV(dge, main="Biological coefficient of variation")
 dev.off()
-
 
 # Estimate DE genes
 fit<-glmFit(dge, design)

@@ -11,8 +11,6 @@ Differential expression analysis using the exact statistical methods of the edge
 Please note that this tool is suitable only for two group comparisons. 
 For multifactor experiments you can use the tool "Differential expression using edgeR for multivariate experiments", 
 which uses generalized linear models -based statistical methods ("glm edgeR").
-
-
 <br>
 <br>
 <h3>Parameters</h3>
@@ -42,7 +40,7 @@ Dispersion is estimated using the quantile-adjusted conditional maximum likelyho
 or a separate (tagwise) dispersion for each individual feature using an empirical Bayes strategy. 
 <br><br>
 You should always have at least two biological replicates for each experiment condition.
-If this is not possible, you can still run the analysis by guessing the dispersion factor with the 'Dispersion value' parameter.
+If this is not possible, you can still run the analysis by guessing the dispersion value with the 'Dispersion value' parameter.
 The default value for this parameter is 0.1, which is somewhere in-between what is usually observed for technical replicates (0.01) and human data (0.4). 
 <br><br>
 Once negative binomial models are fitted and dispersion estimates are obtained, 
@@ -59,7 +57,7 @@ edgeR proceeds with testing for differential expression using the exact test, wh
 <li>de-list-edger.bed:  If you data contained genomic coordinates, the result table is also given as a BED file for genome browser use. The score column contains log fold change values.</li>
 <!--  <li>ma-plot-raw-edger.pdf: A scatter plot of the raw count value averages between experiment conditions.</li>-->
 <!--  <li>ma-plot-normalized-edger.pdf: A scatter plot of the normalized count value averages between experiment conditions. </li>-->
-<li>ma-plot-significant-edger.pdf: MA plot where significantly differentially expressed features are highlighted. </li>
+<li>ma-plot-edger.pdf: MA plot where significantly differentially expressed features are highlighted. </li>
 <li>mds-plot-edger.pdf: Multidimensional scaling plot to visualize sample similarities. </li>
 <li>dispersion-edger.pdf: Biological coefficient of variation plot. </li>
 <li>p-value-plot-edger.pdf: Raw and adjusted p-value distribution plot. </li>

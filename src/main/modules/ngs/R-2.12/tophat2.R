@@ -20,9 +20,10 @@
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
-# AMS 19.6.2012 Added unzipping
-# AMS 27.6.2012 Added parameter mate.std.dev, allow negative values for mate.inner.distance
+# AMS 19.6.2012 added unzipping
+# AMS 27.6.2012 added parameter mate.std.dev, allow negative values for mate.inner.distance
 # AMS 4.10.2012 added BED sorting
+# EK 8.5.2013 added Bowtie --no-unal to remove unaligned reads from BAM
 
 
 # check out if the file is compressed and if so unzip it
@@ -45,7 +46,7 @@ command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
 #command.parameters <- paste("--bowtie1 -r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
-command.parameters <- paste("-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded --no-unal")
 
 # optional GTF command, if a GTF file has been provided by user
 command.gtf <- ""
