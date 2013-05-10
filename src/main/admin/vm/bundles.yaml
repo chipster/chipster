@@ -3,12 +3,19 @@
 # Template
 #
 
-#abcd:
-#    - version: x
+#abc:
+#    - version: x.y
 #      chipster: x.y.z
-#      files:
-#        a: a
-#        b: b
+#      deprecated: x.y.z
+#      packages:
+#        'abc':
+#          files:
+#            - source: 'abc'
+#              destination: 'abc'
+#              checksum: '123'
+#          symlinks:
+#            - source: 'abc/d'
+#              destination: 'd'
 
 yeast:
     - version: '1.0'
