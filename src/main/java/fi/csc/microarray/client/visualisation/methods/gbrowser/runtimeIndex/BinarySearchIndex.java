@@ -174,7 +174,8 @@ public class BinarySearchIndex extends Index {
 	public TreeMap<IndexKey, String> getFileLines(Region request) throws IOException, GBrowserException {
 		
 		if (request.start.compareTo(request.end) > 0) {
-			throw new IllegalArgumentException();
+			//Illegal request, skip it
+			//throw new IllegalArgumentException();
 		}
 		
 		//Search start position

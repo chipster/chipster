@@ -3,11 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 import java.util.List;
 
 
-public class GeneResult extends AreaResult {
+public class GeneResult extends DataResult {
 	
 	private String searchString;
 
-	public GeneResult(DataRetrievalStatus status, List<RegionContent> contents, String searchString) {
+	public GeneResult(DataStatus status, List<RegionContent> contents, String searchString) {
 		super(status, contents);
 		this.searchString = searchString;
 	}

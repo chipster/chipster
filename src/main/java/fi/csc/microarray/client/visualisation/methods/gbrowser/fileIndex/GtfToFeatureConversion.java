@@ -13,11 +13,11 @@ import javax.swing.SwingUtilities;
 import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
@@ -30,12 +30,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Bina
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Index;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TabixUtil;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
-public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
+public class GtfToFeatureConversion extends DataThread {
 	
 	public static int MAX_INTRON_LENGTH = 500*1000; //O,5M should be enough for the longest human introns http://www.bioinfo.de/isb/2004040032/	
 	
@@ -47,7 +47,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 
 	public GtfToFeatureConversion(URL dataUrl, URL indexUrl, final GBrowser browser) {
 	    
-		super(null, null);
+		super(browser);
 
 		this.isTabix = indexUrl != null;
 		this.parser = new GtfLineParser();
@@ -87,13 +87,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 	}
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-						
-		super.processAreaRequest(request);	
-		
-		if (request.getStatus().poison) {
-			return;
-		}
+	protected void processDataRequest(DataRequest request) {				
 		
 		if (!isTabix && index == null) {
 			return;
@@ -106,7 +100,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 			List<RegionContent> resultList;
 			try {
 				resultList = processGeneSearch(geneRequest);
-				createAreaResult(new GeneResult(geneRequest.getStatus(), resultList, geneRequest.getSearchString()));
+				createDataResult(new GeneResult(geneRequest.getStatus(), resultList, geneRequest.getSearchString()));
 				
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -129,31 +123,31 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 			for (long chunkStart = requestRegion.start.bp; chunkStart <= requestRegion.end.bp; chunkStart += CHUNK_SIZE) {
 				Region chunkRegion = new Region(chunkStart, Math.min(chunkStart + CHUNK_SIZE, requestRegion.end.bp), requestRegion.start.chr);
 
-				processAreaRequestChunk(request, chunkRegion);
+				processDataRequestChunk(request, chunkRegion);
 			}
 		}
 	}
 	
-	protected void processAreaRequestChunk(AreaRequest request, Region chunkRegion) {
+	protected void processDataRequestChunk(DataRequest request, Region chunkRegion) {
 		
 		List<RegionContent> resultList = new LinkedList<RegionContent>();
 		List<Exon> exons = fetchExons(request, chunkRegion);						
 		
 		for (Exon exon : exons) {
 			
-			LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();
+			LinkedHashMap<DataType, Object> valueMap = new LinkedHashMap<DataType, Object>();
 
-			valueMap.put(ColumnType.VALUE, exon);
+			valueMap.put(DataType.VALUE, exon);
 
 			RegionContent feature = new RegionContent(exon.getRegion(), valueMap);
 
 			resultList.add(feature);
 		}
 		
-		super.createAreaResult(new AreaResult(request.getStatus(), resultList));
+		super.createDataResult(new DataResult(request.getStatus(), resultList));
 	}
 
-	private LinkedList<Exon> fetchExons(AreaRequest request, Region chunkRegion) {
+	private LinkedList<Exon> fetchExons(DataRequest request, Region chunkRegion) {
 		
 		LinkedList<Exon> exons = new LinkedList<Exon>();
 		
@@ -169,7 +163,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		}								
 
 		//IndexKeys are not needed, because gtf contains unique identifiers for lines
-		for (String line : lines.values()) {
+ 		for (String line : lines.values()) {
 
 			parser.setLine(line);					
 
@@ -228,7 +222,7 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 		return exons;
 	}
 
-	private TreeMap<IndexKey, String> getLines(AreaRequest request,
+	private TreeMap<IndexKey, String> getLines(DataRequest request,
 			Region chunkRegion)
 			throws IOException, GBrowserException {
 		
@@ -248,14 +242,23 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 					
 					parser.setLine(line);
 					BpCoord start = parser.getRegion().start;
-					//proper IndexKeys are not needed, because gtf contains unique identifiers for lines
-					lines.put(new IndexKey(start, 0), line);
+
+					
+					//create unique indexKeys, otherwise other rows with identical start position are lost
+					int i = 0;
+					IndexKey key;					
+					do {
+						key = new IndexKey(start, i);
+						i++;
+					} while (lines.containsKey(key));
+					
+					lines.put(key, line);
 				}
 			}
 
 		} else {		
 
-				lines = index.getFileLines(new AreaRequest(chunkRegion, request.getRequestedContents(), request.getStatus()));
+				lines = index.getFileLines(new DataRequest(chunkRegion, request.getRequestedContents(), request.getStatus()));
 		}
 		return lines;
 	}
@@ -278,9 +281,9 @@ public class GtfToFeatureConversion extends SingleThreadAreaRequestHandler {
 
 			if (gene.getName() != null && gene.getName().toLowerCase().equals(searchString)) {
 
-				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
-				values.put(ColumnType.VALUE, gene);
+				values.put(DataType.VALUE, gene);
 				resultList.add(new RegionContent(gene.getRegion(), values));
 			}
 		}

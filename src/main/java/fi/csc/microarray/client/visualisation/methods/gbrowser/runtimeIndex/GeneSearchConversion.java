@@ -8,21 +8,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class GeneSearchConversion extends SingleThreadAreaRequestHandler {	
+public class GeneSearchConversion extends DataThread {	
 	
 	private HashMap<String, Chromosome> geneNameMap;
 	private LineDataSource dataSource;
 	
 	public GeneSearchConversion(URL url, final GBrowser browser) {
 
-		super(null, null);
+		super(browser);
 
 		try {
 
@@ -36,13 +36,7 @@ public class GeneSearchConversion extends SingleThreadAreaRequestHandler {
 	}
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-
-		super.processAreaRequest(request);	
-
-		if (request.getStatus().poison) {
-			return;
-		}
+	protected void processDataRequest(DataRequest request) {
 
 		if (geneNameMap == null) {
 			geneNameMap = new HashMap<String, Chromosome>();
@@ -67,7 +61,7 @@ public class GeneSearchConversion extends SingleThreadAreaRequestHandler {
 			resultList.add(new RegionContent(new Region(null, null, chr), null));
 		}
 
-		super.createAreaResult(new GeneResult(geneRequest.getStatus(), resultList, searchString));
+		super.createDataResult(new GeneResult(geneRequest.getStatus(), resultList, searchString));
 	}
 	
 	private void readFile() throws IOException {

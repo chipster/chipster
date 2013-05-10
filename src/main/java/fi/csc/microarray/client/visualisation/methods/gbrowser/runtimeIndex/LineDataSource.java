@@ -9,8 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-
 
 /**
  * Simple data source for small non-binary files. These small files are stored in memory, so  only
@@ -21,7 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
  */
 public class LineDataSource extends DataSource {
 	
-	public LineDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public LineDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 	}
 

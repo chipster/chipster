@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
@@ -46,10 +47,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GeneIndexActi
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ViewLimiter;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
@@ -309,7 +310,7 @@ public class GBrowser implements ComponentListener {
 		ScrollGroup overview = new ScrollGroup("Overview");
 		AnnotationScrollGroup annotations = new AnnotationScrollGroup();
 		
-		SeparatorTrack3D separator = new SeparatorTrack3D(0, Long.MAX_VALUE, true);
+		SeparatorTrack3D separator = new SeparatorTrack3D(true);
 		separator.setView(plot.getDataView());
 		plot.getDataView().addTrackGroup(new TrackGroup(separator));
 
@@ -323,7 +324,7 @@ public class GBrowser implements ComponentListener {
 
 					if (cytobandUrl != null) {
 
-						AreaRequestHandler cytobandRequestHandler = new CytobandConversion(cytobandUrl, this);
+						DataThread cytobandRequestHandler = new CytobandConversion(cytobandUrl, this);
 
 						overview.addTrackGroup(TrackFactory.getCytobandTrackGroup(plot, cytobandRequestHandler));
 
@@ -343,8 +344,8 @@ public class GBrowser implements ComponentListener {
 					URL repeatUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
 					URL repeatIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
 
-					AreaRequestHandler gtfRequestHandler = null;
-					AreaRequestHandler repeatRequestHandler = null;
+					DataThread gtfRequestHandler = null;
+					DataThread repeatRequestHandler = null;
 					
 					if (gtfUrl != null && gtfIndexUrl != null) {
 
@@ -410,23 +411,25 @@ public class GBrowser implements ComponentListener {
 						URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
 						URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
 
-						AreaRequestHandler refSeqRequestHandler = null;
+						DataThread refSeqRequestHandler = null;
 						
 						if (fastaUrl != null && fastaIndexUrl != null) {
 							refSeqRequestHandler = new IndexedFastaConversion(fastaUrl, fastaIndexUrl, this);
 						}
 
-						//create two identical datasources, because details and estimates are read in separate threads and Picard 
+						//create three identical datasources, because those are used in separate threads and Picard 
 						//doesn't support concurrent access
 						BamDataSource detailsData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+						BamDataSource coverageData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 						BamDataSource estimateData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 						
 						//treatmentRequestHandler = new SAMHandlerThread(treatmentData);
 						BamToDetailsConversion details = new BamToDetailsConversion(detailsData, this);
+						BamToCoverageConversion coverage = new BamToCoverageConversion(coverageData, this);
 						BamToCoverageEstimateConversion estimate = new BamToCoverageEstimateConversion(estimateData, this);
 						
 						TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-								plot, details, estimate, 
+								plot, details, coverage, estimate, 
 								refSeqRequestHandler, 
 								track.interpretation.primaryData.getName());
 
@@ -455,10 +458,10 @@ public class GBrowser implements ComponentListener {
 			if (fastaUrl != null && fastaIndexUrl != null) {
 				try {
 					 
-					AreaRequestHandler refSeqRequestHandler = new IndexedFastaConversion(fastaUrl, fastaIndexUrl, this);
+					DataThread refSeqRequestHandler = new IndexedFastaConversion(fastaUrl, fastaIndexUrl, this);
 
 					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-							plot, null, null,
+							plot, null, null, null,
 							refSeqRequestHandler, 
 							settings.getGenome().toString());
 
@@ -512,10 +515,10 @@ public class GBrowser implements ComponentListener {
 				case REGIONS:
 
 					try {						
-						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new BedLineParser(true));
+						DataThread conversion = new LineToRegionConversion(dataUrl.getUrl(), new BedLineParser(true), this);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
 						
-						titleTrack.addAreaRequestHandler(conversion);
+						titleTrack.addDataThread(conversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -529,10 +532,10 @@ public class GBrowser implements ComponentListener {
 				case VCF:
 
 					try {						
-						AreaRequestHandler conversion = new LineToRegionConversion(dataUrl.getUrl(), new VcfLineParser());
+						DataThread conversion = new LineToRegionConversion(dataUrl.getUrl(), new VcfLineParser(), this);
 						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
 						
-						titleTrack.addAreaRequestHandler(conversion);
+						titleTrack.addDataThread(conversion);
 						
 					} catch (FileNotFoundException e) {
 						reportException(e);
@@ -550,7 +553,7 @@ public class GBrowser implements ComponentListener {
 						GtfToFeatureConversion gtfConversion = new GtfToFeatureConversion(dataUrl.getUrl(), null, this);
 						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfConversion, null, true));
 						
-						titleTrack.addAreaRequestHandler(gtfConversion);
+						titleTrack.addDataThread(gtfConversion);
 						
 					} catch (IOException e) {
 						reportException(e);
@@ -588,7 +591,7 @@ public class GBrowser implements ComponentListener {
 						
 						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames, showFrequencies, showCalls, showLogratios));
 						
-						titleTrack.addAreaRequestHandler(conversion);
+						titleTrack.addDataThread(conversion);
 						
 					} catch (IOException e) {
 						reportException(e);
@@ -611,11 +614,11 @@ public class GBrowser implements ComponentListener {
 		}
 
 		// End 3D effect
-		SeparatorTrack3D separator2 = new SeparatorTrack3D(0, Long.MAX_VALUE, false);
+		SeparatorTrack3D separator2 = new SeparatorTrack3D(false);
 		separator2.setView(plot.getDataView());
 		plot.getDataView().addTrackGroup(new TrackGroup(separator2));
 		
-		//This does not fire area requests, but they are created separately when location is known, 
+		//This does not fire data requests, but they are created separately when location is known, 
 		//i.e. when the Go button is pressed or if dataset switches are used  
 		plot.initializeTracks();
 	}
@@ -1083,5 +1086,9 @@ public class GBrowser implements ComponentListener {
 		updateTracks();
 		settings.updateVisibilityForTracks();
 		plot.updateData();
+	}
+
+	public GBrowserPlot getPlot() {
+		return plot;
 	}
 }

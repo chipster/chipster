@@ -9,13 +9,14 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.ConcisedValueCache.Counts;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
@@ -25,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  * @author Aleksi Kallio, Petri Klemelä
  *
  */
-public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHandler {
+public class BamToCoverageEstimateConversion extends DataThread {
 	
 	public final static int SAMPLE_SIZE_BP = 1000;
 
@@ -35,7 +36,7 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 
 	public BamToCoverageEstimateConversion(BamDataSource file, final GBrowser browser) {
 	    
-		super(null, null);
+		super(browser);
 		
 		this.dataSource = file;
 	}
@@ -48,11 +49,9 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-						
-		super.processAreaRequest(request);
+	protected void processDataRequest(DataRequest request) {					
 		
-		if (request.getStatus().poison) {
+		if (request.getRequestedContents().contains(DataType.CANCEL)) {
 			return;
 		}
 		
@@ -60,16 +59,16 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		
 		if (!hasNewRequest()) {
 
-			createBetterEstimate(request, 10);
+			createBetterEstimate(request, 4);
 		}
 		
 		if (!hasNewRequest()) {
 
-			createBetterEstimate(request, 100);
+			createBetterEstimate(request, 16);
 		}
 	}
 	
-	private void createBetterEstimate(AreaRequest request, int partCount) {
+	private void createBetterEstimate(DataRequest request, int partCount) {
 		
 		long step = getDataRegion().getLength() / partCount;
 		
@@ -81,19 +80,15 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		for (long i = getDataRegion().start.bp; i < getDataRegion().end.bp - step; i += step) {
 			
 			Region region = new Region(i, Math.min(i + step, getDataRegion().end.bp), getDataRegion().start.chr);
-			AreaRequest requestPart;
-			try {
-				requestPart = new AreaRequest(region, request.getRequestedContents(), request.getStatus().clone());
+			DataRequest requestPart;
 
-				if (this.hasNewRequest()) {
-					return;
-				} else {
-					processCoverageEstimateRequest(requestPart);
-				}
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
-			}
-			
+			requestPart = new DataRequest(region, request.getRequestedContents(), new DataStatus(request.getStatus()));
+
+			if (this.hasNewRequest()) {
+				return;
+			} else {
+				processCoverageEstimateRequest(requestPart);
+			}			
 		}		
 	}
 
@@ -108,7 +103,7 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 	 * @param request
 	 * @return
 	 */
-	public void processCoverageEstimateRequest(AreaRequest request) {
+	public void processCoverageEstimateRequest(DataRequest request) {
 
 		// How many times file is read
 		int step = request.getLength().intValue() / CoverageEstimateTrack.SAMPLING_GRANULARITY;
@@ -138,7 +133,7 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 		//System.out.println("Cache: " + countHits + "\tFile: " + countReads);
 	}
 
-	private void convertCacheHits(AreaRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
+	private void convertCacheHits(DataRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
 
 		// Return one result pair for each region covered by one cache hit
 		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>(); 
@@ -152,16 +147,16 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 					cachePos - SAMPLE_SIZE_BP / 2, 
 					cachePos + SAMPLE_SIZE_BP / 2, request.start.chr);
 			
-			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
-			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);
+			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+			values.put(DataType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
+			values.put(DataType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);
 			responseList.add(new RegionContent(recordRegion, values));
 		}
 		
-		super.createAreaResult(new AreaResult(request.getStatus(), responseList));
+		super.createDataResult(new DataResult(request.getStatus(), responseList));
 	}
 
-	private void sampleToGetEstimateRegion(AreaRequest request, BpCoord from, BpCoord to) {	
+	private void sampleToGetEstimateRegion(DataRequest request, BpCoord from, BpCoord to) {	
 		
 		long t = System.currentTimeMillis();
 		
@@ -222,13 +217,13 @@ public class BamToCoverageEstimateConversion extends SingleThreadAreaRequestHand
 			// Send result
 			LinkedList<RegionContent> content = new LinkedList<RegionContent>();
 
-			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-			values.put(ColumnType.COVERAGE_ESTIMATE_FORWARD, countForward);
-			values.put(ColumnType.COVERAGE_ESTIMATE_REVERSE, countReverse);
+			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+			values.put(DataType.COVERAGE_ESTIMATE_FORWARD, countForward);
+			values.put(DataType.COVERAGE_ESTIMATE_REVERSE, countReverse);
 
 			content.add(new RegionContent(new Region(start, end, from.chr), values));
 
-			super.createAreaResult(new AreaResult(request.getStatus(), content));
+			super.createDataResult(new DataResult(request.getStatus(), content));
 		}
 	}
 	

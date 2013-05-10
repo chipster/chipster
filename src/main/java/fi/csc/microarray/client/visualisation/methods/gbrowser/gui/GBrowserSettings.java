@@ -120,13 +120,9 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight SNPs", true), "highlightSNP");
-		//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
-		//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
-
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
-		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
+		trackSwitches.put(new JCheckBox("Density graph", false), "DensityGraphTrack");
 		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
-		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 	
 	public JPanel getParameterPanel() {
@@ -684,6 +680,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 				}
 			}
 		}
+		this.browser.getPlot().getDataView().reloadData();
 	}
 
 	public String getGoButtonText() {

@@ -12,16 +12,16 @@ import java.util.LinkedHashMap;
 public class RegionContent implements Comparable<RegionContent> {
 	
 	public Region region;
-	public LinkedHashMap<ColumnType, Object> values;
+	public LinkedHashMap<DataType, Object> values;
 
-	public RegionContent(Region region, LinkedHashMap<ColumnType, Object> values) {
+	public RegionContent(Region region, LinkedHashMap<DataType, Object> values) {
 		this.region = region;
 		this.values = values;
 	}
 
 	public RegionContent(Region region) {
 		this.region = region;
-		this.values = new LinkedHashMap<ColumnType, Object>(); 
+		this.values = new LinkedHashMap<DataType, Object>(); 
 	}
 
 	public int compareTo(RegionContent other) {

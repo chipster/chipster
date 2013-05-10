@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,16 +7,16 @@ import java.util.List;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
@@ -26,17 +24,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  * 
  * @author Aleksi Kallio, Petri Klemelä
  */
-public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
+public class BamToDetailsConversion extends DataThread {
 	
 	private static final int RESULT_CHUNK_SIZE = 100;
 
 	private BamDataSource dataSource;
 
-	private Region previousRequestedRegion;
-
 	public BamToDetailsConversion(BamDataSource file, final GBrowser browser) {
 	    
-		super(null, null);
+		super(browser);
 		
 		this.dataSource = file;
 	}
@@ -46,49 +42,7 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 		
 		SamBamUtils.closeIfPossible(dataSource.getReader());
 	}
-
-
-	@Override
-	protected void processAreaRequest(AreaRequest request) {
-						
-		super.processAreaRequest(request);
 		
-		if (request.getStatus().poison) {
-			return;
-		}
-		
-		if (request.getRequestedContents().contains(ColumnType.COVERAGE)) {
-			
-			request.getRequestedContents().remove(ColumnType.COVERAGE);
-			
-			request.getRequestedContents().addAll(Arrays.asList(new ColumnType[] {
-			ColumnType.ID, 
-			ColumnType.SEQUENCE,
-			ColumnType.STRAND,
-			ColumnType.QUALITY,
-			ColumnType.CIGAR}));
-			
-			try {
-				getDetails(request);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}		
-
-		} else {
-			
-			try {
-				getDetails(request);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}			
-		}												
-	}
-		
-	private void getDetails(AreaRequest request) throws IOException {
-		
-		fetchReads(request);
-	}
-
 	/**
 	 * Find reads in a given range.
 	 * 
@@ -100,7 +54,8 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 	 * @param request
 	 * @return
 	 */
-	public void fetchReads(AreaRequest request) {
+	@Override
+	protected void processDataRequest(DataRequest request) {
 
 		// Read the given region
 		String chromosome = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
@@ -119,39 +74,39 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 				Region recordRegion = new Region((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
 
 				// Values for this read
-				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
 				RegionContent read = new RegionContent(recordRegion, values);
 
-				if (request.getRequestedContents().contains(ColumnType.ID)) {
-					values.put(ColumnType.ID, record.getReadName());
+				if (request.getRequestedContents().contains(DataType.ID)) {
+					values.put(DataType.ID, record.getReadName());
 				}
 
-				if (request.getRequestedContents().contains(ColumnType.STRAND)) {
-					values.put(ColumnType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD);
+				if (request.getRequestedContents().contains(DataType.STRAND)) {
+					values.put(DataType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSE : Strand.FORWARD);
 				}
 
-				if (request.getRequestedContents().contains(ColumnType.QUALITY)) {
-					values.put(ColumnType.QUALITY, record.getBaseQualityString());
+				if (request.getRequestedContents().contains(DataType.QUALITY)) {
+					values.put(DataType.QUALITY, record.getBaseQualityString());
 				}
 
-				if (request.getRequestedContents().contains(ColumnType.CIGAR)) {
+				if (request.getRequestedContents().contains(DataType.CIGAR)) {
 					Cigar cigar = new Cigar(read, record.getCigar());
-					values.put(ColumnType.CIGAR, cigar);
+					values.put(DataType.CIGAR, cigar);
 				}
 
 				// TODO Deal with "=" and "N" in read string
-				if (request.getRequestedContents().contains(ColumnType.SEQUENCE)) {
+				if (request.getRequestedContents().contains(DataType.SEQUENCE)) {
 					String seq = record.getReadString();
-					values.put(ColumnType.SEQUENCE, seq);
+					values.put(DataType.SEQUENCE, seq);
 				}
 
-				if (request.getRequestedContents().contains(ColumnType.MATE_POSITION)) {
+				if (request.getRequestedContents().contains(DataType.MATE_POSITION)) {
 					
 					BpCoord mate = new BpCoord((Long)(long)record.getMateAlignmentStart(),
 							new Chromosome(record.getMateReferenceName()));
 					
-					values.put(ColumnType.MATE_POSITION, mate);
+					values.put(DataType.MATE_POSITION, mate);
 				}
 				
 				/*
@@ -163,7 +118,7 @@ public class BamToDetailsConversion extends SingleThreadAreaRequestHandler {
 			}
 
 			// Send result			
-			super.createAreaResult(new AreaResult(request.getStatus(), responseList));			
+			super.createDataResult(new DataResult(request.getStatus(), responseList));			
 		}
 
 		// We are done

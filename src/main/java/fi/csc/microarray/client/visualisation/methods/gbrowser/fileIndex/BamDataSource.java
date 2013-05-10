@@ -27,9 +27,10 @@ public class BamDataSource extends DataSource {
      * Generally we would like to have both data and index files,
      * because otherwise we cannot access random locations.
      * 
-     * @param areaRequestHandler
+     * @param samFile
+     * @param indexFile
      * @throws FileNotFoundException
-     * @throws URISyntaxException 
+     * @throws URISyntaxException
      */
     public BamDataSource(URL samFile, URL indexFile) throws FileNotFoundException, URISyntaxException {
         super(samFile, null);

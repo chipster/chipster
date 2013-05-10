@@ -1579,8 +1579,6 @@ public class SwingClientApplication extends ClientApplication {
 	 * Opens import tool directly
 	 * 
 	 * @param useSameSettings
-	 * 
-	 * @param areaRequestHandler
 	 */
 	public void openImportTool(ImportSession importSession) {
 		

@@ -6,63 +6,61 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
- * Collects and resends area results. Used by the {@link GBrowserView} objects to manage incoming area results.
+ * Collects and resends dataResults. Used by the {@link GBrowserView} objects to manage incoming dataResults.
  * 
  * @author Petri Klemelä
  *
  */
-public class QueueManager implements AreaResultListener {
+public class QueueManager {
 	
 	private class QueueContext {
-		public Queue<AreaRequest> queue;
-		public Collection<AreaResultListener> listeners = new ArrayList<AreaResultListener>();
-		public AreaRequestHandler requestHandler;
+		public Queue<DataRequest> queue;
+		public Collection<DataResultListener> listeners = new ArrayList<DataResultListener>();
+		public DataThread dataThread;
 	}
 
-	private Map<AreaRequestHandler, QueueContext> queues = new HashMap<AreaRequestHandler, QueueContext>();
+	private Map<DataThread, QueueContext> queues = new HashMap<DataThread, QueueContext>();
+	private GBrowserView view;
 
-	private QueueContext createQueue(AreaRequestHandler areaRequestHandler) {
+	public QueueManager(GBrowserView view) {
+		this.view = view;
+	}
 
-		if (!queues.containsKey(areaRequestHandler)) {
+	private QueueContext createQueue(DataThread dataThread) {
+
+		if (!queues.containsKey(dataThread)) {
 			QueueContext context = new QueueContext();
 			
-			if (areaRequestHandler instanceof SingleThreadAreaRequestHandler) {
-				
-				context.queue = new LinkedBlockingDeque<AreaRequest>();				
-			} else {
-				context.queue = new ConcurrentLinkedQueue<AreaRequest>();
-			}
+			context.queue = new LinkedBlockingDeque<DataRequest>();				
 			
 			try {
-			    // create a thread which is an instance of class which is passed
-			    // as data fetcher to this method
-				areaRequestHandler.setQueue(context.queue);
-				areaRequestHandler.setAreaResultListener(this);
+
+				dataThread.setQueue(context.queue);
+				dataThread.setQueueManager(this);
 				
-				context.requestHandler = areaRequestHandler;
-				queues.put(areaRequestHandler, context);
+				context.dataThread = dataThread;
+				queues.put(dataThread, context);
 				
-				if (context.requestHandler.isAlive()) {
+				if (context.dataThread.isAlive()) {
 					System.err.println(
-							"Thread '" + context.requestHandler + "' is poisoned, but still alive. " +
+							"Thread '" + context.dataThread + "' is poisoned, but still alive. " +
 									"A new thread will be started for the upcoming requests.");
-					context.requestHandler = (AreaRequestHandler) context.requestHandler.clone();
+					context.dataThread = (DataThread) context.dataThread.clone();
 				} 
 				
-				context.requestHandler.runThread();
+				context.dataThread.runThread();
 				
 				return context;
 
@@ -82,57 +80,66 @@ public class QueueManager implements AreaResultListener {
 	    queues.remove(file);
 	}
 	
-	public void addAreaRequest(AreaRequestHandler areaRequestHandler, AreaRequest req, Region dataRegion) {
+	public void addDataRequest(DataThread dataThread, DataRequest req, Region dataRegion) {
 		
-		req.getStatus().areaRequestHandler = areaRequestHandler;
-		QueueContext context = queues.get(areaRequestHandler);
+		req.getStatus().setDataThread(dataThread);
+		QueueContext context = queues.get(dataThread);
 
-		//req.getStatus().maybeClearQueue(context.queue);
-		//context.queue.clear();
+		context.dataThread.setDataRegion(dataRegion);
 		
-		if ((context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
- 
-			((SingleThreadAreaRequestHandler)context.requestHandler).setDataRegion(dataRegion);
-		}
-		
-		context.queue.add(req);
-		
-		if (context.requestHandler != null) {
-		
-			//BlockinQueue takes of care of notifyin of SingleThreadAreaRequestHandlers
-			if (!(context.requestHandler instanceof SingleThreadAreaRequestHandler)) {
-				context.requestHandler.notifyAreaRequestHandler();
-			}
-		}		
+		context.queue.add(req);		
 	}
 
-	public void addResultListener(AreaRequestHandler areaRequestHandler, AreaResultListener listener) {
+	public void addDataResultListener(DataThread dataThread, DataResultListener listener) {
 		
-		QueueContext qContext = queues.get(areaRequestHandler);
+		QueueContext qContext = queues.get(dataThread);
 		if (qContext == null) {
-			qContext = createQueue(areaRequestHandler);
+			qContext = createQueue(dataThread);
 		}
 		qContext.listeners.add(listener);
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
-
-		for (AreaResultListener listener : queues.get(areaResult.getStatus().areaRequestHandler).listeners) {
-			listener.processAreaResult(areaResult);
+	public void processDataResult(DataResult dataResult) {
+		
+		for (DataResultListener listener : queues.get(dataResult.getStatus().getDataThread()).listeners) {
+			
+//			long t = System.currentTimeMillis();
+			
+			if (listener instanceof Track) {
+				Track track = (Track) listener;
+				
+				if (track.isVisible()) {
+					listener.processDataResult(dataResult);	
+				}
+				
+			} else {
+				listener.processDataResult(dataResult);
+			}
+						
+//			t = System.currentTimeMillis() - t;
+//			
+//			if (t > 1) {
+//				System.out.println(listener + "\t" + t);
+//			}					
 		}
+		
+		view.redraw();
 	}
 
 	public void poisonAll() {
 		
-		for (Entry<AreaRequestHandler, QueueContext> entry : queues.entrySet()) {
+		for (Entry<DataThread, QueueContext> entry : queues.entrySet()) {
 			
-			DataRetrievalStatus status = new DataRetrievalStatus();
+			DataStatus status = new DataStatus();
 			status.poison = true;
-			AreaRequest request = new AreaRequest(new Region(), null, status);
+			DataRequest request = new DataRequest(new Region(), null, status);
 						
 			QueueContext context = entry.getValue();
-			context.queue.add(request);
-			context.requestHandler.notifyAreaRequestHandler();		
+			context.queue.add(request);		
 		}
+	}
+
+	public Collection<DataResultListener> getDataResultListeners(DataResult dataResult) {
+		return queues.get(dataResult.getStatus().getDataThread()).listeners;
 	}
 }

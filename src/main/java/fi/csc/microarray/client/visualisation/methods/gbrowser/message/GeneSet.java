@@ -6,7 +6,7 @@ import java.util.Iterator;
 public class GeneSet extends HashMap<String, Gene>{
 	
 	public void addExon(Exon exon, String geneId, String transcId,
-			String geneName, String transcName, String biotype) {
+			String geneName, String transcName, String biotype) {		
 		
 		Gene gene;
 		
@@ -45,7 +45,7 @@ public class GeneSet extends HashMap<String, Gene>{
 				iterator.remove();
 			}
 			
-			addExon(exon, exon.getGeneId(), exon.getTranscriptId(), exon.getGeneName(), exon.getTranscName(), exon.getBiotype());
+			addExon(exon, exon.getGeneId(), exon.getTranscriptId(), exon.getGeneName(), exon.getTranscName(), exon.getBiotype());			
 		}
 	}
 }

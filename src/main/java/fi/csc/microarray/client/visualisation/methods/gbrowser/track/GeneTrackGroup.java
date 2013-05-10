@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp
@@ -27,7 +27,7 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcriptReversed;
 	private StatusTitleTrack titleTrack;
 
-	public GeneTrackGroup(GBrowserView dataView, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) {
+	public GeneTrackGroup(GBrowserView dataView, DataThread annotationDataSource, DataThread repeatDataSource, boolean isUserData) {
 		super(dataView);
 		
 		titleTrack = new StatusTitleTrack("Annotations", Color.black);
@@ -35,9 +35,10 @@ public class GeneTrackGroup extends TrackGroup {
 		
 		if (annotationDataSource != null) {
 			
-			transcript = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
+			transcript = new TranscriptTrack();
+			transcript.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setView(dataView);
-			transcript.addAreaRequestHandler(annotationDataSource);
+			transcript.addDataThread(annotationDataSource);
 			transcript.setStrand(Strand.FORWARD);
 			
 
@@ -47,21 +48,22 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverview = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 //			geneOverview.setView(dataView);
 
-			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER);
+			gene.setViewLimits(GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			gene.setView(dataView);
-			gene.addAreaRequestHandler(annotationDataSource);
+			gene.addDataThread(annotationDataSource);
 			gene.setStrand(Strand.FORWARD);
 			
-			titleTrack.addAreaRequestHandler(annotationDataSource);
+			titleTrack.addDataThread(annotationDataSource);
 		}
 		
 		if (repeatDataSource != null) {
-			repeatMasker = new RepeatMaskerTrack(0, GBrowserConstants.SWITCH_VIEWS_AT);
+			repeatMasker = new RepeatMaskerTrack();
+			repeatMasker.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			repeatMasker.setView(dataView);
-			repeatMasker.addAreaRequestHandler(repeatDataSource);
+			repeatMasker.addDataThread(repeatDataSource);
 			
-			titleTrack.addAreaRequestHandler(repeatDataSource);
+			titleTrack.addDataThread(repeatDataSource);
 		}
 		
 		if (annotationDataSource != null) {
@@ -71,15 +73,16 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverviewReversed = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 //			geneOverviewReversed.setView(dataView);
 
-			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER);
+			geneReversed.setViewLimits(GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			geneReversed.setView(dataView);
-			geneReversed.addAreaRequestHandler(annotationDataSource);
+			geneReversed.addDataThread(annotationDataSource);
 			geneReversed.setStrand(Strand.REVERSE);
 
-			transcriptReversed = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
+			transcriptReversed = new TranscriptTrack();
+			transcriptReversed.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcriptReversed.setView(dataView);
-			transcriptReversed.addAreaRequestHandler(annotationDataSource);
+			transcriptReversed.addDataThread(annotationDataSource);
 			transcriptReversed.setStrand(Strand.REVERSE);
 		}
 		
@@ -107,7 +110,7 @@ public class GeneTrackGroup extends TrackGroup {
         }
 
 		if (isUserData) {
-			SeparatorTrack separator = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+			SeparatorTrack separator = new SeparatorTrack(Color.gray, 1);
 			separator.setView(view);
 			tracks.add(separator);
 		} else {

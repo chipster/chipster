@@ -6,8 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-
 /**
  * <p>One source of genomic content. Abstraction hides the physical data source, that can be either 
  * a file or a URL accessed via HTTP.</p>
@@ -24,10 +22,10 @@ public abstract class DataSource {
 	protected File file = null;
 	protected URL url = null;
 	protected String name;
-	protected Class<? extends AreaRequestHandler> requestHandler;
+	protected Class<? extends DataThread> requestHandler;
 	
 
-	public DataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public DataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
 		
 		if (url != null) {
 			if ("file".equals(url.getProtocol())) {
@@ -41,7 +39,7 @@ public abstract class DataSource {
 		this.requestHandler = requestHandler;
 	}
 	
-	public DataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler2)
+	public DataSource(URL urlRoot, String path, Class<? extends DataThread> requestHandler2)
 	        throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		this(new URL(urlRoot.toString() + "/" + path), requestHandler2);
 	}
@@ -51,7 +49,7 @@ public abstract class DataSource {
 		return name;
 	}
 	
-	public Class<? extends AreaRequestHandler> getRequestHandler() {
+	public Class<? extends DataThread> getRequestHandler() {
 		return requestHandler;
 	}
 }

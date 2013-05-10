@@ -104,6 +104,10 @@ public class Region implements Comparable<Region> {
 	public boolean contains(BpCoord point) {
 		return start.chr.equals(point.chr) && point.compareTo(start) >= 0 && point.compareTo(end) < 0;
 	}
+	
+	public boolean contains(Long point) {
+		return point.compareTo(start.bp) >= 0 && point.compareTo(end.bp) < 0;
+	}
 
 	/**
 	 * Return true if this region intersects with the other. Handles chromosomes as sequential. i.e. if the region ends are in different chromosomes, is 

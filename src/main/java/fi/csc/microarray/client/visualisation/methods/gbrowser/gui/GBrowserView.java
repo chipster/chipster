@@ -23,18 +23,16 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel.TooltipRequestProcessor;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRetrievalStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
@@ -193,13 +191,13 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public QueueManager getQueueManager() {	
 		if (queueManager == null) {
-			queueManager = new QueueManager();
+			queueManager = new QueueManager(this);
 		}
 		return queueManager;
 	}
 
 	/**
-	 * Fire area requests for all tracks in this view. Request is made only if the previous request
+	 * Fire data requests for all tracks in this view. Request is made only if the previous request
 	 * doesn't cover current area. Requests are enlarged to avoid an immediate need for new request when
 	 * the view is moved. However, requests can not be enlarged too much, because the result data has to
 	 * fit in the memory.
@@ -213,25 +211,42 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	 * 
 	 * Only fire one request for a single file.
 	 */
-	public void fireAreaRequests() {
+	public void fireDataRequests() {
 
-		Map<AreaRequestHandler, Set<ColumnType>> datas = new HashMap<AreaRequestHandler, Set<ColumnType>>();
+		Map<DataThread, Set<DataType>> datas = new HashMap<DataThread, Set<DataType>>();
 
 		// Add all requested columns for each requested file
-		for (Track t : getTracks()) {
-			Map<AreaRequestHandler, Set<ColumnType>> trackDatas = t.requestedData();
+		for (Track t : getTracks()) { 
+					
+			t.clearDataTypes();
+			t.defineDataTypes();
+			
+			Map<DataThread, Set<DataType>> trackDatas = t.getDataTypeMap();
+			
+			boolean cancelType = false;
+			
+			// Don't do anything for tracks without data
+			if (trackDatas == null) {
+				continue;
+			} 
+				
+			for (Set<DataType> types : trackDatas.values()) {
+				if (types.contains(DataType.CANCEL)) {
+					cancelType = true;
+				}
+			}
 
-			// Don't do anything for hidden tracks or tracks without data
-			if (trackDatas == null || !t.isVisible()) {
+			// Don't do anything for hidden tracks, unless they wan't to send cancel request
+			if (!cancelType && !t.isVisible()) {
 				continue;
 			}
 
-			for (AreaRequestHandler file : trackDatas.keySet()) {
+			for (DataThread file : trackDatas.keySet()) {
 				
 				if (file != null) {
 					// Add columns for this requested file
-					Set<ColumnType> columns = datas.get(file);
-					columns = columns != null ? columns : new HashSet<ColumnType>();
+					Set<DataType> columns = datas.get(file);
+					columns = columns != null ? columns : new HashSet<DataType>();
 					columns.addAll(trackDatas.get(file));
 					datas.put(file, columns);
 				}
@@ -282,11 +297,10 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 				}
 			} 
 						
-			// Fire area requests
-			for (AreaRequestHandler file : datas.keySet()) {
-				DataRetrievalStatus status = new DataRetrievalStatus();
-				status.clearQueues = true;
-				getQueueManager().addAreaRequest(file, new AreaRequest(newRequest, datas.get(file), status), requestRegion);
+			// Fire data requests
+			for (DataThread file : datas.keySet()) {
+				DataStatus status = new DataStatus();
+				getQueueManager().addDataRequest(file, new DataRequest(newRequest, datas.get(file), status), requestRegion);
 			}
 		}
 	}
@@ -336,7 +350,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 		this.bpRegion = limitRegion(region);
 
-		fireAreaRequests();
+		fireDataRequests();
 		
 		dispatchRegionChange();
 	}
@@ -725,5 +739,15 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public Region getRequestRegion() {
 		return requestRegion;
+	}
+
+	public void reloadData() {
+		reloadDataLater();
+		fireDataRequests();
+		redraw();
+	}
+
+	public void reloadDataLater() {
+		requestRegion = null;
 	}
 }

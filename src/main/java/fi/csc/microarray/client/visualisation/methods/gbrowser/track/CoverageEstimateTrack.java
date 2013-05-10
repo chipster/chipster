@@ -1,15 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,9 +12,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -29,28 +23,19 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CoverageEstimateTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 10;
+    final public static int SAMPLING_GRANULARITY = 4;
 
 	private static final int MAX_VALUE_COUNT = 1000;
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
-	private long minBpLength;
 
 	private boolean strandSpecificCoverageType;
-
-	public CoverageEstimateTrack(long maxBpLength) {
-		
-		this.minBpLength = maxBpLength;
-	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-	
-//		Color bg = new Color(0f, 0f, 0f, 0.05f);
-//		drawables.add(new RectDrawable(0,  0,  getView().getWidth(), getHeight(), bg, bg));
 		
 		// remove values when they get "too big"
 		while (values.size() > MAX_VALUE_COUNT) {
@@ -78,8 +63,8 @@ public class CoverageEstimateTrack extends Track {
 			
 			x2 = Math.max(x2, x1 + 2);
 			
-			int fCount = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_FORWARD));
-			int rCount = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE));							
+			int fCount = (Integer) (regCont.values.get(DataType.COVERAGE_ESTIMATE_FORWARD));
+			int rCount = (Integer) (regCont.values.get(DataType.COVERAGE_ESTIMATE_REVERSE));							
 			
 			if (!strandSpecificCoverageType) {				
 				fCount += rCount;
@@ -190,35 +175,30 @@ public class CoverageEstimateTrack extends Track {
 		return smooth;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {		
+	public void processDataResult(DataResult dataResult) {		
 
-		for (RegionContent content : areaResult.getContents()) {
-			if (getView().requestIntersects(content.region) && content.values.containsKey(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
+		for (RegionContent content : dataResult.getContents()) {
+			if (getView().requestIntersects(content.region) && content.values.containsKey(DataType.COVERAGE_ESTIMATE_FORWARD)) {
 								
 				values.add(content);
 				valueStorageOrder.add(content);
 			}
 		}
-
-		getView().redraw();
-	}
+	}   
     
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength);
-    }
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-                HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-				ColumnType.COVERAGE_ESTIMATE_FORWARD,
-				ColumnType.COVERAGE_ESTIMATE_REVERSE})));
-        return datas;
-    }
+	public void defineDataTypes() {
+		
+		if (isVisible()) {
+			
+			addDataType(DataType.COVERAGE_ESTIMATE_FORWARD);
+			addDataType(DataType.COVERAGE_ESTIMATE_REVERSE);
+			
+		} else {
+			
+			addDataType(DataType.CANCEL);
+		}
+	}
 	
 	@Override
 	public int getHeight() {

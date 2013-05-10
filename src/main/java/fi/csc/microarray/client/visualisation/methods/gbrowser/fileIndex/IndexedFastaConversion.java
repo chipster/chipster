@@ -10,19 +10,19 @@ import java.util.List;
 import net.sf.picard.PicardException;
 import net.sf.picard.reference.ReferenceSequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SingleThreadAreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
-public class IndexedFastaConversion extends SingleThreadAreaRequestHandler {
+public class IndexedFastaConversion extends DataThread {
 
 	private IndexedFastaDataSource dataSource;
 
 	public IndexedFastaConversion(URL data, URL index, final GBrowser browser) {
 
-		super(null, null);
+		super(browser);
 
 		try {			
 			this.dataSource = new IndexedFastaDataSource(data, index);
@@ -40,14 +40,7 @@ public class IndexedFastaConversion extends SingleThreadAreaRequestHandler {
 
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-
-		super.processAreaRequest(request);
-
-		if (request.getStatus().poison) {
-			return;
-		}
-		
+	protected void processDataRequest(DataRequest request) {
 		
 		if (request.start.bp < 1) {
 			request.start.bp = 1l;
@@ -62,8 +55,8 @@ public class IndexedFastaConversion extends SingleThreadAreaRequestHandler {
 			ReferenceSequence picardSequence = dataSource.getPicard().getSubsequenceAt(chr, request.start.bp, request.end.bp);
 			String sequence = new String(picardSequence.getBases());
 
-			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-			values.put(ColumnType.SEQUENCE, sequence);
+			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+			values.put(DataType.SEQUENCE, sequence);
 
 			RegionContent regCont = new RegionContent(request, values);
 
@@ -75,7 +68,7 @@ public class IndexedFastaConversion extends SingleThreadAreaRequestHandler {
 			responseList.add(regCont);
 
 			// Send result
-			createAreaResult(new AreaResult(request.getStatus(), responseList));
+			createDataResult(new DataResult(request.getStatus(), responseList));
 			
 		} catch (PicardException e) {
 			e.printStackTrace(); //Catch "Query asks for data past end of contig" to prevent this thread from ending

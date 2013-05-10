@@ -10,21 +10,21 @@ import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TabixUtil;
 
-public class BedTabixToRegionConversion extends SingleThreadAreaRequestHandler {
+public class BedTabixToRegionConversion extends DataThread {
 
 	private TabixDataSource dataSource;
 	private BedLineParser parser = new BedLineParser(false);
 
 	public BedTabixToRegionConversion(URL tabixFile, URL tabixIndexFile, final GBrowser browser) {
 
-		super(null, null);
+		super(browser);
 
 		try {
 			this.dataSource = new TabixDataSource(tabixFile, tabixIndexFile);
@@ -44,14 +44,7 @@ public class BedTabixToRegionConversion extends SingleThreadAreaRequestHandler {
 
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-
-		super.processAreaRequest(request);
-
-		if (request.getStatus().poison) {
-			return;
-		}
-
+	protected void processDataRequest(DataRequest request) {
 
 		// Read the given region
 		TabixReader.Iterator iterator = TabixUtil.getTabixIterator(dataSource, request);
@@ -71,7 +64,7 @@ public class BedTabixToRegionConversion extends SingleThreadAreaRequestHandler {
 			}
 
 			// Send result			
-			super.createAreaResult(new AreaResult(request.getStatus(), resultList));		
+			super.createDataResult(new DataResult(request.getStatus(), resultList));		
 			
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -7,10 +7,10 @@ import java.util.Collection;
  * A request for content from the given view area. The view layer uses these requests to get data from the processing layer.  
  *
  */
-public class AreaRequest extends Region {
+public class DataRequest extends Region {
 	
-	private DataRetrievalStatus status;
-	private Collection<ColumnType> requestedContents;
+	private DataStatus status;
+	private Collection<DataType> requestedContents;
 	
 	/**
 	 * Constructs a new request. 
@@ -20,7 +20,7 @@ public class AreaRequest extends Region {
 	 * @param status				status				
 	 * @param depthToGo				counter for counting tree split depth
 	 */
-	public AreaRequest(Region region, Collection<ColumnType> requestedContents, DataRetrievalStatus status) {
+	public DataRequest(Region region, Collection<DataType> requestedContents, DataStatus status) {
 		super(region.start, region.end);
 		this.requestedContents = requestedContents;
 		this.status = status;
@@ -30,15 +30,15 @@ public class AreaRequest extends Region {
 	 * Clone clones also relevant fields so that clones are independent.
 	 */
 	@Override
-	public AreaRequest clone() throws CloneNotSupportedException {
-		return new AreaRequest(this, this.requestedContents, this.getStatus().clone());
+	public DataRequest clone() throws CloneNotSupportedException {
+		return new DataRequest(this, this.requestedContents, new DataStatus(this.getStatus()));
 	}
 	
-	public DataRetrievalStatus getStatus() {
+	public DataStatus getStatus() {
 		return status;
 	}
 	
-	public Collection<ColumnType> getRequestedContents() {
+	public Collection<DataType> getRequestedContents() {
 		return requestedContents;
 	}
 }

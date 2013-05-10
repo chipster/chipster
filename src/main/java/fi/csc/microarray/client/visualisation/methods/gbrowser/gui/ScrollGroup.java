@@ -12,6 +12,7 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
@@ -150,6 +151,26 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 				Collection<Drawable> drawables = drawableListIter.next();
 				Track track = trackIter.next();
 
+				// decide if we will expand drawable for this track
+				boolean expandDrawables = track.canExpandDrawables();
+				
+				TrackContext trackContext = null;
+				// create view context for this track only if we will use it
+				// currently only used for tracks that contain information
+				// about reads
+				if (expandDrawables && 
+						(track instanceof CoverageTrack ||
+								track instanceof CoverageAverageTrack ||
+								track instanceof CoverageEstimateTrack ||
+								track instanceof QualityCoverageTrack)) {
+					
+					if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+						trackContext = new TrackContext(track, getMaxY(drawables));
+					} else {
+						trackContext = new TrackContext(track, view.parentPlot.getReadScale().numReads);
+					}
+				}
+				
 				//Add track height before the track drawables are drawn, because the track coordinates start
 				//from the bottom and grow upwards
 				y += track.getFullHeight();
@@ -160,30 +181,10 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 						continue;
 					}
 
-					// decide if we will expand drawable for this track
-					boolean expandDrawables = track.canExpandDrawables();
-
-					TrackContext trackContext = null;
-					// create view context for this track only if we will use it
-					// currently only used for tracks that contain information
-					// about reads
-					if (expandDrawables && 
-							(track instanceof CoverageTrack ||
-									track instanceof CoverageEstimateTrack ||
-									track instanceof QualityCoverageTrack)) {
-
-						if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-							trackContext = new TrackContext(track);
-						} else {
-							// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-							trackContext = new TrackContext(track, track.getHeight() - view.parentPlot.getReadScale().numReads);
-						}
-					}
-
 					// expand drawables to stretch across all height if necessary
 					if (expandDrawables) {
 						drawable.expand(trackContext);
-					}
+					}									
 
 					// recalculate position for reversed strands
 					int maybeReversedY = (int) y;
@@ -219,6 +220,17 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 				scrollValue + viewPortHeight, null);
 	}
 
+	private Integer getMaxY(Collection<Drawable> drawables) {
+		
+        int maxY = 0;
+        
+        for (Drawable drawable : drawables) {
+            maxY = Math.max(drawable.getMaxY() + 1, maxY);            
+        }
+
+        return maxY;
+	}
+
 	private long time = 0;
 	private void printTime(String operation) {
 		if (operation == null) {
@@ -226,8 +238,8 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 		} else {
 			long elapsed = System.currentTimeMillis() - time;
 			time = System.currentTimeMillis();
-			if (elapsed > 1) {
-				//				System.out.println(operation + "\t" + elapsed);
+			if (elapsed > 5) {
+				//System.out.println(operation + "\t" + elapsed);
 			}
 		}
 	}
@@ -311,7 +323,7 @@ public class ScrollGroup implements LayoutComponent, LayoutContainer {
 	 */
 	public int getScrollReferenceY() {
 		return 0;
-	}
+	}	
 
 	public String getName() {
 		return name;

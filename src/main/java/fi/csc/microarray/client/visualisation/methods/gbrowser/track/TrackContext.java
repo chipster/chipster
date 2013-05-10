@@ -41,7 +41,9 @@ public class TrackContext {
         
         this.minDrawableY = minDrawableY;
         
-        this.expansionRatio = this.trackHeight /
-                (this.trackHeight - (float) this.minDrawableY);
+//        this.expansionRatio = this.trackHeight /
+//                (this.trackHeight - (float) this.minDrawableY);
+        
+        this.expansionRatio = this.trackHeight / (float) this.minDrawableY;
     }
 }

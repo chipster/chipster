@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -27,7 +26,7 @@ public class ChunkDataSource extends DataSource {
 
 	private Long length = null;
 
-	public ChunkDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public ChunkDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 		
 		if (file != null) { //Initialized by super constructor if file is local
@@ -35,7 +34,7 @@ public class ChunkDataSource extends DataSource {
 		}
 	}
 
-	public ChunkDataSource(URL urlRoot, String path, Class<? extends AreaRequestHandler> requestHandler)
+	public ChunkDataSource(URL urlRoot, String path, Class<? extends DataThread> requestHandler)
 	throws FileNotFoundException, MalformedURLException, URISyntaxException {
 		super(urlRoot, path, requestHandler);
 		

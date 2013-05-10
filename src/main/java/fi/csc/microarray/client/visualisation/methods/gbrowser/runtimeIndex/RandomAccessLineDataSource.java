@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
@@ -29,7 +28,7 @@ public class RandomAccessLineDataSource extends DataSource {
 	}
 
 	@Deprecated
-	public RandomAccessLineDataSource(URL url, Class<? extends AreaRequestHandler> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public RandomAccessLineDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
 		super(url, requestHandler);
 		
 		this.lineReader = new RandomAccessLineReader(url);

@@ -12,7 +12,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
@@ -64,8 +64,8 @@ public class RegionOperationsTest {
 		
 		// Check that parsing was ok
 		Assert.assertEquals(rows1.size(), 4);
-		Assert.assertEquals(rows1.get(0).values.get(ColumnType.STRAND), "+");
-		Assert.assertEquals(rows1.get(0).values.get(ColumnType.ID), "cloneA");
+		Assert.assertEquals(rows1.get(0).values.get(DataType.STRAND), "+");
+		Assert.assertEquals(rows1.get(0).values.get(DataType.ID), "cloneA");
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1.fa"));
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1"));
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("1"));
@@ -104,16 +104,16 @@ public class RegionOperationsTest {
 
 		// Test intersection while preserving originals
 		LinkedList<RegionContent> expectedIntersection2 = new LinkedList<RegionContent>();
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.ID, "cloneA");
-		values.put(ColumnType.VALUE, 960L);
-		values.put(ColumnType.STRAND, Strand.FORWARD);
-		values.put(ColumnType.THICK_START, "1000");
-		values.put(ColumnType.THICK_END, "5000");
-		values.put(ColumnType.ITEM_RGB, "0");
-		values.put(ColumnType.BLOCK_COUNT, "2");
-		values.put(ColumnType.BLOCK_SIZES, "567,488");
-		values.put(ColumnType.BLOCK_STARTS, "0,3512");
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+		values.put(DataType.ID, "cloneA");
+		values.put(DataType.VALUE, 960L);
+		values.put(DataType.STRAND, Strand.FORWARD);
+		values.put(DataType.THICK_START, "1000");
+		values.put(DataType.THICK_END, "5000");
+		values.put(DataType.ITEM_RGB, "0");
+		values.put(DataType.BLOCK_COUNT, "2");
+		values.put(DataType.BLOCK_SIZES, "567,488");
+		values.put(DataType.BLOCK_STARTS, "0,3512");
 		expectedIntersection2.add(new RegionContent(new Region(100L, 200L, new Chromosome("1")), values));
 		expectedIntersection2.add(new RegionContent(new Region(100L, 150L, new Chromosome("1")), RegionOperations.getEmptyExtraFieldMap()));
 		expectedIntersection2.add(new RegionContent(new Region(210L, 300L, new Chromosome("1")), values));

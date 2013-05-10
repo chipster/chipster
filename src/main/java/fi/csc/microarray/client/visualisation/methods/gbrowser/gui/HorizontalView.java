@@ -212,6 +212,10 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion);
+											
+											if (!skipFrame) {
+												parentPlot.redraw();											
+											}
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {

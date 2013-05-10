@@ -2,8 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -244,7 +242,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
-        this.dataView.redraw();
+        this.dataView.reloadData();
     }
     
     public void setFullLayoutMode(boolean enabled) {
@@ -276,7 +274,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
 	public void updateData() {
 		for (GBrowserView view : views) {
-			view.fireAreaRequests();			
+			view.fireDataRequests();			
 		}
 	}
 }

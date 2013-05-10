@@ -10,16 +10,16 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cytoband;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
-public class CytobandConversion extends SingleThreadAreaRequestHandler {
+public class CytobandConversion extends DataThread {
 
 	private Index index;
 
@@ -27,7 +27,7 @@ public class CytobandConversion extends SingleThreadAreaRequestHandler {
 
 	public CytobandConversion(URL url, final GBrowser browser) {
 
-		super(null, null);
+		super(browser);
 
 		this.parser = new CytobandLineParser();
 
@@ -44,13 +44,7 @@ public class CytobandConversion extends SingleThreadAreaRequestHandler {
 	}
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-
-		super.processAreaRequest(request);	
-
-		if (request.getStatus().poison) {
-			return;
-		}
+	protected void processDataRequest(DataRequest request) {
 
 		if (index == null) {
 			return;
@@ -65,19 +59,19 @@ public class CytobandConversion extends SingleThreadAreaRequestHandler {
 
 			for (Entry<IndexKey, String> entry : lineMap.entrySet()) {
 
-				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
 				parser.setLine(entry.getValue());				
 				Region region = parser.getRegion();
 				Cytoband cytoband = new Cytoband(region, parser.getBand(), parser.getStain());
 
-				values.put(ColumnType.ID, entry.getKey());
-				values.put(ColumnType.VALUE, cytoband);
+				values.put(DataType.ID, entry.getKey());
+				values.put(DataType.VALUE, cytoband);
 
 				resultList.add(new RegionContent(region, values));
 			}
 
-			super.createAreaResult(new AreaResult(request.getStatus(), resultList));
+			super.createDataResult(new DataResult(request.getStatus(), resultList));
 
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -2,15 +2,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 
 /**
  * Empty track can be used for padding.
@@ -18,17 +13,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnTyp
  */
 public class EmptyTrack extends Track {
 
-	private Long minBp;
-
 	public EmptyTrack(int height) {
 
 		this.layoutHeight = height;
-	}
-	
-	public EmptyTrack(int height, long minBp) {
-
-		this.layoutHeight = height;
-		this.minBp = minBp;
 	}
 
 	@Override
@@ -38,25 +25,12 @@ public class EmptyTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 		// ignored
 	}
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        return null;
-    }
 	
 	@Override
 	public String getName() {
 		return "empty";
 	}
-	
-    public boolean isVisible() {
-    	if (minBp == null) {
-    		return visible;
-    	} else {
-    		return view.getBpRegion().getLength() >= minBp;
-    	}
-    }
 }

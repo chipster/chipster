@@ -3,28 +3,23 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -36,17 +31,12 @@ public class GeneTrack extends Track {
 	private HashSet<Exon> exons = new HashSet<Exon>();
 	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
-	private long maxBpLength;
-	private long minBpLength;
-
 	private Color color;
 
 
-	public GeneTrack(Color color, long minBpLength, long maxBpLength) {
+	public GeneTrack(Color color) {
 
 		this.color = color;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
@@ -61,7 +51,7 @@ public class GeneTrack extends Track {
 			GeneSet geneSet = new GeneSet();				
 			geneSet.add(exons.iterator(), view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));		
 			
-			TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
+			TreeMap<PositionAndStringKey, Gene> sortedGenes = new TreeMap<PositionAndStringKey, Gene>();
 
 			Iterator<Gene> geneIter = geneSet.values().iterator();
 			while (geneIter.hasNext()) {
@@ -73,10 +63,15 @@ public class GeneTrack extends Track {
 					continue;
 				}
 
-				sortedGenes.put(gene.getRegion(), gene);
+				PositionAndStringKey key = new PositionAndStringKey(gene.getRegion().start, gene.getId());
+				sortedGenes.put(key, gene);
 			}
 
 			for (Gene gene : sortedGenes.values()) {
+				
+				if (!getView().getBpRegion().intersects(gene.getRegion())) {
+					continue;
+				}
 				
 				String name = null;
 				
@@ -126,46 +121,28 @@ public class GeneTrack extends Track {
 		}
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
+		for (RegionContent content : dataResult.getContents()) {
 
-			Object value = content.values.get(ColumnType.VALUE);
+			Object value = content.values.get(DataType.VALUE);
 			
 			if (value instanceof Exon) {
 				Exon exon = (Exon)value;
 
 				if (exon.getRegion().getStrand() == getStrand()) {
 
-					//Genes at edge of edge of screen may contain only visible exons, but moving should
-					//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
-					//new ones with better information for the current view location.
-					this.exons.remove(exon);
-
 					this.exons.add(exon);
 				}
 			}
 		}
-		getView().redraw();
 	}
-	
+    
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }    
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.VALUE })));
-        return datas;
-    }
-	
+	public void defineDataTypes() {
+		addDataType(DataType.VALUE);
+	}
+    	
 	@Override
 	public int getMinHeight() {
 		return 100;

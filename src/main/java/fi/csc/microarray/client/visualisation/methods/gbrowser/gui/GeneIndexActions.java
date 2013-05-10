@@ -10,13 +10,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResultListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * This class does gene search in two steps: first use custom gene-chr file to find the chromosome 
@@ -27,25 +27,25 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
  * @author klemela
  *
  */
-public class GeneIndexActions implements AreaResultListener {
+public class GeneIndexActions implements DataResultListener {
 
 	public interface GeneLocationListener {
 		public void geneLocation(Region geneRegion);
 	}
 
 	private QueueManager queueManager;
-	private AreaRequestHandler gtfDataSource;
-	private AreaRequestHandler geneDataSource;
+	private DataThread gtfDataSource;
+	private DataThread geneDataSource;
 	private Map<String, GeneLocationListener> listenerMap = new HashMap<String, GeneLocationListener>();
 
-	public GeneIndexActions(QueueManager queueManager, AreaRequestHandler gtfDataSource, AreaRequestHandler geneDataSource) {
+	public GeneIndexActions(QueueManager queueManager, DataThread gtfDataSource, DataThread geneDataSource) {
 
 		this.queueManager = queueManager;
 		this.gtfDataSource = gtfDataSource;
 		this.geneDataSource = geneDataSource;
 
-		queueManager.addResultListener(gtfDataSource, this);
-		queueManager.addResultListener(geneDataSource, this);
+		queueManager.addDataResultListener(gtfDataSource, this);
+		queueManager.addDataResultListener(geneDataSource, this);
 	}
 
 	/**
@@ -58,14 +58,14 @@ public class GeneIndexActions implements AreaResultListener {
 		listenerMap.put(gene, listener);
 		
 		// Search for the chromosome of the gene
-		queueManager.addAreaRequest(geneDataSource, new GeneRequest(gene, null), null);
+		queueManager.addDataRequest(geneDataSource, new GeneRequest(gene, null), null);
 	}
 
 
 	private void requestLocation(String gene, Chromosome chr) {
 		
 		// We know the chromosome, but search for location of the gene
-		queueManager.addAreaRequest(gtfDataSource, new GeneRequest(gene, chr), null);
+		queueManager.addDataRequest(gtfDataSource, new GeneRequest(gene, chr), null);
 	}
 
 	public static boolean checkIfNumber(String name) {
@@ -84,9 +84,9 @@ public class GeneIndexActions implements AreaResultListener {
 
 
 	@Override
-	public void processAreaResult(AreaResult areaResult) {
-		if (areaResult instanceof GeneResult) {
-			GeneResult geneResult = (GeneResult) areaResult;
+	public void processDataResult(DataResult dataResult) {
+		if (dataResult instanceof GeneResult) {
+			GeneResult geneResult = (GeneResult) dataResult;
 			
 			if (geneResult.getGeneLocation() == null) {
 				// There isn't such gene, return after first search

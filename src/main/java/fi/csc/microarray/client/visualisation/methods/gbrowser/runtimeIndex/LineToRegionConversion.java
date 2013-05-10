@@ -8,13 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -31,24 +30,22 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
  * Results are in RegionContent objects. These objects contain:
  * <ul>
  * <li>the region
- * <li>an unique line identifier stored with key ColumnType.ID
- * <li>the original line stored with key ColumnType.VALUE
+ * <li>an unique line identifier stored with key DataType.ID
+ * <li>the original line stored with key DataType.VALUE
  * </ul> 
  * 
  * @author klemela
  *
  */
-public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
+public class LineToRegionConversion extends DataThread {
 
 	private Index index;
 
 	private LineParser parser;
 
-	public LineToRegionConversion(DataSource file, LineParser parser, Queue<AreaRequest> areaRequestQueue,
-	        AreaResultListener areaResultListener) {
-	    
-		super(areaRequestQueue, areaResultListener);
-
+	public LineToRegionConversion(URL url, LineParser parser, GBrowser browser) throws FileNotFoundException, URISyntaxException {
+		super(browser);
+			    
 		this.parser = parser;
 		
 //		try {
@@ -59,7 +56,7 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 //		}
 		
 		try {
-			this.index = new BinarySearchIndex(file, parser);
+			this.index = new BinarySearchIndex(new RandomAccessLineDataSource(url), parser);
 		
 		} catch (UnsortedDataException e) {
 			e.printStackTrace();
@@ -71,18 +68,8 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 		}
 	}
 
-	public LineToRegionConversion(URL url, LineParser parser) throws FileNotFoundException, URISyntaxException {
-		this(new RandomAccessLineDataSource(url), parser, null, null);
-	}
-
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-						
-		super.processAreaRequest(request);	
-		
-		if (request.getStatus().poison) {
-			return;
-		}
+	protected void processDataRequest(DataRequest request) {					
 		
 		if (index == null) {
 			return;
@@ -103,7 +90,7 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 		TreeMap<IndexKey, String> lines = null;
 		try {		
 					
-			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+			lines = index.getFileLines(new DataRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,15 +107,15 @@ public class LineToRegionConversion extends SingleThreadAreaRequestHandler {
 			Region region = parser.getRegion();
 			IndexKey id = entry.getKey();
 			
-			LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();			
+			LinkedHashMap<DataType, Object> valueMap = new LinkedHashMap<DataType, Object>();			
 			
-			valueMap.put(ColumnType.ID, id);
-			valueMap.put(ColumnType.VALUE, line);			
+			valueMap.put(DataType.ID, id);
+			valueMap.put(DataType.VALUE, line);			
 			RegionContent regionContent = new RegionContent(region, valueMap);
 			
 			list.add(regionContent);
 		}						
 			
-		super.createAreaResult(new AreaResult(request.getStatus(), list));
+		super.createDataResult(new DataResult(request.getStatus(), list));
 	}
 }

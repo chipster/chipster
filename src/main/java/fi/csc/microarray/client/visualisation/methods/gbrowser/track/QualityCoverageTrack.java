@@ -1,25 +1,19 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
@@ -35,18 +29,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
  */
 public class QualityCoverageTrack extends Track {
 
-	private long maxBpLength;
-	private long minBpLength;
-
 	//Contains also reverse complemented reverse reads
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(Color forwardColor, long minBpLength, long maxBpLength) {
+	public QualityCoverageTrack(Color forwardColor) {
 
 		this.forwardColor = forwardColor;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 		
 		this.setStrand(Strand.BOTH);
 	}
@@ -142,9 +131,9 @@ public class QualityCoverageTrack extends Track {
 				continue;
 			}
 
-			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
+			Cigar cigar = (Cigar) read.values.get(DataType.CIGAR);
 
-			String quality = ((String) read.values.get(ColumnType.QUALITY));
+			String quality = ((String) read.values.get(DataType.QUALITY));
 			
 			if (quality == null) {
 				continue;
@@ -186,44 +175,31 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
+		for (RegionContent content : dataResult.getContents()) {
 
-			// check that areaResult has 
+			// check that dataResult has 
 			// correct strand
-			if (getStrand() == content.values.get(ColumnType.STRAND) || 
+			if (getStrand() == content.values.get(DataType.STRAND) || 
 					getStrand() == Strand.BOTH) {
 
 				forwardReads.add(content);
 			}
 		}
-		getView().redraw();
 	}
 
 	@Override
 	public int getHeight() {
 		return 100;
 	}
-
-	@Override
-	public boolean isVisible() {
-		// visible region is not suitable
-		return (super.isVisible() &&
-				getView().getBpRegion().getLength() > minBpLength &&
-				getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-		HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-				ColumnType.ID, 
-				ColumnType.STRAND,
-				ColumnType.QUALITY,
-				ColumnType.CIGAR })));
-		return datas;
+	
+    @Override
+	public void defineDataTypes() {
+		addDataType(DataType.ID);
+		addDataType(DataType.STRAND);
+		addDataType(DataType.QUALITY);
+		addDataType(DataType.CIGAR);
 	}
 
 	/**

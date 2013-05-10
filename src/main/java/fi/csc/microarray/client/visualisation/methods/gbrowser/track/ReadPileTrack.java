@@ -3,30 +3,26 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * The read track, most important of all tracks. Shows actual content of reads using color coding.
@@ -35,11 +31,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class ReadPileTrack extends Track {
 	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
-	
-	private long maxBpLength;
-	private long minBpLength;
 
-	private AreaRequestHandler refData;
+	private DataThread refData;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 
 	private boolean highlightSNP = false;
@@ -47,12 +40,9 @@ public class ReadPileTrack extends Track {
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 
-	public ReadPileTrack(ReadpartDataProvider readpartProvider, AreaRequestHandler refData, Color fontColor, 
-			long minBpLength, long maxBpLength) {
+	public ReadPileTrack(DataThread refData, Color fontColor) {
 
 		this.refData = refData;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FILL;
 	}
 
@@ -163,7 +153,7 @@ public class ReadPileTrack extends Track {
 
 				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
 				String seq = readPart.getSequencePart();
-				Cigar cigar = (Cigar) readPart.getRead().values.get(ColumnType.CIGAR);
+				Cigar cigar = (Cigar) readPart.getRead().values.get(DataType.CIGAR);
 				if (readPart.isVisible()) {
 					if (rect.width < seq.length()) {
 						// Too little space - only show one rectangle for each read part
@@ -181,7 +171,7 @@ public class ReadPileTrack extends Track {
 						// Enough space - show color coding for each nucleotide
 
 						// Complement the read if on reverse strand
-						if ((Strand) readPart.getRead().values.get(ColumnType.STRAND) == Strand.REVERSE) {
+						if ((Strand) readPart.getRead().values.get(DataType.STRAND) == Strand.REVERSE) {
 
 							StringBuffer buf = new StringBuffer(seq.toUpperCase());
 
@@ -278,37 +268,31 @@ public class ReadPileTrack extends Track {
 		return (int) ((layer + 1) * (height + GBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent regCont : areaResult.getContents()) {
-			if (regCont.values.get(ColumnType.STRAND) == this.getStrand() && regCont.values.containsKey(ColumnType.SEQUENCE)) {
+		for (RegionContent regCont : dataResult.getContents()) {
+			if (regCont.values.get(DataType.STRAND) == this.getStrand() && regCont.values.containsKey(DataType.SEQUENCE)) {
 				this.reads.add(regCont);
 			}
 		}
 
 		// "Spy" on reference sequence data, if available
-		if (areaResult.getStatus().areaRequestHandler == refData) {
-			this.refReads.addAll(areaResult.getContents());
+		if (dataResult.getStatus().getDataThread() == refData) {
+			this.refReads.addAll(dataResult.getContents());
 		}
 	}
-
-	@Override
-	public boolean isVisible() {
-		// visible region is not suitable
-		return (super.isVisible() && getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandlers.get(0), new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
-
+	
+    @Override
+	public void defineDataTypes() {
+		addDataType(DataType.ID);
+		addDataType(DataType.SEQUENCE);
+		addDataType(DataType.STRAND);
+		addDataType(DataType.CIGAR);
+		
 		// We might also need reference sequence data
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
-			datas.put(refData, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE })));
+			addDataType(DataType.SEQUENCE);
 		}
-
-		return datas;
 	}
 
 	/**
@@ -325,7 +309,7 @@ public class ReadPileTrack extends Track {
 	/**
 	 * Disable SNP highlighting.
 	 * 
-	 * @param areaRequestHandlers
+	 * @param dataThreads
 	 */
 	public void disableSNPHiglight() {
 		// turn off highlighting mode
@@ -351,11 +335,11 @@ public class ReadPileTrack extends Track {
 
 			// we might need to reverse reference sequence
 			char[] readBases = null;
-			if (read.values.get(ColumnType.SEQUENCE) != null) { //when showing negative coordinates
+			if (read.values.get(DataType.SEQUENCE) != null) { //when showing negative coordinates
 				if (strand == Strand.REVERSE) {
-					readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+					readBases = Sequence.complement((String) read.values.get(DataType.SEQUENCE)).toCharArray();
 				} else {
-					readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+					readBases = ((String) read.values.get(DataType.SEQUENCE)).toCharArray();
 				}
 
 				int readStart = read.region.start.bp.intValue();
@@ -387,8 +371,8 @@ public class ReadPileTrack extends Track {
 		super.initializeListener();
 		
 		// Add listener for reference file
-		if (areaRequestHandlers != null && refData != null) {
-			view.getQueueManager().addResultListener(refData, this);
+		if (dataThreads != null && refData != null) {
+			view.getQueueManager().addDataResultListener(refData, this);
 		}
 	}
 }

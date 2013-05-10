@@ -5,15 +5,13 @@ import java.awt.Rectangle;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Track for placing title texts on top of other tracks.
@@ -25,7 +23,7 @@ public class StatusTitleTrack extends Track {
 	private Color color;
 	private String title;
 	private Color bgColor;
-	private Map<AreaRequestHandler, Long> queueLengths = new HashMap<AreaRequestHandler, Long>();
+	private Map<DataThread, Long> queueLengths = new HashMap<DataThread, Long>();
 	private double angle;
 	private long previousTime;
 	private long hideTime = 0;
@@ -71,6 +69,9 @@ public class StatusTitleTrack extends Track {
 					c = new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) (d * 128));
 
 					drawables.add(new RectDrawable(new Rectangle(x + 4, y + 3,  3, 3), c, c));
+					
+					//continue animation
+					view.redraw();
 				} 		
 			}
 		} else {			
@@ -91,18 +92,18 @@ public class StatusTitleTrack extends Track {
 		return max;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		AreaRequestHandler handler = areaResult.getStatus().areaRequestHandler;
+		DataThread dataThread = dataResult.getStatus().getDataThread();
 		
-		if (areaResult.getStatus().areaRequestCount >= 0) {
-			
-			if (!queueLengths.containsKey(handler)) {
-				queueLengths.put(handler, 0l);
+		if (dataResult.getStatus().getDataRequestCount() >= 0) {
+						
+			if (!queueLengths.containsKey(dataThread)) {
+				queueLengths.put(dataThread, 0l);
 			}
-			
-			Long value = areaResult.getStatus().areaRequestCount; 
-			queueLengths.put(handler, value);			 
+
+			Long value = dataResult.getStatus().getDataRequestCount(); 
+			queueLengths.put(dataThread, value);
 		}
 	}
 
@@ -110,11 +111,6 @@ public class StatusTitleTrack extends Track {
 	public int getHeight() {
 		return 10;
 	}
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        return null;
-    }
 
 	@Override
 	public String getName() {

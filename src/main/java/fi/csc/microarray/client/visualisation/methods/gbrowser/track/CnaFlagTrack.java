@@ -9,12 +9,12 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow.Sample;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class CnaFlagTrack extends Track {
@@ -25,20 +25,15 @@ public class CnaFlagTrack extends Track {
 
 	private TreeMap<IndexKey, CnaRow> rows = new TreeMap<IndexKey, CnaRow>();
 
-	private long maxBpLength;
-	private long minBpLength;
-
 	private Color gainColor = GBrowserConstants.COLOR_RED;
 	private Color lossColor = GBrowserConstants.COLOR_BLUE;
 
 	private int sampleIndex;
 
 
-	public CnaFlagTrack(Color gainColor, int sampleIndex, Color lossColor, long minBpLength, long maxBpLength) {
+	public CnaFlagTrack(Color gainColor, int sampleIndex, Color lossColor) {
 
 		this.sampleIndex = sampleIndex;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -97,22 +92,18 @@ public class CnaFlagTrack extends Track {
 		drawables.add(new RectDrawable(rect, c, c));
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent region : areaResult.getContents()) {
-			this.rows.put((IndexKey)region.values.get(ColumnType.ID), (CnaRow)region.values.get(ColumnType.VALUE));
+		for (RegionContent region : dataResult.getContents()) {
+			this.rows.put((IndexKey)region.values.get(DataType.ID), (CnaRow)region.values.get(DataType.VALUE));
 		}
-		
-		getView().redraw();
 	}
-    
-    @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }
+	
+	@Override
+	public void defineDataTypes() {
+		addDataType(DataType.ID);
+		addDataType(DataType.VALUE);
+	}    
     
     @Override 
     public int getMinHeight() {

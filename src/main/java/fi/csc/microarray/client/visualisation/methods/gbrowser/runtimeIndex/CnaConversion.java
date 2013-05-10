@@ -10,10 +10,10 @@ import java.util.TreeMap;
 import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow.Sample;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
  * @author klemela
  *
  */
-public class CnaConversion extends SingleThreadAreaRequestHandler {
+public class CnaConversion extends DataThread {
 
 	private Index index;
 
@@ -36,7 +36,7 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 
 	public CnaConversion(DataSource file, final GBrowser browser) {
 	    
-		super(null, null);
+		super(browser);
 
 		this.parser = new CnaLineParser();
 		
@@ -60,13 +60,7 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 	}
 
 	@Override
-	protected void processAreaRequest(AreaRequest request) {
-						
-		super.processAreaRequest(request);	
-		
-		if (request.getStatus().poison) {
-			return;
-		}
+	protected void processDataRequest(DataRequest request) {						
 		
 		if (index == null) {
 			return;
@@ -83,8 +77,11 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 		TreeMap<IndexKey, String> lines = null;
 		try {		
 						
-			lines = index.getFileLines(new AreaRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
+			lines = index.getFileLines(new DataRequest(requestRegion, request.getRequestedContents(), request.getStatus()));
 			
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (GBrowserException e) {
@@ -141,21 +138,21 @@ public class CnaConversion extends SingleThreadAreaRequestHandler {
 			
 			IndexKey id = lineEntry.getKey();
 			
-			LinkedHashMap<ColumnType, Object> valueMap = new LinkedHashMap<ColumnType, Object>();			
+			LinkedHashMap<DataType, Object> valueMap = new LinkedHashMap<DataType, Object>();			
 			
-			valueMap.put(ColumnType.ID, id);
-			valueMap.put(ColumnType.VALUE, row);
-			valueMap.put(ColumnType.LOSS, row.getLossFreg());
-			valueMap.put(ColumnType.GAIN, row.getGainFreg());
+			valueMap.put(DataType.ID, id);
+			valueMap.put(DataType.VALUE, row);
+			valueMap.put(DataType.LOSS, row.getLossFreg());
+			valueMap.put(DataType.GAIN, row.getGainFreg());
 			
 			//Add logRatios in general format to make it possible to view them with ScatterploTrack			
-			valueMap.put(ColumnType.FLOAT_LIST, logRatioValues);
+			valueMap.put(DataType.FLOAT_LIST, logRatioValues);
 			
 			RegionContent regionContent = new RegionContent(region, valueMap);
 			
 			list.add(regionContent);
 		}	
 		
-		super.createAreaResult(new AreaResult(request.getStatus(), list));
+		super.createDataResult(new DataResult(request.getStatus(), list));
 	}
 }
