@@ -354,7 +354,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			ySpaceFiller.setBackground(BG);
 			panel.add(ySpaceFiller, c);
 
-//			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
+			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, dateLabel.getFont().getSize() * 3));
 			datasetPanel.add(panel, BorderLayout.CENTER);
 		}
 		return datasetPanel;
