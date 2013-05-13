@@ -4,20 +4,25 @@
 # PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 1000 DEFAULT 10 (Keep miRNAs which have more reads than this.)
 
 # EK 7.7.2011
+# MK 13.05.2013 fix bug in header formats
 
 # Convert to SAM, grep miRNA name, count, filter on tag number
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 counts.command <- paste(samtools.binary, "view bam_file.bam | awk '{print $3}' | grep -v '^*' | sort -k1 | uniq -c | awk '{if($1>", count_limit, ")print $2\"\t\"$1}'> counts.tsv")
 system(counts.command)
 
+input.file <- "counts.tsv"
+dat <- read.table(input.file, header=F, sep="\t", row.names=NULL)
+colnames(dat) <- c("id", "count")
+write.table(data.frame(dat), file="miRNA-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 
 # Add column headers
-headers <- paste("id\t","count", sep="")
-input.file <- "counts.tsv"
-header.file <- "header_file"
-system(paste("echo \"", headers, "\"", ">", header.file))
-merge.command <- paste("cat", header.file, input.file, "> miRNA-counts.tsv")
-system(merge.command)
+#headers <- paste("id\t","count", sep="")
+#input.file <- "counts.tsv"
+#header.file <- "header_file"
+#system(paste("echo \"", headers, "\"", ">", header.file))
+#merge.command <- paste("cat", header.file, input.file, "> miRNA-counts.tsv")
+#system(merge.command)
 
 #headers <- paste("id\t","count", sep="")
 #system(paste("echo \"", headers, "\"", "> header.file"))
