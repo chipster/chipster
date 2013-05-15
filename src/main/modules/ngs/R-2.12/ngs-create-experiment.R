@@ -10,7 +10,8 @@
 
 # MG 21.3.2011, takes as an input a set of files with read counts. Can also take read sequence, genomic location (chr, start, end) and length 
 # MG, modified to deal with data that was aligned to other than a genome
-# MK 30.4.2013, added ability to leave out genomic location data
+# MK 30.04.2013, added ability to leave out genomic location data
+# MK 13.05.2013, fix a fatal bug dealing with files having a chr-column
 
 # Sanity check the input data
 files <- dir()
@@ -41,11 +42,15 @@ for (count in 2:number_files) {
 identifiers <- as.character(unique(identifiers))
 
 if("chr" %in% colnames(data_1)) {
-	identifier_table <- data_1[, 1:4]
-	for (count in 2:number_files) {
-		this.identifier <- identifier_table[,1]
-	}
+	identifier_table <- data_1
+	#for (count in 2:number_files) {
+	#	this.identifier <- identifier_table[,1]
+	#}
 
+	for (count in 2:number_files) {
+		identifier_table <- rbind(identifier_table, get (paste ("data_", count, sep="")))
+	}
+	
 	identifier_table <- identifier_table[!duplicated(identifier_table[,1]), ]	
 	rownames(identifier_table) <- identifier_table[,1]
 	if(length(identifiers) != nrow(identifier_table)) { stop("CHIPSTER-NOTE: An error occurred in table matching"); }
@@ -62,10 +67,22 @@ if (alignment_type == "genome") {
 		length_info <- as.numeric(end_info)-as.numeric(start_info)+1
 		sequence_info <-  extract_info [seq(4,length(extract_info),4)]
 	} else {
-		chr_info <- identifier_table[identifiers, 2] 
-		start_info <- identifier_table[identifiers, 3]
-		end_info <- identifier_table[identifiers, 4]
-		length_info <- as.numeric(identifier_table[identifiers, 4]) - as.numeric(identifier_table[identifiers, 3])
+		chr_col <- grep("^chr$", colnames(identifier_table))
+		start_col <- grep("^start$", colnames(identifier_table))
+		end_col <- grep("^end$", colnames(identifier_table))
+		
+		if(length(chr_col) > 0) {
+			chr_info <- identifier_table[identifiers, chr_col] 
+		}
+		if(length(start_col) > 0) {
+			start_info <- identifier_table[identifiers, start_col]
+		}
+		if(length(end_col) > 0) {
+			end_info <- identifier_table[identifiers, end_col]
+		}
+		if(length(start_col) > 0 && length(end_col) > 0) {
+			length_info <- as.numeric(identifier_table[identifiers, end_col]) - as.numeric(identifier_table[identifiers, start_col])
+		}
 		sequence_info <-  rep(NA, length(identifiers))
 	}
 }
