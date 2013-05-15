@@ -17,6 +17,9 @@ public class Tool extends BasicModel{
 //	private String id;
 //	private String description;
 	
+	private Label lbModule;
+	private Label lbCategory;
+	
 	private ComboBox module;
 	private ComboBox category;
 	
@@ -32,12 +35,16 @@ public class Tool extends BasicModel{
 //		grid.setHeight("100%");
 //		grid.addComponent(new Label("Tool"), 0, 0);
 		initElements();
+		addRow(lbModule, module);
+		addRow(lbCategory, category);
+		addRow(lbDescription, description);
+		
 //		grid.addComponent(name, 0, 1);
 //		
 //		grid.addComponent(id, 1,1);
 //		grid.addComponent(description, 2, 1, 2, 2);
-		grid.addComponent(module, 0, 1);
-		grid.addComponent(category, 1, 1);
+//		grid.addComponent(module, 0, 1);
+//		grid.addComponent(category, 1, 1);
 //		VerticalLayout vertical = new VerticalLayout();
 ////		vertical.setWidth("100%");
 //		vertical.addComponent(new Label("Tool"));
@@ -62,11 +69,14 @@ public class Tool extends BasicModel{
 //		description = new TextArea();
 //		description.setCaption("Description");
 //		description.setWidth("200px");
+		lbId.setValue("Tool name:");
+		lbModule = new Label("Module:");
+		lbCategory = new Label("Category:");
 		
-		module = new ComboBox("Module");
+		module = new ComboBox();
 		module.setWidth("100%");
 		
-		category = new ComboBox("Category");
+		category = new ComboBox();
 		category.setWidth("100%");
 	}
 	
