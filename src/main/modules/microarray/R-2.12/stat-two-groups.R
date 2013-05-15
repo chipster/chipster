@@ -147,7 +147,7 @@ if(meth=="t-test") {
 	p      <- rep(as.numeric(NA), nrow(dat2))
 	if (pairing=="EMPTY") {
 		for(i in 1:nrow(dat2)) {
-			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+			if( (sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1) && ( length(which(!dat2.1[i,]==mean(dat2.1[i,])))>0 || length(which(!dat2.2[i,]==mean(dat2.2[i,])))>0 ) ) {
 				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
 			}
 		}
@@ -175,7 +175,7 @@ if(meth=="t-test") {
 		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
 		
 		for(i in 1:nrow(dat2)) {
-			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+			if( (sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1) && ( length(which(!dat2.1[i,]==mean(dat2.1[i,])))>0 || length(which(!dat2.2[i,]==mean(dat2.2[i,])))>0 ) ) {
 				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,], paired=TRUE)$p.value
 			}
 		}	

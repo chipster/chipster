@@ -10,27 +10,35 @@ Differential expression analysis for multifactor experiments using the generaliz
 <br>
 <h3>Parameters</h3>
 <ul>
-<li>Apply normalization (yes, no) [yes] </li>
+<li>Apply TMM normalization (yes, no) [yes] </li>
 <li>Main effect 1 </li>
 <li>Main effect 2 </li>
 <li>Main effect 3 </li>
-<li>Treat main effect 1 as factor (yes, no) [no] </li>
-<li>Treat main effect 2 as factor (yes, no) [no] </li>
-<li>Treat main effect 3 as factor (yes, no) [no] </li>
+<li>Treat main effect 1 as factor (yes, no) [yes] </li>
+<li>Treat main effect 2 as factor (yes, no) [yes] </li>
+<li>Treat main effect 3 as factor (yes, no) [yes] </li>
 <li>Interaction (main, all) [main] </li>
+<li> Analyze only genes which have counts in at least this many samples (0-10000) [0]</li>
 </ul>
 <br>
 <h3>Details</h3>
 <p>This tool takes as input a table of raw counts from the different samples. The count file has to be associated with a phenodata file describing the experimental factors. 
 These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table and created a phenodata file for it.</p>
 <p>
-Given an input table of raw counts, the edgeR package performs statistical analysis to identify differentially expressed genomic features (genes, miRNAs,...) 
+Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA compositon bias 
+(which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other).</p>
+
+<p>
+Dispersion is estimated using Cox-Reid profile-adjusted likelyhood (CR) method. Trended dispersions are estimated prior to estimating tagwise dispersions.</p>
+
+<p>Statistical analysis to identify differentially expressed genomic features (genes, miRNAs,...) is performed
 using a multivariate regression model. A maximum of three different variables, and their interactions
  can be specified for the model. It is highly recommended to always have at least two biological replicates for each experiment condition.</p>
+ 
 <h3>Output</h3>
 <ul>
-<li>de-list-edger.tsv: Table containing the statistical testing results, including fold change and p-values.<br>
-</li>
+<li>de-list-edger.tsv: Table containing the statistical testing results, including fold change and p-values.</li>
+<li>dispersion-edger.pdf: Biological coefficient of variation plot.</li>
 </ul>
 <br>
 <h3>References</h3>

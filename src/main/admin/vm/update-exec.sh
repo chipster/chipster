@@ -537,6 +537,20 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.5.2
+compare_to_current "2.5.2"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Installing genome browser fasta files"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Updating genome browser annotations"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/contents2.txt
+
+fi
+
   
 
 #####################################

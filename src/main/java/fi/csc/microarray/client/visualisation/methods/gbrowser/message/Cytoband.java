@@ -21,6 +21,7 @@ public class Cytoband implements Comparable<Cytoband> {
 		GVAR("gvar"),
 		STALK("stalk"),
 		TIP("tip"),
+		WHITE("white"),
 		UNRECOGNIZED(null);
 
 		private String id;
@@ -52,7 +53,7 @@ public class Cytoband implements Comparable<Cytoband> {
 
 	private Stain getStain(String id) {
 		for (Stain stain : Stain.values()) {
-			if (stain.getId().equals(id)) {
+			if(stain.getId() != null && stain.getId().equals(id)) {
 				return stain;
 			}
 		}
