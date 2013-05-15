@@ -224,6 +224,10 @@ rm macs_1.4.1.deb
 # HTSeq, GPL v3 or later
 # part 1
 pip install HTSeq==0.5.4p3
+wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+chmod 755 /usr/local/bin/htseq-count_chr
+wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr.py
+
 
 ## In tools:
  
@@ -450,6 +454,7 @@ then
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
