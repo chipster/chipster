@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype)
 
 # Affymetrix normalization
 # JTT, 3.2.2009
@@ -30,6 +30,20 @@ if(chiptype=="human-1.1-ST") {
 	dat@cdfName<-"hugene11stv1hsentrezgcdf"
 	dat@annotation<-"hugene11stv1hsentrezgcdf"
 	chiptype<-"hugene11stv1hsentrezg.db"
+	usemart <- "ensembl"
+	dataset <- "hsapiens_gene_ensembl"
+}
+if(chiptype=="human-2.0-ST") {
+	dat@cdfName<-"hugene20sthsentrezgcdf"
+	dat@annotation<-"hugene20sthsentrezgcdf"
+	chiptype<-"hugene20sthsentrezg.db"
+	usemart <- "ensembl"
+	dataset <- "hsapiens_gene_ensembl"
+}
+if(chiptype=="human-2.1-ST") {
+	dat@cdfName<-"hugene21sthsentrezgcdf"
+	dat@annotation<-"hugene21sthsentrezgcdf"
+	chiptype<-"hugene21sthsentrezg.db"
 	usemart <- "ensembl"
 	dataset <- "hsapiens_gene_ensembl"
 }
@@ -161,7 +175,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 	write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 
 
-#In the case where no information was retrieved, it is tried to be extracted from BioMart
+#In the case where no information is attached to the cdf, BioMart is used
 if(chiptype=="empty" | class(a)=="try-error") {
 	gene_id <- gsub("_at", "", rownames(dat2))
 	if(length(gene_id) > 0) {
@@ -177,8 +191,5 @@ if(chiptype=="empty" | class(a)=="try-error") {
 		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	}
 }
-
-
-
 
 
