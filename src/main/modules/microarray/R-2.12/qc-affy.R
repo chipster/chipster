@@ -49,9 +49,13 @@ if (number_samples < 8) {
 	plot_symbol <- rep(plot_symbol[1:number_samples], 100)
 }
 
-
+aqc<-try(qc(dat))
+if(class(aqc)=="try-error") {
+	stop("CHIPSTER-NOTE: Simpleaffy quality analysis does not support your array");
+}
+	
 # Calculating quality control values
-aqc<-qc(dat)
+#aqc<-qc(dat)
 
 # Plotting the QC-values
 pdf(file="simpleaffy-plot.pdf", width=w/72, height=h/72)
