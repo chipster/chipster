@@ -210,12 +210,12 @@ public class SessionReplayTest extends MessagingTestBase {
 				
 				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
-				URL urlInSessionZip = dataBean.getUrl(StorageMethod.LOCAL_SESSION);
+				URL urlInSessionZip = dataBean.getUrl(StorageMethod.LOCAL_SESSION_ZIP);
 				if (urlInSessionZip == null) {
 					throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
 				}
 				URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
-				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION, url);
+				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
 
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				

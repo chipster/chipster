@@ -333,7 +333,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION, newURLs.get(bean));
+			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
 		}
 	}
 	
@@ -475,7 +475,7 @@ public class SessionSaver {
 		// write newly created URL inside session files, if exists
 		if (newURL != null) {
 			LocationType locationType = new LocationType();
-			locationType.setMethod(StorageMethod.LOCAL_SESSION.name());
+			locationType.setMethod(StorageMethod.LOCAL_SESSION_ZIP.name());
 			locationType.setUrl("file:#" + newURL.getRef());
 			dataType.getLocation().add(locationType);
 		}

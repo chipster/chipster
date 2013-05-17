@@ -135,7 +135,7 @@ public class SessionLoaderImpl1 {
 			
 			// create the data bean
 			String storageMethodString = dataType.getStorageType();
-			StorageMethod storageMethod = StorageMethod.valueOf(storageMethodString);
+			StorageMethod storageMethod = StorageMethod.valueOfConverted(storageMethodString);
 			String urlString = dataType.getUrl();
 			URL url = null;
 			try {
@@ -146,13 +146,13 @@ public class SessionLoaderImpl1 {
 			}
 			
 			DataBean dataBean = null;
-			if (storageMethod == StorageMethod.LOCAL_SESSION && !isDatalessSession) {
+			if (storageMethod == StorageMethod.LOCAL_SESSION_ZIP && !isDatalessSession) {
 
 				// data is inside the session file, use the url for the real session file 
 				try {
 					url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					dataBean = dataManager.createDataBean(name);
-					dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
+					dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
 
 				} catch (MicroarrayException e1) {
 					logger.warn("could not create data bean: " + name);
@@ -169,15 +169,15 @@ public class SessionLoaderImpl1 {
 
 					switch (storageMethod) {
 
-					case LOCAL_SESSION:
+					case LOCAL_SESSION_ZIP:
 						dataBean = dataManager.createDataBean(name);
-						dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION, url);
+						dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
 						break;
 						
-					case LOCAL_USER:
+					case LOCAL_ORIGINAL:
 					case LOCAL_TEMP:
 						dataBean = dataManager.createDataBean(name);
-						dataManager.addUrl(dataBean, StorageMethod.LOCAL_USER, url);
+						dataManager.addUrl(dataBean, StorageMethod.LOCAL_ORIGINAL, url);
 						break;
 
 					default:

@@ -179,12 +179,12 @@ public class SessionLoaderImpl2 {
 						continue;
 					}
 
-					if (StorageMethod.LOCAL_SESSION.toString().equals(location.getMethod()) && !isDatalessSession) {
+					if (StorageMethod.LOCAL_SESSION_ZIP.toString().equals(location.getMethod()) && !isDatalessSession) {
 						// data is inside the session file, use the url for the real session file 
 						url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					}
 
-					dataManager.addUrl(dataBean, StorageMethod.valueOf(location.getMethod()), url);
+					dataManager.addUrl(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
 				}
 			
 			} catch (Exception e) {

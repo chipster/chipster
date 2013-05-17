@@ -686,10 +686,10 @@ public class SwingClientApplication extends ClientApplication {
 						DataBean data = manager.createDataBean(dataSetName);
 
 						if (dataSource instanceof File) {
-							manager.addUrl(data, StorageMethod.LOCAL_USER, ((File) dataSource).toURI().toURL());
+							manager.addUrl(data, StorageMethod.LOCAL_ORIGINAL, ((File) dataSource).toURI().toURL());
 							
 						} else if (dataSource instanceof URL) {
-							manager.addUrl(data, StorageMethod.REMOTE_STORAGE, (URL)dataSource);
+							manager.addUrl(data, StorageMethod.REMOTE, (URL)dataSource);
 							
 						} else {
 							throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
