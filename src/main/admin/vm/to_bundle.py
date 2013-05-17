@@ -6,6 +6,7 @@ This tool should create bundle specifications and tar packages from input given 
 Create test files e.g with "for n in {1..3}; do dd if=/dev/urandom of=file${n} bs=1M count=1; done"
 """
 
+import argparse
 import logging
 import pprint
 import sys
@@ -148,20 +149,17 @@ def main():
     """
     chipster_path = "/tmp/opt/chipster/"
     tools_path = chipster_path + "tools/"
-    chipster_version = 2.5
 
-    test_lines = [
-        "file1",
-        "file2",
-        "file3",
-        "file4",
-        "a/file1"
-    ]
     yaml_dict = {}
-    yaml_file = "test_spec.yaml"
     file_list = []
-    symlink_list = []  # (from, to)
+    symlink_list = []
     logging.basicConfig(level=logging.DEBUG)
+
+    params = vars(parse_commandline())
+    params["archive"] = "{}-{}.t{}".format(params["name"], params["version"], params["compression"])
+    if not params["file"]:
+        params["file"] = "{}-{}.yaml".format(params["name"], params["version"])
+    logging.debug("Params: {}".format(params))
 
     # Process input files
     for file_name in sys.stdin:
@@ -169,9 +167,11 @@ def main():
         if os.path.islink(file_name):
             symlink_list.append((file_name, os.readlink(file_name)))
             logging.debug("symlink_list: %s" % symlink_list)
-        else:
+        elif os.path.isfile(file_name):
             file_list.append(process_file(file_name=file_name, file_list=file_list))
             logging.debug("file_list: %s" % file_list)
+        elif os.path.isdir(file_name):
+            logging.warning("What are you feeding me!! Directories are rubbish!!")
 
     # Create structure
     #abc:
@@ -188,14 +188,66 @@ def main():
     #            - source: 'abc/d'
     #              destination: 'd'
 
-    yaml_dict["abc"] = [
-        create_spec(version="1.0", chipster=chipster_version, deprecated="1.5", file_list=file_list,
-                    symlink_list=symlink_list, archive_name="abc.tgz")
+    yaml_dict[params["name"]] = [
+        create_spec(version=params["version"],
+                    chipster=params["platform"],
+                    deprecated=params["deprecated"],
+                    file_list=file_list,
+                    symlink_list=symlink_list,
+                    archive_name=params["archive"])
     ]
 
     pprint.pprint(yaml_dict)
-    yaml.dump(yaml_dict, open(yaml_file, "w"), default_flow_style=False)
-    create_tarball(archive_name="abc.tgz", file_list=file_list, compression="gz")
+    yaml.dump(yaml_dict, open(params["file"], "w"), default_flow_style=False)
+    create_tarball(archive_name=params["archive"],
+                   file_list=file_list,
+                   compression=params["compression"])
+
+
+# TODO: Complete this!
+def parse_commandline():
+    """
+    """
+
+    parser = argparse.ArgumentParser(description="Creation tool for Chipster bundles", epilog="Blah blah blah")
+    # group = parser.add_mutually_exclusive_group()
+    # group.add_argument("-v", "--verbose", action="store_true")
+    # group.add_argument("-q", "--quiet", action="store_true")
+    # parser.add_argument("action",
+    #                     type=str,
+    #                     help="Action to perform",
+    #                     choices=["create"])
+    #                     # , "list"])  # ,metavar="action"
+    parser.add_argument("-n", "--name",
+                        type=str,
+                        required=True,
+                        help="Bundle <name>")
+    # ,metavar="bundle name"
+    parser.add_argument("-v", "--version",
+                        type=float,
+                        required=True,
+                        help="Bundle <version>")
+    parser.add_argument("-p", "--platform",
+                        type=float,
+                        required=True,
+                        help="Chipster <version>")
+    parser.add_argument("-d", "--deprecated",
+                        type=float,
+                        help="Bundle deprecated since <version>")
+    # ,metavar="bundle name"
+    parser.add_argument("-c", "--compression",
+                        type=str,
+                        help="Bundle <compression>",
+                        choices=["gz", "bz2"],
+                        default="gz")
+    parser.add_argument("-f", "--file",
+                        type=str,
+                        help="Output <file>")
+    # ,metavar="bundle name"
+    # parser.add_argument("updates", type=str, help="Check for updates", choices=["check-update"])
+    args = parser.parse_args()
+
+    return args
 
 
 ###########
@@ -203,4 +255,7 @@ def main():
 ###########
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        logging.warning("Processing interrupted! {}".format(e))
