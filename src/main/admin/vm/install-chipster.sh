@@ -197,6 +197,17 @@ ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
+# TODO Chipster announcements
+#mkdir /opt/chipster-announcements
+#/opt/chipster-announcements/get-chipster-announcements.sh
+# chown -R chipster:chipster /opt/chipster-announcements
+
+#/etc/cron.d/chipster-announcements.crontab
+#/etc/update-motd.d/31-vm-instructions
+echo "Chipster announcements not done yet"
+exit -1
+
+
 ##############################################
 # Install external applications and datasets #
 ##############################################
@@ -212,7 +223,7 @@ rm macs_1.4.1.deb
 
 # HTSeq, GPL v3 or later
 # part 1
-pip install HTSeq==0.5.3p3
+pip install HTSeq==0.5.4p3
 
 ## In tools:
  
@@ -530,6 +541,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -545,6 +557,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Homo_sapiens.GRCh37.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/

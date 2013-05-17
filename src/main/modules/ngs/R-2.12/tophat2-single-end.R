@@ -17,9 +17,10 @@
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
-# AMS 19.6.2012 Added unzipping
+# AMS 19.6.2012 added unzipping
 # AMS 4.10.2012 added BED sorting
 # AMS 4.2.2013 added option to use no GTF
+# EK 8.5.2013 added Bowtie --no-unal to remove unaligned reads from BAM
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -40,7 +41,7 @@ path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
 command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
-command.parameters <- paste("-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded --no-unal")
 
 # optional GTF command
 command.gtf <- ""
