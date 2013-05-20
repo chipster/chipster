@@ -6,7 +6,10 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
-public class BasicModel {
+public abstract class BasicModel {
+	
+	public static final String OPTIONAL = "optional";
+	public static final String NOT_OPTIONAL = "not optional";
 	
 	protected Label lbName;
 	protected Label lbId;
@@ -44,10 +47,10 @@ public class BasicModel {
 		lbDescription = new Label("Description");
 		
 		name = new TextField();
-		name.setWidth("100px");
+		name.setWidth("200px");
 		
 		id = new TextField();
-		id.setWidth("100px");
+		id.setWidth("200px");
 		
 		description = new TextArea();
 		description.setWidth("200px");
@@ -57,5 +60,7 @@ public class BasicModel {
 		grid.addComponent(label);
 		grid.addComponent(component);
 	}
+	
+	public abstract GridLayout createUI();
 
 }

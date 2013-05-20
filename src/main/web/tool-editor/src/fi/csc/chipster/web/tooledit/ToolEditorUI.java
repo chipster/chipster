@@ -11,6 +11,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 
 import fi.csc.chipster.web.model.Tool;
+import fi.csc.microarray.description.SADLParser;
 
 /**
  * Main UI class
@@ -20,12 +21,15 @@ import fi.csc.chipster.web.model.Tool;
 public class ToolEditorUI extends UI {
 	
 	private VerticalSplitPanel vSplitPanel;
+	private ToolEditor toolEditor;
+	private TextEditor textEditor;
 
     @Override
     protected void init(VaadinRequest request) {
     	
 //    	VerticalLayout vertical = new VerticalLayout();
-    	
+    	toolEditor = new ToolEditor();
+    	textEditor = new TextEditor(this);
     	final Panel vLayout = new Panel();
     	vSplitPanel = new VerticalSplitPanel();
     	vSplitPanel.setSplitPosition(50, Unit.PERCENTAGE);
@@ -36,8 +40,8 @@ public class ToolEditorUI extends UI {
     	vLayout.setContent(vSplitPanel);
         setContent(vSplitPanel);
         
-        vSplitPanel.setFirstComponent(new ToolEditor());
-        vSplitPanel.setSecondComponent(new TextEditor());
+        vSplitPanel.setFirstComponent(toolEditor);
+        vSplitPanel.setSecondComponent(textEditor);
         
 //        Button button = new Button("Click Me ");
 //        button.addClickListener(new Button.ClickListener() {
@@ -46,5 +50,13 @@ public class ToolEditorUI extends UI {
 //            }
 //        });
 //        vSplitPanel.addComponent(button);
+    }
+    
+    public ToolEditor getToolEditor() {
+    	return toolEditor;
+    }
+    
+    public TextEditor getTextEditor() {
+    	return textEditor;
     }
 }
