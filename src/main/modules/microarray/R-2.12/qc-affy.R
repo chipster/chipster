@@ -8,9 +8,9 @@
 
 
 # Affymetrix quality control
-# JTT 9.6.2006
-#
-# modified 31.12.2009 by MG
+# JTT:  9.6.2006
+# MG: 31.12.2009
+# MK: 20.05.2013
 
 #image.width<-600
 #image.height<-600
@@ -49,9 +49,13 @@ if (number_samples < 8) {
 	plot_symbol <- rep(plot_symbol[1:number_samples], 100)
 }
 
+if(is.na(unique(rownames(mm(dat))))) {
+	stop("CHIPSTER-NOTE: The simpleaffy quality analysis tool has not been designed for PM-only arrays. Please use another quality assessment method");
+}
+
 aqc<-try(qc(dat))
 if(class(aqc)=="try-error") {
-	stop("CHIPSTER-NOTE: Simpleaffy quality analysis does not support your array");
+	stop("CHIPSTER-NOTE: Your array type is not supported by the simpleaffy quality analysis tool. Please use another quality assessment method");
 }
 	
 # Calculating quality control values
