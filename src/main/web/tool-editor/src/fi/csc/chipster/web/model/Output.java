@@ -1,6 +1,5 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
@@ -16,7 +15,8 @@ public class Output extends BasicModel{
 	private ComboBox type;
 	private TextField type2;
 	
-	public GridLayout createOutputUI() {
+	@Override
+	public GridLayout createUI() {
 //		grid.addComponent(new Label("Output"), 0, 0);
 		initElements();
 		addRow(lbType2, type2);
@@ -35,12 +35,29 @@ public class Output extends BasicModel{
 		type2 = new TextField();
 		
 		optional = new ComboBox();
-		optional.addItem("not optional");
-		optional.addItem("optional");
+		optional.addItem(NOT_OPTIONAL);
+		optional.addItem(OPTIONAL);
 		optional.setNullSelectionAllowed(false);
 		type = new ComboBox();
 		type.setWidth("100px");
 		type.addItem("Single file");
+	}
+	
+	public GridLayout createUIWithData(fi.csc.microarray.description.SADLDescription.Output output) {
+		createUI();
+		fillWithData(output);
+		return grid;
+	}
+	
+	private void fillWithData(fi.csc.microarray.description.SADLDescription.Output output) {
+		id.setValue(output.getName().getID());
+		name.setValue(output.getName().getDisplayName());
+		description.setValue(output.getComment());
+		if (output.isOptional()) {
+			optional.select(OPTIONAL);
+		} else {
+			optional.select(NOT_OPTIONAL);
+		}
 	}
 
 }

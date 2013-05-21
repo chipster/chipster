@@ -1,15 +1,10 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.client.ui.layout.Margins;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+
+import fi.csc.microarray.description.SADLDescription;
 
 public class Tool extends BasicModel{
 
@@ -23,7 +18,8 @@ public class Tool extends BasicModel{
 	private ComboBox module;
 	private ComboBox category;
 	
-	public GridLayout createToolUI() {
+	@Override
+	public GridLayout createUI() {
 		
 //		GridLayout grid = new GridLayout(3, 3);
 //		grid.setImmediate(true);
@@ -59,6 +55,12 @@ public class Tool extends BasicModel{
 		return grid;
 	}
 	
+	public GridLayout createUIwithData(SADLDescription sadlDescription) {
+		createUI();
+		fillWithData(sadlDescription);
+		return grid;
+	}
+	
 	private void initElements() {
 //		name = new TextField("Display name");
 //		name.setWidth("100%");
@@ -81,5 +83,9 @@ public class Tool extends BasicModel{
 	}
 	
 	
-
+	private void fillWithData(SADLDescription sadlDescription) {
+		id.setValue(sadlDescription.getName().getID());
+		name.setValue(sadlDescription.getName().getDisplayName());
+		description.setValue(sadlDescription.getComment());
+	}
 }
