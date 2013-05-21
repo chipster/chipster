@@ -13,7 +13,10 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,6 +73,7 @@ import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -186,6 +190,8 @@ public abstract class ClientApplication {
     protected Configuration configuration;
 
 	private String initialisationWarnings = "";
+	
+	private String announcementText = null;
 
 	public ClientApplication() {
 		this(false, null);
@@ -206,6 +212,9 @@ public abstract class ClientApplication {
 
 		try {
 
+			// Fetch announcements
+			fetchAnnouncements();
+			
 			// Initialise modules
 			ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
@@ -832,5 +841,33 @@ public abstract class ClientApplication {
 		return initialisationWarnings;
 	}
 
+	private void fetchAnnouncements() {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				InputStream input = null;
+				try {
+					
+					URL url = new URL("http://chipster.csc.fi/announcements/client.txt");
+
+					URLConnection connection = url.openConnection();
+					connection.setUseCaches(false);
+					connection.setConnectTimeout(10*1000);
+					connection.setReadTimeout(10*1000);
+					input = connection.getInputStream();
+					announcementText = org.apache.commons.io.IOUtils.toString(input);
+				} catch (Exception e) {
+					// could fail for many reasons, not critical
+				} finally {
+					org.apache.commons.io.IOUtils.closeQuietly(input);
+				}
+			}
+		}).start();
+	}
+	
+	public String getAnnouncementText() {
+		return this.announcementText;
+	}
 	
 }

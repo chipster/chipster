@@ -549,6 +549,10 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/contents2.txt
 
+  echo "** Updating HTSeq"
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
+
+
 fi
 
   
