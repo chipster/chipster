@@ -1,6 +1,7 @@
 package fi.csc.chipster.web.list;
 
-import com.google.gwt.dev.util.collect.HashMap;
+import java.util.HashMap;
+// import com.google.gwt.dev.util.collect.HashMap;
 
 public enum Type {
 
