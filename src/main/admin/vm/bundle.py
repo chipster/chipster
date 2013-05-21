@@ -195,10 +195,11 @@ def are_updates_available():
     return updated_bundles, personal_bundles, deprecated_bundles
 
 
+# TODO: Complete this!
 def print_available_bundles():
-    # TODO: Complete this!
     """
     """
+
     def complement_version_id(tup):
         """
         Complement version number given for visual effects
@@ -223,11 +224,7 @@ def create_tree(dst):
     try:
         os.makedirs(os.path.dirname(dst))
     except OSError as e:
-        # Tree exists
-        if e.errno == 17:
-            logging.warning(e)
-        else:
-            raise
+        handle_file_error(e)
     logging.info("Created tree: %s" % os.path.dirname(dst))
 
 
@@ -274,14 +271,7 @@ def remove_file(dst):
         try:
             os.removedirs(os.path.dirname(dst))
         except OSError as e:
-            # Tree doesn't exist
-            if e.errno == 2:
-                logging.warning(e)
-            # Tree not empty
-            elif e.errno == 39:
-                logging.warning(e)
-            else:
-                raise
+            handle_file_error(e)
         logging.info("Cleaned tree: %s" % os.path.dirname(dst))
 
     logging.debug("remove_file(): %s" % dst)
@@ -289,11 +279,7 @@ def remove_file(dst):
         os.remove(dst)
         remove_tree(dst)
     except OSError as e:
-        # File doesn't exist
-        if e.errno == 2:
-            logging.warning(e)
-        else:
-            raise
+        handle_file_error(e)
     logging.info("Removed: %s" % dst)
 
 
@@ -342,10 +328,7 @@ def transform_bundle(bundle, o_version, n_version):
         try:
             shutil.move(refine_path(m[0]), refine_path(m[1]))
         except (OSError, IOError) as e:
-            if e.errno == 2:
-                logging.warning(e)
-            else:
-                raise
+            handle_file_error(e)
 
     for a in add:
         logging.debug(a)
@@ -458,10 +441,12 @@ def create_symlink(src, dst):
     logging.debug("source: %s" % src)
     logging.debug("destination: %s" % dst)
 
-    r_dst = refine_path(dst)
-    create_tree(r_dst)
-    os.symlink(src, r_dst)
-    logging.info("Symlinked: %s -> %s" % (refine_path(src), r_dst))
+    create_tree(src)
+    try:
+        os.symlink(dst, src)
+    except OSError as e:
+        handle_file_error(e)
+    logging.info("Symlinked: %s -> %s" % (src, dst))
 
 
 def calculate_checksum(filename):
@@ -554,17 +539,17 @@ def diff_bundle(name, version_a, version_b):
     "Calculate" differences between versions of bundle
     NOTE! Should not be dependent on chronology of versions, strictly from version a->b where (a != b)
     What we want to find:
-        - added file (checksum in b and not in a)
-        - removed file (checksum in a and not in b)
-        - moved file (checksum in a and in b, destination in a not equal to that in b)
+        * added file (checksum in b and not in a)
+        * removed file (checksum in a and not in b)
+        * moved file (checksum in a and in b, destination in a not equal to that in b)
     """
 
     def get_checksums(bundle):
         """
         Extract file destination and checksum from bundle contents and return as a set((destination, checksum))
         :type bundle: dict
-        :rtype: list(tuple)
-        Returns: (source, destination, checksum)
+        :rtype: list(source, destination, checksum)
+        :param bundle: Bundle dictionary
         """
         # logging.debug(bundle)
         checksums = []
@@ -608,6 +593,24 @@ def diff_bundle(name, version_a, version_b):
     return ([get_file_for_checksum(a, checksums_b) for a in added],
             [get_file_for_checksum(r, checksums_a) for r in removed],
             [get_move_for_checksum(m, checksums_a, checksums_b) for m in moved])
+
+
+def handle_file_error(e):
+    """
+    :type e: Exception
+    :param e: Exception to handle
+    """
+    # File/Tree doesn't exist
+    if e.errno == 2:
+        logging.warning(e)
+    # File/Tree exists
+    elif e.errno == 17:
+        logging.warning(e)
+    # Tree not empty
+    elif e.errno == 39:
+        logging.warning(e)
+    else:
+        raise
 
 
 ###########
