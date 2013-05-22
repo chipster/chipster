@@ -89,8 +89,8 @@ public class DataManager {
 				name = "REMOTE";
 			} else if ("LOCAL_USER".equals(name)) {
 				name = "LOCAL_ORIGINAL";
-			} else if ("LOCAL_SESSION_ZIP".equals(name)) {
-				name = "LOCAL_SESSION";
+			} else if ("LOCAL_SESSION".equals(name)) {
+				name = "LOCAL_SESSION_ZIP";
 			}
 
 			return valueOf(name);
