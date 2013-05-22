@@ -4,11 +4,11 @@
 # OUTPUT normalized-lme.tsv: normalized-lme.tsv 
 # PARAMETER column.groups: column.groups TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
 # PARAMETER column.random: column.random TYPE METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
+# PARAMETER random.noise: random.noise TYPE DECIMAL FROM 0 TO 10000 DEFAULT 0 (Random noise added to gene expression values. If set, please use very small values like 0.1*10^20)
 
-# Linear Mixed Model
-# 
-# JTT 12.7.2006
-# Modified to use nlme library on 19.10.2006
+# JTT: 12.7.2006 Crated linear Mixed Model
+# JTT: 19.10.2006: Modified to use nlme library
+# MK: 22.05.2013: Noise factor parameter added. Nlme  
 
 #column.groups<-"group"
 #column.random<-"age"
@@ -34,15 +34,31 @@ random<-phenodata[,grep(column.random, colnames(phenodata))]
 
 # Sanity check
 if(length(unique(random))==1) {
-   stop("You only have one level in variable random. Specify at least two levels for the random effect.")
+   stop("CHIPSTER-NOTE: You only have one level in variable random. Specify at least two levels for the random effect")
 }
 
 # Fits a linear mixed model for every gene, and saves residuals into a table
 # Assumes no interaction between random and groups
+# Possibility to add random noise to gene expression estimates added
 dat3<-dat2
 for(i in 1:nrow(dat3)) {
-   gene<-as.vector(as.numeric(dat3[i,]))
-   dat3[i,]<-resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML"))
+	gene <- as.vector(as.numeric(dat3[i,]))
+	gene <- gene + rnorm(length(gene), 0, random.noise)
+
+	residual.counter = 0
+	class(residuals) <- "try-error"
+	while(residual.counter < 10 & class(residuals) == "try-error") {
+		residuals <- try(resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML")), silent=T)
+		residual.counter <- residual.counter +1
+	}
+	if(class(residuals) == "try-error") { 
+		stop("CHIPSTER-NOTE: LME failed to estimate random effects")
+	} else {
+		dat3[i,] <- residuals;	
+	}
+	
+	if(i %% 1000 == 0) { print(i)}
+	#dat3[i,] <- resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML"))
 }
 
 # Writes a table of results
