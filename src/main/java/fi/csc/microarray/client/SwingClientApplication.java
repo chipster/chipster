@@ -1694,6 +1694,11 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
 			URL sessionURL = findMatchingSessionURL(sessions, selectedFile);
+			if (sessionURL == null) {
+				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
+				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
+				return;
+			}
 			loadSessionImpl(null, sessionURL, true, false);		
 
 		} catch (Exception e) {
