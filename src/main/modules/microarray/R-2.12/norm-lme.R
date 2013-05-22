@@ -4,11 +4,12 @@
 # OUTPUT normalized-lme.tsv: normalized-lme.tsv 
 # PARAMETER column.groups: column.groups TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
 # PARAMETER column.random: column.random TYPE METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
-# PARAMETER random.noise: random.noise TYPE DECIMAL FROM 0 TO 10000 DEFAULT 0 (Random noise added to gene expression values. If set, please use very small values like 0.1*10^20)
+# PARAMETER error.handle: "Error handling method" TYPE [remove: remove, na: NA, add.noise: add.noise] DEFAULT remove (Should genes for which effect estimation fails be removed, marked with NAs or analysed by adding noise to them) 
+# PARAMETER random.noise: random.noise TYPE DECIMAL FROM 0 TO 10000 DEFAULT 0.00001 (Random noise added to gene expression values. Use very small values like 0.00001 or less)
 
 # JTT: 12.7.2006 Crated linear Mixed Model
 # JTT: 19.10.2006: Modified to use nlme library
-# MK: 22.05.2013: Noise factor parameter added. Nlme  
+# MK: 22.05.2013: Noise factor parameter added 
 
 #column.groups<-"group"
 #column.random<-"age"
@@ -39,26 +40,47 @@ if(length(unique(random))==1) {
 
 # Fits a linear mixed model for every gene, and saves residuals into a table
 # Assumes no interaction between random and groups
-# Possibility to add random noise to gene expression estimates added
+# If estimation fails for a particular gene, return NAs
 dat3<-dat2
+error.vec <- rep(0, nrow(dat3))
 for(i in 1:nrow(dat3)) {
 	gene <- as.vector(as.numeric(dat3[i,]))
-	gene <- gene + rnorm(length(gene), 0, random.noise)
-
-	residual.counter = 0
-	class(residuals) <- "try-error"
-	while(residual.counter < 10 & class(residuals) == "try-error") {
-		residuals <- try(resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML")), silent=T)
-		residual.counter <- residual.counter +1
-	}
+	residuals <- try(resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML")), silent=T)
 	if(class(residuals) == "try-error") { 
-		stop("CHIPSTER-NOTE: LME failed to estimate random effects")
+		dat3[i,] <- rep(NA, length(gene));	
 	} else {
-		dat3[i,] <- residuals;	
+		dat3[i,] <- residuals;
+		error.vec[i] <- 1
 	}
-	
-	if(i %% 1000 == 0) { print(i)}
-	#dat3[i,] <- resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML"))
+}
+
+# Keep genes for which batch effects were estimated
+if(error.handle == "remove") {
+	dat3 <- dat3[which(error.vec==1),]
+	calls <- calls[which(error.vec==1),]
+}
+
+# Re-analyse genes for which batch effects could not be estimated by adding random noise to their gene expression estimates 
+if(error.handle == "add.noise") {
+	for(i in which(error.vec == 0)) {
+		residual.counter = 0
+		class(residuals) <- "try-error"
+		while(residual.counter < 1000 & class(residuals) == "try-error") {
+			gene <- as.vector(as.numeric(dat2[i,]))
+			gene <- gene + rnorm(length(gene), 0, random.noise)
+			residuals <- try(resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML")), silent=T)
+			residual.counter <- residual.counter +1
+			print(paste(i, residual.counter))
+		}
+		
+		if(class(residuals) == "try-error") { 
+			print(i)
+			stop("LME failed to estimate random effects. Please choose another error handling method or increse noise-level")
+		} else {
+			dat3[i,] <- residuals;	
+		}
+		#dat3[i,] <- resid(lme(fixed=gene~groups, random=gene~1|random, control=list(maxIter=10000), method="REML"))
+	}
 }
 
 # Writes a table of results
