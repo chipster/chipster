@@ -2,9 +2,9 @@
 # INPUT chip.txt: chip.txt TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER method: allel.calling.method TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allel calling method. Choosing Illumina, allels calls given in the input are accepted. For CRLMM, columns X Raw and Y Raw should be available in the file)
+# PARAMETER method: "Allel calling method" TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allel calling method. Choosing Illumina, allels calls given in the input are accepted. For CRLMM, columns X Raw and Y Raw should be available in the file)
 # PARAMETER cdfName: cdfName TYPE [default: default, human1mduov3b: human1mduov3b, human1mv1c: human1mv1c, human370quadv3c: human370quadv3c, human370v1c: human370v1c, human550v3b: human550v3b, human610quadv1b: human610quadv1b, human650v3a: human650v3a, human660quadv1a: human660quadv1a, humanomni1quadv1b: humanomni1quadv1b, humanomniexpress12v1b: humanomniexpress12v1b] DEFAULT default (Name of the description file to be used in normalization, by defualt obtained from data)
-# PARAMETER SNRMin: signal-to-noise.ratio TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the CRLMM-function)
+# PARAMETER SNRMin: "Signal-to-noise ratio" TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the CRLMM-function)
 
 # Illumina SNP array normalization
 # JTT 22.10.2008

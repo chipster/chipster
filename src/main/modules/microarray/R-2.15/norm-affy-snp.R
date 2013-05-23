@@ -4,7 +4,7 @@
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER version: CRLMM-version TYPE [oligo: oligo, crlmm: crlmm] DEFAULT crlmm (Use CRLMM function from the package oligo, i.e. the old version, or from the package crlmm, i.e. the new version)
 # PARAMETER cdfName: cdfName TYPE [default: default, genomewidesnp5: genomewidesnp5, genomewidesnp6: genomewidesnp6] DEFAULT default (Name of the description file to be used in normalization, by defualt obtained from the CEL files. Affects only the function of the crlmm-package)
-# PARAMETER SNRMin: signal-to-noise.ratio TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the function of the crlmm-package)
+# PARAMETER SNRMin: "Signal-to-noise ratio" TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the function of the crlmm-package)
 
 # JTT: 24.4.2008 created
 # MG: 26.10.2009 to cope with Affymetrix Human SNP 5.0 and 6.0 arrays
