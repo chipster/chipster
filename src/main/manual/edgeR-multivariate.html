@@ -25,8 +25,12 @@ Differential expression analysis for multifactor experiments using the generaliz
 <p>This tool takes as input a table of raw counts from the different samples. The count file has to be associated with a phenodata file describing the experimental factors. 
 These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table and created a phenodata file for it.</p>
 <p>
-Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA compositon bias 
-(which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other).</p>
+You can choose to ignore in statistical testing those genes which are not expressed in either experimental group, or are expressed in very low levels (less than 5 counts). 
+These genes have little chance of showing significant evidence for differential expression, and removing them reduces the severity of multiple testing adjustment of p-values.
+</p>
+<p>
+Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA compositon effect, 
+which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other.</p>
 
 <p>
 Dispersion is estimated using Cox-Reid profile-adjusted likelyhood (CR) method. Trended dispersions are estimated prior to estimating tagwise dispersions.</p>

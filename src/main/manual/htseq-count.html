@@ -15,7 +15,7 @@ Given mapped reads in a BAM file, this tool counts how many reads map to each ge
 
 <ul>
 <li>Organism (human hg19.68, mouse mm9.68, rn4.68) [human hg19.68]</li>
-<li>Chromosome names in mt BAM file look like (chr1, 1) [chr1]</li>
+<li>Chromosome names in my BAM file look like (chr1, 1) [chr1]</li>
 <li>Does the alignment file contain paired-end data (yes, no) [no]</li>
 <li>Was the data produced with a strand-specific RNA-seq protocol (yes, no, reverse) [no]</li>
 <li>Mode to handle reads overlapping more than one gene (union, intersection-strict, intersection-nonempty) [union]</li>
@@ -40,7 +40,7 @@ There are three different modes to handle reads which overlap with more than one
 By default all aligned reads are mapped to genes, but users can choose to filter them by mapping quality.
 </p>
 <p>
-You can add genomic location information to the count table. This enables the edgeR and DESeq tools to create a BED file of the differentially expressed genes, which enables you to visualize them easily in the genome browser.
+You can add genomic location information to the count table. This enables the edgeR and DESeq tools to create a BED file of the differentially expressed genes, which allows you to visualize them easily in the genome browser.
 </p>
 
 <h3>Output</h3>
