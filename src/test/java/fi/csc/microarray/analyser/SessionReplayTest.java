@@ -1026,7 +1026,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void loadExampleSession(File url) {
+		public void loadExampleSession(String url) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 

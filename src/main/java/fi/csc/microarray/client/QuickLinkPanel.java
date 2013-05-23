@@ -52,15 +52,15 @@ public class QuickLinkPanel extends JPanel {
 		exampleLinkAlternative = null;
 
 		try {
-			final File[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone);
-			if (urls != null) {
+			final String[] names = Session.getSession().getPrimaryModule().getExampleSessionNameSuffixes(application.isStandalone);
+			if (names != null) {
 
-				if (urls.length == 1) {
+				if (names.length == 1) {
 					exampleLink = LinkUtil.createLink("Example session", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadExampleSession(urls[0]);
+								application.loadExampleSession(names[0]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}
@@ -68,12 +68,12 @@ public class QuickLinkPanel extends JPanel {
 					});
 				}
 				
-				if (urls.length == 2) {
+				if (names.length == 2) {
 					exampleLink = LinkUtil.createLink("microarray", new AbstractAction() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadExampleSession(urls[0]);
+								application.loadExampleSession(names[0]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}
@@ -84,7 +84,7 @@ public class QuickLinkPanel extends JPanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							try {
-								application.loadExampleSession(urls[1]);
+								application.loadExampleSession(names[1]);
 							} catch (Exception exception) {
 								application.reportException(exception);
 							}

@@ -1690,10 +1690,10 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadExampleSession(File selectedFile) {
+	public void loadExampleSession(String namePostfix) {
 		try {
 			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-			URL sessionURL = findMatchingSessionURL(sessions, selectedFile);
+			URL sessionURL = findMatchingSessionURL(sessions, namePostfix, false);
 			if (sessionURL == null) {
 				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
 				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
@@ -1737,7 +1737,7 @@ public class SwingClientApplication extends ClientApplication {
 			if (remote) {
 				try {
 					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-					sessionURL = findMatchingSessionURL(sessions, selectedFile);
+					sessionURL = findMatchingSessionURL(sessions, selectedFile.getName(), true);
 					if (sessionURL == null) {
 						throw new RuntimeException();
 					}
@@ -2018,7 +2018,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			try {
 				String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-				sessionURL = findMatchingSessionURL(sessions, selectedFile);
+				sessionURL = findMatchingSessionURL(sessions, selectedFile.getName(), true);
 				if (sessionURL == null) {
 					throw new RuntimeException();
 				}
@@ -2039,10 +2039,10 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(String[][] sessions, File selectedFile) throws MalformedURLException {
+	private URL findMatchingSessionURL(String[][] sessions, String name, boolean nameIncludesPath) throws MalformedURLException {
 		URL sessionURL = null;
 		for (int i = 0; i < sessions[0].length; i++) {
-			if (selectedFile.getName().equals(sessions[0][i])) {
+			if (sessions[0][i] != null && (nameIncludesPath ? sessions[0][i].equals(name) : sessions[0][i].endsWith(name))) {
 				sessionURL = new URL(sessions[1][i]);
 				break;
 			}

@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -79,9 +78,9 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "microarray-example-session.zip";
-	private static final String EXAMPLE_SESSION_FILE_NGS = "ngs-example-session.zip";
-	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "standalone-example-session.zip";
+	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "Microarray example session";
+	private static final String EXAMPLE_SESSION_FILE_NGS = "NGS example session";
+	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "Standalone example session";
 	
 	public static class TypeTags {
 		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
@@ -280,13 +279,13 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
+	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException {
 		
 		if (isStandalone) {
-			return new File[] { new File(EXAMPLE_SESSION_FILE_STANDALONE) };
+			return new String[] { EXAMPLE_SESSION_FILE_STANDALONE };
 		}
 		
-		return new File[] { new File(EXAMPLE_SESSION_FILE_MICROARRAY), new File(EXAMPLE_SESSION_FILE_NGS)};
+		return new String[] { EXAMPLE_SESSION_FILE_MICROARRAY, EXAMPLE_SESSION_FILE_NGS};
 	}
 
 	@Override

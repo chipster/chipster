@@ -126,7 +126,7 @@ public interface Module {
 	 * @return url or null
 	 * @throws MalformedURLException
 	 */
-	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException;
+	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException;
 
 	/**
 	 * If module is bundled with a repository of workflows, returns them.

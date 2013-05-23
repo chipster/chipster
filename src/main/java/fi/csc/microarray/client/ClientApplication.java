@@ -128,7 +128,7 @@ public abstract class ClientApplication {
 	public abstract File saveWorkflow();
 	public abstract File openWorkflow();
 	public abstract void loadSession(boolean remote);
-	public abstract void loadExampleSession(File file);
+	public abstract void loadExampleSession(String namePostfix);
 	public abstract void restoreSessionFrom(File file);
 	public abstract void saveSession(final boolean quit, final SessionSavingMethod savingMethod);
 	public abstract void manageRemoteSessions();

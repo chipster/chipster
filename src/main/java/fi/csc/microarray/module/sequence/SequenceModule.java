@@ -1,7 +1,6 @@
 package fi.csc.microarray.module.sequence;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;
@@ -144,8 +143,8 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public File[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
-		return new File[] {  new File(EXAMPLE_SESSION_FILE) };
+	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException {
+		return new String[] { EXAMPLE_SESSION_FILE };
 	}
 
 	@Override
