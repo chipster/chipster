@@ -15,7 +15,7 @@
 <li>Phenodata column for group effects</li>
 <li>Phenodata column for random effects</li>
 <li>Error handling method</li>
-<li>random.noise</li>
+<li>Standard deviation to be used in generating random noise</li>
 </ul>
 
 <h3>Details</h3>
@@ -31,7 +31,7 @@ These residuals are the corrected expression values that can then be further ana
 <!-- A full random slope and
 intercept model implementation is currently under work.-->
 
-<p>For some genes, especially if having only few replicates per batch, fitting of linear mixed-effects models failes. At present, these 
+<p>For some genes, especially if having only few replicates per batch, fitting of linear mixed-effects models fails. At present, these 
 genes can be handled in three ways. First, failing genes can be removed from the data. Second, expression values of failing genes can be
 indicated using NAs in the output. Third, a small amount of random noise can be added to the authentic expression values of the failing 
 genes prior the fit. If using the last option, random noise is modelled from a normal distribution which mean is zero and standard deviation 
