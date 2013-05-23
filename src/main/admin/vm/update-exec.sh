@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.5.1
+LATEST_VERSION=2.5.2
 
 # Exit immediately if some command fails
 set -e
@@ -51,6 +51,15 @@ function compare_to_current()
   CURRENT_COMPARED=0
 }
 
+# Make sure user has sudo rights
+echo ""
+echo "Some parts of the update may need root privileges. These parts are run using sudo."
+echo "Testing permission to use sudo..."
+if [ "$(sudo whoami)" != 'root' ]; then echo 'You need sudo rights to run the update script, aborting.'; 
+exit 1; fi
+echo "Sudo ok"
+echo ""
+
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
 
@@ -65,11 +74,14 @@ if [ $CURRENT_COMPARED -eq 0 ] ; then
   echo "Already at latest version, nothing needs to be updated"
   exit
 fi
+echo "Will update to version $LATEST_VERSION"
+echo ""
+
 
 # Confirm update
-echo "Will update to version $LATEST_VERSION"
 echo "Update will start next. It can take several hours, depending on your network connection"
-echo "Do you wish to proceed?"
+echo "IMPORTANT: Stop the Chipster service before proceeding with the update: 'service chipster stop'"
+echo "Do you wish to proceed with the update?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) echo "** Update started"; break;;
@@ -552,6 +564,12 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Updating HTSeq"
   ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
 
+  sudo pip install HTSeq==0.5.4p3
+  sudo wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+  sudo chmod 755 /usr/local/bin/htseq-count_chr
+  sudo wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr.py
+
+  
 
 fi
 
@@ -613,3 +631,4 @@ echo "It is recommended to inspect the directory and then to remove it"
    
 # We are done
 echo "Update completed successfully"
+echo "Remember to start the Chipster service: 'service chipster start'"
