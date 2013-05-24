@@ -78,9 +78,9 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "Microarray example session";
-	private static final String EXAMPLE_SESSION_FILE_NGS = "NGS example session";
-	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "Standalone example session";
+	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "Example sessions/Microarray example session";
+	private static final String EXAMPLE_SESSION_FILE_NGS = "Example sessions/NGS example session";
+	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "Example sessions/Standalone example session";
 	
 	public static class TypeTags {
 		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
@@ -279,7 +279,7 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException {
+	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
 		
 		if (isStandalone) {
 			return new String[] { EXAMPLE_SESSION_FILE_STANDALONE };

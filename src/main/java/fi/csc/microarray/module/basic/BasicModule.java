@@ -133,7 +133,7 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException {
+	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
 		return null;
 	}
 

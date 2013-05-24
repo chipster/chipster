@@ -129,6 +129,7 @@ import fi.csc.microarray.util.Strings;
  */
 public class SwingClientApplication extends ClientApplication {
 
+	private static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
@@ -1517,7 +1518,7 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
 		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions[0]);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
 		sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1690,10 +1691,10 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadExampleSession(String namePostfix) {
+	public void loadExampleSession(String name) {
 		try {
 			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-			URL sessionURL = findMatchingSessionURL(sessions, namePostfix, false);
+			URL sessionURL = findMatchingSessionURL(sessions, name);
 			if (sessionURL == null) {
 				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
 				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
@@ -1737,7 +1738,7 @@ public class SwingClientApplication extends ClientApplication {
 			if (remote) {
 				try {
 					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-					sessionURL = findMatchingSessionURL(sessions, selectedFile.getName(), true);
+					sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 					if (sessionURL == null) {
 						throw new RuntimeException();
 					}
@@ -2018,7 +2019,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			try {
 				String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-				sessionURL = findMatchingSessionURL(sessions, selectedFile.getName(), true);
+				sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 				if (sessionURL == null) {
 					throw new RuntimeException();
 				}
@@ -2039,10 +2040,10 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(String[][] sessions, String name, boolean nameIncludesPath) throws MalformedURLException {
+	private URL findMatchingSessionURL(String[][] sessions, String name) throws MalformedURLException {
 		URL sessionURL = null;
 		for (int i = 0; i < sessions[0].length; i++) {
-			if (sessions[0][i] != null && (nameIncludesPath ? sessions[0][i].equals(name) : sessions[0][i].endsWith(name))) {
+			if (sessions[0][i] != null && sessions[0][i].equals(name)) {
 				sessionURL = new URL(sessions[1][i]);
 				break;
 			}

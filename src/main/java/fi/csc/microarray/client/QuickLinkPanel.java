@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +51,7 @@ public class QuickLinkPanel extends JPanel {
 		exampleLinkAlternative = null;
 
 		try {
-			final String[] names = Session.getSession().getPrimaryModule().getExampleSessionNameSuffixes(application.isStandalone);
+			final String[] names = Session.getSession().getPrimaryModule().getExampleSessionNames(application.isStandalone);
 			if (names != null) {
 
 				if (names.length == 1) {

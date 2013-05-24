@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
@@ -43,56 +44,54 @@ public class DerbyMetadataServer {
 	private static final String METADATA_BACKUP_PREFIX="filebroker-metadata-db-backup-";
 
 	private static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
+	private static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
 
-	private static String SCHEMA = "chipster";
-	private static String SESSION_DBTABLE = "sessions";
-	private static String FILE_DBTABLE = "files";
-	private static String BELONGS_TO_DBTABLE = "belongs_to";
-	private static String SPECIAL_USERS_DBTABLE = "special_users";
 	
 	private static String[][] SQL_CREATE_TABLES = new String[][] {
 		{ 
-			SESSION_DBTABLE,
-			"CREATE TABLE " + SCHEMA + ". " + SESSION_DBTABLE + " (" +
+			"sessions",
+			"CREATE TABLE chipster.sessions (" +
 					"uuid VARCHAR(200) PRIMARY KEY,  " +
 					"name VARCHAR(200),  " +
 				"username VARCHAR(200))" 
 		},
 		{
-			FILE_DBTABLE,
-			"CREATE TABLE " + SCHEMA + ". " + FILE_DBTABLE + " (" +
+			"sessions",
+			"CREATE TABLE chipster.sessions (" +
 					"uuid VARCHAR(200) PRIMARY KEY,  " +
 					"size BIGINT,  " +
 					"created TIMESTAMP,  " +
 					"last_accessed TIMESTAMP)"
 		},
 		{
-			BELONGS_TO_DBTABLE,
-			"CREATE TABLE " + SCHEMA + ". " + BELONGS_TO_DBTABLE + " (" + 
+			"sessions",
+			"CREATE TABLE chipster.sessions (" + 
 					"session_uuid VARCHAR(200)," +
 					"file_uuid VARCHAR(200))"
 		},
 		{
-			SPECIAL_USERS_DBTABLE,
-			"CREATE TABLE " + SCHEMA + ". " + SPECIAL_USERS_DBTABLE + " (" + 
-					"username VARCHAR(200) PRIMARY KEY)"
+			"sessions",
+			"CREATE TABLE chipster.sessions (" + 
+					"username VARCHAR(200) PRIMARY KEY," + 
+					"show_as_folder VARCHAR(200))"
 		}
 	};
 
-	private static String SQL_INSERT_SESSION  = "INSERT INTO " + SCHEMA + "." + SESSION_DBTABLE + " (name, username, uuid) VALUES (?, ?, ?)";
-	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, uuid FROM " + SCHEMA + "." + SESSION_DBTABLE + " WHERE username = ? OR username in (SELECT username FROM " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + ")";
-	private static String SQL_DELETE_SESSION  = "DELETE FROM " + SCHEMA + "." + SESSION_DBTABLE + " WHERE uuid = ?";
 	
-	private static String SQL_INSERT_FILE  = "INSERT INTO " + SCHEMA + "." + FILE_DBTABLE + " (uuid, size, created, last_accessed) VALUES (?, ?, ?, ?)";
-	private static String SQL_UPDATE_FILE_ACCESSED  = "UPDATE " + SCHEMA + "." + FILE_DBTABLE + " SET last_accessed = ? WHERE uuid = ?";
-	private static String SQL_SELECT_FILES_TO_BE_ORPHANED  = "SELECT uuid from " + SCHEMA + "." + FILE_DBTABLE + " WHERE uuid IN (SELECT file_uuid from " + SCHEMA + "." + BELONGS_TO_DBTABLE + " WHERE session_uuid = ?) AND uuid NOT IN (SELECT file_uuid from " + SCHEMA + "." + BELONGS_TO_DBTABLE + " WHERE NOT session_uuid = ?)";
-	private static String SQL_DELETE_FILE  = "DELETE FROM " + SCHEMA + "." + FILE_DBTABLE + " WHERE uuid = ?";
+	private static String SQL_INSERT_SESSION  = "INSERT INTO chipster.sessions (name, username, uuid) VALUES (?, ?, ?)";
+	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, CAST(null AS VARCHAR(200)) as folder, uuid FROM CHIPSTER.SESSIONS WHERE username = ? UNION SELECT name, show_as_folder as folder, uuid FROM CHIPSTER.SESSIONS,  CHIPSTER.SPECIAL_USERS WHERE CHIPSTER.SESSIONS.username = CHIPSTER.SPECIAL_USERS.username";
+	private static String SQL_DELETE_SESSION  = "DELETE FROM chipster.sessions WHERE uuid = ?";
 	
-	private static String SQL_INSERT_BELONGS_TO  = "INSERT INTO " + SCHEMA + "." + BELONGS_TO_DBTABLE + " (session_uuid, file_uuid) VALUES (?, ?)";
-	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM " + SCHEMA + "." + BELONGS_TO_DBTABLE + " WHERE session_uuid = ?";
+	private static String SQL_INSERT_FILE  = "INSERT INTO chipster.files (uuid, size, created, last_accessed) VALUES (?, ?, ?, ?)";
+	private static String SQL_UPDATE_FILE_ACCESSED  = "UPDATE chipster.files SET last_accessed = ? WHERE uuid = ?";
+	private static String SQL_SELECT_FILES_TO_BE_ORPHANED  = "SELECT uuid from chipster.files WHERE uuid IN (SELECT file_uuid from chipster.belongs_to WHERE session_uuid = ?) AND uuid NOT IN (SELECT file_uuid from chipster.belongs_to WHERE NOT session_uuid = ?)";
+	private static String SQL_DELETE_FILE  = "DELETE FROM chipster.files WHERE uuid = ?";
 	
-	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " (username) VALUES (?)";
-	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM " + SCHEMA + "." + SPECIAL_USERS_DBTABLE + " WHERE username = ?";
+	private static String SQL_INSERT_BELONGS_TO  = "INSERT INTO chipster.belongs_to (session_uuid, file_uuid) VALUES (?, ?)";
+	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM chipster.belongs_to WHERE session_uuid = ?";
+	
+	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO chipster.special_users (username, show_as_folder) VALUES (?, ?)";
+	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM chipster.special_users WHERE username = ?";
 
 	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 	
@@ -158,7 +157,7 @@ public class DerbyMetadataServer {
 			
 			String table = SQL_CREATE_TABLES[i][0];
 		
-			ResultSet tables = connection.getMetaData().getTables(null, SCHEMA.toUpperCase(), table.toUpperCase(), new String[] { "TABLE" });
+			ResultSet tables = connection.getMetaData().getTables(null, "CHIPSTER", table.toUpperCase(), new String[] { "TABLE" });
 			if (!tables.next()) {
 				
 				// table does not exist, create it
@@ -168,8 +167,8 @@ public class DerbyMetadataServer {
 				tableCount++;
 				
 				// populate table, if needed
-				if (table.equals(SPECIAL_USERS_DBTABLE)) {
-					addSpecialUser(DEFAULT_EXAMPLE_SESSION_OWNER);
+				if (table.equals("special_users")) {
+					addSpecialUser(DEFAULT_EXAMPLE_SESSION_OWNER, DEFAULT_EXAMPLE_SESSION_FOLDER);
 				}
 			}
 			
@@ -196,8 +195,26 @@ public class DerbyMetadataServer {
 		LinkedList<String> names = new LinkedList<String>();
 		LinkedList<String> uuids = new LinkedList<String>();
 		
+		// go through files and add them, creating folders when needed
+		HashSet<String> folders = new HashSet<>();
 		while (rs.next()) {
-			names.add(rs.getString("name"));
+			String name = rs.getString("name");
+			if (rs.getString("folder") != null) {
+				
+				// need to make this file show inside a folder
+				String folder = rs.getString("folder");
+				
+				// folder not yet seen, make entry for it first
+				if (!folders.contains(folder)) {
+					folders.add(folder);
+					names.add(folder + "/");
+					uuids.add("");
+				}
+				
+				// prefix file name with folder
+				name =  folder + "/" + name;
+			}
+			names.add(name);
 			uuids.add(rs.getString("uuid"));
 		}
 
@@ -255,9 +272,10 @@ public class DerbyMetadataServer {
 	 * @param username special username to add
 	 * @throws SQLException
 	 */
-	public void addSpecialUser(String username) throws SQLException {
+	public void addSpecialUser(String username, String showAsFolder) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_INSERT_SPECIAL_USER);
 		ps.setString(1, username);
+		ps.setString(2, showAsFolder);
 		ps.execute();
 	}
 	

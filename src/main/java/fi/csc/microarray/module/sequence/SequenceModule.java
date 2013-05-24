@@ -143,7 +143,7 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNameSuffixes(boolean isStandalone) throws MalformedURLException {
+	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
 		return new String[] { EXAMPLE_SESSION_FILE };
 	}
 
