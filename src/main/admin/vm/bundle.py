@@ -267,7 +267,7 @@ def remove_file(dst):
         """
         Nicely delete only empty directories along path
         """
-        logging.debug("remove_tree(): %s" % dst)
+        logging.debug("remove_tree({})".format(dst))
         try:
             os.removedirs(os.path.dirname(dst))
         except OSError as e:
@@ -367,8 +367,25 @@ def implode_package(pkg_name, pkg_values):
 def explode_package(pkg_name, pkg_values):
     """
     """
-    logging.debug("pkg_name: %s" % pkg_name)
-    logging.debug("pkg_values: %s" % pkg_values)
+
+    def copy_file(src, dst):
+        """
+        """
+        logging.debug("copy_file({})".format(src, dst))
+
+        # Copy file into place
+        create_tree(dst)
+        if os.stat(os.path.dirname(src)).st_dev == os.stat(os.path.dirname(dst)).st_dev:
+            logging.debug("Using link() to copy file!")
+            os.link(src, dst)
+        else:
+            logging.debug("Using copy2() to copy file!")
+            shutil.copy2(src, dst)
+
+        # shutil.move(src, dst)
+        logging.info("Copied: %s -> %s" % (src, dst))
+
+    logging.debug("explode_package({})".format(pkg_name, pkg_values))
 
     # Download archive
     (f, hm) = urllib.request.urlretrieve(pkg_name)
@@ -397,26 +414,12 @@ def explode_package(pkg_name, pkg_values):
 
     # Loop through files
     for file in pkg_values["files"]:
-        src = file["source"]
-        dst = file["destination"]
-        checksum = file["checksum"]
-
-        logging.debug("source: %s" % src)
-        logging.debug("destination: %s" % dst)
-        logging.debug("checksum: %s" % checksum)
-
-        src = tmp_dir + src
-        dst = refine_path(dst)
-
-        # Move file into place
-        create_tree(dst)
-        shutil.move(src, dst)
-        logging.info("Moved: %s -> %s" % (src, dst))
+        copy_file(tmp_dir + file["source"], refine_path(file["destination"]))
 
     # Loop through symlinks
     if "symlinks" in pkg_values:
         for symlink in pkg_values["symlinks"]:
-            create_symlink(symlink["source"], symlink["destination"])
+            create_symlink(refine_path(symlink["source"]), symlink["destination"])
 
     # Destructively delete temporary directory w/ contents
     shutil.rmtree(tmp_dir)
@@ -537,41 +540,39 @@ def parse_commandline():
 def diff_bundle(name, version_a, version_b):
     """
     "Calculate" differences between versions of bundle
-    NOTE! Should not be dependent on chronology of versions, strictly from version a->b where (a != b)
+    NOTE! Should *not* be dependent on chronology of versions, strictly from version 'a'->'b' where ('a' != 'b')
     What we want to find:
-        * added file (checksum in b and not in a)
-        * removed file (checksum in a and not in b)
-        * moved file (checksum in a and in b, destination in a not equal to that in b)
+        * added file (checksum in 'b' and not in 'a')
+        * removed file (checksum in 'a' and not in 'b')
+        * moved file (checksum in 'a' and in 'b', destination in 'a' not equal to that in 'b')
     """
 
     def get_checksums(bundle):
         """
         Extract file destination and checksum from bundle contents and return as a set((destination, checksum))
         :type bundle: dict
-        :rtype: list(source, destination, checksum)
+        :rtype: tuple(source, destination, checksum)
         :param bundle: Bundle dictionary
         """
         # logging.debug(bundle)
-        checksums = []
-
         for pkg in bundle["packages"].values():
             for file in pkg["files"]:
-                checksums.append((file["source"], file["destination"], file["checksum"]))
+                yield (file["source"], file["destination"], file["checksum"])
 
-        return checksums
-
-    def get_file_for_checksum(checksum, tup):
+    def find_file_from_checksum(checksum, tup):
         """
+        Over simplified find functionality
+        NOTE! This assumes their are *no* duplicate checksums
         """
         return [s[:2] for s in tup if s[2] == checksum][0]
 
-    def get_move_for_checksum(checksum, tuple_a, tuple_b):
+    def find_move_from_checksum(checksum, tuple_a, tuple_b):
         """
         Takes: checksum, (source, destination, checksum), (source, destination, checksum)
         Returns: (old_destination, new_destination), for file with matching checksum
         """
-        old = get_file_for_checksum(checksum, tuple_a)[1]
-        new = get_file_for_checksum(checksum, tuple_b)[1]
+        old = find_file_from_checksum(checksum, tuple_a)[1]
+        new = find_file_from_checksum(checksum, tuple_b)[1]
 
         return old, new
 
@@ -590,9 +591,9 @@ def diff_bundle(name, version_a, version_b):
     # logging.debug("added: %s"% added)
     # logging.debug("moved: %s"% moved)
 
-    return ([get_file_for_checksum(a, checksums_b) for a in added],
-            [get_file_for_checksum(r, checksums_a) for r in removed],
-            [get_move_for_checksum(m, checksums_a, checksums_b) for m in moved])
+    return ([find_file_from_checksum(a, checksums_b) for a in added],
+            [find_file_from_checksum(r, checksums_a) for r in removed],
+            [find_move_from_checksum(m, checksums_a, checksums_b) for m in moved])
 
 
 def handle_file_error(e):
