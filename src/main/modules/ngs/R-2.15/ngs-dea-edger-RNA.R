@@ -181,6 +181,7 @@ if (dim(significant_results)[1] == 0) {
 	cat("No statistically significantly expressed genes were found.", file="edger-log.txt")
 }
 
+
 # Make histogram of p-values with overlaid significance cutoff and uniform distribution
 pdf (file="p-value-plot-edger.pdf")
 hist(results_table$PValue, breaks=100, col="blue",
