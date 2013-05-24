@@ -5,8 +5,9 @@ import java.util.HashMap;
 
 public enum Type {
 
-	GENERIC (0, "GENERIC");
-	
+	GENERIC (0, "GENERIC"),
+	GENE_EXPRS (1, "GENE_EXPRS");
+
 	static HashMap<String, Integer> map = new HashMap<String, Integer>();
 	static {
 		for(int i = 0; i < Type.values().length; i++) {

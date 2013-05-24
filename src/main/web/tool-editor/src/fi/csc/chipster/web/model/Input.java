@@ -59,7 +59,7 @@ public class Input extends BasicModel{
 		type2.select(input.getType().getName());
 		id.setValue(input.getName().getID());
 		name.setValue(input.getName().getDisplayName());
-		description.setValue(input.getComment());
+		description.setValue(getValue(input.getComment()));
 		if (input.isOptional()) {
 			optional.select(OPTIONAL);
 		} else {

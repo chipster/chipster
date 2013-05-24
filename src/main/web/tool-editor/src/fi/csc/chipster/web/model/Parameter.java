@@ -77,16 +77,18 @@ public class Parameter extends BasicModel{
 			fillTypeTableWithData(parameter.getSelectionOptions());
 			addTypeTable();
 		}
-		id.setValue(parameter.getName().getID());
-		name.setValue(parameter.getName().getDisplayName());
-		description.setValue(parameter.getComment());
+		id.setValue(getValue(parameter.getName().getID()));
+		name.setValue(getValue(parameter.getName().getDisplayName()));
+		description.setValue(getValue(parameter.getComment()));
 		if (parameter.isOptional()) {
 			optional.select(OPTIONAL);
 		} else {
 			optional.select(NOT_OPTIONAL);
 		}
-		if(parameter.getDefaultValues().length == 1)
-			defaultValue.setValue(parameter.getDefaultValue());
+		if(parameter.getDefaultValues().length >= 1)
+			defaultValue.setValue(parameter.getDefaultValues()[0]);
+		maxValue.setValue(getValue(parameter.getTo()));
+		minValue.setValue(getValue(parameter.getFrom()));
 	}
 	
 	private void initTypeTable() {

@@ -15,6 +15,7 @@ import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLParser.ParseException;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class TextEditor extends VerticalLayout{
 	private static final long serialVersionUID = -7074541336842177583L;
@@ -41,10 +42,11 @@ public class TextEditor extends VerticalLayout{
 			public void buttonClick(ClickEvent event) {
 				String text = takeHeader(getText());
 				
-				SADLParser parser = new SADLParser();
+				ChipsterSADLParser parser = new ChipsterSADLParser();
 				try {
 					SADLDescription description = parser.parse(text);
 //					System.out.println(description);
+					root.getToolEditor().removeAllComponents();
 					root.getToolEditor().addTool(description);
 					List<Input> inputs = description.inputs();
 					for(int i = 0 ; i < inputs.size(); i++) {
@@ -85,11 +87,12 @@ public class TextEditor extends VerticalLayout{
 		int i = 0;
 		array[i] = array[i].trim();
 //		System.out.println(array.length + " " + array[0]);
-		while (array[i].startsWith("TOOL") || array[i].startsWith("INPUT") 
-				|| array[i].startsWith("OUTPUT") || array[i].startsWith("PARAMETER")) {
+		while (i < array.length && (array[i].startsWith("TOOL") || array[i].startsWith("INPUT") 
+				|| array[i].startsWith("OUTPUT") || array[i].startsWith("PARAMETER"))) {
 			output.append(array[i] + NEW_LINE);
 			i++;
-			array[i] = array[i].trim();
+			if(i < array.length)
+				array[i] = array[i].trim();
 		}
 //		System.out.println("output:" + output);
 		return output.toString();

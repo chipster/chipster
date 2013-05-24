@@ -61,6 +61,10 @@ public abstract class BasicModel {
 		grid.addComponent(component);
 	}
 	
+	protected String getValue(String value) {
+		return value == null || value.length() == 0 ? "" : value;
+	}
+	
 	public abstract GridLayout createUI();
 
 }

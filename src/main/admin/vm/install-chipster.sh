@@ -109,12 +109,13 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
+# libnetcdf6, for R
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
   ## Runtime:
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk libnetcdf6
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -196,6 +197,18 @@ ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
+# TODO Chipster announcements
+#mkdir /opt/chipster-announcements
+#/opt/chipster-announcements/get-chipster-announcements.sh
+# chown -R chipster:chipster /opt/chipster-announcements
+
+#/etc/cron.d/chipster-announcements.crontab
+#/etc/update-motd.d/31-vm-instructions
+#/etc/update-motd.d/32-announcements
+echo "Chipster announcements not done yet"
+exit -1
+
+
 ##############################################
 # Install external applications and datasets #
 ##############################################
@@ -211,7 +224,11 @@ rm macs_1.4.1.deb
 
 # HTSeq, GPL v3 or later
 # part 1
-pip install HTSeq==0.5.3p3
+pip install HTSeq==0.5.4p3
+wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+chmod 755 /usr/local/bin/htseq-count_chr
+wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr.py
+
 
 ## In tools:
  
@@ -438,6 +455,7 @@ then
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
@@ -529,6 +547,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -544,6 +563,7 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Homo_sapiens.GRCh37.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/

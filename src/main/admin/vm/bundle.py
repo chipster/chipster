@@ -133,6 +133,9 @@ def get_compatible_bundle_versions(name):
 
 def get_available_bundle_version(name, version):
     """
+    :type name: str
+    :type version: str
+    :rtype: list(version)
     """
     retval = [elem for elem in get_available_bundle(name) if elem["version"] == version]
     logging.debug("get_available_bundle_version: %s" % retval)
@@ -141,6 +144,11 @@ def get_available_bundle_version(name, version):
 
 def is_bundle_deprecated(name, version):
     """
+    Check if bundle + version is deprecated
+
+    :type name: str
+    :type version: str
+    :rtype: bool
     """
     retval = [elem["version"] for elem in get_available_bundle(name)
               if "deprecated" in elem and float(elem["deprecated"]) < chipster_version]
@@ -187,10 +195,11 @@ def are_updates_available():
     return updated_bundles, personal_bundles, deprecated_bundles
 
 
+# TODO: Complete this!
 def print_available_bundles():
-    # TODO: Complete this!
     """
     """
+
     def complement_version_id(tup):
         """
         Complement version number given for visual effects
@@ -215,11 +224,7 @@ def create_tree(dst):
     try:
         os.makedirs(os.path.dirname(dst))
     except OSError as e:
-        # Tree exists
-        if e.errno == 17:
-            logging.warning(e)
-        else:
-            raise
+        handle_file_error(e)
     logging.info("Created tree: %s" % os.path.dirname(dst))
 
 
@@ -253,36 +258,28 @@ def implode_bundle(name, version):
     logging.info("Bundle %s/%s has imploded!" % (name, version))
 
 
-def remove_tree(dst):
-    """
-    Nicely delete only empty directories along path
-    """
-    try:
-        os.removedirs(os.path.dirname(dst))
-    except OSError as e:
-        # Tree doesn't exist
-        if e.errno == 2:
-            logging.warning(e)
-        # Tree not empty
-        elif e.errno == 39:
-            logging.warning(e)
-        else:
-            raise
-    logging.info("Cleaned tree: %s" % os.path.dirname(dst))
-
-
 def remove_file(dst):
     """
     Remove file
     """
+
+    def remove_tree(dst):
+        """
+        Nicely delete only empty directories along path
+        """
+        logging.debug("remove_tree(): %s" % dst)
+        try:
+            os.removedirs(os.path.dirname(dst))
+        except OSError as e:
+            handle_file_error(e)
+        logging.info("Cleaned tree: %s" % os.path.dirname(dst))
+
+    logging.debug("remove_file(): %s" % dst)
     try:
         os.remove(dst)
+        remove_tree(dst)
     except OSError as e:
-        # File doesn't exist
-        if e.errno == 2:
-            logging.warning(e)
-        else:
-            raise
+        handle_file_error(e)
     logging.info("Removed: %s" % dst)
 
 
@@ -296,13 +293,25 @@ def transform_bundle(bundle, o_version, n_version):
         add = explode package(s) containing new files, w/ network traffic needed
     """
 
-    def get_package_name_values(tup, bundle, version):
-        logging.debug("get_package_name_values:", tup, bundle, version)
+    def get_package_owning_file(tup, bundle, version):
+        """
+        Get the first package that owns a matching file
+        """
+        logging.debug("get_package_owning_file: %s, %s, %s" % (tup, bundle, version))
         for key, values in get_available_bundle_version(bundle, version)["packages"].items():
             for file in values["files"]:
                 if file["source"] == tup[0] and file["destination"] == tup[1]:
-                    logging.debug("found: %s" % (key, file["source"], file["destination"]))
+                    logging.debug("found: %s, %s, %s" % (key, file["source"], file["destination"]))
                     return key, values
+
+    def get_symlinks_for_bundle(name, version):
+        """
+        Get all symlinks belonging to bundle + version
+        """
+        for x in get_available_bundle_version(name, version)["packages"].values():
+            if "symlinks" in x:
+                for y in x["symlinks"]:
+                    yield y
 
     add, rm, mv = diff_bundle(bundle, o_version, n_version)
 
@@ -312,33 +321,24 @@ def transform_bundle(bundle, o_version, n_version):
 
     for r in rm:
         logging.debug(r)
-        dst = r[1]
-        if not os.path.isabs(dst):
-            dst = installation_path + dst
-        remove_file(dst)
-        remove_tree(dst)
+        remove_file(refine_path(r[1]))
 
     for m in mv:
         logging.debug(m)
-        src = m[0]
-        dst = m[1]
-        if not os.path.isabs(src):
-            src = installation_path + src
-        if not os.path.isabs(dst):
-            dst = installation_path + dst
         try:
-            shutil.move(src, dst)
+            shutil.move(refine_path(m[0]), refine_path(m[1]))
         except (OSError, IOError) as e:
-            if e.errno == 2:
-                logging.warning(e)
-            else:
-                raise
+            handle_file_error(e)
 
     for a in add:
         logging.debug(a)
-        pkg_name, pkg_values = get_package_name_values(a, bundle, n_version)
+        pkg_name, pkg_values = get_package_owning_file(a, bundle, n_version)
         logging.debug(pkg_name, pkg_values)
         explode_package(pkg_name, pkg_values)
+
+    # Symlinks, are always removed and added
+    [remove_file(refine_path(s["destination"])) for s in get_symlinks_for_bundle(bundle, o_version)]
+    [create_symlink(s["source"], refine_path(s["destination"])) for s in get_symlinks_for_bundle(bundle, n_version)]
 
     logging.info("Bundle %s %s has transformed into %s!" % (bundle, o_version, n_version))
 
@@ -360,11 +360,7 @@ def implode_package(pkg_name, pkg_values):
         logging.debug("destination: %s" % dst)
         logging.debug("checksum: %s" % checksum)
 
-        if not os.path.isabs(dst):
-            dst = installation_path + dst
-
-        remove_file(dst)
-        remove_tree(dst)
+        remove_file(refine_path(dst))
     logging.info("Package %s has imploded!" % pkg_name)
 
 
@@ -410,8 +406,7 @@ def explode_package(pkg_name, pkg_values):
         logging.debug("checksum: %s" % checksum)
 
         src = tmp_dir + src
-        if not os.path.isabs(dst):
-            dst = installation_path + dst
+        dst = refine_path(dst)
 
         # Move file into place
         create_tree(dst)
@@ -421,18 +416,7 @@ def explode_package(pkg_name, pkg_values):
     # Loop through symlinks
     if "symlinks" in pkg_values:
         for symlink in pkg_values["symlinks"]:
-            src = symlink["source"]
-            dst = symlink["destination"]
-
-            logging.debug("source: %s" % src)
-            logging.debug("destination: %s" % dst)
-
-            if not os.path.isabs(dst):
-                dst = installation_path + dst
-
-            create_tree(dst)
-            os.symlink(src, dst)
-            logging.info("Symlinked: %s -> %s" % (src, dst))
+            create_symlink(symlink["source"], symlink["destination"])
 
     # Destructively delete temporary directory w/ contents
     shutil.rmtree(tmp_dir)
@@ -440,9 +424,36 @@ def explode_package(pkg_name, pkg_values):
     logging.info("Package %s has exploded!" % pkg_name)
 
 
+def refine_path(path):
+    """
+    Refine the path as best as possible
+
+    :type path: str
+    :rtype: str
+    """
+    new_path = path
+    if not os.path.isabs(path):
+        new_path = installation_path + path
+    return new_path
+
+
+def create_symlink(src, dst):
+    logging.debug("source: %s" % src)
+    logging.debug("destination: %s" % dst)
+
+    create_tree(src)
+    try:
+        os.symlink(dst, src)
+    except OSError as e:
+        handle_file_error(e)
+    logging.info("Symlinked: %s -> %s" % (src, dst))
+
+
 def calculate_checksum(filename):
     """
     Calculate SHA256 checksum
+    :type filename: str
+    :rtype : str
     """
     with open(filename, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
@@ -477,6 +488,7 @@ def parse_commandline():
         """
         Return bundle name / version tuple
         """
+        name = None
         version = None
         if len(string.split("/")) > 1:
             name, version = string.split("/")
@@ -527,15 +539,17 @@ def diff_bundle(name, version_a, version_b):
     "Calculate" differences between versions of bundle
     NOTE! Should not be dependent on chronology of versions, strictly from version a->b where (a != b)
     What we want to find:
-        - added file (checksum in b and not in a)
-        - removed file (checksum in a and not in b)
-        - moved file (checksum in a and in b, destination in a not equal to that in b)
+        * added file (checksum in b and not in a)
+        * removed file (checksum in a and not in b)
+        * moved file (checksum in a and in b, destination in a not equal to that in b)
     """
 
     def get_checksums(bundle):
         """
         Extract file destination and checksum from bundle contents and return as a set((destination, checksum))
-        Returns: (source, destination, checksum)
+        :type bundle: dict
+        :rtype: list(source, destination, checksum)
+        :param bundle: Bundle dictionary
         """
         # logging.debug(bundle)
         checksums = []
@@ -579,6 +593,24 @@ def diff_bundle(name, version_a, version_b):
     return ([get_file_for_checksum(a, checksums_b) for a in added],
             [get_file_for_checksum(r, checksums_a) for r in removed],
             [get_move_for_checksum(m, checksums_a, checksums_b) for m in moved])
+
+
+def handle_file_error(e):
+    """
+    :type e: Exception
+    :param e: Exception to handle
+    """
+    # File/Tree doesn't exist
+    if e.errno == 2:
+        logging.warning(e)
+    # File/Tree exists
+    elif e.errno == 17:
+        logging.warning(e)
+    # Tree not empty
+    elif e.errno == 39:
+        logging.warning(e)
+    else:
+        raise
 
 
 ###########

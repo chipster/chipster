@@ -52,7 +52,7 @@ public class Output extends BasicModel{
 	private void fillWithData(fi.csc.microarray.description.SADLDescription.Output output) {
 		id.setValue(output.getName().getID());
 		name.setValue(output.getName().getDisplayName());
-		description.setValue(output.getComment());
+		description.setValue(getValue(output.getComment()));
 		if (output.isOptional()) {
 			optional.select(OPTIONAL);
 		} else {
