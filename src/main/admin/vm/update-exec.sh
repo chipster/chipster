@@ -569,7 +569,15 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   sudo chmod 755 /usr/local/bin/htseq-count_chr
   sudo wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr.py
 
-  
+  echo "** Installing announcements"
+  sudo mkdir /opt/chipster-announcements
+  sudo chown chipster /opt/chipster-announcements
+  wget -O /opt/chipster-announcements/get-chipster-announcements.sh http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates/misc/get-chipster-announcements.sh  
+  sudo chmod 755 /opt/chipster-announcements/get-chipster-announcements.sh
+  sudo wget -O /etc/update-motd.d/32-announcements http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates/misc/32-announcements
+  sudo chmod 755 /etc/update-motd.d/32-announcements      
+  sudo wget -O /etc/cron.d/chipster-announcements http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates/misc/chipster-announcements.crontab
+  sudo chmod 644 /etc/cron.d/chipster-announcements
 
 fi
 

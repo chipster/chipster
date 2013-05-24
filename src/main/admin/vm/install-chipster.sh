@@ -204,6 +204,7 @@ touch ${CHIP_PATH}/auto-config-to-be-run
 
 #/etc/cron.d/chipster-announcements.crontab
 #/etc/update-motd.d/31-vm-instructions
+#/etc/update-motd.d/32-announcements
 echo "Chipster announcements not done yet"
 exit -1
 
