@@ -144,6 +144,32 @@ smart.install.packages(bioconductor.package="pegas", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="labdsv", mirror=repo.bioc)
 
 
+# SNP 5.0 / 6.0
+smart.install.packages(bioconductor.package="crlmm", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="oligo", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping50k.hind240", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping50k.xba240", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping250k.nsp", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping250k.sty", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.genomewidesnp.5", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.genomewidesnp.6", mirror=repo.bioc)
+
+smart.install.packages(bioconductor.package="genomewidesnp6Crlmm", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="genomewidesnp5Crlmm", mirror=repo.bioc)
+
+smart.install.packages(bioconductor.package="human1mduov3bCrlmm", mirror=repo.bioc)          #Illumina
+smart.install.packages(bioconductor.package="human1mv1cCrlmm", mirror=repo.bioc)             #Illumina
+smart.install.packages(bioconductor.package="human370quadv3cCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="human370v1cCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human550v3bCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human610quadv1bCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="human650v3aCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human660quadv1aCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="humanomni1quadv1bCrlmm", mirror=repo.bioc)      #Illumina
+smart.install.packages(bioconductor.package="humanomniexpress12v1bCrlmm", mirror=repo.bioc)  #Illumina
+
+
+
 # Install non-repo packages
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/NoWaves_0.4.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz")

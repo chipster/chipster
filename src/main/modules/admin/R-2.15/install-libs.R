@@ -50,3 +50,30 @@ biocLite("labdsv")
 
 biocLite(c('CGHregions', 'CGHcall', 'CGHbase', 'GOstats', 'impute'))
 
+
+# SNP 5.0 / 6.0
+biocLite("crlmm")
+biocLite("oligo")
+biocLite("pd.mapping50k.hind240")
+biocLite("pd.mapping50k.xba240")
+biocLite("pd.mapping250k.nsp")
+biocLite("pd.mapping250k.sty")
+biocLite("pd.genomewidesnp.5")
+biocLite("pd.genomewidesnp.6")
+
+biocLite("genomewidesnp6Crlmm")
+biocLite("genomewidesnp5Crlmm")
+
+biocLite("human1mduov3bCrlmm")          #Illumina
+biocLite("human1mv1cCrlmm")             #Illumina
+biocLite("human370quadv3cCrlmm")        #Illumina
+biocLite("human370v1cCrlmm")            #Illumina
+biocLite("human550v3bCrlmm")            #Illumina
+biocLite("human610quadv1bCrlmm")        #Illumina
+biocLite("human650v3aCrlmm")            #Illumina
+biocLite("human660quadv1aCrlmm")        #Illumina
+biocLite("humanomni1quadv1bCrlmm")      #Illumina
+biocLite("humanomniexpress12v1bCrlmm")  #Illumina
+
+
+

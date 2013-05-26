@@ -581,6 +581,21 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
 fi
 
+
+# 2.6.0
+compare_to_current "2.6.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Updating R-2.15.1"
+  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+fi
+
+
+
+
+
   
 
 #####################################
