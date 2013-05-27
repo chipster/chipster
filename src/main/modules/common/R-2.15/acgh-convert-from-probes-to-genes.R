@@ -6,7 +6,7 @@
 # PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-24
+# 2013-04-26
 
 file <- 'aberrations.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -21,7 +21,10 @@ genes <- read.table(file.path(chipster.tools.path, 'CanGEM', 'Ensembl_Genes', pa
 colnames(genes) <- tolower(colnames(genes))
 colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
 colnames(genes)[colnames(genes)=='band'] <- 'cytoband'
-colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.per.Mb'
+if ('cnv.per.mb' %in% colnames(genes)) {
+  colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.proportion'
+  genes$cnv.proportion <- round(genes$cnv.proportion / 1000000, digits=2)
+}
 
 # remove genes from chromosomes not present in the array data
 genes <- genes[genes$chromosome %in% dat$chromosome,]
