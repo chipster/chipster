@@ -8,6 +8,8 @@ install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, p
 
 install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", c('flexmix', 'R2HTML', 'snowfall'))
 
+install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="png")
+
 
 # zinba and dependencies
 install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, c('multicore','doMC','foreach','quantreg','R.utils'))
