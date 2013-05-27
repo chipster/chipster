@@ -8,7 +8,14 @@ import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 /**
  * SADL description for one analysis tool. Describes analysis tools so 
- * that they can be used in Chipster context.
+ * that they can be used in Chipster context. This class provides the API
+ * to work with descriptions. Use SADLParser to generate instances of this
+ * class from textual SADL code and toString method of this class to produce
+ * textual SADL code. See SADLParserTest for example usage.
+ * 
+ * @see #toString()
+ * @see SADLParser
+ * @see SADLParserTest
  * 
  * @author Aleksi Kallio
  * 
@@ -23,7 +30,8 @@ public class SADLDescription {
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 
 	/**
-	 * Name for some description entity. Name consists of two major parts:
+	 * Name for some description entity, such as input or parameter. Name consists 
+	 * of two major parts:
 	 * identifier and display name. The latter should be used when parameter
 	 * name is shown to an end-user.
 	 * <p>
@@ -31,8 +39,6 @@ public class SADLDescription {
 	 * can describe a set of names that begin with a certain prefix and at
 	 * the same time end with a certain postfix.
 	 * 
-	 * @author Aleksi Kallio
-	 *
 	 */
 	public static class Name {
 				
@@ -136,6 +142,12 @@ public class SADLDescription {
 	}
 	
 
+	/**
+	 * Common superclass for all major things in the description,
+	 * such as inputs and parameters.
+	 * Entity has a name and can be optional
+	 *
+	 */
 	public static class Entity {
 		
 		private Name name;
@@ -172,6 +184,11 @@ public class SADLDescription {
 		}
 	}
 	
+	/**
+	 * Common superclass for inputs and outputs.
+	 * Can be meta (supported, but not yet used).
+	 *
+	 */
 	public static class IOEntity extends Entity {
 
 		private boolean isMeta;
@@ -192,7 +209,7 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Input file description.
+	 * Input file description. Users choose inputs from their datasets.
 	 */
 	public static class Input extends IOEntity {
 		
@@ -226,7 +243,8 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Output file description.
+	 * Output file description. Users get output datasets when
+	 * they run tools.
 	 */
 	public static class Output extends IOEntity {
 		
@@ -248,7 +266,9 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Analysis tool parameter description.
+	 * Analysis tool parameter description. Users set
+	 * values for the parameters.
+	 * 
 	 *
 	 */
 	public static class Parameter extends Entity {
@@ -315,12 +335,18 @@ public class SADLDescription {
 		}		
 	}
 
+	/**
+	 * Returns a new (mostly empty) object presentation for parsed SADL. 
+	 */
 	public SADLDescription(Name name) {
 		this(name, null);
 	}
 
 	/**
-	 * Returns a new (mostly empty) object presentation for parsed SADL. 
+	 * Returns a new (mostly empty) object presentation for parsed SADL.
+	 * 
+	 * @param name name of the new description
+	 * @param comment free text description of the tool
 	 */
 	public SADLDescription(Name name, String comment) {
 		super();
@@ -344,6 +370,10 @@ public class SADLDescription {
 		return name;
 	}
 
+	/**
+	 * Gets free text description of the tool. Would be called "description" if it would
+	 * not cause confusion.
+	 */
 	public String getComment() {
 		return comment;
 	}
@@ -373,6 +403,8 @@ public class SADLDescription {
 	}
 
 	/**
+	 * Creates a SADL source code representation of parsed syntax object (SADLDescription).
+	 * 
 	 * @see SADLGenerator#generate(SADLDescription)
 	 */
 	@Override
@@ -381,7 +413,7 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Deprecated
+	 * Deprecated.
 	 */
     // FIXME remove after not using VVSADL anymore
 	public void setID(String id) {
