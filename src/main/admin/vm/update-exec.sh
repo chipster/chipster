@@ -586,6 +586,10 @@ fi
 compare_to_current "2.6.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
+  echo "** Installing png library for R-2.15.1_bioc-2.11"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/png-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+  # install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="png")
+
   echo "** Updating R-2.15.1"
   mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
