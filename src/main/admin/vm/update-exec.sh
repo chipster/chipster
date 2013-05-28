@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.5.2
+LATEST_VERSION=2.6.0
 
 # Exit immediately if some command fails
 set -e
@@ -711,7 +711,14 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgcdf_17.0.0.tar.gz
   ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgprobe_17.0.0.tar.gz
   
+  
+  echo "** Add fasta links to bowtie2 indexes"
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie2/indexes
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie/indexes
 
+    
 fi
 
 
