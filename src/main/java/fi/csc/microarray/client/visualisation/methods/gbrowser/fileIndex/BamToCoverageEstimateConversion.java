@@ -18,6 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
@@ -49,7 +50,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 
 
 	@Override
-	protected void processDataRequest(DataRequest request) {					
+	protected void processDataRequest(DataRequest request) throws GBrowserException {					
 		
 		if (request.getRequestedContents().contains(DataType.CANCEL)) {
 			return;
@@ -68,7 +69,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		}
 	}
 	
-	private void createBetterEstimate(DataRequest request, int partCount) {
+	private void createBetterEstimate(DataRequest request, int partCount) throws GBrowserException {
 		
 		long step = getDataRegion().getLength() / partCount;
 		
@@ -102,8 +103,9 @@ public class BamToCoverageEstimateConversion extends DataThread {
 	 * 
 	 * @param request
 	 * @return
+	 * @throws GBrowserException 
 	 */
-	public void processCoverageEstimateRequest(DataRequest request) {
+	public void processCoverageEstimateRequest(DataRequest request) throws GBrowserException {
 
 		// How many times file is read
 		int step = request.getLength().intValue() / CoverageEstimateTrack.SAMPLING_GRANULARITY;
@@ -156,7 +158,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		super.createDataResult(new DataResult(request.getStatus(), responseList));
 	}
 
-	private void sampleToGetEstimateRegion(DataRequest request, BpCoord from, BpCoord to) {	
+	private void sampleToGetEstimateRegion(DataRequest request, BpCoord from, BpCoord to) throws GBrowserException {	
 		
 		long t = System.currentTimeMillis();
 		
@@ -164,7 +166,18 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		long stepMiddlepoint = (from.bp + to.bp) / 2;
 		long start = stepMiddlepoint - SAMPLE_SIZE_BP / 2;
 		long end = stepMiddlepoint + SAMPLE_SIZE_BP / 2;
-		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(from.chr), (int) start, (int) end, false);
+		
+		CloseableIterator<SAMRecord> iterator = null;
+		
+		try {
+			iterator = dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(from.chr), (int) start, (int) end, false);
+		
+		} catch (RuntimeException e) {
+			throw new GBrowserException("Error in data query. Ususally this happens when a wrong index file is selected.", e);
+		} catch (OutOfMemoryError e) {
+			//Not a real outOfMemory, picard just tried to create an arbitrarily large buffer 
+			throw new GBrowserException("Error in data query. Ususally this happens when a wrong index file is selected. " + e.getMessage());
+		}
 
 		// Count reads in this sample area
 		int countForward = 0;

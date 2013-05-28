@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatu
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 
 public abstract class DataThread {
@@ -71,7 +72,12 @@ public abstract class DataThread {
 							if (processRequest) {
 								
 								if (!checkPoison(dataRequest)) {
-									processDataRequest(dataRequest);
+									try {
+										processDataRequest(dataRequest);
+									} catch (GBrowserException e) {
+										reportException(e);
+										poison = true;
+									}
 								}
 							} else {
 								//skip this request, because the data isn't needed anymore
@@ -109,7 +115,7 @@ public abstract class DataThread {
 		return dataRequest.getStatus().poison;
 	}
 
-	protected abstract void processDataRequest(DataRequest dataRequest);
+	protected abstract void processDataRequest(DataRequest dataRequest) throws GBrowserException;
 	/**
 	 * Pass the result to be visualised in GUI.
 	 * 
@@ -187,5 +193,15 @@ public abstract class DataThread {
 		} else {
 			return thread.isAlive();
 		}
+	}
+	
+	private void reportException(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				browser.reportException(e);
+			}
+		});
 	}
 }

@@ -315,7 +315,13 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
 		
-		return browser.getVisualisation(interpretUserDatas(datas));
+		List<Interpretation> interpretations = interpretUserDatas(datas);
+		
+		if (interpretations != null) {
+			return browser.getVisualisation(interpretations);
+		} else {
+			return null;
+		}
 	}
 
 	private boolean isIndexData(DataBean bean) {
@@ -420,13 +426,34 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
 				
 				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
-				DataBean indexBean = application.getDataManager().getDataBean(indexName);
 				
-				if (indexBean == null) {
+				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
 				
-					return null; // BAM is missing BAI
-				} else {
+				if (beanList.size() == 1) {
+					
+					DataBean indexBean = beanList.get(0);
 					interpretation.setIndexData(new BeanDataFile(indexBean));
+					
+				} else if (beanList.size() > 1) { 					
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+						browser.showDialog(
+								"Unable to determine index file"  , 
+								"There are several index files with name '" + indexName + "'. " +
+										"Please show the right index file by selecting it or renaming bam and bai file pairs with unique names." , 
+										null, false, false, true, true);
+						return null;
+					}
+					
+				} else {
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+
+						browser.showDialog("Missing index file", 
+								"There is no index file for data '" + interpretation.getPrimaryData().getName() + "'.",
+								null, false, false, true, true);
+					}
+					return null;
 				}
 			}
 		}

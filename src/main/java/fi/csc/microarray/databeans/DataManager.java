@@ -483,7 +483,6 @@ public class DataManager {
 		// no match found
 		return null;
 	}
-
 	
 	/**
 	 * Find and return the first DataBean with the given name.
@@ -497,6 +496,23 @@ public class DataManager {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Find and return all DataBeans with the given name.
+	 * @param name the name of the DataBean being search for
+	 * @return A list of found DataBeans with given name. Empty list is returned if none was found. 
+	 */
+	public LinkedList<DataBean> getDataBeans(String name) {
+		
+		LinkedList<DataBean> list = new LinkedList<>();
+		
+		for (DataBean dataBean : databeans()) {
+			if (dataBean.getName().equals(name)) {
+				list.add(dataBean);
+			}
+		}
+		return list;
 	}
 	
 	
