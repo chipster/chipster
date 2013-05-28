@@ -1,6 +1,6 @@
 # TOOL process-preprocessed-counts.R: "Preprocess count table" (Converts count table to Chipster format and creates a phenodata file for it. You need to import your count table using the Import tool. Make sure to mark every count column as Sample and the column containing feature names as Identifier.)
 # INPUT ngs{...}.tsv: ngs{...}.tsv TYPE CDNA 
-# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT counts.tsv: counts.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv
 # PARAMETER experimentype: "Experiment type" TYPE STRING DEFAULT empty (You can define experiment type, for example rna-seq.)
 # PARAMETER OPTIONAL keep.annotations: "Keep annotations" TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation columns after preprocessing.)
@@ -60,4 +60,4 @@ if (keep.annotations=="yes") {
 }
 	
 rownames (output_table) <- unlist(dat$genes)
-write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+write.table(output_table, file="counts.tsv", col.names=T, quote=F, sep="\t", row.names=T)

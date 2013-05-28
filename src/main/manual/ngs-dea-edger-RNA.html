@@ -32,9 +32,12 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 <br>This tool takes as input a table of raw counts from the different samples. The count file has to be associated with a phenodata file describing the experimental groups. 
 These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table, and creates a phenodata file for it.
 <br><br>
+You can choose to ignore in statistical testing those genes which are not expressed in either experimental group or are expressed in very low levels (less than 5 counts). 
+These genes have little chance of showing significant evidence for differential expression, and removing them reduces the severity of multiple testing adjustment of p-values.
+<br><br>
 Normalization factors are calculated using the library size given by the user in the phenodata.tsv or by summing the counts for each sample.
-Trimmed mean of M-values (TMM) normalization is then used to calculate normalization factors in order to reduce RNA compositon bias 
-(which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other).
+Trimmed mean of M-values (TMM) normalization is then used to calculate normalization factors in order to reduce RNA composition effect, 
+which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other.
 <br><br>
 Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). It can estimate a common dispersion for all the genomic features,
 or a separate (tagwise) dispersion for each individual feature using an empirical Bayes strategy. 

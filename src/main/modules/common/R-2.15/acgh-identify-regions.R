@@ -2,10 +2,10 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT region-frequencies.pdf: region-frequencies.pdf 
-# PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
+# PARAMETER max.info.loss: "maximum loss of information" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-24
+# 2013-04-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(CGHregions)
@@ -24,25 +24,36 @@ logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 
 if (length(grep("^probnorm\\.", names(dat)))>0) { # input contains probabilities (is a CGHcall object)
+  probdel <- as.matrix(dat[,grep("^probdel\\.", names(dat))])
   probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
   probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
   probgain <- as.matrix(dat[,grep("^probgain\\.", names(dat))])
   probamp <- as.matrix(dat[,grep("^probamp\\.", names(dat))])
 
-  if (ncol(probamp)==0) {
+  if (ncol(probamp)==0) { # CGHcall run with nclass=3
     cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=logratios, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
-  } else {
+  } else if (ncol(probdel)==0) { # CGHcall run with nclass=4
     cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=logratios, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+  } else { # CGHcall run with nclass=5
+    cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=logratios, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp, probdloss=probdel), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
   }
+
+  rm(calls, segmented, probdel, probloss, probnorm, probgain, probamp)
+  gc()
+
   regions <- regioning(cgh, max.info.loss)
   dat2 <- data.frame(regions[['ann']])
   hardcalls <- regions[['hardcalls']]
   softcalls <- TRUE
 } else { # input contains only calls and logratios, no probabilities
   cgh <- data.frame(Probe=row.names(dat), Chromosome=dat$chromosome, Start=dat$start, End=dat$end, calls)
+
+  rm(calls, segmented)
+  gc()
+
   regions <- CGHregions(cgh, max.info.loss)
-  dat2 <- data.frame(regions@featureData@data)
-  hardcalls <- assayDataElement(regions, 'regions')
+  dat2 <- fData(regions)
+  hardcalls <- regions(regions)
   softcalls <- FALSE
 }
 
@@ -55,6 +66,9 @@ if (nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$start,]) >
   for (row in rownames(dat2))
     dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]
 
+# calculate frequencies
+if (-2 %in% hardcalls)
+  dat2$del.freq <- round(rowMeans(hardcalls == -2), digits=3)
 dat2$loss.freq <- round(rowMeans(hardcalls == -1), digits=3)
 dat2$gain.freq <- round(rowMeans(hardcalls == 1), digits=3)
 if (2 %in% hardcalls)
@@ -63,6 +77,7 @@ if (2 %in% hardcalls)
 dat2 <- cbind(dat2, hardcalls)
 colnames(dat2) <- sub('^calls\\.', 'flag.', colnames(dat2))
 
+# calculate median logratios and segments
 region.medians <- segmented.medians <- hardcalls
 for (row in rownames(region.medians)) {
   index <- dat$chromosome == dat2[row, "chromosome"] &
