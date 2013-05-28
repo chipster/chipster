@@ -114,7 +114,7 @@ public class CoverageAverageTrack extends Track {
 		} else {
 			
 			// add drawables according to sum of both strands
-			drawables.addAll(getAverageDrawables(Strand.BOTH, GBrowserConstants.COVERAGE_COLOR));
+			drawables.addAll(getAverageDrawables(Strand.BOTH, GBrowserConstants.getCoverageColor()));
 		}				
 
 		return drawables;

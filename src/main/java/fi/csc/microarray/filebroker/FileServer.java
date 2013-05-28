@@ -33,6 +33,7 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.UrlListMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -55,6 +56,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	
 	private File cacheRoot;
 	private File storageRoot;
+	private File publicRoot; 
 	private String publicPath;
 	private String host;
 	private int port;
@@ -66,7 +68,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	
 	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
 
-	private int metadataPort; 
+	private int metadataPort;
+
 
 	public static void main(String[] args) {
 		DirectoryLayout.getInstance().getConfiguration();
@@ -89,7 +92,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		String storagePath = configuration.getString("filebroker", "storage-path");
     		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
-    		this.port = configuration.getInt("filebroker", "port");
+    		this.port = configuration.getInt("filebroker", "port");    	
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
 
@@ -118,6 +121,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
     		storageRoot = new File(fileRepository, storagePath);
+    		publicRoot = new File(fileRepository, publicPath);
     		
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
@@ -166,6 +170,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handlePublicUrlRequest(msg);
+				
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_FILES_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				handlePublicFilesRequest(msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
@@ -191,12 +198,27 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		}
 	}
 
+	@Deprecated
 	private void handlePublicUrlRequest(ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
-		URL url = getPublicUrL();
+		URL url = getPublicUrl();
 		UrlMessage reply = new UrlMessage(url);
 		endpoint.replyToMessage(msg, reply);
 		managerClient.publicUrlRequest(msg.getUsername(), url);
+	}
+	
+	private void handlePublicFilesRequest(ChipsterMessage msg)
+			throws MalformedURLException, JMSException {
+		List<URL> files = null;
+		ChipsterMessage reply;
+		try {
+			files = getPublicFiles();
+			reply = new UrlListMessage(files);
+		} catch (IOException e) {
+			reply = null;
+		}
+		endpoint.replyToMessage(msg, reply);
+		managerClient.publicFilesRequest(msg.getUsername(), files);
 	}
 
 	private void handleUrlRequest(ChipsterMessage msg)
@@ -466,10 +488,38 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		logger.info("shutting down");
 	}
 
-	public URL getPublicUrL() throws MalformedURLException {
+	@Deprecated
+	public URL getPublicUrl() throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + publicPath);		
 	}
 	
+	public List<URL> getPublicFiles() throws IOException {
+		
+		List<URL> urlList = new LinkedList<URL>();
+		
+		addFilesRecursively(urlList, publicRoot);
+				
+		return urlList;
+	}
+	
+	private void addFilesRecursively(List<URL> files, File path) throws IOException {
+		
+		for (File file : path.listFiles()) {
+			
+			if (file.isDirectory()) {
+				addFilesRecursively(files, file);
+				
+			} else {
+
+				String localPath = file.toURI().toString();//convert spaces to %20 etc.
+				String publicRootString = publicRoot.toURI().toString();//convert spaces to %20 etc.
+
+				String urlString = localPath.replace(publicRootString, host + ":" + port + "/" + publicPath + "/");
+
+				files.add(new URL(urlString));
+			}
+		}		
+	}
 }
 
 

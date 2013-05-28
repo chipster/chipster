@@ -31,8 +31,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
@@ -237,17 +237,33 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		}
 		
+		@Deprecated
 		public URL getRemoteAnnotationsUrl() throws Exception {
 			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 			
-			URL publicURL = fileBroker.getPublicUrl();
-			if (publicURL != null) {
-				return new URL(publicURL + "/" + ANNOTATIONS_PATH);
-
-			} else {
-				return null;
+			List<URL> publicFiles = fileBroker.getPublicFiles();
+			if (publicFiles != null) {
+				
+				//find only the annotations folder for now
+				for (URL url : publicFiles) {
+					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
+						
+						String urlString = url.toString();
+						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
+						return new URL(annotationString);
+					}
+				}
 			}
+			
+			return null;			
 		}
+
+		public List<URL> getRemoteAnnotationFiles() throws Exception {
+			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			
+			return fileBroker.getPublicFiles();			
+		}
+		
 		
 		public File getLocalAnnotationDir() throws IOException {
 			return DirectoryLayout.getInstance().getLocalAnnotationDir();

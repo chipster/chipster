@@ -23,7 +23,9 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_GET_SOURCE = "get-source";
 
 	public final static String COMMAND_URL_REQUEST ="url-request";
+	@Deprecated
 	public final static String COMMAND_PUBLIC_URL_REQUEST ="public-url-request";
+	public final static String COMMAND_PUBLIC_FILES_REQUEST ="public-url-list-request";
 	public final static String COMMAND_DISK_SPACE_REQUEST ="disk-space-request";
 
 	public static final String COMMAND_MOVE_FROM_CACHE_TO_STORAGE = "move-from-cache-to-storage";

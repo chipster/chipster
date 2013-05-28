@@ -90,7 +90,7 @@ public class CoverageEstimateTrack extends Track {
 			forwardColor = GBrowserConstants.FORWARD_COLOR;
 			reverseColor = GBrowserConstants.REVERSE_COLOR;
 		} else {
-			forwardColor = GBrowserConstants.COVERAGE_COLOR;
+			forwardColor = GBrowserConstants.getCoverageColor();
 			reverseColor = null;
 		}
 			

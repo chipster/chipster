@@ -50,13 +50,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ViewLimiter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CytobandConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineToRegionConversion;
@@ -950,20 +950,22 @@ public class GBrowser implements ComponentListener {
 	
 	public String getExternalLinkUrl(AnnotationType browser) {
 		settings.getGenome();
-		URL url = annotationManager.getAnnotation(settings.getGenome(), browser).getUrl();
-
-		if (url != null && plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null) {
-			String stringUrl = url.toString();
-			Region region = plot.getDataView().getBpRegion();
-			stringUrl = stringUrl.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
-			stringUrl = stringUrl.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
-			stringUrl = stringUrl.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
-			
-			return stringUrl;
-		} else {
-			return "";
-		}
+		GenomeAnnotation urlAnnotation = annotationManager.getAnnotation(settings.getGenome(), browser);
 		
+		if (urlAnnotation != null) {
+			URL url = urlAnnotation.getUrl();
+
+			if (url != null && plot != null && plot.getDataView() != null && plot.getDataView().getBpRegion() != null) {
+				String stringUrl = url.toString();
+				Region region = plot.getDataView().getBpRegion();
+				stringUrl = stringUrl.replace(AnnotationManager.CHR_LOCATION, region.start.chr.toNormalisedString());
+				stringUrl = stringUrl.replace(AnnotationManager.START_LOCATION, region.start.bp.toString());
+				stringUrl = stringUrl.replace(AnnotationManager.END_LOCATION, region.end.bp.toString());
+
+				return stringUrl;
+			} 
+		}
+		return "";
 	}
 	
 	public void openExternalBrowser(String url) {
@@ -1047,9 +1049,19 @@ public class GBrowser implements ComponentListener {
 	/**
 	 * Override this method to specify location for remote annotations
 	 */
+	@Deprecated
 	public URL getRemoteAnnotationsUrl() throws Exception {
 		//"http://chipster-filebroker.csc.fi:8080/public/annotations/"
 		System.out.println("getRemoteAnnotationsUrl not implemented");
+		return null;
+	}
+	
+	/**
+	 * Override this method to specify location for remote annotations
+	 */
+	public List<URL> getRemoteAnnotationFiles() throws Exception {
+
+		System.out.println("getRemoteAnnotationFiles not implemented");
 		return null;
 	}
 	

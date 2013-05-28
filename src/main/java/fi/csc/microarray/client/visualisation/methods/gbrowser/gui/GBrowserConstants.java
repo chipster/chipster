@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 /**
  * Genome browser wide constants.
@@ -33,9 +35,28 @@ public class GBrowserConstants {
 	public static final Color REVERSE_COLOR = new Color(
     		GBrowserConstants.COLOR_BLUE.getRed(), 
     		GBrowserConstants.COLOR_BLUE.getGreen(), 
-    		GBrowserConstants.COLOR_BLUE.getBlue(), 
+    		GBrowserConstants.COLOR_BLUE.getBlue(),     	    
     		64);
-	public static final Color COVERAGE_COLOR = Color.gray;
+
+	private static Color coverageColor;
+	
+	public static Color getCoverageColor() {
+		if (coverageColor == null) {
+			
+			//Calculate the sum of two transparent colors
+			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);   		    
+		    Graphics imgG = img.getGraphics();
+		    
+		    imgG.setColor(FORWARD_COLOR);
+		    imgG.fillRect (0,0,1,1);		    
+		    imgG.setColor(REVERSE_COLOR);
+		    imgG.fillRect (0,0,1,1);
+		    
+		    coverageColor = new Color(img.getRGB(0, 0), true);
+		}
+		
+		return coverageColor;
+	}
 
 	// Visibility level thresholds
 	public static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;

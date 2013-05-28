@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
@@ -22,15 +23,14 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.ReplyMessageListener;
-import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.UrlListMessageListener;
+import fi.csc.microarray.messaging.UrlMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
-import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
+import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
@@ -52,40 +52,6 @@ import fi.csc.microarray.util.UrlTransferUtil;
  *
  */
 public class JMSFileBrokerClient implements FileBrokerClient {
-
-	/**
-	 * Reply listener for the url request.
-	 * 
-	 */
-	private class UrlMessageListener extends TempTopicMessagingListenerBase {
-		
-		private URL newUrl = null;
-		private CountDownLatch latch = new CountDownLatch(1);
-		
-		public void onChipsterMessage(ChipsterMessage msg) {
-			if (msg instanceof UrlMessage) {
-				UrlMessage urlMessage = (UrlMessage) msg;
-				this.newUrl = urlMessage.getUrl();
-				latch.countDown();
-			}
-		}
-	
-		/**
-		 * @param timeout in given units
-		 * @param unit unit of the timeout
-		 * @return 
-		 * @throws RuntimeException if interrupted
-		 */
-		public URL waitForReply(long timeout, TimeUnit unit) {
-			try {
-				latch.await(timeout, unit);
-			} catch (InterruptedException e) {
-	            logger.warn("interrupted while waiting for latch", e);
-			}
-			return this.newUrl;
-		}
-	}
-
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
 	private static final int QUICK_POLL_OPERATION_TIMEOUT = 5; // seconds 
@@ -300,31 +266,30 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		return url;
 	}
-
+	
 	/**
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
 	 */
 	@Override
-	public URL getPublicUrl() throws JMSException {
-		return fetchPublicUrl();
+	public List<URL> getPublicFiles() throws JMSException {
+		return fetchPublicFiles();
 	}
 
-	private URL fetchPublicUrl() throws JMSException {
+	private List<URL> fetchPublicFiles() throws JMSException {
 
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL url;
+		UrlListMessageListener replyListener = new UrlListMessageListener();  
+		List<URL> urlList;
 		try {
-			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
+			CommandMessage fileRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_FILES_REQUEST);
 			
-			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			filebrokerTopic.sendReplyableMessage(fileRequestMessage, replyListener);
+			urlList = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
 
-		return url;
+		return urlList;
 	}
-
 
 	/**
 	 * Get a local copy of a file. If the filename part of the url matches any of the files found from 

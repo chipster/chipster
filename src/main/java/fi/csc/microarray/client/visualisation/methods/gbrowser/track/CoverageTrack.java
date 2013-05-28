@@ -151,7 +151,7 @@ public class CoverageTrack extends Track {
 				if (increment > 0) {
 					Color c = GBrowserConstants.charColors[nt.ordinal()];
 
-					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, null));
+					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, Color.black));
 
 					y += increment;
 				}
@@ -173,7 +173,7 @@ public class CoverageTrack extends Track {
 		} else {
 			
 			// add drawables according to sum of both strands
-			drawables.addAll(getCoverageDrawables(Strand.BOTH, GBrowserConstants.COVERAGE_COLOR));
+			drawables.addAll(getCoverageDrawables(Strand.BOTH, GBrowserConstants.getCoverageColor()));
 		}				
 
 		return drawables;

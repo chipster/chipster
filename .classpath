@@ -71,5 +71,6 @@
 	<classpathentry kind="lib" path="ext/lib/picard-1.89.jar"/>
 	<classpathentry kind="lib" path="ext/lib/sam-1.89.jar" sourcepath="/home/klemela/chipster/workspace/picard"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="ext/lib/snakeyaml-1.11.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
