@@ -16,6 +16,7 @@ Merges a set of count files into a single table and makes a phenodata file for i
 <ul>
 <li>Type of experiment (ChIP-seq, RNA-seq, miRNA-seq) [RNA-seq]</li>
 <li>Does your data contain genomic coordinates (yes, no) [yes]</li>
+<li>Count column</li>
 <li>Impute missing data (0-1000000) [0]</li>
 </ul>
 
@@ -26,8 +27,8 @@ This tool takes a set of count files for individual samples and merges them into
 You can create the sample count files from BAM files using one of the following tools:
 </p>
 <ul>
-<li>RNA-seq / Map aligned reads to genes using HTSeq</li>
-<li>RNA-seq / Map aligned reads to exons using DEXSeq</li>
+<li>RNA-seq / Count aligned reads per genes with HTSeq</li>
+<li>RNA-seq / Count aligned reads per exons for DEXSeq</li>
 <li>miRNA-seq / Convert genomic BAM file to count table</li>
 <li>miRNA-seq / Convert miRBased BAM file to count table</li>
 </ul>
@@ -46,7 +47,7 @@ Since zero counts can cause problems for downstream applications which transform
 
 <h3>Output</h3>
 
-<p>A data table with count columns and a corresponding phenodata table.</p>
+<p>Count table and a corresponding phenodata table.</p>
 
 </body>
 

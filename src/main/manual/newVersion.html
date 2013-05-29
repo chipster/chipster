@@ -3,7 +3,44 @@
 
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
-<h2>Version update 3.4.2013: What is new in Chipster 2.5</h2>
+<h2>Version update 27.5.2013: What is new in Chipster 2.6</h2>
+
+<br>Chipster 2.6 contains important updates to microarray and NGS analysis tools and some new NGS tools.
+
+<ol>
+
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="extract-samples-from-dataset.html">Utilities / Extract samples from dataset</a>. Makes a subset of count table for user defined samples.</li>
+<li><a href="process-preprocessed-counts.html">Utilities / Preprocess count table</a>. Allows you to analyze external count tables in Chipster by edgeR and DESeq. Converts the table to Chipster format and produces a phenodata file for it.</li>
+</ul>
+<br>
+<li><b>Updates to NGS analysis tools</b></li>
+<ul>
+<li><a href="ngs-dea-edger-RNA.html">RNA-seq and miRNA-seq / Differential expression using edgeR</a>. Added filtering option and dispersion plot, made BED output optional, removed fixed prior.n. and the extra MA plots. Updated to R2.15.1-Bioconductor 2.11. </li>
+<li><a href="dea-deseq.html.html">RNA-seq and miRNA-seq / Differential expression using DESeq</a>. Made BED output optional. Updated to R2.15.1-Bioconductor 2.11. </li>
+<li><a href="edgeR-multivariate.html">RNA-seq / Differential expression using edgeR for multivariate experiments</a>. Added filtering option and dispersion plot, fixed common dispersion method. Updated to R2.15.1-Bioconductor 2.11. </li>
+<li><a href="htseq-count.html">RNA-seq / Count aligned reads per genes with HTSeq</a>. Added possibility to include genomic location data to count table, which allows edgeR and DESeq to produce BED files. Added possibility to use BAM files with GTF files with different chromosome naming (e.g. chr1 vs 1).</li>
+<li><a href="htseq-count.html">RNA-seq / Count aligned reads per genes with HTSeq using own GTF</a>. Added possibility to include genomic location data to count table, which allows edgeR and DESeq to produce BED files.</li>
+<li><a href="ngs-create-experiment.html">Utilities / Define NGS experiment</a>. Added a possibility to leave out genomic location columns and to choose the column containing counts.</li>
+</ul>
+<br>
+<li><b>Genome browser improvements</b></li>
+<ul>
+<li>Drosophila melanogaster genome (BDGP5.70) has been added.</li>
+</ul>
+<br>
+<li><b>Updates to microarray analysis tools</b></li>
+<ul>
+<li><a href="norm-affy-gene.html">Normalization / Affymetrix gene arrays</a>. Support added for human v2.0 arrays, mouse and rat v2.1 arrays, and zebrafish and arabidopsis v1.1 arrays.</li>
+<li><a href="norm-affy-snp.html">Normalization / Affymetrix SNP arrays</a>. Support added for Affymetrix SNP 5.0 and 6.0 arrays. CRLMM has been updated to the latest version. cdfName and signal-to-noise ratio filtering features have been added</li>
+<li><a href="norm-illumina-SNP.html">Normalization / Illumina SNP arrays</a>. CRLMM method, cdfName and signal-to-noise ratio filtering features have been added.</li>
+<li><a href="norm-lme.html">Normalization / Random effects</a>. Noise feature has been added.</li>
+</ul>
+</ol>
+<hr>
+
+<h2>Version update 11.4.2013: What is new in Chipster 2.5</h2>
 
 <br>Chipster 2.5 contains a lot of new analysis and visualization functionality for NGS data and improvements to some microarray analysis tools. 
 The new NGS data analysis tools include the TagCleaner package, F-seq peak detection software,

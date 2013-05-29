@@ -1,0 +1,29 @@
+Input file: normalised.tsv
+ Display name: Normalised dataset
+ Type: can be anything
+ Input is: single file
+ Input is: not optional
+ Description: blaah
+
+Input file: phenodata.tsv
+ Display name: Phenodata table
+ Type: must be phenodata table
+ Input is: single file
+ Input is: not optional
+ Description: blaah
+
+Output file: filtered.tsv
+ Display name: Filtered results
+ Type: can be anything
+ Output is: single file
+ Output is: not optional
+ Description: blaah
+
+User defined parameter: filtering-threshold
+ Display name: Threshold for filtering
+ Type: decimal number
+ Minimum value: 0
+ Default value: 100
+ Maximum value: not defined
+ Parameter is: not optional
+ Description: blaah
