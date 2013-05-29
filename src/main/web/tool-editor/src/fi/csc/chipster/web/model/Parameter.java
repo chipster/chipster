@@ -1,17 +1,18 @@
 package fi.csc.chipster.web.model;
 
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 
+import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 
 public class Parameter extends BasicModel{
-	
+
+	private static final long serialVersionUID = 56345103682438254L;
 	private Label lbType;
 	private Label lbOptional;
 	private Label lbDefaultValue;
@@ -26,7 +27,7 @@ public class Parameter extends BasicModel{
 	private Table typeTable;
 	
 	@Override
-	public GridLayout createUI() {
+	public Parameter createUI() {
 		
 //		grid.addComponent(new Label("Parameter"), 0, 0);
 		initElements();
@@ -36,7 +37,7 @@ public class Parameter extends BasicModel{
 		addRow(lbMaxValue, maxValue);
 		addRow(lbOptional, optional);
 		addRow(lbDescription, description);
-		return grid;
+		return this;
 	}
 	
 	private void initElements() {
@@ -62,13 +63,13 @@ public class Parameter extends BasicModel{
 		minValue = new TextField();
 	}
 	
-	public GridLayout createUIWithData(fi.csc.microarray.description.SADLDescription.Parameter parameter) {
+	public Parameter createUIWithData(SADLDescription.Parameter parameter) {
 		createUI();
 		fillWithData(parameter);
-		return grid;
+		return this;
 	}
 	
-	private void fillWithData(fi.csc.microarray.description.SADLDescription.Parameter parameter) {
+	private void fillWithData(SADLDescription.Parameter parameter) {
 		parameter.getType();
 		type.select(parameter.getType());
 		
@@ -96,22 +97,36 @@ public class Parameter extends BasicModel{
 		typeTable.addContainerProperty("ID", String.class, null);
 		typeTable.addContainerProperty("Name", String.class, null);
 		typeTable.setHeight("100px");
+		typeTable.setEditable(true);
+		
 	}
 	
 	private void fillTypeTableWithData(Name[] types) {
 		for(int i = 0; i < types.length; i++) {
-			typeTable.addItem(new Object[] {types[i].getID(), types[i].getDisplayName()}, new Integer(i));
+			typeTable.addItem(new Object[] {types[i].getID(), types[i].getDisplayName()}, types[i]);
 			
 		}
 	}
 	
 	private void addTypeTable() {
 		int i = 0;
-		while(!grid.getComponent(1, i).equals(type)) {
+		while(!this.getComponent(1, i).equals(type)) {
 			i++;
 		}
-		grid.insertRow(i+1);
-		grid.addComponent(typeTable, 1, i+1);
+		this.insertRow(i+1);
+		this.addComponent(typeTable, 1, i+1);
 	}
-
+	
+	public SADLDescription.Parameter getSadlParameter() {
+		return new SADLDescription.Parameter(Name.createName(id.getValue(), name.getValue()), (ParameterType) type.getValue(), 
+				getEnumList(), getValueOrNull(minValue.getValue()), 
+				getValueOrNull(maxValue.getValue()), getValueOrNull(defaultValue.getValue()));
+	}
+	
+	private Name[] getEnumList() {
+		if(typeTable == null || typeTable.getItemIds().isEmpty())
+			return null;
+		Name[] names = typeTable.getItemIds().toArray(new Name[0]);
+		return names;
+	}
 }
