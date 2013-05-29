@@ -718,7 +718,11 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/bowtie/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
   ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie/indexes
 
-    
+  echo "** Updating Sus_scrofa bowtie2 index"
+  rm ${TOOLS_PATH}/bowtie2/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.*
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+        
+        
 fi
 
 
