@@ -28,7 +28,7 @@ public class ToolEditorUI extends UI {
     protected void init(VaadinRequest request) {
     	
 //    	VerticalLayout vertical = new VerticalLayout();
-    	toolEditor = new ToolEditor();
+    	toolEditor = new ToolEditor(this);
     	textEditor = new TextEditor(this);
     	final Panel vLayout = new Panel();
     	vSplitPanel = new VerticalSplitPanel();
