@@ -18,6 +18,8 @@ import javax.jms.JMSException;
 
 public class UrlTransferUtil {
 
+	public static int HTTP_TIMEOUT_MILLISECONDS = 2000;
+
 	private static final int CHUNK_SIZE = 2048;
 
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
@@ -126,5 +128,14 @@ public class UrlTransferUtil {
 		connection.setRequestMethod("PUT");
 		connection.setDoOutput(true);
 		return connection;
+	}
+
+
+	public static boolean isAccessible(URL url) throws IOException {
+		// check the URL
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
+		connection.connect() ; 
+		return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
 	}
 }

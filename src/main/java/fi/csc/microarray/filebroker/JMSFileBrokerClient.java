@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +93,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	/**
+	 * Add file to file broker. Must be a cached file, for other types, use other versions of this method.
+	 * 
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
@@ -170,7 +171,38 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		
 		return url;
 	}
-	
+
+	/**
+	 * Add file to storage that currently exists in cache.
+	 */
+	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException {
+		logger.debug("moving from cache to storage: " + cacheURL);
+
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL storageURL;
+		try {
+			
+			// ask file broker to move it or give url to upload to
+			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_FILE);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));			
+			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
+			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			
+			// check if it was moved, if not, then upload
+			if (!UrlTransferUtil.isAccessible(storageURL)) {
+				// Upload the stream into a file at filebroker
+				UrlTransferUtil.uploadStream(storageURL, file, useChunked, useCompression, null);				
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+		logger.debug("storage url is: " + storageURL);
+		return storageURL; 
+	}
+
+
 	
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(java.net.URL)
@@ -374,27 +406,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} finally {
 			replyListener.cleanUp();
 		}
-	}
-
-	@Override
-	public URL moveFileToStorage(URL cacheURL, long contentLength) throws JMSException {
-		logger.debug("moving from cache to storage: " + cacheURL);
-
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL storageURL;
-		try {
-			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE);
-			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
-			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
-			
-			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
-			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
-		} finally {
-			replyListener.cleanUp();
-		}
-		logger.debug("storage url is: " + storageURL);
-
-		return storageURL;	
 	}
 
 	@Override

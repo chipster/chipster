@@ -177,8 +177,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
 
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
-				handleMoveRequest((CommandMessage)msg);
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_FILE.equals(((CommandMessage)msg).getCommand())) {
+				handleStoreFileRequest((CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_SESSION.equals(((CommandMessage)msg).getCommand())) {
 				handleStoreSessionRequest((CommandMessage)msg);
@@ -223,23 +223,31 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 	private void handleUrlRequest(ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
+		
 		// parse request
 		CommandMessage requestMessage = (CommandMessage) msg;
 		boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
 		FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
+		String username = msg.getUsername();
+		long space = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		
 		// check quota, if needed
+		ChipsterMessage reply = createUrlReply(username, space, useCompression, area);
+		
+		// send reply
+		endpoint.replyToMessage(msg, reply);
+	}
+
+	private ChipsterMessage createUrlReply(String username, long space, boolean useCompression,	FileBrokerArea area) throws MalformedURLException {
 		ChipsterMessage reply;
-		if (area == FileBrokerArea.STORAGE && !checkQuota(msg.getUsername(), Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE)))) {
+		if (area == FileBrokerArea.STORAGE && !checkQuota(username, space)) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
 		} else {
 			URL url = urlRepository.createAuthorisedUrl(useCompression, area);
 			reply = new UrlMessage(url);
-			managerClient.urlRequest(msg.getUsername(), url);
+			managerClient.urlRequest(username, url);
 		}
-		
-		// send reply
-		endpoint.replyToMessage(msg, reply);
+		return reply;
 	}
 
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
@@ -406,7 +414,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleMoveRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+	private void handleStoreFileRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		final URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
 		logger.info("move request for: " + cacheURL);
@@ -421,33 +429,40 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					// check that url points to our cache dir
 					String[] urlPathParts = cacheURL.getPath().split("/"); 
 					if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
-						logger.info("not a valid cache url: " + cacheURL);
-						throw new IllegalArgumentException("not a valid cache url: " + cacheURL);
-					}
 
-					File cacheFile = new File(cacheRoot, urlPathParts[2]);
+						// cache url does not point here, cannot move, return url to upload to
+						boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
+						String username = requestMessage.getUsername();
+						long space = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 
-					// check that file exists
-					if (!cacheFile.exists()) {
-						logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
-						throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
-					}
-
-					// check quota here also
-					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
-						throw new IOException("quota exceeded");
-					}
-
-					// move the file
-					String storageFileName = CryptoKey.generateRandom();
-					URL storageURL = null;
-					if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
-						storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
-						reply = new UrlMessage(storageURL);
+						reply = createUrlReply(username, space, useCompression, FileBrokerArea.STORAGE);
 
 					} else {
-						logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
-						throw new IllegalArgumentException("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+
+						File cacheFile = new File(cacheRoot, urlPathParts[2]);
+
+						// check that file exists
+						if (!cacheFile.exists()) {
+							logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
+							throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
+						}
+
+						// check quota here also
+						if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
+							throw new IOException("quota exceeded");
+						}
+
+						// move the file
+						String storageFileName = CryptoKey.generateRandom();
+						URL storageURL = null;
+						if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
+							storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
+							reply = new UrlMessage(storageURL);
+
+						} else {
+							logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+							throw new IllegalArgumentException("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
+						}
 					}
 
 				} catch (IllegalArgumentException e) {

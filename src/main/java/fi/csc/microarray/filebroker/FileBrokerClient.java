@@ -122,7 +122,7 @@ public interface FileBrokerClient {
 	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
 	
 	
-	public abstract URL moveFileToStorage(URL url, long contentLength) throws JMSException;
+	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException;
 	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException;
 	
 	/**

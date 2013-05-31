@@ -81,11 +81,6 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL moveFileToStorage(URL url, long contentLength) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String[][] listRemoteSessions() throws JMSException {
 		throw new UnsupportedOperationException();
 	}
@@ -103,6 +98,11 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public URL addSessionFile() throws JMSException, FileBrokerException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public URL addFile(InputStream file, URL cacheURL, long contentLength) {
 		throw new UnsupportedOperationException();
 	}
 }

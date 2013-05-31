@@ -1034,24 +1034,20 @@ public class DataManager {
 			return storageLocation.getUrl();
 		}
 		
-		// move from cache to storage, if in cache
-		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
-			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-				
-				// move file in filebroker
-				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl(), dataBean.getContentLength());
-				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE, getHandlerFor(StorageMethod.REMOTE), storageURL));
-
-				// remove cache location(s), because it is now obsolete  
-				dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
-				return storageURL;
-			}
+		// check if we have cache location
+		ContentLocation cacheLocation = null;
+		if (dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).size() > 0) {
+			cacheLocation = dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).get(0);
 		}
-
-		// if not in cache, upload to storage
+		
+		// as for url to upload to, while notifying about existing cache location (filebroker can then just move it)
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
-		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
-		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE, getHandlerFor(StorageMethod.REMOTE), storageURL));		
+		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(closestLocation.getHandler().getInputStream(closestLocation), cacheLocation.getUrl(), dataBean.getContentLength());
+		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE, getHandlerFor(StorageMethod.REMOTE), storageURL));
+
+		// remove cache locations, because they might have been obsoleted  
+		dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+		
 		return storageURL;		
 	}
 

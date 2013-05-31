@@ -11,11 +11,11 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.databeans.DataBean.ContentLocation;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 public class RemoteContentHandler implements ContentHandler {
 	
-	private static int HTTP_TIMEOUT_MILLISECONDS = 2000;
-	private static int BLACKLIST_LIFETIME_MILLISECONDS = 30*HTTP_TIMEOUT_MILLISECONDS;
+	private static int BLACKLIST_LIFETIME_MILLISECONDS = 30*UrlTransferUtil.HTTP_TIMEOUT_MILLISECONDS;
 
 	private LinkedList<BlacklistEntry> hostBlacklist = new LinkedList<BlacklistEntry>();
 	
@@ -112,11 +112,7 @@ public class RemoteContentHandler implements ContentHandler {
 				return false; // do not check blacklisted hosts
 				
 			} else {
-				// check the URL
-				HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-				connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
-				connection.connect() ; 
-				return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+				return UrlTransferUtil.isAccessible(url);
 			}
 			
 		} catch (IOException e) {
