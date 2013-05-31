@@ -372,6 +372,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 		ChipsterMessage reply; 
 		try {
+			
+			// check if we are overwriting previous session
+			String previousSessionUuid = metadataServer.fetchSession(username, name);
+			if (previousSessionUuid != null) {				
+				// move it aside
+				metadataServer.renameSession("_" + name, previousSessionUuid);
+			}
+			
 			// store session
 			metadataServer.addSession(username, name, sessionUuid);
 			
@@ -385,6 +393,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				}
 			}
 
+			// remove previous
+			if (previousSessionUuid != null) {				
+				metadataServer.removeSession(previousSessionUuid);
+			}
+			
 			// everything went fine
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
 			

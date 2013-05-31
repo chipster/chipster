@@ -80,7 +80,9 @@ public class DerbyMetadataServer {
 	
 	private static String SQL_INSERT_SESSION  = "INSERT INTO chipster.sessions (name, username, uuid) VALUES (?, ?, ?)";
 	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, CAST(null AS VARCHAR(200)) as folder, uuid FROM CHIPSTER.SESSIONS WHERE username = ? UNION SELECT name, show_as_folder as folder, uuid FROM CHIPSTER.SESSIONS,  CHIPSTER.SPECIAL_USERS WHERE CHIPSTER.SESSIONS.username = CHIPSTER.SPECIAL_USERS.username";
+	private static String SQL_SELECT_SESSIONS_BY_NAME_AND_USERNAME = "SELECT uuid FROM chipster.sessions WHERE name = ? AND username = ?";
 	private static String SQL_DELETE_SESSION  = "DELETE FROM chipster.sessions WHERE uuid = ?";
+	private static String SQL_UPDATE_SESSION_NAME  = "UPDATE chipster.sessions SET name = ? WHERE uuid = ?";
 	
 	private static String SQL_INSERT_FILE  = "INSERT INTO chipster.files (uuid, size, created, last_accessed) VALUES (?, ?, ?, ?)";
 	private static String SQL_UPDATE_FILE_ACCESSED  = "UPDATE chipster.files SET last_accessed = ? WHERE uuid = ?";
@@ -322,6 +324,25 @@ public class DerbyMetadataServer {
 		ps.setString(2, username);
 		ps.setString(3, uuid);
 		ps.execute();
+	}
+	
+	public void renameSession(String newName, String uuid) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_UPDATE_SESSION_NAME);
+		ps.setString(1, newName);
+		ps.setString(2, uuid);
+		ps.execute();
+	}
+	
+	public String fetchSession(String username, String name)  throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_NAME_AND_USERNAME);
+		ps.setString(1, name);
+		ps.setString(2, username);
+		ResultSet sessions = ps.executeQuery();
+		if (sessions.next()) {
+			return sessions.getString(1);
+		} else {
+			return null;
+		}
 	}
 
 	/**
