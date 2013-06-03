@@ -102,16 +102,19 @@ public class TextEditor extends VerticalLayout{
 	}
 	
 	private String replaceHeader(String header) {
-		StringBuilder old = new StringBuilder();
+		StringBuilder newText = new StringBuilder();
 		String text = txtArea.getValue();
 		String[] array = text.split(NEW_LINE);
 		int i = 0;
 		while (i < array.length && (array[i].startsWith("# TOOL") || array[i].startsWith("# INPUT") 
 				|| array[i].startsWith("# OUTPUT") || array[i].startsWith("# PARAMETER"))) {
-			old.append(array[i] + NEW_LINE);
 			i++;
 		}
-		return text.replace(old, header);
+		newText.append(header);
+		for(int index = i; index < array.length; index++) {
+			newText.append(array[index] + NEW_LINE);
+		}
+		return newText.toString();
 	}
 
 }

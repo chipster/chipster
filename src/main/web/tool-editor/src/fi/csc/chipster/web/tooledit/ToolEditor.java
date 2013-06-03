@@ -3,14 +3,19 @@ package fi.csc.chipster.web.tooledit;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 
+import fi.csc.chipster.web.model.BasicModel;
 import fi.csc.chipster.web.model.Input;
 import fi.csc.chipster.web.model.Output;
 import fi.csc.chipster.web.model.Parameter;
@@ -96,16 +101,21 @@ public class ToolEditor extends VerticalLayout{
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				Tool tool = getTool();
-				if(tool == null)
+				if(tool == null) {
+					new Notification("Tool is missing, please insert Tool", Type.WARNING_MESSAGE).show(Page.getCurrent());
 					return;
+				}
 				SADLDescription sadlDescription = tool.createSadlDescription();
+				if(sadlDescription == null) {
+					new Notification("Tool's elements are empty, please fill it up", Type.WARNING_MESSAGE).show(Page.getCurrent());
+					return;
+				}
 				sadlDescription.addInputs(getDaslInputs());
 				sadlDescription.addOutputs(getDaslOutputs());
-				sadlDescription = addParameters(sadlDescription);
-//				System.out.println(sadlDescription);
-				setHeaderToTextEditor(SADLGenerator.generate(sadlDescription));
+				addParameters(sadlDescription);
+				System.out.println(sadlDescription.toString());
+				setHeaderToTextEditor(sadlDescription.toString());
 			}
 		});
 	}
@@ -114,55 +124,55 @@ public class ToolEditor extends VerticalLayout{
 		this.setImmediate(true);
 	}
 	
-	private HorizontalLayout setCaption(String name, boolean button) {
-		HorizontalLayout h = new HorizontalLayout();
-		h.addComponent(new Label("<b>" + name + "</b>", ContentMode.HTML));
-		if(button) {
-			Button b = new Button("+");
-			h.addComponent(b);
-			h.setSpacing(true);
-			b.addClickListener(new ClickListener() {
-				
-				@Override
-				public void buttonClick(ClickEvent event) {
-					ToolEditor.this.addComponent(new Parameter().createUI());
-					
-				}
-			});
-		}
-		return h;
-	}
+//	private HorizontalLayout setCaption(String name, boolean button) {
+//		HorizontalLayout h = new HorizontalLayout();
+//		h.addComponent(new Label("<b>" + name + "</b>", ContentMode.HTML));
+//		if(button) {
+//			Button b = new Button("+");
+//			h.addComponent(b);
+//			h.setSpacing(true);
+//			b.addClickListener(new ClickListener() {
+//				
+//				@Override
+//				public void buttonClick(ClickEvent event) {
+//					ToolEditor.this.addComponent(new Parameter().createUI());
+//					
+//				}
+//			});
+//		}
+//		return h;
+//	}
 	public void addTool() {
 		if(getTool() == null)
-			this.addComponent(new Tool().createUI(), 1);
+			this.addComponent(new Tool(this).createUI(), 1);
 	}
 	
 	public void addTool(SADLDescription sadlDescription) {
-		this.addComponent(new Tool().createUIwithData(sadlDescription));
+		this.addComponent(new Tool(this).createUIwithData(sadlDescription));
 	}
 	
 	public void addInput() {
-		this.addComponent(new Input().createUI(), getLastIndex(INPUT)+1);
+		this.addComponent(new Input(this).createUI(), getLastIndex(INPUT)+1);
 	}
 	
 	public void addInput(SADLDescription.Input input) {
-		this.addComponent(new Input().createUIWithData(input));
+		this.addComponent(new Input(this).createUIWithData(input));
 	}
 	
 	public void addOutput() {
-		this.addComponent(new Output().createUI(), getLastIndex(OUTPUT)+1);
+		this.addComponent(new Output(this).createUI(), getLastIndex(OUTPUT)+1);
 	}
 	
 	public void addOutput(SADLDescription.Output output) {
-		this.addComponent(new Output().createUIWithData(output));
+		this.addComponent(new Output(this).createUIWithData(output));
 	}
 	
 	public void addParameter() {
-		this.addComponent(new Parameter().createUI());
+		this.addComponent(new Parameter(this).createUI());
 	}
 	
 	public void addParameter(SADLDescription.Parameter parameter) {
-		this.addComponent(new Parameter().createUIWithData(parameter));
+		this.addComponent(new Parameter(this).createUIWithData(parameter));
 	}
 	
 	public void removeItems() {
@@ -207,7 +217,7 @@ public class ToolEditor extends VerticalLayout{
 		return outputs;
 	}
 	
-	public SADLDescription addParameters(SADLDescription sadlDescription) {
+	public void addParameters(SADLDescription sadlDescription) {
 		boolean wasParameter = false;
 		for(int i = 0; i < this.getComponentCount(); i++) {
 			if(this.getComponent(i) instanceof Parameter) {
@@ -219,10 +229,11 @@ public class ToolEditor extends VerticalLayout{
 				}
 			}
 		}
-		return sadlDescription;
+//		return sadlDescription;
 	}
 	
 	private void setHeaderToTextEditor(String text) {
+		System.out.println("iraso");
 		root.getTextEditor().setText(createHeader(text));
 	}
 	
@@ -234,6 +245,7 @@ public class ToolEditor extends VerticalLayout{
 			str.append(line);
 			str.append(TextEditor.NEW_LINE);
 		}
+		System.out.println("grazina");
 		return str.toString();
 	}
 	
@@ -270,6 +282,31 @@ public class ToolEditor extends VerticalLayout{
 				return 0;
 		} else 
 			return 0;
-		
+	}
+	
+	public void moveUpComponent(BasicModel component) {
+		int index = this.getComponentIndex(component);
+		if(index-1 > 0) {
+			Component com = this.getComponent(index-1);
+			if((component instanceof Input && com instanceof Input) || 
+					(component instanceof Output && com instanceof Output) || 
+					(component instanceof Parameter && com instanceof Parameter)) {
+				this.removeComponent(component);
+				this.addComponent(component, index-1);
+			}
+		}
+	}
+	
+	public void moveDownComponent(BasicModel component) {
+		int index = this.getComponentIndex(component);
+		if(index+1 < this.getComponentCount()+1) {
+			Component com = this.getComponent(index+1);
+			if((component instanceof Input && com instanceof Input) || 
+					(component instanceof Output && com instanceof Output) || 
+					(component instanceof Parameter && com instanceof Parameter)) {
+				this.removeComponent(component);
+				this.addComponent(component, index+1);
+			}
+		}
 	}
 }

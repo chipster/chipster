@@ -24,17 +24,19 @@ public abstract class InputOutputUI extends BasicModel {
 	
 protected void initElements() {
 		type2 = new ComboBox();
-		type2.setImmediate(true);	
+		type2.setImmediate(true);
+		type2.setWidth(WIDTH);
 		lbMeta = new Label("Meta:");
 		cbMeta = new CheckBox();
 		
 		optional = new ComboBox();
+		optional.setWidth(WIDTH);
 		optional.setNullSelectionAllowed(false);
 		optional.addItem(NOT_OPTIONAL);
 		optional.addItem(OPTIONAL);
 		optional.select(NOT_OPTIONAL);
 		type = new ComboBox();
-		type.setWidth("100px");
+		type.setWidth(WIDTH);
 		type.setNullSelectionAllowed(false);
 		type.setImmediate(true);
 		type.addItem(SINGLE_FILE);
