@@ -1,9 +1,12 @@
 package fi.csc.chipster.web.model;
 
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Button.ClickEvent;
 
+import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLGenerator;
 import fi.csc.microarray.description.SADLDescription.Name;
@@ -21,41 +24,33 @@ public class Tool extends BasicModel{
 	private ComboBox module;
 	private ComboBox category;
 	
+	public Tool(ToolEditor root) {
+		this.root = root;
+	}
+	
 	@Override
 	public Tool createUI() {
-		
-//		GridLayout grid = new GridLayout(3, 3);
-//		grid.setImmediate(true);
-//		grid.setMargin(true);
-//		grid.setSpacing(true);
-//		grid.setColumnExpandRatio(0, 2);
-//		grid.setColumnExpandRatio(1, 2);
-//		grid.setWidth("100%");
-//		grid.setHeight("100%");
-//		grid.addComponent(new Label("Tool"), 0, 0);
+		generateHeader();
 		initElements();
 		addRow(lbModule, module);
 		addRow(lbCategory, category);
 		addRow(lbDescription, description);
 		
-//		grid.addComponent(name, 0, 1);
-//		
-//		grid.addComponent(id, 1,1);
-//		grid.addComponent(description, 2, 1, 2, 2);
-//		grid.addComponent(module, 0, 1);
-//		grid.addComponent(category, 1, 1);
-//		VerticalLayout vertical = new VerticalLayout();
-////		vertical.setWidth("100%");
-//		vertical.addComponent(new Label("Tool"));
-//		HorizontalLayout horizontal = new HorizontalLayout();
-//		horizontal.setMargin(true);
-//		horizontal.setSpacing(true);
-//		initElements();
-//		horizontal.addComponent(name);
-//		horizontal.addComponent(id);
-//		horizontal.addComponent(description);
-//		vertical.addComponent(horizontal);
 		return this;
+	}
+	
+	@Override
+	protected void generateHeader() {
+		lbTitle.setValue(getBoldText("Tool"));
+		btUp.setVisible(false);
+		btDown.setVisible(false);
+		btDelete.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.removeComponent(Tool.this);
+			}
+		});
 	}
 	
 	public Tool createUIwithData(SADLDescription sadlDescription) {
@@ -65,24 +60,19 @@ public class Tool extends BasicModel{
 	}
 	
 	private void initElements() {
-//		name = new TextField("Display name");
-//		name.setWidth("100%");
-//		
-//		id = new TextField("Id");
-//		id.setWidth("100%");
-//		
-//		description = new TextArea();
-//		description.setCaption("Description");
-//		description.setWidth("200px");
 		lbId.setValue("Tool name:");
 		lbModule = new Label("Module:");
 		lbCategory = new Label("Category:");
 		
 		module = new ComboBox();
-		module.setWidth("100%");
+		module.setWidth(WIDTH);
 		
 		category = new ComboBox();
-		category.setWidth("100%");
+		category.setWidth(WIDTH);
+		
+		id.setRequired(true);
+		name.setRequired(true);
+		description.setRequired(true);
 	}
 	
 	
@@ -93,8 +83,12 @@ public class Tool extends BasicModel{
 	}
 	
 	public SADLDescription createSadlDescription() {
-		SADLDescription sadlDescription = new SADLDescription(Name.createName(id.getValue(), name.getValue()));
-		sadlDescription.setComment(getValueOrNull(description.getValue()));
-		return sadlDescription;
+		if(id.isValid() && name.isValid() && description.isValid()) {
+			SADLDescription sadlDescription = new SADLDescription(Name.createName(id.getValue(), name.getValue()));
+			sadlDescription.setComment(getValueOrNull(description.getValue()));
+			return sadlDescription;
+		} else {
+			return null;
+		}
 	}
 }

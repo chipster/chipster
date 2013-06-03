@@ -1,7 +1,10 @@
 package fi.csc.chipster.web.model;
 
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Button.ClickEvent;
 
+import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLSyntax.InputType;
@@ -11,13 +14,43 @@ public class Input extends InputOutputUI{
 	
 	private static final long serialVersionUID = -7370540274349829538L;
 	
+	public Input(ToolEditor root) {
+		this.root = root;
+	}
 	
 	@Override
 	public Input createUI() {
 //		grid.addComponent(new Label("Input"), 0, 0);
+		generateHeader();
 		initElements();
 		createBasicUI();
 		return this;
+	}
+	
+	@Override
+	protected void generateHeader() {
+		lbTitle.setValue(getBoldText("Input"));
+		btDelete.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.removeComponent(Input.this);
+			}
+		});
+		btUp.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveUpComponent(Input.this);
+			}
+		});
+		btDown.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveDownComponent(Input.this);
+			}
+		});
 	}
 	
 	@Override
