@@ -46,7 +46,7 @@ public class TextEditor extends VerticalLayout{
 				try {
 					SADLDescription description = parser.parse(text);
 //					System.out.println(description);
-					root.getToolEditor().removeAllComponents();
+					root.getToolEditor().removeItems();
 					root.getToolEditor().addTool(description);
 					List<Input> inputs = description.inputs();
 					for(int i = 0 ; i < inputs.size(); i++) {
@@ -75,6 +75,9 @@ public class TextEditor extends VerticalLayout{
 		
 		this.addComponent(txtArea);
 	}
+	public void setText(String text) {
+		txtArea.setValue(replaceHeader(text));
+	}
 	
 	public String getText() {
 		return txtArea.getValue();
@@ -96,6 +99,19 @@ public class TextEditor extends VerticalLayout{
 		}
 //		System.out.println("output:" + output);
 		return output.toString();
+	}
+	
+	private String replaceHeader(String header) {
+		StringBuilder old = new StringBuilder();
+		String text = txtArea.getValue();
+		String[] array = text.split(NEW_LINE);
+		int i = 0;
+		while (i < array.length && (array[i].startsWith("# TOOL") || array[i].startsWith("# INPUT") 
+				|| array[i].startsWith("# OUTPUT") || array[i].startsWith("# PARAMETER"))) {
+			old.append(array[i] + NEW_LINE);
+			i++;
+		}
+		return text.replace(old, header);
 	}
 
 }

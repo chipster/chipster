@@ -5,6 +5,9 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 
 import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class Tool extends BasicModel{
 
@@ -19,7 +22,7 @@ public class Tool extends BasicModel{
 	private ComboBox category;
 	
 	@Override
-	public GridLayout createUI() {
+	public Tool createUI() {
 		
 //		GridLayout grid = new GridLayout(3, 3);
 //		grid.setImmediate(true);
@@ -52,13 +55,13 @@ public class Tool extends BasicModel{
 //		horizontal.addComponent(id);
 //		horizontal.addComponent(description);
 //		vertical.addComponent(horizontal);
-		return grid;
+		return this;
 	}
 	
-	public GridLayout createUIwithData(SADLDescription sadlDescription) {
+	public Tool createUIwithData(SADLDescription sadlDescription) {
 		createUI();
 		fillWithData(sadlDescription);
-		return grid;
+		return this;
 	}
 	
 	private void initElements() {
@@ -86,6 +89,12 @@ public class Tool extends BasicModel{
 	private void fillWithData(SADLDescription sadlDescription) {
 		id.setValue(sadlDescription.getName().getID());
 		name.setValue(sadlDescription.getName().getDisplayName());
-		description.setValue((sadlDescription.getComment() == null ? "" : sadlDescription.getComment()));
+		description.setValue(getValue(sadlDescription.getComment()));
+	}
+	
+	public SADLDescription createSadlDescription() {
+		SADLDescription sadlDescription = new SADLDescription(Name.createName(id.getValue(), name.getValue()));
+		sadlDescription.setComment(getValueOrNull(description.getValue()));
+		return sadlDescription;
 	}
 }
