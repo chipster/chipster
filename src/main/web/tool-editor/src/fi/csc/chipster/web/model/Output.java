@@ -1,16 +1,24 @@
 package fi.csc.chipster.web.model;
 
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Button.ClickEvent;
 
+import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription;
 
 public class Output extends InputOutputUI{
 
 	private static final long serialVersionUID = 6280877684047822425L;
 	
+	public Output(ToolEditor root) {
+		this.root = root;
+	}
+	
 	@Override
 	public Output createUI() {
 //		grid.addComponent(new Label("Output"), 0, 0);
+		generateHeader();
 		initElements();
 		createBasicUI();
 		return this;
@@ -56,10 +64,37 @@ public class Output extends InputOutputUI{
 		SADLDescription.Output output = new SADLDescription.Output();
 		output.setName(getNameFromUI(type.getValue().toString()));
 		output.setOptional(optional.getValue().equals(OPTIONAL) ? true : false);
-		output.setComment(description.getValue());
+		output.setComment(getValueOrNull(description.getValue()));
 		output.setMeta(cbMeta.getValue());
 		
 		return output;
+	}
+
+	@Override
+	protected void generateHeader() {
+		lbTitle.setValue(getBoldText("Output"));
+		btDelete.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.removeComponent(Output.this);
+			}
+		});
+		btUp.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveUpComponent(Output.this);
+			}
+		});
+		btDown.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveDownComponent(Output.this);
+			}
+		});
+		
 	}
 
 }
