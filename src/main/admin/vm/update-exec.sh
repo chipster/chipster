@@ -63,6 +63,45 @@ echo ""
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
 
+
+# 2.6 special
+compare_to_current "2.5.2"
+
+# older than 2.5.2
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "Less than 2.5.2"
+  exit 1
+fi
+
+# current is 2.5.2
+if [ $CURRENT_COMPARED -eq 0 ] ; then 
+  echo "IMPORTANT! Please read this!"
+  echo ""
+  echo "There are two main disk images in the Chipster virtual machine: root.vmdk and tools.vmdk."
+  echo "Root.vmdk contains operating system and Chipster binaries" 
+  echo "and configuration files. The size of the root.vmdk is less than 2 GB at the moment."
+  echo "Tools.vmdk contains analysis tools binaries, libraries and" 
+  echo "annotations. The size of the tools.vmdk is a bit less than 200 GB at the moment."
+  echo ""
+  echo "In the original Chipster VM the maximum size of the tools.vmdk was about 288 GB."
+  echo "This maximum was later increased to 512 GB."
+  echo ""
+  echo "Since Chipster 2.6.0, the original tools.vmdk has become too small to contain all"
+  echo "the necessary files for Chipster. Therefore, depending on the time you first downloaded"
+  echo "Chipster VM, your tools.vmdk may be too small for Chipster 2.6"
+  echo ""
+  echo "To find out whether this is the case, look at the following 'Size' column in the next"
+  echo "few lines. If the size is 512 GB, you can continue to update to 2.6, if it's 188 GB, you"
+  echo "need to download new tools.vmdk."
+  exit
+
+fi
+
+
+
+
+
+
 # Check current version
 echo Detected version $CURRENT_VERSION
 compare_to_current "$LATEST_VERSION"
