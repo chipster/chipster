@@ -17,7 +17,6 @@ public class Output extends InputOutputUI{
 	
 	@Override
 	public Output createUI() {
-//		grid.addComponent(new Label("Output"), 0, 0);
 		generateHeader();
 		initElements();
 		createBasicUI();

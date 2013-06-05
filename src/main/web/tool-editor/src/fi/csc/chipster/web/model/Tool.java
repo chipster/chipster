@@ -14,10 +14,6 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class Tool extends BasicModel{
 
-//	private String name;
-//	private String id;
-//	private String description;
-	
 	private Label lbModule;
 	private Label lbCategory;
 	
