@@ -17,7 +17,7 @@ import fi.csc.microarray.description.SADLParser;
  * Main UI class
  */
 @SuppressWarnings("serial")
-//@Theme("tool_editor")
+@Theme("tool_editor")
 public class ToolEditorUI extends UI {
 	
 	private VerticalSplitPanel vSplitPanel;
