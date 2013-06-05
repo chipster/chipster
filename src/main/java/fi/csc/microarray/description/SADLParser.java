@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
@@ -196,10 +196,6 @@ public class SADLParser {
 			name.setDisplayName(tokens.next());
 		}
 		
-		// check 
-		if (name == null) {
-			throw new ParseException("name is null");
-		}
 		if (name.getID() == null && (name.getPrefix() == null && name.getPostfix() == null)) {
 			throw new ParseException("id, prefix and postfix are all null");
 		}

@@ -3,7 +3,11 @@
 """
 This tool should create bundle specifications and tar packages from input given on stdin
 
-Create test files e.g with "for n in {1..3}; do dd if=/dev/urandom of=file${n} bs=1M count=1; done"
+NOTES:
+    * Create test files e.g with "for n in {1..3}; do dd if=/dev/urandom of=file${n} bs=1M count=1; done"
+
+TODO:
+    * Add some form of file duplicate check; warning or symlinking
 """
 
 import argparse
@@ -14,6 +18,7 @@ import tarfile
 import os
 import yaml
 import bundle
+import subprocess
 
 
 __author__ = "Mikael Karlsson <i8myshoes@gmail.com>"
@@ -48,14 +53,58 @@ def create_tarball(archive_name, file_list, compression):
     :param compression: Compression schema
         * gz
         * bz2
+        * none
     """
-    if compression not in ["gz", "bz2"]:
-        compression = ""
-    tf = tarfile.open(name=archive_name, mode="w:" + compression)
-    for file in file_list:
-        name_in, name_out = file[0], file[1]
-        logging.debug("name_in: %s, name_out: %s" % (name_in, name_out))
-        tf.add(name=name_in, arcname=name_out, recursive=False)
+
+    def compress_block(tf):
+        logging.debug("compress_block({})".format(tf))
+        for file in file_list:
+            name_in, name_out = file[0], file[1]
+            logging.debug("name_in: %s, name_out: %s" % (name_in, name_out))
+            tf.add(name=name_in, arcname=name_out, recursive=False)
+
+    def external_compressor(cmd):
+        logging.debug("external_compressor({})".format(cmd))
+        try:
+            with open(archive_name, "wb") as f, \
+                subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=f) as p, \
+                tarfile.open(fileobj=p.stdin, mode="w|") as tf:
+                compress_block(tf)
+        except OSError as e:
+            if e.errno == 2:
+                logging.warning("Compressor '{}' not found! {}".format(cmd[0], e))
+                try:
+                    logging.debug("Trying next compressor!")
+                    external_compressor(compressors[compression].pop(0))
+                except IndexError as e:
+                    logging.warning("Out of external compressors! {}".format(e))
+                    logging.debug("Switching to internal compressor!")
+                    internal_compressor()
+            else:
+                raise
+
+    def internal_compressor():
+        logging.debug("internal_compressor()")
+        with tarfile.open(name=archive_name, mode="w:" + compression) as tf:
+            compress_block(tf)
+
+    logging.debug("create_tarball({})".format(archive_name, file_list, compression))
+    compressors = {
+        "gz": [
+            ["pigz", "-6"],
+            ["gzip", "-6"]
+        ],
+        "bz2": [
+            ["pbzip2", "-6"],
+            ["lbzip2", "-6"],
+            ["bzip2", "-6"]
+        ]
+    }
+
+    if compression in compressors:
+        external_compressor(compressors[compression].pop(0))
+    else:
+        internal_compressor()
 
 
 def detect_duplicates_and_rename(file_name, file_list):
@@ -153,10 +202,12 @@ def main():
     yaml_dict = {}
     file_list = []
     symlink_list = []
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     params = vars(parse_commandline())
-    params["archive"] = "{}-{}.t{}".format(params["name"], params["version"], params["compression"])
+    params["archive"] = "{}-{}.tar{}".format(
+        params["name"], params["version"],
+        "." + params["compression"] if params["compression"] in ("gz", "bz2") else "")
     if not params["file"]:
         params["file"] = "{}-{}.yaml".format(params["name"], params["version"])
     logging.debug("Params: {}".format(params))
@@ -165,7 +216,7 @@ def main():
     for file_name in sys.stdin:
         file_name = refine_path(file_name.strip(), chipster_path, tools_path)
         if os.path.islink(file_name):
-            symlink_list.append((file_name, os.readlink(file_name)))
+            symlink_list.append((os.readlink(file_name), file_name))
             logging.debug("symlink_list: %s" % symlink_list)
         elif os.path.isfile(file_name):
             file_list.append(process_file(file_name=file_name, file_list=file_list))
@@ -238,7 +289,7 @@ def parse_commandline():
     parser.add_argument("-c", "--compression",
                         type=str,
                         help="Bundle <compression>",
-                        choices=["gz", "bz2"],
+                        choices=["gz", "bz2", "no"],
                         default="gz")
     parser.add_argument("-f", "--file",
                         type=str,

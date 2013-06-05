@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.5.2
+LATEST_VERSION=2.6.0
 
 # Exit immediately if some command fails
 set -e
@@ -62,6 +62,45 @@ echo ""
 
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
+
+
+# 2.6 special
+compare_to_current "2.5.2"
+
+# older than 2.5.2
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "Less than 2.5.2"
+  exit 1
+fi
+
+# current is 2.5.2
+if [ $CURRENT_COMPARED -eq 0 ] ; then 
+  echo "IMPORTANT! Please read this!"
+  echo ""
+  echo "There are two main disk images in the Chipster virtual machine: root.vmdk and tools.vmdk."
+  echo "Root.vmdk contains operating system and Chipster binaries" 
+  echo "and configuration files. The size of the root.vmdk is less than 2 GB at the moment."
+  echo "Tools.vmdk contains analysis tools binaries, libraries and" 
+  echo "annotations. The size of the tools.vmdk is a bit less than 200 GB at the moment."
+  echo ""
+  echo "In the original Chipster VM the maximum size of the tools.vmdk was about 288 GB."
+  echo "This maximum was later increased to 512 GB."
+  echo ""
+  echo "Since Chipster 2.6.0, the original tools.vmdk has become too small to contain all"
+  echo "the necessary files for Chipster. Therefore, depending on the time you first downloaded"
+  echo "Chipster VM, your tools.vmdk may be too small for Chipster 2.6"
+  echo ""
+  echo "To find out whether this is the case, look at the following 'Size' column in the next"
+  echo "few lines. If the size is 512 GB, you can continue to update to 2.6, if it's 188 GB, you"
+  echo "need to download new tools.vmdk."
+  exit
+
+fi
+
+
+
+
+
 
 # Check current version
 echo Detected version $CURRENT_VERSION
@@ -125,7 +164,7 @@ compare_to_current "2.1.0"
 if [ $CURRENT_COMPARED -lt 0 ] ; then 
 
     echo "** Updating prinseq"
-  cd ${TMPDIR_PATH}/
+    cd ${TMPDIR_PATH}/
     curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
     chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
     chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
@@ -562,7 +601,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/contents2.txt
 
   echo "** Updating HTSeq"
-  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
 
   sudo pip install HTSeq==0.5.4p3
   sudo wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
@@ -580,6 +619,168 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   sudo chmod 644 /etc/cron.d/chipster-announcements
 
 fi
+
+
+# 2.6.0
+compare_to_current "2.6.0"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Installing png library for R-2.15.1_bioc-2.11"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/png-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+  # install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="png")
+
+  echo "** Updating R-2.15.1"
+  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  #biocLite("crlmm")
+  #biocLite("oligo")
+  #biocLite("pd.mapping50k.hind240")
+  #biocLite("pd.mapping50k.xba240")
+  #biocLite("pd.mapping250k.nsp")
+  #biocLite("pd.mapping250k.sty")
+  #biocLite("pd.genomewidesnp.5")
+  #biocLite("pd.genomewidesnp.6")
+  #biocLite("genomewidesnp6Crlmm")
+  #biocLite("genomewidesnp5Crlmm")
+  #biocLite("human1mduov3bCrlmm") #Illumina
+  #biocLite("human1mv1cCrlmm") #Illumina
+  #biocLite("human370quadv3cCrlmm") #Illumina
+  #biocLite("human370v1cCrlmm") #Illumina
+  #biocLite("human550v3bCrlmm") #Illumina
+  #biocLite("human610quadv1bCrlmm") #Illumina
+  #biocLite("human650v3aCrlmm") #Illumina
+  #biocLite("human660quadv1aCrlmm") #Illumina
+  #biocLite("humanomni1quadv1bCrlmm") #Illumina
+  #biocLite("humanomniexpress12v1bCrlmm") #Illumina
+  
+
+  echo "** Installing affy_20 for R-2.12"
+  cd ${TMPDIR_PATH}/
+  
+  # TAIR annotations for Arabidosis 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgprobe_17.0.0.tar.gz'
+
+  # Entrez annotations for human
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgprobe_17.0.0.tar.gz'
+
+  # Entrez annotations for Arabidosis 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgcdf_17.0.0.tar.gz'
+
+  # Entrez annotations for ragene_20 and ragene_21
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgcdf_17.0.0.tar.gz'
+
+  # Entrez annotations for mouse_20 and mouse_21
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezg.db_17.0.0.tar.gz'
+
+  # Entrez annotations for Danio rerio 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezg.db_17.0.0.tar.gz'
+
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
+  
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
+
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgprobe_17.0.0.tar.gz
+  
+  
+  echo "** Add fasta links to bowtie2 indexes"
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie2/indexes
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie/indexes
+
+  echo "** Updating Sus_scrofa bowtie2 index"
+  rm ${TOOLS_PATH}/bowtie2/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.*
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+        
+        
+fi
+
+
+
+# 2.6.1
+compare_to_current "2.6.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Fixing HTSeq"
+  rm -f ${TOOLS_PATH}/htseq/htseq-count_chr
+  rm -f ${TOOLS_PATH}/htseq/htseq_count_chr
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
+        
+        
+fi
+
+
+
+
 
   
 

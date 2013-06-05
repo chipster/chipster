@@ -2,12 +2,12 @@
 # INPUT segmented.tsv: segmented.tsv TYPE GENE_EXPRS
 # OUTPUT aberrations.tsv: aberrations.tsv
 # OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf
-# PARAMETER number.of.copy.number.states: number.of.copy.number.states TYPE [3: 3, 4: 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
+# PARAMETER number.of.copy.number.states: "number of copy number states" TYPE [3: 3, 4: 4] DEFAULT 3 (Three states means calling loss vs. normal vs. gain, four states calls amplifications separately, and five also homozygous deletions.)
 # PARAMETER organism: organism TYPE [human: human, other: other] DEFAULT human (Organism.)
-# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
+# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-11-08
+# 2013-04-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
@@ -34,54 +34,91 @@ remove <- rowSums(is.na(logratios)) + rowSums(is.na(segmented))
 cgh.seg <- cgh.seg[remove == 0,]
 cgh.seg <- cgh.seg[chromosomes(cgh.seg) < 24,]
 
+# identify different matrices (chip, flag, ...) present in the data
+x <- colnames(dat)
+suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
+matrices <- sub(suffix, '', x[grep(suffix, x)])
+annotations <- 1:length(x)
+for (m in matrices) {
+  annotations <- setdiff(annotations, grep(m, x))
+}
+
+dat3 <- dat[featureNames(cgh.seg), annotations]
+
 chips <- colnames(dat)[grep("^chip\\.", names(dat))]
 
+# clean up to save memory
+rm(file, dat, logratios, segmented, remove, x, suffix, matrices, annotations, m)
+gc()
+
 cgh.psn <- postsegnormalize(cgh.seg)
+
+rm(cgh.seg)
+gc()
+
 cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build, ncpus=4)
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
 
-dat3 <- data.frame(cgh@featureData@data)
-colnames(dat3) <- c('chromosome', 'start', 'end')
+rm(cgh.psn, cgh.cal)
+gc()
 
-for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
-  if (col %in% colnames(dat))
-    dat3[,col] <- dat[rownames(dat3), col]
+#dat3 <- fData(cgh)
+#colnames(dat3) <- c('chromosome', 'start', 'end')
+#dat3 <- dat3[featureNames(cgh),]
 
-calls <- assayDataElement(cgh, 'calls')
+#for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
+#  if (col %in% colnames(dat))
+#    dat3[,col] <- dat[rownames(dat3), col]
 
+calls <- calls(cgh)
+
+if (-2 %in% calls)
+  dat3$del.freq <- round(rowMeans(calls == -2), digits=3)
 dat3$loss.freq <- round(rowMeans(calls == -1), digits=3)
 dat3$gain.freq <- round(rowMeans(calls == 1), digits=3)
-if (number.of.copy.number.states=='4' && 2 %in% calls)
+if (2 %in% calls)
   dat3$amp.freq <- round(rowMeans(calls == 2), digits=3)
 
-colnames(calls) <- sub('chip.', 'flag.', chips)
+cols <- colnames(dat3)
+
 dat3 <- cbind(dat3, calls)
+cols <- c(cols, sub('chip.', 'flag.', chips))
+rm(calls)
+gc()
 
-copynumber <- assayDataElement(cgh, 'copynumber')
-colnames(copynumber) <- chips
-dat3 <- cbind(dat3, copynumber)
+dat3 <- cbind(dat3, copynumber(cgh))
+cols <- c(cols, chips)
+gc()
 
-segmented <- assayDataElement(cgh, 'segmented')
-colnames(segmented) <- sub('chip.', 'segmented.', chips)
-dat3 <- cbind(dat3, segmented)
+dat3 <- cbind(dat3, segmented(cgh))
+cols <- c(cols, sub('chip.', 'segmented.', chips))
+gc()
 
-probloss <- assayDataElement(cgh, 'probloss')
-colnames(probloss) <- sub('chip.', 'probloss.', chips)
-dat3 <- cbind(dat3, probloss)
+if (number.of.copy.number.states=='5') {
+  dat3 <- cbind(dat3, probdloss(cgh))
+  cols <- c(cols, sub('chip.', 'probdel.', chips))
+  gc()
+}
 
-probnorm <- assayDataElement(cgh, 'probnorm')
-colnames(probnorm) <- sub('chip.', 'probnorm.', chips)
-dat3 <- cbind(dat3, probnorm)
+dat3 <- cbind(dat3, probloss(cgh))
+cols <- c(cols, sub('chip.', 'probloss.', chips))
+gc()
 
-probgain <- assayDataElement(cgh, 'probgain')
-colnames(probgain) <- sub('chip.', 'probgain.', chips)
-dat3 <- cbind(dat3, probgain)
+dat3 <- cbind(dat3, probnorm(cgh))
+cols <- c(cols, sub('chip.', 'probnorm.', chips))
+gc()
+
+dat3 <- cbind(dat3, probgain(cgh))
+cols <- c(cols, sub('chip.', 'probgain.', chips))
+gc()
 
 if (number.of.copy.number.states=='4') {
-  probamp <- assayDataElement(cgh, 'probamp')
-  colnames(probamp) <- sub('chip.', 'probamp.', chips)
-  dat3 <- cbind(dat3, probamp)
+  dat3 <- cbind(dat3, probamp(cgh))
+  cols <- c(cols, sub('chip.', 'probamp.', chips))
+  gc()
 }
+
+colnames(dat3) <- cols
 
 dat3$chromosome <- as.character(dat3$chromosome)
 dat3$chromosome[dat3$chromosome=='23'] <- 'X'
