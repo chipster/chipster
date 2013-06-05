@@ -20,7 +20,6 @@ public class Input extends InputOutputUI{
 	
 	@Override
 	public Input createUI() {
-//		grid.addComponent(new Label("Input"), 0, 0);
 		generateHeader();
 		initElements();
 		createBasicUI();
