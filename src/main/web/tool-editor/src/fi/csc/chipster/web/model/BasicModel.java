@@ -1,5 +1,9 @@
 package fi.csc.chipster.web.model;
 
+import java.io.File;
+
+import com.vaadin.server.FileResource;
+import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -69,7 +73,12 @@ public abstract class BasicModel extends GridLayout{
 		lbTitle.setContentMode(ContentMode.HTML);
 		btUp = new Button("Up");
 		btDown = new Button("Down");
-		btDelete = new Button("X");
+		btDelete = new Button();
+		String basepath = VaadinService.getCurrent()
+                .getBaseDirectory().getAbsolutePath();
+		System.out.println(basepath);
+		basepath = basepath.replace("\\web\\tool-editor\\WebContent", "");
+		btDelete.setIcon(new FileResource(new File(basepath + "\\resources\\no.png")));
 		btDelete.setImmediate(true);
 		btUp.setImmediate(true);
 		btDown.setImmediate(true);
