@@ -1035,14 +1035,21 @@ public class DataManager {
 		}
 		
 		// check if we have cache location
-		ContentLocation cacheLocation = null;
+		URL cacheURL = null;
 		if (dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).size() > 0) {
-			cacheLocation = dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).get(0);
+			cacheURL = dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).get(0).getUrl();
 		}
 		
-		// as for url to upload to, while notifying about existing cache location (filebroker can then just move it)
+		// ask for url to upload to, while notifying about existing cache location (filebroker can then just move it)
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
-		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(closestLocation.getHandler().getInputStream(closestLocation), cacheLocation.getUrl(), dataBean.getContentLength());
+		URL storageURL;
+		if (cacheURL != null) {
+			// might need upload
+			storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(closestLocation.getHandler().getInputStream(closestLocation), cacheURL, dataBean.getContentLength());
+		} else {			
+			// will need upload
+			storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), dataBean.getContentLength(), null);
+		}
 		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE, getHandlerFor(StorageMethod.REMOTE), storageURL));
 
 		// remove cache locations, because they might have been obsoleted  

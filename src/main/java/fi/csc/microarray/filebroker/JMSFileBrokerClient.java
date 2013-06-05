@@ -173,7 +173,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	/**
-	 * Add file to storage that currently exists in cache.
+	 * Add to storage a file that currently exists in cache.
 	 */
 	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException {
 		logger.debug("moving from cache to storage: " + cacheURL);

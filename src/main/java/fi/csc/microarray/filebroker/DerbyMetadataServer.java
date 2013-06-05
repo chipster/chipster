@@ -56,22 +56,22 @@ public class DerbyMetadataServer {
 				"username VARCHAR(200))" 
 		},
 		{
-			"sessions",
-			"CREATE TABLE chipster.sessions (" +
+			"files",
+			"CREATE TABLE chipster.files (" +
 					"uuid VARCHAR(200) PRIMARY KEY,  " +
 					"size BIGINT,  " +
 					"created TIMESTAMP,  " +
 					"last_accessed TIMESTAMP)"
 		},
 		{
-			"sessions",
-			"CREATE TABLE chipster.sessions (" + 
+			"belongs_to",
+			"CREATE TABLE chipster.belongs_to (" + 
 					"session_uuid VARCHAR(200)," +
 					"file_uuid VARCHAR(200))"
 		},
 		{
-			"sessions",
-			"CREATE TABLE chipster.sessions (" + 
+			"special_users",
+			"CREATE TABLE chipster.special_users (" + 
 					"username VARCHAR(200) PRIMARY KEY," + 
 					"show_as_folder VARCHAR(200))"
 		}
