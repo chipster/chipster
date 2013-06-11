@@ -562,7 +562,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/contents2.txt
 
   echo "** Updating HTSeq"
-  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
 
   sudo pip install HTSeq==0.5.4p3
   sudo wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
@@ -721,6 +721,20 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   echo "** Updating Sus_scrofa bowtie2 index"
   rm ${TOOLS_PATH}/bowtie2/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.*
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+        
+        
+fi
+
+
+
+# 2.6.1
+compare_to_current "2.6.1"
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+
+  echo "** Fixing HTSeq"
+  rm -f ${TOOLS_PATH}/htseq/htseq-count_chr
+  rm -f ${TOOLS_PATH}/htseq/htseq_count_chr
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
         
         
 fi

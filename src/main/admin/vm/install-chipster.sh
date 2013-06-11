@@ -562,7 +562,7 @@ then
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
-  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq_count_chr
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
