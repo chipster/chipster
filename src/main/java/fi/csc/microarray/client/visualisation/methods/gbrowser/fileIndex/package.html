@@ -1,0 +1,11 @@
+<body bgcolor="white">
+
+<p>The data layer implementation for indexed data sources. Data layers receive DataRequest objects and sends DataResult objects.</p>
+
+<p>The indexed data sources have a precalculated index file.
+The central classes for the indexed case are BamTo*Conversion, IndexedFastaConversion and ConcisedValueCache. All 
+the current implementations are based on Picard library, which actually reads the index file and calculates the 
+right part of the actual data file. The classes in this package mostly just present a Chipster style interface on top of
+the Picard.</p>  
+ 
+</body>

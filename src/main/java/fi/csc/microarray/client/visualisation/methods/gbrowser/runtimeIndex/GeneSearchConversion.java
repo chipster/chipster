@@ -26,7 +26,7 @@ public class GeneSearchConversion extends DataThread {
 
 		try {
 
-			dataSource = new LineDataSource(url, null);
+			dataSource = new LineDataSource(url);
 
 		} catch (IOException e) {
 			e.printStackTrace();

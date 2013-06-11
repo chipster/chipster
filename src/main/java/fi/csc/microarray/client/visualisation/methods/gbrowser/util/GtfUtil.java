@@ -27,7 +27,7 @@ public class GtfUtil {
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
 		try {
-			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), GtfToFeatureConversion.class), new GtfLineParser());
+			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());
 			
 			GtfLineParser parser = new GtfLineParser();
 			

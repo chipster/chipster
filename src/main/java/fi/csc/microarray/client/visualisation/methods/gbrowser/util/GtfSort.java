@@ -38,7 +38,7 @@ public class GtfSort {
 		
 		InMemoryIndex index;
 
-		index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), null), new GtfLineParser());		
+		index = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());		
 				
 		for (String line : index.getFileLines()) {
 			out.append(line);

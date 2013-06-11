@@ -19,8 +19,8 @@ import java.net.URL;
  */
 public class LineDataSource extends DataSource {
 	
-	public LineDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
-		super(url, requestHandler);
+	public LineDataSource(URL url) throws FileNotFoundException, URISyntaxException {
+		super(url);
 	}
 
 	BufferedReader reader;

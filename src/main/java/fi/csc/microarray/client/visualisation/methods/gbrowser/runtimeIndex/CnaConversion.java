@@ -34,13 +34,25 @@ public class CnaConversion extends DataThread {
 
 	private CnaLineParser parser;
 
-	public CnaConversion(DataSource file, final GBrowser browser) {
-	    
+	private LinkedList<String> sampleNames;
+
+	public CnaConversion(RandomAccessLineDataSource file, final GBrowser browser) {
+			    
 		super(browser);
+		
 
 		this.parser = new CnaLineParser();
 		
 		try {
+			//read sample names
+			file.setLineReaderPosition(0);
+			String header = file.getNextLine();
+			CnaLineParser parser = new CnaLineParser();
+			parser.setLine(header);
+			
+			this.sampleNames = parser.getSampleNames();
+			
+			//create index
 			this.index = new BinarySearchIndex(file, parser);
 		
 		} catch (final UnsortedDataException e) {
@@ -154,5 +166,9 @@ public class CnaConversion extends DataThread {
 		}	
 		
 		super.createDataResult(new DataResult(request.getStatus(), list));
+	}
+	
+	public LinkedList<String> getSampleNames() {
+		return sampleNames;
 	}
 }

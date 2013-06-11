@@ -22,10 +22,8 @@ public abstract class DataSource {
 	protected File file = null;
 	protected URL url = null;
 	protected String name;
-	protected Class<? extends DataThread> requestHandler;
-	
 
-	public DataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
+	public DataSource(URL url) throws FileNotFoundException, URISyntaxException {
 		
 		if (url != null) {
 			if ("file".equals(url.getProtocol())) {
@@ -35,21 +33,15 @@ public abstract class DataSource {
 			}
 			this.name = url.toString(); 
 		}
-		
-		this.requestHandler = requestHandler;
 	}
 	
-	public DataSource(URL urlRoot, String path, Class<? extends DataThread> requestHandler2)
+	public DataSource(URL urlRoot, String path)
 	        throws FileNotFoundException, MalformedURLException, URISyntaxException {
-		this(new URL(urlRoot.toString() + "/" + path), requestHandler2);
+		this(new URL(urlRoot.toString() + "/" + path));
 	}
 	
 	@Override
 	public String toString() {
 		return name;
-	}
-	
-	public Class<? extends DataThread> getRequestHandler() {
-		return requestHandler;
 	}
 }

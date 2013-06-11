@@ -62,7 +62,7 @@ public class IndexPerformanceTest {
 		InMemoryIndex memIndex;
 		BinarySearchIndex searchIndex;
 
-		memIndex = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), GtfToFeatureConversion.class), new GtfLineParser());
+		memIndex = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());
 		
 		System.out.println("Init memIndex: " + (System.currentTimeMillis() - t)  + " ms");
 		t = System.currentTimeMillis();

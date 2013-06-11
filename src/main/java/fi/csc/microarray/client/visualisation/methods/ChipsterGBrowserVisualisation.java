@@ -27,12 +27,12 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
@@ -194,9 +194,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
-				for (DataUrl summaryData : interpretation.getSummaryDatas()) {
-					initialiseUserData(summaryData);
-				}
 			}
 		}
 
@@ -407,11 +404,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 
 			if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-					(data.getName().contains(".bam-summary"))) {
-				// BAM summary file (from custom preprocessor)
-				primaryInterpretation.getSummaryDatas().add(new BeanDataFile(data));
-
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(isIndexData(data))) {
 				// BAI file
 				if (primaryInterpretation.getIndexData() != null) {

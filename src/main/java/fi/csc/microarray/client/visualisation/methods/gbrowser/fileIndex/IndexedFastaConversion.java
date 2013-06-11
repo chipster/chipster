@@ -7,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.picard.PicardException;
-import net.sf.picard.reference.ReferenceSequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
@@ -47,32 +45,23 @@ public class IndexedFastaConversion extends DataThread {
 		}
 
 		List<RegionContent> responseList = new LinkedList<RegionContent>();
+		
+		String sequence = dataSource.query(request.start.chr, request.start.bp, request.end.bp);
 
-		try {
-			
-			String chr = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
-	
-			ReferenceSequence picardSequence = dataSource.getPicard().getSubsequenceAt(chr, request.start.bp, request.end.bp);
-			String sequence = new String(picardSequence.getBases());
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+		values.put(DataType.SEQUENCE, sequence);
 
-			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
-			values.put(DataType.SEQUENCE, sequence);
+		RegionContent regCont = new RegionContent(request, values);
 
-			RegionContent regCont = new RegionContent(request, values);
+		/*
+		 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
+		 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
+		 * the same reads to their read sets again and again.
+		 */
+		responseList.add(regCont);
 
-			/*
-			 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
-			 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
-			 * the same reads to their read sets again and again.
-			 */
-			responseList.add(regCont);
-
-			// Send result
-			createDataResult(new DataResult(request.getStatus(), responseList));
-			
-		} catch (PicardException e) {
-			e.printStackTrace(); //Catch "Query asks for data past end of contig" to prevent this thread from ending
-		}		
+		// Send result
+		createDataResult(new DataResult(request.getStatus(), responseList));				
 	}
 
 	public String toString() {

@@ -14,37 +14,37 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * Handler for data sources that are accessed directly, meaning that they do not
- * have indexes (like tab-separated tables). Reads data in chunks and the user
- * must parse meaningful content out from the chunks.
+ * have indexes (like tab-separated tables). Reads data to byte array and the user
+ * must parse meaningful content out from the bytes.
  * 
  * @author Petri Klemelä, Aleksi Kallio
  *
  */
-public class ChunkDataSource extends DataSource {
+public class ByteDataSource extends DataSource {
 
 	private RandomAccessFile raFile;
 
 	private Long length = null;
 
-	public ChunkDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
-		super(url, requestHandler);
+	public ByteDataSource(URL url) throws FileNotFoundException, URISyntaxException {
+		super(url);
 		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
 	}
 
-	public ChunkDataSource(URL urlRoot, String path, Class<? extends DataThread> requestHandler)
+	public ByteDataSource(URL urlRoot, String path)
 	throws FileNotFoundException, MalformedURLException, URISyntaxException {
-		super(urlRoot, path, requestHandler);
+		super(urlRoot, path);
 		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");
 		}
 	}
 	
-	public int read(long filePosition, byte[] chunk) throws IOException {
-		return read(filePosition, chunk, true);
+	public int read(long filePosition, byte[] bytes) throws IOException {
+		return read(filePosition, bytes, true);
 	}
 
 	/**
@@ -52,23 +52,22 @@ public class ChunkDataSource extends DataSource {
 	 * (like one megabyte or so).
 	 * 
 	 * @param filePosition
-	 * @param chunk
+	 * @param bytes
 	 * @param retry Set true to do another requests when server doesn't send as meny bytes as requested, false
 	 * to try just ones.  
 	 * @return
 	 * @throws IOException
 	 */
-	public int read(long filePosition, byte[] chunk, boolean retry) throws IOException {       
+	public int read(long filePosition, byte[] bytes, boolean retry) throws IOException {       
 
 		if (raFile != null) {
 			raFile.seek(filePosition);
-			return raFile.read(chunk);
+			return raFile.read(bytes);
 
 		} else {
 
-			long endFilePosition = filePosition + chunk.length;
+			long endFilePosition = filePosition + bytes.length;
 
-			//The ChunkFileFetcherThread makes requests bigger to get the last line fully
 			//Make sure that we won't make requests outside the file end   	        	        	
 			if (endFilePosition > length()) {
 				endFilePosition = length();
@@ -79,7 +78,7 @@ public class ChunkDataSource extends DataSource {
 
 				connection = (HttpURLConnection)url.openConnection();
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + endFilePosition);
-				int bytes = connection.getInputStream().read(chunk);
+				int byteCount = connection.getInputStream().read(bytes);
 
 				if (retry) {
 
@@ -89,19 +88,19 @@ public class ChunkDataSource extends DataSource {
 					 * point to continue.
 					 */
 
-					if (bytes < endFilePosition - filePosition && bytes != 0) {
+					if (byteCount < endFilePosition - filePosition && byteCount != 0) {
 
-						byte[] nextBytes = new byte[(int) (endFilePosition - filePosition - bytes)];
+						byte[] nextBytes = new byte[(int) (endFilePosition - filePosition - byteCount)];
 
-						int nextLength = read(filePosition + bytes, nextBytes);
+						int nextLength = read(filePosition + byteCount, nextBytes);
 
 						for (int i = 0; i < nextLength; i++) {
-							chunk[bytes + i] = nextBytes[i];
+							bytes[byteCount + i] = nextBytes[i];
 						}
 					}
 				}
 
-				return bytes;
+				return byteCount;
 
 			} catch (IOException e) {
 				if(e.getMessage().contains("HTTP") && e.getMessage().contains(" 416 ")) {
@@ -191,10 +190,6 @@ public class ChunkDataSource extends DataSource {
 			} 
 		}
 		return length;
-	}
-
-	public RandomAccessFile getFile() {
-		return raFile;
 	}
 
 	public void close() {

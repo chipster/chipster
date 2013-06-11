@@ -33,7 +33,7 @@ public class CytobandConversion extends DataThread {
 
 		try {
 
-			LineDataSource cytobandDataSource = new LineDataSource(url, null);
+			LineDataSource cytobandDataSource = new LineDataSource(url);
 			this.index = new InMemoryIndex(cytobandDataSource, parser);
 
 		} catch (IOException e) {

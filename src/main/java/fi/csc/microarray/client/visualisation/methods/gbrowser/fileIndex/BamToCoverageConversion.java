@@ -7,12 +7,11 @@ import java.util.LinkedList;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
@@ -20,7 +19,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadpartDataProvider;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
  * This conversion class uses Picard to read Bam files and calculates a coverage.
@@ -42,7 +40,7 @@ public class BamToCoverageConversion extends DataThread {
 	@Override
 	public void clean() {
 		
-		SamBamUtils.closeIfPossible(dataSource.getReader());
+		dataSource.close();
 	}
 
 
@@ -67,8 +65,7 @@ public class BamToCoverageConversion extends DataThread {
 		long start = CoverageTool.getBin(from.bp);
 		long end = CoverageTool.getBin(to.bp) + CoverageTool.BIN_SIZE - 1;
 				
-		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(
-				dataSource.getChromosomeNameUnnormaliser().unnormalise(from.chr), (int)start, (int)end, false);
+		CloseableIterator<SAMRecord> iterator = dataSource.query(from.chr, (int)start, (int)end);
 		
 		LinkedList<RegionContent> reads = new LinkedList<RegionContent>();
 		

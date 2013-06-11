@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
@@ -13,7 +14,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
  * equally fast from any part of the file, regardless of its size.
  * 
  * <p>In addition to line reading of {@link RandomAccessLineReader}, this class has a method for 
- * getting the last line of file conveniently. 
+ * getting the last line of file conveniently.</p>
+ * 
+ * <p>There is no need for {@link ChromosomeNameUnnormaliser}, because all chromosome names are immediately normalised.</p>
  * 
  * @author klemela
  */
@@ -22,17 +25,10 @@ public class RandomAccessLineDataSource extends DataSource {
 	private RandomAccessLineReader lineReader;
 	
 	public RandomAccessLineDataSource(URL url) throws FileNotFoundException, URISyntaxException {
-		super(url, null);
+		super(url);
 		
 		this.lineReader = new RandomAccessLineReader(url);
 	}
-
-	@Deprecated
-	public RandomAccessLineDataSource(URL url, Class<? extends DataThread> requestHandler) throws FileNotFoundException, URISyntaxException {
-		super(url, requestHandler);
-		
-		this.lineReader = new RandomAccessLineReader(url);
-	}	
 	
 	/**
 	 * See {@link RandomAccessLineReader#setPosition(long)} for comments.

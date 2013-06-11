@@ -45,7 +45,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 	@Override
 	public void clean() {
 		
-		SamBamUtils.closeIfPossible(dataSource.getReader());
+		dataSource.close();
 	}
 
 
@@ -170,7 +170,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		CloseableIterator<SAMRecord> iterator = null;
 		
 		try {
-			iterator = dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(from.chr), (int) start, (int) end, false);
+			iterator = dataSource.query(from.chr, (int) start, (int) end);
 		
 		} catch (RuntimeException e) {
 			throw new GBrowserException("Error in data query. Ususally this happens when a wrong index file is selected.", e);

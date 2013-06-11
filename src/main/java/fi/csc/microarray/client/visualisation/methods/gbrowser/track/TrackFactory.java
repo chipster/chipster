@@ -1,16 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Utility class for creating predefined {@link TrackGroup} objects.  
@@ -59,8 +57,7 @@ public class TrackFactory {
 	}
 	
 	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, DataThread details, DataThread coverage, DataThread estimate, 
-			DataThread seqFile, String title)	
-	        throws FileNotFoundException, MalformedURLException {
+			DataThread seqFile, String title) {
 	
 		GBrowserView dataView = genomePlot.getDataView();
 		

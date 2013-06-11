@@ -1,22 +1,18 @@
 <body bgcolor="white">
-<p>The Chipster Genome browser. Basic architecture of the browser code is 3 layered: view layer, processing layer and data source layer.
-View layer is run inside the Swing event dispatch thread. The other two lower layers are run inside several threads, each 
+<p>The Chipster Genome browser. Basic architecture of the browser code is 2 layered: view layer and data layer.
+View layer is run inside the Swing event dispatch thread. The data layer is run inside several threads, each 
 corresponding to a data source.</p>
 
-<p>View layer sends AreaRequest objects and receives AreaResult objects. Processing layer receives AreaRequest and file result objects and
-sends file requests. Data source layer receives file request and sends file results.</p>
+<p>View layer sends DataRequest objects and receives DataResult objects.</p>
 
 <p>The major classes/interfaces of the view layer are GBrowserPlot (the core, constructed out of views), View (does actual drawing), 
 Drawable (tells what is drawn) and Track (generates Drawable objects).</p>
 
-<p>The processing layer has two different implementations: one for non-indexed (chunk) data sources and 
-other for indexed (SAM) data sources. The central classes of the non-indexed case are ChunkTreeHandlerThread and TreeNode.
-The central classes for the indexed case are SAMHandlerThread and ConcisedValueCache.</p>
-
-<p>The data source layer has two implementations, like the processing layer. For non-indexed data sources 
-the major class is ChunkFileFetcherThread and for indexed data sources it is SAMFileFetcherThread.</p>
+<p>The data layer has two different implementations: one for non-indexed (package runtimeIndex) data sources and 
+other for indexed (package fileIndex) data sources. The central class of the non-indexed case is BinarySearchIndex.
+The central classes for the indexed case are BamTo*Conversion, IndexedFastaConversion and ConcisedValueCache.</p>
 
 <p>Important generic classes are the ones that we use to represent genomic coordinates: BpCoord (single coordinate), 
-BpCoordRegion (region defined by start and end coordinates) and Chromosome (normalised name of the chromosome).</p>  
+Region (region defined by start and end coordinates) and Chromosome (normalised name of the chromosome).</p>  
  
 </body>

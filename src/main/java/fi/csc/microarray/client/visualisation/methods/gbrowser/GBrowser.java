@@ -8,13 +8,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -28,48 +24,36 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationScrollGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserSettings;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GeneIndexActions;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ViewLimiter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CytobandConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineToRegionConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.StatusTitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
 
 /**
@@ -80,116 +64,6 @@ import fi.csc.microarray.util.BrowserLauncher;
  * @author klemela
  */
 public class GBrowser implements ComponentListener {
-	
-	
-	public static enum TrackType {
-		CYTOBANDS(false), 
-		GENES(false), 
-		TRANSCRIPTS(true), 
-		REFERENCE(true),
-		REGIONS(true),
-		READS(true),
-		HIDDEN(false), 
-		VCF(true), 
-		GTF(true),
-		CNA_CALLS(true), 
-		CNA_LOGRATIOS(true), 
-		CNA_FREQUENCIES(true);
-
-		public boolean isToggleable;
-
-		private TrackType(boolean toggleable) {
-			this.isToggleable = toggleable;
-		}
-	}
-		
-	public static class DataUrl {
-
-		private URL url;
-		private String name;
-
-		public DataUrl(URL data, String name) {
-			this.url = data;
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public InputStream getInputStream() throws IOException, URISyntaxException {
-
-			//Assume local
-			return new FileInputStream(new File(url.toURI()));
-		}
-
-		public File getLocalFile() throws IOException, URISyntaxException {
-			//Assume local
-			return new File(url.toURI());
-		}
-
-		public URL getUrl() throws IOException {
-			return url;
-		}
-	}
-	
-	public static class Interpretation {
-		
-		private TrackType type;
-		private List<DataUrl> summaryDatas = new LinkedList<DataUrl>();
-		private DataUrl primaryData;
-		private DataUrl indexData;
-		private String name;
-
-		public Interpretation(TrackType type, DataUrl primaryData) {
-			this.type = type;
-			this.primaryData = primaryData;
-		}
-
-		public TrackType getType() {
-			return type;
-		}
-
-		public void setType(TrackType type) {
-			this.type = type;
-		}
-
-		public List<DataUrl> getSummaryDatas() {
-			return summaryDatas;
-		}
-
-		public void setSummaryDatas(List<DataUrl> summaryDatas) {
-			this.summaryDatas = summaryDatas;
-		}
-
-		public DataUrl getPrimaryData() {
-			return primaryData;
-		}
-
-		public void setPrimaryData(DataUrl primaryData) {
-			this.primaryData = primaryData;
-		}
-
-		public DataUrl getIndexData() {
-			return indexData;
-		}
-
-		public void setIndexData(DataUrl indexData) {
-			this.indexData = indexData;
-		}
-		
-		public void setName(String name) {
-			this.name = name;
-		}
-		
-		public String getName() {
-			if (name != null) {
-				return name;
-			} else {
-				return primaryData.getName();
-			}
-		}
-	}
 
 	public static class TrackDefinition {
 
@@ -207,10 +81,10 @@ public class GBrowser implements ComponentListener {
 			this.trackGroup = trackGroup;
 		}
 	}
-	
+
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
-	
+
 	private List<TrackDefinition> tracks = new LinkedList<TrackDefinition>();
 
 	private GBrowserPlot plot;
@@ -223,9 +97,9 @@ public class GBrowser implements ComponentListener {
 
 	private ViewLimiter viewLimiter;
 	protected boolean geneSearchDone;
-	
+
 	private GBrowserSettings settings;
-	
+
 	private List<Interpretation> interpretations;
 	private LinkedList<String> sampleNames;
 
@@ -238,7 +112,7 @@ public class GBrowser implements ComponentListener {
 		settings = new GBrowserSettings();
 		settings.initialise(this);		
 	}
-	
+
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
@@ -261,9 +135,9 @@ public class GBrowser implements ComponentListener {
 	}
 
 	public JComponent getVisualisation(List<Interpretation> interpretations) throws IOException {
-		
+
 		this.interpretations = interpretations;
-		
+
 		settings.updateInterpretations();
 
 		// We can create tracks now that we know the data
@@ -279,13 +153,13 @@ public class GBrowser implements ComponentListener {
 
 		return plotPanel;
 	}
-	
+
 	public void updateCoverageScale() {
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale(settings.getCoverageScale());
 	}
 
-	private Genome getGenome() {
+	public Genome getGenome() {
 		return settings.getGenome();
 	}
 
@@ -301,15 +175,13 @@ public class GBrowser implements ComponentListener {
 		//Remove tracks
 		plot.getOverviewView().clean();
 		plot.getDataView().clean();
-		
+
 		//There is a reference to track objects in scroll bars
 		plot.chartPanel.clean();
 
-		Genome genome = getGenome();
-		
 		ScrollGroup overview = new ScrollGroup("Overview");
 		AnnotationScrollGroup annotations = new AnnotationScrollGroup();
-		
+
 		SeparatorTrack3D separator = new SeparatorTrack3D(true);
 		separator.setView(plot.getDataView());
 		plot.getDataView().addTrackGroup(new TrackGroup(separator));
@@ -317,19 +189,17 @@ public class GBrowser implements ComponentListener {
 		// Add selected annotation tracks
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
-				switch (track.interpretation.type) {
+				switch (track.interpretation.getType()) {
 				case CYTOBANDS:
 
-					URL cytobandUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.CYTOBANDS);
+					DataThread cytobandDataThread = Interpretation.getCytobandDataThread(this);
 
-					if (cytobandUrl != null) {
+					if (cytobandDataThread != null) {
 
-						DataThread cytobandRequestHandler = new CytobandConversion(cytobandUrl, this);
-
-						overview.addTrackGroup(TrackFactory.getCytobandTrackGroup(plot, cytobandRequestHandler));
+						overview.addTrackGroup(TrackFactory.getCytobandTrackGroup(plot, cytobandDataThread));
 
 						this.viewLimiter = new ViewLimiter(plot.getOverviewView().getQueueManager(), 
-								cytobandRequestHandler, plot.getOverviewView());
+								cytobandDataThread, plot.getOverviewView());
 						this.plot.getDataView().setViewLimiter(viewLimiter);
 						this.plot.getOverviewView().setViewLimiter(viewLimiter);
 					}
@@ -337,33 +207,11 @@ public class GBrowser implements ComponentListener {
 					break;
 
 				case GENES:
-					// Start 3D effect
 
-					URL gtfUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
-					URL gtfIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
-					URL repeatUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
-					URL repeatIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
+					DataThread gtfRequestHandler = Interpretation.getAnnotationDataThread(this);
+					DataThread repeatRequestHandler = Interpretation.getRepeatDataThread(this);
 
-					DataThread gtfRequestHandler = null;
-					DataThread repeatRequestHandler = null;
-					
-					if (gtfUrl != null && gtfIndexUrl != null) {
-
-						gtfRequestHandler = new GtfToFeatureConversion(gtfUrl, gtfIndexUrl, this);
-
-						//Init gene search
-						URL geneUrl = annotationManager.getAnnotation(
-								genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
-
-						GeneSearchConversion geneRequestHandler = new GeneSearchConversion(geneUrl, this);
-
-						gia = new GeneIndexActions(plot.getDataView().getQueueManager(), gtfRequestHandler, geneRequestHandler);
-
-					}
-
-					if (repeatUrl != null && repeatIndexUrl != null) {							
-						repeatRequestHandler = new BedTabixToRegionConversion(repeatUrl, repeatIndexUrl, this);
-					}
+					gia = Interpretation.getGeneSearchDataThread(this);
 
 					//Show ruler track even if there are now data sources
 					TrackGroup geneGroup = TrackFactory.getGeneTrackGroup(plot, gtfRequestHandler, repeatRequestHandler, false);
@@ -391,58 +239,33 @@ public class GBrowser implements ComponentListener {
 		ScrollGroup samples = new ScrollGroup("Samples", true);
 
 		boolean firstReadTrack = true;
-		
+
 		// Add selected read tracks
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
 
-				DataUrl dataUrl;
-				try {
-					dataUrl = track.interpretation.primaryData;
+				if (track.interpretation.getType() == TrackType.READS) {
 
-					if (track.interpretation.type == TrackType.READS) {
-						
-						if (!firstReadTrack) {
-							samples.addTrackGroup((TrackFactory.getThinSeparatorTrackGroup(plot)));
-						} else {
-							firstReadTrack = false;
-						}
-
-						URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
-						URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
-
-						DataThread refSeqRequestHandler = null;
-						
-						if (fastaUrl != null && fastaIndexUrl != null) {
-							refSeqRequestHandler = new IndexedFastaConversion(fastaUrl, fastaIndexUrl, this);
-						}
-
-						//create three identical datasources, because those are used in separate threads and Picard 
-						//doesn't support concurrent access
-						BamDataSource detailsData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						BamDataSource coverageData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						BamDataSource estimateData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						
-						//treatmentRequestHandler = new SAMHandlerThread(treatmentData);
-						BamToDetailsConversion details = new BamToDetailsConversion(detailsData, this);
-						BamToCoverageConversion coverage = new BamToCoverageConversion(coverageData, this);
-						BamToCoverageEstimateConversion estimate = new BamToCoverageEstimateConversion(estimateData, this);
-						
-						TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-								plot, details, coverage, estimate, 
-								refSeqRequestHandler, 
-								track.interpretation.primaryData.getName());
-
-						track.setTrackGroup(readGroup);
-
-						samples.addTrackGroup(readGroup);
+					if (!firstReadTrack) {
+						samples.addTrackGroup((TrackFactory.getThinSeparatorTrackGroup(plot)));
+					} else {
+						firstReadTrack = false;
 					}
-				} catch (IOException e) {
-					reportException(e);
-				} catch (URISyntaxException e) {
-					reportException(e);
-				} catch (GBrowserException e) {
-					reportException(e);
+
+					DataThread refSeqRequestHandler = Interpretation.getReferenceDataThread(this);											
+
+					BamToDetailsConversion details = track.interpretation.getBamDetailsDataThread(this);
+					BamToCoverageConversion coverage = track.interpretation.getBamCoverageDataThread(this);
+					BamToCoverageEstimateConversion estimate = track.interpretation.getBamCoverageEstimateDataThread(this);
+
+					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
+							plot, details, coverage, estimate, 
+							refSeqRequestHandler, 
+							track.interpretation.getPrimaryData().getName());
+
+					track.setTrackGroup(readGroup);
+
+					samples.addTrackGroup(readGroup);
 				}
 			}
 		}
@@ -452,24 +275,16 @@ public class GBrowser implements ComponentListener {
 			//This track has fixed size now, layout system understands it only when the scrolling is disabled
 			samples.setScrollEnabled(false);
 
-			URL fastaUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
-			URL fastaIndexUrl = getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
+			DataThread refSeqRequestHandler = Interpretation.getReferenceDataThread(this);
 
-			if (fastaUrl != null && fastaIndexUrl != null) {
-				try {
-					 
-					DataThread refSeqRequestHandler = new IndexedFastaConversion(fastaUrl, fastaIndexUrl, this);
+			if (refSeqRequestHandler != null) {
 
-					TrackGroup readGroup = TrackFactory.getReadTrackGroup(
-							plot, null, null, null,
-							refSeqRequestHandler, 
-							settings.getGenome().toString());
+				TrackGroup readGroup = TrackFactory.getReadTrackGroup(
+						plot, null, null, null,
+						refSeqRequestHandler, 
+						settings.getGenome().toString());
 
-					samples.addTrackGroup(readGroup);
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				samples.addTrackGroup(readGroup);
 			}
 		}
 
@@ -479,128 +294,78 @@ public class GBrowser implements ComponentListener {
 
 		boolean firstPeakTrack = true;
 		StatusTitleTrack titleTrack = null;
-		
+
 		// Add selected peak tracks
 		for (TrackDefinition track : tracks) {
 			if (track.checkBox.isSelected()) {
 
-				DataUrl dataUrl = track.interpretation.primaryData;
-				
 				//Add separators
-				switch (track.interpretation.type) {
+				switch (track.interpretation.getType()) {
 				case REGIONS:
 				case VCF:
 				case GTF:
 				case CNA_FREQUENCIES:
 				case CNA_CALLS:
 				case CNA_LOGRATIOS:
-					
-					
+
+
 					if (!firstPeakTrack) {
 						analysis.addTrackGroup(TrackFactory.getThinSeparatorTrackGroup(plot));
 					} else {
 						firstPeakTrack = false;
 					}
-					
-					titleTrack = new StatusTitleTrack(track.interpretation.primaryData.getName(), Color.black);
+
+					titleTrack = new StatusTitleTrack(track.interpretation.getPrimaryData().getName(), Color.black);
 					titleTrack.setView(plot.getDataView());
 					analysis.addTrack(titleTrack);					
 					break;
-					
+
 				default:
 					break;
 				}	
-				
-				switch (track.interpretation.type) {
+
+				switch (track.interpretation.getType()) {
 				case REGIONS:
 
-					try {						
-						DataThread conversion = new LineToRegionConversion(dataUrl.getUrl(), new BedLineParser(true), this);
-						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
-						
-						titleTrack.addDataThread(conversion);
-						
-					} catch (FileNotFoundException e) {
-						reportException(e);
-					} catch (URISyntaxException e) {
-						reportException(e);
-					} catch (IOException e) {
-						reportException(e);
-					}
+					DataThread bed = track.interpretation.getBedDataThread(this);
+					analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, bed));
+					titleTrack.addDataThread(bed);
 					break;
-					
+
 				case VCF:
 
-					try {						
-						DataThread conversion = new LineToRegionConversion(dataUrl.getUrl(), new VcfLineParser(), this);
-						analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, conversion));
-						
-						titleTrack.addDataThread(conversion);
-						
-					} catch (FileNotFoundException e) {
-						reportException(e);
-					} catch (URISyntaxException e) {
-						reportException(e);
-					} catch (IOException e) {
-						reportException(e);
-					}
+					DataThread vcf = track.interpretation.getVcfDataThread(this);
+					analysis.addTrackGroup(TrackFactory.getPeakTrackGroup(plot, vcf));
+					titleTrack.addDataThread(vcf);
 					break;
 				case GTF:
-					
-					try {
-						analysis.setScrollEnabled(true);
-						
-						GtfToFeatureConversion gtfConversion = new GtfToFeatureConversion(dataUrl.getUrl(), null, this);
-						analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfConversion, null, true));
-						
-						titleTrack.addDataThread(gtfConversion);
-						
-					} catch (IOException e) {
-						reportException(e);
-					}						
-						
+
+					analysis.setScrollEnabled(true);
+
+					GtfToFeatureConversion gtfConversion = track.interpretation.getGtfDataThread(this);
+					analysis.addTrackGroup(TrackFactory.getGeneTrackGroup(plot, gtfConversion, null, true));
+					titleTrack.addDataThread(gtfConversion);						
 					break;
-					
+
 				case CNA_FREQUENCIES:
 				case CNA_CALLS:
 				case CNA_LOGRATIOS:
 
 					analysis.setScrollEnabled(true);
-					
-					//Header has to be read to know the number of samples
 
-					RandomAccessLineDataSource cnaData;
+					CnaConversion cnaData = track.interpretation.getCnaDataThread(this);
 
-					try {
-						cnaData = new RandomAccessLineDataSource(dataUrl.getUrl());
-						CnaConversion conversion = new CnaConversion(cnaData, this);			
-						
-						cnaData.setLineReaderPosition(0);
-						String header = cnaData.getNextLine();
-						CnaLineParser parser = new CnaLineParser();
-						parser.setLine(header);
-						
-						if (this.sampleNames == null) {
-							LinkedList<String> internalSampleNames = parser.getSampleNames();
-							this.sampleNames = this.getSampleNames(internalSampleNames, dataUrl);
-						}
-						
-						boolean showFrequencies = (track.interpretation.type == TrackType.CNA_FREQUENCIES);
-						boolean showCalls = (track.interpretation.type == TrackType.CNA_CALLS);
-						boolean showLogratios = (track.interpretation.type == TrackType.CNA_LOGRATIOS);
-						
-						analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, conversion, sampleNames, showFrequencies, showCalls, showLogratios));
-						
-						titleTrack.addDataThread(conversion);
-						
-					} catch (IOException e) {
-						reportException(e);
-					} catch (GBrowserException e) {
-						reportException(e);
-					} catch (URISyntaxException e) {
-						reportException(e);
-					}						
-					
+					LinkedList<String> internalSampleNames = cnaData.getSampleNames();
+					this.sampleNames = this.getSampleNames(internalSampleNames, track.interpretation.getPrimaryData());
+
+					boolean showFrequencies = (track.interpretation.getType() == TrackType.CNA_FREQUENCIES);
+					boolean showCalls = (track.interpretation.getType() == TrackType.CNA_CALLS);
+					boolean showLogratios = (track.interpretation.getType() == TrackType.CNA_LOGRATIOS);
+
+					analysis.addTrackGroup(TrackFactory.getCnaTrackGroup(plot, cnaData, sampleNames, showFrequencies, showCalls, showLogratios));
+
+					titleTrack.addDataThread(cnaData);
+
 					break;
 
 				default:
@@ -617,47 +382,10 @@ public class GBrowser implements ComponentListener {
 		SeparatorTrack3D separator2 = new SeparatorTrack3D(false);
 		separator2.setView(plot.getDataView());
 		plot.getDataView().addTrackGroup(new TrackGroup(separator2));
-		
+
 		//This does not fire data requests, but they are created separately when location is known, 
 		//i.e. when the Go button is pressed or if dataset switches are used  
 		plot.initializeTracks();
-	}
-
-	/**
-	 * Create DataSource for SAM/BAM files
-	 * 
-	 * @param tracks
-	 * 
-	 * @param url
-	 * @return
-	 * @throws MicroarrayException
-	 *             if index file is not selected properly
-	 * @throws IOException
-	 *             if opening data files fails
-	 * @throws URISyntaxException 
-	 * @throws GBrowserException 
-	 */
-	public BamDataSource createReadDataSource(DataUrl data, DataUrl indexData, List<TrackDefinition> tracks)
-			throws IOException, URISyntaxException, GBrowserException {
-		BamDataSource dataSource = null;
-
-		// Convert data bean into file
-//		File file = data == null ? null : data.getLocalFile();
-//
-//		URL fileUrl = file.toURI().toURL();
-		
-		URL fileUrl = data.getUrl();
-
-		if (data.getName().contains(".bam") || data.getName().contains(".sam")) {
-//			File indexFile = indexData.getLocalFile();
-//			URL indexFileUrl = indexFile.toURI().toURL();
-			
-			URL indexFileUrl = indexData.getUrl();
-			dataSource = new BamDataSource(fileUrl, indexFileUrl);
-
-		}
-
-		return dataSource;
 	}
 
 	public URL getAnnotationUrl(Genome genome, AnnotationManager.AnnotationType type) {
@@ -680,20 +408,20 @@ public class GBrowser implements ComponentListener {
 		// Create the chart panel with tooltip support				
 		TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 		this.plot = new GBrowserPlot(chartPanel, true);
-		
+
 		((GBrowserChartPanel)chartPanel).setPlot(plot);
 
 		//Set default location to plot to avoid trouble in track initialization. 
 		plot.getDataView().setBpRegion(new RegionDouble(
 				settings.getLocation() - settings.getViewSize() / 2.0, settings.getLocation() + settings.getViewSize() / 2.0, 
 				settings.getChromosome()));
-		
+
 		plot.addDataRegionListener(settings);
-				
+
 		updateCoverageScale();
-		
+
 		updateTracks();
-		
+
 		settings.updateTracks();
 
 		// Wrap GenomePlot in a panel
@@ -808,17 +536,17 @@ public class GBrowser implements ComponentListener {
 			}
 		});
 	}
-	
+
 	public void setLocation(Chromosome chr, Long start, Long end) {
 
 		// Move to selected region
-		
+
 		settings.setChromosome(chr);
 
 		if (end == null) {
 			end = start;
 		}
-		
+
 		settings.setCoordinateFields((end + start) / 2, (end - start) * 2);
 
 		// Update
@@ -828,9 +556,9 @@ public class GBrowser implements ComponentListener {
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale(settings.getCoverageScale());
 	}
-	
+
 	public void removeVisualisation() {
-		
+
 		plotPanel.removeComponentListener(this);
 		plotPanel.removeAll();
 
@@ -846,85 +574,45 @@ public class GBrowser implements ComponentListener {
 		}
 		gia = null;	
 	}
-	
+
 	public LinkedList<Chromosome> getChromosomeNames() throws IOException {
 
 		// Gather all chromosome names from all indexed datasets (SAM/BAM)
-		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
-		for (Interpretation interpretation : interpretations) {
-			if (interpretation.type == TrackType.READS) {
+		TreeSet<Chromosome> chromosomes = new TreeSet<>(); 
+		try {
+			for (Interpretation interpretation : interpretations) {
+				if (interpretation.getType() == TrackType.READS) {
 
-				URL bam  = interpretation.primaryData.getUrl();
-				URL index  = interpretation.indexData.getUrl();
-
-				try {
-					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(bam, index));
-				} catch (URISyntaxException e) {
-					reportException(e);
+					chromosomes.addAll(interpretation.getChromosomeNames());
 				}
 			}
-		}
 
-		// If we still don't have names, go through non-indexed datasets
-		if (chromosomeNames.isEmpty()) {
-			for (Interpretation interpretation : getInterpretations()) {
-				
-				boolean isBed = (interpretation.type == TrackType.REGIONS);
-				boolean isVcf = (interpretation.type == TrackType.VCF);
-				boolean isGtf = (interpretation.type == TrackType.GTF);
-				boolean isCna = (
-						interpretation.type == TrackType.CNA_FREQUENCIES ||
-						interpretation.type == TrackType.CNA_CALLS ||
-						interpretation.type == TrackType.CNA_LOGRATIOS);
-				
-				if (isBed || isVcf || isGtf || isCna) {
-										
-					try {
-						
-						DataUrl data = interpretation.primaryData;						
-						ChromosomeBinarySearch chrSearch = null;
-						
-						if (isBed) {														
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new BedLineParser(true));														
-						} else if (isVcf) {							
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new VcfLineParser());							
-						} else if (isGtf) {
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new GtfLineParser());
-						} else if (isCna) {
-							chrSearch = new ChromosomeBinarySearch(data.getUrl(), new CnaLineParser());
-						}
-						
-						for (Chromosome chr : chrSearch.getChromosomes()) {
-							chromosomeNames.add(chr.toNormalisedString());
-						}
-						
-					} catch (UnsortedDataException e) {
-						this.showDialog("Unsorted data", e.getMessage(), null, true, false, true, true);					
-						
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-					} catch (GBrowserException e) {
-						e.printStackTrace();
-					} 
+			// If we still don't have names, go through non-indexed datasets
+			if (chromosomes.isEmpty()) {
+				for (Interpretation interpretation : getInterpretations()) {
+					if (interpretation.getType() != TrackType.READS) {	
+						chromosomes.addAll(interpretation.getChromosomeNames());
+					}
 				}
 			}
+		} catch (URISyntaxException	| GBrowserException e) {
+			reportException(e);
 		}
 
-		// Sort them
-		LinkedList<Chromosome> chromosomes = new LinkedList<Chromosome>();
-		for (String chromosomeName : chromosomeNames) {
-			chromosomes.add(new Chromosome(chromosomeName));
-		}
-		Collections.sort(chromosomes);
+		LinkedList<Chromosome> list = new LinkedList<Chromosome>();
 
-		return chromosomes;
+		for (Chromosome chromosome : chromosomes) {
+			list.add(chromosome);
+		}
+
+		return list;
 	}
 
 	@Override
 	public void componentShown(ComponentEvent arg0) {
 		// Ignore
 	}
-	
+
 	@Override
 	public void componentHidden(ComponentEvent arg0) {
 		// Ignore
@@ -937,21 +625,21 @@ public class GBrowser implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent arg0) {
-		
+
 		//FIXME remove if works without this
-//		//Move to last location
-//		settings.processLocationPanelInput();
+		//		//Move to last location
+		//		settings.processLocationPanelInput();
 		plot.redraw();
 	}
 
 	public List<Interpretation> getInterpretations() {
 		return interpretations;
 	}
-	
+
 	public String getExternalLinkUrl(AnnotationType browser) {
 		settings.getGenome();
 		GenomeAnnotation urlAnnotation = annotationManager.getAnnotation(settings.getGenome(), browser);
-		
+
 		if (urlAnnotation != null) {
 			URL url = urlAnnotation.getUrl();
 
@@ -967,7 +655,7 @@ public class GBrowser implements ComponentListener {
 		}
 		return "";
 	}
-	
+
 	public void openExternalBrowser(String url) {
 
 		try {
@@ -976,26 +664,26 @@ public class GBrowser implements ComponentListener {
 			reportException(e);
 		}
 	}
-	
+
 	public JPanel getParameterPanel() {
 		return settings.getParameterPanel();
 	}
-	
+
 	public AnnotationManager getAnnotationManager() {
 		return annotationManager;
 	}
-	
+
 	public List<TrackDefinition> getTracks() {
 		return tracks;
 	}
-	
+
 	/** 
 	 * Override this method to customize error reporting
 	 */
 	public void reportException(Exception e) {
 		e.printStackTrace();
 	}
-	
+
 
 	/**
 	 * Override this method to show custom dialogs
@@ -1010,7 +698,7 @@ public class GBrowser implements ComponentListener {
 	public void showDialog(String title, String message, String details, boolean warning, boolean dialogShowDetails, boolean modal, boolean closeBrowser) {
 		System.out.println("showDialog not implemented: " + title + "\t" +  message + "\t" + details);
 	}		
-	
+
 	/** 
 	 * Override this method to lock the gui during heavy tasks
 	 */
@@ -1025,7 +713,7 @@ public class GBrowser implements ComponentListener {
 	public void initialiseUserDatas() throws IOException {
 		//Nothing to do if the files are already local
 	}
-	
+
 	/** 
 	 * Override this method to get the icons. Paths are defined in class GBrowserConstants.
 	 */
@@ -1045,7 +733,7 @@ public class GBrowser implements ComponentListener {
 			reportException(e);
 		}
 	}
-	
+
 	/**
 	 * Override this method to specify location for remote annotations
 	 */
@@ -1055,7 +743,7 @@ public class GBrowser implements ComponentListener {
 		System.out.println("getRemoteAnnotationsUrl not implemented");
 		return null;
 	}
-	
+
 	/**
 	 * Override this method to specify location for remote annotations
 	 */
@@ -1064,7 +752,7 @@ public class GBrowser implements ComponentListener {
 		System.out.println("getRemoteAnnotationFiles not implemented");
 		return null;
 	}
-	
+
 	/** 
 	 * Override this method to specify location for local annotations.
 	 * 
@@ -1075,7 +763,7 @@ public class GBrowser implements ComponentListener {
 		System.out.println("getLocalAnnotationDir not implemented");
 		return null;
 	}
-	
+
 	/**
 	 * Override this convert internal sample names to pretty names of the phenodata
 	 * 

@@ -7,17 +7,16 @@ import java.util.List;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
  * This conversion reads bam files with Picard and creates a RegionContent object for each read.
@@ -40,7 +39,7 @@ public class BamToDetailsConversion extends DataThread {
 	@Override
 	public void clean() {
 		
-		SamBamUtils.closeIfPossible(dataSource.getReader());
+		dataSource.close();
 	}
 		
 	/**
@@ -58,8 +57,7 @@ public class BamToDetailsConversion extends DataThread {
 	protected void processDataRequest(DataRequest request) {
 
 		// Read the given region
-		String chromosome = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
-		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(chromosome, request.start.bp.intValue(), request.end.bp.intValue(), false);
+		CloseableIterator<SAMRecord> iterator = dataSource.query(request.start.chr, request.start.bp.intValue(), request.end.bp.intValue());		
 
 		// Produce results
 		while (iterator.hasNext()) {

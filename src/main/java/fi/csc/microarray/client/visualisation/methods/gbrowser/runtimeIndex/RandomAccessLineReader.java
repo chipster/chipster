@@ -39,10 +39,10 @@ public class RandomAccessLineReader {
 	private String buffer;
 
 	//Reads random access bytes from file or http
-	private ChunkDataSource chunkDataSource;
+	private ByteDataSource byteDataSource;
 
 	public RandomAccessLineReader(URL url) throws FileNotFoundException, URISyntaxException {
-		chunkDataSource = new ChunkDataSource(url, null);
+		byteDataSource = new ByteDataSource(url);
 	}
 	
 
@@ -148,7 +148,7 @@ public class RandomAccessLineReader {
 		
 		//The last parameter 'retry' should be disabled, because it's much more
 		//efficient to retry downloading only after buffer runs out. 
-		int length = chunkDataSource.read(refillPosition, bytes, false);
+		int length = byteDataSource.read(refillPosition, bytes, false);
 		buffer = buffer + new String(bytes, 0, length);		
 		
 		//System.out.println("RandomAccessLineReader.fillBuffer() Position: " + position/1024/1024 + " MB \t Length: " + buffer.lastIndexOf("\n") + " bytes");
@@ -161,9 +161,9 @@ public class RandomAccessLineReader {
 	 */
 	public void close() {
 		
-		if (chunkDataSource != null) {
-			chunkDataSource.close();
-			chunkDataSource = null;
+		if (byteDataSource != null) {
+			byteDataSource.close();
+			byteDataSource = null;
 		}
 	}
 	
@@ -173,6 +173,6 @@ public class RandomAccessLineReader {
 	 */
 	public long length() throws IOException {
 
-		return chunkDataSource.length();
+		return byteDataSource.length();
 	}
 }

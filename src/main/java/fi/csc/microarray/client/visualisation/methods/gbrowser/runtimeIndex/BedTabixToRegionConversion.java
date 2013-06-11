@@ -14,8 +14,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TabixUtil;
 
 public class BedTabixToRegionConversion extends DataThread {
 
@@ -39,7 +37,7 @@ public class BedTabixToRegionConversion extends DataThread {
 	@Override
 	public void clean() {
 
-		SamBamUtils.closeIfPossible(dataSource.getReader());
+		dataSource.clean();
 	}
 
 
@@ -47,7 +45,7 @@ public class BedTabixToRegionConversion extends DataThread {
 	protected void processDataRequest(DataRequest request) {
 
 		// Read the given region
-		TabixReader.Iterator iterator = TabixUtil.getTabixIterator(dataSource, request);
+		TabixReader.Iterator iterator = dataSource.getTabixIterator(request);
 
 		try {
 			String line;

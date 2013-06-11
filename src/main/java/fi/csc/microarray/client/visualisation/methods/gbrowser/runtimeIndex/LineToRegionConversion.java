@@ -47,7 +47,7 @@ public class LineToRegionConversion extends DataThread {
 		super(browser);
 			    
 		this.parser = parser;
-		
+				
 //		try {
 //			this.index = new InMemoryIndex(file, parser);
 //			
@@ -55,8 +55,10 @@ public class LineToRegionConversion extends DataThread {
 //			e.printStackTrace();
 //		}
 		
-		try {
-			this.index = new BinarySearchIndex(new RandomAccessLineDataSource(url), parser);
+		try {					
+						 			
+			RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(url);
+			this.index = new BinarySearchIndex(dataSource, parser);
 		
 		} catch (UnsortedDataException e) {
 			e.printStackTrace();
