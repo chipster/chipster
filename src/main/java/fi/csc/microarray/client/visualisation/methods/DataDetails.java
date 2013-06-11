@@ -39,6 +39,8 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -95,8 +97,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	final int INDENTION = 20;
 
 	private List<DataBean> datas;
-
-	private JPanel cachePanel;
 
 	private JTextArea titleField;
 
@@ -210,11 +210,10 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		
 		for (VisualisationMethod method : orderedMethods) {
 	
-			JLabel icon = new JLabel(method.getIcon());
-			
 			JXHyperlink link = new JXHyperlink();
 			
 			link.setBackground(new Color(0.95f, 0.95f, 0.95f));
+			link.setPreferredSize(new Dimension(300, 50));
 			
 			link.addMouseListener(new LinkMouseListener(link));
 			//hide focus border because it doesn't obey component size
@@ -225,9 +224,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			link.addActionListener(new VisualisationStarter(method, Session.getSession().getApplication()));
 			link.setText(method.getName());
 			c.gridx = 0;
-//			c.weightx = 0;
-//			panel.add(icon, c);
-//			c.gridx = 1;
 			c.weightx = 1.0;
 			panel.add(link, c);
 			c.gridy++;
@@ -567,6 +563,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 				if (params != null) {
 					for (ParameterRecord parameterRecord : params) {
 
+						//Find out default value
 						OperationDefinition tool = application.getOperationDefinition(operationRecord.getNameID().getID());
 						
 						String defaultValue = "";
@@ -576,9 +573,27 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 							 defaultValue = parameter.getValueAsString();
 						}
 						
-						JLabel name = new JLabel(parameterRecord.getNameID().getDisplayName());
-						JLabel value = new JLabel(parameterRecord.getValue());
+						//Parameter value
+						String valueString = parameterRecord.getValue();
 						
+						//EnumParameters have a display name for values
+						if (parameter instanceof EnumParameter) {
+							EnumParameter enumParameter = (EnumParameter) parameter;
+						
+							List<SelectionOption> options = enumParameter.getSelectedOptions();
+														
+							for (SelectionOption option : options) {
+								if (parameterRecord.getValue().equals(option.getValue())) {
+									
+									valueString = option.toString();
+								}
+							}
+						}
+						
+						JLabel name = new JLabel(parameterRecord.getNameID().getDisplayName());					
+						JLabel value =  new JLabel(valueString);
+						
+						//Fade out default values
 						if (defaultValue.equals(parameterRecord.getValue())) {
 							value.setForeground(Color.gray);
 						}
@@ -605,7 +620,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(spaceFiller, c);
 			
 			return panel;
-			//return attrib.toString();
 
 		} else {
 			return null;
