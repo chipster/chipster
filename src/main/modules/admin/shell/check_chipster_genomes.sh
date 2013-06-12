@@ -1,29 +1,93 @@
 #!/bin/bash
 
-tools_path="/opt/chipster/tools/"
-export PATH=${PATH}:/opt/chipster4/comp/modules/admin/shell/:/opt/chipster/tools/emboss/bin/
+tools_path="0"
+comp_path="0"
+
+while [[ $# -ge 1 ]]
+do
+  case "$1" in
+             '-tools_path')
+	      tools_path="$2"
+                shift
+                shift
+              ;;
+              #
+             '-comp_path')
+	      comp_path="$2"
+                shift
+                shift
+              ;;
+              #
+  esac
+done
+
+if [[ $comp_path == "0" ]]
+then
+  echo ""  
+  echo "Please define the location of the comp directory of Chipster with option:"
+  echo "  -comp_path /path/to/comp"
+  echo
+  exit 1
+fi 
+
+if [[ $tools_path == "0" ]]
+then
+  echo ""  
+  echo "Please define the location of the tools directory of Chipster with option:"
+  echo "  -tools_path /path/to/tools"
+  echo
+  exit 1
+fi 
+
+#tools_path="/opt/chipster/tools"
+#comp_path="/opt/chipster3/comp"
+
+export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/
 
 #echo "BWA indexes"
 #ls -l $tools_path/bwa_indexes/*.bwt | awk -F "/" '{print "   "$NF}' | sed s/'.fa.bwt'/""/g 
-ls -l $tools_path/bwa_indexes/*.bwt | awk -F "/" '{print "   "$NF}' | sed s/'.fa.bwt'/""/g > index_list_$$.bwa.tmp
+ls -l $tools_path/bwa_indexes/*.bwt | awk -F "/" '{print "   "$NF}' | sed s/'.fa.bwt'/""/g | tr -d " " > index_list_$$.bwa.tmp
+grep PARAMETER $comp_path/modules/ngs/R-2.12/bwa* | grep genome: | awk -F "[" '{print $2}' | awk -F "]" '{print $1}' | tr "," "\n" | awk -F : '{print $1}' | sort | uniq | tr -d  " " |  sed s/'\.fa$'/""/g > genomes_in_bwa_interface.$$.tmp
+
+echo "--------------------------------------------------------------------------------------------------------------------------"
+echo "BWA index summary"
+cat index_list_$$.bwa.tmp genomes_in_bwa_interface.$$.tmp genomes_in_bwa_interface.$$.tmp | sort | uniq -c | \
+awk '{ if ($1 == "1" ) printf "%60s\tIndexed but not in use\n", $2 }{if ($1 == "2" ) printf "%60s\tIndex missing!\n", $2}{if ( $1 == "3" ) printf "%60s\tOK\n", $2}'
+echo "---------------------------------------------------------------------------------------------------------------------------"
+
 
 #echo "Cheking Bowtie indexes"
-ls -l $tools_path/bowtie/indexes/*.rev.2.ebwt | awk -F "/" '{print "   "$NF}' | sed s/'.rev.2.ebwt'/""/g >> index_list_$$.bowtie.tmp
+ls -l $tools_path/bowtie/indexes/*.rev.2.ebwt | awk -F "/" '{print "   "$NF}' | sed s/'.rev.2.ebwt'/""/g | tr -d " " >> index_list_$$.bowtie.tmp
+
+grep PARAMETER $comp_path/modules/ngs/R-2.12/bowtie[.-]* | grep genome: | awk -F "[" '{print $2}' | awk -F "]" '{print $1}' | tr "," "\n" | awk -F : '{print $1}' | sort | uniq | tr -d  " " |  sed s/'\.fa$'/""/g > genomes_in_bowtie_interface.$$.tmp
+#echo "--------------------------------------------------------------------------------------------------------------------------"
+echo "Bowtie index summary"
+cat index_list_$$.bowtie.tmp genomes_in_bowtie_interface.$$.tmp genomes_in_bowtie_interface.$$.tmp | sort | uniq -c | \
+awk '{ if ($1 == "1" ) printf "%60s\tIndexed but not in use\n", $2 }{if ($1 == "2" ) printf "%60s\tIndex missing!\n", $2}{if ( $1 == "3" ) printf "%60s\tOK\n", $2}'
+echo "---------------------------------------------------------------------------------------------------------------------------"
 
 #echo "Chreking Bowtie2 indexes"
-ls -l $tools_path/bowtie2/indexes/*.rev.1.bt2 | awk -F "/" '{print "   "$NF}' | sed s/'.rev.1.bt2'/""/g >> index_list_$$.bowtie2.tmp
+ls -l $tools_path/bowtie2/indexes/*.rev.1.bt2 | awk -F "/" '{print "   "$NF}' | sed s/'.rev.1.bt2'/""/g | tr -d " " >> index_list_$$.bowtie2.tmp
+
+grep PARAMETER $comp_path/modules/ngs/R-2.12/bowtie2* | grep genome: | awk -F "[" '{print $2}' | awk -F "]" '{print $1}' | tr "," "\n" | awk -F : '{print $1}' | sort | uniq | tr -d  " " |  sed s/'\.fa$'/""/g > genomes_in_bowtie2_interface.$$.tmp
+#echo "--------------------------------------------------------------------------------------------------------------------------"
+echo "Bowtie2 index summary"
+cat index_list_$$.bowtie2.tmp genomes_in_bowtie2_interface.$$.tmp genomes_in_bowtie2_interface.$$.tmp | sort | uniq -c | \
+awk '{ if ($1 == "1" ) printf "%60s\tIndexed but not in use\n", $2 }{if ($1 == "2" ) printf "%60s\tIndex missing!\n", $2}{if ( $1 == "3" ) printf "%60s\tOK\n", $2}'
+echo "---------------------------------------------------------------------------------------------------------------------------"
 
 #cheking gtf
-ls -l $tools_path/genomes/gtf/*.gtf | grep -v DEXSeq | awk -F "/" '{print "   "$NF}' | sed s/'.gtf'/""/g >> gtf_list_$$.gtf.tmp
+ls -l $tools_path/genomes/gtf/*.gtf | grep -v DEXSeq | awk -F "/" '{print "   "$NF}' | sed s/'.gtf'/""/g | tr -d " " >> gtf_list_$$.gtf.tmp
 
 #cheking fa
-ls -l $tools_path/genomes/fasta/*.fa | awk -F "/" '{print "   "$NF}' | sed s/'\.fa$'/""/g >> index_list_$$.fa.tmp
+ls -l $tools_path/genomes/fasta/*.fa | awk -F "/" '{print "   "$NF}' | sed s/'\.fa$'/""/g | tr -d " " >> index_list_$$.fa.tmp
 
 #cheking fa
-ls -l $tools_path/genomes/fasta/nochr/*.fa | awk -F "/" '{print "   "$NF}' | sed s/'\.fa$'/""/g >> index_list_$$.fa_nochr.tmp
+ls -l $tools_path/genomes/fasta/nochr/*.fa | awk -F "/" '{print "   "$NF}' | sed s/'\.fa$'/""/g | tr -d " " >> index_list_$$.fa_nochr.tmp
 
 
-
+echo "Summary of genome indexes and files"
+echo
 printf "%60s %7s %7s %7s %7s %7s %7s \n" Species BWA Bowtie Bowtie2 gtf fasta fasta_nochr
 echo "----------------------------------------------------------------------------------------------------------"
 
@@ -84,4 +148,7 @@ do
 # echo $ind $bwa_m $bt_m $bt2_m
 done
 
-rm -f index_list_$$.bwa.tmp index_list_$$.bowtie.tmp index_list_$$.bowtie2.tmp index_list_$$.gtf.tmp index_list_$$.fa.tmp index_list_$$.fa_nochr.tmp
+rm -f *_$$.*.tmp 
+
+
+
