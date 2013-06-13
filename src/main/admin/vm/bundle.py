@@ -288,9 +288,13 @@ def transform_bundle(bundle, o_version, n_version):
     Transform an installed bundle version to another version
 
     Functionality:
-        remove = delete files, w/o network traffic needed
-        move = move/rename files, w/o network traffic needed
-        add = explode package(s) containing new files, w/ network traffic needed
+        * remove = delete files, w/o network traffic needed
+        * move = move/rename files, w/o network traffic needed
+        * add = explode package(s) containing new files, w/ network traffic needed
+
+    :type bundle: str
+    :type o_version: str
+    :type n_version: str
     """
 
     def get_package_owning_file(tup, bundle, version):
@@ -540,16 +544,22 @@ def parse_commandline():
 def diff_bundle(name, version_a, version_b):
     """
     "Calculate" differences between versions of bundle
+
     NOTE! Should *not* be dependent on chronology of versions, strictly from version 'a'->'b' where ('a' != 'b')
+
     What we want to find:
         * added file (checksum in 'b' and not in 'a')
         * removed file (checksum in 'a' and not in 'b')
         * moved file (checksum in 'a' and in 'b', destination in 'a' not equal to that in 'b')
+
+    :type name: str
+    :type version_a: str
+    :type version_b: str
     """
 
-    def get_checksums(bundle):
+    def get_details(bundle):
         """
-        Extract file destination and checksum from bundle contents and return as a set((destination, checksum))
+        Extract file details from bundle specification and return as a tuple
         :type bundle: dict
         :rtype: tuple(source, destination, checksum)
         :param bundle: Bundle dictionary
@@ -557,43 +567,47 @@ def diff_bundle(name, version_a, version_b):
         # logging.debug(bundle)
         for pkg in bundle["packages"].values():
             for file in pkg["files"]:
-                yield (file["source"], file["destination"], file["checksum"])
+                yield file["source"], file["destination"], file["checksum"]
 
-    def find_file_from_checksum(checksum, tup):
+    def detect_move(a, b):
         """
-        Over simplified find functionality
-        NOTE! This assumes their are *no* duplicate checksums
+        Detect file move/rename between lists 'a' and 'b'
+        :type a: list
+        :type b: list
         """
-        return [s[:2] for s in tup if s[2] == checksum][0]
 
-    def find_move_from_checksum(checksum, tuple_a, tuple_b):
-        """
-        Takes: checksum, (source, destination, checksum), (source, destination, checksum)
-        Returns: (old_destination, new_destination), for file with matching checksum
-        """
-        old = find_file_from_checksum(checksum, tuple_a)[1]
-        new = find_file_from_checksum(checksum, tuple_b)[1]
+        def old_new():
+            sub_a = list(i[2] for i in a)
+            for t in b[:]:
+                x, y, z = t
+                if z in sub_a:
+                    i = sub_a.index(z)
+                    del sub_a[i]
+                    b.remove(t)
+                    yield a.pop(i), t
 
-        return old, new
+        return list(old_new()), a, b
 
     if float(version_a) == float(version_b):
         raise Exception("This is pointless!")
 
-    content_a = get_available_bundle_version(name, version_a)
-    content_b = get_available_bundle_version(name, version_b)
-    checksums_a = get_checksums(content_a)
-    checksums_b = get_checksums(content_b)
-    removed = set([e[2] for e in checksums_a]) - set([e[2] for e in checksums_b])
-    added = set([e[2] for e in checksums_b]) - set([e[2] for e in checksums_a])
-    diff_a_to_b = set([e[1:] for e in checksums_a]) ^ set([e[1:] for e in checksums_b])
-    moved = set([c[1] for c in diff_a_to_b]) - added - removed
-    # logging.debug("removed: %s"% removed)
-    # logging.debug("added: %s"% added)
-    # logging.debug("moved: %s"% moved)
+    spec_a = get_available_bundle_version(name, version_a)
+    spec_b = get_available_bundle_version(name, version_b)
 
-    return ([find_file_from_checksum(a, checksums_b) for a in added],
-            [find_file_from_checksum(r, checksums_a) for r in removed],
-            [find_move_from_checksum(m, checksums_a, checksums_b) for m in moved])
+    details_a = list(get_details(spec_a))
+    details_b = list(get_details(spec_b))
+    logging.debug("details_a: %s" % details_a)
+    logging.debug("details_b: %s" % details_b)
+
+    moved, added, removed = detect_move(list(b for b in details_b
+                                             if b[1:3] not in list(a[1:3] for a in details_a)),
+                                        list(a for a in details_a
+                                             if a[1:3] not in list(b[1:3] for b in details_b)))
+    logging.debug("moved: {}".format(moved))
+    logging.debug("added: {}".format(added))
+    logging.debug("removed: {}".format(removed))
+
+    return added, removed, moved
 
 
 def handle_file_error(e):
