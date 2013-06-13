@@ -1,9 +1,8 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Button.ClickEvent;
 
+import fi.csc.chipster.web.listener.CSCTypeValueChangeListener;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
@@ -28,28 +27,7 @@ public class Input extends InputOutputUI{
 	
 	@Override
 	protected void generateHeader() {
-		lbTitle.setValue(getBoldText("Input"));
-		btDelete.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.removeComponent(Input.this);
-			}
-		});
-		btUp.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveUpComponent(Input.this);
-			}
-		});
-		btDown.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveDownComponent(Input.this);
-			}
-		});
+		lbTitle.setValue(getBoldText("Input:"));
 	}
 	
 	@Override
@@ -57,12 +35,13 @@ public class Input extends InputOutputUI{
 		super.initElements();
 		
 		lbId.setValue("Input file:");
-		lbOptional = new Label("Input is:");
+//		lbOptional = new Label("Input is:");
 		lbType = new Label("Input is:");
 		lbType2 = new Label("Type:");
 		addInputTypes();
 		type2.setNullSelectionAllowed(false);
 		type2.select(GenericInputTypes.GENERIC);
+		type2.addValueChangeListener(new CSCTypeValueChangeListener(this));
 	}
 	
 	public Input createUIWithData(SADLDescription.Input input) {
@@ -76,11 +55,8 @@ public class Input extends InputOutputUI{
 		name.setValue(input.getName().getDisplayName());
 		description.setValue(getValue(input.getComment()));
 		cbMeta.setValue(input.isMeta());
-		if (input.isOptional()) {
-			optional.select(OPTIONAL);
-		} else {
-			optional.select(NOT_OPTIONAL);
-		}
+		optional.setValue(input.isOptional());
+		
 		if(input.getName().getPrefix() == null || input.getName().getPrefix().isEmpty()) {
 			type.select(SINGLE_FILE);
 			id.setValue(input.getName().getID());
@@ -96,7 +72,7 @@ public class Input extends InputOutputUI{
 	public SADLDescription.Input getSadlInput() {
 		SADLDescription.Input input = new SADLDescription.Input();
 		input.setName(getNameFromUI(type.getValue().toString()));
-		input.setOptional(optional.getValue().equals(OPTIONAL) ? true : false);
+		input.setOptional(optional.getValue());
 		input.setComment(getValueOrNull(description.getValue()));
 		input.setType((InputType) type2.getValue());
 		input.setMeta(cbMeta.getValue());

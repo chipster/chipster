@@ -3,16 +3,11 @@ package fi.csc.chipster.web.tooledit;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.server.Page;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.model.BasicModel;
@@ -21,11 +16,12 @@ import fi.csc.chipster.web.model.Output;
 import fi.csc.chipster.web.model.Parameter;
 import fi.csc.chipster.web.model.Tool;
 import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLGenerator;
 
 
 
 public class ToolEditor extends VerticalLayout{
+	
+	private static final long serialVersionUID = -4777411581174913767L;
 	
 	private final int INPUT = 0;
 	private final int OUTPUT = 1;
@@ -34,8 +30,8 @@ public class ToolEditor extends VerticalLayout{
 	
 	public ToolEditor(ToolEditorUI root) {
 		this.root = root;
-		init();
 		buttonHeader();
+		init();
 //		this.addComponent(setCaption("Tool", false));
 ////		this.addComponent(new Tool().createToolUI());
 //		this.addComponent(setCaption("Input", false));
@@ -50,78 +46,58 @@ public class ToolEditor extends VerticalLayout{
 		hlHeader = new HorizontalLayout();
 		hlHeader.setImmediate(true);
 		Button btAddTool = new Button("Add Tool");
+		btAddTool.setVisible(false);
 		Button btAddInput = new Button("Add Input");
 		Button btAddOutput = new Button("Add Output");
 		Button btAddParameter = new Button("Add Parameter");
-		Button btUpdate = new Button("Update");
 		hlHeader.setSpacing(true);
 		hlHeader.setMargin(true);
 		hlHeader.addComponent(btAddTool);
 		hlHeader.addComponent(btAddInput);
 		hlHeader.addComponent(btAddOutput);
 		hlHeader.addComponent(btAddParameter);
-		hlHeader.addComponent(btUpdate);
 		this.addComponent(hlHeader);
 		btAddTool.addClickListener(new ClickListener() {
-			
+			private static final long serialVersionUID = 7392773905732834881L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				ToolEditor.this.addTool();
 			}
 		});
+		
 		btAddInput.addClickListener(new ClickListener() {
-			
+			private static final long serialVersionUID = 4949254611179248011L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				ToolEditor.this.addInput();
 			}
 		});
 		
 		btAddOutput.addClickListener(new ClickListener() {
-			
+			private static final long serialVersionUID = 8773521771491048374L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				ToolEditor.this.addOutput();
 			}
 		});
 		
 		btAddParameter.addClickListener(new ClickListener() {
-			
+			private static final long serialVersionUID = 4668120288792175832L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				ToolEditor.this.addParameter();
 			}
 		});
 		
-		btUpdate.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				Tool tool = getTool();
-				if(tool == null) {
-					new Notification("Tool is missing, please insert Tool", Type.WARNING_MESSAGE).show(Page.getCurrent());
-					return;
-				}
-				SADLDescription sadlDescription = tool.createSadlDescription();
-				if(sadlDescription == null) {
-					new Notification("Tool's elements are empty, please fill it up", Type.WARNING_MESSAGE).show(Page.getCurrent());
-					return;
-				}
-				sadlDescription.addInputs(getDaslInputs());
-				sadlDescription.addOutputs(getDaslOutputs());
-				addParameters(sadlDescription);
-				System.out.println(sadlDescription.toString());
-				setHeaderToTextEditor(sadlDescription.toString());
-			}
-		});
 	}
 	
 	private void init() {
 		this.setImmediate(true);
+		addTool();
 	}
 	
 //	private HorizontalLayout setCaption(String name, boolean button) {
@@ -232,7 +208,7 @@ public class ToolEditor extends VerticalLayout{
 //		return sadlDescription;
 	}
 	
-	private void setHeaderToTextEditor(String text) {
+	public void setHeaderToTextEditor(String text) {
 		System.out.println("iraso");
 		root.getTextEditor().setText(createHeader(text));
 	}
@@ -299,7 +275,7 @@ public class ToolEditor extends VerticalLayout{
 	
 	public void moveDownComponent(BasicModel component) {
 		int index = this.getComponentIndex(component);
-		if(index+1 < this.getComponentCount()+1) {
+		if(index+1 < this.getComponentCount()) {
 			Component com = this.getComponent(index+1);
 			if((component instanceof Input && com instanceof Input) || 
 					(component instanceof Output && com instanceof Output) || 
