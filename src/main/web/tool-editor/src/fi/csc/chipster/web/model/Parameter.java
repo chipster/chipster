@@ -39,14 +39,12 @@ public class Parameter extends BasicModel{
 	private static final String COLUMN_ACTION = "Action";
 	
 	private Label lbType;
-	private Label lbOptional;
 	private Label lbDefaultValue;
 	private Label lbMaxValue;
 	private Label lbMinValue;
 	
 	private ComboBox type;
 	private TextField defaultValue;
-	private ComboBox optional;
 	private TextField maxValue;
 	private TextField minValue;
 	private Table typeTable;
@@ -62,11 +60,12 @@ public class Parameter extends BasicModel{
 		generateHeader();
 		initElements();
 		addRow(lbType, type);
+		addRow(lbMaxValue, maxValue);
 		addRow(lbMinValue, minValue);
 		addRow(lbDefaultValue, defaultValue);
-		addRow(lbMaxValue, maxValue);
 		addRow(lbOptional, optional);
 		addRow(lbDescription, description);
+		generateFooter();
 		return this;
 	}
 	
@@ -97,15 +96,12 @@ public class Parameter extends BasicModel{
 				} else {
 					removeTypeTable();
 				}
+				String text = getValue(getNameValue()) + " " + getValue(getTypeValue());
+				setTitleDescriptionValue(text.trim());
 			}
 		});
 		defaultValue = new TextField();
 		defaultValue.setWidth(WIDTH);
-		optional = new ComboBox();
-		optional.setWidth(WIDTH);
-		optional.addItem(NOT_OPTIONAL);
-		optional.addItem(OPTIONAL);
-		optional.setNullSelectionAllowed(false);
 		maxValue = new TextField();
 		maxValue.setWidth(WIDTH);
 		minValue = new TextField();
@@ -131,11 +127,7 @@ public class Parameter extends BasicModel{
 		id.setValue(getValue(parameter.getName().getID()));
 		name.setValue(getValue(parameter.getName().getDisplayName()));
 		description.setValue(getValue(parameter.getComment()));
-		if (parameter.isOptional()) {
-			optional.select(OPTIONAL);
-		} else {
-			optional.select(NOT_OPTIONAL);
-		}
+		optional.setValue(parameter.isOptional());
 		if(parameter.getDefaultValues().length >= 1)
 			defaultValue.setValue(parameter.getDefaultValues()[0]);
 		maxValue.setValue(getValue(parameter.getTo()));
@@ -147,7 +139,7 @@ public class Parameter extends BasicModel{
 		typeTable.addContainerProperty(COLUMN_ID, String.class, "");
 		typeTable.addContainerProperty(COLUMN_NAME, String.class, "");
 		typeTable.addContainerProperty(COLUMN_ACTION, Button.class, null);
-		typeTable.setPageLength(5);
+		typeTable.setPageLength(1);
 		typeTable.setEditable(true);
 		typeTable.setImmediate(true);
 		typeTable.setFooterVisible(true);
@@ -187,8 +179,16 @@ public class Parameter extends BasicModel{
 						}
 					}
 				});
+				
+				if(typeTable.getContainerDataSource().size() > 5) {
+					typeTable.setPageLength(5);
+				} else {
+					typeTable.setPageLength(typeTable.getContainerDataSource().size());
+				}
+				
 				return txtField;
 			}
+			
 		});
 		typeTable.setDragMode(TableDragMode.ROW);
 		typeTable.setDropHandler(new DropHandler() {
@@ -238,6 +238,11 @@ public class Parameter extends BasicModel{
 		for(int i = 0; i < types.length; i++) {
 			typeTable.addItem(new Object[] {types[i].getID(), types[i].getDisplayName(), getDeleteButton(types[i])}, types[i]);
 		}
+//		if(typeTable.getContainerDataSource().size() > 5) {
+//			typeTable.setPageLength(5);
+//		} else {
+//			typeTable.setPageLength(typeTable.getContainerDataSource().size());
+//		}
 	}
 	
 	private void addTypeTable() {
@@ -256,9 +261,11 @@ public class Parameter extends BasicModel{
 	}
 	
 	public SADLDescription.Parameter getSadlParameter() {
-		return new SADLDescription.Parameter(Name.createName(id.getValue(), name.getValue()), (ParameterType) type.getValue(), 
+		SADLDescription.Parameter parameter = new SADLDescription.Parameter(Name.createName(id.getValue(), name.getValue()), (ParameterType) type.getValue(), 
 				getEnumList(), getValueOrNull(minValue.getValue()), 
-				getValueOrNull(maxValue.getValue()), getValueOrNull(defaultValue.getValue()));
+				getValueOrNull(maxValue.getValue()), getValueOrNull(defaultValue.getValue()), getValueOrNull(description.getValue()));
+		parameter.setOptional(optional.getValue());
+		return parameter;
 	}
 	
 	private Name[] getEnumList() {
@@ -284,27 +291,11 @@ public class Parameter extends BasicModel{
 	@Override
 	protected void generateHeader() {
 		lbTitle.setValue(getBoldText("Parameter"));
-		btDelete.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.removeComponent(Parameter.this);
-			}
-		});
-		btUp.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveUpComponent(Parameter.this);
-			}
-		});
-		btDown.addClickListener(new ClickListener() {
-			
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveDownComponent(Parameter.this);
-			}
-		});
-		
+	}
+
+	@Override
+	protected String getType() {
+		// TODO Auto-generated method stub
+		return type.getValue().toString();
 	}
 }
