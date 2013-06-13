@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-tools_path="/opt/chipster/tools/"
+chipster_path="0"
 export PATH=${PATH}:/opt/chipster4/comp/modules/admin/shell/:/opt/chipster/tools/emboss/bin/
 
 ensembl=0
@@ -18,6 +18,12 @@ INDEX_BOWTIE2=1
 while [[ $# -ge 1 ]]
 do
   case "$1" in
+              '-chipster_path')
+	      chipster_path="$2"
+                shift
+                shift
+              ;;
+              #
               '-species')
                 species="$2"
                 ensembl=0
@@ -73,6 +79,17 @@ do
     esac
 done
 
+if [[ $chipster_path == "0" ]]
+then
+  echo ""  
+  echo "Please define the location of the tools directory of Chipster with option:"
+  echo "  -chipster_path /path/to/tools"
+  echo
+  exit 1
+fi 
+tools_path="$chipster_path""/tools"
+comp_path="$chipster_path""/comp"
+export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/
 
 ##
 #Retrieve the fasta file

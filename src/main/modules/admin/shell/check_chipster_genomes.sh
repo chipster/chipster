@@ -1,19 +1,12 @@
 #!/bin/bash
 
-tools_path="0"
-comp_path="0"
+chipster_path="0"
 
 while [[ $# -ge 1 ]]
 do
   case "$1" in
-             '-tools_path')
-	      tools_path="$2"
-                shift
-                shift
-              ;;
-              #
-             '-comp_path')
-	      comp_path="$2"
+             '-chipster_path')
+	      chipster_path="$2"
                 shift
                 shift
               ;;
@@ -21,28 +14,20 @@ do
   esac
 done
 
-if [[ $comp_path == "0" ]]
-then
-  echo ""  
-  echo "Please define the location of the comp directory of Chipster with option:"
-  echo "  -comp_path /path/to/comp"
-  echo
-  exit 1
-fi 
 
-if [[ $tools_path == "0" ]]
+if [[ $chipster_path == "0" ]]
 then
   echo ""  
   echo "Please define the location of the tools directory of Chipster with option:"
-  echo "  -tools_path /path/to/tools"
+  echo "  -chipster_path /path/to/tools"
   echo
   exit 1
 fi 
 
-#tools_path="/opt/chipster/tools"
-#comp_path="/opt/chipster3/comp"
+tools_path="$chipster_path""/tools"
+comp_path="$chipster_path""/comp"
 
-export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/
+export PATH=${PATH}:$chipster_path/comp/modules/admin/shell/:$chipster_path/tools/emboss/bin/
 
 #echo "BWA indexes"
 #ls -l $tools_path/bwa_indexes/*.bwt | awk -F "/" '{print "   "$NF}' | sed s/'.fa.bwt'/""/g 
