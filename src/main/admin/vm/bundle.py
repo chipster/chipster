@@ -18,6 +18,7 @@ import logging
 
 def load_available_bundles(filename):
     """
+    :type filename: str
     """
     bundles_yaml = yaml.load(open(filename, "r"))
     logging.debug("load_available_bundles: ")
@@ -27,6 +28,7 @@ def load_available_bundles(filename):
 
 def load_installed_bundles(filename):
     """
+    :type filename: str
     """
     bundles_yaml = {}
     try:
@@ -43,6 +45,7 @@ def load_installed_bundles(filename):
 
 def save_installed_bundles(filename):
     """
+    :type filename: str
     """
     yaml.dump(installed_bundles, open(filename, "w"), default_flow_style=False)
     logging.debug("save_installed_bundles: Saved!")
@@ -50,6 +53,8 @@ def save_installed_bundles(filename):
 
 def install_bundle(name, version):
     """
+    :type version: str
+    :type name: str
     """
     if is_bundle_installed(name):
         raise Exception("Bundle already installed!")
@@ -66,6 +71,8 @@ def install_bundle(name, version):
 
 def remove_bundle(name):
     """
+    :rtype: None
+    :type name: str
     """
     if not is_bundle_installed(name):
         raise Exception("Bundle not installed!")
@@ -79,6 +86,9 @@ def remove_bundle(name):
 
 def update_bundle(name, n_version):
     """
+    :rtype: None
+    :type name: str
+    :type n_version: str
     """
     # For now o_version can only be what is already installed
     o_version = is_bundle_installed(name)
@@ -98,6 +108,8 @@ def update_bundle(name, n_version):
 
 def is_bundle_installed(name):
     """
+    :rtype : str or bool
+    :type name: str
     """
     if name in installed_bundles:
         return installed_bundles[name]
@@ -107,6 +119,8 @@ def is_bundle_installed(name):
 
 def get_available_bundle(name):
     """
+    :rtype : str or None
+    :type name: str
     """
     retval = None
     if name in available_bundles:
@@ -124,6 +138,8 @@ def get_available_bundle(name):
 
 def get_compatible_bundle_versions(name):
     """
+    :rtype: list of str
+    :type name: str
     """
     retval = [elem["version"] for elem in get_available_bundle(name)
               if "chipster" in elem and float(elem["chipster"]) <= chipster_version]
@@ -135,7 +151,7 @@ def get_available_bundle_version(name, version):
     """
     :type name: str
     :type version: str
-    :rtype: list(version)
+    :rtype: dict
     """
     retval = [elem for elem in get_available_bundle(name) if elem["version"] == version]
     logging.debug("get_available_bundle_version: %s" % retval)
@@ -188,9 +204,9 @@ def are_updates_available():
             else:
                 logging.info("No update available!")
 
-    logging.debug("updated_bundles: %s" % updated_bundles)
-    logging.debug("personal_bundles: %s" % personal_bundles)
-    logging.debug("deprecated_bundles: %s" % deprecated_bundles)
+    logging.debug("updated_bundles: {}".format(updated_bundles))
+    logging.debug("personal_bundles: {}".format(personal_bundles))
+    logging.debug("deprecated_bundles: {}".format(deprecated_bundles))
 
     return updated_bundles, personal_bundles, deprecated_bundles
 
@@ -300,6 +316,9 @@ def transform_bundle(bundle, o_version, n_version):
     def get_package_owning_file(tup, bundle, version):
         """
         Get the first package that owns a matching file
+        :type tup: (str,str,str)
+        :type bundle: str
+        :type version: str
         """
         logging.debug("get_package_owning_file: %s, %s, %s" % (tup, bundle, version))
         for key, values in get_available_bundle_version(bundle, version)["packages"].items():
@@ -311,6 +330,8 @@ def transform_bundle(bundle, o_version, n_version):
     def get_symlinks_for_bundle(name, version):
         """
         Get all symlinks belonging to bundle + version
+        :type name: str
+        :type version: str
         """
         for x in get_available_bundle_version(name, version)["packages"].values():
             if "symlinks" in x:
@@ -330,7 +351,7 @@ def transform_bundle(bundle, o_version, n_version):
     for m in mv:
         logging.debug(m)
         try:
-            shutil.move(refine_path(m[0]), refine_path(m[1]))
+            shutil.move(refine_path(m[0][1]), refine_path(m[1][1]))
         except (OSError, IOError) as e:
             handle_file_error(e)
 
@@ -349,6 +370,8 @@ def transform_bundle(bundle, o_version, n_version):
 
 def implode_package(pkg_name, pkg_values):
     """
+    :type pkg_name: str
+    :type pkg_values: dict
     """
     logging.debug("pkg_name: %s" % pkg_name)
     logging.debug("pkg_values: %s" % pkg_values)
@@ -370,22 +393,25 @@ def implode_package(pkg_name, pkg_values):
 
 def explode_package(pkg_name, pkg_values):
     """
+    :type pkg_name: str
+    :type pkg_values: dict
     """
 
     def copy_file(src, dst):
         """
+        :type src: str
+        :type dst: str
         """
         logging.debug("copy_file({})".format(src, dst))
 
         # Copy file into place
         create_tree(dst)
-        if os.stat(os.path.dirname(src)).st_dev == os.stat(os.path.dirname(dst)).st_dev:
-            logging.debug("Using link() to copy file!")
-            os.link(src, dst)
-        else:
-            logging.debug("Using copy2() to copy file!")
-            shutil.copy2(src, dst)
-
+        # if os.stat(os.path.dirname(src)).st_dev == os.stat(os.path.dirname(dst)).st_dev:
+        #     logging.debug("Using link() to copy file!")
+        #     os.link(src, dst)
+        # else:
+        logging.debug("Using copy2() to copy file!")
+        shutil.copy2(src, dst)
         # shutil.move(src, dst)
         logging.info("Copied: %s -> %s" % (src, dst))
 
@@ -434,9 +460,7 @@ def explode_package(pkg_name, pkg_values):
 def refine_path(path):
     """
     Refine the path as best as possible
-
     :type path: str
-    :rtype: str
     """
     new_path = path
     if not os.path.isabs(path):
@@ -445,6 +469,10 @@ def refine_path(path):
 
 
 def create_symlink(src, dst):
+    """
+    :type src: str
+    :type dst: str
+    """
     logging.debug("source: %s" % src)
     logging.debug("destination: %s" % dst)
 
@@ -561,7 +589,6 @@ def diff_bundle(name, version_a, version_b):
         """
         Extract file details from bundle specification and return as a tuple
         :type bundle: dict
-        :rtype: tuple(source, destination, checksum)
         :param bundle: Bundle dictionary
         """
         # logging.debug(bundle)
@@ -569,24 +596,29 @@ def diff_bundle(name, version_a, version_b):
             for file in pkg["files"]:
                 yield file["source"], file["destination"], file["checksum"]
 
-    def detect_move(a, b):
+    def detect_move(added, removed):
         """
-        Detect file move/rename between lists 'a' and 'b'
-        :type a: list
-        :type b: list
+        Detect file move/rename between lists 'added' and 'removed'
+        :type added: list of (str,str,str)
+        :type removed: list of (str,str,str)
         """
 
-        def old_new():
-            sub_a = list(i[2] for i in a)
-            for t in b[:]:
-                x, y, z = t
-                if z in sub_a:
-                    i = sub_a.index(z)
-                    del sub_a[i]
-                    b.remove(t)
-                    yield a.pop(i), t
+        def old_new(added, removed):
+            """
+            Sub-function that does the actual work lazily
+            :type added: list of (str,str,str)
+            :type removed: list of (str,str,str)
+            """
+            sub_added = list(i[2] for i in added)
+            for tup in removed[:]:
+                src, dst, checksum = tup
+                if checksum in sub_added:
+                    i = sub_added.index(checksum)
+                    del sub_added[i]
+                    removed.remove(tup)
+                    yield added.pop(i), tup
 
-        return list(old_new()), a, b
+        return list(old_new(added, removed)), added, removed
 
     if float(version_a) == float(version_b):
         raise Exception("This is pointless!")
@@ -637,7 +669,7 @@ if __name__ == '__main__':
     chipster_version = 2.5
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
-    installation_path = "/tmp/opt/chipster/"
+    installation_path = "/opt/chipster/"
     logging.basicConfig(level=logging.DEBUG)
 
     logging.debug("prog_path: %s" % prog_path)
