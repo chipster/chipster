@@ -1,28 +1,27 @@
 package fi.csc.chipster.web.model;
 
-import java.io.File;
-
-import com.vaadin.server.FileResource;
-import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.Button.ClickEvent;
 
+import fi.csc.chipster.web.listener.CSCTextChangeListener;
+import fi.csc.chipster.web.tooledit.Icon;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription.Name;
 
 public abstract class BasicModel extends GridLayout{
 	
 	private static final long serialVersionUID = 7942793110778486624L;
-	public static final String WIDTH = "200px";
+	public static final String WIDTH = "300px";
 	public static final String OPTIONAL = "optional";
 	public static final String NOT_OPTIONAL = "not optional";
 	public static final String SINGLE_FILE = "Single file";
@@ -33,6 +32,8 @@ public abstract class BasicModel extends GridLayout{
 	protected Label lbId;
 	protected Label lbDescription;
 	protected Label lbTitle;
+	protected Label lbTitleDescription;
+	protected Label lbOptional;
 	
 	
 	protected TextField name;
@@ -43,57 +44,86 @@ public abstract class BasicModel extends GridLayout{
 	protected Button btUp;
 	protected Button btDown;
 	protected Button btDelete;
+	protected HorizontalLayout hLayoutTitle;
+	protected CheckBox optional;
 	
 	protected HorizontalLayout layout;
 	protected ToolEditor root;
-//	protected GridLayout grid;
 	
 	public BasicModel() {
-//		grid = new GridLayout();
 		this.setColumns(2);
 		this.setImmediate(true);
 		this.setMargin(true);
 		this.setSpacing(true);
 		this.setColumnExpandRatio(0, 20);
-//		grid.setColumnExpandRatio(1, 2);
-//		grid.setWidth("100%");
-//		grid.setHeight("100%");
 		initHeadeer();
 		initElements();
 		addRow(lbId, id);
 		addRow(lbName, name);
-//		grid.addComponent(name, 0, 0);
-//		
-//		grid.addComponent(id, 1,0);
-//		grid.addComponent(description, 2, 0, 2, 1);
 	}
+	
+	
+	protected void initFooter() {
+		btUp = new Button();
+		btDown = new Button();
+		btDelete = new Button();
+		btDelete.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = -689182485982297845L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.removeComponent(BasicModel.this);
+			}
+		});
+		btUp.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = -5641105378128102121L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveUpComponent(BasicModel.this);
+			}
+		});
+		btDown.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 5198164039029102629L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				root.moveDownComponent(BasicModel.this);
+			}
+		});
+		String width = "50px";
+		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+		btDelete.setImmediate(true);
+		btDelete.setWidth(width);
+		btUp.setImmediate(true);
+		btUp.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
+		btUp.setWidth(width);
+		btDown.setImmediate(true);
+		btDown.setIcon(Icon.getResource(Icon.getDownButtonIconPath()));
+		btDown.setWidth(width);
+		hLayoutTitle = new HorizontalLayout();
+		hLayoutTitle.setSpacing(true);
+//		hLayoutTitle.setMargin(true);
+		hLayoutTitle.addComponent(btUp);
+		hLayoutTitle.addComponent(btDown);
+		hLayoutTitle.addComponent(btDelete);
+	}
+	
+	
+	protected void generateFooter() {
+		initFooter();
+		addRow(new Label(), hLayoutTitle);
+//		this.addComponent(hLayoutTitle);
+	}
+	
 	
 	private void initHeadeer() {
 		lbTitle = new Label();
 		lbTitle.setContentMode(ContentMode.HTML);
-		btUp = new Button("Up");
-		btDown = new Button("Down");
-		btDelete = new Button();
-		String basepath = VaadinService.getCurrent()
-                .getBaseDirectory().getAbsolutePath();
-		System.out.println(basepath);
-		basepath = basepath.replace("\\web\\tool-editor\\WebContent", "");
-		btDelete.setIcon(new FileResource(new File(basepath + "\\resources\\no.png")));
-		btDelete.setImmediate(true);
-		btUp.setImmediate(true);
-		btDown.setImmediate(true);
-		HorizontalLayout hLayoutTitle = new HorizontalLayout();
-//		hLayoutTitle.setWidth("100%");
-//		hLayoutTitle.setMargin(true);
-		hLayoutTitle.setSpacing(true);
-//		hLayoutTitle.addComponent(lbTitle);
-//		hLayoutTitle.setComponentAlignment(lbTitle, Alignment.MIDDLE_LEFT);
-		hLayoutTitle.addComponent(btUp);
-		hLayoutTitle.addComponent(btDown);
-		hLayoutTitle.addComponent(btDelete);
-		this.addComponent(lbTitle);
-		this.addComponent(hLayoutTitle, 1, 0);
-		this.setComponentAlignment(lbTitle, Alignment.MIDDLE_LEFT);
+		lbTitleDescription = new Label();
+		lbTitleDescription.setContentMode(ContentMode.HTML);
+		lbTitleDescription.setImmediate(true);
+		addRow(lbTitle, lbTitleDescription);
 	}
 	
 	private void initElements() {
@@ -101,9 +131,12 @@ public abstract class BasicModel extends GridLayout{
 		lbName = new Label("Display name:");
 		lbId = new Label();
 		lbDescription = new Label("Description:");
+		lbOptional = new Label("Optional:");
 		
 		name = new TextField();
 		name.setWidth(WIDTH);
+		name.setImmediate(true);
+		name.addTextChangeListener(new CSCTextChangeListener(this));
 		
 		id = new TextField();
 		id.setWidth(WIDTH);
@@ -119,11 +152,28 @@ public abstract class BasicModel extends GridLayout{
 		layout.addComponent(prefix);
 		layout.addComponent(new Label(MULTI_FILE_TEXT));
 		layout.addComponent(postfix);
+		
+		optional = new CheckBox();
+	}
+	
+	abstract protected String getType();
+	
+	public String getTypeValue() {
+		return getType();
+	}
+	
+	public String getNameValue() {
+		return name.getValue().toString();
+	}
+	
+	public void setTitleDescriptionValue(String text) {
+		lbTitleDescription.setValue(getBoldText(text));
 	}
 	
 	protected void addRow(Component label, Component component) {
 		this.addComponent(label);
 		this.addComponent(component);
+		this.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
 	}
 	
 	protected String getValue(String value) {
