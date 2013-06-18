@@ -3,9 +3,9 @@
 <module name="microarray">
 		
 	<category name="Normalisation" color="#d5c796">
-		<tool runtime="R-2.12"><resource>norm-affy.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-affy-exon.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-affy-gene.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-affy-gene.R</resource></tool>
 		<tool runtime="R-2.15"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent.R</resource></tool>
@@ -17,17 +17,17 @@
 		<tool runtime="R-2.15"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-chip-average.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-gene-average.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-specific-samples.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-specific-genes.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-chip-average.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-gene-average.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-specific-samples.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-specific-genes.R</resource></tool>
 	</category>
 	
 	<category name="Quality control" color="#e7df70">
-		<tool runtime="R-2.12"><resource>qc-affy.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
@@ -35,21 +35,21 @@
 	</category>
 	
 	<category name="Preprocessing" color="#d59f45">
-		<tool runtime="R-2.12"><resource>filter-expression.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-flags.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-sd.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-iqr.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-cv.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column-term.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column-value.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-expression.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-flags.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-sd.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-iqr.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-cv.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-by-column-term.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-by-column-value.R</resource></tool>
 		<tool runtime="R-2.12"><resource>impute.R</resource></tool>
 		<tool runtime="R-2.12"><resource>na-omitted.R</resource></tool>
-		<tool runtime="R-2.12"><resource>dichotomize-continious-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>dichotomize-continious-data.R</resource></tool>
 	</category>
 	
 	<category name="Statistics" color="#e7881c">
-		<tool runtime="R-2.12"><resource>stat-one-group.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-two-groups.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-one-group.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-two-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-ROTS.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
@@ -81,7 +81,7 @@
 	<category name="Annotation" color="#80a3b7">
 		<tool runtime="R-2.12"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
-		<tool runtime="R-2.12"><resource>add-locations-to-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>add-locations-to-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
 	</category>

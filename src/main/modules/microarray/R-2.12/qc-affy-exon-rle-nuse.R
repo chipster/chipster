@@ -1,14 +1,15 @@
-# TOOL qc-affy-exon-rle-nuse.R: "Affymetrix exon arrays - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. This tool should be run on RAW data, i.e., CEL-files, for exon arrays. The chip type and the summary feature have to be specified.)
+# TOOL qc-affy-exon-rle-nuse.R: "Affymetrix exon/gene arrays - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. This tool should be run on RAW data, i.e., CEL-files, for exon arrays. The chip type and the summary feature have to be specified.)
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT rle-plot.png: rle-plot.png 
 # OUTPUT nuse-plot.png: nuse-plot.png 
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty ()
-# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty ()
+# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type for Exon arrays)
 
 # Affymetrix quality control
 # MG 12.1.2010
+# MK: 12.06.2013 added possibility to analyse custom chips
 
 # Loading the libraries
 library(affy)
@@ -26,33 +27,106 @@ dat<-ReadAffy()
 if(chiptype=="empty") {
 	stop("You need to specify the chiptype. Please run the script again.")
 }
-if(chiptype=="human" & summary.feature=="exon") {
+if(chiptype=="human-exon" & summary.feature=="exon") {
 	dat@cdfName<-"exon.pmcdf"
 	dat@annotation<-"exon.pmcdf"
 }
-if(chiptype=="mouse" & summary.feature=="exon") {
+if(chiptype=="mouse-exon" & summary.feature=="exon") {
 	dat@cdfName<-"mouseexonpmcdf"
 	dat@annotation<-"mouseexonpmcdf"
 }
-if(chiptype=="rat" & summary.feature=="exon") {
+if(chiptype=="rat-exon" & summary.feature=="exon") {
 	dat@cdfName<-"ratexonpmcdf"
 	dat@annotation<-"ratexonpmcdf"
 }
 
-if(chiptype=="human" & summary.feature=="gene") {
+if(chiptype=="human-exon" & summary.feature=="gene") {
 	dat@cdfName<-"huex10stv2hsentrezgcdf"
 	dat@annotation<-"huex10stv2hsentrezg.db"
 }
-if(chiptype=="mouse" & summary.feature=="gene") {
+if(chiptype=="mouse-exon" & summary.feature=="gene") {
 	dat@cdfName<-"moex10stv1mmentrezgcdf"
 	dat@annotation<-"moex10stv1mmentrezg.db"
 }
-if(chiptype=="rat" & summary.feature=="gene") {
+if(chiptype=="rat-exon" & summary.feature=="gene") {
 	dat@cdfName<-"raex10stv1rnentrezgcdf"
 	dat@annotation<-"raex10stv1rnentrezg.db"
 }
-chiptype<-dat@annotation
 
+if(chiptype=="human-1.0-ST") {
+	dat@cdfName<-"hugene10sthsentrezgcdf"
+	dat@annotation<-"hugene10sthsentrezgcdf"
+}
+if(chiptype=="human-1.1-ST") {
+	dat@cdfName<-"hugene11sthsentrezgcdf"
+	dat@annotation<-"hugene11sthsentrezgcdf"
+}
+if(chiptype=="human-2.0-ST") {
+	dat@cdfName<-"hugene20sthsentrezgcdf"
+	dat@annotation<-"hugene20sthsentrezgcdf"
+}
+if(chiptype=="human-2.1-ST") {
+	dat@cdfName<-"hugene21sthsentrezgcdf"
+	dat@annotation<-"hugene21sthsentrezgcdf"
+}
+if(chiptype=="mouse-1.0-ST") {
+	dat@cdfName<-"mogene10stmmentrezgcdf"
+	dat@annotation<-"mogene10stmmentrezgcdf"
+}
+if(chiptype=="mouse-1.1-ST") {
+	dat@cdfName<-"mogene11stmmentrezgcdf"
+	dat@annotation<-"mogene11stmmentrezgcdf"
+}
+if(chiptype=="mouse-2.0-ST") {
+	dat@cdfName<-"mogene20stmmentrezgcdf"
+	dat@annotation<-"mogene20stmmentrezgcdf"
+}
+if(chiptype=="mouse-2.1-ST") {
+	dat@cdfName<-"mogene21stmmentrezgcdf"
+	dat@annotation<-"mogene21stmmentrezgcdf"
+}
+if(chiptype=="rat-1.0-ST") {
+	dat@cdfName<-"ragene10strnentrezgcdf"
+	dat@annotation<-"ragene10strnentrezgcdf"
+}
+if(chiptype=="rat-1.1-ST") {
+	dat@cdfName<-"ragene11strnentrezgcdf"
+	dat@annotation<-"ragene11strnentrezgcdf"
+}
+if(chiptype=="rat-2.0-ST") {
+	dat@cdfName<-"ragene20strnentrezgcdf"
+	dat@annotation<-"ragene20strnentrezgcdf"
+}
+if(chiptype=="rat-2.1-ST") {
+	dat@cdfName<-"ragene21strnentrezgcdf"
+	dat@annotation<-"ragene21strnentrezgcdf"
+}
+if(chiptype=="zebra_fish-1.0-ST") {
+	dat@cdfName<-"zebgene10stdrentrezgcdf"
+	dat@annotation<-"zebgene10stdrentrezgcdf"
+}
+if(chiptype=="zebra_fish-1.1-ST") {
+	dat@cdfName<-"zebgene11stdrentrezgcdf"
+	dat@annotation<-"zebgene11stdrentrezgcdf"
+}
+if(chiptype=="arabidopsis-1.0-ST-entrez") {
+	dat@cdfName<-"aragene10statentrezgcdf"
+	dat@annotation<-"aragene10statentrezgcdf"
+}
+if(chiptype=="arabidopsis-1.1-ST-entrez") {
+	dat@cdfName<-"aragene11statentrezgcdf"
+	dat@annotation<-"aragene11statentrezgcdf"
+}
+if(chiptype=="arabidopsis-1.0-ST-tair") {
+	dat@cdfName<-"aragene10stattairgcdf"
+	dat@annotation<-"aragene10stattairgcdf"
+}
+if(chiptype=="arabidopsis-1.1-ST-tair") {
+	dat@cdfName<-"aragene11stattairgcdf"
+	dat@annotation<-"aragene11stattairgcdf"
+}
+
+chiptype<-dat@annotation
 
 # Calculating quality control values
 aqc<-fitPLM(dat)

@@ -5,7 +5,8 @@
 # PARAMETER annotate_with: "annotate using" TYPE [probe_id: "probe ID", gene_symbol: "gene symbols"] DEFAULT gene_symbol (Should the probe identifiers be used to fetch the location of the corresponding gene targets or should gene symbols be used directly, if available.)
 # PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
 
-# MG 16.3.2012
+# MG 16.03.2012
+# MK 10.06.2013, fixing biomaRt queries
 
 # Loads libraries into memory
 library(biomaRt)
@@ -59,15 +60,18 @@ if (annotate_with == "probe_id") {
 # Fetch the gene symbols and descriptions from ENSEMBL using biomaRt
 if (species=="human") {
 	dataset <- "hsapiens_gene_ensembl"
+	filt <- "hgnc_symbol"
 }
 if (species=="mouse") {
 	dataset <- "mmusculus_gene_ensembl"
+	filt <- "mgi_symbol"
 }
 if (species=="rat") {
 	dataset <- "rnorvegicus_gene_ensembl"
+	filt <- "rgd_symbol"
 }
 ensembl <- useMart("ensembl", dataset=dataset)
-annotated_genes <- getBM(mart=ensembl, attributes=c("hgnc_symbol","chromosome_name","start_position","end_position"), filters="hgnc_symbol", values=gene_symbols)
+annotated_genes <- getBM(mart=ensembl, attributes=c(filt,"chromosome_name","start_position","end_position"), filters=filt, values=gene_symbols)
 
 # Remove chromosome entries containing the "_" character
 annotated_genes <- annotated_genes [-grep( pattern="_", annotated_genes$chromosome_name),]

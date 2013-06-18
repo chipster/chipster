@@ -24,15 +24,15 @@ filt <- "entrezgene"
 usemart <- "ensembl"
 
 if(chiptype=="human-1.0-ST") {
-	dat@cdfName<-"hugene10stv1hsentrezgcdf"
-	dat@annotation<-"hugene10stv1hsentrezgcdf"
-	chiptype<-"hugene10stv1hsentrezg.db"
+	dat@cdfName<-"hugene10sthsentrezgcdf"
+	dat@annotation<-"hugene10sthsentrezgcdf"
+	chiptype<-"hugene10sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="human-1.1-ST") {
-	dat@cdfName<-"hugene11stv1hsentrezgcdf"
-	dat@annotation<-"hugene11stv1hsentrezgcdf"
-	chiptype<-"hugene11stv1hsentrezg.db"
+	dat@cdfName<-"hugene11sthsentrezgcdf"
+	dat@annotation<-"hugene11sthsentrezgcdf"
+	chiptype<-"hugene11sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="human-2.0-ST") {
@@ -48,15 +48,15 @@ if(chiptype=="human-2.1-ST") {
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="mouse-1.0-ST") {
-	dat@cdfName<-"mogene10stv1mmentrezgcdf"
-	dat@annotation<-"mogene10stv1mmentrezgcdf"
-	chiptype<-"mogene10stv1mmentrezg.db"
+	dat@cdfName<-"mogene10stmmentrezgcdf"
+	dat@annotation<-"mogene10stmmentrezgcdf"
+	chiptype<-"mogene10stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="mouse-1.1-ST") {
-	dat@cdfName<-"mogene11stv1mmentrezgcdf"
-	dat@annotation<-"mogene11stv1mmentrezgcdf"
-	chiptype<-"mogene11stv1mmentrezg.db"
+	dat@cdfName<-"mogene11stmmentrezgcdf"
+	dat@annotation<-"mogene11stmmentrezgcdf"
+	chiptype<-"mogene11stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="mouse-2.0-ST") {
@@ -72,15 +72,15 @@ if(chiptype=="mouse-2.1-ST") {
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="rat-1.0-ST") {
-	dat@cdfName<-"ragene10stv1rnentrezgcdf"
-	dat@annotation<-"ragene10stv1rnentrezgcdf"
-	chiptype<-"ragene10stv1rnentrezg.db"
+	dat@cdfName<-"ragene10strnentrezgcdf"
+	dat@annotation<-"ragene10strnentrezgcdf"
+	chiptype<-"ragene10strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="rat-1.1-ST") {
-	dat@cdfName<-"ragene11stv1rnentrezgcdf"
-	dat@annotation<-"ragene11stv1rnentrezgcdf"
-	chiptype<-"ragene11stv1rnentrezg.db"
+	dat@cdfName<-"ragene11strnentrezgcdf"
+	dat@annotation<-"ragene11strnentrezgcdf"
+	chiptype<-"ragene11strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="rat-2.0-ST") {
@@ -112,6 +112,7 @@ if(chiptype=="arabidopsis-1.0-ST-entrez") {
 	dat@annotation<-"aragene10statentrezgcdf"
 	chiptype<-"aragene10statentrezg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 }
 if(chiptype=="arabidopsis-1.1-ST-entrez") {
@@ -119,6 +120,7 @@ if(chiptype=="arabidopsis-1.1-ST-entrez") {
 	dat@annotation<-"aragene11statentrezgcdf"
 	chiptype<-"aragene11statentrezg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 }
 if(chiptype=="arabidopsis-1.0-ST-tair") {
@@ -126,6 +128,7 @@ if(chiptype=="arabidopsis-1.0-ST-tair") {
 	dat@annotation<-"aragene10stattairgcdf"
 	chiptype<-"aragene10stattairg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 	filt <- "ensembl_gene_id"
 }
@@ -134,6 +137,7 @@ if(chiptype=="arabidopsis-1.1-ST-tair") {
 	dat@annotation<-"aragene11stattairgcdf"
 	chiptype<-"aragene11stattairg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 	filt <- "ensembl_gene_id"
 }
@@ -163,6 +167,11 @@ if(chiptype!="empty" & class(a)!="try-error") {
 	genename <- gsub("#", "", genename)
 	symbol <- gsub("'", "", symbol)
 	genename <- gsub("'", "", genename)
+
+	# remove odd characters
+	symbol <- gsub("\'|#|\"|\n|\t", "", symbol, perl=T) 
+	genename <- gsub("\'|#|\"|\n|\t", "", genename, perl=T) 
+	
 	# Writes the results into a file
 	write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 
@@ -178,11 +187,13 @@ if(chiptype=="empty" | class(a)=="try-error") {
 		
 		annotated_dataf <- data.frame(annotated_genes)
 		rownames(annotated_dataf) <- annotated_genes[, 1]
+
+		# remove odd characters
+		symbol <- gsub("\'|#|\"|\n|\t", "", annotated_dataf[gene_id, "external_gene_id"], perl=T) 
+		genename <- gsub("\'|#|\"|\n|\t", "", annotated_dataf[gene_id, "description"], perl=T) 
 		
-		write.table(data.frame(symbol=annotated_dataf[gene_id, "external_gene_id"], description=annotated_dataf[gene_id, "description"], dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+		write.table(data.frame(symbol=symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	} else {
 		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	}
 }
-
-
