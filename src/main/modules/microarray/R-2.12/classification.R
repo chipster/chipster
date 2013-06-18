@@ -11,7 +11,6 @@
 # PARAMETER group.column: group.column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER training.column: training.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
 
-
 # JTT 22.01.2009
 # MK 18.06.2013 Chip-prediction table added to the output
 # Prediction has not yet been implemented!
