@@ -6,7 +6,7 @@
 # OUTPUT OPTIONAL junctions.bed
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", mm9: "Mouse (mm9\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat (rn5\)", rn4: "Rat (rn4\)", ovis_aries_texel: "Sheep (oar3.1\)", athaliana.TAIR10: "A. thaliana (TAIR10\)", Gasterosteus_aculeatus.BROADS1.70: "Gasterosteus aculeatus (BROADS1.67\)"] DEFAULT hg19 (Genome that you would like to align your reads against.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", Arabidopsis_lyrata.v.1.0.16: "A. lyrata genome (1.0.16\)", ovis_aries_texel: "Sheep genome (oar3.1\)" ] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER OPTIONAL use.gtf: "Use annotation GTF" TYPE [yes, no] DEFAULT yes (If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final tophat output. If no GTF file is provided by user, internal annotation file wil be used if available. Internal annotation is provided for human, mouse and rat.)
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If annotation GTF is used, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final TopHat output. If no GTF file is provided by the user, internal annotation file will be used if available. Internal annotation is provided for human, mouse and rat.)
 # PARAMETER OPTIONAL min.anchor.length: "Minimum anchor length" TYPE INTEGER FROM 3 TO 1000 DEFAULT 8 (TopHat will report junctions spanned by reads with at least this many bases on each side of the junction. Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved in spliced alignments is supported by at least one read with this many bases on each side.)
@@ -58,7 +58,7 @@ if (is_gtf) {
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
 genome_available <- FALSE
-if (genome == "hg19" ||	genome == "mm9" || genome == "mm10" || genome == "rn4") genome_available <- TRUE
+if (genome == "hg19" ||	genome == "mm9" || genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") genome_available <- TRUE
 if (!is_gtf && genome_available) {
    # annotation file setup
    if (genome == "hg19") {
@@ -72,6 +72,12 @@ if (!is_gtf && genome_available) {
    }
    if (genome == "rn4") {
 	  annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
+   }
+   if (genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel") {
+	   annotation.file <- "Rattus_norvegicus.Rnor_5.0.70.gtf"
+   }   
+   if (genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") {
+				   annotation.file <- "Canis_familiaris.CanFam3.1.71.gtf"
    }
    annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 	

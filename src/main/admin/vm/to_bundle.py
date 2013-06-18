@@ -196,7 +196,7 @@ def main():
     """
     Main function
     """
-    chipster_path = "/tmp/opt/chipster/"
+    chipster_path = "/opt/chipster/"
     tools_path = chipster_path + "tools/"
 
     yaml_dict = {}
