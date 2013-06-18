@@ -591,7 +591,11 @@ public class SessionSaver {
 			String entryName = entry.getValue().getRef();
 
 			// write bean contents to zip
-			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
+			try {
+				writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
+			} catch (IllegalStateException e) {
+				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
+			}
 		}
 	}
 	
