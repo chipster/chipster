@@ -12,7 +12,8 @@
 # PARAMETER training.column: training.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
 
 
-# JTT 22.1.2009
+# JTT 22.01.2009
+# MK 18.06.2013 Chip-prediction table added to the output
 # Prediction has not yet been implemented!
 
 # Parameter settings (default) for testing purposes
@@ -77,7 +78,7 @@ if(method=="knn") {
       fit<-MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO"))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-fit<-MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO", fsFun=fsFun.rowtQ3))
    }
 }
 
@@ -171,7 +172,11 @@ if(method=="bagging") {
    }
 }
 
+save.image("/tmp/matti/data.Rdata")
+
 # Writing output
 sink("classification.txt")
 confuMat(fit)
+cat("\n")
+data.frame(given.group=phenodata[,grep(group.column, colnames(phenodata))], predicted.group=testPredictions(fit))
 sink()
