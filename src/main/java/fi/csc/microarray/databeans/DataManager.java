@@ -26,6 +26,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
+import fi.csc.microarray.client.session.SessionLoader.LoadMethod;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
@@ -566,10 +567,10 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean restoreData) {
+	public void loadSession(File sessionFile, LoadMethod loadMethod) {
 		SessionLoader sessionLoader;
 		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
+			sessionLoader = new SessionLoader(sessionFile, loadMethod, this);
 			sessionLoader.loadSession();
 		} catch (Exception e) {
 			e.printStackTrace();

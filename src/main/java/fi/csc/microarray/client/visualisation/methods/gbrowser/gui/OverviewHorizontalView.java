@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
  * Special version of horizontal view of tracks. It is used for the chromosome overview panel.
@@ -110,18 +109,6 @@ public class OverviewHorizontalView extends HorizontalView {
 		for (RegionListener listener : overviewListeners) {
 			listener.regionChanged(selectedRegion);
 		}
-	}
-	
-	@Override
-	public void setViewLimiter(ViewLimiter viewLimiter) {
-		super.setViewLimiter(viewLimiter);
-		viewLimiter.addLimitChangeListener(new RegionListener() {
-			
-			@Override
-			public void regionChanged(Region bpRegion) {
-				setBpRegion(new RegionDouble(bpRegion), false);
-			}
-		});
 	}
 	
 	@Override

@@ -17,7 +17,7 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="#variants">Variants</a> </li>
 <li> <a href="#RNA">RNA-seq</a> </li>
 <li> <a href="#miRNA">miRNA-seq</a> </li>
-<li> <a href="#ChIP">ChIP-seq</a> </li>
+<li> <a href="#ChIP">ChIP-seq and FAIRE-seq</a> </li>
 <li> <a href="#CNA">CNA-seq</a> </li>
 <li> <a href="#methyl">Methyl-seq</a> </li>
 </ol>
@@ -42,7 +42,9 @@ allowing you to view reads and results in their genomic context.</p>
 <br>
 <br>
 <b><a name="utilities">Utilities</a></b>
-<li> <a href=" ngs-create-experiment.html">Define NGS experiment </a> </li>
+<li> <a href="ngs-create-experiment.html">Define NGS experiment </a> </li>
+<li> <a href="extract-samples-from-dataset.html">Extract samples from dataset </a> </li>
+<li> <a href="process-preprocessed-counts.html">Preprocess count table </a> </li>
 <li><a href="tagcleaner-predict.html">Predict primers/adaptors (TagCleaner)</a></li>
 <li><a href="tagcleaner-statistics.html">Statistics for primers/adaptors (TagCleaner)</a></li>
 <li><a href="tagcleaner-trim.html">Trim primers/adaptors (TagCleaner)</a></li>
@@ -115,22 +117,25 @@ allowing you to view reads and results in their genomic context.</p>
 <br>
 <br>
 <b><a name="RNA">RNA-seq</a></b>
-<li> <a href="htseq-count.html">Map aligned reads to genes with HTSeq</a> </li>
-<li> <a href="htseq-count-own-gtf.html">Map aligned reads to genes with HTSeq using own GTF </a> </li>
+<li><a href="htseq-count.html">Map aligned reads to genes with HTSeq</a> </li>
+<li><a href="htseq-count-own-gtf.html">Map aligned reads to genes with HTSeq using own GTF </a> </li>
 <!--  <li> Map aligned reads to genes with coverageBed using own BED </li>-->
-<li><a href="dea-cufflinks.html">Differential expression analysis using Cufflinks</a></li>
-<li> <a href="ngs-dea-edger-RNA.html"> Differential expression analysis using edgeR</a></li>
-<li> <a href="edger-multivariate.html"> Differential expression analysis using edgeR for multivariate experiments</a></li>
-<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
-<li><a href="dexseq-exoncount.html">RNA-seq / Map aligned reads to exons for DEXSeq</a></li>
-<li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a></li>
+<li><a href="dexseq-exoncount.html">Map aligned reads to exons for DEXSeq</a></li>
+<li><a href="ngs-dea-edger-RNA.html"> Differential expression using edgeR</a></li>
+<li><a href="edger-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
+<li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
+<li><a href="DEXSeq.html">Differential exon expression using DEXSeq</a></li>
+<li><a href="cufflinks2.html">Assemble reads into transcripts using Cufflinks</a></li>
+<li><a href="cuffmerge2.html">Merge transcript assemblies with Cuffmerge</a></li>
+<li><a href="cuffdiff2.html">Differential expression using Cuffdiff</a></li>
+<li><a href="dea-cufflinks.html">Differential expression using Cufflinks v1.0.3</a></li>
 <br>
 <br>
 <b><a name="miRNA">miRNA-seq</a></b>
-<li><a href="convert-bam-to-edger.html">Convert genomic BAM to edgeR input format</a></li>
-<li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to edgeR input format</a></li>
-<li><a href="ngs-dea-edger.html">Differential expression analysis using edgeR</a></li>
-<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
+<li><a href="convert-bam-to-edger.html">Convert genomic BAM to count table</a></li>
+<li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to count table</a></li>
+<li><a href="ngs-dea-edger.html">Differential expression using edgeR</a></li>
+<li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
 <li><a href="ngs-annotate-miRNA-targets.html">Find miRNA targets</a></li>
 <li><a href="ngs-pathways-mirna-hyperg-go.html">GO enrichment for miRNA targets</a></li>
 <li><a href="ngs-pathways-mirna-hyperg-kegg.html">KEGG enrichment for miRNA targets</a></li>
@@ -146,7 +151,7 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="ngs-find-nearest-genes.html">Find the nearest genes for regions </a> </li>
 <li> <a href="ngs-find-unique-genes.html">Find unique and annotated genes</a></li>
 <li> <a href="pathways-ngs-hyperg-go.html">GO enrichment for list of genes </a> </li>
-<li><a href="ngs-find-peaks-fseq.html">ChIP-seq and FAIRE-seq / Find broad peaks using F-seq</a></li>
+<li><a href="ngs-find-peaks-fseq.html">Find broad peaks using F-seq</a></li>
 <br>
 <br>
 <b><a name="CNA">CNA-seq</a></b>

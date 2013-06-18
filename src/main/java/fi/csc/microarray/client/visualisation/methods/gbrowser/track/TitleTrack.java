@@ -7,6 +7,7 @@ import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -19,6 +20,7 @@ public class TitleTrack extends Track {
 
 	private Color color;
 	private String title;
+	private Color bgColor;
 
 	public TitleTrack(String title, Color color) {
 
@@ -26,11 +28,22 @@ public class TitleTrack extends Track {
 		this.title = title;
 		layoutHeight = 10;
 	}
+	
+	public TitleTrack(String title, Color color, Color bgColor) {
+
+		this(title, color);
+		this.bgColor = bgColor;
+	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		drawables.add(new TextDrawable(5, 10, title, color));
+		
+		if (bgColor != null) {
+			drawables.add(new RectDrawable(0, 0, view.getWidth(), getHeight(), bgColor, bgColor));
+		}
+		
+		drawables.add(new TextDrawable(5, 10, title, color));				
 		return drawables;
 	}
 

@@ -3,11 +3,14 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.CnaConversion;
 
 /**
  * Utility class for creating predefined {@link TrackGroup} objects.  
@@ -105,5 +108,67 @@ public class TrackFactory {
 		TitleTrack titleTrack = new TitleTrack(title, Color.black);
 		titleTrack.setView(dataView);
 		return titleTrack;
+	}
+
+	public static TrackGroup getCnaTrackGroup(GBrowserPlot plot,
+			CnaConversion conversion, LinkedList<String> sampleNames, boolean showFrequencies, boolean showCalls, boolean showLogratios) {
+		
+		GBrowserView view = plot.getDataView();
+		TrackGroup group = new TrackGroup(view);
+		
+		if (showFrequencies) {
+			TitleTrack title2 = new TitleTrack("loss frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+			title2.setView(view);
+			group.addTrack(title2);
+
+			ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.LOSS, 0, Long.MAX_VALUE);
+			lossFreq.setView(view);
+			lossFreq.setAreaRequestHandler(conversion);
+			group.addTrack(lossFreq);
+
+			TitleTrack title3 = new TitleTrack("gain frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+			title3.setView(view);
+			group.addTrack(title3);
+			
+			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, ColumnType.GAIN, 0, Long.MAX_VALUE);
+			gainFreq.setView(view);
+			gainFreq.setAreaRequestHandler(conversion);
+			group.addTrack(gainFreq);
+		}
+				
+		for (int i = 0; i < sampleNames.size(); i++) {
+			
+			String name = sampleNames.get(i);
+
+			if (showCalls) {
+				
+				TitleTrack title = new TitleTrack(name, Color.black);
+				title.setView(view);
+				group.addTrack(title);
+				
+				CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, i, Color.RED, 0, Long.MAX_VALUE);
+				flag.setView(view);
+				flag.setAreaRequestHandler(conversion);
+				group.addTrack(flag);
+
+				SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+				separator1.setView(view);
+				group.addTrack(separator1);
+			}
+			
+			if (showLogratios) {
+				
+				TitleTrack title = new TitleTrack(name, Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
+				title.setView(view);
+				group.addTrack(title);			
+				
+				ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 24, -1.0f, 1.0f, i, 0, Long.MAX_VALUE);				
+				logRatio.setView(view);
+				logRatio.setAreaRequestHandler(conversion);		
+				group.addTrack(logRatio);
+			}
+		}		
+
+		return group;
 	}
 }

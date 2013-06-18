@@ -45,10 +45,17 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SessionLoader {
 	
+	public enum LoadMethod {
+		NORMAL,
+		LIGHTWEIGHT,
+		FEEDBACK
+	}
+
+	
 	private File sessionFile;
 	private SessionType sessionType;
 	
-	private boolean isDatalessSession;
+	private LoadMethod loadMethod;
 	
 	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
@@ -65,13 +72,13 @@ public class SessionLoader {
 	private static final Logger logger = Logger.getLogger(SessionLoader.class);
 	
 	
-	public SessionLoader(File sessionFile, boolean restoreData, DataManager dataManager) throws MicroarrayException {
+	public SessionLoader(File sessionFile, LoadMethod loadMethod, DataManager dataManager) throws MicroarrayException {
 		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
 		this.dataManager = dataManager; 
-		this.isDatalessSession = restoreData;
+		this.loadMethod = loadMethod;
 	}
 	
 	
@@ -169,7 +176,7 @@ public class SessionLoader {
 			}
 			
 			DataBean dataBean = null;
-			if (storageMethod == StorageMethod.LOCAL_SESSION && !isDatalessSession) {
+			if (storageMethod == StorageMethod.LOCAL_SESSION && loadMethod == (LoadMethod.NORMAL)) {
 
 				// data is inside the session file, use the url for the real session file 
 				try {
@@ -183,7 +190,7 @@ public class SessionLoader {
 					continue;
 				}
 				
-			} else {
+			} else if (loadMethod != LoadMethod.FEEDBACK) {
 
 				// data is outside of the session file, decode the URL as it is
 				try {
@@ -206,6 +213,20 @@ public class SessionLoader {
 				} catch (MicroarrayException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
+				}
+			} else if (loadMethod == LoadMethod.FEEDBACK) {
+				// create new temp data bean from cache url
+				String cacheURLString = dataType.getCacheUrl();
+				if (cacheURLString != null) {
+					URL cacheURL = null;
+					try {
+						cacheURL = new URL(cacheURLString);
+						dataBean = dataManager.createDataBean(name, cacheURL.openStream());
+						
+						
+					} catch (Exception e1) {
+						logger.warn("could not create new temp data bean from cache url : "  + cacheURLString + " for data bean: " + name);
+					}
 				}
 			}
 

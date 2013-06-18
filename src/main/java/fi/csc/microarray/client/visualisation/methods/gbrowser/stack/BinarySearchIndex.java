@@ -79,7 +79,8 @@ public class BinarySearchIndex extends Index {
 				getFile().getNextLine(); //Maybe partial line
 
 				for (int j = 0; j < blockLineCount; j++) {
-					lines.add(getFile().getNextLine());
+					String line = getFile().getNextLine();
+					lines.add(line);
 				}
 			}
 		}		
