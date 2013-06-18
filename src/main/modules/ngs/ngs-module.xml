@@ -10,6 +10,9 @@
 		<tool runtime="R-2.12">
 			<resource>prinseq-statistics.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>mothur-summaryseqs.R</resource>
+		</tool>
 	</category>
 	
 	<category name="Filtering" color="#e7df70">
@@ -39,6 +42,9 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-filter-results-column.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>mothur-trimseqs-uniqueseqs.R</resource>
 		</tool>
 	</category>
 
