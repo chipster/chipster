@@ -3,6 +3,7 @@
 # INPUT a.names: "Names file" TYPE GENERIC
 # OUTPUT OPTIONAL unique.fasta
 # OUTPUT OPTIONAL unique.names.txt
+# OUTPUT OPTIONAL log.txt
 
 
 # EK 06.06.2013
@@ -11,10 +12,11 @@
 binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
 
 # batch file
-write("unique.seqs(fasta=a.fasta, names=a.names)", "batch.mth", append=F)
+write("unique.seqs(fasta=a.fasta, name=a.names)", "batch.mth", append=F)
 
-# command and run
-command <- paste(binary, "batch.mth")
+# command
+command <- paste(binary, "batch.mth", "> log.txt 2>&1")
+
 system(command)
 
 # Post process output

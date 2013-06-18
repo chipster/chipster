@@ -7,9 +7,11 @@
 
 # binary
 binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+data.path <- c(file.path(chipster.tools.path, "mothur", "data"))
+template.path <- c(file.path(data.path, "silva.bacteria.fasta"))
 
 # batch file
-write("align.seqs(fasta=reads.fasta, template=/opt/chipster/tools/mothur/data/silva.bacteria.fasta)", "batch.mth", append=F)
+write(paste("align.seqs(fasta=reads.fasta, template=", template.path, ")", sep=""), "batch.mth", append=F)
 
 # command
 command <- paste(binary, "batch.mth")
@@ -20,14 +22,13 @@ system(command)
 system("mv reads.align aligned.fasta")
 
 # batch file 2
-# write("summary.seqs(reads.filter.fasta)", "summary.mth", append=F)
+write("summary.seqs(fasta=aligned.fasta)", "summary.mth", append=F)
 
 # command
-# command2 <- paste(binary, "summary.mth", "> log_raw.txt")
+command2 <- paste(binary, "summary.mth", "> log_raw.txt")
 
 # run
-# system(command2)
+system(command2)
 
 # Post process output
-# system("grep -A 9 Start log_raw.txt > log.tsv")
-
+system("grep -A 9 Start log_raw.txt > log.tsv")
