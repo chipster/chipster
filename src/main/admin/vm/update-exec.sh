@@ -274,7 +274,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
     echo "Updating genome browser annotations"
-    mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+    mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
     mkdir ${TOOLS_PATH}/genomebrowser/annotations # not typically needed, but the tar package is a bit stupid in this case
     curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
@@ -290,7 +290,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Updating samtools"
   cd ${TMPDIR_PATH}/
-  mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
   rm ${TOOLS_PATH}/samtools
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
@@ -349,9 +349,9 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Updating gtf files"
   mkdir -p ${BACKUPDIR_PATH}/genomes
-  mv ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -394,7 +394,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/maSigPro-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   
   echo "** Updating R-2.15"
-  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Installing GATK"
@@ -447,7 +447,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -482,7 +482,7 @@ compare_to_current_and_latest "2.3.2"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Updating R-2.15 with Bioconductor 2.11"
-  mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Installing Arabidopsis lyrata fasta, bwa index and bowtie2 index"
@@ -519,7 +519,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -555,7 +555,7 @@ compare_to_current_and_latest "2.5.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Updating R-2.15, Bioconductor 2.11"
-  mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating fasta files"
@@ -582,7 +582,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Arabidopsis_lyrata.v.1.0.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -631,7 +631,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   
   echo "** Installing fseq"
   curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
-  mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
+  mv -b ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
   ln -s fseq-1.84 ${TOOLS_PATH}/fseq
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/read_extend_bed.pm -o ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
   chmod 775 ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
@@ -651,7 +651,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
-  mv ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
 
 fi
 
@@ -715,7 +715,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   # install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="png")
 
   echo "** Updating R-2.15.1"
-  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   #biocLite("crlmm")
