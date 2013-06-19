@@ -4,7 +4,7 @@
 # OUTPUT OPTIONAL reads.qual
 # OUTPUT OPTIONAL reads.raw.fasta
 # OUTPUT OPTIONAL reads.raw.qual
-# PARAMETER OPTIONAL trim: "Trim reads for quality" TYPE [yes, no] DEFAULT yes (Trim sequences and quality scores to the clipQualLeft and clipQualRight values.)
+# PARAMETER OPTIONAL trim: "Trim reads for quality" TYPE [yes, no] DEFAULT no (Trim sequences and quality scores to the clipQualLeft and clipQualRight values.)
 
 # AMS 19.06.2013
 
