@@ -230,7 +230,7 @@ def print_available_bundles():
     for bundle, value in available_bundles.items():
         if value:
             versions = sorted([(bundle, version["version"]) for version in value])
-            logging.debug(versions)
+            print(versions)
 
 
 def create_tree(dst):
@@ -449,7 +449,7 @@ def explode_package(pkg_name, pkg_values):
     # Loop through symlinks
     if "symlinks" in pkg_values:
         for symlink in pkg_values["symlinks"]:
-            create_symlink(refine_path(symlink["source"]), symlink["destination"])
+            create_symlink(symlink["source"], refine_path(symlink["destination"]))
 
     # Destructively delete temporary directory w/ contents
     shutil.rmtree(tmp_dir)
@@ -476,12 +476,12 @@ def create_symlink(src, dst):
     logging.debug("source: %s" % src)
     logging.debug("destination: %s" % dst)
 
-    create_tree(src)
+    create_tree(dst)
     try:
-        os.symlink(dst, src)
+        os.symlink(src, dst)
     except OSError as e:
         handle_file_error(e)
-    logging.info("Symlinked: %s -> %s" % (src, dst))
+    logging.info("Symlinked: %s -> %s" % (dst, src))
 
 
 def calculate_checksum(filename):
@@ -545,7 +545,7 @@ def parse_commandline():
     # group.add_argument("-v", "--verbose", action="store_true")
     # group.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("action", type=str, help="Action to perform",
-                        choices=["install", "uninstall", "update"])  # , "list"])  # ,metavar="action"
+                        choices=["install", "uninstall", "update", "list"])  # ,metavar="action"
     parser.add_argument("bundle", type=str, help="Bundle <name>/<version> or <keyword>")  # ,metavar="bundle name"
     # parser.add_argument("updates", type=str, help="Check for updates", choices=["check-update"])
     args = parser.parse_args()
@@ -561,9 +561,9 @@ def parse_commandline():
     elif args.action == "update":
         logging.info("Update something!")
         update_bundle(name, version)
-
-#    elif args.action == "list":
-#        logging.debug("List something!")
+    elif args.action == "list":
+        logging.info("List something!")
+        print_available_bundles()
 
 #    if name == "all":
 #        print_available_bundles()
@@ -666,11 +666,11 @@ def handle_file_error(e):
 
 if __name__ == '__main__':
     prog_path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/"
-    chipster_version = 2.5
+    chipster_version = 2.6
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
     installation_path = "/opt/chipster/"
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     logging.debug("prog_path: %s" % prog_path)
     logging.debug("chipster_version: %s" % chipster_version)
