@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.6.0
+LATEST_VERSION=2.6.1
 
 # Exit immediately if some command fails
 set -e
@@ -774,8 +774,50 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/htseq/htseq-count_chr
   rm -f ${TOOLS_PATH}/htseq/htseq_count_chr
   ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
-        
-        
+  
+  echo "** Update genomes"
+  rm -f ${TOOLS_PATH}/bowtie/indexes/canFam2*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/canFam3*
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/e_coli*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/e_coli*
+  rm -f ${TOOLS_PATH}/genomes/fasta/e_coli.fa
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/miRBase18_mmu_matureT.fa*
+  rm -f ${TOOLS_PATH}/bwa_indexes/mmu_miRB17mature*
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Gasterosteus_aculeatus.BROADS1.67* 
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  echo "** Update cufflinks2"
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.1.1.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  rm -f ${TOOLS_PATH}/cufflinks2
+  ln -s cufflinks-2.1.1.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
+  rm -rf ${TOOLS_PATH}/cufflinks-2.0.2.Linux_x86_64
+              
 fi
 
 
