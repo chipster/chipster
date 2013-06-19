@@ -22,7 +22,7 @@ def load_available_bundles(filename):
     """
     bundles_yaml = yaml.load(open(filename, "r"))
     logging.debug("load_available_bundles: ")
-    pprint(bundles_yaml)
+    # pprint(bundles_yaml)
     return bundles_yaml
 
 
@@ -34,7 +34,7 @@ def load_installed_bundles(filename):
     try:
         bundles_yaml = yaml.load(open(filename, "r"))
         logging.debug("load_installed_bundles: ")
-        pprint(bundles_yaml)
+        # pprint(bundles_yaml)
     except IOError as e:
         if e.errno == 2:
             print(e)
