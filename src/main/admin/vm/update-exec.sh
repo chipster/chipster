@@ -2,7 +2,7 @@
 
 # This script updates to latest version. Updates between minor versions should be smooth and
 # automatic, where as updates between major versions can require some manual steps afterwards
-# if some specific local customisations were in place.
+# if some specific local customizations were in place.
 # This update mechanism has been available since 2.0.2.
 
 # Latest version, matching tar-packages must be available 
@@ -12,44 +12,110 @@ LATEST_VERSION=2.6.1
 # Exit immediately if some command fails
 set -e
 
-# Helper function
-function compare_to_current()
+# Helper functions
+function compare_versions()
 {
-  VERSION_ARR=( `echo $1 | tr "." "\n"` )
-  CURRENT_VERSION_ARR=( `echo $CURRENT_VERSION | tr "." "\n"`)
+  VERSION1_ARR=( `echo $1 | tr "." "\n"` )
+  VERSION2_ARR=( `echo $2 | tr "." "\n"`)
 
   # Check main version  
-  if [ ${VERSION_ARR[0]} -lt ${CURRENT_VERSION_ARR[0]} ] ; then
-    CURRENT_COMPARED=1
+  if [ ${VERSION1_ARR[0]} -lt ${VERSION2_ARR[0]} ] ; then
+    COMPARE_VERSIONS_RESULT=1
     return
   fi
-  if [ ${VERSION_ARR[0]} -gt ${CURRENT_VERSION_ARR[0]} ] ; then
-    CURRENT_COMPARED=-1
+  if [ ${VERSION1_ARR[0]} -gt ${VERSION2_ARR[0]} ] ; then
+    COMPARE_VERSIONS_RESULT=-1
     return
   fi
 
   # Check major version  
-  if [ ${VERSION_ARR[1]} -lt ${CURRENT_VERSION_ARR[1]} ] ; then
-    CURRENT_COMPARED=1
+  if [ ${VERSION1_ARR[1]} -lt ${VERSION2_ARR[1]} ] ; then
+    COMPARE_VERSIONS_RESULT=1
     return
   fi
-  if [ ${VERSION_ARR[1]} -gt ${CURRENT_VERSION_ARR[1]} ] ; then
-    CURRENT_COMPARED=-1
+  if [ ${VERSION1_ARR[1]} -gt ${VERSION2_ARR[1]} ] ; then
+    COMPARE_VERSIONS_RESULT=-1
     return
   fi
   
   # Check minor version
-  if [ ${VERSION_ARR[2]} -lt ${CURRENT_VERSION_ARR[2]} ] ; then
-    CURRENT_COMPARED=1
+  if [ ${VERSION1_ARR[2]} -lt ${VERSION2_ARR[2]} ] ; then
+    COMPARE_VERSIONS_RESULT=1
     return
   fi
-  if [ ${VERSION_ARR[2]} -gt ${CURRENT_VERSION_ARR[2]} ] ; then
-    CURRENT_COMPARED=-1
+  if [ ${VERSION1_ARR[2]} -gt ${VERSION2_ARR[2]} ] ; then
+    COMPARE_VERSIONS_RESULT=-1
     return
   fi
   
-  CURRENT_COMPARED=0
+  COMPARE_VERSIONS_RESULT=0
 }
+
+
+function compare_to_current()
+{
+    compare_versions $1 $CURRENT_VERSION
+    CURRENT_COMPARED=$COMPARE_VERSIONS_RESULT
+}
+
+function compare_to_latest()
+{
+    compare_versions $1 $LATEST_VERSION
+    LATEST_COMPARED=$COMPARE_VERSIONS_RESULT
+}
+
+function compare_to_current_and_latest()
+{
+    compare_to_current $1
+    compare_to_latest $1
+}
+
+
+function info_older_than_252()
+{
+  echo "IMPORTANT!"
+  echo "The latest version of Chipster is $LATEST_VERSION and your current version is $CURRENT_VERSION."
+  echo "The update to Chipster $LATEST_VERSION needs to be done in two phases: first update to 2.5.2"
+  echo "and after that update to $LATEST_VERSION."
+  echo "The update will next proceed to update Chipster to 2.5.2. After this update is finished,"
+  echo "you need to run ./update.sh again to continue to update to Chipster $LATEST_VERSION."
+}
+
+function info_before_260()
+{
+  echo "IMPORTANT! Please read this!"
+  echo ""
+  echo "There are two main disk images in the Chipster virtual machine: root.vmdk and tools.vmdk."
+  echo "Root.vmdk contains operating system and Chipster binaries"
+  echo "and configuration files. The size of the root.vmdk is less than 2 GB at the moment."
+  echo "Tools.vmdk contains analysis tools binaries, libraries and"
+  echo "annotations. The size of the tools.vmdk is a bit less than 200 GB at the moment."
+  echo ""
+  echo "In the original Chipster VM the maximum size of the tools.vmdk was about 188 GB."
+  echo "This maximum was later increased to 512 GB."
+  echo ""
+  echo "Since Chipster 2.6.0, the original tools image has become too small to contain all"
+  echo "the necessary files for Chipster. Therefore, depending on the time you first downloaded"
+  echo "Chipster VM, your tools image may be too small for Chipster 2.6".
+  echo ""
+  echo "To find out whether this is the case, check the 'Size' column in the next"
+  echo "few lines."
+  echo ""
+  df -h /opt/chipster/tools
+  echo ""
+  echo "If the size is 512 GB, you can continue to update to 2.6. If the size is 188 GB, you"
+  echo "need to download Chipster 2.5.2 tools.vmdk and replace your current tools.vmdk with it."
+  echo "After that, you can continue to update to Chipster 2.6 and later."
+  echo ""
+  echo "You can also always download the whole Chipster VM, but by downloading only tools.vmdk, you"
+  echo "can keep all the configurations which are located at root.vmdk."
+  echo ""
+}
+
+
+
+
+
 
 # Make sure user has sudo rights
 echo ""
@@ -64,43 +130,62 @@ echo ""
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
 
 
-# 2.6 special
+## before 2.6 specials                                                                                                                                                                                               
 compare_to_current "2.5.2"
 
-# older than 2.5.2
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
-  echo "Less than 2.5.2"
-  exit 1
+# current is older than 2.5.2                                                                                                                                                                               
+if [ $CURRENT_COMPARED -lt 0 ]
+then
+    info_older_than_252
+    END_MESSAGE="IMPORTANT: Run ./update.sh again to update to Chipster $LATEST_VERSION"
+    LATEST_VERSION=2.5.2
+    echo "Continue with the update?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) break;;
+            No )  exit;;
+        esac
+    done
+    echo ""
+
+# current is 2.5.2                                                                                                                                                                                          
+elif [ $CURRENT_COMPARED -eq 0 ]
+then
+  info_before_260
+  SELECT_UPDATE_TO_LATEST="I have the 512 GB tools image and want to continue the update now"
+  SELECT_UPDATE_LATER="I have the old 188 GB tools image, so I'll exit now, download the Chipster 2.5.2 tools.vmdk and then run update.sh again"
+
+  options=("${SELECT_UPDATE_TO_LATEST}" "${SELECT_UPDATE_LATER}")
+  PS3='Please enter your choice: '
+  select opt in "${options[@]}"
+  do
+    case $opt in
+        $SELECT_UPDATE_TO_LATEST)
+            echo "Continuing update normally"
+            break
+            ;;
+        $SELECT_UPDATE_LATER)
+            echo "Quitting without updating"
+            echo ""
+            echo "Next steps:"
+            echo "- Download and Chipster 2.5.2 tools.vmdk http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/2.5.2/VMware/tools.vmdk"
+            echo "- Shutdown Chipster virtual machine"
+            echo "- Replace your current tools.vmdk with the downloaded tools.vmdk"
+            echo "- Start Chipster virtual machine"
+            echo "- Run update.sh again"
+            echo ""
+            exit;
+            ;;
+        *) echo invalid option;;
+    esac
+  done
 fi
 
-# current is 2.5.2
-if [ $CURRENT_COMPARED -eq 0 ] ; then 
-  echo "IMPORTANT! Please read this!"
-  echo ""
-  echo "There are two main disk images in the Chipster virtual machine: root.vmdk and tools.vmdk."
-  echo "Root.vmdk contains operating system and Chipster binaries" 
-  echo "and configuration files. The size of the root.vmdk is less than 2 GB at the moment."
-  echo "Tools.vmdk contains analysis tools binaries, libraries and" 
-  echo "annotations. The size of the tools.vmdk is a bit less than 200 GB at the moment."
-  echo ""
-  echo "In the original Chipster VM the maximum size of the tools.vmdk was about 288 GB."
-  echo "This maximum was later increased to 512 GB."
-  echo ""
-  echo "Since Chipster 2.6.0, the original tools.vmdk has become too small to contain all"
-  echo "the necessary files for Chipster. Therefore, depending on the time you first downloaded"
-  echo "Chipster VM, your tools.vmdk may be too small for Chipster 2.6"
-  echo ""
-  echo "To find out whether this is the case, look at the following 'Size' column in the next"
-  echo "few lines. If the size is 512 GB, you can continue to update to 2.6, if it's 188 GB, you"
-  echo "need to download new tools.vmdk."
-  exit
-
-fi
 
 
 
 
-
+## normal 2.6 and later update
 
 # Check current version
 echo Detected version $CURRENT_VERSION
@@ -152,16 +237,16 @@ mkdir ${BACKUPDIR_PATH}
 #######################################
 
 # 2.0.3
-compare_to_current "2.0.3"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.0.3"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing mm10 bowtie indexes"
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz  | tar -xz -C ${TOOLS_PATH}/bowtie/
 fi
 
 # 2.1.0 
-compare_to_current "2.1.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.1.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
     echo "** Updating prinseq"
     cd ${TMPDIR_PATH}/
@@ -189,7 +274,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
     ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
     
     echo "Updating genome browser annotations"
-    mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+    mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
     mkdir ${TOOLS_PATH}/genomebrowser/annotations # not typically needed, but the tar package is a bit stupid in this case
     curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   
@@ -200,12 +285,12 @@ fi
 
 
 # 2.2.0 
-compare_to_current "2.2.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.2.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Updating samtools"
   cd ${TMPDIR_PATH}/
-  mv ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/samtools-0.1.13/ ${BACKUPDIR_PATH}/
   rm ${TOOLS_PATH}/samtools
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
@@ -264,9 +349,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   echo "** Updating gtf files"
   mkdir -p ${BACKUPDIR_PATH}/genomes
-  mv ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
-  mv ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Homo_sapiens.GRCh37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Mus_musculus.NCBIM37.62.chr.gtf ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/Rattus_norvegicus.RGSC3.4.62.chr.gtf ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -284,14 +369,14 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.2.1
-compare_to_current "2.2.1"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.2.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
   echo "** Tools image is uptodate"                      
 fi
 
 # 2.2.2
-compare_to_current "2.2.2"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.2.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
   echo "** Removing obsolete files"                      
   rm -f ${TOOLS_PATH}/admin/ngs
   rm -rf ${TOOLS_PATH}/tophat-1.3.0.Linux_x86_64  
@@ -309,7 +394,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/maSigPro-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   
   echo "** Updating R-2.15"
-  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Installing GATK"
@@ -319,8 +404,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.2.3
-compare_to_current "2.2.3"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.2.3"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing R library FruitFlyAgilent.db"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
@@ -339,8 +424,8 @@ fi
 
 
 # 2.2.4
-compare_to_current "2.2.4"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.2.4"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing mm10 bwa index"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -355,14 +440,14 @@ fi
 
 
 # 2.3.0
-compare_to_current "2.3.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.3.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing R-2.15 with Bioconductor 2.11"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.3.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -384,8 +469,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.3.1
-compare_to_current "2.3.1"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.3.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Updating R library VariantAnnotation"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/VariantAnnotation-vmbin.tar.gz | tar -xz --overwrite -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
@@ -393,11 +478,11 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.3.2
-compare_to_current "2.3.2"
-if [ $CURRENT_COMPARED -lt 0 ] ; then
+compare_to_current_and_latest "2.3.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Updating R-2.15 with Bioconductor 2.11"
-  mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Installing Arabidopsis lyrata fasta, bwa index and bowtie2 index"
@@ -417,8 +502,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.4.0
-compare_to_current "2.4.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.4.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing genome browser fasta files"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -434,7 +519,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -466,11 +551,11 @@ fi
 
 
 # 2.5.0
-compare_to_current "2.5.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.5.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Updating R-2.15, Bioconductor 2.11"
-  mv ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1_bioc-2.11 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating fasta files"
@@ -497,7 +582,7 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating genome browser annotations"
-  mv ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations ${BACKUPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
 
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Arabidopsis_lyrata.v.1.0.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
@@ -531,11 +616,11 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-  echo " ** Installing TagCleaner"
+  echo "** Installing TagCleaner"
   curl -sL http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
   ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
 
-  echo " ** Installing EMBOSS 6.5.7"
+  echo "** Installing EMBOSS 6.5.7"
   #curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
   #cd ${TMPDIR_PATH}/EMBOSS-6.5.7
   #./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
@@ -544,14 +629,14 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
   ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
   
-  echo " ** Installing fseq"
+  echo "** Installing fseq"
   curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
-  mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
+  mv -b ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
   ln -s fseq-1.84 ${TOOLS_PATH}/fseq
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/read_extend_bed.pm -o ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
   chmod 775 ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
 
-  echo " ** Installing R library zinba and dependencies"
+  echo "** Installing R library zinba and dependencies"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/zinba.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/R.utils.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/doMC.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
@@ -559,23 +644,23 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/multicore.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/library/quantreg.tar.gz | tar xz -C ${TOOLS_PATH}/R-2.15.1/lib64/R/library/
 
-  echo " ** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
+  echo "** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
-  mv ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/bowtie/indexes/mmu_miRB17mature.* ${BACKUPDIR_PATH}/
 
 fi
 
 
 # 2.5.1
-compare_to_current "2.5.1"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.5.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
-  echo " ** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
+  echo "** Installing rn5, mouse, human mirna indexes for bowtie, bowtie2"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
@@ -589,8 +674,8 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 fi
 
 # 2.5.2
-compare_to_current "2.5.2"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.5.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing genome browser fasta files"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -622,15 +707,15 @@ fi
 
 
 # 2.6.0
-compare_to_current "2.6.0"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.6.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Installing png library for R-2.15.1_bioc-2.11"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/png-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
   # install.packages(repos="http://ftp.sunet.se/pub/lang/CRAN", dependencies=TRUE, pkgs="png")
 
   echo "** Updating R-2.15.1"
-  mv ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/R-2.15.1 ${BACKUPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   #biocLite("crlmm")
@@ -767,8 +852,8 @@ fi
 
 
 # 2.6.1
-compare_to_current "2.6.1"
-if [ $CURRENT_COMPARED -lt 0 ] ; then 
+compare_to_current_and_latest "2.6.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
 
   echo "** Fixing HTSeq"
   rm -f ${TOOLS_PATH}/htseq/htseq-count_chr
@@ -883,3 +968,4 @@ echo "It is recommended to inspect the directory and then to remove it"
 # We are done
 echo "Update completed successfully"
 echo "Remember to start the Chipster service: 'service chipster start'"
+echo $END_MESSAGE
