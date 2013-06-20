@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.6.0
+LATEST_VERSION=2.6.1
 
 # Exit immediately if some command fails
 set -e
@@ -62,6 +62,45 @@ echo ""
 
 # Detect current version
 CURRENT_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
+
+
+# 2.6 special
+compare_to_current "2.5.2"
+
+# older than 2.5.2
+if [ $CURRENT_COMPARED -lt 0 ] ; then 
+  echo "Less than 2.5.2"
+  exit 1
+fi
+
+# current is 2.5.2
+if [ $CURRENT_COMPARED -eq 0 ] ; then 
+  echo "IMPORTANT! Please read this!"
+  echo ""
+  echo "There are two main disk images in the Chipster virtual machine: root.vmdk and tools.vmdk."
+  echo "Root.vmdk contains operating system and Chipster binaries" 
+  echo "and configuration files. The size of the root.vmdk is less than 2 GB at the moment."
+  echo "Tools.vmdk contains analysis tools binaries, libraries and" 
+  echo "annotations. The size of the tools.vmdk is a bit less than 200 GB at the moment."
+  echo ""
+  echo "In the original Chipster VM the maximum size of the tools.vmdk was about 288 GB."
+  echo "This maximum was later increased to 512 GB."
+  echo ""
+  echo "Since Chipster 2.6.0, the original tools.vmdk has become too small to contain all"
+  echo "the necessary files for Chipster. Therefore, depending on the time you first downloaded"
+  echo "Chipster VM, your tools.vmdk may be too small for Chipster 2.6"
+  echo ""
+  echo "To find out whether this is the case, look at the following 'Size' column in the next"
+  echo "few lines. If the size is 512 GB, you can continue to update to 2.6, if it's 188 GB, you"
+  echo "need to download new tools.vmdk."
+  exit
+
+fi
+
+
+
+
+
 
 # Check current version
 echo Detected version $CURRENT_VERSION
@@ -735,8 +774,50 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/htseq/htseq-count_chr
   rm -f ${TOOLS_PATH}/htseq/htseq_count_chr
   ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
-        
-        
+  
+  echo "** Update genomes"
+  rm -f ${TOOLS_PATH}/bowtie/indexes/canFam2*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/canFam3*
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/e_coli*
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/e_coli*
+  rm -f ${TOOLS_PATH}/genomes/fasta/e_coli.fa
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/miRBase18_mmu_matureT.fa*
+  rm -f ${TOOLS_PATH}/bwa_indexes/mmu_miRB17mature*
+
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Gasterosteus_aculeatus.BROADS1.67* 
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar xz -C ${TOOLS_PATH}/
+  
+  echo "** Update cufflinks2"
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.1.1.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  rm -f ${TOOLS_PATH}/cufflinks2
+  ln -s cufflinks-2.1.1.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
+  rm -rf ${TOOLS_PATH}/cufflinks-2.0.2.Linux_x86_64
+              
 fi
 
 

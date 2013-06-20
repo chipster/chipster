@@ -22,6 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.La
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -54,7 +55,7 @@ public class GeneTrack extends Track {
 
 		occupiedSpace.clear();
 		
-		TreeMap<Region, Gene> sortedGenes = new TreeMap<Region, Gene>();
+		TreeMap<PositionAndStringKey, Gene> sortedGenes = new TreeMap<PositionAndStringKey, Gene>();
 		
 		if (genes != null) {
 
@@ -69,7 +70,8 @@ public class GeneTrack extends Track {
 					continue;
 				}
 
-				sortedGenes.put(gene.getRegion(), gene);
+				PositionAndStringKey key = new PositionAndStringKey(gene.getRegion().start, gene.getId());
+				sortedGenes.put(key, gene);
 			}
 
 			for (Gene gene : sortedGenes.values()) {

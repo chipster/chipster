@@ -32,16 +32,10 @@ do
                    mkdir tmp_$$
                    cd tmp_$$
                    echo ftp://ftp.ensembl.org/pub/current_fasta/ > ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacillus_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/borrelia_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/buchnera_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/escherichia_shigella_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/mycobacterium_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/neisseria_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/pyrococcus_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/staphylococcus_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/streptococcus_collection/ >> ensembl_list
-                   echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/wolbachia_collection/ >> ensembl_list
+                   for ((number=1; number<=27; number++))
+                   do
+                     echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+                   done
                    echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/ >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/fasta/  >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
@@ -134,6 +128,9 @@ case "$seqtype" in
      "pep_abinitio")
        echo "Retrieving sequences for all abinitio predicted peptides for $spec"
      ;;
+    "gtf")
+       echo "Retrieving grf file for $spec"
+     ;;
      *)
          echo "Unknown data type"
          echo "Please use one of the following types:"
@@ -143,6 +140,7 @@ case "$seqtype" in
          echo "  cdna_abinitio"
          echo "  pep"
          echo "  pep_abinitio"
+         echo "  gtf"
          exit
      ;;
 esac
@@ -154,16 +152,10 @@ cd tmp_$$
 if [[ ! -e $TMPDIR/ensembl_urls ]]
 then
   echo ftp://ftp.ensembl.org/pub/current_fasta/ > ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacillus_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/borrelia_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/buchnera_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/escherichia_shigella_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/mycobacterium_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/neisseria_collectio/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/pyrococcus_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/staphylococcus_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/streptococcus_collection/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/wolbachia_collection/ >> ensembl_list
+  for ((number=1; number<=27; number++))
+  do
+    echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+  done
   echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/ >> ensembl_list
   echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/fasta/  >> ensembl_list
   echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
@@ -205,8 +197,13 @@ then
    awk '{print $1"pep/*.pep.abinitio.fa.gz"}' $TMPDIR/ensembl_urls > ensembl_species.txt
 fi
 
-echo $seqrype 
+if [[ $seqtype == "gtf" ]]
+then
+   awk '{print $1"*gtf.gz"}' $TMPDIR/ensembl_urls | sed s/"fasta"/"gtf"/g > ensembl_species.txt
+fi
 
+
+echo $seqtype
 
 ##Korjaus listaan koska metazoalle ei ole dna, cdna ja pep kansioita
 #grep metazoa ensembl_species.txt | sed s/"\/dna\/"/"\/"/g | sed s/"\/cdna\/"/"\/"/g | sed s/"\/pep\/"/"\/"/g > ensembl_species.txt_korj
@@ -227,17 +224,17 @@ fi
 for species in $(cat tmp_$$/namelist)
 do
   #bakteerien nimet vaativat korjauksen:
-  species=$(echo $species | \
-                     sed s/"bacillus_"/"b_"/g | \
-                     sed s/"borrelia_"/"b_"/g | \
-                     sed s/"buchnera_"/"b_"/g | \
-                     sed s/"escherichia_"/"e_"/g | \
-                     sed s/"shigella_"/"s_"/g | \
-                     sed s/"mycobacterium_"/"m_"/g | \
-                     sed s/"neisseria_"/"n_"/g | \
-                     sed s/"pyrococcus_"/"p_"/g |\
-                     sed s/"streptococcus_"/"s_"/g |\
-                     sed s/"staphylococcus_"/"s_"/g )
+  #species=$(echo $species | \
+  #                   sed s/"bacillus_"/"b_"/g | \
+  #                   sed s/"borrelia_"/"b_"/g | \
+  #                   sed s/"buchnera_"/"b_"/g | \
+  #                   sed s/"escherichia_"/"e_"/g | \
+  #                   sed s/"shigella_"/"s_"/g | \
+  #                   sed s/"mycobacterium_"/"m_"/g | \
+  #                   sed s/"neisseria_"/"n_"/g | \
+  #                   sed s/"pyrococcus_"/"p_"/g |\
+  #                   sed s/"streptococcus_"/"s_"/g |\
+  #                   sed s/"staphylococcus_"/"s_"/g )
   numhits=$(grep -i "/$species/" tmp_$$/ensembl_species.txt| wc -l)
 
   if [[ $numhits -eq 0 ]]
