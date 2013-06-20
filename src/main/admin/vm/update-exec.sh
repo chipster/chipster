@@ -860,7 +860,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   rm -f ${TOOLS_PATH}/htseq/htseq_count_chr
   ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
   
-  echo "** Update genomes"
+  echo "** Updating genomes"
   rm -f ${TOOLS_PATH}/bowtie/indexes/canFam2*
   rm -f ${TOOLS_PATH}/bowtie2/indexes/canFam3*
 
@@ -897,7 +897,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar xz -C ${TOOLS_PATH}/
   
-  echo "** Update cufflinks2"
+  echo "** Updating cufflinks2"
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.1.1.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
   rm -f ${TOOLS_PATH}/cufflinks2
   ln -s cufflinks-2.1.1.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
