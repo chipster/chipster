@@ -171,8 +171,6 @@ if(method=="bagging") {
    }
 }
 
-save.image("/tmp/matti/data.Rdata")
-
 # Writing output
 sink("classification.txt")
 confuMat(fit)
