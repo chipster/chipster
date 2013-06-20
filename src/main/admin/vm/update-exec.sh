@@ -137,8 +137,8 @@ compare_to_current "2.5.2"
 if [ $CURRENT_COMPARED -lt 0 ]
 then
     info_older_than_252
-    LATEST_VERSION=2.5.2
     END_MESSAGE="IMPORTANT: Run ./update.sh again to update to Chipster $LATEST_VERSION"
+    LATEST_VERSION=2.5.2
     echo "Continue with the update?"
     select yn in "Yes" "No"; do
         case $yn in
