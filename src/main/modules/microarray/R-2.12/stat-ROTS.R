@@ -8,51 +8,31 @@
 # PARAMETER B: B TYPE INTEGER FROM 10 TO 100000 DEFAULT 500 (Number of bootstrap and permutation resamplings)
 # PARAMETER K: K TYPE INTEGER FROM 1000 TO 100000 DEFAULT 5000 (Largest top list size considered)
 
-
-
 # Reproducibility-optimized two-group test
-
 # LLE 23.9.2008
 
-
-
 # Loads the ROTS library.
-
 library(ROTS)
 
-
-
 # Loads the normalized data
-
 file <- c("normalized.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
-
-
 # Separates expression values and flags
-
 calls <- dat[,grep("flag", names(dat))]
 data <- dat[,grep("chip", names(dat))]
 
-
-
 # Test needs a parameter "groups" that specifies the grouping of the samples
-
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
-groups <- phenodata[,grep(column, colnames(phenodata))]
-
-
+groups <- phenodata[,grep(paste("^", column, "$", sep=""), colnames(phenodata))]
 
 # Sanity checks
-
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
    stop("You need to have exactly two groups to run this analysis")
 }
 
-
-
 # Testing
-
+print(groups)
 result <- ROTS(data, groups, B, K) 
   
 d <- result$d
@@ -63,10 +43,4 @@ write.table(na.omit(data.frame(dat, d=round(d, digits=2), FDR=round(FDR, digits=
 param<- round(c(result$a1, result$a2, result$k, result$R, result$Z, result$B),2)
 names(param)<- c("a1","a2","Top list size","Reproducibility value","Z-score","Number of resamplings")
 write.table(param, file="ROTSparameters.tsv", sep="\t", row.names=T, col.names=F, quote=F)
-
-
-
-
-
-
 

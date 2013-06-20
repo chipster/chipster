@@ -50,9 +50,9 @@
 	<category name="Statistics" color="#e7881c">
 		<tool runtime="R-3.0-R-2.12"><resource>stat-one-group.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-two-groups.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-ROTS.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-ROTS.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-sam.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
