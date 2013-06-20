@@ -73,9 +73,11 @@ then
   rm $tools_path/bowtie2/indexes/$species.rev.2.bt2
 fi
 
+
+#remove fasta files
 if [[ -e $tools_path/genomes/fasta/$species.fa ]]
 then
-   rm $tools_path/genomes/fasta/$species.fa
+   rm $tools_path/genomes/fasta/$species.fa*
 fi 
 
 if [[ -e $tools_path/genomes/fasta/nochr/$species.fa ]]
@@ -83,12 +85,18 @@ then
    rm $tools_path/genomes/fasta/nochr/$species.fa
 fi 
 
-
+#Remove gtf fiiles
 species_gtf=$(echo $species | sed s/".dna.toplevel"/""/g) 
 if [[ -e  $tools_path/genomes/gtf/$species_gtf.gtf ]]
 then
-  rm $tools_path/genomes/gtf/$species_gtf.gtf
+  rm $tools_path/genomes/gtf/$species_gtf.*
 fi
+
+#Remove genomebrowser files.
+version=$(echo $species | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')
+species_name=$(echo $species | awk -F "." '{print $1}')
+rm -rf $tools_path/genomebrowser/annotations/$species_name/$version
+
 
 
 awk '{ if ( $3 != "'$species.fa'" ) print $0}' $tools_path/genomes/genome_list > $tools_path/genomes/genome_list.tmp.$$
