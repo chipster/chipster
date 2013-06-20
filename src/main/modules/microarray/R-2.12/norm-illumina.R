@@ -11,7 +11,7 @@
 # Illumina data preprocessing and normalization for separate files
 # JTT 17.10.2007
 # EK 3.4.2013 Changed parameter naming
-
+# MK 20.06.2013 Stops if trying to produce flags from data that does not support this feature
 
 # Loads the libraries
 library(limma)
@@ -56,6 +56,7 @@ if(produce.flags=="yes") {
       names(flags)<-paste("flag.", names(flags), sep="")
    }
    if(length(dat$other$flag)==0) {
+	  stop("CHIPSTER-NOTE: To produce detection values, your data need to have Detection p-value columns")
       flags<-matrix(nrow=0, ncol=0)
    }
 }
@@ -161,9 +162,14 @@ if(chiptype!="Illumina") {
    symbol <- gsub("'", "", symbol)
    genename <- gsub("'", "", genename)
    # Write out expression data
+		
    if(produce.flags=="yes") {
-      write.table(data.frame(symbol, description=genename, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-   } else {
+	   if(nrow(flags) == nrow(dat2)) {
+           write.table(data.frame(symbol, description=genename, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	   } else {
+		   write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	   }
+  } else {
       write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
    }
 } else {
