@@ -422,13 +422,17 @@
 		<tool runtime="R-2.15">
 			<resource>mothur-classifyseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>mothur-summaryseqs.R</resource>
+    	<tool runtime="R-2.15">
+       		<resource>mothur-summaryseqs.R</resource>
+     	</tool>
+		<tool runtime="R-2.15">
+       		<resource>mothur-trimseqs-uniqueseqs.R</resource>
+     	</tool>
+    	<tool runtime="R-2.15">
+      		<resource>mothur-sffinfo.R</resource>
+    	</tool>
+    	<tool runtime="R-2.15">
+      	<resource>merge-fasta-qual.R</resource>		
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>mothur-trimseqs-uniqueseqs.R</resource>
-		</tool>
-		
-		
 	</category>
 </module>
