@@ -422,5 +422,13 @@
 		<tool runtime="R-2.15">
 			<resource>mothur-classifyseqs.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>mothur-summaryseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>mothur-trimseqs-uniqueseqs.R</resource>
+		</tool>
+		
+		
 	</category>
 </module>
