@@ -1,13 +1,10 @@
 package fi.csc.chipster.web.tooledit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.model.BasicModel;
@@ -25,75 +22,67 @@ public class ToolEditor extends VerticalLayout{
 	
 	private final int INPUT = 0;
 	private final int OUTPUT = 1;
-	private HorizontalLayout hlHeader;
+//	private HorizontalLayout hlHeader;
 	private ToolEditorUI root;
 	
 	public ToolEditor(ToolEditorUI root) {
 		this.root = root;
-		buttonHeader();
+//		buttonHeader();
 		init();
-//		this.addComponent(setCaption("Tool", false));
-////		this.addComponent(new Tool().createToolUI());
-//		this.addComponent(setCaption("Input", false));
-////		this.addComponent(new Input().createInputUI());
-//		this.addComponent(setCaption("Output", false));
-////		this.addComponent(new Output().createOutputUI());
-//		this.addComponent(setCaption("Parameter", true));
-//		this.addComponent(new Parameter().createParameterUI());
 	}
 	
-	private void buttonHeader() {
-		hlHeader = new HorizontalLayout();
-		hlHeader.setImmediate(true);
-		Button btAddTool = new Button("Add Tool");
-		btAddTool.setVisible(false);
-		Button btAddInput = new Button("Add Input");
-		Button btAddOutput = new Button("Add Output");
-		Button btAddParameter = new Button("Add Parameter");
-		hlHeader.setSpacing(true);
-		hlHeader.setMargin(true);
-		hlHeader.addComponent(btAddTool);
-		hlHeader.addComponent(btAddInput);
-		hlHeader.addComponent(btAddOutput);
-		hlHeader.addComponent(btAddParameter);
-		this.addComponent(hlHeader);
-		btAddTool.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 7392773905732834881L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ToolEditor.this.addTool();
-			}
-		});
-		
-		btAddInput.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 4949254611179248011L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ToolEditor.this.addInput();
-			}
-		});
-		
-		btAddOutput.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 8773521771491048374L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ToolEditor.this.addOutput();
-			}
-		});
-		
-		btAddParameter.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 4668120288792175832L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				ToolEditor.this.addParameter();
-			}
-		});
-		
-	}
+//	private void buttonHeader() {
+//		hlHeader = new HorizontalLayout();
+//		hlHeader.setImmediate(true);
+//		Button btAddTool = new Button("Add Tool");
+//		btAddTool.setVisible(false);
+//		Button btAddInput = new Button("Add Input");
+//		Button btAddOutput = new Button("Add Output");
+//		Button btAddParameter = new Button("Add Parameter");
+//		hlHeader.setSpacing(true);
+//		hlHeader.setMargin(true);
+//		hlHeader.addComponent(btAddTool);
+//		hlHeader.addComponent(btAddInput);
+//		hlHeader.addComponent(btAddOutput);
+//		hlHeader.addComponent(btAddParameter);
+//		this.addComponent(hlHeader);
+//		btAddTool.addClickListener(new ClickListener() {
+//			private static final long serialVersionUID = 7392773905732834881L;
+//
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				ToolEditor.this.addTool();
+//			}
+//		});
+//		
+//		btAddInput.addClickListener(new ClickListener() {
+//			private static final long serialVersionUID = 4949254611179248011L;
+//
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				ToolEditor.this.addEmptyInput();
+//			}
+//		});
+//		
+//		btAddOutput.addClickListener(new ClickListener() {
+//			private static final long serialVersionUID = 8773521771491048374L;
+//
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				ToolEditor.this.addEmptyOutput();
+//			}
+//		});
+//		
+//		btAddParameter.addClickListener(new ClickListener() {
+//			private static final long serialVersionUID = 4668120288792175832L;
+//
+//			@Override
+//			public void buttonClick(ClickEvent event) {
+//				ToolEditor.this.addEmptyParameter();
+//			}
+//		});
+//		
+//	}
 	
 	private void init() {
 		this.setImmediate(true);
@@ -120,96 +109,137 @@ public class ToolEditor extends VerticalLayout{
 //	}
 	public void addTool() {
 		if(getTool() == null)
-			this.addComponent(new Tool(this).createUI(), 1);
+			this.addComponent(new Tool(this));
 	}
 	
 	public void addTool(SADLDescription sadlDescription) {
-		this.addComponent(new Tool(this).createUIwithData(sadlDescription));
+		Tool tool = new Tool(this).createUIwithData(sadlDescription);
+		root.getTreeToolEditor().addTool(tool);
+		this.addComponent(tool);
 	}
 	
-	public void addInput() {
-		this.addComponent(new Input(this).createUI(), getLastIndex(INPUT)+1);
+	public void addEmptyInput() {
+		addEmptyInput(null);
+	}
+	
+	public void addEmptyInput(Input input) {
+		this.addComponent(input == null ? new Input(this) : input, getLastIndex(INPUT)+1);
 	}
 	
 	public void addInput(SADLDescription.Input input) {
-		this.addComponent(new Input(this).createUIWithData(input));
+		Input element = new Input(this);
+		root.getTreeToolEditor().addInput(element);
+		this.addComponent(element);
+		element.fillWithData(input);
+		root.getTreeToolEditor().setItemCaption(element, element.toString());
 	}
 	
-	public void addOutput() {
-		this.addComponent(new Output(this).createUI(), getLastIndex(OUTPUT)+1);
+	public void addEmptyOutput() {
+		addEmptyOutput(null);
+	}
+	
+	public void addEmptyOutput(Output output) {
+		this.addComponent(output == null ? new Output(this) : output, getLastIndex(OUTPUT)+1);
 	}
 	
 	public void addOutput(SADLDescription.Output output) {
-		this.addComponent(new Output(this).createUIWithData(output));
+		Output element = new Output(this);
+		root.getTreeToolEditor().addOutput(element);
+		this.addComponent(element);
+		element.fillWithData(output);
 	}
 	
-	public void addParameter() {
-		this.addComponent(new Parameter(this).createUI());
+	public void addEmptyParameter() {
+		addEmptyParameter(null);
+	}
+	
+	public void addEmptyParameter(Parameter parameter) {
+		this.addComponent(parameter == null ? new Parameter(this) : parameter);
 	}
 	
 	public void addParameter(SADLDescription.Parameter parameter) {
-		this.addComponent(new Parameter(this).createUIWithData(parameter));
+		Parameter element = new Parameter(this);
+		root.getTreeToolEditor().addParameter(element);
+		this.addComponent(element);
+		element.fillWithData(parameter);
 	}
 	
 	public void removeItems() {
 		this.removeAllComponents();
-		this.addComponent(hlHeader);
+//		this.addComponent(hlHeader);
 	}
 
 	public Tool getTool() {
-		for(int i = 0; i < this.getComponentCount(); i++) {
-			if(this.getComponent(i) instanceof Tool) {
-				return (Tool) this.getComponent(i);
-			}
-		}
-		return null;
+		return root.getTreeToolEditor().getTool();
+//		for(int i = 0; i < this.getComponentCount(); i++) {
+//			if(this.getComponent(i) instanceof Tool) {
+//				return (Tool) this.getComponent(i);
+//			}
+//		}
+//		return null;
 	}
 	
 	public List<SADLDescription.Input> getDaslInputs() {
 		ArrayList<SADLDescription.Input> inputs = new ArrayList<SADLDescription.Input>();
-		for(int i = 0; i < this.getComponentCount(); i++) {
-			if(this.getComponent(i) instanceof Input) {
-				inputs.add(((Input) this.getComponent(i)).getSadlInput());
-			} else {
-				if(!inputs.isEmpty()) {
-					break;
-				}
-			}
+		Collection<Input> in = root.getTreeToolEditor().getInputs();
+		if(in == null)
+			return inputs;
+		for(Input input : in) {
+			inputs.add(input.getSadlInput());
 		}
+//		for(int i = 0; i < this.getComponentCount(); i++) {
+//			if(this.getComponent(i) instanceof Input) {
+//				inputs.add(((Input) this.getComponent(i)).getSadlInput());
+//			} else {
+//				if(!inputs.isEmpty()) {
+//					break;
+//				}
+//			}
+//		}
 		return inputs;
 	}
 	
 	public List<SADLDescription.Output> getDaslOutputs() {
 		ArrayList<SADLDescription.Output> outputs = new ArrayList<SADLDescription.Output>();
-		for(int i = 0; i < this.getComponentCount(); i++) {
-			if(this.getComponent(i) instanceof Output) {
-				outputs.add(((Output) this.getComponent(i)).getSadlOutput());
-			} else {
-				if(!outputs.isEmpty()) {
-					break;
-				}
-			}
+		Collection<Output> out = root.getTreeToolEditor().getOutputs();
+		if(out == null)
+			return outputs;
+		for(Output output : out) {
+			outputs.add(output.getSadlOutput());
 		}
+//		for(int i = 0; i < this.getComponentCount(); i++) {
+//			if(this.getComponent(i) instanceof Output) {
+//				outputs.add(((Output) this.getComponent(i)).getSadlOutput());
+//			} else {
+//				if(!outputs.isEmpty()) {
+//					break;
+//				}
+//			}
+//		}
 		return outputs;
 	}
 	
 	public void addParameters(SADLDescription sadlDescription) {
-		boolean wasParameter = false;
-		for(int i = 0; i < this.getComponentCount(); i++) {
-			if(this.getComponent(i) instanceof Parameter) {
-				sadlDescription.addParameter(((Parameter) this.getComponent(i)).getSadlParameter());
-				wasParameter = true;
-			} else {
-				if(wasParameter) {
-					break;
-				}
-			}
+//		boolean wasParameter = false;
+		if(root.getTreeToolEditor().getParameters() == null)
+			return;
+		for(Parameter parameter : root.getTreeToolEditor().getParameters()) {
+			sadlDescription.addParameter(parameter.getSadlParameter());
 		}
+//		for(int i = 0; i < this.getComponentCount(); i++) {
+//			if(this.getComponent(i) instanceof Parameter) {
+//				sadlDescription.addParameter(((Parameter) this.getComponent(i)).getSadlParameter());
+//				wasParameter = true;
+//			} else {
+//				if(wasParameter) {
+//					break;
+//				}
+//			}
+//		}
 //		return sadlDescription;
 	}
 	
 	public void setHeaderToTextEditor(String text) {
-		System.out.println("iraso");
 		root.getTextEditor().setText(createHeader(text));
 	}
 	
@@ -221,7 +251,6 @@ public class ToolEditor extends VerticalLayout{
 			str.append(line);
 			str.append(TextEditor.NEW_LINE);
 		}
-		System.out.println("grazina");
 		return str.toString();
 	}
 	
@@ -284,5 +313,9 @@ public class ToolEditor extends VerticalLayout{
 				this.addComponent(component, index+1);
 			}
 		}
+	}
+	
+	public ToolEditorUI getToolEditorUI() {
+		return root;
 	}
 }

@@ -11,6 +11,7 @@ public class Output extends InputOutputUI{
 	
 	public Output(ToolEditor root) {
 		this.root = root;
+		createUI();
 	}
 	
 	@Override
@@ -31,12 +32,12 @@ public class Output extends InputOutputUI{
 	}
 	
 	public Output createUIWithData(SADLDescription.Output output) {
-		createUI();
+//		createUI();
 		fillWithData(output);
 		return this;
 	}
 	
-	private void fillWithData(SADLDescription.Output output) {
+	public void fillWithData(SADLDescription.Output output) {
 		name.setValue(output.getName().getDisplayName());
 		cbMeta.setValue(output.isMeta());
 		description.setValue(getValue(output.getComment()));
@@ -67,6 +68,11 @@ public class Output extends InputOutputUI{
 	@Override
 	protected void generateHeader() {
 		lbTitle.setValue(getBoldText("Output"));	
+	}
+	
+	@Override
+	public String toString() {
+		return getValue(name.getValue()) + " " + getValue(getType()) + " " + (optional.getValue() ? " OPTIONAL" : "");
 	}
 
 }

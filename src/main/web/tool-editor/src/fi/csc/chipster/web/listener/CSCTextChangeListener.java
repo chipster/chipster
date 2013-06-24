@@ -18,6 +18,7 @@ public class CSCTextChangeListener implements TextChangeListener{
 	public void textChange(TextChangeEvent event) {
 		String text = getValue(event.getText()) + " " + getValue(model.getTypeValue());
 		model.setTitleDescriptionValue(text.trim());
+		model.getToolEditor().getToolEditorUI().getTreeToolEditor().setItemCaption(model, text + (model.isOptional() ? " OPTIONAL" : ""));
 		
 	}
 	

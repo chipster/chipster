@@ -2,6 +2,8 @@ package fi.csc.chipster.web.tooledit;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
@@ -38,6 +40,17 @@ public class TextEditor extends VerticalLayout{
 		btUpdateToolEditor.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
 		btUpdateToolEditor.addClickListener(new CSCTextToToolClickListener(root));
 		hLayout.addComponent(btUpdateToolEditor);
+		Button btClearAll = new Button("Clear All");
+		btClearAll.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 1487893808578560989L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				
+				root.addWindow(new ConfirmClearAll(root));
+			}
+		});
+		hLayout.addComponent(btClearAll);
 		this.addComponent(hLayout);
 		this.setComponentAlignment(hLayout, Alignment.MIDDLE_CENTER);
 		
@@ -56,12 +69,13 @@ public class TextEditor extends VerticalLayout{
 	}
 	
 	public String takeHeader(String input) {
+		if(input == null || input.isEmpty())
+			return "";
 		StringBuilder output = new StringBuilder();
 		input = input.replace("#", "");
 		String[] array = input.split(NEW_LINE);
 		int i = 0;
 		array[i] = array[i].trim();
-//		System.out.println(array.length + " " + array[0]);
 		while (i < array.length && (array[i].startsWith("TOOL") || array[i].startsWith("INPUT") 
 				|| array[i].startsWith("OUTPUT") || array[i].startsWith("PARAMETER"))) {
 			output.append(array[i] + NEW_LINE);
@@ -69,7 +83,6 @@ public class TextEditor extends VerticalLayout{
 			if(i < array.length)
 				array[i] = array[i].trim();
 		}
-//		System.out.println("output:" + output);
 		return output.toString();
 	}
 	
