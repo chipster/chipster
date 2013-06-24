@@ -28,6 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcript;
@@ -64,7 +65,7 @@ public class TranscriptTrack extends Track {
 
 		occupiedSpace.clear();
 
-		TreeMap<Region, Transcript> sortedTranscripts = new TreeMap<Region, Transcript>();
+		TreeMap<PositionAndStringKey, Transcript> sortedTranscripts = new TreeMap<PositionAndStringKey, Transcript>();
 
 		if (genes != null) {
 
@@ -81,7 +82,9 @@ public class TranscriptTrack extends Track {
 				}
 
 				for (Transcript transcript : gene.getTranscripts()) {
-					sortedTranscripts.put(transcript.getRegion(), transcript);
+					
+					PositionAndStringKey key = new PositionAndStringKey(transcript.getRegion().start, transcript.getId());
+					sortedTranscripts.put(key, transcript);
 				}
 			}
 
