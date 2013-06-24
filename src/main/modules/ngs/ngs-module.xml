@@ -9,7 +9,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>prinseq-statistics.R</resource>
-		</tool>
+		</tool>			
 	</category>
 	
 	<category name="Filtering" color="#e7df70">
@@ -394,6 +394,42 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>MEDIPS_two_samples.R</resource>
+		</tool>
+	</category>
+	
+	<category name="Metagenomics (beta)" color="#83010b">
+		<tool runtime="R-2.15">
+			<resource>mothur-summaryseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-trimseqs-uniqueseqs.R</resource>
+		</tool>	
+		<tool runtime="R-2.15">
+			<resource>mothur-alignseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-filterseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-uniqueseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-precluster.R</resource>
+		</tool>		
+		<tool runtime="R-2.15">
+			<resource>mothur-chimera-uchime.R</resource>
+		</tool>		
+		<tool runtime="R-2.15">
+			<resource>mothur-classifyseqs.R</resource>
+		</tool>
+    	<tool runtime="R-2.15">
+       		<resource>mothur-summaryseqs.R</resource>
+     	</tool>
+    	<tool runtime="R-2.15">
+      		<resource>mothur-sffinfo.R</resource>
+    	</tool>
+    	<tool runtime="R-2.15">
+      	<resource>merge-fasta-qual.R</resource>		
 		</tool>
 	</category>
 </module>
