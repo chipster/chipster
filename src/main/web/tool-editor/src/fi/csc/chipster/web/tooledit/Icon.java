@@ -26,6 +26,11 @@ public class Icon {
 		return removePathEnd() + getGeneratedPath(deletePath);
 	}
 	
+	public static String getAddButtonIconPath() {
+		String[] deletePath = new String[] {"resources", "edit-add-2.png"};
+		return removePathEnd() + getGeneratedPath(deletePath);
+	}
+	
 	private static String removePathEnd() {
 		return VaadinService.getCurrent().getBaseDirectory().getAbsolutePath().replace(getPathEnd(), "");
 	}

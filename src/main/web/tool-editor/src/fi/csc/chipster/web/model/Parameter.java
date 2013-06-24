@@ -16,14 +16,15 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.FooterClickEvent;
-import com.vaadin.ui.Table.FooterClickListener;
 import com.vaadin.ui.Table.TableDragMode;
 import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.themes.BaseTheme;
 
+import fi.csc.chipster.web.tooledit.Icon;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Name;
@@ -48,9 +49,11 @@ public class Parameter extends BasicModel{
 	private TextField maxValue;
 	private TextField minValue;
 	private Table typeTable;
+	private HorizontalLayout hLayoutTypetable;
 	
 	public Parameter(ToolEditor root) {
 		this.root = root;
+		createUI();
 	}
 	
 	@Override
@@ -72,7 +75,7 @@ public class Parameter extends BasicModel{
 	private void initElements() {
 		
 		lbType = new Label("Type:");
-		lbOptional = new Label("Parameter is:");
+		lbOptional = new Label("Optional:");
 		lbDefaultValue = new Label("Default:");
 		lbMaxValue = new Label("Maximum value:");
 		lbMinValue = new Label("Minimum value:");
@@ -88,9 +91,13 @@ public class Parameter extends BasicModel{
 		type.select(type.getItemIds().iterator().next());
 		type.addValueChangeListener(new ValueChangeListener() {
 			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3675044736996182900L;
+
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				// TODO Auto-generated method stub
 				if(type.getValue().equals(ParameterType.ENUM)) {
 					addTypeTable();
 				} else {
@@ -98,6 +105,7 @@ public class Parameter extends BasicModel{
 				}
 				String text = getValue(getNameValue()) + " " + getValue(getTypeValue());
 				setTitleDescriptionValue(text.trim());
+				root.getToolEditorUI().getTreeToolEditor().setItemCaption(Parameter.this, Parameter.this.toString());
 			}
 		});
 		defaultValue = new TextField();
@@ -110,12 +118,12 @@ public class Parameter extends BasicModel{
 	}
 	
 	public Parameter createUIWithData(SADLDescription.Parameter parameter) {
-		createUI();
+//		createUI();
 		fillWithData(parameter);
 		return this;
 	}
 	
-	private void fillWithData(SADLDescription.Parameter parameter) {
+	public void fillWithData(SADLDescription.Parameter parameter) {
 		parameter.getType();
 		type.select(parameter.getType());
 		
@@ -135,6 +143,8 @@ public class Parameter extends BasicModel{
 	}
 	
 	private void initTypeTable() {
+		hLayoutTypetable = new HorizontalLayout();
+		hLayoutTypetable.setSpacing(true);
 		typeTable = new Table();
 		typeTable.addContainerProperty(COLUMN_ID, String.class, "");
 		typeTable.addContainerProperty(COLUMN_NAME, String.class, "");
@@ -142,19 +152,10 @@ public class Parameter extends BasicModel{
 		typeTable.setPageLength(1);
 		typeTable.setEditable(true);
 		typeTable.setImmediate(true);
-		typeTable.setFooterVisible(true);
-		typeTable.setColumnFooter(COLUMN_ID, "Add new row");
-		typeTable.addFooterClickListener(new FooterClickListener() {
-			
-			@Override
-			public void footerClick(FooterClickEvent event) {
-				Name name = Name.createEmptyName();
-				typeTable.addItem(name);
-				typeTable.getContainerProperty(name, COLUMN_ACTION).setValue(getDeleteButton(name));
-			}
-		});
 		typeTable.setTableFieldFactory(new TableFieldFactory() {
-			
+			private static final long serialVersionUID = -5275144703109311990L;
+
+			@SuppressWarnings("unchecked")
 			@Override
 			public Field<?> createField(Container container, final Object itemId,
 					final Object propertyId, Component uiContext) {
@@ -170,6 +171,11 @@ public class Parameter extends BasicModel{
 				
 				txtField.addValueChangeListener(new ValueChangeListener() {
 					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 7785711696111601557L;
+
 					@Override
 					public void valueChange(ValueChangeEvent event) {
 						if(propertyId.equals(COLUMN_ID)) {
@@ -199,39 +205,48 @@ public class Parameter extends BasicModel{
 				return new SourceIs(typeTable);
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public void drop(DragAndDropEvent event) {
 				DataBoundTransferable transferable = (DataBoundTransferable) event.getTransferable();
 		        Object sourceRow = transferable.getItemId();
-		        System.out.println(sourceRow);
 
 		        AbstractSelect.AbstractSelectTargetDetails dropData =
 		                ((AbstractSelect.AbstractSelectTargetDetails) event.getTargetDetails());
 		        Object targetRow = dropData.getItemIdOver();
-		        System.out.println(targetRow);
 
-		        // Don't move if source and target are the same, or there is no target
 		        if ((sourceRow == targetRow) || (targetRow == null)) {
 		            return;
 		        }
-		        // Remove the source of the drag so we can add it back where requested
 		        typeTable.removeItem(sourceRow);
-
-		        // Check if the drop location is somewhere below the row ...
 		        if (dropData.getDropLocation() == VerticalDropLocation.BOTTOM) {
-		        	System.out.println("bottom: " + sourceRow);
 		            typeTable.addItemAfter(targetRow, sourceRow);
 		        }
-		        // ... or somewhere in the middle or above
 		        else {
 		            Object rowAbove = typeTable.prevItemId(targetRow);
-		            System.out.println("else: " + sourceRow + " rowab: " + rowAbove);
 		            typeTable.addItemAfter(rowAbove, sourceRow);
 		        }
 		        typeTable.getContainerProperty(sourceRow, COLUMN_ACTION).setValue(getDeleteButton(sourceRow));
 			}
 		});
 		
+		hLayoutTypetable.addComponent(typeTable);
+		Button btAddNewRow = new Button("New Row");
+		btAddNewRow.setIcon(Icon.getResource(Icon.getAddButtonIconPath()));
+		btAddNewRow.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = 2039910564036291751L;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Name name = Name.createEmptyName();
+				typeTable.addItem(name);
+				typeTable.getContainerProperty(name, COLUMN_ACTION).setValue(getDeleteButton(name));
+				typeTable.setValue(name);
+				typeTable.setCurrentPageFirstItemId(name);
+			}
+		});
+		hLayoutTypetable.addComponent(btAddNewRow);
 	}
 	
 	private void fillTypeTableWithData(final Name[] types) {
@@ -246,18 +261,18 @@ public class Parameter extends BasicModel{
 	}
 	
 	private void addTypeTable() {
-		if(this.getComponentArea(typeTable) == null) {
+		if(this.getComponentArea(hLayoutTypetable) == null) {
 			int i = 0;
 			while(!this.getComponent(1, i).equals(type)) {
 				i++;
 			}
 			this.insertRow(i+1);
-			this.addComponent(typeTable, 1, i+1);
+			this.addComponent(hLayoutTypetable, 1, i+1);
 		}
 	}
 	
 	private void removeTypeTable() {
-		this.removeComponent(typeTable);
+		this.removeComponent(hLayoutTypetable);
 	}
 	
 	public SADLDescription.Parameter getSadlParameter() {
@@ -276,13 +291,16 @@ public class Parameter extends BasicModel{
 	}
 	
 	private Button getDeleteButton(final Object itemId) {
-		Button btDelete = new Button("X");
-//		btDelete.setIcon(new ClassResource("img/nicubunu_Chain.png"));
+		Button btDelete = new Button();
+		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+		btDelete.setStyleName(BaseTheme.BUTTON_LINK);
 		btDelete.addClickListener(new ClickListener() {
-			
+			private static final long serialVersionUID = -3695725710938486562L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				typeTable.removeItem(itemId);
+				
 			}
 		});
 		return btDelete;
@@ -297,5 +315,10 @@ public class Parameter extends BasicModel{
 	protected String getType() {
 		// TODO Auto-generated method stub
 		return type.getValue().toString();
+	}
+	
+	@Override
+	public String toString() {
+		return getValue(name.getValue()) + " " + getValue(type.getValue().toString()) + " " + (optional.getValue() ? " OPTIONAL" : "");
 	}
 }

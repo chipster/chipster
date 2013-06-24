@@ -15,6 +15,7 @@ public class Input extends InputOutputUI{
 	
 	public Input(ToolEditor root) {
 		this.root = root;
+		createUI();
 	}
 	
 	@Override
@@ -45,12 +46,12 @@ public class Input extends InputOutputUI{
 	}
 	
 	public Input createUIWithData(SADLDescription.Input input) {
-		createUI();
+//		createUI();
 		fillWithData(input);
 		return this;
 	}
 	
-	private void fillWithData(SADLDescription.Input input) {
+	public void fillWithData(SADLDescription.Input input) {
 		type2.select(input.getType());
 		name.setValue(input.getName().getDisplayName());
 		description.setValue(getValue(input.getComment()));
@@ -98,6 +99,11 @@ public class Input extends InputOutputUI{
 		type2.setItemCaption(ChipsterInputTypes.PHENODATA, ChipsterInputTypes.PHENODATA.getName());
 		type2.addItem(GenericInputTypes.GENERIC);
 		type2.setItemCaption(GenericInputTypes.GENERIC, GenericInputTypes.GENERIC.getName());
+	}
+	
+	@Override
+	public String toString() {
+		return getValue(name.getValue()) + " " + getValue(getType()) + " " + (optional.getValue() ? " OPTIONAL" : "");
 	}
 
 }

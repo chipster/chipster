@@ -1,7 +1,5 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
@@ -20,6 +18,7 @@ public class Tool extends BasicModel{
 	
 	public Tool(ToolEditor root) {
 		this.root = root;
+		createUI();
 	}
 	
 	@Override
@@ -43,7 +42,7 @@ public class Tool extends BasicModel{
 	}
 	
 	public Tool createUIwithData(SADLDescription sadlDescription) {
-		createUI();
+//		createUI();
 		fillWithData(sadlDescription);
 		return this;
 	}
