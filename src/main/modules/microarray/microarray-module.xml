@@ -55,6 +55,7 @@
 		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-linear-modelling-designmat.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
