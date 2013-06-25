@@ -1,5 +1,7 @@
 package fi.csc.chipster.web.model;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -73,6 +75,7 @@ public abstract class BasicModel extends GridLayout{
 			@Override
 			public void buttonClick(ClickEvent event) {
 				root.removeComponent(BasicModel.this);
+				root.getToolEditorUI().getTreeToolEditor().removeItem(BasicModel.this);
 			}
 		});
 		btUp.addClickListener(new ClickListener() {
@@ -104,8 +107,8 @@ public abstract class BasicModel extends GridLayout{
 		hLayoutTitle = new HorizontalLayout();
 		hLayoutTitle.setSpacing(true);
 //		hLayoutTitle.setMargin(true);
-		hLayoutTitle.addComponent(btUp);
-		hLayoutTitle.addComponent(btDown);
+//		hLayoutTitle.addComponent(btUp);
+//		hLayoutTitle.addComponent(btDown);
 		hLayoutTitle.addComponent(btDelete);
 	}
 	
@@ -154,6 +157,15 @@ public abstract class BasicModel extends GridLayout{
 		layout.addComponent(postfix);
 		
 		optional = new CheckBox();
+		optional.setImmediate(true);
+		optional.addValueChangeListener(new ValueChangeListener() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				root.getToolEditorUI().getTreeToolEditor().setItemCaption(BasicModel.this, BasicModel.this.toString());
+			}
+		});
 	}
 	
 	abstract protected String getType();
@@ -216,6 +228,14 @@ public abstract class BasicModel extends GridLayout{
 	
 	protected String getBoldText(String text) {
 		return "<b>" + text + "</b>";
+	}
+	
+	public ToolEditor getToolEditor() {
+		return root;
+	}
+	
+	public boolean isOptional() {
+		return optional.getValue();
 	}
 
 }

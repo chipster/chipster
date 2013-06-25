@@ -3,9 +3,9 @@ package fi.csc.chipster.web.listener;
 import java.util.List;
 
 import com.vaadin.server.Page;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.tooledit.ToolEditorUI;
@@ -13,7 +13,6 @@ import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
-import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class CSCTextToToolClickListener implements ClickListener{
@@ -34,6 +33,7 @@ public class CSCTextToToolClickListener implements ClickListener{
 		try {
 			SADLDescription description = parser.parse(text);
 			root.getToolEditor().removeItems();
+			root.getTreeToolEditor().removeAllChildren();
 			root.getToolEditor().addTool(description);
 			List<Input> inputs = description.inputs();
 			for(int i = 0 ; i < inputs.size(); i++) {
