@@ -12,6 +12,7 @@
 # JTT 17.10.2007
 # EK 3.4.2013 Changed parameter naming
 # MK 20.06.2013 Stops if trying to produce flags from data that does not support this feature
+# MK 26.05.2013 fixed bug in illumina detection p-value thresholds
 
 # Loads the libraries
 library(limma)
@@ -72,9 +73,12 @@ if(produce.flags=="yes" & beadstudio.version==1) {
 if(produce.flags=="yes" & beadstudio.version>1) {
    m<-0.05
    a<-0.10
-   flags[flags>m]<-"P"
-   flags[flags>a & flags<=m]<-"M"
-   flags[flags<=a]<-"A"
+   flags[flags<m]<-"P"
+   flags[flags>=m & flags<a]<-"M"
+   flags[flags>=a]<-"A"
+   #flags[flags>m]<-"P"
+   #flags[flags>a & flags<=m]<-"M"
+   #flags[flags<=a]<-"A"
 }
 
 # Writes out a phenodata table
