@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.PropertyConfigurator;
+
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 
@@ -133,6 +135,13 @@ public class DirectoryLayout {
 		this.availableConfiguration = availableConfiguration;
 		
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
+		
+		// workaround for IcedTea-web (disable logging if OpenJDK)
+		String javaRuntimeName = System.getProperty("java.runtime.name");
+		if (javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
+			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config
+		}
+		
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
 		
 		switch (availableConfiguration) {
@@ -263,7 +272,7 @@ public class DirectoryLayout {
 		if (dir == null) {
 			dir = new File(System.getProperty("user.home"), ".chipster");
 		}
-		
+
 		return check(dir);
 	}
 
