@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Normalization / Batch effects (sva) </h2>
+
+<h3>Description</h3>
+
+<p>Removes batch effect from the data using Combat algorithm.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Phenodata column for main batch effect</li>
+<li>Phenodata column for additional batch effects</li>
+<li>Phenodata column for additional batch effects</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>This tool removes random (batch) effects, e.g. where samples cluster according to preparation day/laboratory 
+instead of the biological group under study, using methodology described in Johnson et al. 2007. The method, 
+called ComBat, uses either parametric or non-parametric empirical Bayes frameworks for adjusting data for batch
+effects. In order to use this tool, you need to add new phenodata column(s) where you indicate the random effect
+with numbers (e.g. 1 = laboratory one, 2 = laboratory two, 3 = laboratory three, etc). Please note that this 
+kind of random effects modelling is recommended only when each random effect groups contains multiple arrays.</p>
+
+<h3>Output</h3>
+
+<p>A tab-delimited text file containing gene names, expression estimates that has been corrected for batch effects
+and call values ("flags").  This file is suitable for all further analyses.</p>
+
+<h3>References</h3>
+
+<p>This tool uses Bioconductor package sva. Please cite the following articles:</p>
+
+<p>
+Johnson WE, Li C and Rabinovic A (2007)<a href="http://www.ncbi.nlm.nih.gov/pubmed/16632515">Adjusting batch effects 
+in microarray expression data using empirical Bayes methods. Biostatistics 8:118-27</a>.
+</p>
+
+</body>
+</html>

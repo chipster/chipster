@@ -77,5 +77,6 @@ biocLite("human660quadv1aCrlmm")        #Illumina
 biocLite("humanomni1quadv1bCrlmm")      #Illumina
 biocLite("humanomniexpress12v1bCrlmm")  #Illumina
 
+biocLite("sva")
 
 
