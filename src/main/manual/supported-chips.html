@@ -4,14 +4,13 @@
 <h2>Supported chip types</h2>
 
 <p> Currently the following chip types have annotation packages in Chipster, which means that they can be annotated and used for pathway 
-and promoter analysis. Please note that if your array doesn't appear on the list, you can still bring the data into Chipster 
-and run preprocessing, statistical analysis and clustering for it. The only exception is Affymetrix data, which requires the CDF and probe 
-packages for the preprocessing to work. Currently some Affymetrix chip types (marked with asterisk on the list) have only the CDF and probe 
-packages in Chipster, which means that the annotation based analyses are not available for them. The names in brackets indicate the annotation 
-package names, which you need to use (with the ending .db) to define the chiptype if bringing normalized data into Chipster.</p>
+and promoter analysis. The names in brackets indicate the annotation 
+package names, which you need to use (with the ending .db) to define the chiptype if bringing normalized data into Chipster. The Affymetrix chips 
+marked with an asterisk have only the CDF and probe packages in Chipster, which means that the annotation based analyses are not available for them.</p>
 
-<!--<p>If your chip doesn't appear on the list and you would like an annotation package to be installed for it, please send an email to 
-Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www.bioconductor.org/packages/2.1/AnnotationData.html">annotation packages available in Bioconductor</a> or elsewhere can be added to Chipster. If there is no ready made annotation package available we can look into creating one, if you can provide a list of probe names and their corresponding EntrezGene identifiers.</p>-->
+<p> <b>Please note that if your array doesn't appear on the list, you can still bring the data into Chipster 
+and run normalization, quality control, filtering, statistical analysis and clustering for it</b>. The only exception is Affymetrix data, which requires the CDF and probe 
+packages for the preprocessing to work. </p>
 
 
 <h3>Affymetrix - 3' expression</h3>
@@ -94,8 +93,19 @@ Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www
 <h3>Affymetrix - Gene arrays</h3>
 <ul>
 <li>Human 1.0 ST (hugene10stv1hsentrezg)</li>
+<li>Human 1.1 ST (hugene11stv1hsentrezg)</li>
+<li>Human 2.0 ST (hugene20sthsentrezg)</li>
+<li>Human 2.1 ST (hugene21sthsentrezg)</li>
+
 <li>Mouse 1.0 ST (mogene10stv1mmentrezg) </li>
+<li>Mouse 1.1 ST (mogene11stv1mmentrezg) </li>
+<li>Mouse 2.0 ST (mogene20stmmentrezg) </li>
+<li>Mouse 2.1 ST (mogene21stmmentrezg) </li>
+
 <li>Rat 1.0 ST (ragene10stv1rnentrezg)</li>
+<li>Rat 1.1 ST (ragene11stv1rnentrezg)</li>
+<li>Rat 2.0 ST (ragene20strnentrezg)</li>
+<li>Rat 2.1 ST (ragene21strnentrezg)</li>
 </ul>
 
 <h3>Affymetrix - SNP arrays</h3>
@@ -123,7 +133,7 @@ Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www
 <li>Sentrix HumanRef-8 v2 (illuminaHumanv2)</li>
 <li>Sentrix Human-6 v3 (illuminaHumanv3)</li>
 <li>Sentrix HumanRef-8 v3 (illuminaHumanV3)</li>
-<li>Sentrix Human HT-12 (IlluminaHumanv4)</li>
+<li>Sentrix Human HT-12 (illuminaHumanv4)</li>
 
 <li>Sentrix Mouse-6 v1.0a (illuminaMousev1)</li>
 <li>Sentrix MouseRef-8 v1.0a (illuminaMousev1)</li>
