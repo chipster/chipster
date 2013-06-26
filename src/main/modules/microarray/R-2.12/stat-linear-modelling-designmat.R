@@ -44,13 +44,20 @@ if(cont.string != "empty") {
 	cont.string 	<- gsub("\\s+", "", cont.string)
 	contrast.string <- paste("x", unlist(strsplit(cont.string, ",")), sep="")
 	contrast.string <- gsub("-", "-x", contrast.string)
+		
 	for(i in 1:length(contrast.string)) {
 		col.names <- unlist(strsplit(contrast.string[i], "-"))
-		if(!(col.names[1] %in% colnames(design)) | !(col.names[2] %in% colnames(design))) {
-			stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrast")
+		if(length(col.names) == 1) {
+			if(!(col.names[1] %in% colnames(design))) {
+				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrast")
+			}
+		} else {
+			if(!(col.names[1] %in% colnames(design)) | !(col.names[2] %in% colnames(design))) {
+				stop("CHIPSTER-NOTE: Design-matrix has no column for one of the given constrast")
+			}
 		}
 	}
-	
+		
 	contrasts.mat	<- makeContrasts(contrasts=contrast.string, levels=design)	
 	fit2            <- contrasts.fit(fit, contrasts.mat);	
 	fit				<- fit2
