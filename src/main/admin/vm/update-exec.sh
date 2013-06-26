@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.6.1
+LATEST_VERSION=2.6.2
 
 # Exit immediately if some command fails
 set -e
@@ -905,6 +905,16 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
               
 fi
 
+
+
+# 2.6.2
+compare_to_current_and_latest "2.6.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+
+  echo "** Install sva R library for R-2.15_bioc-2.11"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/sva-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+                          
+fi
 
 
 

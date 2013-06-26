@@ -18,6 +18,7 @@
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>norm-combat.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-chip-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-gene-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-specific-samples.R</resource></tool>
@@ -54,6 +55,7 @@
 		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-linear-modelling-designmat.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
