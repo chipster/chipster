@@ -399,6 +399,12 @@
 	
 	<category name="Metagenomics (beta)" color="#83010b">
 		<tool runtime="R-2.15">
+      		<resource>mothur-sffinfo.R</resource>
+    	</tool>
+    	<tool runtime="R-2.15">
+      		<resource>merge-fasta-qual.R</resource>		
+		</tool>
+		<tool runtime="R-2.15">
 			<resource>mothur-summaryseqs.R</resource>
 		</tool>
 		<tool runtime="R-2.15">
@@ -421,15 +427,6 @@
 		</tool>		
 		<tool runtime="R-2.15">
 			<resource>mothur-classifyseqs.R</resource>
-		</tool>
-    	<tool runtime="R-2.15">
-       		<resource>mothur-summaryseqs.R</resource>
-     	</tool>
-    	<tool runtime="R-2.15">
-      		<resource>mothur-sffinfo.R</resource>
-    	</tool>
-    	<tool runtime="R-2.15">
-      	<resource>merge-fasta-qual.R</resource>		
 		</tool>
 	</category>
 </module>
