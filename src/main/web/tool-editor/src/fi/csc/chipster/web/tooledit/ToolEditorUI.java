@@ -25,8 +25,9 @@ public class ToolEditorUI extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
-    	
+    	System.out.println("tree");
     	treeToolEditor = new TreeToolEditor(this);
+    	System.out.println("tool");
     	toolEditor = new ToolEditor(this);
     	textEditor = new TextEditor(this);
     	final Panel vLayout = new Panel();
@@ -55,6 +56,7 @@ public class ToolEditorUI extends UI {
         hSplitpPanel.setSecondComponent(toolEditor);
         vSplitPanel.setFirstComponent(vvLayout);
         vSplitPanel.setSecondComponent(textEditor);
+        hSplitpPanel.setStyleName("topborder");
     }
     
     public ToolEditor getToolEditor() {

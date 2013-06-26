@@ -16,6 +16,7 @@ import com.vaadin.shared.ui.dd.VerticalDropLocation;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.TreeTable;
@@ -45,6 +46,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	public TreeToolEditor(ToolEditorUI root) {
 		this.root = root;
+		System.out.println("ar turi " + root.getToolEditor());
 		tool = new Tool(root.getToolEditor());
 		initTree();
 	}
@@ -56,11 +58,31 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 		this.addItemClickListener(this);
 		this.addContainerProperty("", String.class, null);
 		this.addContainerProperty(ACTIONS, HorizontalLayout.class, null	);
-		this.addItem(new Object[] {TOOL, getActionLayout(false, TOOL)}, TOOL);
+		this.addItem(new Object[] {TOOL, getActionLayout(false, false, TOOL)}, TOOL);
+		this.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
+			private static final long serialVersionUID = -1913286695570843896L;
+
+			@Override
+			public String generateDescription(Component source, Object itemId,
+					Object propertyId) {
+				String description = "Show all ";
+				if(itemId.equals(TOOL))
+					description += "elements";
+				else if (itemId.equals(INPUTS))
+					description += "inputs";
+				else if (itemId.equals(OUTPUTS))
+					description += "outputs";
+				else if (itemId.equals(PARAMETERS))
+					description += "parameters";
+				else
+					return null;
+				return description;
+			}
+		});
 		this.setCollapsed(TOOL, false);
 		String[] rootToolElements = new String[] {INPUTS, OUTPUTS, PARAMETERS};
 		for(String element : rootToolElements) {
-			this.addItem(new Object[] {element, getActionLayout(true, element)}, element);
+			this.addItem(new Object[] {element, getActionLayout(true, false, element)}, element);
 			this.setParent(element, TOOL);
 			this.setCollapsed(element, false);
 		}
@@ -136,6 +158,10 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
     }
 	
 	private HorizontalLayout getActionLayout(boolean needAddButton, final Object itemId) {
+		return getActionLayout(needAddButton, true, itemId);
+	}
+	
+	private HorizontalLayout getActionLayout(boolean needAddButton, boolean needDeleteButton, final Object itemId) {
 		HorizontalLayout hLayout = new HorizontalLayout();
 		hLayout.setSpacing(true);
 		if(needAddButton) {
@@ -158,37 +184,38 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 				}
 			});
 		}
-		Button btDelete = new Button();
-		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
-		btDelete.setStyleName(BaseTheme.BUTTON_LINK);
-		String description = "Delete ";
-		if(itemId instanceof String) {
-			description += (itemId.equals(INPUTS) ? "All Inputs" : (itemId.equals(OUTPUTS) ? "All Outputs" : (itemId.equals(PARAMETERS) ? "All Parameters" : "All Elements")));
-		} else {
-			description += (itemId instanceof Input ? "Input" : (itemId instanceof Output ? "Output" : "Parameter"));
-		}
-		btDelete.setDescription(description);
-		hLayout.addComponent(btDelete, 0);
-		btDelete.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if(itemId.equals(TOOL)) {
-					removeAllChildren();
-				} else if(itemId.equals(INPUTS)) {
-					removeChildren(INPUTS);
-				} else if(itemId.equals(OUTPUTS)) {
-					removeChildren(OUTPUTS);
-				} else if(itemId.equals(PARAMETERS)) {
-					removeChildren(PARAMETERS);
-				} else {
-					root.getToolEditor().removeComponent((BasicModel) itemId);
-					TreeToolEditor.this.removeItem(itemId);
-				}
+		if(needDeleteButton) {
+			Button btDelete = new Button();
+			btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+			btDelete.setStyleName(BaseTheme.BUTTON_LINK);
+			String description = "Delete ";
+			if(itemId instanceof String) {
+				description += (itemId.equals(INPUTS) ? "All Inputs" : (itemId.equals(OUTPUTS) ? "All Outputs" : (itemId.equals(PARAMETERS) ? "All Parameters" : "All Elements")));
+			} else {
+				description += (itemId instanceof Input ? "Input" : (itemId instanceof Output ? "Output" : "Parameter"));
 			}
-		});
-		
+			btDelete.setDescription(description);
+			hLayout.addComponent(btDelete, 0);
+			btDelete.addClickListener(new ClickListener() {
+				private static final long serialVersionUID = 1L;
+	
+				@Override
+				public void buttonClick(ClickEvent event) {
+					if(itemId.equals(TOOL)) {
+						removeAllChildren();
+					} else if(itemId.equals(INPUTS)) {
+						removeChildren(INPUTS);
+					} else if(itemId.equals(OUTPUTS)) {
+						removeChildren(OUTPUTS);
+					} else if(itemId.equals(PARAMETERS)) {
+						removeChildren(PARAMETERS);
+					} else {
+						root.getToolEditor().removeComponent((BasicModel) itemId);
+						TreeToolEditor.this.removeItem(itemId);
+					}
+				}
+			});
+		}
 		return hLayout;
 	}
 	
@@ -289,6 +316,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	public void addElement(BasicModel model, Object itemId) {
 		this.addItem(new Object[] {(Object) getItemCaption(model, model.toString()), getActionLayout(false, model)},  model);
+		model.setTitleDescriptionValue(model.toString());
 		this.setChildrenAllowed(model, false);
 		this.setParent(model, itemId);
 	}
@@ -299,5 +327,10 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	public Tool getTool() {
 		return tool;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateToolTitle(String text) {
+		getContainerProperty(TOOL, "").setValue((text.isEmpty() ? "Tool" : text));
 	}
 }

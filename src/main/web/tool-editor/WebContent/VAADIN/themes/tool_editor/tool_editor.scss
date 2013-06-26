@@ -14,5 +14,10 @@
 
 .tooleditor {
 	@include reindeer;
-
+	
+	.topborder {
+		border-style: solid none none none;
+		border-color: #C2C3C4;
+		border-width: 3px;
+	}
 }
