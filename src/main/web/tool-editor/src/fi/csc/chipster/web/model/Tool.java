@@ -3,6 +3,7 @@ package fi.csc.chipster.web.model;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
+import fi.csc.chipster.web.listener.CSCTextChangeListener;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Name;
@@ -34,11 +35,11 @@ public class Tool extends BasicModel{
 	@Override
 	protected void generateHeader() {
 		lbTitle.setValue(getBoldText("Tool"));
-		initFooter();
-		btUp.setVisible(false);
-		btDown.setVisible(false);
-		btDelete.setVisible(false);
-		this.replaceComponent(lbTitleDescription, hLayoutTitle);
+//		initFooter();
+//		btUp.setVisible(false);
+//		btDown.setVisible(false);
+//		btDelete.setVisible(false);
+		//this.replaceComponent(lbTitleDescription, hLayoutTitle);
 	}
 	
 	public Tool createUIwithData(SADLDescription sadlDescription) {
@@ -61,6 +62,9 @@ public class Tool extends BasicModel{
 		id.setRequired(true);
 		name.setRequired(true);
 		description.setRequired(true);
+		
+		id.setImmediate(true);
+		id.addTextChangeListener(new CSCTextChangeListener(this, true));
 	}
 	
 	
@@ -84,5 +88,39 @@ public class Tool extends BasicModel{
 	protected String getType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public String getTitle() {
+		return getTitle(module.getValue(), category.getValue(), name.getValue(), id.getValue());
+	}
+	
+	public String getTitleId(String id) {
+		return getTitle(module.getValue(), category.getValue(), name.getValue(), id);
+	}
+	
+	public String getTitleDisplayName(String displayName) {
+		return getTitle(module.getValue(), category.getValue(), displayName, id.getValue());
+	}
+	
+	public String getTitle(Object module, Object category, String displayName, String id) {
+		StringBuilder title = new StringBuilder();
+		if(module != null) {
+			title.append(module);
+			title.append(" /");
+		}
+		if(category != null) {
+			title.append(" " + category);
+			title.append(" /");
+		}
+		if(displayName != null && !displayName.isEmpty())
+			title.append(" " + displayName);
+		if(id != null && !id.isEmpty()) {
+			title.append(" (" + id + ")");
+		}
+		return title.toString();
+	}
+	
+	public void setToTitle(String title) {
+		lbTitleDescription.setValue(getBoldText(title));
 	}
 }

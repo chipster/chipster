@@ -29,6 +29,7 @@ public class ToolEditor extends VerticalLayout{
 		this.root = root;
 //		buttonHeader();
 		init();
+		root.getTreeToolEditor().addTool(new Tool(this));
 	}
 	
 //	private void buttonHeader() {
@@ -114,7 +115,9 @@ public class ToolEditor extends VerticalLayout{
 	
 	public void addTool(SADLDescription sadlDescription) {
 		Tool tool = new Tool(this).createUIwithData(sadlDescription);
+		tool.setTitleDescriptionValue(tool.getTitle());
 		root.getTreeToolEditor().addTool(tool);
+		root.getTreeToolEditor().updateToolTitle(tool.getTitle());
 		this.addComponent(tool);
 	}
 	
@@ -131,6 +134,7 @@ public class ToolEditor extends VerticalLayout{
 		root.getTreeToolEditor().addInput(element);
 		this.addComponent(element);
 		element.fillWithData(input);
+		element.setTitleDescriptionValue(element.toString());
 		root.getTreeToolEditor().setItemCaption(element, element.toString());
 	}
 	
@@ -147,6 +151,8 @@ public class ToolEditor extends VerticalLayout{
 		root.getTreeToolEditor().addOutput(element);
 		this.addComponent(element);
 		element.fillWithData(output);
+		element.setTitleDescriptionValue(element.toString());
+		root.getTreeToolEditor().setItemCaption(element, element.toString());
 	}
 	
 	public void addEmptyParameter() {
@@ -162,6 +168,8 @@ public class ToolEditor extends VerticalLayout{
 		root.getTreeToolEditor().addParameter(element);
 		this.addComponent(element);
 		element.fillWithData(parameter);
+		element.setTitleDescriptionValue(element.toString());
+		root.getTreeToolEditor().setItemCaption(element, element.toString());
 	}
 	
 	public void removeItems() {

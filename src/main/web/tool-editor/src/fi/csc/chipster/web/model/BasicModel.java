@@ -1,7 +1,5 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -158,14 +156,16 @@ public abstract class BasicModel extends GridLayout{
 		
 		optional = new CheckBox();
 		optional.setImmediate(true);
-		optional.addValueChangeListener(new ValueChangeListener() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				root.getToolEditorUI().getTreeToolEditor().setItemCaption(BasicModel.this, BasicModel.this.toString());
-			}
-		});
+//		optional.addValueChangeListener(new ValueChangeListener() {
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public void valueChange(ValueChangeEvent event) {
+//				System.out.println("boolean: " + BasicModel.this.toString());
+//				setTitleDescriptionValue(BasicModel.this.toString());
+//				root.getToolEditorUI().getTreeToolEditor().setItemCaption(BasicModel.this, BasicModel.this.toString());
+//			}
+//		});
 	}
 	
 	abstract protected String getType();
@@ -179,6 +179,7 @@ public abstract class BasicModel extends GridLayout{
 	}
 	
 	public void setTitleDescriptionValue(String text) {
+		System.out.println("EI " + text);
 		lbTitleDescription.setValue(getBoldText(text));
 	}
 	

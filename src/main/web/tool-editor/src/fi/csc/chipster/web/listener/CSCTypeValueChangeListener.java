@@ -15,9 +15,10 @@ public class CSCTypeValueChangeListener implements ValueChangeListener{
 
 	@Override
 	public void valueChange(ValueChangeEvent event) {
-		String text = getValue(model.getNameValue()) + " " + getValue(model.getTypeValue());
-		model.setTitleDescriptionValue(text.trim());
-		model.getToolEditor().getToolEditorUI().getTreeToolEditor().setItemCaption(model, text + (model.isOptional() ? " OPTIONAL" : ""));
+		String text = getValue(model.getNameValue()) + " " + getValue(model.getTypeValue()) + (model.isOptional() ? " OPTIONAL" : "");
+		System.out.println("typechange: " + text);
+		model.setTitleDescriptionValue(text);
+		model.getToolEditor().getToolEditorUI().getTreeToolEditor().setItemCaption(model, text);
 		
 	}
 	
