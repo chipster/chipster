@@ -275,4 +275,5 @@ smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0,
 
 
 # Install BrainArray custom CDF's
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/entrezg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/tairg.asp")
