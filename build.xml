@@ -194,6 +194,8 @@
 		</javac>
 
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/log4j-enabled.properties" tofile="${build}/log4j-enabled.properties" />
+
 		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
 
 	</target>
