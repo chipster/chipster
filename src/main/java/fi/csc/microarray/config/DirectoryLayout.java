@@ -138,7 +138,8 @@ public class DirectoryLayout {
 		
 		// workaround for IcedTea-web (disable logging if OpenJDK)
 		String javaRuntimeName = System.getProperty("java.runtime.name");
-		if (javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
+		if (type == Type.SERVER || javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
+			// enable logging for all server runtimes and all client runtimes that are not OpenJDK
 			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config
 		}
 		
