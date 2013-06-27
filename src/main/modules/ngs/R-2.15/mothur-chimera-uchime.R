@@ -1,5 +1,5 @@
 # TOOL mothur-chimera-uchime.R: "Remove chimeric sequences with Mothur" (Remove chimeric sequences from a fasta-formatted alignment using the uchime method and the 16S rRNA Silva gold reference set. This tool is based on the Mothur package.)
-# INPUT a.fasta: "FASTA file" TYPE GENERIC
+# INPUT a.fasta: "FASTA file" TYPE FASTA
 # OUTPUT OPTIONAL chimeras-removed.fasta
 # OUTPUT OPTIONAL chimeras-removed-summary.tsv
 

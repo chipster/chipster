@@ -1,5 +1,5 @@
 # TOOL mothur-summaryseqs.R: "Summarize sequences with Mothur" (Given a fasta file with unaligned or aligned sequences, provides summary statistics on sequence start and end coordinates, length, number of ambiguous bases, and homopolymer length. This tool is based on the Mothur package.)
-# INPUT reads.fasta: "FASTA file" TYPE GENERIC
+# INPUT reads.fasta: "FASTA file" TYPE FASTA
 # OUTPUT summary.tsv
 		
 # AMS 4.6.2013
