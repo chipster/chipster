@@ -1,7 +1,7 @@
-# TOOL mothur-chimera-uchime.R: "Remove chimeric sequences with Mothur" (Remove chimeric sequences from a fasta-formatted file. This tool is based on the Mothur package.)
+# TOOL mothur-chimera-uchime.R: "Remove chimeric sequences with Mothur" (Remove chimeric sequences from a fasta-formatted alignment using the uchime method and the 16S rRNA Silva gold reference set. This tool is based on the Mothur package.)
 # INPUT a.fasta: "FASTA file" TYPE GENERIC
 # OUTPUT OPTIONAL chimeras-removed.fasta
-# OUTPUT OPTIONAL log.txt
+# OUTPUT OPTIONAL chimeras-removed-summary.tsv
 
 
 # EK 18.06.2013
@@ -32,5 +32,16 @@ system(command2)
 # Post process output
 system("mv a.pick.fasta chimeras-removed.fasta")
 
-system("grep -A 2 Removed log_raw.txt > log.txt")
+# system("grep -A 2 Removed log_raw.txt > log.txt")
 
+# batch file 3
+write("summary.seqs(fasta=chimeras-removed.fasta)", "summary.mth", append=F)
+
+# command 3
+command3 <- paste(binary, "summary.mth", "> log_raw.txt")
+
+# run
+system(command3)
+
+# Post process output
+system("grep -A 9 Start log_raw.txt > chimeras-removed-summary.tsv")

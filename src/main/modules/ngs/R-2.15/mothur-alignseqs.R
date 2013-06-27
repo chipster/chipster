@@ -1,7 +1,7 @@
-# TOOL mothur-alignseqs.R: "Align sequences with Mothur" (Align sequences in a fasta-formatted sequence file. This tool is based on the Mothur package.)
+# TOOL mothur-alignseqs.R: "Align sequences with Mothur" (Given a fasta file of 16S rRNA sequences, aligns them to the Silva 16S rRNA template sequence set. Kmer searching with 8mers is followed by Needleman-Wunsch pairwise alignment, which penalizes the same amount for opening and extending a gap. This tool is based on the Mothur package.)
 # INPUT reads.fasta: "FASTA file" TYPE GENERIC
 # OUTPUT aligned.fasta
-# OUTPUT OPTIONAL log.tsv
+# OUTPUT aligned-summary.tsv
 
 # EK 05.06.2013
 
@@ -31,4 +31,4 @@ command2 <- paste(binary, "summary.mth", "> log_raw.txt")
 system(command2)
 
 # Post process output
-system("grep -A 9 Start log_raw.txt > log.tsv")
+system("grep -A 9 Start log_raw.txt > aligned-summary.tsv")

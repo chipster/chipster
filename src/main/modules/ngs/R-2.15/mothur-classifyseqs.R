@@ -2,7 +2,6 @@
 # INPUT a.fasta: "FASTA file" TYPE GENERIC
 # OUTPUT OPTIONAL reads-taxonomy-assignment.txt
 # OUTPUT OPTIONAL classification-summary.txt
-# OUTPUT OPTIONAL log.txt
 
 
 # EK 18.06.2013
