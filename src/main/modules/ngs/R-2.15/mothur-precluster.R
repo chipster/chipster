@@ -1,8 +1,8 @@
-# TOOL mothur-precluster.R: "Precluster aligned sequences with Mothur" (Preclusters aligned sequences in order to remove sequences that are likely to contain sequencing errors. This tool is based on the Mothur package. In addition to the alignment, you need to supply the names file that was created by the tool \"Extract unique aligned sequences with Mothur\".)
-# INPUT a.fasta: "FASTA file" TYPE GENERIC
+# TOOL mothur-precluster.R: "Precluster aligned sequences with Mothur" (Preclusters aligned sequences in order to remove sequences that are likely to contain sequencing errors. This tool is based on the Mothur package. In addition to the alignment, you need to supply the names file that was created by the tool Extract unique aligned sequences with Mothur.)
+# INPUT a.fasta: "FASTA file" TYPE FASTA
 # INPUT a.names: "Names file" TYPE GENERIC
 # OUTPUT preclustered.fasta
-# OUTPUT preclustered.names.txt
+# OUTPUT preclustered.names
 # OUTPUT preclustered-summary.tsv
 
 

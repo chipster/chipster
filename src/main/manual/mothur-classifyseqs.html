@@ -17,13 +17,7 @@ None
 
 <h3>Details</h3>
 <p>
-Assigns aligned 16S rRNA sequences to taxonomic units using the Silva reference set and 
-
-Sequences in are aligned, one by one, against the Silva 16S rRNA reference set. Kmer searching with 8mers is followed by Needleman-Wunsch 
-pairwise alignment, which penalizes the same amount for opening and extending a gap.
-<p>
-<p>
-The alignment result is given in fasta format, with periods ('.') leading up to the first base in the sequence and following the last base of the sequence.
+Assigns aligned 16S rRNA sequences to taxonomic units using the Wang method and the Silva reference set and its taxonomy file. The bootstrap confidence score is calculated with 1000 iterations.
 </p>
 <p>
 This tool is based on the <a href="http://www.mothur.org/wiki/Classify.seqs">Classify.seqs</a> command of the Mothur package.

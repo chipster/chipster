@@ -1,7 +1,7 @@
-# TOOL mothur-classifyseqs.R: "Classify sequences to taxonomic units with Mothur" (Classify sequences to taxonomic units. This tool is based on the Mothur package.)
-# INPUT a.fasta: "FASTA file" TYPE GENERIC
-# OUTPUT OPTIONAL reads-taxonomy-assignment.txt
-# OUTPUT OPTIONAL classification-summary.txt
+# TOOL mothur-classifyseqs.R: "Classify sequences to taxonomic units with Mothur" (Classify 16S rRNA sequences to taxonomic units using the Wang method with Silva reference set and taxonomy. This tool is based on the Mothur package.)
+# INPUT a.fasta: "FASTA file" TYPE FASTA
+# OUTPUT reads-taxonomy-assignment.txt
+# OUTPUT classification-summary.txt
 
 
 # EK 18.06.2013
@@ -25,4 +25,3 @@ system(command)
 system("mv a.silva.wang.taxonomy reads-taxonomy-assignment.txt")
 system("mv a.silva.wang.tax.summary classification-summary.txt")
 
-#system("grep -A 2 Removed log_raw.txt > log.txt")

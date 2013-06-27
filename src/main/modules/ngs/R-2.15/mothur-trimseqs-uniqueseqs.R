@@ -1,4 +1,4 @@
-# TOOL mothur-trimseqs-uniqueseqs.R: "Trim and filter reads with Mothur" (Trim and filter reads and remove duplicate reads. This tool is based on the Mothur package.)
+# TOOL mothur-trimseqs-uniqueseqs.R: "Trim and filter sequences with Mothur" (Removes primers and barcodes, trims and filters reads for several criteria, and removes duplicate reads. This tool is based on the Mothur package.)
 # INPUT reads.fasta: "FASTA file" TYPE GENERIC
 # INPUT reads.oligos: "Oligos" TYPE GENERIC
 # INPUT OPTIONAL reads.qual: "QUAL file" TYPE GENERIC
