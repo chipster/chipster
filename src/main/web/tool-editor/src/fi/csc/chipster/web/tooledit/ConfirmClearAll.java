@@ -43,6 +43,7 @@ public class ConfirmClearAll extends Window{
 			public void buttonClick(ClickEvent event) {
 				root.getToolEditor().removeAllComponents();
 				root.getTreeToolEditor().removeAllChildren();
+				root.getTreeToolEditor().updateToolTitle("");
 				root.getTextEditor().setText("");
 				root.removeWindow(ConfirmClearAll.this);
 			}
