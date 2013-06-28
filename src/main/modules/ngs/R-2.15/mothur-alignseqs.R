@@ -6,8 +6,8 @@
 # EK 05.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
-data.path <- c(file.path(chipster.tools.path, "mothur", "data"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
+data.path <- c(file.path(chipster.tools.path, "mothur-data"))
 template.path <- c(file.path(data.path, "silva.bacteria.fasta"))
 
 # batch file

@@ -50,7 +50,7 @@ stop("Hierarchical clustering dendrogram can be plotted on maximum 2000 of genes
 }
 
 # Does the clustering
-clust<-hcluster(x=dat2, method="pearson", link="average")
+clust<-hcluster(x=dat2, method="correlation", link="average")
 ct<-cutree(clust, gr)
 
 

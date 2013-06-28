@@ -22,7 +22,7 @@
 # AMS 05.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # Add options
 trimseqs.options <- ""

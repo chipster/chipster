@@ -7,7 +7,7 @@
 # EK 05.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # batch file
 write("filter.seqs(fasta=a.align, vertical=T, trump=.)", "batch.mth", append=F)
