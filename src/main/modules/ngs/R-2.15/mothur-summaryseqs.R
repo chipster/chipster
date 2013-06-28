@@ -6,7 +6,7 @@
 # EK 27.6.2013 Changes to description and output
 		
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # batch file
 write("summary.seqs(fasta=reads.fasta)", "batch.mth", append=F)

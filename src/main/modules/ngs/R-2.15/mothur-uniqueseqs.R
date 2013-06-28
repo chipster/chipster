@@ -9,7 +9,7 @@
 # EK 06.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # batch file
 write("unique.seqs(fasta=a.fasta, name=a.names)", "batch.mth", append=F)
