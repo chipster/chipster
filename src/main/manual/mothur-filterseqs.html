@@ -3,25 +3,24 @@
 <head><title></title></head>
 <body>
 
-<h2>Metagenomics / Summarize sequences with Mothur</h2>
+<h2>Metagenomics / Filter sequence alignment with Mothur</h2>
 
 <h3>Description</h3>
 
 <p>
-Provides summary information on unaligned or aligned sequences.
+Filters out columns from a fasta formatted sequence alignment.
 </p>
 
 <h3>Parameters</h3>
+
 None
 
 <h3>Details</h3>
 <p>
-Given a fasta file with unaligned or aligned sequences, this tool provides summary statistics on 
-sequence start and end coordinates, length, number of ambiguous bases, and homopolymer length.
+Removes columns where every character is '-'. These empty columns are not included in calculating distances because they have no information in them. 
+By removing these columns, the calculation of a large number of distances is accelerated. Removes also columns where one or more sequences have '.'  
 <p>
-
-<p>
-This tool is based on the <a href="http://www.mothur.org/wiki/Summary.seqs">Summary.seqs</a> command of the Mothur package.
+This tool is based on the <a href="http://www.mothur.org/wiki/Filter.seqs">Filter.seqs</a> command of the Mothur package.
 </p>
 
 
@@ -31,7 +30,9 @@ This tool is based on the <a href="http://www.mothur.org/wiki/Summary.seqs">Summ
 
 <p>The analysis output consists of the following:</p>
 <ul>
-<li>summary.tsv: Summary statistics for all the sequences </li>  
+<li>filtered-aligned.fasta: Filtered alignment </li> 
+<li>filtered-summary.tsv: Summary statistics for the filtered alignment </li> 
+<li>filtered-log.txt: Lists the number of columns removed </li>
 </ul>
 </p>
 

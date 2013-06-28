@@ -3,35 +3,31 @@
 <head><title></title></head>
 <body>
 
-<h2>Metagenomics / Summarize sequences with Mothur</h2>
+<h2>Metagenomics / Remove chrimeric sequences with Mothur</h2>
 
 <h3>Description</h3>
 
 <p>
-Provides summary information on unaligned or aligned sequences.
+Given a fasta-formatted alignment file, removes chimeric sequences.
 </p>
 
 <h3>Parameters</h3>
+
 None
 
 <h3>Details</h3>
 <p>
-Given a fasta file with unaligned or aligned sequences, this tool provides summary statistics on 
-sequence start and end coordinates, length, number of ambiguous bases, and homopolymer length.
+Removes chimeric sequences from an alignment using the uchime method and the 16S rRNA Silva gold reference set. Chimeric sequences are artifacts which contain parts of several sequences.
 <p>
-
-<p>
-This tool is based on the <a href="http://www.mothur.org/wiki/Summary.seqs">Summary.seqs</a> command of the Mothur package.
-</p>
-
-
+This tool is based on the <a href="http://www.mothur.org/wiki/Chimera.uchime">Chimera.uchime</a> and <a href="http://www.mothur.org/wiki/Remove.seqs">Remove.seqs</a> commands of the Mothur package.
 </p>
 
 <h3>Output</h3>
 
 <p>The analysis output consists of the following:</p>
 <ul>
-<li>summary.tsv: Summary statistics for all the sequences </li>  
+<li>chimeras-removed.fasta: Alignment with chimeras removed</li> 
+<li>chimeras-removed-summary.tsv: Summary statistics for the alignment </li> 
 </ul>
 </p>
 

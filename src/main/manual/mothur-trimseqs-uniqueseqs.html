@@ -29,13 +29,15 @@ Trim and filter reads and remove duplicate reads.
 
 <h3>Details</h3>
 <p>
-The reads are checked against user-defined quality control requirements. The output sequences will be trimmed to remove the 
-user-provided primers, barcodes, and sequences that drop below a quality threshold. The reads are also checked for redundancy. If
+The reads are checked against user-defined requirements. The output sequences will be trimmed to remove the 
+user-provided primers, barcodes, and sequences that do not meet the give ncriteria. The reads are also checked for redundancy. If
 a quality file is provided, a trimmed, non-redundant quality file is produce to match the trimmed, non-redundant sequence file.
 <p>
 
 <p>
-This tool is based on the Mothur package.
+<p>
+This tool is based on the <a href="http://www.mothur.org/wiki/Trim.seqs">Trim.seqs</a> and <a href="http://www.mothur.org/wiki/Unique.seqs">Unique.seqs</a> commands of the Mothur package.
+</p>
 </p>
 
 
@@ -45,8 +47,8 @@ This tool is based on the Mothur package.
 
 <p>The analysis output consists of the following:</p>
 <ul>
-<li>reads.groups.txt: A two column list with the first column indicating the sequence names in the input file and the second column the group that it came from.</li>
-<li>reads.trim.names.txt: A list of the selected sequences and the redundant sequences corresponding to each.</li>
+<li>reads.groups: A two column list with the first column indicating the sequence names in the input file and the second column the group that it came from.</li>
+<li>reads.trim.names: A list of the selected sequences and the redundant sequences corresponding to each.</li>
 <li>reads.trim.unique.fasta: A FASTA-formatted sequence file trimmed, non-redundant reads.</li>
 <li>reads.trim.unique.qual: Quality values (if provided as input) for the trimmed, non-redundant reads</li>
 <li>summary.trim.unique.tsv: Summary statistics for the sequences</li>
