@@ -1,5 +1,6 @@
 package fi.csc.chipster.web.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.vaadin.data.Container;
@@ -455,7 +456,15 @@ public class Parameter extends BasicModel{
 		if(typeTable == null || typeTable.getItemIds().isEmpty())
 			return null;
 		Name[] names = typeTable.getItemIds().toArray(new Name[0]);
-		return names;
+		ArrayList<Name> list = new ArrayList<Name>();
+		for(Name name : names) {
+			if(!name.getID().isEmpty() && !name.getDisplayName().isEmpty())
+				list.add(name);
+			else {
+				new Notification("Not all ENUM types were generated to text, because display name or id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());
+			}
+		}
+		return list.toArray(new Name[0]);
 	}
 	
 	private Button getDeleteButton(final Object itemId) {
