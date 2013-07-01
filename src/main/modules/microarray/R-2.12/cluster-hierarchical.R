@@ -1,4 +1,4 @@
-# TOOL cluster-hierarchical.R: Hierarchical (Hierarchical clustering of genes or chips. Specify the distance measure and the clustering method. The clustering result can be validated using bootstrapping. Validation is computationally very expensive, and works for approximately less than 100 genes.)
+# TOOL cluster-hierarchical.R: Hierarchical (Hierarchical clustering of genes or chips. Specify the distance measure and the clustering method. The clustering result can be validated using bootstrapping. Validation is computationally very expensive, and works for approximately less than 100 genes. Clustering is done using the function hcluster in which the parameter correlation envokes computation of pearson type of distances.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT hc.tre: hc.tre 
 # OUTPUT resample.pdf: resample.pdf 

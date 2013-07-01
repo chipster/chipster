@@ -1,4 +1,4 @@
-# TOOL plot-dendrogram.R: Dendrogram (Creates a dendrogram of samples using normalized data with Pearson correlation and average linkage method. The branches of the tree are colored according to the selected number of groups.)
+# TOOL plot-dendrogram.R: Dendrogram (Creates a dendrogram of samples using normalized data with Pearson correlation and average linkage method. The branches of the tree are colored according to the selected number of groups. Clustering is done using the function hcluster in which the parameter correlation envokes computation of pearson type of distances.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT dendrogram-color.pdf: dendrogram-color.pdf 

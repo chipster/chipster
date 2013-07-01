@@ -1,4 +1,4 @@
-# TOOL plot-heatmap.R: Heatmap (Draws a heatmap using Pearson correlation and average linkage.)
+# TOOL plot-heatmap.R: Heatmap (Draws a heatmap using Pearson correlation and average linkage. Clustering is done using the function hcluster in which the parameter correlation envokes computation of pearson type of distances.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT heatmap.pdf: heatmap.pdf 
