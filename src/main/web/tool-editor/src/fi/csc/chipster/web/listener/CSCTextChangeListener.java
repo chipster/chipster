@@ -5,7 +5,11 @@ import com.vaadin.event.FieldEvents.TextChangeListener;
 
 import fi.csc.chipster.web.model.BasicModel;
 import fi.csc.chipster.web.model.Tool;
-
+/**
+ * Listener for changing text in summer tree node captions and on the right side of tool editor
+ * @author Gintare Pacauskaite
+ *
+ */
 @SuppressWarnings("serial")
 public class CSCTextChangeListener implements TextChangeListener{
 	
@@ -25,7 +29,6 @@ public class CSCTextChangeListener implements TextChangeListener{
 	public void textChange(TextChangeEvent event) {
 		String text = "";
 		if(model instanceof Tool) {
-			System.out.println(event.getText());
 			if(isId) {
 				text = ((Tool) model).getTitleId(event.getText());
 			} else {
@@ -33,23 +36,20 @@ public class CSCTextChangeListener implements TextChangeListener{
 			}
 			model.getToolEditor().getToolEditorUI().getTreeToolEditor().updateToolTitle(text);
 		} else {
-			text = getValue(event.getText()) + " " + getValue(model.getTypeValue()) + (model.isOptional() ? " OPTIONAL" : "");
-			System.out.println("textchange: " + text);
+			if(!isId && (model.getId() != null && !model.getId().isEmpty())) {
+				return;
+			}
+			if(event.getText().isEmpty() && isId) {
+				text = getValue(model.getNameValue()) + " " + getValue(model.getTypeValue());
+			} else {
+				text = getValue(event.getText()) + " " + getValue(model.getTypeValue());
+			}
 			model.getToolEditor().getToolEditorUI().getTreeToolEditor().setItemCaption(model, text);
 		}
 		model.setTitleDescriptionValue(text);
-		
 	}
 	
 	private String getValue(String text) {
 		return (text == null || text.isEmpty() || text.trim().isEmpty() ? "" : text);
 	}
-
-//	@Override
-//	public void valueChange(ValueChangeEvent event) {
-//		// TODO Auto-generated method stub
-//		String text = getValue(name) + " " + getValue(type);
-//		model.setTitleDescriptionValue(text.trim());
-//	}
-
 }

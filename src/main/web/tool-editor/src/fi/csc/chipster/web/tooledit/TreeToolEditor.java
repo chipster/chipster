@@ -28,11 +28,16 @@ import fi.csc.chipster.web.model.Output;
 import fi.csc.chipster.web.model.Parameter;
 import fi.csc.chipster.web.model.Tool;
 
+/**
+ * Summary tree for adding/deleting/changing positions(drag & drop) inputs, outputs, parameters
+ * @author Gintare Pacauskaite
+ *
+ */
 public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	private static final long serialVersionUID = -8713542953586370559L;
 	
-	private static final String ACTIONS = "Acions";
+	private static final String ACTIONS = "Actions";
 	
 	private ToolEditorUI root;
 	
@@ -46,7 +51,6 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	public TreeToolEditor(ToolEditorUI root) {
 		this.root = root;
-		System.out.println("ar turi " + root.getToolEditor());
 		tool = new Tool(root.getToolEditor());
 		initTree();
 	}
@@ -114,6 +118,12 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 		});
 	}
 	
+	/**
+	 * drag and drop 
+	 * @param sourceItemId what was dragged
+	 * @param targetItemId on what was dropped
+	 * @param location bottom, top, middle
+	 */
 	private void moveNode(final Object sourceItemId,
             final Object targetItemId, final VerticalDropLocation location) {
         final HierarchicalContainer container = (HierarchicalContainer) this.getContainerDataSource();
@@ -189,11 +199,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 			btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
 			btDelete.setStyleName(BaseTheme.BUTTON_LINK);
 			String description = "Delete ";
-			if(itemId instanceof String) {
-				description += (itemId.equals(INPUTS) ? "All Inputs" : (itemId.equals(OUTPUTS) ? "All Outputs" : (itemId.equals(PARAMETERS) ? "All Parameters" : "All Elements")));
-			} else {
-				description += (itemId instanceof Input ? "Input" : (itemId instanceof Output ? "Output" : "Parameter"));
-			}
+			description += (itemId instanceof Input ? "Input" : (itemId instanceof Output ? "Output" : "Parameter"));
 			btDelete.setDescription(description);
 			hLayout.addComponent(btDelete, 0);
 			btDelete.addClickListener(new ClickListener() {
@@ -258,7 +264,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	@SuppressWarnings("unchecked")
 	public void setItemCaption(Object itemId, String caption) {
 		try {
-			this.getContainerProperty(itemId, "").setValue((itemId instanceof Input ? "Input " : (itemId instanceof Output ? "Output " : "Parameter ")) + caption);
+			this.getContainerProperty(itemId, "").setValue(caption);
 	
 		} catch(NullPointerException e) {
 			
@@ -266,7 +272,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	}
 	
 	public String getItemCaption(Object itemId, String caption) {
-		return (itemId instanceof Input ? "Input " : (itemId instanceof Output ? "Output " : "Parameter ")) + caption;
+		return caption;
 	}
 	
 	private void removeChildren(Object parent) {

@@ -13,6 +13,7 @@ import com.vaadin.ui.VerticalSplitPanel;
 
 /**
  * Main UI class
+ * @author Gintare Pacauskaite
  */
 @SuppressWarnings("serial")
 @Theme("tool_editor")
@@ -25,9 +26,7 @@ public class ToolEditorUI extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
-    	System.out.println("tree");
     	treeToolEditor = new TreeToolEditor(this);
-    	System.out.println("tool");
     	toolEditor = new ToolEditor(this);
     	textEditor = new TextEditor(this);
     	final Panel vLayout = new Panel();
@@ -36,7 +35,6 @@ public class ToolEditorUI extends UI {
     	vSplitPanel.setImmediate(true);
     	vSplitPanel.setLocked(false);
     	vSplitPanel.setWidth("100%");
-//    	vSplitPanel.setCaption("Tool Editor2");
     	vLayout.setContent(vSplitPanel);
         setContent(vSplitPanel);
         VerticalLayout vvLayout = new VerticalLayout();
@@ -51,7 +49,6 @@ public class ToolEditorUI extends UI {
         vvLayout.setComponentAlignment(hSplitpPanel, Alignment.TOP_LEFT);
         vvLayout.setMargin(false);
         vvLayout.setSpacing(false);
-//        vvLayout.setComponentAlignment(hSplitpPanel, Alignment.TOP_LEFT);
         hSplitpPanel.setFirstComponent(treeToolEditor);
         hSplitpPanel.setSecondComponent(toolEditor);
         vSplitPanel.setFirstComponent(vvLayout);

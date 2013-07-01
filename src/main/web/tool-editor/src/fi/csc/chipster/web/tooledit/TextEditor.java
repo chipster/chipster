@@ -11,6 +11,11 @@ import com.vaadin.ui.VerticalLayout;
 import fi.csc.chipster.web.listener.CSCTextToToolClickListener;
 import fi.csc.chipster.web.listener.CSCToolToTextClickListener;
 
+/**
+ * Text editor
+ * @author Gintare Pacauskaite
+ *
+ */
 public class TextEditor extends VerticalLayout{
 	private static final long serialVersionUID = -7074541336842177583L;
 	
@@ -33,10 +38,12 @@ public class TextEditor extends VerticalLayout{
 		hLayout.setSpacing(true);
 		
 		btUpdateTextEditor = new Button();
+		btUpdateTextEditor.setDescription("Update text area");
 		btUpdateTextEditor.setIcon(Icon.getResource(Icon.getDownButtonIconPath()));
 		btUpdateTextEditor.addClickListener(new CSCToolToTextClickListener(root));
 		hLayout.addComponent(btUpdateTextEditor);
 		btUpdateToolEditor = new Button();
+		btUpdateToolEditor.setDescription("Update tool elements");
 		btUpdateToolEditor.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
 		btUpdateToolEditor.addClickListener(new CSCTextToToolClickListener(root));
 		hLayout.addComponent(btUpdateToolEditor);
@@ -55,8 +62,9 @@ public class TextEditor extends VerticalLayout{
 		this.setComponentAlignment(hLayout, Alignment.MIDDLE_CENTER);
 		
 		txtArea = new TextArea();
-		txtArea.setRows(20);
-		txtArea.setWidth("100%");
+		txtArea.setSizeFull();
+		// for some reasons size full does not do anything to height
+		txtArea.setRows(50);
 		
 		this.addComponent(txtArea);
 	}
@@ -68,6 +76,11 @@ public class TextEditor extends VerticalLayout{
 		return txtArea.getValue();
 	}
 	
+	/**
+	 * Takes header from text
+	 * @param input
+	 * @return tool header
+	 */
 	public String takeHeader(String input) {
 		if(input == null || input.isEmpty())
 			return "";
@@ -100,6 +113,10 @@ public class TextEditor extends VerticalLayout{
 			newText.append(array[index] + NEW_LINE);
 		}
 		return newText.toString();
+	}
+	
+	public void clearAllText() {
+		txtArea.setValue("");
 	}
 
 }
