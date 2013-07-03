@@ -3,11 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Track group containing information about genes: transcript, intensity, gene, snp
@@ -21,21 +21,26 @@ public class GeneTrackGroup extends TrackGroup {
 	protected TranscriptTrack transcript;
 	protected Track geneOverview;
 	protected Track gene;
-	protected ReferenceSNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
 	protected Track geneOverviewReversed;
 	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
-	protected ReferenceSNPTrack snpTrackReversed;
+	private StatusTitleTrack titleTrack;
 
-	public GeneTrackGroup(GBrowserView dataView, AreaRequestHandler annotationDataSource, AreaRequestHandler repeatDataSource, boolean isUserData) {
+	public GeneTrackGroup(GBrowserView dataView, DataThread annotationDataSource, DataThread repeatDataSource, boolean isUserData) {
 		super(dataView);
 		
+		titleTrack = new StatusTitleTrack("Annotations", Color.black);
+		titleTrack.setView(view);
+		
 		if (annotationDataSource != null) {
-			transcript = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
+			
+			transcript = new TranscriptTrack();
+			transcript.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcript.setView(dataView);
-			transcript.setAreaRequestHandler(annotationDataSource);
+			transcript.addDataThread(annotationDataSource);
 			transcript.setStrand(Strand.FORWARD);
+			
 
 //			geneOverview = new CoverageEstimateTrack(dataView, annotationDataSource, GBrowserConstants.COLOR_BLUE_BRIGHTER, 
 //					GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true, false);
@@ -43,17 +48,22 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverview = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 //			geneOverview.setView(dataView);
 
-			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			gene = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER);
+			gene.setViewLimits(GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			gene.setView(dataView);
-			gene.setAreaRequestHandler(annotationDataSource);
+			gene.addDataThread(annotationDataSource);
 			gene.setStrand(Strand.FORWARD);
+			
+			titleTrack.addDataThread(annotationDataSource);
 		}
 		
 		if (repeatDataSource != null) {
-			repeatMasker = new RepeatMaskerTrack(0, GBrowserConstants.SWITCH_VIEWS_AT);
+			repeatMasker = new RepeatMaskerTrack();
+			repeatMasker.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			repeatMasker.setView(dataView);
-			repeatMasker.setAreaRequestHandler(repeatDataSource);
+			repeatMasker.addDataThread(repeatDataSource);
+			
+			titleTrack.addDataThread(repeatDataSource);
 		}
 		
 		if (annotationDataSource != null) {
@@ -63,15 +73,16 @@ public class GeneTrackGroup extends TrackGroup {
 //			geneOverviewReversed = new EmptyTrack(transcript.getMinHeight(), GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 //			geneOverviewReversed.setView(dataView);
 
-			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER, 
-					GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+			geneReversed = new GeneTrack(GBrowserConstants.COLOR_BLUE_BRIGHTER);
+			geneReversed.setViewLimits(GBrowserConstants.SWITCH_VIEWS_AT, GBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
 			geneReversed.setView(dataView);
-			geneReversed.setAreaRequestHandler(annotationDataSource);
+			geneReversed.addDataThread(annotationDataSource);
 			geneReversed.setStrand(Strand.REVERSE);
 
-			transcriptReversed = new TranscriptTrack(GBrowserConstants.SWITCH_VIEWS_AT);
+			transcriptReversed = new TranscriptTrack();
+			transcriptReversed.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
 			transcriptReversed.setView(dataView);
-			transcriptReversed.setAreaRequestHandler(annotationDataSource);
+			transcriptReversed.addDataThread(annotationDataSource);
 			transcriptReversed.setStrand(Strand.REVERSE);
 		}
 		
@@ -84,10 +95,7 @@ public class GeneTrackGroup extends TrackGroup {
 		
 		if (!isUserData) {
 			// title
-			
-			TitleTrack title = new TitleTrack("Annotations", Color.black);
-			title.setView(view);
-			tracks.add(title);
+			tracks.add(titleTrack);
 		}
 		
         if (transcript != null) { // no annotation data source 
@@ -100,14 +108,9 @@ public class GeneTrackGroup extends TrackGroup {
         	// Gene, detailed, forward
         	tracks.add(gene);
         }
-		
-		if (snpTrack != null) {
-			// SNP track Forward
-			tracks.add(snpTrack);
-		}
 
 		if (isUserData) {
-			SeparatorTrack separator = new SeparatorTrack(Color.gray, 1, 0, Long.MAX_VALUE);
+			SeparatorTrack separator = new SeparatorTrack(Color.gray, 1);
 			separator.setView(view);
 			tracks.add(separator);
 		} else {
@@ -115,11 +118,6 @@ public class GeneTrackGroup extends TrackGroup {
 			RulerTrack ruler = new RulerTrack();
 			ruler.setView(view);
 			tracks.add(ruler);			
-		}
-
-		if (snpTrackReversed != null) {
-			// SNP track Reversed
-			tracks.add(snpTrackReversed);
 		}
 
 		if (repeatMasker != null) {
@@ -147,24 +145,9 @@ public class GeneTrackGroup extends TrackGroup {
 		return "GeneTrackGroup";
 	}
 	
-	private void setChangeSNP(boolean change) {
-		if (change) {
-			snpTrack.changeSNPView();
-			snpTrackReversed.changeSNPView();
-		} else {
-			snpTrack.returnSNPView();
-			snpTrackReversed.returnSNPView();
-		}
-		view.fireAreaRequests();
-        view.redraw();
-	}
-	
 	@Override
 	public void showOrHide(String name, boolean state) {
 		super.showOrHide(name, state);
-		if (snpTrack != null && name.equals("changeSNP")) {
-			setChangeSNP(state);
-		}
 	}
 	
 	@Override

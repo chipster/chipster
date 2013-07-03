@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 

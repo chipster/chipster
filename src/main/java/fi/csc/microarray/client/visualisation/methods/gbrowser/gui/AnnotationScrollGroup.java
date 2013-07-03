@@ -17,7 +17,7 @@ public class AnnotationScrollGroup extends ScrollGroup {
 		//Return the height of the first GeneTrack or TranscriptTrack, i.e. keep the 
 		//RulerTrack steady when the height of the genes or transcripts changes.
 		for (Track track : trackGroups.get(0).getTracks()) {
-			if (track instanceof GeneTrack || track instanceof TranscriptTrack) {
+			if (track.isVisible() && (track instanceof GeneTrack || track instanceof TranscriptTrack)) {
 				return Math.max(track.getFullHeight(), track.getHeight()); 
 			}
 		}

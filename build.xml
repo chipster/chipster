@@ -95,8 +95,8 @@
 			<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/sam-1.89.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/picard-1.89.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>

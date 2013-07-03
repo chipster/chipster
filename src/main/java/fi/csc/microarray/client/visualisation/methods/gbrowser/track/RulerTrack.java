@@ -2,17 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
@@ -23,9 +19,6 @@ public class RulerTrack extends Track {
 
 	private static final int textY = 10;
 	private final static int MINOR_STEPS = 10;
-
-	public RulerTrack() {
-	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
@@ -91,18 +84,13 @@ public class RulerTrack extends Track {
 
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 		// no data
 	}
 	
     @Override
     public int getHeight() {
         return textY * 2;
-    }
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        return null;
     }
 	
 	@Override

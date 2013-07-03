@@ -1,0 +1,37 @@
+<body bgcolor="white">
+
+	<p>The data layer implementation for non-indexed data sources. Data
+		layers receive DataRequest objects and sends DataResult objects.</p>
+
+	<p>The Conversion classes convert raw file rows to high level
+		objects that are easy and efficient to handle in the view layer. When
+		only some kind of summary of the data is needed in the view layer,
+		that summary should be calculated in the conversion class to avoid
+		choking view layer thread.</p>
+
+	<p>The data requests are made in genomic coordinates, but it is not
+		obvious how to find the corresponding rows from the file. The
+		conversion classes rely on the Index interface to locate those rows.</p>
+
+	<p>There are two implementations of Index interface: InMemoryIndex
+		and BinarySearchIndex. The InMemoryIndex keeps the whole file in
+		memory. The BinarySearchIndex requires a sorted data file. The
+		requested location is searched with binary search algorithm. These
+		index implementations can be used with different file formats. The
+		presentation of the genomic coordinates differs between the file
+		formats and therefore the Index implementations rely on the format
+		specific LineParser implementations to parse the genomic coordinates.</p>
+
+	<p>The view layer needs a list of the available chromosomes to make
+		the requests. This list can be constructed with the class
+		ChromosomeBinarySearch.</p>
+
+	<p>The classes BinarySearchIndex and ChromosomeBinarySearch require
+		an efficient random access read capability. Unfortunately Java offers
+		efficient random access only to local files, but not over http. A
+		simple buffered random access reading is implemented in class
+		RandomAccessLineReader. The same implementation is used also with the
+		local files (instead of Java's implementation), because the
+		performance is well-matched and it makes testing simpler.</p>
+
+</body>

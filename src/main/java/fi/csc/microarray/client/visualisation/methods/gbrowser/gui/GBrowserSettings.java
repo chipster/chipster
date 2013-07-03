@@ -33,9 +33,9 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackDefinition;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.AnnotationType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
@@ -48,9 +48,26 @@ import fi.csc.microarray.util.LinkUtil;
  */
 public class GBrowserSettings implements ActionListener, RegionListener {
 	
-	private static final String COVERAGE_NONE = "none";
-	private static final String COVERAGE_TOTAL = "total";
-	private static final String COVERAGE_STRAND = "strand-specific";
+	public enum CoverageType {
+		NONE ("none"),
+		TOTAL ("total"),
+		STRAND ("strand-specific");
+		
+		String name;
+		
+		CoverageType(String name) {
+			this.name = name;
+		}
+		
+		public String toString() {
+			return name;
+		}
+		
+		public String getId() {
+			return "coverage type " + toString();
+		}
+	}
+	
 	
 	private static final long DEFAULT_VIEWSIZE = 100000;
 	private static final long DEFAULT_LOCATION = 1000000;
@@ -76,15 +93,15 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JTextField viewsizeField = new JTextField();
 
 	private JLabel chrLabel = new JLabel("Chromosome");
-	private JComboBox chrBox = new JComboBox();
+	private JComboBox<Chromosome> chrBox;
 
-	private JComboBox genomeBox = new JComboBox();
+	private JComboBox<Genome> genomeBox;
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
-	private JComboBox coverageScaleBox = new JComboBox();
+	private JComboBox<ReadScale> coverageScaleBox;
 
 	private JLabel coverageTypeLabel = new JLabel("Coverage type");
-	private JComboBox coverageTypeBox = new JComboBox(); 
+	private JComboBox<CoverageType> coverageTypeBox; 
 
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
@@ -95,6 +112,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JXHyperlink ucscLink;
 	private GBrowser browser;
 	private Long lastLocation;
+	private JCheckBox cacheBox;
 
 	public void initialise(GBrowser browser) throws Exception {
 		
@@ -102,13 +120,9 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight SNPs", true), "highlightSNP");
-		//		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
-		//		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
-
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
-		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
+		trackSwitches.put(new JCheckBox("Density graph", false), "DensityGraphTrack");
 		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
-		//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 	
 	public JPanel getParameterPanel() {
@@ -207,8 +221,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			menu.add(coverageTypeLabel, c);
 			c.gridy++;
 			c.insets.set(0,0,0,0);
-			coverageTypeBox = new JComboBox(new String[] {COVERAGE_NONE, COVERAGE_TOTAL, COVERAGE_STRAND});
-			coverageTypeBox.setSelectedItem(COVERAGE_TOTAL);
+			coverageTypeBox = new JComboBox<CoverageType>(new CoverageType[] {CoverageType.NONE, CoverageType.TOTAL, CoverageType.STRAND});
+			coverageTypeBox.setSelectedItem(CoverageType.TOTAL);
 			coverageTypeBox.setEnabled(false);
 			coverageTypeBox.addActionListener(this);
 			menu.add(coverageTypeBox, c);
@@ -220,7 +234,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			menu.add(coverageScaleLabel, c);
 			c.gridy++;
 			c.insets.set(0,0,0,0);
-			coverageScaleBox = new JComboBox(GBrowserPlot.ReadScale.values());
+			coverageScaleBox = new JComboBox<ReadScale>(GBrowserPlot.ReadScale.values());
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
@@ -365,6 +379,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			c.weightx = 1.0;
 			c.gridx = 0;
 
+			genomeBox = new JComboBox<Genome>();
+			
 			// genome
 			Collection<Genome> genomes = browser.getAnnotationManager().getGenomes();
 			for (Genome genome : genomes) {
@@ -376,6 +392,14 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			genomeBox.addActionListener(this);
 
 			genomePanel.add(genomeBox, c);
+			
+			c.gridy++;
+			
+			cacheBox = new JCheckBox("Download workflow data");
+			cacheBox.setToolTipText("Download workflow data to create a temporary local copy of all user data files. " +
+					"The genome browser works faster with the local data, but it will take some time to download the " +
+					"files when the visualisation is started.");
+			genomePanel.add(cacheBox, c);
 		}
 
 		return genomePanel;
@@ -399,6 +423,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			chrLabel.setEnabled(false);
 			locationPanel.add(chrLabel, c);
 			c.gridy++;
+			chrBox = new JComboBox<Chromosome>();
 			chrBox.setEnabled(false);
 			c.insets.set(0, 0, 10, 0);
 			locationPanel.add(chrBox, c);
@@ -478,14 +503,18 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
+			this.cacheBox.setEnabled(false);
 			if (!initialised) {
 
 				browser.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
 					public void run() {
 						try {
-							// Preload datas in background thread
-							browser.initialiseUserDatas();
+							
+							if (cacheBox.isSelected()) {
+								// Create a local random access copy of all files in background thread
+								browser.initialiseUserDatas();
+							}
 
 							// Update UI in Event Dispatch Thread
 							SwingUtilities.invokeAndWait(new Runnable() {
@@ -634,24 +663,24 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
 				}
-
-				if (track.trackGroup instanceof ReadTrackGroup) {
-					if (coverageTypeBox.getSelectedItem().equals(COVERAGE_NONE)) {
-						track.trackGroup.showOrHide("ProfileSNPTrack", false);
-						track.trackGroup.showOrHide("ProfileTrack", false);
-						track.trackGroup.showOrHide("ReadOverview", false);
-					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_TOTAL)) {
-						track.trackGroup.showOrHide("ProfileSNPTrack", true);	
-						track.trackGroup.showOrHide("ProfileTrack", false);
-						track.trackGroup.showOrHide("ReadOverview", true);
-					} else 	if (coverageTypeBox.getSelectedItem().equals(COVERAGE_STRAND)) {
-						track.trackGroup.showOrHide("ProfileSNPTrack", false);
-						track.trackGroup.showOrHide("ProfileTrack", true);
-						track.trackGroup.showOrHide("ReadOverview", true);
+			
+				if (track.trackGroup instanceof ReadTrackGroup) {										
+					if (coverageTypeBox.getSelectedItem() == CoverageType.NONE) {
+						track.trackGroup.showOrHide("Coverage", false);
+						track.trackGroup.showOrHide("CoverageEstimate", false);
+					} else 	if (coverageTypeBox.getSelectedItem() == CoverageType.TOTAL) {
+						track.trackGroup.showOrHide("Coverage", true);
+						track.trackGroup.showOrHide("CoverageEstimate", true);	
+						track.trackGroup.showOrHide("StrandSpecificCoverageType", false);
+					} else 	if (coverageTypeBox.getSelectedItem() == CoverageType.STRAND) {
+						track.trackGroup.showOrHide("Coverage", true);
+						track.trackGroup.showOrHide("CoverageEstimate", true);	
+						track.trackGroup.showOrHide("StrandSpecificCoverageType", true);
 					}
 				}
 			}
 		}
+		this.browser.getPlot().getDataView().reloadData();
 	}
 
 	public String getGoButtonText() {

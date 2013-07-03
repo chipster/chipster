@@ -16,12 +16,18 @@ public class Chromosome implements Comparable<Chromosome> {
 	private String chr;
 	private Integer intValue;
 	private String chrNormalised;
+	
+	//Default
+	private static final SynonymReplace synonymReplace = new SynonymReplace( new SynonymReplace.Synonym[] { new SynonymReplace.Synonym("M", "MT")});
+	
+	//This is useful with files that don't follow Ensembl convention
+	public static final SynonymReplace ucscSynonymReplace = new SynonymReplace( new SynonymReplace.Synonym[] { new SynonymReplace.Synonym("MT", "M")});
 
 	public Chromosome(String chr) {
 		
 		// store original value
 		this.chr = chr;
-		this.chrNormalised = normalise(chr);
+		this.chrNormalised = normalise(chr, true);
 		
 		try {
 			this.intValue = Integer.parseInt(chrNormalised);
@@ -31,14 +37,20 @@ public class Chromosome implements Comparable<Chromosome> {
 		}
 	}
 
-	private String normalise(String original) {
+	public static String normalise(String original, boolean enableSynonymReplace) {
 		// If contains any postfix, remove it
 		if (original.indexOf(".") != -1) {
 			original = original.substring(0, original.indexOf("."));
 		}
 		
 		// Remove known prefix, if exists
-		return original.replace(CHROMOSOME_PREFIX, "");
+		String normalised = original.replace(CHROMOSOME_PREFIX, "");
+		
+		if (enableSynonymReplace) {
+			normalised = synonymReplace.apply(normalised);
+		}
+		
+		return normalised;
 	}
 
 	public Chromosome(Chromosome chromosome) {
@@ -90,7 +102,7 @@ public class Chromosome implements Comparable<Chromosome> {
 	 */
 	public String getOriginalName() {
 		return chr;
-	}
+	}	
 	
 	/**
 	 * Returns the normalised chromosome name.
@@ -108,5 +120,9 @@ public class Chromosome implements Comparable<Chromosome> {
 	
 	public Chromosome clone() {
 		return new Chromosome(this.chr);
+	}
+
+	public static SynonymReplace getSynonymReplace() {
+		return synonymReplace;
 	}
 }

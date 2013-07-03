@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.samtools.CigarElement;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
 
 /**
@@ -110,7 +109,7 @@ public class Cigar {
 	 * @return list of ReadPart objects, one for each of the Cigar elements
 	 */
 	public static List<ReadPart> splitElements(RegionContent read) {
-		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
+		Cigar cigar = (Cigar) read.values.get(DataType.CIGAR); // Cigar can be null
 
 		if (cigar == null) {
 			return Arrays.asList(new ReadPart[] { new ReadPart(read) });
@@ -132,7 +131,7 @@ public class Cigar {
 	 * @return
 	 */
 	public static List<RegionContent> splitRead(RegionContent read, Collection<CigarItemType> splitters) {
-		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
+		Cigar cigar = (Cigar) read.values.get(DataType.CIGAR); // Cigar can be null
 
 		if (cigar == null) {
 			return Arrays.asList(new RegionContent[] { read });
@@ -149,7 +148,7 @@ public class Cigar {
 
 		long refCoord = read.region.start.bp;
 		long seqCoord = 0;
-		String seq = (String) read.values.get(ColumnType.SEQUENCE);
+		String seq = (String) read.values.get(DataType.SEQUENCE);
 
 		String combinedSeq = "";
 		List<CigarItem> combinedCigar = new LinkedList<CigarItem>();
@@ -170,10 +169,10 @@ public class Cigar {
 				}
 				region.end.bp = refCoord + cigarItem.getLength();
 			} else {
-				LinkedHashMap<ColumnType, Object> values = (LinkedHashMap<ColumnType, Object>) read.values.clone();
+				LinkedHashMap<DataType, Object> values = (LinkedHashMap<DataType, Object>) read.values.clone();
 				RegionContent splittedRead = new RegionContent(region, values);
-				values.put(ColumnType.CIGAR, new Cigar(splittedRead, combinedCigar));
-				values.put(ColumnType.SEQUENCE, combinedSeq);
+				values.put(DataType.CIGAR, new Cigar(splittedRead, combinedCigar));
+				values.put(DataType.SEQUENCE, combinedSeq);
 				splittedReads.add(splittedRead);
 
 				combinedCigar = new LinkedList<CigarItem>();
@@ -190,10 +189,10 @@ public class Cigar {
 			}
 		}
 
-		LinkedHashMap<ColumnType, Object> values = (LinkedHashMap<ColumnType, Object>) read.values.clone();
+		LinkedHashMap<DataType, Object> values = (LinkedHashMap<DataType, Object>) read.values.clone();
 		RegionContent splittedRead = new RegionContent(region, values);
-		values.put(ColumnType.CIGAR, new Cigar(splittedRead, combinedCigar));
-		values.put(ColumnType.SEQUENCE, combinedSeq);
+		values.put(DataType.CIGAR, new Cigar(splittedRead, combinedCigar));
+		values.put(DataType.SEQUENCE, combinedSeq);
 		splittedReads.add(splittedRead);
 
 		return splittedReads;
@@ -208,7 +207,7 @@ public class Cigar {
 			// Split read into regions using cigar
 			long refCoord = read.region.start.bp;
 			long seqCoord = 0;
-			String seq = (String) read.values.get(ColumnType.SEQUENCE);
+			String seq = (String) read.values.get(DataType.SEQUENCE);
 
 			for (CigarItem cigarItem : cigarItems) {
 				String subSeq = null;

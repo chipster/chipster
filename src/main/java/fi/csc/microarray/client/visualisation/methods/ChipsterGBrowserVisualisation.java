@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -25,14 +24,15 @@ import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
@@ -75,25 +75,19 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 */
 		@Override
 		public InputStream getInputStream() throws IOException {
-							
 			return bean.getContentByteStream();
 		}
-		
+
 		@Override
 		public File getLocalFile() throws IOException {
+			//Chipster2 backport fix
 			return Session.getSession().getDataManager().getLocalFile(bean);
 		}
 		
 		@Override
-		public URL getUrl() {
-			try {
-				return getLocalFile().toURI().toURL();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
+		public URL getUrl() throws IOException {
+			//Chipster2 backport fix
+			return getLocalFile().toURI().toURL();
 		}
 	}
 	
@@ -193,9 +187,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
-				for (DataUrl summaryData : interpretation.getSummaryDatas()) {
-					initialiseUserData(summaryData);
-				}
 			}
 		}
 
@@ -236,17 +227,33 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		}
 		
+		@Deprecated
 		public URL getRemoteAnnotationsUrl() throws Exception {
 			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 			
-			URL publicURL = fileBroker.getPublicUrl();
-			if (publicURL != null) {
-				return new URL(publicURL + "/" + ANNOTATIONS_PATH);
-
-			} else {
-				return null;
+			List<URL> publicFiles = fileBroker.getPublicFiles();
+			if (publicFiles != null) {
+				
+				//find only the annotations folder for now
+				for (URL url : publicFiles) {
+					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
+						
+						String urlString = url.toString();
+						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
+						return new URL(annotationString);
+					}
+				}
 			}
+			
+			return null;			
 		}
+
+		public List<URL> getRemoteAnnotationFiles() throws Exception {
+			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			
+			return fileBroker.getPublicFiles();			
+		}
+		
 		
 		public File getLocalAnnotationDir() throws IOException {
 			return DirectoryLayout.getInstance().getLocalAnnotationDir();
@@ -298,7 +305,13 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
 		
-		return browser.getVisualisation(interpretUserDatas(datas));
+		List<Interpretation> interpretations = interpretUserDatas(datas);
+		
+		if (interpretations != null) {
+			return browser.getVisualisation(interpretations);
+		} else {
+			return null;
+		}
 	}
 
 	private boolean isIndexData(DataBean bean) {
@@ -384,11 +397,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 
 			if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-					(data.getName().contains(".bam-summary"))) {
-				// BAM summary file (from custom preprocessor)
-				primaryInterpretation.getSummaryDatas().add(new BeanDataFile(data));
-
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(isIndexData(data))) {
 				// BAI file
 				if (primaryInterpretation.getIndexData() != null) {
@@ -403,13 +411,34 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
 				
 				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
-				DataBean indexBean = application.getDataManager().getDataBean(indexName);
 				
-				if (indexBean == null) {
+				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
 				
-					return null; // BAM is missing BAI
-				} else {
+				if (beanList.size() == 1) {
+					
+					DataBean indexBean = beanList.get(0);
 					interpretation.setIndexData(new BeanDataFile(indexBean));
+					
+				} else if (beanList.size() > 1) { 					
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+						browser.showDialog(
+								"Unable to determine index file"  , 
+								"There are several index files with name '" + indexName + "'. " +
+										"Please show the right index file by selecting it or renaming bam and bai file pairs with unique names." , 
+										null, false, false, true, true);
+						return null;
+					}
+					
+				} else {
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+
+						browser.showDialog("Missing index file", 
+								"There is no index file for data '" + interpretation.getPrimaryData().getName() + "'.",
+								null, false, false, true, true);
+					}
+					return null;
 				}
 			}
 		}
