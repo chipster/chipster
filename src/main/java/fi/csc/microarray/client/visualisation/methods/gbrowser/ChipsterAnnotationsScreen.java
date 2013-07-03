@@ -107,7 +107,7 @@ public class ChipsterAnnotationsScreen extends ScreenBase implements ActionListe
 			Column col = Column.values()[column];
 			
 			if (col == Column.GENOME) {
-				return annotations.getGenomes().get(row).species + " " + annotations.getGenomes().get(row).version;
+				return annotations.getGenomes().get(row).displaySpecies + " " + annotations.getGenomes().get(row).displayVersion;
 
 			} else if (col == Column.ANNOTATIONS) {
 				if (annotations.hasLocalAnnotations(annotations.getGenomes().get(row))) {
