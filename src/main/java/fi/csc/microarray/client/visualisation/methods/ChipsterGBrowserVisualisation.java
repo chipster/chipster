@@ -412,24 +412,27 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 				
 				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
 				
-				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
+				//Chipster2 backport fixes on following 20 lines
+//				LinkedList<DataBean> beanList = application.getDataManager().getDataBean(indexName);
+				DataBean indexBean = application.getDataManager().getDataBean(indexName);
 				
-				if (beanList.size() == 1) {
+//				if (beanList.size() == 1) {
+				if (indexBean != null) {
 					
-					DataBean indexBean = beanList.get(0);
+//					DataBean indexBean = beanList.get(0);
 					interpretation.setIndexData(new BeanDataFile(indexBean));
-					
-				} else if (beanList.size() > 1) { 					
-					if (browser != null) {						
-						//A real visualization attempt, not just applicability check
-						browser.showDialog(
-								"Unable to determine index file"  , 
-								"There are several index files with name '" + indexName + "'. " +
-										"Please show the right index file by selecting it or renaming bam and bai file pairs with unique names." , 
-										null, false, false, true, true);
-						return null;
-					}
-					
+//					
+//				} else if (beanList.size() > 1) { 					
+//					if (browser != null) {						
+//						//A real visualization attempt, not just applicability check
+//						browser.showDialog(
+//								"Unable to determine index file"  , 
+//								"There are several index files with name '" + indexName + "'. " +
+//										"Please show the right index file by selecting it or renaming bam and bai file pairs with unique names." , 
+//										null, false, false, true, true);
+//						return null;
+//					}
+//					
 				} else {
 					if (browser != null) {						
 						//A real visualization attempt, not just applicability check

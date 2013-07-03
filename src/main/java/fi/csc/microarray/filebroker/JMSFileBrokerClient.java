@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
@@ -265,6 +266,31 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		return url;
 	}
+	
+	/**
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
+	 */
+	@Override
+	public List<URL> getPublicFiles() throws JMSException {
+		return fetchPublicFiles();
+	}
+
+	private List<URL> fetchPublicFiles() throws JMSException {
+
+		UrlListMessageListener replyListener = new UrlListMessageListener();  
+		List<URL> urlList;
+		try {
+			CommandMessage fileRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_FILES_REQUEST);
+			//Chipster2 backport fix
+			urlTopic.sendReplyableMessage(fileRequestMessage, replyListener);
+			urlList = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+
+		return urlList;
+	}
+
 
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()
