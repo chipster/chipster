@@ -202,6 +202,7 @@ public class AnnotationManager {
 	public AnnotationManager(GBrowser browser) {
 		this.browser = browser;
 	}
+	
 
 	/**
 	 * Get and parse the contents.txt, which describes available annotations.
@@ -688,6 +689,46 @@ public class AnnotationManager {
 		}		
 	}
 	
+	//Backport from Chipster 3 GenoemInfo
+	public class GenomeInfo {
+		
+		private String species;
+		private String version;
+		private URL ensemblBrowserUrl;
+		private URL ucscBrowserUrl;
+		
+		public String getSpecies() {
+			return species;
+		}
+		
+		public void setSpecies(String species) {
+			this.species = species;
+		}
+		
+		public String getVersion() {
+			return version;
+		}
+		
+		public void setVersion(String version) {
+			this.version = version;
+		}	
+		
+		public URL getEnsembl() {
+			return ensemblBrowserUrl;
+		}
+		
+		public void setEnsemblBrowserUrl(URL ensemblBrowserUrl) {
+			this.ensemblBrowserUrl = ensemblBrowserUrl;
+		}
+		
+		public URL getBrowserUrl() {
+			return ucscBrowserUrl;
+		}
+		
+		public void setUcscBrowserUrl(URL ucscBrowserUrl) {
+			this.ucscBrowserUrl = ucscBrowserUrl;
+		}
+	}
 	
 	//Backport from Chipster 3 SimpleFileBrokerClient
 	private static final String PUBLIC_FILES = "public-files.txt";
