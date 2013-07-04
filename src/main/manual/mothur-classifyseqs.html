@@ -3,25 +3,24 @@
 <head><title></title></head>
 <body>
 
-<h2>Metagenomics / Summarize sequences with Mothur</h2>
+<h2>Metagenomics / Classify sequences to taxonomic units with Mothur</h2>
 
 <h3>Description</h3>
 
 <p>
-Provides summary information on unaligned or aligned sequences.
+Given a fasta file of aligned 16S rRNA sequences, assigns them to taxonomic units (~ species).
 </p>
 
 <h3>Parameters</h3>
+
 None
 
 <h3>Details</h3>
 <p>
-Given a fasta file with unaligned or aligned sequences, this tool provides summary statistics on 
-sequence start and end coordinates, length, number of ambiguous bases, and homopolymer length.
+Assigns aligned 16S rRNA sequences to taxonomic units using the Wang method and the Silva reference set and its taxonomy file. The bootstrap confidence score is calculated with 1000 iterations.
+</p>
 <p>
-
-<p>
-This tool is based on the <a href="http://www.mothur.org/wiki/Summary.seqs">Summary.seqs</a> command of the Mothur package.
+This tool is based on the <a href="http://www.mothur.org/wiki/Classify.seqs">Classify.seqs</a> command of the Mothur package.
 </p>
 
 
@@ -31,7 +30,8 @@ This tool is based on the <a href="http://www.mothur.org/wiki/Summary.seqs">Summ
 
 <p>The analysis output consists of the following:</p>
 <ul>
-<li>summary.tsv: Summary statistics for all the sequences </li>  
+<li>reads-taxonomy-assignment.txt: Taxonomy assignment for each sequence </li> 
+<li>classification-summary.txt: Taxonomic outline indicating the number of sequences that were found at each level </li> 
 </ul>
 </p>
 

@@ -12,6 +12,8 @@
 # JTT 17.10.2007
 # EK 3.4.2013 Changed parameter naming
 # MK 20.06.2013 Stops if trying to produce flags from data that does not support this feature
+# MK 26.05.2013 fixed bug in illumina detection p-value thresholds
+# MK 27.05.2013 Illumina detection p-value cells marked as Ms are converted to 0.0 -values
 
 # Loads the libraries
 library(limma)
@@ -47,34 +49,43 @@ rownames(dat2)<-dat$genes[,1]
 # Producing flags
 if(produce.flags=="yes") {
    if(length(dat$other$flag)!=0) {
-      flags<-as.data.frame(dat$other$flag)
-      flags2<-flags
+      flags<-as.data.frame(dat$other$flag, stringsAsFactors=FALSE)
+	  flags[flags=="M"] <- 0.0;
+	  
+	  flags2<-flags
       for(i in 1:ncol(flags)) {
          flags2[,i]<-as.numeric(as.vector(flags[,i]))
       }
       flags<-flags2
       names(flags)<-paste("flag.", names(flags), sep="")
-   }
+  }
    if(length(dat$other$flag)==0) {
-	  stop("CHIPSTER-NOTE: To produce detection values, your data need to have Detection p-value columns")
+	  stop("CHIPSTER-NOTE: To produce detection values, your data need to contain flag columns representing detection p-value information")
       flags<-matrix(nrow=0, ncol=0)
    }
 }
 
 if(produce.flags=="yes" & beadstudio.version==1) {
-   m<-0.95
-   a<-0.90
-   flags[flags>m]<-"P"
-   flags[flags>a & flags<=m]<-"M"
-   flags[flags<=a]<-"A"
+	m<-0.95
+   	a<-0.90
+	flags_temp <- flags
+   	flags[flags_temp>m]<-"P"
+   	flags[flags_temp>a & flags_temp<=m]<-"M"
+   	flags[flags_temp<=a]<-"A"
 }
 
-if(produce.flags=="yes" & beadstudio.version>1) {
-   m<-0.05
-   a<-0.10
-   flags[flags>m]<-"P"
-   flags[flags>a & flags<=m]<-"M"
-   flags[flags<=a]<-"A"
+if(produce.flags=="yes" & beadstudio.version>1) {	
+	m<-0.05
+   	a<-0.10
+	flags_temp <- flags;
+	
+	flags[flags_temp<m]<-"P"
+	flags[flags_temp>=m & flags_temp<a]<-"M"
+	flags[flags_temp>=a]<-"A"
+
+	#flags[flags>m]<-"P"
+   	#flags[flags>a & flags<=m]<-"M"
+   	#flags[flags<=a]<-"A"
 }
 
 # Writes out a phenodata table

@@ -1,11 +1,11 @@
-# TOOL mothur-trimseqs-uniqueseqs.R: "Trim and filter reads with Mothur" (Trim and filter reads and remove duplicate reads. This tool is based on the Mothur package.)
-# INPUT reads.fasta: "FASTA file" TYPE GENERIC
-# INPUT reads.oligos: "Oligos" TYPE GENERIC
+# TOOL mothur-trimseqs-uniqueseqs.R: "Trim and filter sequences with Mothur" (Removes primers and barcodes, trims and filters reads for several criteria, and removes duplicate reads. This tool is based on the Mothur package.)
+# INPUT reads.fasta: "FASTA file" TYPE FASTA
+# INPUT reads.oligos: "Oligos" TYPE MOTHUR_OLIGOS
 # INPUT OPTIONAL reads.qual: "QUAL file" TYPE GENERIC
 # OUTPUT OPTIONAL reads.trim.unique.fasta
 # OUTPUT OPTIONAL reads.trim.unique.qual
-# OUTPUT OPTIONAL reads.groups.txt
-# OUTPUT OPTIONAL reads.trim.names.txt
+# OUTPUT OPTIONAL reads.groups
+# OUTPUT OPTIONAL reads.trim.names
 # OUTPUT OPTIONAL summary.trim.unique.tsv
 # PARAMETER OPTIONAL flip: "Use reverse complement" TYPE [yes, no] DEFAULT no (Use reverse complement of the sequences.)
 # PARAMETER OPTIONAL qaverage: "Minimum average quality of sequence" TYPE INTEGER FROM 0 TO 40 (Minimum average quality of the sequence. Sequences that have a lower average quality are dropped.)
@@ -22,7 +22,7 @@
 # AMS 05.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # Add options
 trimseqs.options <- ""
@@ -93,10 +93,10 @@ if (file.exists("reads.trim.qual")){
 	system("perl -ne 'if(/^>(\\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' reads.trim.unique.list reads.trim.qual > reads.trim.unique.qual")
 }
 
-# Postprocess and rename output files
+# Postprocess output files
 system("grep -A 9 Start log_raw.txt > summary.trim.unique.tsv")
-system("mv reads.trim.names reads.trim.names.txt")
-system("mv reads.groups reads.groups.txt")
+#system("mv reads.trim.names reads.trim.names.txt")
+#system("mv reads.groups reads.groups.txt")
 
 
 

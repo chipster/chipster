@@ -397,7 +397,7 @@
 		</tool>
 	</category>
 	
-	<category name="Metagenomics (beta)" color="#83010b">
+	<category name="Metagenomics" color="#83010b">
 		<tool runtime="R-2.15">
       		<resource>mothur-sffinfo.R</resource>
     	</tool>

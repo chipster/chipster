@@ -1,15 +1,14 @@
-# TOOL mothur-classifyseqs.R: "Classify sequences to taxonomic units with Mothur" (Classify sequences to taxonomic units. This tool is based on the Mothur package.)
-# INPUT a.fasta: "FASTA file" TYPE GENERIC
-# OUTPUT OPTIONAL reads-taxonomy-assignment.txt
-# OUTPUT OPTIONAL classification-summary.txt
-# OUTPUT OPTIONAL log.txt
+# TOOL mothur-classifyseqs.R: "Classify sequences to taxonomic units with Mothur" (Classify 16S rRNA sequences to taxonomic units using the Wang method with Silva reference set and taxonomy. This tool is based on the Mothur package.)
+# INPUT a.fasta: "FASTA file" TYPE FASTA
+# OUTPUT reads-taxonomy-assignment.txt
+# OUTPUT classification-summary.txt
 
 
 # EK 18.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
-data.path <- c(file.path(chipster.tools.path, "mothur", "data"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
+data.path <- c(file.path(chipster.tools.path, "mothur-data"))
 template.path <- c(file.path(data.path, "silva.bacteria.fasta"))
 taxonomy.path <- c(file.path(data.path, "silva.bacteria.silva.tax"))
 
@@ -26,4 +25,3 @@ system(command)
 system("mv a.silva.wang.taxonomy reads-taxonomy-assignment.txt")
 system("mv a.silva.wang.tax.summary classification-summary.txt")
 
-#system("grep -A 2 Removed log_raw.txt > log.txt")

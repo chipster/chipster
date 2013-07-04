@@ -1,4 +1,4 @@
-# TOOL mothur-sffinfo.R: "Extract sequences from a SFF file" (Extract a FASTA sequence file and a QUAL quality filefrom a SFF file. Sequences can optionally be trimmed for quality. This tool is based on the Mothur package.)
+# TOOL mothur-sffinfo.R: "Extract sequences from a SFF file" (Extract a FASTA sequence file and a QUAL quality file from a SFF file. Sequences can optionally be trimmed for quality. This tool is based on the Mothur package.)
 # INPUT reads.sff: "SFF file" TYPE GENERIC
 # OUTPUT OPTIONAL reads.fasta
 # OUTPUT OPTIONAL reads.qual
@@ -9,7 +9,7 @@
 # AMS 19.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # Options
 sffinfo.options <- ""

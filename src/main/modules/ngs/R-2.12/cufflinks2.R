@@ -9,9 +9,10 @@
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Bias correction for stranded data" TYPE [yes, no] DEFAULT no (Cufflinks can detect sequence-specific bias and correct for it in abundance estimation. Note that bias correction works only if your data was produced with a strand specific protocol.)
 # PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
-
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 
 # AMS 21.11.2012
+# AMS 02.07.2013 Added chr1/1 option
 
 # binary
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
@@ -37,7 +38,11 @@ if (bias == "yes") {
 	if (genome == "rn4"){
 		genomefile <- "rn4.fa"
 	}
-	genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+	if (chr == "chr1"){
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genomefile))
+	}else{
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+	}
 	cufflinks.options <- paste(cufflinks.options, "-b", genomefile)
 }
 if (file.exists("annotation.gtf")){

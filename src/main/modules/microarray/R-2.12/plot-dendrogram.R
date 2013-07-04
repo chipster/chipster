@@ -1,4 +1,4 @@
-# TOOL plot-dendrogram.R: Dendrogram (Creates a dendrogram of samples using normalized data with Pearson correlation and average linkage method. The branches of the tree are colored according to the selected number of groups.)
+# TOOL plot-dendrogram.R: Dendrogram (Creates a dendrogram of samples using normalized data with Pearson correlation and average linkage method. The branches of the tree are colored according to the selected number of groups. Clustering is done using the function hcluster in which the parameter correlation envokes computation of pearson type of distances.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT dendrogram-color.pdf: dendrogram-color.pdf 
@@ -50,7 +50,7 @@ stop("Hierarchical clustering dendrogram can be plotted on maximum 2000 of genes
 }
 
 # Does the clustering
-clust<-hcluster(x=dat2, method="pearson", link="average")
+clust<-hcluster(x=dat2, method="correlation", link="average")
 ct<-cutree(clust, gr)
 
 
