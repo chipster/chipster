@@ -175,7 +175,7 @@
 
 		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
+		<javac destdir="${build}" target="1.7" source="1.7" debug="true" failonerror="true">
 			<src path="${src}" />
 			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />

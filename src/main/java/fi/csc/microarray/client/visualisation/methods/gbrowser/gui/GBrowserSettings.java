@@ -395,11 +395,12 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			
 			c.gridy++;
 			
-			cacheBox = new JCheckBox("Download workflow data");
-			cacheBox.setToolTipText("Download workflow data to create a temporary local copy of all user data files. " +
-					"The genome browser works faster with the local data, but it will take some time to download the " +
-					"files when the visualisation is started.");
-			genomePanel.add(cacheBox, c);
+			//Disabled on Chipster2 backport
+//			cacheBox = new JCheckBox("Download workflow data");
+//			cacheBox.setToolTipText("Download workflow data to create a temporary local copy of all user data files. " +
+//					"The genome browser works faster with the local data, but it will take some time to download the " +
+//					"files when the visualisation is started.");
+//			genomePanel.add(cacheBox, c);
 		}
 
 		return genomePanel;
@@ -503,7 +504,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
-			this.cacheBox.setEnabled(false);
+			//Disabled on Chipster2 backport
+			//this.cacheBox.setEnabled(false);
 			if (!initialised) {
 
 				browser.runBlockingTask("initialising genome browser", new Runnable() {
@@ -511,10 +513,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 					public void run() {
 						try {
 							
-							if (cacheBox.isSelected()) {
-								// Create a local random access copy of all files in background thread
-								browser.initialiseUserDatas();
-							}
+							//Disabled on Chipster2 backport
+//							if (cacheBox.isSelected()) {
+//								// Create a local random access copy of all files in background thread
+//								browser.initialiseUserDatas();
+//							}
 
 							// Update UI in Event Dispatch Thread
 							SwingUtilities.invokeAndWait(new Runnable() {
