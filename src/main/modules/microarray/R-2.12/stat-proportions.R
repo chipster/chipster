@@ -63,8 +63,11 @@ if (p.value.adjustment.method != "none") {
 		adj_p <- qvalue(raw_p)
 		adj_p2 <- adj_p$qvalues
 	} else {
-		adj_p <- mt.rawp2adjp(raw_p, proc=as.character(p.value.adjustment.method))
-		adj_p2 <- adj_p$adjp[order(adj_p$index),][,2]
+		if(!(p.value.adjustment.method %in% c("BH", "BY"))) {
+			p.value.adjustment.method <- tolower(p.value.adjustment.method)
+		}
+
+		adj_p2 <- p.adjust(raw_p, method=p.value.adjustment.method)
 	}
 	adj_p2df <- as.data.frame(adj_p2)
 	results <- cbind(results, adj_p2df)

@@ -96,15 +96,23 @@ if(margin=="chips") {
 }
 
 if (nrow(dat2) > 20000) {
-  stop("Hierarchical clustering can be run on maximum 20000 of genes/samples");
+  stop("CHIPSTER-NOTE: Hierarchical clustering can be run on maximum 20000 of genes/samples");
 }
 
 # Tree calculation, no resampling
 if(doresample=="none") {
-   clust<-hcluster(x=dat2, method=distmeth, link=treemeth)
-   phylo.clust<-as.phylo(clust)
-   write.tree(phylo.clust, "hc.tre")
-   # write.table(data.frame(dat, order=clust$order, mergex=c(clust$merge[,1], 0), mergey=c(clust$merge[,2], 0), height=c(clust$height, 0)), "hc.tre", sep="\t", row.names=T, col.names=T, quote=F)
+	clust<-hcluster(x=dat2, method=distmeth, link=treemeth)
+	phylo.clust<-as.phylo(clust)
+	a <- try(write.tree(phylo.clust, "hc.tre"))
+	if(class(a)=="try-error") {
+		stop("CHIPSTER-NOTE: Hierarchical clustering too large to be drawn. Please use another method or smaller dataset");
+		
+		pdf(file="hc.tre")
+		plot(as.dendrogram(clust))
+		title(paste("hcluster tree constructed using", treemeth, distmeth,sep=" "))
+		dev.off();
+   	# write.table(data.frame(dat, order=clust$order, mergex=c(clust$merge[,1], 0), mergey=c(clust$merge[,2], 0), height=c(clust$height, 0)), "hc.tre", sep="\t", row.names=T, col.names=T, quote=F)
+	}
 }
 
 # Tree calculation, with resampling
@@ -122,7 +130,7 @@ if(doresample=="bootstrap"){
    phylo.clust<-as.phylo(clust)
    write.tree(phylo.clust, "hc.tre")
    if(distmeth=="spearman" | distmeth=="manhattan") {
-      stop("Resampling can only be applied if Pearson correlation or euclidian distance is used! If appropriate, change the settings accordingly.")
+      stop("CHIPSTER-NOTE: Resampling can only be applied if Pearson correlation or euclidian distance is used! If appropriate, change the settings accordingly.")
    }
    dat2<-t(dat2)
    pv.clust<-pvclust(dat2, method.dist=distmeth, method.hclust=treemeth, nboot=perms, r=1)

@@ -63,6 +63,7 @@ if(colpar=="Blue-Yellow") {
 if(colpar=="Black-White") {
    heatcol<-colorRampPalette(c("Black", "LightGrey"))(length(dif.dists))
 }
+
 heatcol2<-dists[1,]
 for(i in 1:length(dif.dists)) {
    heatcol2[heatcol2==dif.dists[i]]<-heatcol[i]

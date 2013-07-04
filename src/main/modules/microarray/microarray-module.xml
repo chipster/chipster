@@ -12,7 +12,7 @@
 		<tool runtime="R-2.12"><resource>norm-agilent-miRNA.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-2.15"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
@@ -28,7 +28,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>qc-affy.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-illumina.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-illumina.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
 		<tool runtime="R-2.12"><resource>qc-cdna.R</resource></tool>
@@ -53,29 +53,29 @@
 		<tool runtime="R-3.0-R-2.12"><resource>stat-ROTS.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-several-groups.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-proportions.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-chisq-snp.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-pca.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-ca.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-nmds.R</resource></tool>
-		<tool runtime="R-2.12"><resource>estimate-samplesize.R</resource></tool>
-		<tool runtime="R-2.12"><resource>sample-size-with-bh.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-pca.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-ca.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-nmds.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>estimate-samplesize.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>sample-size-with-bh.R</resource></tool>
 		<tool runtime="R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
 	</category>
 	
 	<category name="Clustering" color="#d53833">
-		<tool runtime="R-2.12"><resource>classification-knn.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-hierarchical.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-kmeans.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-kmeans-testK.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-qt.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-som.R</resource></tool>
-		<tool runtime="R-2.12"><resource>classification.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>classification-knn.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-hierarchical.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-kmeans.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-kmeans-testK.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-qt.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-som.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>classification.R</resource></tool>
 	</category>
 	
 	<category name="Annotation" color="#80a3b7">

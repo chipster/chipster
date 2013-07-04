@@ -35,18 +35,40 @@ dat3<-dat2
 # Calculates the K-means clustering result
 # Needs a parameter for groups radius
 # rad<-c(20)
-qtc<-qtclust(dat3, radius=rad)
+qtc<-try(qtclust(dat3, radius=rad))
+if(class(qtc) == "try-error") {
+	if(length(grep("one cluster", qtc[1]))==1) {
+		stop("CHIPSTER-NOTE: All points in one cluster, please choose a smaller radius")
+	}
+	if(length(grep("Could not find a valid clustering", qtc[1]))==1) {
+		stop("CHIPSTER-NOTE: Too many clusters, please choose a higher radius")
+	}
+}
 
 # Plotting the clustering
 max.dat2<-max(dat3)
 min.dat2<-min(dat3)
 k<-length(unique(qtc@cluster))
-pdf(file="qt.pdf", width=w/72, height=h/72)
-par(mfrow=c(ceiling(sqrt(k)), ceiling(sqrt(k))))
-for(i in 1:k) {
-   matplot(t(dat3[qtc@cluster==i,]), type="l", main=paste("cluster:", i), ylab="log expression", col=1, lty=1, ylim=c(min.dat2, max.dat2))
+
+counter <- 0
+a <- try(log("a"))
+while(counter < 5 && class(a) == "try-error") {
+	w.new <- w + (counter*100);
+	h.new <- h + (counter*100);
+	
+	pdf(file="qt.pdf", width=w.new/72, height=h.new/72)
+	par(mfrow=c(ceiling(sqrt(k)), ceiling(sqrt(k))))
+
+	for(i in 1:k) {
+   		a <- try(matplot(t(dat3[qtc@cluster==i,]), type="l", main=paste("cluster:", i), ylab="log expression", col=1, lty=1, ylim=c(min.dat2, max.dat2)))
+	}
+	dev.off()
+	counter <- counter + 1;
 }
-dev.off()
+
+if(class(a)=="try-error") {
+	stop(paste("CHIPSTER-NOTE: Could not draw cluster images even thought width was set to", w.new, "and height was set to", h.new,". Please make image area larger", sep=" "))
+}
 
 # Writing a table
 # Creates a table with one column giving the cluster membership
