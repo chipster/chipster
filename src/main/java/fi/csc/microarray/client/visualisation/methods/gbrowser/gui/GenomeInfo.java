@@ -8,6 +8,7 @@ public class GenomeInfo {
 	private String version;
 	private URL ensemblBrowserUrl;
 	private URL ucscBrowserUrl;
+	private String sortId;
 	
 	public String getSpecies() {
 		return species;
@@ -39,5 +40,13 @@ public class GenomeInfo {
 	
 	public void setUcscBrowserUrl(URL ucscBrowserUrl) {
 		this.ucscBrowserUrl = ucscBrowserUrl;
+	}
+
+	public String getSortId() {
+		return sortId;
+	}
+
+	public void setSortId(String sortId) {
+		this.sortId = sortId;
 	}
 }
