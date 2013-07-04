@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,6 +62,8 @@ public class AnnotationManager {
 
 	private HashMap<String, String> displaySpecies = new HashMap<String, String>();
 	private HashMap<String, String> displayVersions = new HashMap<String, String>();
+
+	private List<Genome> genomes = new LinkedList<>();
 
 	/**
 	 * Model for single annotation file.
@@ -122,11 +126,12 @@ public class AnnotationManager {
 		}
 	}
 
-	public class Genome {
+	public class Genome implements Comparable<Genome> {
 		public String speciesId;
 		public String versionId;
 		public String displaySpecies;
 		public String displayVersion;
+		public String sortId;
 
 		public Genome(String species, String version) {
 			this.speciesId = species;
@@ -135,37 +140,62 @@ public class AnnotationManager {
 
 		@Override
 		public String toString() {
-			String species;
-			String version;
-			
+						
+			return getSpecies() + " " + getVersion();
+		}
+		
+		private String getSpecies() {
 			if (displaySpecies != null) {
-				species = displaySpecies;
+				return displaySpecies;
 			} else {
-				species = speciesId;
+				return speciesId;
 			}
-			
+		}
+		
+		private String getVersion() {
 			if (displayVersion != null) {
-				version = displayVersion;
+				return displayVersion;
 			} else {
-				version = versionId;
+				return versionId;
 			}
-			
-			return species + " " + version;
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof Genome) {
 				Genome other = (Genome) o;
-				return speciesId.equals(other.speciesId) && versionId.equals(other.versionId);
+				return compareTo(other) == 0;
 			}
 			return false;
 		}
 
-		// FIXME not good
 		@Override
 		public int hashCode() {
-			return speciesId.hashCode();
+			//Eclipse generated implementation
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result
+					+ ((speciesId == null) ? 0 : speciesId.hashCode());
+			result = prime * result
+					+ ((versionId == null) ? 0 : versionId.hashCode());
+			return result;
+		}
+
+		@Override
+		public int compareTo(Genome other) {
+			int speciesComparison = speciesId.compareTo(other.speciesId);
+			int versionComparison = versionId.compareTo(other.versionId) * -1;
+			
+			if (speciesComparison != 0){
+				return speciesComparison;
+			} else {
+				return versionComparison;
+			}
+		}
+
+		private AnnotationManager getOuterType() {
+			return AnnotationManager.this;
 		}
 	}
 	
@@ -343,6 +373,14 @@ public class AnnotationManager {
 					
 					GenomeAnnotation annotation = new GenomeAnnotation(species, version, annotationType.getId(), null, file, -1);
 					addAnnotation(annotation);
+					
+					//If there was no sortId in GenomeInfo, then generate one.
+					//These are sorted alphabetically (after defined sortStrings and before contents2 genomes) 
+					Genome genome = new Genome(species, version);
+					if (!genomes.contains(genome)) {
+						genome.sortId =  "\uFFFE";
+						genomes.add(genome);
+					}
 				}
 			}			
 		}
@@ -380,6 +418,15 @@ public class AnnotationManager {
 					GenomeAnnotation ucsc = new GenomeAnnotation(
 							species, version, AnnotationType.UCSC_BROWSER_URL.getId(), null, ucscUrl, -1);			
 					addAnnotation(ucsc);
+				}
+				
+				if (info.getSortId() != null) {
+					Genome genome = new Genome(species, version);
+					genome.sortId = info.getSortId();
+
+					//Remove possible genome with generated sortid
+					genomes.remove(genome);
+					genomes.add(genome);
 				}
 			}
 
@@ -477,11 +524,15 @@ public class AnnotationManager {
 
 
 	public List<Genome> getGenomes() {
-		List<Genome> genomes = new LinkedList<Genome>();
+
 		for (GenomeAnnotation annotation : annotations) {
-			if (!genomes.contains(annotation.getGenome())) {
-				
-				Genome genome = annotation.getGenome();
+						
+			int index = genomes.indexOf(annotation.getGenome());
+			
+			if(index < 0) {
+				logger.error("All annotation genomes are not in the genome list: " + annotation.getGenome());
+			} else {
+				Genome genome = genomes.get(index);
 				
 				if (displaySpecies.containsKey(genome.speciesId)) {
 					genome.displaySpecies = displaySpecies.get(genome.speciesId);
@@ -489,11 +540,22 @@ public class AnnotationManager {
 				
 				if (displayVersions.containsKey(genome.versionId)) {
 					genome.displayVersion = displayVersions.get(genome.versionId);
-				}
-				
-				genomes.add(genome);
-			}
+				}				
+			}								
 		}
+		
+		Collections.sort(genomes, new Comparator<Genome>() {
+			@Override
+			public int compare(Genome o1, Genome o2) {
+				int sortIdComparison = o1.sortId.compareTo(o2.sortId);
+				if (sortIdComparison != 0) {
+					return sortIdComparison;
+				} else {
+					return o1.compareTo(o2);
+				}				
+			}			
+		});
+		
 		return genomes;
 	}
 
@@ -627,6 +689,7 @@ public class AnnotationManager {
 		}
 
 		String line;
+		int lineIndex = 0;
 		while ((line = reader.readLine()) != null) {
 			if (line.trim().equals("")) {
 				continue;
@@ -653,8 +716,19 @@ public class AnnotationManager {
 			if (!splitted[3].equals(CHR_UNSPECIFIED)) {
 				chr = new Chromosome(splitted[3]);
 			}
+			
+			String species = splitted[0];
+			String version = splitted[1];
 
-			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], chr, url, contentLength));
+			addAnnotation(new GenomeAnnotation(species, version, splitted[2], chr, url, contentLength));
+						
+			//Generate sortId string which preserves the order of contents file and is "larger" than other sortIds
+			Genome genome = new Genome(species, version);
+			if (!genomes.contains(genome)) {
+				genome.sortId =  "\uFFFF" + String.format("%03d", lineIndex);
+				genomes.add(genome);
+			}
+			lineIndex++;
 		}
 	}
 

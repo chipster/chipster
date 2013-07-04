@@ -83,7 +83,7 @@ public class GeneTrack extends Track {
 					name = "n/a";
 				}
 
-				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
+				createDrawable(gene.getRegion().start, gene.getRegion().end, 4, color, name, drawables);
 			}
 		}
 		
@@ -110,14 +110,14 @@ public class GeneTrack extends Track {
 			occupiedSpace.add(end);
 		}
 
-		rect.y = (int) ((i + 1) * (height + 2));
+		rect.y = (int) ((i + 1) * (height + 10));
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, null));
 		if (isNameVisible(rect)) {
 
 			// draw name to leftmost visible part of the gene rectangle
-			drawTextAboveRectangle(name, drawables, rect, 10);
+			drawTextAboveRectangle(name, drawables, rect, 1);
 		}
 	}
 
