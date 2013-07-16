@@ -1,10 +1,10 @@
-# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups. It is highly recommended to that all the groups have replicates. If they do not, you have to set a common dispersion value manually with the corresponding parameter.)
+# TOOL DEXSeq.R: "Differential exon expression using DEXSeq" (Infers differential exon usage from RNA-seq data using the Bioconductor package DEXSeq. Replicates are necessary for this tool to work properly. In order to prepare the input, run the tool \"Count aligned reads per exons for DEXSeq\" for your BAM files and combine the results to a count table using the tool \"Utilities - Define NGS experiment\". Please use the group column of the phenodata file to indicate your experimental groups.)
 # INPUT countfile.tsv: "Count table" TYPE GENERIC 
 # INPUT phenodata.tsv: "Phenodata" TYPE GENERIC
 # OUTPUT OPTIONAL DEXSeq-exons.pdf: DEXSeq-exons.pdf
 # OUTPUT DEXSeq-result-table.tsv: DEXSeq-result-table.tsv
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf: "Human (hg19.68)", Mus_musculus.GRCm38.68.chr.DEXSeq.gtf: "Mouse (mm10.68)", Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf (Which organism is your data from.)
-# PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (The common dispersion used automatically for all transcripts, if there are no replicates, or if dispersion estimation doesn't work. If the dispersions can not be estimated, no graphical output is generated.)
+# PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (This common dispersion value is used automatically for all exons, if dispersions can not be estimated. In this case no graphical output is generated.)
 
 # JTT 15.7.2013
 
@@ -19,6 +19,10 @@ pd<-phenodata[,"group", drop=FALSE]
 rownames(pd)<-phenodata$sample
 colnames(pd)<-"condition"
 pd$condition<-factor(pd$condition)
+
+if(any(as.vector(table(phenodata$group)))<2) {
+	stop("You need to have replicates for all groups you have specified.")
+}
 
 # Path to the gff file
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
