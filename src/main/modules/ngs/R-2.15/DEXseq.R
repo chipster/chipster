@@ -20,9 +20,9 @@ rownames(pd)<-phenodata$sample
 colnames(pd)<-"condition"
 pd$condition<-factor(pd$condition)
 
-if(any(as.vector(table(phenodata$group)))<2) {
-	stop("You need to have replicates for all groups you have specified.")
-}
+#if(any(as.vector(table(phenodata$group)))<2) {
+#	stop("You need to have replicates for all groups you have specified.")
+#}
 
 # Path to the gff file
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
