@@ -5,16 +5,16 @@
 # OUTPUT OPTIONAL dexseq-genes-with-significant-exons.tsv: dexseq-genes-with-significant-exons.tsv
 # OUTPUT OPTIONAL dexseq-exons.pdf: dexseq-exons.pdf
 # OUTPUT OPTIONAL dexseq-MAplot.pdf: dexseq-MAplot.pdf
-# OUTPUT OPTIONAL dexeq-dispersion-plot.pdf: dexseq-dispersion-plot.pdf
+# OUTPUT OPTIONAL dexseq-dispersion-plot.pdf: dexseq-dispersion-plot.pdf
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf: "Human (hg19.68)", Mus_musculus.GRCm38.68.chr.DEXSeq.gtf: "Mouse (mm10.68)", Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf: "Rat (rn4.68)"] DEFAULT Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf (Which organism is your data from.)
 # PARAMETER pvalue: "Threshold for adjusted p-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Threshold for BH adjusted p-values. If a gene has at least one exon below this p-value, all its exons will be included in the result list.)
 # PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (If dispersions can not be estimated, this common dispersion value is used for all exons. In this case no graphical output is generated.)
 
 
-# JTT 17.7.2013
+# JTT 18.7.2013
 
 ####
-####setwd("C:/Users/Jarno Tuimala/Desktop")
+####setwd("C:/Users/Jarno Tuimala/Desktop/DEXSeq")
 ####pvalue<-0.05
 ####dispersion<-0.1
 ####
@@ -36,7 +36,7 @@ if(any(as.vector(table(phenodata$group))<2)) {
 
 # Path to the gff file
 ####
-####gtf<-"C:/Users/Jarno Tuimala/Desktop/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf"
+####gtf<-"C:/Users/Jarno Tuimala/Desktop/DEXSeq/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf"
 ####
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
 
@@ -107,15 +107,25 @@ if(nrow(res)>0) {
    dev.off()
 }
 
-#pdf("dexseq-dispersion-plot.pdf", width=297/25.4, height=210/25.4)
-#px = rowMeans(counts(ecs, normalized = TRUE))
-#sel<-px>0
-#px = px[sel]
-#if(doplot) {
-#   py = fData(ecs)$dispFitted[sel]
-#} else {
-#   py = fData(ecs)$dispersion[sel]
-#}
-#ymin = 10^floor(log10(min(py[py > 0], na.rm = TRUE)) - 0.1)
-#plot(px, pmax(py, ymin), xlab = "mean of normalized counts", ylab = "dispersion", log = "xy", pch = ifelse(py < ymin, 6, 16), cex = 0.5)
-#dev.off()
+plotDispEsts = function( cds, ymin, linecol="#ff000080",
+  xlab = "mean of normalized counts", ylab = "dispersion",
+  log = "xy", cex = 0.45, ... )
+{
+  px = rowMeans( counts( cds, normalized=TRUE ) )
+  sel = (px>0)
+  px = px[sel]
+
+  py = fData(cds)$dispBeforeSharing[sel]
+  if(missing(ymin))
+      ymin = 10^floor(log10(min(py[py>0], na.rm=TRUE))-0.1)
+
+  plot(px, pmax(py, ymin), xlab=xlab, ylab=ylab,
+    log=log, pch=ifelse(py<ymin, 6, 16), cex=cex, ... )
+  xg = 10^seq( -.5, 5, length.out=100 )
+  fun = function(x) { cds@dispFitCoefs[1] + cds@dispFitCoefs[2] / x }
+  lines( xg, fun(xg), col=linecol, lwd=4)
+}
+
+pdf("dexseq-dispersion-plot.pdf", width=297/25.4, height=210/25.4)
+plotDispEsts(ecs)
+dev.off()
