@@ -11,12 +11,13 @@ This tool performs a simple univariate analysis of differential exon expression 
 <h3>Parameters</h3>
 <ul>
 <li>Organism (Human, Mouse, Rat) [Human] </li>
+<li>Threshold for adjusted p-value () [0.05] </li>
 <li>Common dispersion () [0.1] </li>
 </ul>
 <br>
 <h3>Details</h3>
-<p>The reads should first be mapped to exons using the tool "Map aligned reads to exons for DEXSeq". 
-Count files obtained like this should then be combined using the tool "Utilities / Define NGS experiment", which produces a count table and a phenodata file.
+<p>Aligned reads (BAM) should first be counted per exons using the tool "Count aligned reads per exons for DEXSeq". 
+Count files should then be combined using the tool "Utilities / Define NGS experiment", which produces a count table and a phenodata file.
 Once the experimental groups have been indicated in the phenodata, the count table can be used by DEXSeq to analyze differential exon expression. You need to have replicates in each group.
 </p>
 <p>If dispersion cannot be estimated, common dispersion given by the "Dispersion estimate" parameter is used for all exons. By default
@@ -25,9 +26,9 @@ Once the experimental groups have been indicated in the phenodata, the count tab
 <h3>Output</h3>
 <p>The analysis output consists of the following files:</p>
 <ul>
-<li>DEXSeq-result-table.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values.
-</li>
+<li>DEXSeq-result-table.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values.</li>
 <li>DEXSeq-exons.pdf: A PDF file containing exon expression results in a graphical format.</li>
+<li>MAplot.pdf: A PDF file showing fold change plotted against mean normalized counts.</li>
 </ul>
 <h3>References</h3>
 Anders S, Reyes A, Huber W. Detecting differential usage of exons from RNA-seq data. Genome Res. 2012 Sep 5.
