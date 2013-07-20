@@ -32,7 +32,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	
 	private static final long serialVersionUID = -8713542953586370559L;
 	
-	private static final String ACTIONS = "Acions";
+	private static final String ACTIONS = "Actions";
 	
 	private ToolEditorUI root;
 	
