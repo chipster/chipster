@@ -104,4 +104,6 @@ public class GBrowserConstants {
             "/gbrowserLegend/read-end.png";
     public static final String GB_LEGEND_REPEAT_ICON = 
             "/gbrowserLegend/repeat.png";
+    public static final String GB_LEGEND_GENE_ICON = 
+    		"/gbrowserLegend/gene.png";
 }

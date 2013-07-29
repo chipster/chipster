@@ -137,15 +137,18 @@ public class Interpretation {
 	public static GtfToFeatureConversion getAnnotationDataThread(GBrowser browser) {
 		
 		Genome genome = browser.getGenome();
-
-		URL gtfUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
+		
+		URL gtfUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF);
+		URL gtfTabixUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
 		URL gtfIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
-
+		
 		GtfToFeatureConversion gtfDataThread = null;
-					
-		if (gtfUrl != null && gtfIndexUrl != null) {
 
-			gtfDataThread = new GtfToFeatureConversion(gtfUrl, gtfIndexUrl, browser);
+		if (gtfUrl != null) {			
+			gtfDataThread = new GtfToFeatureConversion(gtfUrl, null, browser);
+			
+		} else 	if (gtfTabixUrl != null && gtfIndexUrl != null) {
+			gtfDataThread = new GtfToFeatureConversion(gtfTabixUrl, gtfIndexUrl, browser);
 		}
 
 		return gtfDataThread;

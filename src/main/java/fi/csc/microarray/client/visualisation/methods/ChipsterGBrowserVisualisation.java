@@ -432,7 +432,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 						browser.showDialog(
 								"Unable to determine index file"  , 
 								"There are several index files with name '" + indexName + "'. " +
-										"Please show the right index file by selecting it or renaming bam and bai file pairs with unique names." , 
+										"Please identify the right index file by selecting it or rename bam and bai file pairs with unique names." , 
 										null, false, false, true, true);
 						return null;
 					}

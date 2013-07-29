@@ -40,14 +40,11 @@ public class CnaConversion extends DataThread {
 			    
 		super(browser);
 		
-
-		this.parser = new CnaLineParser();
-		
 		try {
 			//read sample names
 			file.setLineReaderPosition(0);
 			String header = file.getNextLine();
-			CnaLineParser parser = new CnaLineParser();
+			parser = new CnaLineParser();
 			parser.setLine(header);
 			
 			this.sampleNames = parser.getSampleNames();
@@ -103,7 +100,7 @@ public class CnaConversion extends DataThread {
 		List<RegionContent> list = new LinkedList<RegionContent>();
 		
 		for (Entry<IndexKey, String> lineEntry : lines.entrySet()) {
-			
+
 			parser.setLine(lineEntry.getValue());					
 			
 			Region region = parser.getRegion();

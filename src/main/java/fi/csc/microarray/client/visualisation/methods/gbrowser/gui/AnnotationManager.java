@@ -203,7 +203,7 @@ public class AnnotationManager {
 		CYTOBANDS("Cytoband"), 
 		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
 		REFERENCE("Reference sequence", false), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), GENE_CHRS("Gene name"), 
-		ENSEMBL_BROWSER_URL("Ensembl", false), UCSC_BROWSER_URL("UCSC", false), GENOME_INFO("Annotation definition", true);
+		ENSEMBL_BROWSER_URL("Ensembl", false), UCSC_BROWSER_URL("UCSC", false), GENOME_INFO("Annotation definition", true), GTF("Gene annotation", false);
 
 		private String id;
 		private boolean clientCacheable;
@@ -347,6 +347,9 @@ public class AnnotationManager {
 					
 				} else if (fileName.endsWith(".tabix.gtf.gz.tbi")) {
 					annotationType = AnnotationType.GTF_TABIX_INDEX;
+					
+				} else if (fileName.endsWith(".gtf")) {
+					annotationType = AnnotationType.GTF;
 					
 				} else if (fileName.endsWith(".cytoband-chr.txt")) {
 					annotationType = AnnotationType.CYTOBANDS;
