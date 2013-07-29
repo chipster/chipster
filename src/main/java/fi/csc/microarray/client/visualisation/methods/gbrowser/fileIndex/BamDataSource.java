@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.LinkedList;
 
 import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMFileReader.ValidationStringency;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.SAMSequenceRecord;
@@ -45,6 +46,7 @@ public class BamDataSource extends DataSource {
     	PrintStream originalErr = System.err;
     	System.setErr(new PrintStream(new ByteArrayOutputStream()));
     	
+    	SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
     	this.reader = SamBamUtils.getSAMReader(samFile, indexFile);
 
     	LinkedList<String> chrList = new LinkedList<>();
