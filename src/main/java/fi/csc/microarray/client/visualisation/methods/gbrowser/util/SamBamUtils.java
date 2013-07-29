@@ -15,6 +15,7 @@ import net.sf.picard.io.IoUtil;
 import net.sf.picard.sam.BuildBamIndex;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMFileReader.ValidationStringency;
 import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
@@ -96,6 +97,7 @@ public class SamBamUtils {
 	
 	public static void sortSamBam(File samBamFile, File sortedBamFile) {
 		
+		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
 		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(samBamFile));
 		SAMFileWriter writer = null;
 		try {
@@ -117,6 +119,7 @@ public class SamBamUtils {
 	public void normaliseBam(File bamFile, File normalisedBamFile) {
 
 		// Read in a BAM file and its header
+		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
 		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
 		SAMFileWriter writer = null;
 		try {
@@ -146,6 +149,7 @@ public class SamBamUtils {
 	}
 
 	public void indexBam(File bamFile, File baiFile) {
+		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
 		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
 	}
 

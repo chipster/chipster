@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMFileReader.ValidationStringency;
 import net.sf.samtools.SAMSequenceRecord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
@@ -39,7 +40,10 @@ public class SAMDataSource extends DataSource {
     	// so we direct it to other stream and discard. 
     	PrintStream originalErr = System.err;
     	System.setErr(new PrintStream(new ByteArrayOutputStream()));
+    	
+    	SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
         this.reader = new SAMFileReader(this.file, new File(indexFile.toURI()));
+        
 
         // Iterate chromosomes to check naming convention
         for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {
