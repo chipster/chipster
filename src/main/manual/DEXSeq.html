@@ -1,0 +1,37 @@
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+</head>
+<body>
+<h2>RNA-seq / Differential exon expression using DEXSeq.</h2>
+<h3>Description</h3>
+This tool performs a simple univariate analysis of differential exon expression using the R/Bioconductor package DEXSeq.
+<br>
+<br>
+<h3>Parameters</h3>
+<ul>
+<li>Organism (Human, Mouse, Rat) [Human] </li>
+<li>Threshold for adjusted p-value () [0.05] </li>
+<li>Common dispersion () [0.1] </li>
+</ul>
+<br>
+<h3>Details</h3>
+<p>Aligned reads (BAM) should first be counted per exons using the tool "Count aligned reads per exons for DEXSeq". 
+Count files should then be combined using the tool "Utilities / Define NGS experiment", which produces a count table and a phenodata file.
+Once the experimental groups have been indicated in the phenodata, the count table can be used by DEXSeq to analyze differential exon expression. You need to have replicates in each group.
+</p>
+<p>If dispersion cannot be estimated, common dispersion given by the "Dispersion estimate" parameter is used for all exons. By default
+ the common dispersion is set to 0.1, which is somewhere in-between what is usually observed for technical replicates (0.01) and human data (0.4).
+</p>
+<h3>Output</h3>
+<p>The analysis output consists of the following files:</p>
+<ul>
+<li>dexseq-all-genes.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values, for all genes.</li>
+<li>dexseq-genes-with-significant-exons.tsv: Table containing the results of the statistical testing, including fold change estimates and p-values, for genes which contain differentially expressed exons.</li>
+<li>dexseq-exons.pdf: Visualization of genes which contain differentially expressed exons.</li>
+<li>dexseq-MAplot.pdf: A PDF file showing fold change plotted against mean normalized counts.</li>
+</ul>
+<h3>References</h3>
+Anders S, Reyes A, Huber W. Detecting differential usage of exons from RNA-seq data. Genome Res. 2012 Sep 5.
+</body>
+</html>
