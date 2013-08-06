@@ -37,6 +37,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.ScaleUtil;
 
 /**
  * Class for 3d scatterplot implementing functionality required in interface Visualisation. The side panel is done and handled here, but the
@@ -462,8 +463,8 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 			float[] scale = getDataModel().getColorScaleValues();
 			for (int i = 0; i < scale.length - 1; i++) {
-				String floor = getDataModel().numberFormat.format(scale[i]);
-				String ceiling = getDataModel().numberFormat.format(scale[i+1]);
+				String floor = ScaleUtil.format(scale[i]);
+				String ceiling = ScaleUtil.format(scale[i+1]);
 				colorGroupNames.add("" + floor + " - " + ceiling);
 				colorScaleValues.add(scale[i]);
 			}

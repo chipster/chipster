@@ -1,13 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.threed;
 
 import java.awt.Color;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import fi.csc.microarray.util.ScaleUtil;
 
 /**
  * Class gets the data values from the iterables and scales them to the scales that
@@ -111,13 +112,11 @@ public class DataModel {
 		}
 		return c;
 	}
-	
-	NumberFormat numberFormat = NumberFormat.getInstance();
 
 	private Drawable[] points;
 
 	//How many lines are shown in the grid for each axis
-	private static final int LINE_COUNT = 4;
+	private static final int LINE_COUNT = ScaleUtil.DEFAULT_STEP_COUNT;
 
 	private float[] cScale;
 
@@ -130,7 +129,6 @@ public class DataModel {
 		
 	
 	public DataModel(Color[] colorScheme) {
-		numberFormat.setMaximumFractionDigits(2);
 		this.colorScheme = colorScheme;
 	}
 
@@ -157,9 +155,9 @@ public class DataModel {
 		logger.debug((System.currentTimeMillis() - time) / 1000);
 		time = System.currentTimeMillis();
 
-		float[] xScale = this.generateScaleValues(minMaxX[0], minMaxX[1]);
-		float[] yScale = this.generateScaleValues(minMaxY[0], minMaxY[1]);
-		float[] zScale = this.generateScaleValues(minMaxZ[0], minMaxZ[1]);
+		float[] xScale = ScaleUtil.generateScaleValues(minMaxX[0], minMaxX[1]);
+		float[] yScale = ScaleUtil.generateScaleValues(minMaxY[0], minMaxY[1]);
+		float[] zScale = ScaleUtil.generateScaleValues(minMaxZ[0], minMaxZ[1]);
 		cScale = this.generateColorScaleValues(minMaxC[0], minMaxC[1]);
 
 		points.addAll(this.generateScaleLines(xScale, yScale, zScale));
@@ -260,11 +258,11 @@ public class DataModel {
 	private String[] coordToStringTable(float x, float y, float z){
 		return new String[]{
 				"(", 
-				"x " + numberFormat.format(x), 
+				"x " + ScaleUtil.format(x), 
 				", ",
-				"y " + numberFormat.format(y), 
+				"y " + ScaleUtil.format(y), 
 				", ", 
-				"z " + numberFormat.format(z), 
+				"z " + ScaleUtil.format(z), 
 				")" 
 		};
 	}
@@ -333,9 +331,9 @@ public class DataModel {
 
 			if (i != LINE_COUNT - 1) {
 				//Normal lines show only one coordinate
-				xText = "x " + numberFormat.format(xValues[i]);
-				yText = "y " + numberFormat.format(yValues[i]);
-				zText = "z " + numberFormat.format(zValues[i]);
+				xText = "x " + ScaleUtil.format(xValues[i]);
+				yText = "y " + ScaleUtil.format(yValues[i]);
+				zText = "z " + ScaleUtil.format(zValues[i]);
 				
 			} else {
 				//Mark texts disabled ( the last lines )
@@ -396,73 +394,19 @@ public class DataModel {
 		return lines;
 
 	}
-
-	private float[] generateScaleValues(float min, float max) {
-
-		float[] scaleMinMax = this.getLineDistance(min, max);
-
-		float[] values = new float[LINE_COUNT];
-		for (int i = 0; i < LINE_COUNT; i++) {
-			values[i] = scaleMinMax[0] + (scaleMinMax[1] - scaleMinMax[0])
-					/ (LINE_COUNT - 1) * i;
-		}
-
-		return values;
-	}
 	
 	private float[] generateColorScaleValues(float min, float max) {
-
-		float[] scaleMinMax = this.getLineDistance(min, max);
 		
 		int colorCount = getColorScheme().length + 1;
 		
 		float[] values = new float[colorCount];
 		for (int i = 0; i < colorCount; i++) {
-			values[i] = scaleMinMax[0] + (scaleMinMax[1] - scaleMinMax[0])
-					/ (colorCount - 1) * i;
+			values[i] = min + (max - min) / (colorCount - 1) * i;
 		}
 
 		return values;
 	}
 
-	private float[] getLineDistance(float minValue, float maxValue) {
-
-		float preferredScale = Math.abs(maxValue - minValue) / (LINE_COUNT - 1);
-		float decimalFactor = this.calculateDecimalFactor(preferredScale);
-		float scaleMax = (float) ((int) (maxValue / decimalFactor + 1.0))
-				* decimalFactor;
-		float scaleMin = (float) ((int) (minValue / decimalFactor))
-				* decimalFactor;
-		
-		if(minValue < 0){
-			scaleMin -= 1;
-		}		
-
-		return new float[] { scaleMin, scaleMax };
-	}
-
-	/**
-	 * Calculates the number which is power of ten and just below preferredScale
-	 * e.g. 1.3 -> 1, 23 -> 10, 543 -> 100
-	 * 
-	 * @param maxValue
-	 * @return
-	 */
-	private float calculateDecimalFactor(float preferredScale) {
-		// To scale the preset SCALES to the size of the prefferredScale
-		float decimalFactor = 1;
-		// radix is 10
-		if (preferredScale >= 10) {
-			while (preferredScale >= decimalFactor * 10) {
-				decimalFactor *= 10;
-			}
-		} else {
-			while (preferredScale < decimalFactor / 10) {
-				decimalFactor /= 10;
-			}
-		}
-		return decimalFactor;
-	}
 
 	public float[] getColorScaleValues() {
 		return cScale;
