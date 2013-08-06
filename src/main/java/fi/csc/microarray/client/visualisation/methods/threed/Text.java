@@ -13,15 +13,13 @@ import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea.Pain
  */
 public class Text extends Drawable {
 	
-	private static final int COLOR_MARKER_WIDTH = 8;
 	//To allow changing colors for the text
-	private Color[] textColors;
-	private String[] texts;
+	private Color textColor;
+	private String text;
 	private boolean emphasis = false;
-    
-    
+        
     /**    
-     * Text with multiple colors
+     * Text with color
      * 
      * @param x
      * @param y
@@ -29,7 +27,7 @@ public class Text extends Drawable {
      * @param texts Array of text which is shown concatenated
      * @param textColors Array of colors, indexes correspond to the indexes in array texts.
      */
-    public Text(double x, double y, double z, String[] texts, Color[] textColors){
+    public Text(float x, float y, float z, String text, Color color){
     	
         this.visualisationCoords = new double[1][3];
         this.projectedCoords = new double[1][2];
@@ -41,12 +39,12 @@ public class Text extends Drawable {
         dataCoords[0][1] = visualisationCoords[0][1] = y;
         dataCoords[0][2] = visualisationCoords[0][2] = z;
     	
-    	this.texts = texts;
-    	this.textColors = textColors;
+    	this.text = text;
+    	this.textColor = color;
     }
     
-    public Text(double x, double y, double z, String text, boolean emphasis) {
-		this(x, y, z, new String[] {text}, new Color[] {Color.gray});
+    public Text(float x, float y, float z, String text, Color color, boolean emphasis) {
+		this(x, y, z, text, color);
 		this.emphasis = emphasis;
 	}
 
@@ -62,21 +60,13 @@ public class Text extends Drawable {
         deviceCoords[0][0] = (int)((projectedCoords[0][0] + 0.5) * width);
         deviceCoords[0][1] = (int)((projectedCoords[0][1] + 0.5) * height);
         
-        if (this.texts != null) {
+        if (this.text != null) {
         	
         	//Calculate text dimensions
         	int textWidth = 0;
         	int textHeight = 10;
-
-        	for(int i = 0; i < texts.length && i < textColors.length ; i++){
-        		if (texts[i] != null) {
-        			text = texts[i];        		
-        			textWidth += SwingUtilities.computeStringWidth(g.getFontMetrics(), text);
-        			if (!Color.gray.equals(textColors[i])) {
-        				textWidth += COLOR_MARKER_WIDTH;
-        			}
-        		}
-        	}
+   		
+   			textWidth += SwingUtilities.computeStringWidth(g.getFontMetrics(), text);
         	
         	int textCenterX = deviceCoords[0][0];
         	int textCenterY = deviceCoords[0][1];
@@ -96,28 +86,14 @@ public class Text extends Drawable {
         		y = textCenterY + textHeight;
         	}
 
-        	int xShift = 0;        	        	
-        	for(int i = 0; i < texts.length && i < textColors.length ; i++){
-        		if (texts[i] != null) {
-        			int textPartWidth = 0;
-        			if (!Color.gray.equals(textColors[i])) {
-        				g.setColor(textColors[i]);
-        				g.fillRect(x + xShift, y - 6, 6, 6);
-        				textPartWidth += COLOR_MARKER_WIDTH;
-        			}
-        			g.setColor(Color.gray);
-        			Font origFont = g.getFont();
-        			if (emphasis) {
-        				g.setFont(g.getFont().deriveFont(Font.BOLD, 16));
-        			}
-        			g.drawString(texts[i], x + xShift + textPartWidth, y);
-        			g.setFont(origFont);
-        			
-        			textPartWidth += SwingUtilities.computeStringWidth(g.getFontMetrics(), texts[i]);
-        			
-        			xShift += textPartWidth;
-        		}
-        	}
+			g.setColor(textColor);
+			
+			Font origFont = g.getFont();
+			if (emphasis) {
+				g.setFont(g.getFont().deriveFont(Font.BOLD, 16));
+			}
+			g.drawString(text, x, y);
+			g.setFont(origFont);        			        	
         }
     }
 

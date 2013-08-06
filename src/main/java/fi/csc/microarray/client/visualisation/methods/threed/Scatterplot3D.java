@@ -93,7 +93,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	private static final int DEFAULT_TO_DOT_PAINT_MODE = 20000;
 
 	protected DataBean data;
-	protected ColorGroupsPanel scalePanel;
+	protected ColorScalePanel scalePanel;
 	protected DataModel dataModel;
 
 	@Override
@@ -127,7 +127,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			autoCheckBox.addActionListener(this);
 			
 			blackBackgroundCheckBox = new JCheckBox("Black background");
-			blackBackgroundCheckBox.setSelected(true);
+			blackBackgroundCheckBox.setSelected(false);
 			blackBackgroundCheckBox.addActionListener(this);
 			
 			paintModeLabel = new JLabel("Symbol: ");
@@ -437,13 +437,12 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			split.setDividerSize(3);
 			split.setOpaque(true);
 			split.setRightComponent(coordinateArea);
+			scalePanel = null;
 			split.setLeftComponent(getColorScalePanel());
 			split.setContinuousLayout(true);
+			split.setDividerLocation(150);
 
 			panel.add(split, BorderLayout.CENTER);
-
-			// panel.add(coordinateArea, BorderLayout.CENTER);
-			// panel.add(getColorScalePanel(), BorderLayout.WEST);
 
 			coordinateArea.setCursor(ROTATE_CURSOR);
 			this.setToolsEnabled(true);
@@ -469,7 +468,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 				colorScaleValues.add(scale[i]);
 			}
 
-			scalePanel = new ColorGroupsPanel(getDataModel(), colorGroupNames, colorScaleValues);
+			scalePanel = new ColorScalePanel(getDataModel(), colorGroupNames, colorScaleValues);
 		}
 		return scalePanel;
 	}

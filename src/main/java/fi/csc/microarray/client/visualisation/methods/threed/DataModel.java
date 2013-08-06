@@ -23,8 +23,7 @@ public class DataModel {
 	
 	private Color lineColor = Color.DARK_GRAY;
 	
-	// Color schemes from http://colorbrewer2.org/  Apache License, Version 2.0
-		
+	// Color schemes from http://colorbrewer2.org/  Apache License, Version 2.0	
 	//11-class Paired qualitative
 	public static Color[] qualitatativeColorScheme = new Color[] {
 		
@@ -89,15 +88,7 @@ public class DataModel {
 			new Color(189, 0, 38),
 			new Color(128, 0, 38)
 	};
-	
-	// 5-class Set 1 qualitative
-	public static  Color[] axisColorScheme = new Color[] {	
-		//from 11-class Paired qualitative
-		new Color(227, 26, 28),
-		new Color(51, 160, 44),
-		new Color(31, 120, 180), 
-	};
-	 
+
 	/**
 	 * @param value
 	 *            between 0 and 1.0
@@ -255,75 +246,90 @@ public class DataModel {
 	 * @param z
 	 * @return
 	 */
-	private String[] coordToStringTable(float x, float y, float z){
-		return new String[]{
-				"(", 
-				"x " + ScaleUtil.format(x), 
-				", ",
-				"y " + ScaleUtil.format(y), 
-				", ", 
-				"z " + ScaleUtil.format(z), 
-				")" 
-		};
+	private String coordToString(float x, float y, float z){
+		return 
+				"(" +  
+				"x " + ScaleUtil.format(x) +  
+				", " + 
+				"y " + ScaleUtil.format(y) +  
+				", " + 
+				"z " + ScaleUtil.format(z) +  
+				")"; 
 	}
 
 	private List<Drawable> generateScaleLines(float[] xValues, float[] yValues,
 			float[] zValues) {	
-		
-//		Color xColor = axisColorScheme[0];
-//		Color yColor = axisColorScheme[1];
-//		Color zColor = axisColorScheme[2];
-		
+				
 		Color xColor = Color.gray;
 		Color yColor = Color.gray;
 		Color zColor = Color.gray;
 		Color gray = Color.gray;
 		
-		//Colors for coordinate triplet: (xx.xx, yy.yy, zz,zz)
-		final Color[] tripletColors =
-			//new Color[] { gray, xColor, gray, yColor, gray, zColor, gray };
-			new Color[] { gray, gray, gray, gray, gray, gray, gray };
+		//To understand following  method calls it's beneficial to draw
+		//a unit cube and mark coordinates of the corners to it
+		/*
+		 * 				Y
+		 * 	(0, 1, 1) *	|\
+		 * 				| \                       
+		 * 				|  \
+		 * 				|	\___________________ * (1, 1, 0) 
+		 * 				|   | * (0, 1, 0)		| 
+		 * 				|   |					|
+		 *  			|   |					|
+		 * 				|   | 					|
+		 * 				|   | 					|
+		 * 				|   | 					|
+		 * 				|   | 					|
+		 * 				|   |  					|
+		 * 				|   |__________________>|X * (1, 0, 0)						 
+		 *				|  / * (0, 0, 0)		\
+		 * 				| /						 \
+		 * 	(0, 0, 1) *	|/________________________\ * (1, 0, 1)
+		 * 				Z
+		 */		
 
 		//Coordinate axes
-		List<Drawable> lines = new ArrayList<Drawable>();
-		lines.add(new Line(0, 0, 0, 1, 0, 0, lineColor, 3));				
-		lines.add(new Line(0, 0, 0, 0, 1, 0, lineColor, 3));
-		lines.add(new Line(0, 0, 0, 0, 0, 1, lineColor, 3));
+		List<Drawable> drawables = new ArrayList<Drawable>();
+		drawables.add(new Line(0, 0, 0, 1, 0, 0, lineColor, 3));				
+		drawables.add(new Line(0, 0, 0, 0, 1, 0, lineColor, 3));
+		drawables.add(new Line(0, 0, 0, 0, 0, 1, lineColor, 3));
 		
-		//And their end arrows
-		lines.add(new Line(1,0,0, 0.99, 0.005, -0.01, lineColor, 3));
-		lines.add(new Line(1,0,0, 0.99, -0.01, 0.005, lineColor, 3));
+		//arrows of the coordinate axes
+		drawables.add(new Line(1,0,0, 0.99, 0.005, -0.01, lineColor, 3));
+		drawables.add(new Line(1,0,0, 0.99, -0.01, 0.005, lineColor, 3));
 		
-		lines.add(new Line(0,1,0, 0.005, 0.99, -0.01, lineColor, 3));
-		lines.add(new Line(0,1,0, -0.01, 0.99, 0.005, lineColor, 3));
+		drawables.add(new Line(0,1,0, 0.005, 0.99, -0.01, lineColor, 3));
+		drawables.add(new Line(0,1,0, -0.01, 0.99, 0.005, lineColor, 3));
 		
-		lines.add(new Line(0,0,1, -0.01, 0.005, 0.99, lineColor, 3));
-		lines.add(new Line(0,0,1, 0.005, -0.01, 0.99, lineColor, 3));
-				
-		lines.add(new Text(1.03, 0, 0, "X", true));				
-		lines.add(new Text(0, 1.03, 0, "Y", true));
-		lines.add(new Text(0, 0, 1.03, "Z", true));
+		drawables.add(new Line(0,0,1, -0.01, 0.005, 0.99, lineColor, 3));
+		drawables.add(new Line(0,0,1, 0.005, -0.01, 0.99, lineColor, 3));
+		
+		//labels of the coordinate axes
+		drawables.add(new Text(1.03f, 0, 0, "X", gray, true));				
+		drawables.add(new Text(0, 1.03f, 0, "Y", gray, true));
+		drawables.add(new Text(0, 0, 1.03f, "Z", gray, true));
 		
 
-		//To enable modification of texts to show all coordinates in the corners
-		String xText;
-		String yText;
-		String zText;
-		
+		//Cube corner labels
 		final float TEXT_0 = 0f;
 		final float TEXT_1 = 1.1f;
 		
 		int L = LINE_COUNT - 1; // last index
 		
-		lines.add(new Text(TEXT_0, TEXT_0, TEXT_0, coordToStringTable(xValues[0], yValues[0], zValues[0]), tripletColors));
-		lines.add(new Text(TEXT_1, TEXT_0, TEXT_0, coordToStringTable(xValues[L], yValues[0], zValues[0]), tripletColors));
-		lines.add(new Text(TEXT_1, TEXT_0, TEXT_1, coordToStringTable(xValues[L], yValues[0], zValues[L]), tripletColors));
-		lines.add(new Text(TEXT_0, TEXT_0, TEXT_1, coordToStringTable(xValues[0], yValues[0], zValues[L]), tripletColors));
+		drawables.add(new Text(TEXT_0, TEXT_0, TEXT_0, coordToString(xValues[0], yValues[0], zValues[0]), gray));
+		drawables.add(new Text(TEXT_1, TEXT_0, TEXT_0, coordToString(xValues[L], yValues[0], zValues[0]), gray));
+		drawables.add(new Text(TEXT_1, TEXT_0, TEXT_1, coordToString(xValues[L], yValues[0], zValues[L]), gray));
+		drawables.add(new Text(TEXT_0, TEXT_0, TEXT_1, coordToString(xValues[0], yValues[0], zValues[L]), gray));
 		
-		lines.add(new Text(TEXT_0, TEXT_1, TEXT_0, coordToStringTable(xValues[0], yValues[L], zValues[L]), tripletColors));
-		lines.add(new Text(TEXT_1, TEXT_1, TEXT_0, coordToStringTable(xValues[L], yValues[L], zValues[0]), tripletColors));
-		//lines.add(new Text(TEXT_1, TEXT_1, TEXT_1, coordToStringTable(xValues[L], yValues[L], zValues[L]), tripletColors));
-		lines.add(new Text(TEXT_0, TEXT_1, TEXT_1, coordToStringTable(xValues[0], yValues[L], zValues[L]), tripletColors));
+		drawables.add(new Text(TEXT_0, TEXT_1, TEXT_0, coordToString(xValues[0], yValues[L], zValues[L]), gray));
+		drawables.add(new Text(TEXT_1, TEXT_1, TEXT_0, coordToString(xValues[L], yValues[L], zValues[0]), gray));
+		//lines.add(new Text(TEXT_1, TEXT_1, TEXT_1, coordToStringTable(xValues[L], yValues[L], zValues[L]), gray));
+		drawables.add(new Text(TEXT_0, TEXT_1, TEXT_1, coordToString(xValues[0], yValues[L], zValues[L]), gray));
+
+		//Cube side labels
+		String xText;
+		String yText;
+		String zText;
 
 		for (int i = 1; i < LINE_COUNT; i++) {
 			
@@ -341,58 +347,32 @@ public class DataModel {
 				yText = null;
 				zText = null;								
 			}
-			//To understand following  method calls it's beneficial to draw
-			//a unit cube and mark coordinates of the corners to it
-			/*
-			 * 				Y
-			 * 	(0, 1, 1) *	|\
-			 * 				| \                       
-			 * 				|  \
-			 * 				|	\___________________ * (1, 1, 0) 
-			 * 				|   | * (0, 1, 0)		| 
-			 * 				|   |					|
-			 *  			|   |					|
-			 * 				|   | 					|
-			 * 				|   | 					|
-			 * 				|   | 					|
-			 * 				|   | 					|
-			 * 				|   |  					|
-			 * 				|   |__________________>|X * (1, 0, 0)						 
-			 *				|  / * (0, 0, 0)		\
-			 * 				| /						 \
-			 * 	(0, 0, 1) *	|/________________________\ * (1, 0, 1)
-			 * 				Z
-			 */		
 
 			// X-scale 
+			drawables.add(new Line(pos, 0, 0, pos, 1, 0, lineColor));
+			drawables.add(new Line(pos, 0, 0, pos, 0, 1, lineColor));
 			
-			lines.add(new Line(pos, 0, 0, pos, 1, 0, lineColor));
-			lines.add(new Line(pos, 0, 0, pos, 0, 1, lineColor));
-			
-			lines.add(new Text(pos, TEXT_1, TEXT_0, new String[] {xText}, new Color[] {xColor}));
-			lines.add(new Text(pos, TEXT_0, TEXT_1, new String[] {xText}, new Color[] {xColor}));
+			drawables.add(new Text(pos, TEXT_1, TEXT_0, xText, xColor));
+			drawables.add(new Text(pos, TEXT_0, TEXT_1, xText, xColor));
 
 
 			// Y-scale 
+			drawables.add(new Line(0, pos, 0, 0, pos, 1, lineColor));
+			drawables.add(new Line(0, pos, 0, 1, pos, 0, lineColor));
 			
-			lines.add(new Line(0, pos, 0, 0, pos, 1, lineColor));
-			lines.add(new Line(0, pos, 0, 1, pos, 0, lineColor));
-			
-			lines.add(new Text(TEXT_0, pos, TEXT_1, new String[] {yText}, new Color[] {yColor}));
-			lines.add(new Text(TEXT_1, pos, TEXT_0, new String[] {yText}, new Color[] {yColor}));
+			drawables.add(new Text(TEXT_0, pos, TEXT_1, yText, yColor));
+			drawables.add(new Text(TEXT_1, pos, TEXT_0, yText, yColor));
 
 			// Z-Scale 
+			drawables.add(new Line(0, 0, pos, 1, 0, pos, lineColor));
+			drawables.add(new Line(0, 0, pos, 0, 1, pos, lineColor));
 			
-			lines.add(new Line(0, 0, pos, 1, 0, pos, lineColor));
-			lines.add(new Line(0, 0, pos, 0, 1, pos, lineColor));
-			
-			lines.add(new Text(TEXT_1, TEXT_0, pos, new String[] {zText}, new Color[] {zColor}));
-			lines.add(new Text(TEXT_0, TEXT_1, pos, new String[] {zText}, new Color[] {zColor}));
+			drawables.add(new Text(TEXT_1, TEXT_0, pos, zText, zColor));
+			drawables.add(new Text(TEXT_0, TEXT_1, pos, zText, zColor));
 
 		}
 
-		return lines;
-
+		return drawables;
 	}
 	
 	private float[] generateColorScaleValues(float min, float max) {

@@ -107,7 +107,7 @@ public class DataPoint
         	g2d.setPaint(color);        
         	g2d.fillRect(x, y, w, h);
         	
-        } else {//(CoordinateArea.getPaintMode() == CoordinateArea.PaintMode.GRADIENT){
+        } else {
         	paintBall(x, y, w, h, color, g2d);
         }
                               

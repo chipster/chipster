@@ -15,8 +15,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.SwingUtilities;
-
 import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea.PaintMode;
 
 /**
@@ -28,7 +26,6 @@ public class Line
         extends Drawable {
 	
 	private static final int COLOR_MARKER_WIDTH = 8;
-	private Color textColor;
 	private int thickness = 1;
 	//To allow changing colors for the text    
 	
@@ -59,27 +56,7 @@ public class Line
         dataCoords[1][1] = visualisationCoords[1][1] = y2;
         dataCoords[1][2] = visualisationCoords[1][2] = z2;
         this.color = color;     
-    }
-	
-    /**
-     * Line with too ends, text and color
-     * 
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param x2
-     * @param y2
-     * @param z2
-     * @param color
-     * @param text
-     */
-    public Line(double x1, double y1, double z1,
-            double x2, double y2, double z2, Color lineColor, String text, Color textColor) {
-       
-    	this(x1, y1, z1, x2, y2, z2, lineColor);        
-        this.text = text;
-        this.textColor = textColor;
-    }
+    }	   
 
     public Line(double x1, double y1, double z1,
             double x2, double y2, double z2, Color lineColor, int thickness) {
@@ -112,50 +89,7 @@ public class Line
         Graphics2D g2 = (Graphics2D)g;
         g2.setStroke(new BasicStroke(thickness));        
         g2.drawLine(deviceCoords[0][0], deviceCoords[0][1], 
-                deviceCoords[1][0], deviceCoords[1][1]);
-        if (this.text != null) {
-        	
-        	//Calculate text dimensions
-        	int textWidth = 0;
-        	int textHeight = 10;
-
-     		textWidth += SwingUtilities.computeStringWidth(g.getFontMetrics(), text);
-        	if (!Color.gray.equals(color)) {
-        		textWidth += COLOR_MARKER_WIDTH;        		
-        	}
-        	
-        	int textCenterX = deviceCoords[1][0];
-        	int textCenterY = deviceCoords[1][1];        	        
-        	
-        	float dX = deviceCoords[1][0] - deviceCoords[0][0];
-        	float dY = deviceCoords[1][1] - deviceCoords[0][1];
-        	
-        	float relativeX = textCenterX / (float)width; // form 0 to 1
-        	float relativeY = textCenterY / (float)height; // from 0 to 1
-        	        	
-        	textCenterX += dX * Math.abs(relativeX - 0.5) * 1;
-        	textCenterY += dY * relativeY * 0.2;        	
-
-        	int x = (int) (textCenterX - textWidth / 2);
-        	int y = textCenterY + textHeight;
-        	
-//        	int x = textCenterX - textWidth / 2;
-//        	int y = textCenterY - textHeight / 2;
-        	
-        	//x = (int) (x - textWidth + textWidth * (relativeX - 0.25) * 2);
-        	//y = (int) (y - textHeight + textHeight * (relativeY - 0.25) * 2);
-
-        	int xShift = 0;        	        	
-
-        	int textPartWidth = 0;
-        	if (!Color.gray.equals(color)) {
-        		g.setColor(textColor);
-        		g.fillRect(x + xShift, y - 5, 6, 6);
-        		textPartWidth += COLOR_MARKER_WIDTH;
-        	}
-        	g.setColor(Color.gray);
-        	g.drawString(text, x + xShift + textPartWidth, y);
-        }
+                deviceCoords[1][0], deviceCoords[1][1]);    
     }
 
     /**
@@ -175,5 +109,4 @@ public class Line
         this.distanceFromCamera[1] = 
                 DataPoint.pointDistance(camera, visualisationCoords[1]);
     }
-
 }

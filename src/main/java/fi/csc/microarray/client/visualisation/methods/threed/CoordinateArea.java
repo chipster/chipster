@@ -234,8 +234,6 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				} else if (mousePressY - mouseY > 0) {
 					projection.setXAxisRotation(deg -ANGLE_INCREMENT*yfactor);	
 				}
-//			} else { 
-				//kineticMovement = movement.restartKineticMove();
 				kineticMovement.setAngleIncs(KINETIC_SPEED_FACTOR*(mouseY - mousePressY), KINETIC_SPEED_FACTOR*( mouseX-mousePressX), 0);
 			}
 		}

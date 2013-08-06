@@ -16,17 +16,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * JPanel with black background and rainbow gradient. Values of the different colors
- * are taken from the dataModel and their colors from the color model.
- * 
  * @author Petri Klemelä
  */
-public class ColorGroupsPanel extends JPanel{
+public class ColorScalePanel extends JPanel{
 
 	DataModel dataModel;
 	List<Float> colorGroupValues;
 
-	public ColorGroupsPanel(DataModel dataModel, List<String> colorGroupNames, List<Float> colorGroupValues){
+	public ColorScalePanel(DataModel dataModel, List<String> colorGroupNames, List<Float> colorGroupValues){
 		this.dataModel = dataModel;
 		this.colorGroupValues = colorGroupValues;
 						
@@ -50,13 +47,6 @@ public class ColorGroupsPanel extends JPanel{
 
 			DataPoint.paintBall(2, 2, 18, 18, color, g);
 
-			//				g.setColor(dataModel.getColorModel().getColorFor(
-			//						dataModel.convertToScaled(
-			//								dataModel.getColorScaleValues(), 
-			//								groupValue)));
-			//
-			//				g.fillRect(4, 4, 10, 10);
-			//				
 			ImageIcon icon = new ImageIcon(image);			
 			JLabel label =  new JLabel(groupStr, icon, SwingConstants.LEFT );
 			label.setOpaque(false);

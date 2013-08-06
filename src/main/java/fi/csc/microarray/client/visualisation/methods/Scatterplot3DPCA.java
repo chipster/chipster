@@ -20,7 +20,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
-import fi.csc.microarray.client.visualisation.methods.threed.ColorGroupsPanel;
+import fi.csc.microarray.client.visualisation.methods.threed.ColorScalePanel;
 import fi.csc.microarray.client.visualisation.methods.threed.DataModel;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.databeans.DataBean;
@@ -161,7 +161,7 @@ public class Scatterplot3DPCA extends Scatterplot3D {
 	@Override
 	protected JComponent getColorScalePanel() {
 		if (scalePanel == null) {
-			scalePanel = new ColorGroupsPanel(getDataModel(), colorGroupNames, colorGroupValues);
+			scalePanel = new ColorScalePanel(getDataModel(), colorGroupNames, colorGroupValues);
 			legendScroller = new JScrollPane(scalePanel);
 			legendScroller.setPreferredSize(new Dimension(50, 300));
 		}
