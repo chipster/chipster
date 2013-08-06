@@ -12,6 +12,8 @@ package fi.csc.microarray.client.visualisation.methods.threed;
 
 import java.awt.Component;
 
+import javax.swing.SwingUtilities;
+
 /**
  * Class from the Viski project (http://www.cs.helsinki.fi/group/viski/). The newer Java
  * versions (from 1.5) might have the similar functionality already, but this isn't broken,
@@ -53,8 +55,16 @@ public class Worker extends Thread {
                         obj.wait();
                     } catch (InterruptedException e) {}
                 }
-                projection.doProjection();
-                paintable.repaint();
+                
+                SwingUtilities.invokeLater(new Runnable() {
+
+                	@Override
+                	public void run() {
+                		projection.doProjection();
+                		paintable.repaint();
+                	}
+                });                
+
                 workRequested = false;
                 obj.notify();
             }
