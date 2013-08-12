@@ -205,7 +205,7 @@ public class DataModel {
 	private float[] findMinMaxValues(Iterator<Float> iter) {
 		float x;
 		float min = Float.MAX_VALUE;
-		float max = Float.MIN_VALUE;
+		float max = Float.NEGATIVE_INFINITY;
 		while (iter.hasNext()) {
 			x = iter.next();
 			if (x > max) {

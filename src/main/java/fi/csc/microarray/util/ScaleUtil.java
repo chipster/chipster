@@ -21,6 +21,11 @@ public class ScaleUtil {
 
 		float[] scaleMinMax = getStepDistance(min, max, stepCount);
 		
+		//Scaling fails later if min equals max
+		if (scaleMinMax[0] == scaleMinMax[1]) {
+			scaleMinMax[1]++;
+		}
+		
 		float scaleMin = scaleMinMax[0];
 		float scaleMax = scaleMinMax[1];
 		
@@ -60,7 +65,7 @@ public class ScaleUtil {
 		float decimalFactor = calculateDecimalFactor(preferredScale);
 		float scaleMax = (float) (Math.ceil(maxValue / decimalFactor))
 				* decimalFactor;
-		float scaleMin = (float) ((int) (minValue / decimalFactor))
+		float scaleMin = (float) (Math.floor(minValue / decimalFactor))
 				* decimalFactor;		
 
 		return new float[] { scaleMin, scaleMax };

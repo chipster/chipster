@@ -80,7 +80,7 @@ abstract public class Drawable
 			System.out.println("null");
 			return -1;
 		}
-	    double thisMax = Double.MIN_VALUE;
+	    double thisMax = Double.NEGATIVE_INFINITY;
 	    double otherMin = Double.MAX_VALUE;
 	    double[] d2 = other.getDistanceFromCamera();
 	    
