@@ -1148,6 +1148,11 @@ public class SessionReplayTest extends MessagingTestBase {
 		public void visualiseWithBestMethod(FrameType target) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
+
+		@Override
+		public void threadSafeReportException(Exception e) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
 		
 	}
 
