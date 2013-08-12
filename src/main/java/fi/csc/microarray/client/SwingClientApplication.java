@@ -193,47 +193,88 @@ public class SwingClientApplication extends ClientApplication {
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
-		reportInitialisation("Initialising " + ApplicationConstants.TITLE, true);
+		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
-		try {
-			initialiseApplication();
+		
+		/*Wait descriptions in another thread and let EDT continue.
+		 * We cannot let EDT wait, because otherwise there is a deadlock: LoginWindow
+		 * waits for EDT to get free and EDT waits for LoginWindow to get done with authentication. 
+		 */
+		Thread t = new Thread(new Runnable() {
 			
-		} catch (Exception e) {
-			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
-					"Please see the details below for more information about the problem.\n\n" + 
-					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
-					Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
-					new PluginButton() {
-						@Override
-						public void actionPerformed() {
-							try {
-								new SwingClientApplication(getShutdownListener(), null, null, true);
+			@Override
+			public void run() {
+				try {
+					initialiseApplication();
 
-							} catch (Exception e) {
-								// ignore
-							}
+				} catch (Exception e) {
+					reportInitalisationErrorThreadSafely(e);
+				}
+			}
+		});
+		t.start();
+	}
+	
+	private void reportInitalisationErrorThreadSafely(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+
+				showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
+						"Please see the details below for more information about the problem.\n\n" + 
+						"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
+						Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
+						new PluginButton() {
+					@Override
+					public void actionPerformed() {
+						try {
+							new SwingClientApplication(getShutdownListener(), null, null, true);
+							
+						} catch (Exception e) {
+							// ignore
 						}
-						@Override
-						public String getText() {
-							return "Start standalone";
-						}
-					});
-			splashScreen.close();
-			logger.error(e);
-		}
+					}
+					@Override
+					public String getText() {
+						return "Start standalone";
+					}
+				});
+				splashScreen.close();
+				logger.error(e);			
+			}
+		});
 	}
 
-	public void reportInitialisation(String report, boolean newline) {
-		if (newline) {
-			splashScreen.writeLine(report);
-		} else {
-			splashScreen.write(report);
-		}
-
+	public void reportInitialisationThreadSafely(final String report, final boolean newline) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (newline) {
+					splashScreen.writeLine(report);
+				} else {
+					splashScreen.write(report);
+				}			
+			}
+		});
 	}
 
-	protected void initialiseGUI() throws MicroarrayException, IOException {
+	protected void initialiseGUIThreadSafely() {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					initialiseGUI();
+				} catch (MicroarrayException | IOException e) {
+					reportInitalisationErrorThreadSafely(e);
+				}
+			}
+		});
+	}
+	
+	private void initialiseGUI() throws MicroarrayException, IOException {
 
 		// assert state of initialisation
 		try {
@@ -960,7 +1001,7 @@ public class SwingClientApplication extends ClientApplication {
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
 	}
 	
-	public void threadSafeReportException(final Exception e) {
+	public void reportExceptionThreadSafely(final Exception e) {
 		SwingUtilities.invokeLater(new Runnable() {			
 			@Override
 			public void run() {

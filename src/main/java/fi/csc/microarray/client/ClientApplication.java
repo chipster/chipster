@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -93,9 +92,9 @@ public abstract class ClientApplication {
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract void initialiseGUI() throws MicroarrayException, IOException;
+	protected abstract void initialiseGUIThreadSafely() throws MicroarrayException, IOException;
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
-	public abstract void threadSafeReportException(Exception e);
+	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
@@ -107,7 +106,7 @@ public abstract class ClientApplication {
     public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
     public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
     public abstract void visualiseWithBestMethod(FrameType target);
-    public abstract void reportInitialisation(String report, boolean newline);
+    public abstract void reportInitialisationThreadSafely(String report, boolean newline);
     public abstract Icon getIconFor(DataItem data);
 	public abstract void viewHelp(String id);
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
@@ -199,6 +198,8 @@ public abstract class ClientApplication {
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
 		
+		//Executed outside EDT, modification of Swing forbidden
+		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
 
@@ -223,143 +224,106 @@ public abstract class ClientApplication {
 		
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
+			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisation(" ok", false);
+			reportInitialisationThreadSafely(" ok", false);
 
 			// Check services
-			reportInitialisation("Checking remote services...", true);
+			reportInitialisationThreadSafely("Checking remote services...", true);
 			String status = serviceAccessor.checkRemoteServices();
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
 				throw new Exception(status);
 			}
-			reportInitialisation(" ok", false);
+			reportInitialisationThreadSafely(" ok", false);
 			
-			/*Wait descriptions in another thread and let EDT continue.
-			 * We cannot let EDT wait, because otherwise there is a deadlock: LoginWindow
-			 * waits for EDT to get free and EDT waits for LoginWindow to get done with authentication. 
-			 */
-			Thread t = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					try {
-						// Fetch descriptions from compute server
-						reportInitialisation("Fetching analysis descriptions...", true);
-						initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
-						toolModules.addAll(serviceAccessor.getModules());
+			// Fetch descriptions from compute server
+			reportInitialisationThreadSafely("Fetching analysis descriptions...", true);
+			initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
+			toolModules.addAll(serviceAccessor.getModules());
 
-						// Add local modules also when in remote mode
-						if (!isStandalone) {
-							ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
-							localServiceAccessor.initialise(manager, null);
-							localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
-							toolModules.addAll(localServiceAccessor.getModules());
-						}
+			// Add local modules also when in remote mode
+			if (!isStandalone) {
+				ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+				localServiceAccessor.initialise(manager, null);
+				localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+				toolModules.addAll(localServiceAccessor.getModules());
+			}
 
-						SwingUtilities.invokeLater(new Runnable() {
+			// Add internal operation definitions
+			ToolCategory internalCategory = new ToolCategory("Internal tools");
+			internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
+			internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
+			ToolModule internalModule = new ToolModule("internal");
+			internalModule.addHiddenToolCategory(internalCategory);
+			toolModules.add(internalModule);
 
-							@Override
-							public void run() {
-								try {
-									executeAfterDefinitions();
-								} catch (Exception e) {
-									e.printStackTrace();
-									reportException(e);
-								}
-							}
-						});
+			// Update to splash screen that we have loaded tools
+			reportInitialisationThreadSafely(" ok", false);
 
-					} catch (Exception e) {
-						e.printStackTrace();
-						threadSafeReportException(e);
-					}
+			// start listening to job events
+			taskExecutor.addChangeListener(jobExecutorChangeListener);
+
+			// definitions are now initialised
+			definitionsInitialisedLatch.countDown();
+
+			// we can initialise graphical parts of the system
+			initialiseGUIThreadSafely();
+
+			// Remember changes to confirm close only when necessary and to backup when necessary
+			manager.addDataChangeListener(new DataChangeListener() {
+				public void dataChanged(DataChangeEvent event) {
+					unsavedChanges = true;
+					unbackuppedChanges = true;
 				}
 			});
-			t.start();
+
+			// Start checking amount of free memory 
+			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ClientApplication.this.checkFreeMemory();
+				}
+			});
+			memoryCheckTimer.setCoalesce(true);
+			memoryCheckTimer.setRepeats(true);
+			memoryCheckTimer.setInitialDelay(0);
+			memoryCheckTimer.start();
+
+			// Start checking if background backup is needed
+			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
+			aliveSignalFile.createNewFile();
+			aliveSignalFile.deleteOnExit();
+
+			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
+					if (unbackuppedChanges) {
+
+						File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
+						sessionFile.deleteOnExit();
+
+						try {
+							getDataManager().saveLightweightSession(sessionFile);
+
+						} catch (Exception e1) {
+							logger.warn(e1); // do not care that much about failing session backups
+						}
+					}
+					unbackuppedChanges = false;
+				}
+			});
+
+			timer.setCoalesce(true);
+			timer.setRepeats(true);
+			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
+			timer.start();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
-	}
-	
-	public void executeAfterDefinitions() throws IOException, MicroarrayException {
-
-		// Add internal operation definitions
-		ToolCategory internalCategory = new ToolCategory("Internal tools");
-		internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
-		internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
-		ToolModule internalModule = new ToolModule("internal");
-		internalModule.addHiddenToolCategory(internalCategory);
-		toolModules.add(internalModule);
-
-		// Update to splash screen that we have loaded tools
-		reportInitialisation(" ok", false);
-
-		// start listening to job events
-		taskExecutor.addChangeListener(jobExecutorChangeListener);
-
-		// definitions are now initialised
-		definitionsInitialisedLatch.countDown();
-
-		// we can initialise graphical parts of the system
-		initialiseGUI();
-
-		// Remember changes to confirm close only when necessary and to backup when necessary
-		manager.addDataChangeListener(new DataChangeListener() {
-			public void dataChanged(DataChangeEvent event) {
-				unsavedChanges = true;
-				unbackuppedChanges = true;
-			}
-		});
-
-		// Start checking amount of free memory 
-		final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ClientApplication.this.checkFreeMemory();
-			}
-		});
-		memoryCheckTimer.setCoalesce(true);
-		memoryCheckTimer.setRepeats(true);
-		memoryCheckTimer.setInitialDelay(0);
-		memoryCheckTimer.start();
-
-		// Start checking if background backup is needed
-		aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
-		aliveSignalFile.createNewFile();
-		aliveSignalFile.deleteOnExit();
-
-		Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						if (unbackuppedChanges) {
-
-							File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
-							sessionFile.deleteOnExit();
-
-							try {
-								getDataManager().saveLightweightSession(sessionFile);
-
-							} catch (Exception e) {
-								logger.warn(e); // do not care that much about failing session backups
-							}
-						}
-						unbackuppedChanges = false;
-					}
-				});
-			}
-		});
-
-		timer.setCoalesce(true);
-		timer.setRepeats(true);
-		timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
-		timer.start();
 	}
 
 	/**
