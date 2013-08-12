@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -71,7 +70,6 @@ import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -97,6 +95,7 @@ public abstract class ClientApplication {
 	//
 	protected abstract void initialiseGUI() throws MicroarrayException, IOException;
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
+	public abstract void threadSafeReportException(Exception e);
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
@@ -209,7 +208,7 @@ public abstract class ClientApplication {
 			fetchAnnouncements();
 			
 			// Initialise modules
-			ModuleManager modules = new ModuleManager(requestedModule);
+			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
 
 			// Initialise workflows
@@ -238,99 +237,129 @@ public abstract class ClientApplication {
 			}
 			reportInitialisation(" ok", false);
 			
-			// Fetch descriptions from compute server
-	        reportInitialisation("Fetching analysis descriptions...", true);
-	        this.initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			this.toolModules.addAll(serviceAccessor.getModules());
-
-			// Add local modules also when in remote mode
-			if (!isStandalone) {
-				ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
-				localServiceAccessor.initialise(manager, null);
-				localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
-				toolModules.addAll(localServiceAccessor.getModules());
-			}
-
-			// Add internal operation definitions
-			ToolCategory internalCategory = new ToolCategory("Internal tools");
-			internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
-			internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
-			ToolModule internalModule = new ToolModule("internal");
-			internalModule.addHiddenToolCategory(internalCategory);
-			toolModules.add(internalModule);
-
-			// Update to splash screen that we have loaded tools
-			reportInitialisation(" ok", false);
-			
-			// start listening to job events
-			taskExecutor.addChangeListener(jobExecutorChangeListener);
-
-			// definitions are now initialised
-			definitionsInitialisedLatch.countDown();
-			
-			// we can initialise graphical parts of the system
-			initialiseGUI();
-
-			// Remember changes to confirm close only when necessary and to backup when necessary
-			manager.addDataChangeListener(new DataChangeListener() {
-				public void dataChanged(DataChangeEvent event) {
-					unsavedChanges = true;
-					unbackuppedChanges = true;
-				}
-			});
-
-			// Start checking amount of free memory 
-			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ClientApplication.this.checkFreeMemory();
-				}
-			});
-			memoryCheckTimer.setCoalesce(true);
-			memoryCheckTimer.setRepeats(true);
-			memoryCheckTimer.setInitialDelay(0);
-			memoryCheckTimer.start();
-			
-			// Start checking if background backup is needed
-			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
-			aliveSignalFile.createNewFile();
-			aliveSignalFile.deleteOnExit();
-			
-			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
+			/*Wait descriptions in another thread and let EDT continue.
+			 * We cannot let EDT wait, because otherwise there is a deadlock: LoginWindow
+			 * waits for EDT to get free and EDT waits for LoginWindow to get done with authentication. 
+			 */
+			Thread t = new Thread(new Runnable() {
+				
 				@Override
-				public void actionPerformed(ActionEvent e) {
-					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							if (unbackuppedChanges) {
-								
-								File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
-								sessionFile.deleteOnExit();
-								
+				public void run() {
+					try {
+						// Fetch descriptions from compute server
+						reportInitialisation("Fetching analysis descriptions...", true);
+						initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
+						toolModules.addAll(serviceAccessor.getModules());
+
+						// Add local modules also when in remote mode
+						if (!isStandalone) {
+							ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+							localServiceAccessor.initialise(manager, null);
+							localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+							toolModules.addAll(localServiceAccessor.getModules());
+						}
+
+						SwingUtilities.invokeLater(new Runnable() {
+
+							@Override
+							public void run() {
 								try {
-									getDataManager().saveLightweightSession(sessionFile);
-									
+									executeAfterDefinitions();
 								} catch (Exception e) {
-									logger.warn(e); // do not care that much about failing session backups
+									e.printStackTrace();
+									reportException(e);
 								}
 							}
-							unbackuppedChanges = false;
-						}
-					});
+						});
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						threadSafeReportException(e);
+					}
 				}
 			});
-
-			timer.setCoalesce(true);
-			timer.setRepeats(true);
-			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
-			timer.start();
-			
+			t.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
+	}
+	
+	public void executeAfterDefinitions() throws IOException, MicroarrayException {
 
+		// Add internal operation definitions
+		ToolCategory internalCategory = new ToolCategory("Internal tools");
+		internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
+		internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
+		ToolModule internalModule = new ToolModule("internal");
+		internalModule.addHiddenToolCategory(internalCategory);
+		toolModules.add(internalModule);
 
+		// Update to splash screen that we have loaded tools
+		reportInitialisation(" ok", false);
+
+		// start listening to job events
+		taskExecutor.addChangeListener(jobExecutorChangeListener);
+
+		// definitions are now initialised
+		definitionsInitialisedLatch.countDown();
+
+		// we can initialise graphical parts of the system
+		initialiseGUI();
+
+		// Remember changes to confirm close only when necessary and to backup when necessary
+		manager.addDataChangeListener(new DataChangeListener() {
+			public void dataChanged(DataChangeEvent event) {
+				unsavedChanges = true;
+				unbackuppedChanges = true;
+			}
+		});
+
+		// Start checking amount of free memory 
+		final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ClientApplication.this.checkFreeMemory();
+			}
+		});
+		memoryCheckTimer.setCoalesce(true);
+		memoryCheckTimer.setRepeats(true);
+		memoryCheckTimer.setInitialDelay(0);
+		memoryCheckTimer.start();
+
+		// Start checking if background backup is needed
+		aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
+		aliveSignalFile.createNewFile();
+		aliveSignalFile.deleteOnExit();
+
+		Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						if (unbackuppedChanges) {
+
+							File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
+							sessionFile.deleteOnExit();
+
+							try {
+								getDataManager().saveLightweightSession(sessionFile);
+
+							} catch (Exception e) {
+								logger.warn(e); // do not care that much about failing session backups
+							}
+						}
+						unbackuppedChanges = false;
+					}
+				});
+			}
+		});
+
+		timer.setCoalesce(true);
+		timer.setRepeats(true);
+		timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
+		timer.start();
 	}
 
 	/**

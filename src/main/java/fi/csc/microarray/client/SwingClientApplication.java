@@ -178,10 +178,15 @@ public class SwingClientApplication extends ClientApplication {
 
 		super(isStandalone, overridingARL);
 		
-		this.clientListener = clientListener;
-
 		// this had to be delayed as logging is not available before loading configuration
 		logger = Logger.getLogger(SwingClientApplication.class);
+		
+		if (!SwingUtilities.isEventDispatchThread()) {
+			logger.error(new MicroarrayException("SwingClientApplication was created outside the Event Dispatch Thread."));
+			System.exit(1);
+		}
+		
+		this.clientListener = clientListener;
 
         // set the module that user wants to load
         this.requestedModule = module;
@@ -217,32 +222,6 @@ public class SwingClientApplication extends ClientApplication {
 			splashScreen.close();
 			logger.error(e);
 		}
-		
-		/*
-		 * A strange bug was found in summer of 2013 in following occasion:
-		 * - Windows (at least versions XP and 7)
-		 * - Java version 1.7.25
-		 * - First start of Chipster after boot
-		 * - Exception is thrown when 'File->Import file' is selected from the menu
-		 * 
-		 * NullPointerException
-		 * javax.swing.JFileChooser.isTraversable(Unknown Source)
-		 * javax.swing.JFileChooser.setCurrentDirectory(Unknown Source)
-		 * javax.swing.JFileChooser.<init>(Unknown Source)
-		 * javax.swing.JFileChooser.<init>(Unknown Source)
-		 * fi.csc.microarray.client.dataimport.ImportUtils.getFixedFileChooser(ImportUtils.java:76)
-		 * 
-		 * Some operations hide the problem for the next boot, but it will return after subsequent restarts:
-		 * - Deploy new version of Chipster
-		 * - Enable or disable Java Web Start cache
-		 * 
-		 * The problem doesn't occur at all, if 
-		 * - Java console is enabled
-		 * 
-		 * Also the following line seems to hide the problem. This is a workaround for the 
-		 * duration of more thorough  troubleshooting
-		 */
-		JFileChooser fc = ImportUtils.getFixedFileChooser();
 	}
 
 	public void reportInitialisation(String report, boolean newline) {
@@ -980,6 +959,15 @@ public class SwingClientApplication extends ClientApplication {
 		
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
 	}
+	
+	public void threadSafeReportException(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {			
+			@Override
+			public void run() {
+				reportException(e);
+			}
+		});
+	}
 
 	public void reportException(Exception e) {
 
@@ -1375,7 +1363,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		ClientListener shutdownListener = getShutdownListener();
 		
-		try {
+		try {						
 			new SwingClientApplication(shutdownListener, null, module, false);
 			
 		} catch (Throwable t) {
