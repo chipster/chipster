@@ -13,11 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.RandomAccessLineReader;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineReader;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -296,26 +296,26 @@ public class RegionOperations {
 			throw new IllegalArgumentException("BED must have at least chromosome, start and end fields");
 		}
 		
-		ColumnType[] legacyBedColumns = new ColumnType[] {
-				ColumnType.CHROMOSOME,
-				ColumnType.BP_START,
-				ColumnType.BP_END,
-				ColumnType.ID,
-				ColumnType.VALUE,
-				ColumnType.STRAND,
-				ColumnType.THICK_START,
-				ColumnType.THICK_END,
-				ColumnType.ITEM_RGB,
-				ColumnType.BLOCK_COUNT,
-				ColumnType.BLOCK_SIZES,
-				ColumnType.BLOCK_STARTS
+		DataType[] legacyBedColumns = new DataType[] {
+				DataType.CHROMOSOME,
+				DataType.START,
+				DataType.END,
+				DataType.ID,
+				DataType.VALUE,
+				DataType.STRAND,
+				DataType.THICK_START,
+				DataType.THICK_END,
+				DataType.ITEM_RGB,
+				DataType.BLOCK_COUNT,
+				DataType.BLOCK_SIZES,
+				DataType.BLOCK_STARTS
 		};
 		
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 		
 		for (int i = 3; i < fieldCount; i++) {
 						
-			ColumnType key = legacyBedColumns[i];
+			DataType key = legacyBedColumns[i];
 			String value = parser.getString(i);
 			values.put(key, value);
 		}
@@ -382,7 +382,7 @@ public class RegionOperations {
 		// Print row names and values
 		HashSet<String> rowNames = new HashSet<String>();
 		for (RegionContent regionContent : regionContents) {
-			String rowName = regionContent.values.get(ColumnType.ID).toString();
+			String rowName = regionContent.values.get(DataType.ID).toString();
 			if (rowNames.contains(rowName)) {
 				continue;
 			}
@@ -407,7 +407,7 @@ public class RegionOperations {
 		augmented.values.clear();
 		
 		// Copy from primary, but augmenting from secondary
-		for (Entry<ColumnType, Object> entry : primary.values.entrySet()) {
+		for (Entry<DataType, Object> entry : primary.values.entrySet()) {
 			Object value = entry.getValue();
 			if (value == null || "".equals(value.toString().trim())) {
 				Object valueInSecondary = secondary.values.get(entry.getKey());
@@ -423,9 +423,9 @@ public class RegionOperations {
 	}
 	
 
-	public static LinkedHashMap<ColumnType, Object> getEmptyExtraFieldMap() {
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.VALUE, EMPTY_EXTRA_FIELDS);
+	public static LinkedHashMap<DataType, Object> getEmptyExtraFieldMap() {
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+		values.put(DataType.VALUE, EMPTY_EXTRA_FIELDS);
 		return values;
 	}
 }

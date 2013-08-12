@@ -3,7 +3,9 @@ package fi.csc.microarray.filebroker;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -102,6 +104,18 @@ public interface FileBrokerClient {
 	 * @throws IOException 
 	 */
 	public abstract boolean checkFile(URL url, long contentLength);
+	
+
+	/**
+	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
+	 * retrieved or timeout. Talks to the file broker using JMS.
+	 * 
+	 * @return a list of public URLs, may be null if file broker sends null or if reply is not received before timeout
+	 *  
+	 * @throws JMSException
+	 * @throws MalformedURLException 
+	 */
+	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
 
 	/**
 	 * Retrieves the root of the public file area from the file broker. Method blocks until result is
