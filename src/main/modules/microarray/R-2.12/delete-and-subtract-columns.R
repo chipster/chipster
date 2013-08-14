@@ -40,6 +40,7 @@ dat2 <- dat2[, -(which(del.cols==1))]
 
 phenodata2 <- phenodata[-(which(del.cols==1)),]
 phenodata2$sample <- sprintf('microarray%.3i', 1:nrow(phenodata2))
+colnames(dat2) <- phenodata2$sample
 #rownames(phenodata2) <- sprintf('microarray%.3i', 1:nrow(phenodata2))
 
 # Writes out the combined table
