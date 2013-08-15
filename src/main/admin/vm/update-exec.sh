@@ -925,6 +925,15 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 fi
 
 
+# 2.7.2
+compare_to_current_and_latest "2.7.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+
+  echo "** Updating Rattus_norvegicus.RGSC3.4.68.gtf"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
+                                                                                                                                                                                                                                                                                                        
+fi
+
 
 
   
