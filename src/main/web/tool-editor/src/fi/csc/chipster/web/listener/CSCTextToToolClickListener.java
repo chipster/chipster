@@ -15,6 +15,11 @@ import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
+/**
+ * Creating tool editor from text
+ * @author Gintare Pacauskaite
+ *
+ */
 public class CSCTextToToolClickListener implements ClickListener{
 	
 	private static final long serialVersionUID = 8517086427914209637L;

@@ -10,6 +10,11 @@ import fi.csc.chipster.web.model.Tool;
 import fi.csc.chipster.web.tooledit.ToolEditorUI;
 import fi.csc.microarray.description.SADLDescription;
 
+/**
+ * Creating text from tool editor
+ * @author Gintare Pacauskaite
+ *
+ */
 public class CSCToolToTextClickListener implements ClickListener{
 
 	private static final long serialVersionUID = 1833698097187666721L;
@@ -32,9 +37,16 @@ public class CSCToolToTextClickListener implements ClickListener{
 			new Notification("Tool's elements are empty, please fill it up", Type.WARNING_MESSAGE).show(Page.getCurrent());
 			return;
 		}
+		try {
 		sadlDescription.addInputs(root.getToolEditor().getDaslInputs());
 		sadlDescription.addOutputs(root.getToolEditor().getDaslOutputs());
 		root.getToolEditor().addParameters(sadlDescription);
+		} catch(Exception e) {
+			Notification.show("All elements must be filled up correctly", Type.WARNING_MESSAGE);
+			e.printStackTrace();
+			return;
+		}
+		
 		root.getToolEditor().setHeaderToTextEditor(sadlDescription.toString());
 		
 	}

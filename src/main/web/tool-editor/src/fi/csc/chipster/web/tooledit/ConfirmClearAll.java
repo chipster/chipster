@@ -9,6 +9,11 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+/**
+ * Confirmation window for clearing all data
+ * @author Gintare Pacauskaite
+ *
+ */
 public class ConfirmClearAll extends Window{
 
 	private static final long serialVersionUID = -6901652612577754156L;
@@ -44,7 +49,7 @@ public class ConfirmClearAll extends Window{
 				root.getToolEditor().removeAllComponents();
 				root.getTreeToolEditor().removeAllChildren();
 				root.getTreeToolEditor().updateToolTitle("");
-				root.getTextEditor().setText("");
+				root.getTextEditor().clearAllText();
 				root.removeWindow(ConfirmClearAll.this);
 			}
 		});

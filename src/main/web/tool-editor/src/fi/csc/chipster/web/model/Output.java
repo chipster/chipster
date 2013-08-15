@@ -5,6 +5,11 @@ import com.vaadin.ui.Label;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription;
 
+/**
+ * Tool editor output model.
+ * @author Gintare Pacauskaite
+ *
+ */
 public class Output extends InputOutputUI{
 
 	private static final long serialVersionUID = 6280877684047822425L;
@@ -19,6 +24,8 @@ public class Output extends InputOutputUI{
 		generateHeader();
 		initElements();
 		createBasicUI();
+		// just for now
+		removeTypeRow();
 		return this;
 	}
 	
@@ -26,17 +33,20 @@ public class Output extends InputOutputUI{
 	protected void initElements() {
 		super.initElements();
 		lbId.setValue("Output file:");
-//		lbOptional = new Label("Output is:");
 		lbType = new Label("Output is:");
 		lbType2 = new Label("Type:");
+		
 	}
 	
 	public Output createUIWithData(SADLDescription.Output output) {
-//		createUI();
 		fillWithData(output);
 		return this;
 	}
 	
+	/**
+	 * Fills up output fields from SADL output
+	 * @param output SADL output
+	 */
 	public void fillWithData(SADLDescription.Output output) {
 		name.setValue(output.getName().getDisplayName());
 		cbMeta.setValue(output.isMeta());
@@ -55,6 +65,10 @@ public class Output extends InputOutputUI{
 		}
 	}
 	
+	/**
+	 * Creates SADL output from tool editor output
+	 * @return SADL output
+	 */
 	public SADLDescription.Output getSadlOutput() {
 		SADLDescription.Output output = new SADLDescription.Output();
 		output.setName(getNameFromUI(type.getValue().toString()));
@@ -72,7 +86,11 @@ public class Output extends InputOutputUI{
 	
 	@Override
 	public String toString() {
-		return getValue(name.getValue()) + " " + getValue(getType()) + " " + (optional.getValue() ? " OPTIONAL" : "");
+		return getValue((id.getValue() != null && !id.getValue().isEmpty() ? id.getValue() :name.getValue()));
+	}
+	
+	private void removeTypeRow() {
+		this.removeRow(this.getComponentArea(type2).getRow1());
 	}
 
 }
