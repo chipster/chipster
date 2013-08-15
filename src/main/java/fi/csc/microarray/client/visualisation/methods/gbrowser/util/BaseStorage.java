@@ -1,13 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.util;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * Utility class for storing information that is organised by bases (genomic coordinates).
@@ -21,7 +20,6 @@ public class BaseStorage {
 	private static final int MIN_SIGNIFICANT_SNP_COUNT = 2;
 	private static final double MIN_SIGNIFICANT_SNP_RATIO = 0.20;
 
-	private Object baseCache = null;
 	private TreeMap<Long, Base> collector; 
 	
 	public enum Nucleotide { 
@@ -72,7 +70,7 @@ public class BaseStorage {
 	};
 
 
-	public class Base {
+	public static class Base {
 
 		private int[] nucleutideCounts = new int[Nucleotide.values().length];
 		private Long bpLocation;
@@ -151,55 +149,15 @@ public class BaseStorage {
 			}
 			return snpCounts;
 		}
-	}
 
-	public void updateBases(Collection<RegionContent> reads, GBrowserView view) {
-
-		
-		// Divide to two groups: in view and out of view
-		LinkedList<RegionContent> readsInView = new LinkedList<RegionContent>();
-		LinkedList<RegionContent> readOutOfView = new LinkedList<RegionContent>();
-		Iterator<RegionContent> iter = reads.iterator();
-		while (iter.hasNext()) {
-
-			RegionContent read = iter.next();
-
-			if (read.region.intersects(view.getBpRegion())) {
-				readsInView.add(read);
-			} else {
-				readOutOfView.add(read);
+		public void setNucleotideCounts(int[] nucleotideCounts) {
+			this.nucleutideCounts = nucleotideCounts;
+			
+			totalCount = 0;
+			for (int i = 0; i < nucleotideCounts.length; i++) {
+				totalCount += nucleotideCounts[i];
 			}
 		}
-		
-		// Update reads
-		// TODO
-		
-		// Decide base cache update strategy and execute it
-		if (baseCache != null && readsInView.size() > readOutOfView.size()) {
-			
-			// Cache exists and most of the reads still in, so update old
-			for (RegionContent toBeRemoved : readOutOfView) {
-				removeRead(toBeRemoved);
-			}
-			
-		} else {
-			
-			// Most of the reads are out, so regenerate everything
-			baseCache = new Object();
-			for (RegionContent read : readsInView) {
-				addRead(read);
-			}
-		}
-		
-		
-	}
-
-	private void addRead(RegionContent read) {
-		// TODO Auto-generated method stub
-	}
-
-	private void removeRead(RegionContent toBeRemoved) {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -214,7 +172,7 @@ public class BaseStorage {
 			for (ReadPart readPart : readParts) {
 
 				// Skip elements that are not in this view
-				if (!readPart.intersects(view.getBpRegion())) {
+				if (view != null && !view.requestIntersects(readPart)) {
 					continue;
 				}
 				
@@ -231,19 +189,23 @@ public class BaseStorage {
 					Long bp = readPart.start.bp + j;
 					
 					// Part of read can be out of view
-					if (bp.longValue() < view.bpRegion.start.bp.longValue()) {
+					if (view != null && bp.longValue() < view.bpRegion.start.bp.longValue()) {
 						continue;
 						
-					} else if (bp.longValue() > view.bpRegion.end.bp.longValue()) {
+					} else if (view != null && bp.longValue() > view.bpRegion.end.bp.longValue()) {
 						break;
 					}
 
 					if (!collector.containsKey(bp)) {
 						
-						int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
-						Nucleotide referenceNucleotide = Nucleotide.fromCharacter(refSeq[viewIndex]);
+						if (view != null && refSeq != null) {
+							int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
+							Nucleotide referenceNucleotide = Nucleotide.fromCharacter(refSeq[viewIndex]);						
+							base = new Base(bp, referenceNucleotide);
+						} else {
+							base = new Base(bp, null);
+						}
 						
-						base = new Base(bp, referenceNucleotide);
 						collector.put(bp, base);
 						
 					} else {
@@ -260,5 +222,23 @@ public class BaseStorage {
 
 	public Iterator<Base> iterator() {
 		return collector.values().iterator();
+	}
+
+	/**
+	 * Remove bases that don't intercept with the filterRegion.
+	 * 
+	 * @param filterRegion
+	 */
+	public void filter(Region filterRegion) {
+		
+		Iterator<Entry<Long, Base>> iterator = collector.entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+			Entry<Long, Base> entry = iterator.next();
+			
+			if (!filterRegion.contains(entry.getKey())) {
+				iterator.remove();
+			}
+		}
 	}
 }

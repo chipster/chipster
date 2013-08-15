@@ -66,31 +66,37 @@ public class DataFolder extends DataItemBase {
 				try {
 					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
 					String line = in.readLine();
-					String[] split = line.split("\t");
 					
-					// Some special tags for the tsv output of tool Annotate variants 
-					if (split.length > 4 && 
-							"SEQNAMES".equals(split[1]) && 
-							"START".equals(split[2]) && 
-							"END".equals(split[3])) {
-						
-						data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+					if (line != null) {						
+
+						String[] split = line.split("\t");					
+
+						// Some special tags for the tsv output of tool Annotate variants 
+						if (split.length > 4 && 
+								"SEQNAMES".equals(split[1]) && 
+								"START".equals(split[2]) && 
+								"END".equals(split[3])) {
+
+							data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
+							data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
+							data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+						}
+
+						// Cna data, first data column of rownames is missing in header
+						if (split.length > 3 && 
+								"chromosome".equals(split[0]) && 
+								"start".equals(split[1]) && 
+								"end".equals(split[2])) {
+
+							data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
+							data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
+							data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+						}
 					}
 					
-					//Cna data, first data column of rownames is missing in header
-					if (split.length > 3 && 
-							"chromosome".equals(split[0]) && 
-							"start".equals(split[1]) && 
-							"end".equals(split[2])) {
-						
-						data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
-					}
 				} catch (IOException e) {
 					throw new RuntimeException(e);
+					
 				} finally {
 					IOUtils.closeIfPossible(in);
 				}				
@@ -123,7 +129,8 @@ public class DataFolder extends DataItemBase {
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-					if (in.readLine().startsWith("track")) {
+					String line = in.readLine();
+					if (line != null && line.startsWith("track")) {
 						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
 					}
 				} catch (IOException e) {
@@ -134,6 +141,18 @@ public class DataFolder extends DataItemBase {
 				
 			}
 
+			// mothur
+			if (data.isContentTypeCompatitible("text/mothur-oligos")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-names")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-groups")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+			}
+			
+			
 			// the rest is microarray specific
 			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 				return;

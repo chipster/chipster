@@ -1000,7 +1000,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		protected void initialiseGUI() throws MicroarrayException, IOException {
+		protected void initialiseGUIThreadSafely() throws MicroarrayException, IOException {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1040,7 +1040,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void reportInitialisation(String report, boolean newline) {
+		public void reportInitialisationThreadSafely(String report, boolean newline) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1146,6 +1146,11 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void visualiseWithBestMethod(FrameType target) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+
+		@Override
+		public void reportExceptionThreadSafely(Exception e) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 		

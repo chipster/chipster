@@ -242,7 +242,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
-        this.dataView.redraw();
+        this.dataView.reloadData();
     }
     
     public void setFullLayoutMode(boolean enabled) {
@@ -274,7 +274,7 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
 	public void updateData() {
 		for (GBrowserView view : views) {
-			view.fireAreaRequests();			
+			view.fireDataRequests();			
 		}
 	}
 }

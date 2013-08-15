@@ -69,43 +69,43 @@ abstract public class Drawable
     }
     
     /**
-     * 
-     * @param other 
-     * @return 
-     */
-    public int compareTo(Drawable other) {
-    	//TODO Find the reasen for the nullPointer    	
-    	if(other == null){
-    		//Avoid critical null pointer, which shouldn't really hapen
-    		return -1;
-    	}
-        double thisMax = Double.MIN_VALUE;
-        double otherMin = Double.MAX_VALUE;
-        double[] d2 = other.getDistanceFromCamera();
-        
-        //Comapares maximum to minimum
-        /*
-        for (int i=0; i < distanceFromCamera.length; ++i) {
-            if (distanceFromCamera[i] > thisMax)
-                thisMax = distanceFromCamera[i];
-        }
-        for (int i=0; i < d2.length; ++i) {
-            if (d2[i] < otherMin)
-                otherMin = d2[i];
-        }*/
-        //Compares averages:
-        for (int i=0; i < distanceFromCamera.length; ++i) {            
-                thisMax += distanceFromCamera[i]/distanceFromCamera.length;
-        }
-        for (int i=0; i < d2.length; ++i) {
-                otherMin += d2[i]/d2.length;
-        }
-        
-        if (thisMax < otherMin)
-            return 1;
-        if (thisMax > otherMin)
-            return -1;
-        
-        return 0;
-    }
+	 * 
+	 * @param other 
+	 * @return 
+	 */
+	public int compareTo(Drawable other) {
+		//TODO Find the reasen for the nullPointer    	
+		if(other == null){
+			//Avoid critical null pointer, which shouldn't really hapen
+			System.out.println("null");
+			return -1;
+		}
+	    double thisMax = Double.NEGATIVE_INFINITY;
+	    double otherMin = Double.MAX_VALUE;
+	    double[] d2 = other.getDistanceFromCamera();
+	    
+	    //Comapares maximum to minimum        
+	    for (int i=0; i < distanceFromCamera.length; ++i) {
+	        if (distanceFromCamera[i] > thisMax)
+	            thisMax = distanceFromCamera[i];
+	    }
+	    for (int i=0; i < d2.length; ++i) {
+	        if (d2[i] < otherMin)
+	            otherMin = d2[i];
+	    }
+	    //Compares averages:
+	    for (int i=0; i < distanceFromCamera.length; ++i) {            
+	            thisMax += distanceFromCamera[i]/distanceFromCamera.length;
+	    }
+	    for (int i=0; i < d2.length; ++i) {
+	            otherMin += d2[i]/d2.length;
+	    }
+	    
+	    if (thisMax < otherMin)
+	        return 1;
+	    if (thisMax > otherMin)
+	        return -1;
+	    
+	    return 0;
+	}
 }

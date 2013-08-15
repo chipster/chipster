@@ -33,6 +33,7 @@ public class GBrowserLegend extends JPanel {
 		c.insets = new Insets(7, 7, 7, 7);
 		c.weighty = 0;
 		
+		addIcon(GBrowserConstants.GB_LEGEND_GENE_ICON, "Gene", c);
 		addIcon(GBrowserConstants.GB_LEGEND_CDS_ICON, "Coding sequence", c);
 		addIcon(GBrowserConstants.GB_LEGEND_UTR_ICON, "Untranslated region", c);
 		addIcon(GBrowserConstants.GB_LEGEND_INTRON_ICON, "Intron", c);

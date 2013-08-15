@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 
 /**
  * Helper class for collecting drawing related information for a {@link Drawable} 
@@ -41,7 +41,9 @@ public class TrackContext {
         
         this.minDrawableY = minDrawableY;
         
-        this.expansionRatio = this.trackHeight /
-                (this.trackHeight - (float) this.minDrawableY);
+//        this.expansionRatio = this.trackHeight /
+//                (this.trackHeight - (float) this.minDrawableY);
+        
+        this.expansionRatio = this.trackHeight / (float) this.minDrawableY;
     }
 }

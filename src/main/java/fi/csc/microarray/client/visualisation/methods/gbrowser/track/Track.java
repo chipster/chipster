@@ -8,50 +8,63 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Single track inside a {@link GBrowserView}. Typically multiple instances
  * are used to construct what user perceives as a track. 
  */
-public abstract class Track implements AreaResultListener, LayoutComponent {
+public abstract class Track implements DataResultListener, LayoutComponent {
 
 	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
 	protected GBrowserView view;
-	protected AreaRequestHandler areaRequestHandler;
+	protected List<DataThread> dataThreads = new LinkedList<DataThread>();
 	protected Strand strand = Strand.FORWARD;
 	protected int layoutHeight;
 	protected boolean visible = true;
 	protected LayoutMode layoutMode = LayoutMode.FIXED;
-	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;	
+	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;
+	private Map<DataThread, Set<DataType>> dataTypeMap = new HashMap<DataThread, Set<DataType>>();
+	
+	private long maxViewLength = Long.MAX_VALUE;
+	private long minViewLength = 0;
+
 
 	public void setView(GBrowserView view) {
     	this.view = view;
     }
     
-    public void setAreaRequestHandler (AreaRequestHandler areaRequestHandler) {
-    	this.areaRequestHandler = areaRequestHandler;
+    /**
+     * @param dataThread
+     * @return index of added {@link DataThread}
+     */
+    public int addDataThread (DataThread dataThread) {
+    	this.dataThreads.add(dataThread);
+    	return dataThreads.size() - 1;
     }
 
 	/**
-	 * Should be called after Track object is created, but can't be merged to constructor, because the coming areaResult event could cause
+	 * Should be called after Track object is created, but can't be merged to constructor, because the coming dataResult event could cause
 	 * call to track object before it's constructed.
 	 */
 	public void initializeListener() {
-		if (areaRequestHandler != null) {
-			view.getQueueManager().addResultListener(areaRequestHandler, this);
+		if (dataThreads != null) {
+			for (DataThread handler : dataThreads) {
+				view.getQueueManager().addDataResultListener(handler, this);
+			}
 		} 
 	}
 
@@ -71,22 +84,47 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	 * Check if this track has data.
 	 */
 	public boolean hasData() {
-	    return areaRequestHandler != null;
+	    return dataThreads != null;
 	}
 	
     /**
-     * Get a map of data sources and column types that this
-     * track needs to operate.
+     * Define data sources and dataTypes that this
+     * track needs to operate by calling addDataRequest methods.
      * 
-     * Can also return null if this track does not need any data, or column set 
-     * can be empty, if the data layer sends the required data anyway (in case of 
-     * Conversion classes). 
+     * This empty default implementation is fine if the track doesn't need any data.
      */
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>());
-        return datas;
+    public void defineDataTypes() {
+    	
+    };
+    
+    /**
+     * Request data of the specified DataType from the first dataThread. Use this method when there is only
+     * one dataThread for this track, otherwise use other other overloaded versions to define the
+     * dataThreads explicitly.
+     * 
+     * @param type
+     */
+    public void addDataType(DataType type) {
+
+    	addDataType(dataThreads.get(0), type);
+    }
+
+    /**
+     * Request data of the specified DataType from the given dataThread. Use this method when there are several dataThreads 
+     * for this track to define the dataThreads explicitly.
+     * 
+     * @param type
+     */
+    public void addDataType(DataThread dataThread, DataType type) {
+
+    	Set<DataType> set = dataTypeMap.get(dataThread);
+    	
+    	if (set == null) {
+    		set = new HashSet<DataType>();
+    		dataTypeMap.put(dataThread, set);
+    	}
+    	
+    	set.add(type);
     }
 
 	/**
@@ -116,7 +154,10 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
      * @return false.
      */
     public boolean isVisible() {
-        return visible;
+    	
+        return (visible &&
+                getView().getBpRegion().getLength() >= minViewLength &&
+                getView().getBpRegion().getLength() < maxViewLength);
     }
     
     /**
@@ -244,5 +285,24 @@ public abstract class Track implements AreaResultListener, LayoutComponent {
 	
 	public LayoutMode getLayoutMode() {
 		return layoutMode;
+	}
+
+	public void clearDataTypes() {
+		this.dataTypeMap.clear();
+	}
+
+	public Map<DataThread, Set<DataType>> getDataTypeMap() {
+		return dataTypeMap;
+	}
+	
+	/**
+	 * Set limits for the track visibility. 
+	 * 
+	 * @param minViewLength
+	 * @param maxViewLength
+	 */
+	public void setViewLimits(long minViewLength, long maxViewLength) {
+		this.minViewLength = minViewLength;
+		this.maxViewLength = maxViewLength;
 	}
 }

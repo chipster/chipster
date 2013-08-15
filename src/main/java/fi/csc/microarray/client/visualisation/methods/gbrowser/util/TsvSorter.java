@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
@@ -291,8 +291,23 @@ public class TsvSorter {
 
 	public static void main(String[] args) throws Exception {
 
-		String filename = "/home/akallio/Desktop/cisREDgroup_contents_for_40193-STAT1_trimmed.tsv";
-		String resultFilename = filename + ".sorted";
-		new TsvSorter().sort(new File(filename), new File(resultFilename), 0, 1);				
+		try {
+		File in = new File(args[0]);
+		File out = new File(args[1]);
+		int chr = Integer.parseInt(args[2]);
+		int start = Integer.parseInt(args[3]);
+		
+		new TsvSorter().sort(in, out, chr, start);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+						
+			System.out.println(
+					"usage: \n" +
+					"  TsvSorter <file-in> <file-out> <chr-column> <start-position-column>\n" +
+					"  Column indexes start from 0\n\n" +
+					"example:\n " +
+					"  java -cp chipster-2.7.1.jar fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter Homo_sapiens.GRCh37.70.gtf Homo_sapiens.GRCh37.70-sort.gtf 0 3");
+		}				
 	}
 }

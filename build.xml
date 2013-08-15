@@ -40,7 +40,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.6.1" />
+	<property name="release-version" value="2.7.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -95,8 +95,8 @@
 			<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/sam-1.89.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/picard-1.89.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
@@ -109,6 +109,7 @@
 			<fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/snakeyaml-1.11.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
@@ -174,7 +175,7 @@
 
 		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
+		<javac destdir="${build}" target="1.7" source="1.7" debug="true" failonerror="true">
 			<src path="${src}" />
 			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />
@@ -194,6 +195,8 @@
 		</javac>
 
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/log4j-enabled.properties" tofile="${build}/log4j-enabled.properties" />
+
 		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
 
 	</target>

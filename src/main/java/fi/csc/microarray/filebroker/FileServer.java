@@ -1,9 +1,12 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -25,6 +28,7 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.UrlListMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
@@ -42,7 +46,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private AuthorisedUrlRepository urlRepository;
 
 	private File userDataRoot;
-	private String publicDataPath;
+	private File publicRoot; 
+	private String publicPath;
 	private String host;
 	private int port;
 
@@ -75,7 +80,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
-    		this.publicDataPath = configuration.getString("filebroker", "public-data-path");
+    		this.publicPath = configuration.getString("filebroker", "public-data-path");
 
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
@@ -84,6 +89,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		// cache clean up setup
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
     		userDataRoot = new File(fileRepository, userDataPath);
+    		publicRoot = new File(fileRepository, publicPath);
+    		
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
@@ -141,10 +148,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				managerClient.urlRequest(msg.getUsername(), url);
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				URL url = getPublicUrL();
-				UrlMessage reply = new UrlMessage(url);
-				endpoint.replyToMessage(msg, reply);
-				managerClient.publicUrlRequest(msg.getUsername(), url);
+				handlePublicUrlRequest(msg);
+
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_FILES_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				handlePublicFilesRequest(msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
@@ -157,6 +164,33 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			logger.error(e, e);
 		}
 	}
+	
+
+	@Deprecated
+	private void handlePublicUrlRequest(ChipsterMessage msg)
+			throws MalformedURLException, JMSException {
+		URL url = getPublicUrl();
+		UrlMessage reply = new UrlMessage(url);
+		endpoint.replyToMessage(msg, reply);
+		managerClient.publicUrlRequest(msg.getUsername(), url);
+	}
+
+	private void handlePublicFilesRequest(ChipsterMessage msg)
+			throws MalformedURLException, JMSException {
+		List<URL> files = null;
+		ChipsterMessage reply;
+		try {
+			files = getPublicFiles();
+			reply = new UrlListMessage(files);
+		} catch (IOException e) {
+			reply = null;
+		}
+		endpoint.replyToMessage(msg, reply);
+		//Disabled on Chipster2 backport
+		//managerClient.publicFilesRequest(msg.getUsername(), files);
+	}
+
+
 
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
@@ -263,7 +297,36 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		logger.info("shutting down");
 	}
 
-	public URL getPublicUrL() throws MalformedURLException {
-		return new URL(host + ":" + port + "/" + publicDataPath);		
+	@Deprecated
+	public URL getPublicUrl() throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + publicPath);		
+	}
+	
+	public List<URL> getPublicFiles() throws IOException {
+		
+		List<URL> urlList = new LinkedList<URL>();
+		
+		addFilesRecursively(urlList, publicRoot);
+				
+		return urlList;
+	}
+	
+	private void addFilesRecursively(List<URL> files, File path) throws IOException {
+		
+		for (File file : path.listFiles()) {
+			
+			if (file.isDirectory()) {
+				addFilesRecursively(files, file);
+				
+			} else {
+
+				String localPath = file.toURI().toString();//convert spaces to %20 etc.
+				String publicRootString = publicRoot.toURI().toString();//convert spaces to %20 etc.
+
+				String urlString = localPath.replace(publicRootString, host + ":" + port + "/" + publicPath + "/");
+
+				files.add(new URL(urlString));
+			}
+		}		
 	}
 }

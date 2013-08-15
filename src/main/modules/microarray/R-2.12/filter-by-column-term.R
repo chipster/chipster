@@ -9,20 +9,25 @@
 # MG 9.3.2010
 # IS 1.11.2010, small fix to column matching
 # JTT 30.3.2010, added a parameter to control matching
-# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
+# IS 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
+# MK 26.05.2013, ability to remove NA symbols added
 
 # Loads the normalized data
 file <- 'normalized.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, check.names=FALSE)
 
-# Only exact matches?
-if(exact.match=="yes") {
-	match.term<-paste("^", match.term, "$", sep="")
+if(match.term == "NA") {
+	dat2 <- dat[!is.na(dat[,column]), ]
+} else {
+	# Only exact matches?
+	if(exact.match=="yes") {
+		match.term<-paste("^", match.term, "$", sep="")
+	}
+
+	# grep the desired rows
+	dat2 <- dat[grep(match.term, dat[,column]),]
 }
-
-# grep the desired rows
-dat2 <- dat[grep(match.term, dat[,column]),]
-
+	
 # write output
 options(scipen=10)
 write.table(dat2, 'column-term-filter.tsv', sep='\t', quote=FALSE)

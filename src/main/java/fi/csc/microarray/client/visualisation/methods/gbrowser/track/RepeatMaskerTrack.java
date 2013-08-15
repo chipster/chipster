@@ -2,36 +2,26 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class RepeatMaskerTrack extends Track{
 
-	private long minBpLength;
-	private long maxBpLength;
 	private Color color;
 
 	private Collection<RegionContent> regions = new TreeSet<RegionContent>();
 
-	public RepeatMaskerTrack(long minBpLength, long maxBpLength){
+	public RepeatMaskerTrack(){
 
 		this.color = Color.lightGray;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -49,7 +39,7 @@ public class RepeatMaskerTrack extends Track{
 
 				regionContent = iter.next();
 
-				if (!regionContent.region.intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(regionContent.region)) {
 					iter.remove();
 					continue;
 				}
@@ -72,31 +62,19 @@ public class RepeatMaskerTrack extends Track{
 	}
 
 	@Override
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		this.regions.addAll(areaResult.getContents());
-		getView().redraw();
+		this.regions.addAll(dataResult.getContents());
 	}
 
 	@Override
 	public int getHeight() {
 		return 5;
 	}
-
-	@Override
-	public boolean isVisible() {
-		// visible region is not suitable
-		return (super.isVisible() &&
-				getView().getBpRegion().getLength() > minBpLength &&
-				getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-				HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {})));
-		return datas;
+	
+    @Override
+	public void defineDataTypes() {
+    	addDataType(DataType.REGION);
 	}
 	
     @Override
