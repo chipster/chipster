@@ -9,6 +9,11 @@ import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
+/**
+ * Input for tool editor
+ * @author Gintare Pacauskaite
+ *
+ */
 public class Input extends InputOutputUI{
 	
 	private static final long serialVersionUID = -7370540274349829538L;
@@ -36,7 +41,6 @@ public class Input extends InputOutputUI{
 		super.initElements();
 		
 		lbId.setValue("Input file:");
-//		lbOptional = new Label("Input is:");
 		lbType = new Label("Input is:");
 		lbType2 = new Label("Type:");
 		addInputTypes();
@@ -46,11 +50,14 @@ public class Input extends InputOutputUI{
 	}
 	
 	public Input createUIWithData(SADLDescription.Input input) {
-//		createUI();
 		fillWithData(input);
 		return this;
 	}
 	
+	/**
+	 * Fills input fields with data from SADL input.
+	 * @param input
+	 */
 	public void fillWithData(SADLDescription.Input input) {
 		type2.select(input.getType());
 		name.setValue(input.getName().getDisplayName());
@@ -70,6 +77,10 @@ public class Input extends InputOutputUI{
 		}
 	}
 	
+	/**
+	 * Creates SADL input from tool editor input fields
+	 * @return SADL input
+	 */
 	public SADLDescription.Input getSadlInput() {
 		SADLDescription.Input input = new SADLDescription.Input();
 		input.setName(getNameFromUI(type.getValue().toString()));
@@ -103,7 +114,6 @@ public class Input extends InputOutputUI{
 	
 	@Override
 	public String toString() {
-		return getValue(name.getValue()) + " " + getValue(getType()) + " " + (optional.getValue() ? " OPTIONAL" : "");
+		return getValue((id.getValue() != null && !id.getValue().isEmpty() ? id.getValue() :name.getValue())) + " " + getValue(getType());
 	}
-
 }

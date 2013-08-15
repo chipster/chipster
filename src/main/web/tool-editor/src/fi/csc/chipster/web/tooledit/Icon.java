@@ -6,6 +6,11 @@ import com.vaadin.server.FileResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinService;
 
+/**
+ * Class for getting icons
+ * @author Gintare Pacauskaite
+ *
+ */
 public class Icon {
 	
 	private static final String[] pathEnd = new String[] {"web", "tool-editor", "WebContent"};
@@ -22,7 +27,7 @@ public class Icon {
 	}
 	
 	public static String getDeleteButtonIconPath() {
-		String[] deletePath = new String[] {"resources", "no.png"};
+		String[] deletePath = new String[] {"resources", "close.png"};
 		return removePathEnd() + getGeneratedPath(deletePath);
 	}
 	

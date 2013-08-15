@@ -2,9 +2,6 @@ package fi.csc.chipster.web.model;
 
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
@@ -14,10 +11,14 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
 import fi.csc.chipster.web.listener.CSCTextChangeListener;
-import fi.csc.chipster.web.tooledit.Icon;
 import fi.csc.chipster.web.tooledit.ToolEditor;
 import fi.csc.microarray.description.SADLDescription.Name;
 
+/**
+ * Basic model for tool, input, output, parameter
+ * @author Gintare Pacauskaite
+ *
+ */
 public abstract class BasicModel extends GridLayout{
 	
 	private static final long serialVersionUID = 7942793110778486624L;
@@ -27,6 +28,7 @@ public abstract class BasicModel extends GridLayout{
 	public static final String SINGLE_FILE = "Single file";
 	public static final String MULTI_FILE = "Multiple files";
 	public static final String MULTI_FILE_TEXT = "{...}";
+	public static final String REQUIRED_TEXT = "this field cannot be empty";
 	
 	protected Label lbName;
 	protected Label lbId;
@@ -41,10 +43,6 @@ public abstract class BasicModel extends GridLayout{
 	protected TextArea description;
 	protected TextField prefix;
 	protected TextField postfix;
-	protected Button btUp;
-	protected Button btDown;
-	protected Button btDelete;
-	protected HorizontalLayout hLayoutTitle;
 	protected CheckBox optional;
 	
 	protected HorizontalLayout layout;
@@ -61,62 +59,6 @@ public abstract class BasicModel extends GridLayout{
 		addRow(lbId, id);
 		addRow(lbName, name);
 	}
-	
-	
-	protected void initFooter() {
-		btUp = new Button();
-		btDown = new Button();
-		btDelete = new Button();
-		btDelete.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = -689182485982297845L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.removeComponent(BasicModel.this);
-				root.getToolEditorUI().getTreeToolEditor().removeItem(BasicModel.this);
-			}
-		});
-		btUp.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = -5641105378128102121L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveUpComponent(BasicModel.this);
-			}
-		});
-		btDown.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 5198164039029102629L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				root.moveDownComponent(BasicModel.this);
-			}
-		});
-		String width = "50px";
-		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
-		btDelete.setImmediate(true);
-		btDelete.setWidth(width);
-		btUp.setImmediate(true);
-		btUp.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
-		btUp.setWidth(width);
-		btDown.setImmediate(true);
-		btDown.setIcon(Icon.getResource(Icon.getDownButtonIconPath()));
-		btDown.setWidth(width);
-		hLayoutTitle = new HorizontalLayout();
-		hLayoutTitle.setSpacing(true);
-//		hLayoutTitle.setMargin(true);
-//		hLayoutTitle.addComponent(btUp);
-//		hLayoutTitle.addComponent(btDown);
-		hLayoutTitle.addComponent(btDelete);
-	}
-	
-	
-	protected void generateFooter() {
-		initFooter();
-		addRow(new Label(), hLayoutTitle);
-//		this.addComponent(hLayoutTitle);
-	}
-	
 	
 	private void initHeadeer() {
 		lbTitle = new Label();
@@ -136,14 +78,21 @@ public abstract class BasicModel extends GridLayout{
 		
 		name = new TextField();
 		name.setWidth(WIDTH);
+		name.setDescription("Display name for the element");
 		name.setImmediate(true);
 		name.addTextChangeListener(new CSCTextChangeListener(this));
 		
 		id = new TextField();
+		id.setDescription("file name or unique identification");
+		id.setImmediate(true);
+		id.setRequired(true);
+		id.setRequiredError(REQUIRED_TEXT);
 		id.setWidth(WIDTH);
+		id.addTextChangeListener(new CSCTextChangeListener(this, true));
 		
 		description = new TextArea();
 		description.setWidth(WIDTH);
+		description.setDescription("Short description");
 		
 		layout = new HorizontalLayout();
 		
@@ -155,17 +104,8 @@ public abstract class BasicModel extends GridLayout{
 		layout.addComponent(postfix);
 		
 		optional = new CheckBox();
+		optional.setDescription("Is this element optional");
 		optional.setImmediate(true);
-//		optional.addValueChangeListener(new ValueChangeListener() {
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public void valueChange(ValueChangeEvent event) {
-//				System.out.println("boolean: " + BasicModel.this.toString());
-//				setTitleDescriptionValue(BasicModel.this.toString());
-//				root.getToolEditorUI().getTreeToolEditor().setItemCaption(BasicModel.this, BasicModel.this.toString());
-//			}
-//		});
 	}
 	
 	abstract protected String getType();
@@ -178,21 +118,39 @@ public abstract class BasicModel extends GridLayout{
 		return name.getValue().toString();
 	}
 	
+	/**
+	 * sets title
+	 * @param text 
+	 */
 	public void setTitleDescriptionValue(String text) {
-		System.out.println("EI " + text);
 		lbTitleDescription.setValue(getBoldText(text));
 	}
 	
+	/**
+	 * adds row
+	 * @param label
+	 * @param component
+	 */
 	protected void addRow(Component label, Component component) {
 		this.addComponent(label);
 		this.addComponent(component);
 		this.setComponentAlignment(label, Alignment.MIDDLE_LEFT);
 	}
 	
+	/**
+	 * get string value
+	 * @param value
+	 * @return value or empty string
+	 */
 	protected String getValue(String value) {
 		return value == null || value.isEmpty() ? "" : value;
 	}
 	
+	/**
+	 *  get string value
+	 * @param value
+	 * @return value or null
+	 */
 	protected String getValueOrNull(String value) {
 		return value == null || value.isEmpty() ? null : value;
 	}
@@ -200,6 +158,9 @@ public abstract class BasicModel extends GridLayout{
 	public abstract GridLayout createUI();
 	protected abstract void generateHeader();
 	
+	/**
+	 * Creates UI for multiple files
+	 */
 	protected void getMultipleFilesUI() {
 		Area area = this.getComponentArea(id);
 		if(area == null)
@@ -217,6 +178,11 @@ public abstract class BasicModel extends GridLayout{
 		this.addComponent(id, area.getColumn1(), area.getRow1());
 	}
 	
+	/**
+	 * Gets name from UI
+	 * @param value
+	 * @return name, or null if some other type than sigle file / multipe file was selected
+	 */
 	protected Name getNameFromUI(String value) {
 		if(value.equals(SINGLE_FILE)) {
 			return Name.createName(id.getValue(), name.getValue());
@@ -237,6 +203,14 @@ public abstract class BasicModel extends GridLayout{
 	
 	public boolean isOptional() {
 		return optional.getValue();
+	}
+	
+	public String getId() {
+		return id.getValue();
+	}
+	
+	public boolean isValid() {
+		return id.isValid();
 	}
 
 }

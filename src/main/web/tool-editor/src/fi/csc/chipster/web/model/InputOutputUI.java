@@ -6,6 +6,11 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
+/**
+ * Abstract class for input and output models.
+ * @author Gintare Pacauskaite
+ *
+ */
 public abstract class InputOutputUI extends BasicModel {
 	
 	private static final long serialVersionUID = 7877139214264349071L;
@@ -21,12 +26,13 @@ public abstract class InputOutputUI extends BasicModel {
 	public InputOutputUI() {
 	}
 	
-protected void initElements() {
+	protected void initElements() {
 		type2 = new ComboBox();
 		type2.setImmediate(true);
 		type2.setWidth(WIDTH);
 		lbMeta = new Label("Meta:");
 		cbMeta = new CheckBox();
+		cbMeta.setDescription("Is this element Meta data");
 		
 		optional.setWidth(WIDTH);
 		type = new ComboBox();
@@ -56,7 +62,6 @@ protected void initElements() {
 		addRow(lbMeta, cbMeta);
 		addRow(lbOptional, optional);
 		addRow(lbDescription, description);
-		generateFooter();
 	}
 	
 	@Override
