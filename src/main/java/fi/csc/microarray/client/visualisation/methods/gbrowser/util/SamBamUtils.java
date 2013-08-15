@@ -293,6 +293,7 @@ public class SamBamUtils {
 	}
 	
 	public String printSamBam(InputStream samBamStream, int maxRecords) throws IOException {
+		SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
 		SAMFileReader in = new SAMFileReader(samBamStream);
 		SAMFileHeader header = in.getFileHeader();
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
