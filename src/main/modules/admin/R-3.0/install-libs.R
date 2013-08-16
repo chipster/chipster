@@ -143,6 +143,7 @@ smart.install.packages(bioconductor.package="BiodiversityR", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="pegas", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="labdsv", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="sva", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="Mfuzz", mirror=repo.bioc)
 
 
 
