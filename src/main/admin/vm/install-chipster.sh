@@ -415,7 +415,7 @@ then
 
 
   ## R-2.15.1_bioc-2.11	
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v3.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 	
 
   ## External apps:
