@@ -109,6 +109,7 @@ public interface FileBrokerClient {
 	 * @throws IOException 
 	 */
 	public abstract boolean checkFile(URL url, long contentLength);
+	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -120,8 +121,7 @@ public interface FileBrokerClient {
 	 * @throws MalformedURLException 
 	 */
 	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
-	
-	
+
 	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException;
 	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException;
 	

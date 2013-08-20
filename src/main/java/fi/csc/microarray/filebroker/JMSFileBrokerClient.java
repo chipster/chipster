@@ -298,7 +298,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		return url;
 	}
-	
+
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
 	 */

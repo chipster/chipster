@@ -2,6 +2,9 @@ package fi.csc.microarray;
 
 
 import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.analyser.SADLTool;
@@ -159,10 +162,37 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 
 			} else if (cmdParser.hasValue("standalone")) {
-				SwingClientApplication.startStandalone(cmdParser.getValue("-module"));		
+				
+				final String module = cmdParser.getValue("-module");
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {						
+						try {
+							SwingClientApplication.startStandalone(module);
+						} catch (IOException e) {
+							e.printStackTrace();
+							System.exit(0);
+						}		
+					}
+				});
 				
 			} else {
-				SwingClientApplication.start(configURL, cmdParser.getValue("-module"));		
+
+				final String module = cmdParser.getValue("-module");
+				final String config = configURL;				
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {						
+						try {
+							SwingClientApplication.start(config, module);		
+						} catch (IOException e) {
+							e.printStackTrace();
+							System.exit(0);
+						}		
+					}
+				});
 			}
 			
 		} catch (CommandLineException e) {

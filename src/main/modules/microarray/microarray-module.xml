@@ -164,6 +164,7 @@
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
+		<tool runtime="R-2.12"><resource>delete-and-subtract-columns.R</resource></tool>
 		<tool runtime="R-2.12"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-samples.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-genes.R</resource></tool>

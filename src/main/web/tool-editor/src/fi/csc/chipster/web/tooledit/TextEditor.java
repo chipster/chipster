@@ -1,27 +1,27 @@
 package fi.csc.chipster.web.tooledit;
 
-import java.util.List;
-
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLDescription.Input;
-import fi.csc.microarray.description.SADLDescription.Output;
-import fi.csc.microarray.description.SADLDescription.Parameter;
-import fi.csc.microarray.description.SADLParser;
-import fi.csc.microarray.description.SADLParser.ParseException;
-import fi.csc.microarray.module.chipster.ChipsterSADLParser;
+import fi.csc.chipster.web.listener.CSCTextToToolClickListener;
+import fi.csc.chipster.web.listener.CSCToolToTextClickListener;
 
+/**
+ * Text editor
+ * @author Gintare Pacauskaite
+ *
+ */
 public class TextEditor extends VerticalLayout{
 	private static final long serialVersionUID = -7074541336842177583L;
 	
 	private TextArea txtArea;
-	private Button btUpdate;
+	private Button btUpdateToolEditor;
+	private Button btUpdateTextEditor;
 	private ToolEditorUI root;
 	
 	public static final String NEW_LINE = "\n";
@@ -34,59 +34,61 @@ public class TextEditor extends VerticalLayout{
 	
 	private void init() {
 		
-		btUpdate = new Button("Update");
-		btUpdate.addClickListener(new ClickListener() {
+		HorizontalLayout hLayout = new HorizontalLayout();
+		hLayout.setSpacing(true);
+		
+		btUpdateTextEditor = new Button();
+		btUpdateTextEditor.setDescription("Update text area");
+		btUpdateTextEditor.setIcon(Icon.getResource(Icon.getDownButtonIconPath()));
+		btUpdateTextEditor.addClickListener(new CSCToolToTextClickListener(root));
+		hLayout.addComponent(btUpdateTextEditor);
+		btUpdateToolEditor = new Button();
+		btUpdateToolEditor.setDescription("Update tool elements");
+		btUpdateToolEditor.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
+		btUpdateToolEditor.addClickListener(new CSCTextToToolClickListener(root));
+		hLayout.addComponent(btUpdateToolEditor);
+		Button btClearAll = new Button("Clear All");
+		btClearAll.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 1487893808578560989L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				String text = takeHeader(getText());
 				
-				ChipsterSADLParser parser = new ChipsterSADLParser();
-				try {
-					SADLDescription description = parser.parse(text);
-//					System.out.println(description);
-					root.getToolEditor().removeAllComponents();
-					root.getToolEditor().addTool(description);
-					List<Input> inputs = description.inputs();
-					for(int i = 0 ; i < inputs.size(); i++) {
-						root.getToolEditor().addInput(inputs.get(i));
-					}
-					List<Output> outputs = description.outputs();
-					for(int i = 0 ; i < outputs.size(); i++) {
-						root.getToolEditor().addOutput(outputs.get(i));
-					}
-					List<Parameter> parameters = description.parameters();
-					for(int i = 0 ; i < parameters.size(); i++) {
-						root.getToolEditor().addParameter(parameters.get(i));
-					}
-					
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-				
+				root.addWindow(new ConfirmClearAll(root));
 			}
 		});
-		this.addComponent(btUpdate);
+		hLayout.addComponent(btClearAll);
+		this.addComponent(hLayout);
+		this.setComponentAlignment(hLayout, Alignment.MIDDLE_CENTER);
 		
 		txtArea = new TextArea();
-		txtArea.setRows(20);
-		txtArea.setWidth("80%");
+		txtArea.setSizeFull();
+		// for some reasons size full does not do anything to height
+		txtArea.setRows(50);
 		
 		this.addComponent(txtArea);
+	}
+	public void setText(String text) {
+		txtArea.setValue(replaceHeader(text));
 	}
 	
 	public String getText() {
 		return txtArea.getValue();
 	}
 	
+	/**
+	 * Takes header from text
+	 * @param input
+	 * @return tool header
+	 */
 	public String takeHeader(String input) {
+		if(input == null || input.isEmpty())
+			return "";
 		StringBuilder output = new StringBuilder();
 		input = input.replace("#", "");
 		String[] array = input.split(NEW_LINE);
 		int i = 0;
 		array[i] = array[i].trim();
-//		System.out.println(array.length + " " + array[0]);
 		while (i < array.length && (array[i].startsWith("TOOL") || array[i].startsWith("INPUT") 
 				|| array[i].startsWith("OUTPUT") || array[i].startsWith("PARAMETER"))) {
 			output.append(array[i] + NEW_LINE);
@@ -94,8 +96,27 @@ public class TextEditor extends VerticalLayout{
 			if(i < array.length)
 				array[i] = array[i].trim();
 		}
-//		System.out.println("output:" + output);
 		return output.toString();
+	}
+	
+	private String replaceHeader(String header) {
+		StringBuilder newText = new StringBuilder();
+		String text = txtArea.getValue();
+		String[] array = text.split(NEW_LINE);
+		int i = 0;
+		while (i < array.length && (array[i].startsWith("# TOOL") || array[i].startsWith("# INPUT") 
+				|| array[i].startsWith("# OUTPUT") || array[i].startsWith("# PARAMETER"))) {
+			i++;
+		}
+		newText.append(header);
+		for(int index = i; index < array.length; index++) {
+			newText.append(array[index] + NEW_LINE);
+		}
+		return newText.toString();
+	}
+	
+	public void clearAllText() {
+		txtArea.setValue("");
 	}
 
 }

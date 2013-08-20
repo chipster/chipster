@@ -448,7 +448,6 @@
 	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
-
 	
 	<target name="generate-session-classes" description="">
 		<delete dir="src/main/java/fi/csc/microarray/client/session/schema2" />
@@ -460,9 +459,7 @@
             	<arg value="src/main/java"/>
 	    		<arg value="src/main/java/fi/csc/microarray/client/session/session2.xsd" />
 	    </java>
-	</target>
-
-	
+	</target>	
 	
 	<!--
     <path id="testngpath">
