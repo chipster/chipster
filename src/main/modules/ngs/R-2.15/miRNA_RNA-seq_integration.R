@@ -92,7 +92,7 @@ if(length(grep("ENS", rownames(gene.data)))>0) {
 }
 colnames(m)<-c("id", "gene")
 
-# Convert miRNA IDs to Entrez Gene -> Get targets for miRNA as Entrez gene ids?
+# Get targets for miRNAs as Entrez gene ids
 library(RmiR.Hs.miRNA)
 miranda <- dbReadTable(RmiR.Hs.miRNA_dbconn(), "miranda")[,c(2,1)]
 mirbase <- dbReadTable(RmiR.Hs.miRNA_dbconn(), "mirbase")[,1:2]
@@ -107,7 +107,7 @@ mid2<-mid[!duplicated(mid),]
 rm(miranda, mirbase, targetscan, pictar, tarbase)
 gc()
 
-# miRNAs that have a gene annotation, and have expression in at least one sample -> miRNAs that are expressed in at least one sample and have TARGET gene annotation?
+# keep only miRNAs that are expressed in at least one sample and have target gene annotation
 mirna.ind<-unique(which(as.character(rownames(mirna.data)) %in% as.character(mid$mature_miRNA)))
 gene.ind<-which(as.character(m$gene) %in% unique(mid$gene_id[which(as.character(mid$mature_miRNA) %in% as.character(rownames(mirna.data.3)))]))
 df<-list(cor=d$cor[gene.ind,mirna.ind], p=d$p[gene.ind,mirna.ind], nObs=d$nObs[gene.ind,mirna.ind])
