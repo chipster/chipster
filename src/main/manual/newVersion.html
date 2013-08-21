@@ -3,6 +3,44 @@
 
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 20.8.2013: What is new in Chipster 2.8</h2>
+
+<br>Chipster 2.8 contains many improvements to visualizations. It requires Java 1.7, and contains a fix to the file import problem that some Windows users experienced.
+
+<ol>
+<li><b>General</b></li>
+<ul>
+<li>This version requires Java 1.7. If you experience problems when launching Chipster, please check your Java version.</li>
+<li>A bug causing occasional issues when importing files in Windows has been fixed.</li>
+</ul>
+<br>
+<li><b>Improvements to genome browser</b></li>
+<ul>
+<li>Clearer display of gene names.</li>
+<li>Faster coverage calculation and display.</li>
+<li>Options for showing scale and type (total, strand-specific) of rough coverage at zoomed out level (> 50 kb).</li>
+<li>Spinning circle indicates that more data is being loaded to the track.</li>
+<li>Problems in BAM files are tolerated (e.g. alignment extends past the end of a chromosome)</li>
+<li>Mitochondrial chromosome names M and MT are recognized as identical</li>
+</ul>
+<br>
+<li><b>Improvements to other visualizations</b></li>
+<ul>
+<li>Interactive 3D scatter plot has more intuitive color scale and options to change the shape of the data points and the background color (new default is white).</li>
+<li>Interactive 3D scatterplot for PCA has the above mentioned changes and a new color scheme.</li>
+<li>BAM viewer is more tolerant to problems (e.g. alignment extends past the end of a chromosome).</li>
+</ul>
+<br>
+<li><b>Updates to NGS analysis tools</b></li>
+<ul>
+<li><a href="DEXSeq.R">RNA-seq / DEXSeq</a>. Dispersion plot, MA-plot and a visualization of genes which contain differentially expressed exons have been added.</li>
+</ul>
+<br>
+</ol>
+<hr>
+
+<html lang="en"><head><title>Chipster manual</title></head><body>
+
 <h2>Version update 28.6.2013: What is new in Chipster 2.7</h2>
 
 <br>Chipster 2.7 contains important updates to microarray tools and a new NGS tool category Metagenomics, which consists of Mothur tools for investigating bacterial composition from 16 S rRNA data.
