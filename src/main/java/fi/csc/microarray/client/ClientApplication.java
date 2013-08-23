@@ -758,7 +758,10 @@ public abstract class ClientApplication {
 			// Check is it alive, wait until alive file should have been updated
 			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
 			long originalLastModified = aliveSignalFile.lastModified();
+			boolean unsuitable = false;
 			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {
+				
+				System.out.println("waiting " + directory);
 				
 				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
 				// until we see new update that confirms it is alive, or have waited long
@@ -772,12 +775,14 @@ public abstract class ClientApplication {
 					// So we will skip this and if it was dead, it will be anyway 
 					// cleaned away in the next client startup.
 					
-					continue;
+					unsuitable = true;
+					break;
 				}
 				
 				// Check if updated
 				if (aliveSignalFile.lastModified() != originalLastModified) {
-					continue; // we saw an update, it is alive
+					unsuitable = true;
+					break; // we saw an update, it is alive
 				}
 
 				// Wait for it to update
@@ -788,15 +793,17 @@ public abstract class ClientApplication {
 				}
 			}
 
-			// It is dead, might be the one that should be recovered, check that
-			deadDirectories.add(directory);
-			File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
-			if (UserSession.findBackupFile(directory, false) != null 
-					&& (mostRecentDeadSignalFile == null 
-							|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
-				
-				mostRecentDeadSignalFile = deadSignalFile;
-				
+			if (!unsuitable) {
+				// It is dead, might be the one that should be recovered, check that
+				deadDirectories.add(directory);
+				File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+				if (UserSession.findBackupFile(directory, false) != null 
+						&& (mostRecentDeadSignalFile == null 
+						|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
+
+					mostRecentDeadSignalFile = deadSignalFile;
+
+				}
 			}
 		}
 		
