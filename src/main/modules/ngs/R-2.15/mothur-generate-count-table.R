@@ -1,8 +1,8 @@
-# TOOL mothur-generate-count-table: mothur-generate-count-table (Generate a table of count per taxonomic group from the combined results.)
+# TOOL mothur-generate-count-table.R: "Generate count table for taxonomic groups" (Generates a count table where rows are samples and columns are taxonomic groups. You need the groups file and a taxonomy file as inputs.)
 # INPUT all.grp: "groups file" TYPE GENERIC
 # INPUT all.tax: "taxonomy file" TYPE GENERIC
 # OUTPUT counttable.tsv: counttable.tsv
-# PARAMETER cutlevel: cutlevel TYPE INTEGER FROM 0 TO 9 DEFAULT 0 (Cut levels for taxonomic names. 0 mean retain full names, e.g. Bacteria;Actinobacteria;Actinobacteria;Coriobacteridae;Coriobacteriales;Coriobacterineae;Coriobacteriaceae;Slackia;unclassified.)
+# PARAMETER cutlevel: "Cutting level for taxonomic names" TYPE INTEGER FROM 0 TO 9 DEFAULT 0 (Cuting level for taxonomic names. 0 means retain full names, e.g. Bacteria;Actinobacteria;Actinobacteria;Coriobacteridae;Coriobacteriales;Coriobacterineae;Coriobacteriaceae;Slackia;unclassified.)
 
 
 # JTT 2012-11-05
