@@ -99,7 +99,8 @@ dat3				<- cbind(dat, pvalues, fc)
 # Reformat colnames
 colnames(dat3) 		<- sub("-", ".", colnames(dat3))	
 colnames(fc2) 		<- sub("-", ".", colnames(fc2))	
-colnames(pvalues2) 	<- sub("-", ".", colnames(pvalues2))	
+colnames(pvalues2) 	<- sub("-", ".", colnames(pvalues2))
+
 
 # Write data to disk
 write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
