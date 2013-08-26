@@ -257,12 +257,12 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 
-	protected void initialiseGUIThreadSafely() {
+	protected void initialiseGUIThreadSafely(final File mostRecentDeadTempDirectory) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					initialiseGUI();
+					initialiseGUI(mostRecentDeadTempDirectory);
 				} catch (MicroarrayException | IOException e) {
 					reportInitalisationErrorThreadSafely(e);
 				}
@@ -270,7 +270,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 	
-	private void initialiseGUI() throws MicroarrayException, IOException {
+	private void initialiseGUI(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException {
 
 		// assert state of initialisation
 		try {
@@ -441,7 +441,6 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		
 		// check for session restore need
-		File mostRecentDeadTempDirectory = checkTempDirectories();
 		if (mostRecentDeadTempDirectory != null) {
 			
 			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);

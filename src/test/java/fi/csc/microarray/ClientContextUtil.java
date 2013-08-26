@@ -39,7 +39,7 @@ public class ClientContextUtil {
 	private static class SkeletonApplication extends ClientApplication {
 
 		@Override
-		protected void initialiseGUIThreadSafely() throws MicroarrayException, IOException {
+		protected void initialiseGUIThreadSafely(File backupSession) throws MicroarrayException, IOException {
 			// do nothing
 		}
 
