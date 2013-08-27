@@ -1000,7 +1000,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		protected void initialiseGUIThreadSafely() throws MicroarrayException, IOException {
+		protected void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 

@@ -92,7 +92,7 @@ public abstract class ClientApplication {
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract void initialiseGUIThreadSafely() throws MicroarrayException, IOException;
+	protected abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
@@ -267,9 +267,13 @@ public abstract class ClientApplication {
 
 			// definitions are now initialised
 			definitionsInitialisedLatch.countDown();
+			
+			reportInitialisationThreadSafely("Checking session backups...", true);
+			File mostRecentDeadTempDirectory = checkTempDirectories();
+			reportInitialisationThreadSafely(" ok", false);
 
 			// we can initialise graphical parts of the system
-			initialiseGUIThreadSafely();
+			initialiseGUIThreadSafely(mostRecentDeadTempDirectory);
 
 			// Remember changes to confirm close only when necessary and to backup when necessary
 			manager.addDataChangeListener(new DataChangeListener() {
@@ -752,13 +756,13 @@ public abstract class ClientApplication {
 			// Skip current temp directory
 			if (directory.equals(getDataManager().getRepository())) {
 				continue;
-			}
-			
+			}			
 			
 			// Check is it alive, wait until alive file should have been updated
 			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
 			long originalLastModified = aliveSignalFile.lastModified();
-			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {
+			boolean unsuitable = false;
+			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {			
 				
 				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
 				// until we see new update that confirms it is alive, or have waited long
@@ -772,12 +776,14 @@ public abstract class ClientApplication {
 					// So we will skip this and if it was dead, it will be anyway 
 					// cleaned away in the next client startup.
 					
-					continue;
+					unsuitable = true;
+					break;
 				}
 				
 				// Check if updated
 				if (aliveSignalFile.lastModified() != originalLastModified) {
-					continue; // we saw an update, it is alive
+					unsuitable = true;
+					break; // we saw an update, it is alive
 				}
 
 				// Wait for it to update
@@ -788,15 +794,17 @@ public abstract class ClientApplication {
 				}
 			}
 
-			// It is dead, might be the one that should be recovered, check that
-			deadDirectories.add(directory);
-			File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
-			if (UserSession.findBackupFile(directory, false) != null 
-					&& (mostRecentDeadSignalFile == null 
-							|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
-				
-				mostRecentDeadSignalFile = deadSignalFile;
-				
+			if (!unsuitable) {
+				// It is dead, might be the one that should be recovered, check that
+				deadDirectories.add(directory);
+				File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+				if (UserSession.findBackupFile(directory, false) != null 
+						&& (mostRecentDeadSignalFile == null 
+						|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
+
+					mostRecentDeadSignalFile = deadSignalFile;
+
+				}
 			}
 		}
 		
