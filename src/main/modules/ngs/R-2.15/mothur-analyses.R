@@ -1,9 +1,9 @@
-# TOOL mothur-analyses: Mothur-analyses (Analysis tool for metagenomic experiment. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples, and columns are taxa or equivalent.)
-# INPUT counttable.tvs: counttable.tsv TYPE GENERIC
-# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC
+# TOOL mothur-analyses.R: "Statistical analysis for metagenomics data" (Analysis tool for metagenomic experiment. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples and columns are taxa.)
+# INPUT counttable.tsv: counttable.tsv TYPE GENERIC
+# INPUT samples.tsv: samples.tsv TYPE GENERIC
 # OUTPUT results.pdf: results.pdf
 # OUTPUT OPTIONAL stat-results.txt: stat-results.txt
-# PARAMETER decostandm: decostandm TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi.square, hellinger: hellinger, log: log]
+# PARAMETER decostandm: decostandm TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi.square, hellinger: hellinger, log: log] (bla bla)
 
 
 
@@ -15,7 +15,7 @@
 
 # Read the input data
 dat<-read.table("counttable.tsv", header=T, sep="\t", row.names=1)
-phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+phenodata<-read.table("samples.tsv", header=T, sep="\t")
 #phenodata$group<-sample(c(1,2), nrow(phenodata), replace=T)
 
 # Some sanity checks
