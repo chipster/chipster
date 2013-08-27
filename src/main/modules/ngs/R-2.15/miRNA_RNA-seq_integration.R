@@ -6,12 +6,12 @@
 # OUTPUT OPTIONAL full_correlation_matrix.tsv: full_correlation_matrix.tsv
 # OUTPUT OPTIONAL correlation_annotated_and_expressed_miRNAs.tsv: correlation_annotated_and_expressed_miRNAs.tsv
 # OUTPUT OPTIONAL correlation_known_interactions_only.tsv: correlation_known_interactions_only.tsv
-# PARAMETER order.column.mirna: "Phenodata column indicating sample order in miRNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that RNA and miRNA data can be correctly matched. You can use numbers for different experimental groups, and actual time for time course experiments.)
-# PARAMETER order.column.gene: "Phenodata column indicating sample order in RNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that RNA and miRNA data can be correctly matched. You can use numbers for different experimental groups, and actual time for time course experiments.)
-# PARAMETER OPTIONAL normalization.method: "Normalization" TYPE [none, cpm, TMM] DEFAULT none (Should the miRNA and RNA counts be normalized? Available methods are cpm, counts per million, and TMM, trimmed mean of M-values, based on the edgeR package.)
+# PARAMETER order.column.mirna: "Phenodata column indicating sample order in miRNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
+# PARAMETER order.column.gene: "Phenodata column indicating sample order in RNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
+# PARAMETER OPTIONAL normalization.method: "Normalization" TYPE [none, cpm, TMM] DEFAULT none (Should the miRNA and RNA counts be normalized. Available methods are counts per million (cpm\) and trimmed mean of M-values (TMM\) based on the edgeR package.)
 # PARAMETER OPTIONAL filtering.method: "Filter by" TYPE [correlation, p.value] DEFAULT correlation (Should miRNA-RNA pairs be filtered by correlation or by p-value.)
 # PARAMETER OPTIONAL filter.threshold: "Filtering threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.90 (Filtering cut-off.)
-# PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (Would you like to have the full miRNA-RNA correlation matrix in addition to the filtered ones?)
+# PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (This (large\) matrix contains correlations between all miRNAs and genes, with no filtering applied.)
 
 
 # Correlation analysis of miRNA-seq and RNA-seq data
@@ -161,7 +161,7 @@ for(i in 1:ncol(pval)) {
 
 # Fill in the result table
 res<-as.data.frame(matrix(ncol=6, nrow=length(ptemp), data=NA))
-colnames(res)<-c("miRNA","entrez.gene.id","hgnc.gene.symbol","pearson.correlation.coefficient","p.value","original.id")
+colnames(res)<-c("miRNA","entrez.gene.id","symbol","pearson.correlation.coefficient","p.value","original.id")
 res[,1]<-rep(colnames(pval), each=nrow(pval))
 res[,2]<-m$gene[match(names(ptemp), m$id)]
 xx <- as.list(org.Hs.egSYMBOL)
@@ -184,17 +184,17 @@ if(filtering.method=="p-value") {
    res2<-na.omit(res[res$p.value<=filter.threshold,])
 }
 
-if(nrow(res2)==0) {
-   stop("No results left after threshold filtering! Aborting...")
-}
+# if(nrow(res2)==0) {
+#    stop("No results left after threshold filtering! Aborting...")
+# }
 
 # Filter the result pairs on known interactions
-mirnas<-unique(res2$miRNA.mature)
+mirnas<-unique(res2$miRNA)
 res3<-c()
 for(i in 1:length(mirnas)) {
-   rt<-res2[res2$miRNA.mature==mirnas[i],]
-   mt<-mid2[mid2$mature_miRNA==mirnas[i],]
-   res3<-rbind(res3,rt[rt$entrez.gene.id %in% mt$gene_id,])
+	rt<-res2[res2$miRNA==mirnas[i],]
+	mt<-mid2[mid2$mature_miRNA==mirnas[i],]
+	res3<-rbind(res3,rt[rt$entrez.gene.id %in% mt$gene_id,])
 }
 
 #if(nrow(res3)==0) {
