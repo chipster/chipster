@@ -7,8 +7,8 @@
 		<tool runtime="R-2.12"><resource>norm-affy-exon.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-affy-gene.R</resource></tool>
 		<tool runtime="R-2.15"><resource>norm-affy-snp.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-agilent.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent-miRNA.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina.R</resource></tool>
@@ -29,9 +29,9 @@
 		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>qc-illumina.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-agilent.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-cdna.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-agilent.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-cdna.R</resource></tool>
 	</category>
 	
 	<category name="Preprocessing" color="#d59f45">
@@ -79,7 +79,7 @@
 	</category>
 	
 	<category name="Annotation" color="#80a3b7">
-		<tool runtime="R-2.12"><resource>annotate-genelist2html.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>add-locations-to-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
