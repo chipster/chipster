@@ -22,7 +22,7 @@ in the project directory give following command:
 
 keytool -genkey -alias csc -keystore keystore.ks -storepass chipster -validity 1825
 
-Fill in your data to keytool. You might want to use your organisations name 
+Fill in your data to keytool command parameters. You might want to use your organisations name 
 also as your own name as it is shown by Java Web Start. Use the keystore password
 also as a key password.
 
