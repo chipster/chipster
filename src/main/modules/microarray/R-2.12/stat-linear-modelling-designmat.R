@@ -96,6 +96,12 @@ colnames(pvalues2)	<- paste("chip.p.adjusted.", colnames(fit$coef), sep="")
 # Create data frames
 dat3				<- cbind(dat, pvalues, fc)
 
+# Reformat colnames
+colnames(dat3) 		<- sub("-", ".", colnames(dat3))	
+colnames(fc2) 		<- sub("-", ".", colnames(fc2))	
+colnames(pvalues2) 	<- sub("-", ".", colnames(pvalues2))
+
+
 # Write data to disk
 write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 write.table(fc2, file="foldchange.tsv", sep="\t", row.names=T, col.names=T, quote=F)

@@ -24,19 +24,18 @@
 
 <p>This tool integrates miRNA and gene expression data from two-group comparison experiments, and identifies which of the target genes behave oppositely to any given miRNA.
 By default, the tool assumes that the "group" column of the phenodata table is used to define which samples belong to a certain experiment groups, but if another
-column was used the corresponding parameter should be set up accordingly. NOTE: you need to select both the file with the miRNA expression and the file with the matching gene expression,
-which is done by holding down the Control key while mousing over the files in the "Datasets" or "Workflow" windows.<br>
+column was used the corresponding parameter should be set up accordingly.<br>
 
-<br>The analysis consists of two parts, that perform the following:<br>
+<br>The analysis consists of two parts:<br>
 
-<br>Firstly, predicted target genes for the list of miRBA:s are fetched from the targetScan and PicTar databases, after which an intersection
-is made so as to include only those genes that are predicted in both databases. Then, another intersection is made with the list of genes
+<br>Firstly, predicted target genes for the list of miRNA:s are fetched from the TargetScan and PicTar databases, and only those genes are included which are predicted in both databases. 
+Then, another intersection is made with the list of genes
 present in the matching gene expression data set.<br>
 
 <br>Secondly, the average expression, either using the mean or median, is calculated for the two experiment groups for each data set and the fold difference calculated.
-For each up-regulated miRNA the corresponding target genes that are down-regulated are then identified and a result table listing the miRNA:s, target genes and the fold
+For each up-regulated miRNA the corresponding target genes that are down-regulated are then identified, and a result table listing the miRNA:s, target genes and the fold
 difference for each is output. Conversely, down-regulated miRNA:s and their up-regulated gene targets are output in a separate result table.
-NOTE; since there is no statistical analysis performed, and hence no confidence measures are reported, it is advisable that the input data has been judiciously filtereded
+Since there is no statistical analysis performed, and hence no confidence measures are reported, it is advisable that the input data has been judiciously filtered
 and/or subjected to statistical analysis for differential expression prior to invoking this tool.<br>
 
  
@@ -44,7 +43,7 @@ and/or subjected to statistical analysis for differential expression prior to in
 
 <h3>Output</h3>
 
-<p>The output consists of two text files, one listing the up-regulated miRNA:s and their down-regulated gene targets and one listing the down-regulated miRNA:s
+<p>The output consists of two text files, one listing the up-regulated miRNA:s and their down-regulated gene targets, and the other one listing the down-regulated miRNA:s
 and their up-regulated gene targets.</p>
 
 </p>
