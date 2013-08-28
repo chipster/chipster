@@ -1,4 +1,4 @@
-# TOOL mothur-analyses.R: "Statistical analysis for marker gene studies" (Compares the diversity or abundance between the groups using several ANOVA-type of analyses. Statistical tests work only for datasets that contain 2-3 groups. Makes also an RDA ordination plot and rank abundance and rarefaction curves. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples and columns are taxa.)
+# TOOL mothur-analyses.R: "Statistical analysis for marker gene studies" (Compares the diversity or abundance between groups using several ANOVA-type of analyses. Statistical tests work only for datasets that contain 2-3 groups. Makes also an RDA ordination plot and rank abundance and rarefaction curves. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples and columns are taxa.)
 # INPUT counttable.tsv: "Count table" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata" TYPE GENERIC
 # OUTPUT rank-abundance_rarefaction_RDA.pdf: rank-abundance_rarefaction_RDA.pdf
