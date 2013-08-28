@@ -7,7 +7,7 @@
 
 
 
-# JTT 2012-11-06
+# 28.8.2013
 
 # Parameters for testing purposes
 #setwd("C:\\Users\\tuimaja\\Desktop\\merged")
