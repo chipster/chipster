@@ -1,9 +1,9 @@
-# TOOL mothur-analyses.R: "Statistical analysis for metagenomics data" (Analysis tool for metagenomic experiment. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples and columns are taxa.)
-# INPUT counttable.tsv: counttable.tsv TYPE GENERIC
-# INPUT samples.tsv: samples.tsv TYPE GENERIC
-# OUTPUT results.pdf: results.pdf
+# TOOL mothur-analyses.R: "Statistical analysis for marker gene studies" (Compares the diversity or abundance between the groups using several ANOVA-type of analyses. Statistical tests work only for datasets that contain 2-3 groups. Makes also an RDA ordination plot and rank abundance and rarefaction curves. Requires both a count table and a phenodata as inputs. Count table is simple tab-delimited text file where rows are samples and columns are taxa.)
+# INPUT counttable.tsv: "Count table" TYPE GENERIC
+# INPUT phenodata.tsv: "Phenodata" TYPE GENERIC
+# OUTPUT rank-abundance_rarefaction_RDA.pdf: rank-abundance_rarefaction_RDA.pdf
 # OUTPUT OPTIONAL stat-results.txt: stat-results.txt
-# PARAMETER decostandm: decostandm TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi.square, hellinger: hellinger, log: log] (bla bla)
+# PARAMETER decostandm: "Method for standardizing species abundance values" TYPE [total: total, normalize: normalize, pa: pa, chi.square: chi.square, hellinger: hellinger, log: log] DEFAULT hellinger (Method for standardizing species abundance values before running the RDA and statistical analyses.)
 
 
 
@@ -15,7 +15,7 @@
 
 # Read the input data
 dat<-read.table("counttable.tsv", header=T, sep="\t", row.names=1)
-phenodata<-read.table("samples.tsv", header=T, sep="\t")
+phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 #phenodata$group<-sample(c(1,2), nrow(phenodata), replace=T)
 
 # Some sanity checks
@@ -38,7 +38,7 @@ library(pegas)
 library(labdsv)
 
 # Open a report PDF
-pdf("results.pdf")
+pdf("rank-abundance_rarefaction_RDA.pdf")
 
 # Rarefaction curves
 if(length(unique(phenodata$group))==1) {

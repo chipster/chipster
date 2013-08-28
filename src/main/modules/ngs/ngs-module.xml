@@ -434,8 +434,8 @@
 		<tool runtime="R-2.15">
 			<resource>mothur-generate-count-table.R</resource>
 		</tool>
-<!--	<tool runtime="R-2.15_bioc-2.11">
+	    <tool runtime="R-2.15_bioc-2.11">
 			<resource>mothur-analyses.R</resource>
-		</tool>-->
+		</tool>
 	</category>
 </module>

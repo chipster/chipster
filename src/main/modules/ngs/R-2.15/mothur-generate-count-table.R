@@ -2,6 +2,7 @@
 # INPUT all.grp: "Groups file" TYPE GENERIC
 # INPUT all.tax: "Taxonomy file" TYPE GENERIC
 # OUTPUT counttable.tsv: counttable.tsv
+# OUTPUT META phenodata.tsv: phenodata.tsv
 # PARAMETER cutlevel: "Cutting level for taxonomic names" TYPE INTEGER FROM 0 TO 9 DEFAULT 0 (Cuting level for taxonomic names. 0 means retain full names, e.g. Bacteria;Actinobacteria;Actinobacteria;Coriobacteridae;Coriobacteriales;Coriobacterineae;Coriobacteriaceae;Slackia;unclassified.)
 
 
@@ -30,6 +31,9 @@ if(cutlevel==0) {
 # Creating the count table
 tab<-table(dat2$V2.x, dat2$newnames)
 tab2<-as.data.frame.matrix(tab)
+chiptype<-c("metagenomics")
 
 # Writing the table to disk
 write.table(tab, "counttable.tsv", col.names=T, row.names=T, sep="\t", quote=FALSE)
+#write.table(data.frame(sample=rownames(tab2), group=rep("", length(rownames(tab2)))), "phenodata.tsv", col.names=T, row.names=F, sep="\t", quote=F)
+write.table(data.frame(sample=rownames(tab2), chiptype=chiptype, group=rep("", length(rownames(tab2)))), "phenodata.tsv", col.names=T, row.names=F, sep="\t", quote=F)
