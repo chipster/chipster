@@ -35,3 +35,5 @@ Do not enter a newline after the path! The build script will read that file and
 use the alternative path into keystore. This is strongly recommended if you do also 
 commits into the public version repository, because placing a private keystore file into 
 project directory creates a risk of publishing it by accident.
+
+This is great.
