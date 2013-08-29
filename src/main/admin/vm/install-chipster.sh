@@ -416,6 +416,8 @@ then
 
   ## R-2.15.1_bioc-2.11	
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+	# Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
 	
 
   ## External apps:
@@ -489,11 +491,11 @@ then
 
   # Bowtie 2, Artistic License
   cd ${TMPDIR_PATH}/
-  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
-  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
-  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
-  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
-  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+  wget -nv -O bowtie2-2.1.0-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.1.0/bowtie2-2.1.0-linux-x86_64.zip/download
+  unzip -q bowtie2-2.1.0-linux-x86_64.zip
+  mv bowtie2-2.1.0 ${TOOLS_PATH}
+  ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.1.0-linux-x86_64.zip
 
 	# Fasta files
   cd ${TMPDIR_PATH}/

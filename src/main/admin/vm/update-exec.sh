@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.7.1
+LATEST_VERSION=2.8.0
 
 # Exit immediately if some command fails
 set -e
@@ -941,6 +941,28 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/widgetTools-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/tkWidgets-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/Mfuzz-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+
+fi
+
+
+
+# 2.8.0
+compare_to_current_and_latest "2.8.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+
+  # Update Bowtie 2
+  cd ${TMPDIR_PATH}/
+  wget -nv -O bowtie2-2.1.0-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.1.0/bowtie2-2.1.0-linux-x86_64.zip/download
+  unzip -q bowtie2-2.1.0-linux-x86_64.zip
+  mv bowtie2-2.1.0 ${TOOLS_PATH}
+  mv ${TOOLS_PATH}/bowtie2/indexes ${TOOLS_PATH}/bowtie2-2.1.0/ 
+  mv ${TOOLS_PATH}/bowtie2-2.0.0-beta7 ${BACKUPDIR_PATH}/
+  rm ${TOOLS_PATH}/bowtie2
+  ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
+  rm ${TMPDIR_PATH}/bowtie2-2.1.0-linux-x86_64.zip
+ 
+  # Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
 
 fi
 
