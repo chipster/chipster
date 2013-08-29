@@ -9,7 +9,7 @@ For license, see LICENSE.TXT.
 
 
 Building
----------
+--------
 
 For building options, use "ant -p" in project root directory.
 
