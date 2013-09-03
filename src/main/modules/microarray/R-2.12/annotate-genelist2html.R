@@ -42,14 +42,13 @@ if(expression.column=="EMPTY" & p.value.column=="EMPTY") {
    annot.cols<-aaf.handler()
    annot.table<-aafTableAnn(row.names(dat), lib, annot.cols)
 
-   #comment away to retain original behaviour
-   full_data <- data.frame(dat)
-   full_data <- full_data[,-c(1:3)]
-   rownames(full_data)<-rownames(dat)
-   full_data<-aafTableFrame(full_data, colnames=colnames(full_data))
-   full_data@probeids<-rownames(dat)
-   annot.table<-merge(annot.table, full_data)
-   #stop commenting
+   #remove comments to allow inclusion of expression data
+   #full_data <- data.frame(dat)   
+   #full_data <- full_data[,-c(1:grep("^chip.", colnames(dat))[1])]
+   #rownames(full_data)<-rownames(dat)
+   #full_data<-aafTableFrame(full_data, colnames=colnames(full_data))
+   #full_data@probeids<-rownames(dat)
+   #annot.table<-merge(annot.table, full_data)
    
    saveHTML(annot.table, "annotations.html", title="Annotations for the selected gene list")
    saveText(annot.table, "annotations.tsv")

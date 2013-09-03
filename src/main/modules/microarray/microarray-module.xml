@@ -80,18 +80,18 @@
 	
 	<category name="Annotation" color="#80a3b7">
 		<tool runtime="R-3.0-R-2.12"><resource>annotate-genelist2html.R</resource></tool>
-		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-add-to-data.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>add-locations-to-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
 	</category>
 	
 	<category name="Pathways" color="#0177b7">
-		<tool runtime="R-2.12"><resource>stat-hyperG-GO.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-KEGG-PFAM.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-GO.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-KEGG-PFAM.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
