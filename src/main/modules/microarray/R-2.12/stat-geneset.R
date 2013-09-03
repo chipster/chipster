@@ -55,74 +55,80 @@ dat2<-dat[, grep("chip", names(dat))]
 # Needs a vector groups that specifies which sample to compare
 groups<-phenodata[, pmatch(column,colnames(phenodata))]
 
-#ls("package:hgug4851a.db")
 
-#mapping probe information to KEGG
+#mapping probe information to ENTREZIDs
+#ls("package:hgug4851a.db")
 lib2<-sub('.db','',lib)
 env<-paste(lib2, "ENTREZID", sep="")
 probe2entrez <- get(env)
 env<-as.list(probe2entrez)
 
+# Testing with KEGG pathways
 if(pathways=="KEGG") {
-   env2<-paste(lib2, "PATH2PROBE", sep="")
-   pathway2probe <- get(env2)
-   env2<-as.list(pathway2probe)
-   path_count <- sapply(env2, length)
+	env2<-paste(lib2, "PATH2PROBE", sep="")
+	pathway2probe <- get(env2)
+	env2<-as.list(pathway2probe)
+	path_count <- sapply(env2, length)
    
-   gt.options(transpose=TRUE)
-   test.kegg <- gtKEGG(groups, as.matrix(dat2), probe2entrez = env, annotation="org.Hs.eg.db", multtest=mult.test.cor)
-   #test.kegg <- gtKEGG(groups, as.matrix(dat2), annotation=lib, multtest="BH")
+	gt.options(transpose=TRUE)
+	test.gt <- gtKEGG(groups, as.matrix(dat2), probe2entrez = env, annotation="org.Hs.eg.db", multtest=mult.test.cor)
 
-   table.out<-data.frame(pathwayID=names(test.kegg), Genes=path_count[names(test.kegg)], Tested=size(test.kegg), 
-			             Statistic.Q=test.kegg@result[, "Statistic"], Expected.Q=test.kegg@result[, "Expected"], sd.of.Q=test.kegg@result[,"Std.dev"],
-						 p.value=p.value(test.kegg), p.adjusted=result(test.kegg)[, mult.test.cor], Description=alias(test.kegg))
-   rownames(table.out)<-paste("KEGG:", rownames(table.out), sep = "")
-   table.out <- table.out[order(table.out$p.value),]
-   table.out <- table.out[-(which(table.out$Tested < minimum.category.size)), ]
-   table.out <- table.out[-(which(table.out$p.value < p.value.threshold)), ]
-   
-
-   
-   write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-
-   #select N top feature classes for plots
-   path.names <- as.vector(table.out[1:x, "pathwayID"])
-   ft <- features(test.kegg[path.names], alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
-
-
+	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
+	table.out<-data.frame(pathwayID=names(test.gt), Genes=path_count[names(test.gt)], Tested=size(test.gt), 
+			             Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+						 p.value=p.value(test.gt), p.adjusted=result(test.gt)[, mult.test.cor], Description=alias(test.gt))
+	rownames(table.out)<-paste("KEGG:", rownames(table.out), sep = "")
 }
 
 # Testing with GO pathways
 if(pathways=="GO") {
-	#number of probes associated with GO terms
 	env2<-paste(lib2, "GO2ALLPROBES", sep="")
 	pathway2probe <- get(env2)
 	env2<-as.list(pathway2probe)
 	path_count <- sapply(env2, length)
 
 	gt.options(transpose=TRUE)
-	test.go <- gtGO(groups, as.matrix(dat2), probe2entrez = env, annotation="org.Hs.eg.db", multtest=mult.test.cor)
+	test.gt <- gtGO(groups, as.matrix(dat2), probe2entrez = env, annotation="org.Hs.eg.db", multtest=mult.test.cor)
 
-	table.out<-data.frame(pathwayID=names(test.go), Genes=path_count[names(test.go)], Tested=size(test.go), 
-						  Statistic.Q=test.go@result[, "Statistic"], Expected.Q=test.go@result[, "Expected"], sd.of.Q=test.go@result[,"Std.dev"],
-						  p.value=p.value(test.go), p.adjusted=result(test.go)[, mult.test.cor], Description=alias(test.go))
-	table.out <- table.out[order(table.out$p.value),]
-	table.out <- table.out[-(which(table.out$Tested < minimum.category.size)), ]
-	table.out <- table.out[-(which(table.out$p.value < p.value.threshold)), ]
-	write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-
-	#select N top feature classes for plots
-	path.names <- as.vector(table.out[1:x, "pathwayID"])
-	ft <- features(test.go[path.names], alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")		   
+	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
+	table.out<-data.frame(pathwayID=names(test.gt), Genes=path_count[names(test.gt)], Tested=size(test.gt), 
+						  Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+						  p.value=p.value(test.gt), p.adjusted=result(test.gt)[, mult.test.cor], Description=alias(test.gt))
 }
 
+# Testing with the phenotype. Shows those genes that are differentially expressed between conditions
 if(pathways=="current") {
-   test.current <- gt(groups, as.matrix(dat2))
-   table.out<-data.frame(pathwayID=column, Genes=nrow(dat2), Tested=size(test.current), 
-		   Statistic.Q=test.current@result[, "Statistic"], Expected.Q=test.current@result[, "Expected"], sd.of.Q=test.current@result[,"Std.dev"],
-		   p.value=p.value(test.current), p.adjusted=NA, Description="Phenodata column")
-   rownames(table.out) <- column
-   write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-   
-   ft <- features(test.current, alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
+	gt.options(transpose=TRUE)
+	test.gt <- gt(groups, as.matrix(dat2))
+
+	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
+	table.out<-data.frame(pathwayID=column, Genes=nrow(dat2), Tested=size(test.gt), 
+		   Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+		   p.value=p.value(test.gt), p.adjusted=p.value(test.gt), Description="Phenodata column")
+	rownames(table.out) <- column
 }
+
+# Make output and write
+table.out <- table.out[order(table.out$p.value),]
+table.out <- table.out[(which(table.out$Tested >= minimum.category.size)), ]
+table.out <- table.out[(which(table.out$p.adjusted <= p.value.threshold)), ]
+write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+# Create plots
+if(nrow(table.out) > 0) {
+	if(pathways=="current") {
+		ft <- features(test.gt, alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
+	} else {
+		path.names <- as.vector(table.out[1:x, "pathwayID"])
+  		ft <- features(test.gt[ path.names[!is.na(path.names)] ], alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
+	}
+} else {
+	pdf(file="multtest.pdf", width=600/72, height=600/72)
+	plot(1, 1, col=0)
+	text(1, 1, "This is a dummy image that was generated because no significant results were found", col=1)
+	text(1, 0.8, "Please reset your p-value threshold to a larger value.", col=1)
+	dev.off()	
+}
+
+
+
