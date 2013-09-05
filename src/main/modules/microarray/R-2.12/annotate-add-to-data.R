@@ -84,7 +84,7 @@ datannot$Gene.Ontology[datannot$Gene.Ontology == " NA"] <- ""
 # Java script somehow notices empty cells and is unable to read the table in ? Can be corected inserting NAs or adding meaningful column
 # at the end of the matrix if empty space cells are wished to be retained
 datannot[datannot==""] <- NA
-#datannot <- cbind(datannot, row.index=rownames(datannot))
+# datannot <- cbind(datannot, row.index=rownames(datannot))
 
 # Writing out the annotated data
 write.table(data.frame(datannot), file="data-with-annotations.tsv", sep="\t", row.names=T, col.names=T, quote=F)

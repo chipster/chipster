@@ -99,7 +99,7 @@ if(pathways=="GO") {
 # Testing with the phenotype. Shows those genes that are differentially expressed between conditions
 if(pathways=="current") {
 	gt.options(transpose=TRUE)
-	test.gt <- gt(groups, as.matrix(dat2))
+	test.gt <- gt(as.factor(groups), as.matrix(dat2))
 
 	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
 	table.out<-data.frame(pathwayID=column, Genes=nrow(dat2), Tested=size(test.gt), 
@@ -116,11 +116,14 @@ write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T
 
 # Create plots
 if(nrow(table.out) > 0) {
-	if(pathways=="current") {
-		ft <- features(test.gt, alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
+	if(pathways=="current" & nrow(dat2) > 1000) {
+		#If too many genes, the program cannot create histogram
+		ft <- features(test.gt, alias=get(paste(lib2, "SYMBOL", sep="")), pdf="multtest.pdf", cluster=FALSE)
+	} else if(pathways=="current" & nrow(dat2) <= 1000) {
+		ft <- features(test.gt, alias=get(paste(lib2, "SYMBOL", sep="")), pdf="multtest.pdf")
 	} else {
 		path.names <- as.vector(table.out[1:x, "pathwayID"])
-  		ft <- features(test.gt[ path.names[!is.na(path.names)] ], alias=paste(lib2, "SYMBOL", sep=""), pdf="multtest.pdf")
+  		ft <- features(test.gt[ path.names[!is.na(path.names)] ], alias=get(paste(lib2, "SYMBOL", sep="")), pdf="multtest.pdf")
 	}
 } else {
 	pdf(file="multtest.pdf", width=600/72, height=600/72)
