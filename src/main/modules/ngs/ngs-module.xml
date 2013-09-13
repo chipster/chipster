@@ -305,9 +305,9 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-go.R</resource>
+		</tool> 
+		<tool runtime="R-2.12" module="common">
+			<resource>pathways-mirna-hyperg-go.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>

@@ -3,11 +3,11 @@
 <head><title></title></head>
 <body>
 
-<h2>Pathways / GO enrichment for miRNA targets</h2>
+<h2>GO enrichment for miRNA targets</h2>
 
 <h3>Description</h3>
 
-<p>Performs a statistical test for enrichment of Gene Ontology (GO) terms in the predicted gene targets of a list of miRNAs.</p>
+<p>Given a list of miRNA IDs, performs enrichment analysis of Gene Ontology (GO) terms in predicted target genes.</p>
 
 
 	<h3>Parameters</h3>
@@ -16,23 +16,25 @@
 		<li>P-value threshold (0-1) [0.05]</li>
 		<li>Minimum population (1-1000000) [5]</li>
 		<li>Conditional testing (yes, no) [yes]</li>
-		<li>P-value adjustment method (none, BH, BY) [BH]</li>
+		<li>P-value adjustment method (none, BH, BY) [none]</li>
 		<li>Search for over or under-represented genes (under, over) [over]</li>
 		<li>Species (human, mouse, rat) [human]</li>
-		<li>Dtabase (PicTar, TargetScan, both) [both]</li>	
+		<li>Database for human miRNA targets (PicTar, TargetScan, both) [both]</li>	
 	</ul>
 
 
 <h3>Details</h3>
 
-<p>This tool takes normalized data with miRNA IDs, fetches the target genes from miRBase, and runs a hypergeometric test for over-representation for GO terms in this list. 
- Analysis can be restricted to GO terms which have a minimum, user-specified number of genes mapped to them (by default 5). 
- The user needs to specify species for the miRNA data. The default behavior is that in order to avoid the identification of directly related GO terms with considerable
-  overlap of genes, this tool uses a method which conditions on all child terms that are themselves significant at a specified p- value cutoff. First the leaves of the graph 
-  (those terms with no child terms) are tested. All genes annotated at significant children are then removed before testing the parent terms. This continues until all terms 
-  have been tested. It is also possible to run the tests unconditional by setting the appropriate parameter. In that case it is also possible to apply multiple testing correction.
-  For human miRNA data it is possible to specify whether to combine gene predictions from both PicTar and TargetScan databases, in order to decrease the proportion of false positives, 
-  or to use each individually.
+<p>This tool takes a list of miRNA IDs, fetches the predicted target genes, and runs a hypergeometric test for over-representation of GO terms in this list. 
+For human miRNAs it is possible to specify whether to use gene predictions from both PicTar or TargetScan database, or from both in order to decrease false positives.
+For mouse and rat miRNAs the gene targets come from miRBase.</p>
+
+<p> Analysis can be restricted to GO terms which have a minimum, user-specified number of genes mapped to them (by default 5). </p>
+  
+<p> In order to avoid the identification of directly related GO terms, conditional testing is used by default: First  
+  the terms with no child terms are tested. All genes annotated at significant children are then removed before testing the parent terms. This continues until all terms 
+  have been tested. It is also possible to perform unconditional testing, and in this case you can use multiple testing correction too.
+
   </p>
 
 
