@@ -481,6 +481,11 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
+  # tabix
+  # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/tabix-0.2.6-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tabix-0.2.6 ${TOOLS_PATH}/tabix 
+
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
   wget -nv -O bowtie-0.12.7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip/download
@@ -596,8 +601,8 @@ then
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.9.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.9.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
