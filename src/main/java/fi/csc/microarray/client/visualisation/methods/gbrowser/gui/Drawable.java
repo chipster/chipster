@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
 
@@ -27,6 +28,11 @@ public abstract class Drawable {
 		this.y = -1;
 		this.color = color;
 	}
+	
+	public void draw(Graphics2D g, int x, int y) {
+
+		g.setPaint(this.color);
+	}	
 
 	public void upsideDown() {
 		y = -y;
@@ -43,8 +49,4 @@ public abstract class Drawable {
      * Expand this drawable to fit into given context.
      */
     public void expand(TrackContext context) { }
-
-	public String getTooltipText() {
-		return null;
-	}
 }

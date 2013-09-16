@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
@@ -61,14 +61,16 @@ public class IndexPerformanceTest {
 		
 		InMemoryIndex memIndex;
 		BinarySearchIndex searchIndex;
+		
+		DataUrl dataUrl = new DataUrl(file);
 
-		memIndex = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());
+		memIndex = new InMemoryIndex(new LineDataSource(dataUrl), new GtfLineParser());
 		
 		System.out.println("Init memIndex: " + (System.currentTimeMillis() - t)  + " ms");
 		t = System.currentTimeMillis();
 		printMemoryUsage();;
 		
-		searchIndex = new BinarySearchIndex(new RandomAccessLineDataSource(file.toURI().toURL()), new GtfLineParser());
+		searchIndex = new BinarySearchIndex(new RandomAccessLineDataSource(dataUrl), new GtfLineParser());
 		
 		System.out.println("Init  searchIndex: " + (System.currentTimeMillis() - t)  + " ms");
 		t = System.currentTimeMillis();

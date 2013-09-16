@@ -20,11 +20,7 @@ public class OverviewHorizontalView extends HorizontalView {
 		super(parent, false, false, false);
 	}
 	
-	public void mouseClicked(MouseEvent e) {
-		
-		if (!viewArea.contains(e.getPoint())) {
-			return;
-		}
+	public void mouseClicked(MouseEvent e) {	
 		
 		Region newRegion = highlight;
 		long delta = (long) (newRegion.getMid() - trackToBp(e.getX()).bp);
@@ -33,7 +29,7 @@ public class OverviewHorizontalView extends HorizontalView {
 		
 		dispatchOverviewRegionChange(newRegion);
 		
-	}
+	}	
 
 	public void mouseEntered(MouseEvent e) {
 		// ignore
@@ -44,60 +40,15 @@ public class OverviewHorizontalView extends HorizontalView {
 	}
 
 	public void mousePressed(MouseEvent e) {
-
-//		stopAnimation();
-//		dragStartPoint = scale(e.getPoint());
-//		dragStarted = false;
+		// ignore
 	}
 
 	public void mouseReleased(MouseEvent e) {
-
-//		if (dragStarted && dragEndPoint != null && dragLastStartPoint != null && Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 && System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
-//
-//			stopAnimation();
-//
-//			timer = new Timer(1000 / FPS, new ActionListener() {
-//
-//				private int i = 0;
-//				private int ANIMATION_FRAMES = 30;
-//				private long startTime = System.currentTimeMillis();
-//
-//				public void actionPerformed(ActionEvent arg0) {
-//
-//					double endX = dragEndPoint.getX();
-//					double startX = dragLastStartPoint.getX();
-//
-//					double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
-//
-//					dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
-//
-//					boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
-//
-//					if (i < ANIMATION_FRAMES) {
-//						handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
-//						i++;
-//					} else {
-//						stopAnimation();
-//					}
-//				}
-//			});
-//			timer.setRepeats(true);
-//			timer.start();
-//		}
+		// ignore
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		
-//		if (movable) {
-//			dragStarted = true;
-//			dragEndPoint = scale(e.getPoint());
-//			dragEventTime = System.currentTimeMillis();
-//
-//			handleDrag(dragStartPoint, dragEndPoint, false);
-//
-//		}
-//		dragLastStartPoint = dragStartPoint;
-//		dragStartPoint = scale(e.getPoint());
+		// ignore		
 	}
 	
 	

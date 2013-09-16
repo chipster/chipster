@@ -9,22 +9,22 @@ import java.util.LinkedHashMap;
  * input file or other data source. All the rows fall within the genomic region.
  *
  */
-public class RegionContent implements Comparable<RegionContent> {
+public class Feature implements Comparable<Feature> {
 	
 	public Region region;
 	public LinkedHashMap<DataType, Object> values;
 
-	public RegionContent(Region region, LinkedHashMap<DataType, Object> values) {
+	public Feature(Region region, LinkedHashMap<DataType, Object> values) {
 		this.region = region;
 		this.values = values;
 	}
 
-	public RegionContent(Region region) {
+	public Feature(Region region) {
 		this.region = region;
 		this.values = new LinkedHashMap<DataType, Object>(); 
 	}
 
-	public int compareTo(RegionContent other) {
+	public int compareTo(Feature other) {
 
 		int regionComparison = this.region.compareTo(other.region);
 
@@ -43,8 +43,8 @@ public class RegionContent implements Comparable<RegionContent> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof RegionContent) {
-			return this.compareTo((RegionContent) o) == 0;
+		if (o instanceof Feature) {
+			return this.compareTo((Feature) o) == 0;
 		} else {
 			return false;
 		}
@@ -66,5 +66,13 @@ public class RegionContent implements Comparable<RegionContent> {
 			}
 		}
 		return region.toString(true) + extra;
+	}
+
+	public IndexKey getIndexKey() {
+		return (IndexKey)values.get(DataType.ID);
+	}
+
+	public Object getValueObject() {
+		return values.get(DataType.VALUE);
 	}
 }

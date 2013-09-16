@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
 
 /**
@@ -105,7 +105,7 @@ public class ReferenceSequenceTrack extends Track {
 		
 		//Sequence strings has to be cut in pieces to recognise data that we have already
 		
-		for (RegionContent rc : dataResult.getContents()) {
+		for (Feature rc : dataResult.getFeatures()) {
 			
 			String seq = ((String) rc.values.get(DataType.SEQUENCE));
 			
@@ -121,7 +121,7 @@ public class ReferenceSequenceTrack extends Track {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 20;
 	}
     
@@ -131,7 +131,7 @@ public class ReferenceSequenceTrack extends Track {
 	}
 
 	@Override
-	public String getName() {
-		return "Reads";
+	public String getTrackName() {
+		return "Reference sequence";
 	}
 }

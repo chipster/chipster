@@ -118,4 +118,10 @@ public class GtfLineParser extends TsvLineParser {
 	public String getHeaderStart() {
 		return "#";
 	}
+
+	@Override
+	public FileLine getFileLine() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

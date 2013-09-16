@@ -1,8 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,16 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.SwingUtilities;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TooltipAugmentedChartPanel.TooltipRequestProcessor;
+import net.miginfocom.swing.MigLayout;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
@@ -43,13 +42,42 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  * (e.g. Horizontal or Circular) require different drawing implementations.
  * 
  */
-public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor, LayoutComponent, LayoutContainer{
+public abstract class GBrowserView implements MouseListener, MouseMotionListener, MouseWheelListener { //, TooltipRequestProcessor {
+	
+	JPanel component = new JPanel() {			
+
+		@Override
+		public void paintChildren(Graphics g) {								
+			
+			super.paintChildren(g);
+			
+			// draw simple vertical cursor line
+			if (isCursorLineEnabled()) {
+				g.setColor(new Color(0f, 0f, 0f, 0.25f));
+				g.drawLine((int)getWidth()/2, 0, (int)getWidth()/2, (int)getHeight());
+			}
+			
+			// Show current position on top of chromosome cytoband
+			if (highlight != null) {
+				Rectangle rect = new Rectangle(g.getClip().getBounds());
+
+				rect.x = bpToTrack(highlight.start);
+				rect.width = Math.max(3, bpToTrack(highlight.end) - rect.x);
+				rect.height = 20;
+
+				g.setColor(new Color(0, 0, 0, 64));
+				g.fillRect(rect.x, rect.y, rect.width, rect.height);
+				g.setColor(new Color(0, 0, 0, 255));
+				g.drawRect(rect.x, rect.y, rect.width, rect.height);
+			}
+		}
+	};
 
 	public RegionDouble bpRegion;
 	public Region highlight;
 
 	public Collection<ScrollGroup> scrollGroups = new LinkedList<ScrollGroup>();
-	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
+
 	private QueueManager queueManager;
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
@@ -65,30 +93,27 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	protected final float MIN_PIXELS_PER_NUCLEOTIDE = 10f;
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
-	public int margin = 0;
+
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
 	private long dragEventTime;
 	private Region requestRegion;
 	private Collection<Track> previousTracks;
+	
+	private Timer mouseAnimationTimer;
+
+	private ViewLimiter viewLimiter;
 
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	public GBrowserView(GBrowserPlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
 		this.movable = movable;
-		this.zoomable = zoomable;
+		this.zoomable = zoomable;	
+				
+		component.setLayout(new MigLayout("flowy, fillx, gap 0! 0!, insets 0"));
+		component.setInheritsPopupMenu(true);
 	}
-
-	/**
-	 * Override to implement drawing of drawables.
-	 * 
-	 * @param g
-	 * @param x
-	 * @param y
-	 * @param drawable
-	 */
-	protected abstract void drawDrawable(Graphics2D g, int x, int y, Drawable drawable);
 
 	/**
 	 * Add a track group containing one or several tracks.
@@ -98,7 +123,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	public void addTrackGroup(TrackGroup group) {
 		ScrollGroup scrollGroup = new ScrollGroup();
 		scrollGroup.addTrackGroup(group);
-		scrollGroups.add(scrollGroup);
+		addScrollGroup(scrollGroup);
 	}
 
 	/**
@@ -110,83 +135,14 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		Collection<Track> tracks = new LinkedList<Track>();
 		for (ScrollGroup scrollGroup : scrollGroups) {
 			for (TrackGroup trackGroup : scrollGroup.getTrackGroups()) {
-				// Only return tracks within visible groups
-				if (trackGroup.isVisible()) {
-					tracks.addAll(trackGroup.getTracks());
-				}
+				tracks.addAll(trackGroup.getTracks());
 			}
 		}
 		return tracks;
 	}
 
-	/**
-	 * Calls ScrollGroups to draw themselves.
-	 * 
-	 * @param g
-	 * @param plotArea
-	 * @param viewArea
-	 */
-	public void draw(Graphics2D g, Rectangle plotArea, Rectangle viewArea) {
-		
-		this.viewArea = (Rectangle) viewArea.clone();
-				
-		if (viewArea.height == 0) {
-			//There is no layout yet
-			return;
-		}
-
-		if (bpRegion == null) {
-			setBpRegion(new RegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")));
-		}
-		
-		
-		Rectangle scrollGroupViewPort = (Rectangle) viewArea.clone();
-		
-		for (ScrollGroup scrollGroup : scrollGroups) {
-			
-			scrollGroupViewPort.height = scrollGroup.getHeight();
-			
-			scrollGroup.draw(g, plotArea, scrollGroupViewPort, this);	
-			
-			scrollGroupViewPort.y += scrollGroupViewPort.height;
-		}
-		
-		// draw simple vertical cursor line
-		if (isCursorLineEnabled()) {
-			g.setColor(new Color(0f, 0f, 0f, 0.25f));
-			g.drawLine((int)plotArea.getWidth()/2, 0, (int)plotArea.getWidth()/2, (int)plotArea.getHeight());
-		}
-		
-		// Print fps
-//		frameCount++;
-//		if (System.currentTimeMillis() >= resetTime + 500) {
-//			
-//			System.out.println("FPS:\t" + frameCount * 1000 / (System.currentTimeMillis() - resetTime));
-//			resetTime = System.currentTimeMillis();
-//			frameCount = 0;
-//		}
-	}
-	
-	// Used above
-//	private int frameCount = 0;
-//	private long resetTime = 0;
-
 	public boolean isCursorLineEnabled() {
 		return true;
-	}
-
-	public int getWidth() {
-		return this.viewArea.width;
-	}
-
-	/**
-	 * Height of the area drawn by this view. The height is sum of component heights if the components have fixed height,
-	 * otherwise height set by LayoutTool.doLayout(). 
-	 * 
-	 * @return   
-	 */
-	public int getHeight() {
-		return LayoutTool.getHeight(this, layoutHeight);
 	}
 
 	public QueueManager getQueueManager() {	
@@ -237,7 +193,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			}
 
 			// Don't do anything for hidden tracks, unless they wan't to send cancel request
-			if (!cancelType && !t.isVisible()) {
+			if (!cancelType && !t.isSuitableViewLength()) {
 				continue;
 			}
 
@@ -330,7 +286,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		LinkedList<Track> list = new LinkedList<Track>();
 		
 		for (Track track : getTracks()) {
-			if (track.isVisible()) {
+			if (track.isSuitableViewLength()) {
 				list.add(track);
 			}
 		}
@@ -348,12 +304,65 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void setBpRegion(RegionDouble region) {				
 
-		this.bpRegion = limitRegion(region);
-
+		this.bpRegion = limitRegion(region);		
+		
 		fireDataRequests();
 		
 		dispatchRegionChange();
 	}
+
+	protected void updateLayout() {
+		
+		component.removeAll();
+				
+		for (ScrollGroup group : scrollGroups) {
+			group.updateLayout();
+			
+	        LayoutMode mode = group.getLayoutMode();
+	        if (LayoutMode.FIXED == mode) {	        	
+	        	component.add(group.getComponent(), "growx, ");
+	        } else {
+	        	component.add(group.getComponent(), "grow");
+	        }		
+		}
+		
+//		printLayout();
+		
+		//ScrollPane sizes may have changed
+		component.revalidate();
+	}
+
+	
+	/**
+	 * Print layout settings for debugging
+	 */
+//	private void printLayout() {
+//		for (ScrollGroup group : scrollGroups) {
+//			if ("Samples".equals(group.getScrollGroupName()) || "Annotations".equals(group.getScrollGroupName())) {
+//				System.out.println(
+//						group.getScrollGroupName() + 
+//						"\tgetSize: " + group.getComponent().getHeight() +  
+//						"\tgetPreferredSize: " + group.getComponent().getPreferredSize().getHeight() + 
+//						"\tgetLayoutMode: " + group.getLayoutMode());
+//
+//				for (TrackGroup trackGroup : group.getTrackGroups()) {
+//					System.out.println(
+//							"\t" + trackGroup.getComponent().getName() + 
+//							"\tgetSize: " + trackGroup.getComponent().getSize().getHeight() + 
+//							"\tgetPreferredSize: " + trackGroup.getComponent().getPreferredSize().getHeight() + 
+//							"\tgetLayoutMode: " + trackGroup.getLayoutMode());
+//					
+//					for (Track track : trackGroup.getTracks()) {
+//						System.out.println(
+//								"\t\t" + track.getComponent().getName() + 
+//								"\tgetSize: " + track.getComponent().getSize().getHeight() + 
+//								"\tgetPreferredSize: " + track.getComponent().getPreferredSize().getHeight() + 
+//								"\tgetLayoutMode: " + track.getLayoutMode());					
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	public RegionDouble getBpRegionDouble() {
 		return bpRegion;
@@ -377,7 +386,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void mousePressed(MouseEvent e) {
 
-		parentPlot.chartPanel.requestFocusInWindow();
+		component.requestFocusInWindow();
 
 		stopAnimation();
 		dragStartPoint = scale(e.getPoint());
@@ -430,9 +439,9 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		}
 	}
 
-	public void mouseDragged(MouseEvent e) {
-
-		if (movable && ((dragStartPoint != null && viewArea.contains(dragStartPoint) || viewArea.contains(e.getPoint())))) {
+	public void mouseDragged(MouseEvent e) {	
+		
+		if (movable && dragStartPoint != null) {
 
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
@@ -450,11 +459,6 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
-
-	private Timer mouseAnimationTimer;
-
-	private ViewLimiter viewLimiter;
-	private int layoutHeight;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -518,7 +522,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
 
-			int minBpWidth = (int) (((float) parentPlot.chartPanel.getPreferredSize().getSize().width) / MIN_PIXELS_PER_NUCLEOTIDE);
+			int minBpWidth = (int) (getWidth() / MIN_PIXELS_PER_NUCLEOTIDE);
 			if (width < minBpWidth) {
 				width = minBpWidth;
 			}
@@ -536,7 +540,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public Integer bpToTrack(BpCoord bp) {
 		if (bpRegion.start.chr.equals(bp.chr)) {
-			return (int) Math.round(((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX());
+			return (int) Math.round(((bp.bp - getBpRegionDouble().start.bp) * bpWidth()));
 
 		} else {
 			return null;
@@ -551,7 +555,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	 */
 	public Float bpToTrackFloat(BpCoord bp) {
 		if (bpRegion.start.chr.equals(bp.chr)) {
-			return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX();
+			return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth());
 
 		} else {
 			return null;
@@ -572,15 +576,11 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	public double trackToRelative(double track) {
-		return (double) (track - getX()) / getWidth();
+		return (double) (track) / getWidth();
 	}
 
-	public int getX() {
-		return viewArea.x;
-	}
-
-	public int getY() {
-		return viewArea.y;
+	public int getWidth() {
+		return component.getWidth();
 	}
 
 	public void redraw() {
@@ -601,17 +601,12 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 	}
 
 	private Point2D scale(Point2D p) {
-		return new Point((int) (p.getX() / parentPlot.chartPanel.getScaleX()), (int) (p.getY() / parentPlot.chartPanel.getScaleY()));
-	}
-
-	public String tooltipRequest(MouseEvent mouseEvent) {
-		Point locationOnPanel = (Point) mouseEvent.getLocationOnScreen().clone();
-		SwingUtilities.convertPointFromScreen(locationOnPanel, parentPlot.chartPanel);
-		return tooltipRequest(locationOnPanel);
-	}
-
-	public String tooltipRequest(Point2D locationOnPanel) {
-		return null; // tooltips disabled by default in views
+		/*Scaling is used only when the visualization is printed or saved as an image.
+		 * In that case, the Java Graphics library does the scaling automatically. In interactive mode
+		 * the component is rendered always without scaling, so there is not need for scaling the
+		 * coordinates of the user input at the moment.   
+		 */
+		return p;
 	}
 
 	public void clean() {
@@ -686,34 +681,24 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return this.viewLimiter; 
 	}
 
-	@Override
-	public void setHeight(int height) {
-		this.layoutHeight = height;
-	}
-	
-	@Override
-	public int getMinHeight() {
-		return LayoutTool.getMinHeightSum(this);
-	}
-	
-	@Override
-	public boolean isVisible() {
-		return true;
-	}
-
 	public void addScrollGroup(ScrollGroup group) {
 		scrollGroups.add(group);
+		group.setView(this);
+		this.updateLayout();
 	}
 
 	public Collection<? extends ScrollGroup> getScrollGroups() {
 		return scrollGroups;
 	}
-	
-	@Override
-	public Collection<? extends LayoutComponent> getLayoutComponents() {
-		return getScrollGroups();
-	}
 
+	/**
+	 * Use this method to check if a data item should be kept or removed. Data requests aren't equal to visible 
+	 * region. The data items returned by the last request won't be requested again and therefore those must not be
+	 * removed even if those aren't currently visible.   
+	 * 
+	 * @param region of the data item
+	 * @return true if data item with the given region is still relevant or false if can be removed
+	 */
 	public boolean requestIntersects(Region region) {
 		if (requestRegion != null) {			
 			return requestRegion.intersects(region);
@@ -723,11 +708,12 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		return true;
 	}
 
-	public boolean viewIntersects(Region region) {
-					
-		return getBpRegion().intersects(region);		
-	}
-
+	/**
+	 * Similar to @link GBrowserView#requestIntersects(Region), but works with single position instead of region.
+	 * 
+	 * @param position
+	 * @return
+	 */
 	public boolean requestContains(BpCoord position) {
 		if (requestRegion != null) {			
 			return requestRegion.contains(position);
@@ -736,12 +722,26 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 		//Keep everything
 		return true;		
 	}
+	
+	/**
+	 * For checking if the data is still needed, use @link GBrowserView#requestIntersects(Region).
+	 * 
+	 * @param region
+	 * @return
+	 */
+	public boolean viewIntersects(Region region) {
+					
+		return getBpRegion().intersects(region);		
+	}
+
 
 	public Region getRequestRegion() {
 		return requestRegion;
 	}
 
 	public void reloadData() {
+		getQueueManager().clearDataResultListeners();
+		parentPlot.initializeDataResultListeners();
 		reloadDataLater();
 		fireDataRequests();
 		redraw();
@@ -749,5 +749,25 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void reloadDataLater() {
 		requestRegion = null;
+	}
+	
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferViewLayoutMode(scrollGroups);
+	}
+
+	public JPanel getComponent() {
+		return component;
+	}
+
+	public GBrowserPlot getPlot() {
+		return parentPlot;
+	}
+
+	public LinkedList<TrackGroup> getTrackGroups() {
+		LinkedList<TrackGroup> groups = new LinkedList<>();
+		for (ScrollGroup scrollGroup : getScrollGroups()) {
+			groups.addAll(scrollGroup.getTrackGroups());
+		}
+		return groups;
 	}
 }

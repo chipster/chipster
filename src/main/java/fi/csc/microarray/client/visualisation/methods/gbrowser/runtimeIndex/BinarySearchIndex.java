@@ -1,10 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
@@ -169,6 +173,53 @@ public class BinarySearchIndex extends Index {
 		}
 		
 		return lines;
+	}
+	
+	public class LineIterator implements Iterator<String> {			
+		
+		private String next;
+
+		public LineIterator() throws IOException, GBrowserException {
+			BinarySearchIndex.this.getFile().setLineReaderPosition(0);
+		}
+		
+		public void getNext() {
+			if (next == null) {
+				try {
+					next = BinarySearchIndex.this.getFile().getNextLine();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			getNext();
+			return next != null;
+		}
+
+		@Override
+		public String next() {
+			if (hasNext()) {
+				String returnValue = next;
+				next = null;
+				return returnValue;				
+			} else {
+				throw new NoSuchElementException();
+			}
+		}
+
+		@Override
+		public void remove() {
+			throw new NotImplementedException();
+		}		
+	}
+	
+	@Override
+	public Iterator<String> getFileLineIterator() throws IOException, GBrowserException {
+		
+		return new LineIterator();	
 	}
 
 	public TreeMap<IndexKey, String> getFileLines(Region request) throws IOException, GBrowserException {

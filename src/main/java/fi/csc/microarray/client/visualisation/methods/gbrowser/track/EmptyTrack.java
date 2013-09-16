@@ -14,14 +14,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResul
 public class EmptyTrack extends Track {
 
 	public EmptyTrack(int height) {
-
-		this.layoutHeight = height;
+		super(height);
 	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		drawables.add(new RectDrawable(0, 0, getView().getWidth(), layoutHeight, Color.WHITE, Color.WHITE));
+		drawables.add(new RectDrawable(0, 0, getView().getWidth(), getTrackHeight(), Color.WHITE, Color.WHITE));
 		return drawables;
 	}
 
@@ -30,7 +29,7 @@ public class EmptyTrack extends Track {
 	}
 	
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "empty";
 	}
 }

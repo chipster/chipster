@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
@@ -38,11 +39,13 @@ public class BinarySearchIndexTest {
 		testFile.delete();
 	}
 
-	private static void runTests(File testFile) throws IOException,
+	private static void runTests(File file) throws IOException,
 			GBrowserException, UnsortedDataException, FileNotFoundException,
 			URISyntaxException, MalformedURLException {
 		
-		Index index = new BinarySearchIndex(new RandomAccessLineDataSource(testFile.toURI().toURL()), new GtfLineParser());		
+		DataUrl dataUrl = new DataUrl(file);
+		
+		Index index = new BinarySearchIndex(new RandomAccessLineDataSource(dataUrl), new GtfLineParser());		
 		//Index index = new InMemoryIndex(new LineDataSource(testFile.toURI().toURL(), null), new StackGtfParser());
 		
 		//Empty region

@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
@@ -28,7 +29,8 @@ public class RandomAccessLineReaderTest {
 		
 		//Test empty file
 		File emptyFile = File.createTempFile("RandomAccesLineReaderTest", ".txt");
-		RandomAccessLineReader lineReader = new RandomAccessLineReader(emptyFile.toURI().toURL());
+		DataUrl dataUrl = new DataUrl(emptyFile);
+		RandomAccessLineReader lineReader = new RandomAccessLineReader(dataUrl);
 		System.out.println(lineReader.setPosition(0) == false);		
 		emptyFile.delete();
 		
@@ -47,8 +49,8 @@ public class RandomAccessLineReaderTest {
 		RandomAccessLineReader lineReader;
 		//Read the file with standard tools for reference
 		List<String> lines = getTestReferenceList(testFile);
-		
-		lineReader = new RandomAccessLineReader(testFile.toURI().toURL());
+		DataUrl dataUrl = new DataUrl(testFile);
+		lineReader = new RandomAccessLineReader(dataUrl);
 		
 		//Check that lineReader reports correct file length
 		System.out.println(lineReader.length() == testFile.length());		

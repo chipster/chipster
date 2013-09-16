@@ -14,17 +14,16 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcript;
 
@@ -49,8 +48,7 @@ public class TranscriptTrack extends Track {
 	}
 
 	public TranscriptTrack() {
-
-		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
+		super();
 	}
 
 	@Override
@@ -143,7 +141,7 @@ public class TranscriptTrack extends Track {
 						name = "n/a";
 					}
 
-					drawTextAboveRectangle(name, drawables, rect, 1);
+					drawTextAboveRectangle(name, drawables, rect, 0);
 				}
 
 				for (Exon exon : transcript.getExons()) {
@@ -211,7 +209,7 @@ public class TranscriptTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : dataResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
 
 				// Sorting is needed to draw partly overlapping genes in the same order every time
@@ -234,7 +232,12 @@ public class TranscriptTrack extends Track {
 	}
 	
 	@Override
-	public int getMinHeight() {
+	public int getTrackHeight() {
 		return 100;
+	}
+	
+	@Override
+	public boolean isShowMoreCapable() {
+		return true;
 	}
 }

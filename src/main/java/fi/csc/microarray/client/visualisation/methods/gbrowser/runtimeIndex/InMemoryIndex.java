@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,6 +9,7 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
  * In-memory index, which keeps the whole file in RAM. This is practical for small files
@@ -45,11 +47,13 @@ public class InMemoryIndex extends Index {
 		while ((line = file.readLine()) != null) {
 			
 			if (parser.setLine(line)) {
-				IndexKey key = new IndexKey(parser.getRegion().start, lineNumber);
-				lineMap.put(key, line);				
+				IndexKey key = new IndexKey(parser.getRegion().start, lineNumber, true);
+				lineMap.put(key, line);
+				
+				//Count only content lines, because this is a convention in Chipster selection system
+				lineNumber++;
 			}
 			
-			lineNumber++;
 		}
 	}
 	
@@ -79,6 +83,14 @@ public class InMemoryIndex extends Index {
 		//zero second parameter makes this enKey smaller than lines with equal start position 
 		//and thus excludes the lines with equal start position
 		IndexKey endKey = new IndexKey(request.end, 0);
+
+		//This shouldn't happen, but lets live on with it
+		if (startKey.compareTo(endKey) > 0) {
+			System.err.println("Error in class \"" + this.getClass().getSimpleName() + " method getFileLines(): startkey > endKey");
+			IndexKey tmp = endKey;
+			endKey = startKey;
+			startKey = tmp;
+		}
 		
 		for (Entry<IndexKey, String> entry : lineMap.subMap(startKey, endKey).entrySet()) {
 
@@ -86,5 +98,11 @@ public class InMemoryIndex extends Index {
 		}
 		
 		return lines;
+	}
+	
+	@Override
+	public Iterator<String> getFileLineIterator() throws IOException, GBrowserException {
+		
+		return getFileLines().iterator();	
 	}
 }

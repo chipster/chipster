@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
@@ -31,7 +31,7 @@ public class BamToDetailsConversion extends DataThread {
 
 	public BamToDetailsConversion(BamDataSource file, final GBrowser browser) {
 	    
-		super(browser);
+		super(browser, file);
 		
 		this.dataSource = file;
 	}
@@ -62,7 +62,7 @@ public class BamToDetailsConversion extends DataThread {
 		// Produce results
 		while (iterator.hasNext()) {
 
-			List<RegionContent> responseList = new LinkedList<RegionContent>();
+			List<Feature> responseList = new LinkedList<Feature>();
 
 			// Split results into chunks
 			for (int c = 0; c < RESULT_CHUNK_SIZE && iterator.hasNext(); c++) {
@@ -74,7 +74,7 @@ public class BamToDetailsConversion extends DataThread {
 				// Values for this read
 				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
-				RegionContent read = new RegionContent(recordRegion, values);
+				Feature read = new Feature(recordRegion, values);
 
 				if (request.getRequestedContents().contains(DataType.ID)) {
 					values.put(DataType.ID, record.getReadName());

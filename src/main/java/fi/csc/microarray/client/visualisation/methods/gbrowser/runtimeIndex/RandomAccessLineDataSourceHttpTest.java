@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 
@@ -12,10 +13,12 @@ public class RandomAccessLineDataSourceHttpTest {
 	public static void main (String args[]) throws URISyntaxException, IOException, GBrowserException {
 		
 		URL fileUrl = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.69-sort.gtf").toURI().toURL();
-		RandomAccessLineReader file = new RandomAccessLineReader(fileUrl);		
+		DataUrl fileDataUrl = new DataUrl(fileUrl, "file");
+		RandomAccessLineReader file = new RandomAccessLineReader(fileDataUrl);		
 		
 		URL httpUrl = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.69-sort.gtf");
-		RandomAccessLineReader http = new RandomAccessLineReader(httpUrl);
+		DataUrl httpDataUrl = new DataUrl(httpUrl, "http");
+		RandomAccessLineReader http = new RandomAccessLineReader(httpDataUrl);
 		
 		iterativeTest(file, http);
 	}

@@ -14,13 +14,7 @@ public class GBrowserConstants {
 		new Color(159, 223, 159), // A
 		new Color(159, 159, 223), // C
 		new Color(191, 191, 191), // G
-		new Color(223, 159, 159) // T
-		
-		
-//		new Color(64, 192, 64, 128), // A
-//		new Color(64, 64, 192, 128), // C
-//		new Color(128, 128, 128, 128), // G
-//		new Color(192, 64, 64, 128) // T
+		new Color(223, 159, 159) // T		
 	};
 	
 	public static final Color BED_COLOR = new Color(1, 119, 183);

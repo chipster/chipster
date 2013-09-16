@@ -12,16 +12,16 @@ import java.util.List;
 public class DataResult {
 
 	private DataStatus status;	
-	private List<RegionContent> contents;
+	private List<Feature> contents;
 	private DataRequest request;
 
-	public DataResult(DataStatus status, List<RegionContent> contents) {
+	public DataResult(DataStatus status, List<Feature> contents) {
 		this.status = status;
 		this.contents = contents;
 	}	
 
 	public DataResult(DataRequest request,
-			LinkedList<RegionContent> contents) {
+			LinkedList<Feature> contents) {
 		this(request.getStatus(), contents);
 		this.request = request;
 	}
@@ -30,7 +30,7 @@ public class DataResult {
 		return status;
 	}
 
-	public List<RegionContent> getContents() {
+	public List<Feature> getFeatures() {
 		return contents;
 	}
 

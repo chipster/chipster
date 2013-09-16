@@ -7,7 +7,7 @@ public class GeneResult extends DataResult {
 	
 	private String searchString;
 
-	public GeneResult(DataStatus status, List<RegionContent> contents, String searchString) {
+	public GeneResult(DataStatus status, List<Feature> contents, String searchString) {
 		super(status, contents);
 		this.searchString = searchString;
 	}
@@ -17,8 +17,8 @@ public class GeneResult extends DataResult {
 	}
 
 	public Region getGeneLocation() {
-		if (super.getContents().size() == 1) {
-			return super.getContents().get(0).region;
+		if (super.getFeatures().size() == 1) {
+			return super.getFeatures().get(0).region;
 		}
 		return null;
 	}

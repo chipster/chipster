@@ -126,7 +126,7 @@ public class CoverageAverageTrack extends Track {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 	

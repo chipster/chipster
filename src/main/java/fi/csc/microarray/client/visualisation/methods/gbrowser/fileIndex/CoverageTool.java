@@ -11,7 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
 
@@ -88,10 +88,10 @@ public class CoverageTool {
 	}
 
 	public static void convertRegionContentListToBaseList(
-			List<RegionContent> regionContentList, TreeMap<BpCoord, Base> forwardBases,
+			List<Feature> regionContentList, TreeMap<BpCoord, Base> forwardBases,
 			TreeMap<BpCoord, Base> reverseBases) {
 		
-		for (RegionContent regCont : regionContentList) {
+		for (Feature regCont : regionContentList) {
 			
 			Object value = regCont.values.get(DataType.VALUE);
 
@@ -110,11 +110,11 @@ public class CoverageTool {
 	
 
 	public static void convertRegionContentListToFloatList(
-			List<RegionContent> regionContentList,
+			List<Feature> regionContentList,
 			TreeMap<Region, Float> forwardAverages,
 			TreeMap<Region, Float> reverseAverages) {
 		
-		for (RegionContent regCont : regionContentList) {
+		for (Feature regCont : regionContentList) {
 			
 			Object value = regCont.values.get(DataType.COVERAGE_AVERAGE);
 
@@ -154,9 +154,9 @@ public class CoverageTool {
 		return ((long)(location / BIN_SIZE)) * BIN_SIZE;
 	}
 				
-	public static LinkedList<RegionContent> average(TreeMap<Long, LinkedList<Base>> bins, Chromosome chr, Strand strand) {
+	public static LinkedList<Feature> average(TreeMap<Long, LinkedList<Base>> bins, Chromosome chr, Strand strand) {
 			
-		LinkedList<RegionContent> resultList = new LinkedList<RegionContent>();
+		LinkedList<Feature> resultList = new LinkedList<Feature>();
 		
 		for (Entry<Long, LinkedList<Base>> entry : bins.entrySet()) {
 			
@@ -175,13 +175,13 @@ public class CoverageTool {
 			values.put(DataType.COVERAGE_AVERAGE, average);
 			values.put(DataType.STRAND, strand);
 
-			resultList.add(new RegionContent(region, values));		
+			resultList.add(new Feature(region, values));		
 		}
 		return resultList;
 	}
 
-	public static LinkedList<RegionContent> average(
-			LinkedList<RegionContent> resultList, Chromosome chr) {
+	public static LinkedList<Feature> average(
+			LinkedList<Feature> resultList, Chromosome chr) {
 		
 		TreeMap<BpCoord, Base> forwardBases = new TreeMap<BpCoord, Base>();
 		TreeMap<BpCoord, Base> reverseBases = new TreeMap<BpCoord, Base>();
@@ -191,7 +191,7 @@ public class CoverageTool {
 		TreeMap<Long, LinkedList<Base>> forwardBins = CoverageTool.binBases(forwardBases);
 		TreeMap<Long, LinkedList<Base>> reverseBins = CoverageTool.binBases(reverseBases);
 		
-		LinkedList<RegionContent> averageCoverage = new LinkedList<RegionContent>();
+		LinkedList<Feature> averageCoverage = new LinkedList<Feature>();
 		averageCoverage.addAll(CoverageTool.average(forwardBins, chr, Strand.FORWARD));
 		averageCoverage.addAll(CoverageTool.average(reverseBins, chr, Strand.REVERSE));
 		
