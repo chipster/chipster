@@ -1,10 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
@@ -24,10 +23,10 @@ public class RandomAccessLineDataSource extends DataSource {
 	
 	private RandomAccessLineReader lineReader;
 	
-	public RandomAccessLineDataSource(URL url) throws FileNotFoundException, URISyntaxException {
-		super(url);
+	public RandomAccessLineDataSource(DataUrl dataUrl) throws URISyntaxException, IOException {
+		super(dataUrl);
 		
-		this.lineReader = new RandomAccessLineReader(url);
+		this.lineReader = new RandomAccessLineReader(dataUrl);
 	}
 	
 	/**

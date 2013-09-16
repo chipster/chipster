@@ -2,31 +2,39 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * This class converts gene name search requests to GeneResult objects containing 
+ * the chromosome of the requested gene. This information is read from the purpose-build
+ * file. 
+ * 
+ * @author klemela
+ */
 public class GeneSearchConversion extends DataThread {	
 	
 	private HashMap<String, Chromosome> geneNameMap;
 	private LineDataSource dataSource;
 	
-	public GeneSearchConversion(URL url, final GBrowser browser) {
+	public GeneSearchConversion(DataUrl data, final GBrowser browser) {
 
-		super(browser);
+		super(browser, null);
 
 		try {
 
-			dataSource = new LineDataSource(url);
+			dataSource = new LineDataSource(data);
+			super.setDataSource(dataSource);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -54,11 +62,11 @@ public class GeneSearchConversion extends DataThread {
 		String searchString = geneRequest.getSearchString();
 
 		Chromosome chr = geneNameMap.get(searchString.toLowerCase());
-		List<RegionContent> resultList = new LinkedList<RegionContent>();
+		List<Feature> resultList = new LinkedList<Feature>();
 
 		if (chr != null) {
 
-			resultList.add(new RegionContent(new Region(null, null, chr), null));
+			resultList.add(new Feature(new Region(null, null, chr), null));
 		}
 
 		super.createDataResult(new GeneResult(geneRequest.getStatus(), resultList, searchString));

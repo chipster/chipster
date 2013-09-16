@@ -108,7 +108,7 @@ public class QueueManager {
 			if (listener instanceof Track) {
 				Track track = (Track) listener;
 				
-				if (track.isVisible()) {
+				if (track.isSuitableViewLength()) {
 					listener.processDataResult(dataResult);	
 				}
 				
@@ -141,5 +141,11 @@ public class QueueManager {
 
 	public Collection<DataResultListener> getDataResultListeners(DataResult dataResult) {
 		return queues.get(dataResult.getStatus().getDataThread()).listeners;
+	}
+
+	public void clearDataResultListeners() {
+		for (QueueContext context : queues.values()) {
+			context.listeners.clear();
+		}
 	}
 }

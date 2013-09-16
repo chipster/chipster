@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.InMemoryIndex;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
@@ -37,8 +38,10 @@ public class GtfSort {
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 		
 		InMemoryIndex index;
+		
+		DataUrl dataUrl = new DataUrl(file);
 
-		index = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());		
+		index = new InMemoryIndex(new LineDataSource(dataUrl), new GtfLineParser());		
 				
 		for (String line : index.getFileLines()) {
 			out.append(line);

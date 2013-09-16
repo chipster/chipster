@@ -1,10 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedList;
 
 import net.sf.samtools.SAMFileReader;
@@ -13,6 +12,7 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMRecordIterator;
 import net.sf.samtools.SAMSequenceRecord;
 import net.sf.samtools.util.CloseableIterator;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
@@ -33,13 +33,13 @@ public class BamDataSource extends DataSource {
      * Generally we would like to have both data and index files,
      * because otherwise we cannot access random locations.
      * 
-     * @param samFile
-     * @param indexFile
-     * @throws FileNotFoundException
+     * @param data
+     * @param index
      * @throws URISyntaxException
+     * @throws IOException 
      */
-    public BamDataSource(URL samFile, URL indexFile) throws FileNotFoundException, URISyntaxException {
-        super(samFile);
+    public BamDataSource(DataUrl data, DataUrl index) throws URISyntaxException, IOException {
+        super(data);
 
     	// BAMFileReader emits useless warning to System.err that can't be turned off,
     	// so we direct it to other stream and discard. 
@@ -47,7 +47,7 @@ public class BamDataSource extends DataSource {
     	System.setErr(new PrintStream(new ByteArrayOutputStream()));
     	
     	SAMFileReader.setDefaultValidationStringency(ValidationStringency.SILENT);
-    	this.reader = SamBamUtils.getSAMReader(samFile, indexFile);
+    	this.reader = SamBamUtils.getSAMReader(data.getUrl(), index.getUrl());
 
     	LinkedList<String> chrList = new LinkedList<>();
     	

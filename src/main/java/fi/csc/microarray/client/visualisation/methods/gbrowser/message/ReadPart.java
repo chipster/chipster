@@ -10,22 +10,22 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 public class ReadPart extends Region {
 	
 	private String sequencePart;
-	private RegionContent read;
+	private Feature read;
 	private CigarItem cigarItem;
 
-	public ReadPart(Long start, Long end, Chromosome chr, RegionContent read, String sequencePart) {
+	public ReadPart(Long start, Long end, Chromosome chr, Feature read, String sequencePart) {
 		super(start, end, chr);
 		this.read = read;
 		this.sequencePart = sequencePart;
 	}
 
-	public ReadPart(RegionContent read) {
+	public ReadPart(Feature read) {
 		super(read.region);
 		this.read = read;
 		this.sequencePart = (String)read.values.get(DataType.SEQUENCE);
 	}
 
-	public RegionContent getRead() {
+	public Feature getRead() {
 		return read;
 	}
 

@@ -1,6 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 
+/**
+ * A class with similar features with {@link IndexKey} offering an identifier and natural order for the data items.
+ * While IndexKey is an identifier of the original data line, this class can be used with higher level objects
+ * where the use of data line identifiers is not sensible. For example, this is the case when the item is constructed from 
+ * multiple lines.   
+ * 
+ * @author klemela
+ */
 public class PositionAndStringKey  implements Comparable<PositionAndStringKey> {
 	
 	/**

@@ -19,10 +19,9 @@ public class TitleTrack extends Track {
 	private Color bgColor;
 
 	public TitleTrack(String title, Color color) {
-
+		super(10);
 		this.color = color;
 		this.title = title;
-		layoutHeight = 10;
 	}
 	
 	public TitleTrack(String title, Color color, Color bgColor) {
@@ -36,7 +35,7 @@ public class TitleTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
 		if (bgColor != null) {
-			drawables.add(new RectDrawable(0, 0, view.getWidth(), getHeight(), bgColor, bgColor));
+			drawables.add(new RectDrawable(0, 0, view.getWidth(), getTrackHeight(), bgColor, bgColor));
 		}
 		
 		drawables.add(new TextDrawable(5, 10, title, color));				
@@ -48,12 +47,12 @@ public class TitleTrack extends Track {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 10;
 	}
 
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "title";
 	}
 }

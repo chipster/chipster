@@ -17,13 +17,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow.Sample;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
 /**
  * This conversion class Parses tsv files with CnaLineParser, creates CnaRow objects and packages those as
- * RegionContent objects.  
+ * Feature objects.  
  * 
  * @author klemela
  *
@@ -38,7 +38,7 @@ public class CnaConversion extends DataThread {
 
 	public CnaConversion(RandomAccessLineDataSource file, final GBrowser browser) {
 			    
-		super(browser);
+		super(browser, file);
 		
 		try {
 			//read sample names
@@ -97,7 +97,7 @@ public class CnaConversion extends DataThread {
 			e.printStackTrace();
 		}
 		
-		List<RegionContent> list = new LinkedList<RegionContent>();
+		List<Feature> list = new LinkedList<Feature>();
 		
 		for (Entry<IndexKey, String> lineEntry : lines.entrySet()) {
 
@@ -157,7 +157,7 @@ public class CnaConversion extends DataThread {
 			//Add logRatios in general format to make it possible to view them with ScatterploTrack			
 			valueMap.put(DataType.FLOAT_LIST, logRatioValues);
 			
-			RegionContent regionContent = new RegionContent(region, valueMap);
+			Feature regionContent = new Feature(region, valueMap);
 			
 			list.add(regionContent);
 		}	

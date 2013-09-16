@@ -198,7 +198,7 @@ public class SwingClientApplication extends ClientApplication {
 		// try to initialise and handle exceptions gracefully
 		
 		/*Wait descriptions in another thread and let EDT continue.
-		 * We cannot let EDT wait, because otherwise there is a deadlock: LoginWindow
+		 * We can't wait in EDT, because otherwise there is a deadlock: LoginWindow
 		 * waits for EDT to get free and EDT waits for LoginWindow to get done with authentication. 
 		 */
 		Thread t = new Thread(new Runnable() {

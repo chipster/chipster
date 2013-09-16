@@ -1,15 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -26,17 +24,8 @@ public class ByteDataSource extends DataSource {
 
 	private Long length = null;
 
-	public ByteDataSource(URL url) throws FileNotFoundException, URISyntaxException {
-		super(url);
-		
-		if (file != null) { //Initialized by super constructor if file is local
-			raFile = new RandomAccessFile(file.getPath(), "r");
-		}
-	}
-
-	public ByteDataSource(URL urlRoot, String path)
-	throws FileNotFoundException, MalformedURLException, URISyntaxException {
-		super(urlRoot, path);
+	public ByteDataSource(DataUrl dataUrl) throws URISyntaxException, IOException {
+		super(dataUrl);
 		
 		if (file != null) { //Initialized by super constructor if file is local
 			raFile = new RandomAccessFile(file.getPath(), "r");

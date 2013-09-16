@@ -101,20 +101,18 @@ public class AnnotationManager {
 		 * 
 		 * @return
 		 */
-		public URL getUrl() {
+		public DataUrl getUrl() {
 			if (checkLocalFile(this)) {
 				String fileName = getLocalFileName(this);
 				File localFile = new File(localAnnotationsRoot, fileName);
-				URL newUrl;
+
 				try {
-					newUrl = localFile.toURI().toURL();
+					return new DataUrl(localFile);
 				} catch (MalformedURLException e) {
 					logger.warn("generating url for local file " + localFile + "failed");
-					return this.url;
 				}
-				return newUrl;
 			}
-			return this.url;
+			return new DataUrl(this.url, url.getPath());
 		}
 
 		public long getContentLength() {

@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 /**
  * Generic track for showing high level distribution of items (genes, transcripts, reads...) on the genome.
@@ -27,8 +27,8 @@ public class CoverageEstimateTrack extends Track {
 
 	private static final int MAX_VALUE_COUNT = 1000;
 
-	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
-	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
+	private SortedSet<Feature> values = new TreeSet<Feature>();
+	private LinkedList<Feature> valueStorageOrder = new LinkedList<Feature>();
 
 	private boolean strandSpecificCoverageType;
 
@@ -39,17 +39,17 @@ public class CoverageEstimateTrack extends Track {
 		
 		// remove values when they get "too big"
 		while (values.size() > MAX_VALUE_COUNT) {
-			RegionContent oldest = valueStorageOrder.pop();
+			Feature oldest = valueStorageOrder.pop();
 			values.remove(oldest);
 		}
 		
 		List<RegionValue> forward = new LinkedList<RegionValue>();
 		List<RegionValue> reverse = new LinkedList<RegionValue>();		
 		
-		Iterator<RegionContent> iterator = values.iterator();
+		Iterator<Feature> iterator = values.iterator();
 		while (iterator.hasNext()) {
 
-			RegionContent regCont = iterator.next();
+			Feature regCont = iterator.next();
 			
 			// remove values that have gone out of view
 			if (!getView().requestIntersects(regCont.region)) {
@@ -177,7 +177,7 @@ public class CoverageEstimateTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {		
 
-		for (RegionContent content : dataResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 			if (getView().requestIntersects(content.region) && content.values.containsKey(DataType.COVERAGE_ESTIMATE_FORWARD)) {
 								
 				values.add(content);
@@ -189,7 +189,7 @@ public class CoverageEstimateTrack extends Track {
     @Override
 	public void defineDataTypes() {
 		
-		if (isVisible()) {
+		if (isSuitableViewLength()) {
 			
 			addDataType(DataType.COVERAGE_ESTIMATE_FORWARD);
 			addDataType(DataType.COVERAGE_ESTIMATE_REVERSE);
@@ -201,7 +201,7 @@ public class CoverageEstimateTrack extends Track {
 	}
 	
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 	    return 100;
 	}
 	

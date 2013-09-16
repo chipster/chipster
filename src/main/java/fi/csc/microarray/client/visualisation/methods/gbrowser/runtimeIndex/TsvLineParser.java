@@ -1,6 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 
+/**
+ * Generic helper methods for parsing tab separated files.
+ * 
+ * @author klemela
+ */
 public abstract class TsvLineParser implements LineParser {
 	
 	protected String[] values;
@@ -10,9 +15,23 @@ public abstract class TsvLineParser implements LineParser {
 		return new Long(string);		
 	}
 	
+	public Integer getInteger(int column) {
+		String string = values[column];
+		return new Integer(string);		
+	}
+	
 	public Float getFloat(int column) {
 		String string = values[column];
-		return new Float(string);		
+		try {
+			return new Float(string);
+		} catch (NumberFormatException e) {
+			if ("inf".equals(string.toLowerCase())) {
+				return Float.POSITIVE_INFINITY;
+			} else if ("-inf".equals(string.toLowerCase())) {
+				return Float.NEGATIVE_INFINITY;
+			}
+			return Float.NaN;
+		}
 	}
 	
 	public String getString(int column) {

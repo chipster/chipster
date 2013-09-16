@@ -15,7 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CnaRow.Sa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 public class CnaFlagTrack extends Track {
 
@@ -32,7 +32,7 @@ public class CnaFlagTrack extends Track {
 
 
 	public CnaFlagTrack(Color gainColor, int sampleIndex, Color lossColor) {
-
+		super();
 		this.sampleIndex = sampleIndex;
 	}
 
@@ -94,7 +94,7 @@ public class CnaFlagTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent region : dataResult.getContents()) {
+		for (Feature region : dataResult.getFeatures()) {
 			this.rows.put((IndexKey)region.values.get(DataType.ID), (CnaRow)region.values.get(DataType.VALUE));
 		}
 	}
@@ -106,7 +106,7 @@ public class CnaFlagTrack extends Track {
 	}    
     
     @Override 
-    public int getMinHeight() {
+    public int getTrackHeight() {
     	return SYMBOL_HEIGHT;
     }
 }

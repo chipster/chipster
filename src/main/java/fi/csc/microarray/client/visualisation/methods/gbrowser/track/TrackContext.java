@@ -30,14 +30,14 @@ public class TrackContext {
             this.minDrawableY = Math.min(drawable.getMaxY() + 1, this.minDrawableY);
         }
                       
-        this.trackHeight = track.getHeight();
+        this.trackHeight = track.getTrackHeight();
         
         this.expansionRatio = this.trackHeight /
                 (this.trackHeight - (float) this.minDrawableY);
     }
     
     public TrackContext(Track track, Integer minDrawableY) {           
-        this.trackHeight = track.getHeight();
+        this.trackHeight = track.getTrackHeight();
         
         this.minDrawableY = minDrawableY;
         

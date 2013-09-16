@@ -7,14 +7,14 @@ public class VcfLineParser extends TsvLineParser {
 	
 	public enum Column {
 
-		CHROM ("chromosome"), 		
-		POS ("position"), 
-		ID ("identifiers"),
-		REF("references base(s)"), 
-		ALT ("non-reference alleles"), 
-		QUAL ("quality score"), 
-		FILTER ("filter pass"),
-		INFO ("additional information");
+		CHROM ("CHROM"), 		
+		POS ("POS"), 
+		ID ("ID"),
+		REF("REF"), 
+		ALT ("ALT"), 
+		QUAL ("QUAL"), 
+		FILTER ("FILTER"),
+		INFO ("INFO");
 
 		private final String name;
 
@@ -22,7 +22,7 @@ public class VcfLineParser extends TsvLineParser {
 			this.name = name;
 		}
 
-		String getName() {
+		public String toString() {
 			return name;
 		}
 	}
@@ -43,8 +43,21 @@ public class VcfLineParser extends TsvLineParser {
 		}
 	}
 
-	public String getQuality() {
-		return getString(Column.QUAL.ordinal());
+	public VcfLine getFileLine() {
+		VcfLine line = new VcfLine();
+		
+		Region region = getRegion();
+		
+		line.setChrom(region.start.chr);
+		line.setPos(region.start.bp);
+		line.setId(getString(Column.ID.ordinal()));
+		line.setRef(getString(Column.REF.ordinal()));
+		line.setAlt(getString(Column.ALT.ordinal()));
+		line.setQual(getFloat(Column.QUAL.ordinal()));
+		line.setFilter(getString(Column.FILTER.ordinal()));
+		line.setInfo(getString(Column.INFO.ordinal()));
+		
+		return line;
 	}
 
 	@Override

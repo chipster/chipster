@@ -1,25 +1,34 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
+import java.awt.Color;
+import java.util.LinkedList;
+import java.util.List;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
+/**
+ * This class parses String lines to BedLine objects.
+ * 
+ * @author klemela
+ */
 public class BedLineParser extends TsvLineParser {		
 	
 	public enum Column {
-			
-		CHROMOSOME ("chrom"), 		
-		START ("chromStart"), 
-		END ("chromEnd"),
-		NAME("name"), 
-		SCORE ("score"), 
-		STRAND ("strand"), 
-		THICK_START ("thickStart"),
-		THICK_END ("thickEnd"),
-		ITEM_RGB ("itemRgb"),
-		BLOCK_COUNT ("blockCount"),
-		BLOCK_SIZES ("blockSizes"),
-		BLOCK_STARTS ("blockStarts");
+		
+		CHROM ("Chromosome"), 		
+		CHROM_START ("Start"), 
+		CHROM_END ("End"),
+		NAME("Name"), 
+		SCORE ("Score"), 
+		STRAND ("Strand"), 
+		THICK_START ("Thick start"),
+		THICK_END ("Thick end"),
+		ITEM_RGB ("Item rgb"),
+		BLOCK_COUNT ("Block count"),
+		BLOCK_SIZES ("Block sizes"),
+		BLOCK_STARTS ("Block starts");
 		
 		private final String name;
 		
@@ -27,7 +36,7 @@ public class BedLineParser extends TsvLineParser {
 			this.name = name;
 		}
 		
-		String getName() {
+		public String toString() {
 			return name;
 		}
 	}
@@ -46,9 +55,9 @@ public class BedLineParser extends TsvLineParser {
 		
 		if (isContentLine()) {
 
-			long start = getLong(Column.START.ordinal());
-			long end = getLong(Column.END.ordinal());
-			Chromosome chr = new Chromosome(getString(Column.CHROMOSOME.ordinal()));
+			long start = getLong(Column.CHROM_START.ordinal());
+			long end = getLong(Column.CHROM_END.ordinal());
+			Chromosome chr = new Chromosome(getString(Column.CHROM.ordinal()));
 
 			if (convertCoordinates) {
 				start++;
@@ -63,50 +72,112 @@ public class BedLineParser extends TsvLineParser {
 		}
 	}
 	
-
-	
-	public String getName() {
-		return getString(Column.NAME.ordinal());
-	}
-
-	public Float getScore() {
-		return getFloat(Column.SCORE.ordinal());
-	}
-	
-	public Strand getStrand() {
-		String strandString = getString(Column.STRAND.ordinal());
+	@Override
+	public BedLine getFileLine() {
+		BedLine line = new BedLine();
 		
-		Strand strand = null;
+		Region region = getRegion();
+
+		line.setChrom(region.start.chr);
+		line.setChromStart(region.start.bp);
+		line.setChromEnd(region.end.bp);		
 		
-		if ("+".equals(strandString)) {
-			strand = Strand.FORWARD;
+		int columnCount = values.length;
+		int column;
+		
+		column = Column.NAME.ordinal();
+		
+		if (columnCount > column) {
+			line.setName(getString(column));
 		}
 		
-		if ("-".equals(strandString)) {
-			strand = Strand.REVERSE;
+		column = Column.SCORE.ordinal();
+		
+		if (columnCount > column) {
+			line.setScore(getFloat(column));
 		}
 		
-		return strand;
+		column = Column.SCORE.ordinal();
+		
+		if (columnCount > column) {
+			line.setScore(getFloat(column));
+		}
+		
+		column = Column.STRAND.ordinal();
+		
+		if (columnCount > column) {
+			
+			String strandString = getString(column);
+			
+			if ("+".equals(strandString)) {
+				line.setStrand(Strand.FORWARD);
+			} else if ("-".equals(strandString)) {
+				line.setStrand(Strand.REVERSE);
+			}
+		}
+		
+		
+		column = Column.THICK_START.ordinal();
+		
+		if (columnCount > column) {
+			line.setThickStart(getLong(column));
+		}
+		
+		column = Column.THICK_END.ordinal();
+		
+		if (columnCount > column) {
+			line.setThickEnd(getLong(column));
+		}
+		
+		column = Column.ITEM_RGB.ordinal();
+		
+		if (columnCount > column) {
+			String string = getString(column);
+			List<Long> rgb = splitStringToList(string);
+
+			int r = (int)(long)rgb.get(0);
+			int g = (int)(long)rgb.get(1);
+			int b = (int)(long)rgb.get(2);
+			Color c = new Color(r, g, b);
+			line.setItemRgb(c);
+		}
+		
+		column = Column.BLOCK_COUNT.ordinal();
+		
+		if (columnCount > column) {
+			line.setBlockCount(getInteger(column));
+		}
+		
+		column = Column.BLOCK_SIZES.ordinal();
+		
+		if (columnCount > column) {
+								
+			String string = getString(column);			
+			line.setBlockSizes(splitStringToList(string));			
+		}
+		
+		column = Column.BLOCK_STARTS.ordinal();
+		
+		if (columnCount > column) {
+			
+			String string = getString(column);					
+			line.setBlockStarts(splitStringToList(string));
+		}
+
+		return line;
 	}
 	
-	public Long getThickStart() {
-		return getLong(Column.THICK_START.ordinal());
+	private List<Long> splitStringToList(String string) {
+		String[] splitted = string.split(",");
+		List<Long> list = new LinkedList<>();
+		
+		for (String size : splitted) {
+			list.add(Long.parseLong(size));
+		}
+		
+		return list;
 	}
-	
-	public Long getThickEnd() {
-		return getLong(Column.THICK_END.ordinal());
-	}
-	
-	public String getItemRgb() {
-		return getString(Column.ITEM_RGB.ordinal());
-	}
-	public Long getBlockCount() {
-		return getLong(Column.BLOCK_COUNT.ordinal());
-	}
-	public String getBlockStarts() {
-		return getString(Column.BLOCK_STARTS.ordinal());
-	}
-	
+
 	public int getColumnCount() {
 		return values.length;
 	}

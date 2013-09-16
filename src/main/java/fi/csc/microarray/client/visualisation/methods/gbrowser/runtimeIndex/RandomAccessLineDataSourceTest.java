@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 /**
@@ -48,12 +49,16 @@ public class RandomAccessLineDataSourceTest {
 		//Functionality
 		testFunctionality();
 		
+		
 		//Performance
 		URL fileUrl = new File(System.getProperty("user.home") + "/chipster/Homo_sapiens.GRCh37.69-sort.gtf").toURI().toURL();
-		RandomAccessLineDataSource file = new RandomAccessLineDataSource(fileUrl);		
+		DataUrl fileDataUrl = new DataUrl(fileUrl, "file");
+		
+		RandomAccessLineDataSource file = new RandomAccessLineDataSource(fileDataUrl);		
 		
 		URL httpUrl = new URL("http://chipster-filebroker.csc.fi:7060/public/annotations/tmp/Homo_sapiens.GRCh37.69-sort.gtf");
-		RandomAccessLineDataSource http = new RandomAccessLineDataSource(httpUrl);
+		DataUrl httpDataUrl = new DataUrl(httpUrl, "http");
+		RandomAccessLineDataSource http = new RandomAccessLineDataSource(httpDataUrl);
 		
 		manualTest(file);
 		manualTest(http);
@@ -64,9 +69,10 @@ public class RandomAccessLineDataSourceTest {
 	private static void testFunctionality() throws URISyntaxException, IOException, GBrowserException {
 				
 		File testFile = RandomAccessLineReaderTest.getTestFile();
+		DataUrl dataUrl = new DataUrl(testFile);
 		List<String> lines = RandomAccessLineReaderTest.getTestReferenceList(testFile);
 		
-		RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(testFile.toURI().toURL());
+		RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(dataUrl);
 		
 		System.out.println(lines.get(lines.size() - 1).equals(dataSource.getLastLine()));
 		

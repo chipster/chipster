@@ -11,16 +11,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 public class RepeatMaskerTrack extends Track{
 
 	private Color color;
 
-	private Collection<RegionContent> regions = new TreeSet<RegionContent>();
+	private Collection<Feature> regions = new TreeSet<Feature>();
 
 	public RepeatMaskerTrack(){
-
+		super();
 		this.color = Color.lightGray;
 	}
 
@@ -31,9 +31,9 @@ public class RepeatMaskerTrack extends Track{
 
 		if (regions != null) {
 
-			Iterator<RegionContent> iter = regions.iterator();
+			Iterator<Feature> iter = regions.iterator();
 
-			RegionContent regionContent = null;
+			Feature regionContent = null;
 
 			while (iter.hasNext()) {
 
@@ -53,7 +53,7 @@ public class RepeatMaskerTrack extends Track{
 				long endX = getView().bpToTrack(endBp);
 
 				drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-						(int)(endX-startX), this.getHeight()), color, color));
+						(int)(endX-startX), this.getTrackHeight()), color, color));
 			}
 		}
 
@@ -64,11 +64,11 @@ public class RepeatMaskerTrack extends Track{
 	@Override
 	public void processDataResult(DataResult dataResult) {
 
-		this.regions.addAll(dataResult.getContents());
+		this.regions.addAll(dataResult.getFeatures());
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 5;
 	}
 	
@@ -78,7 +78,7 @@ public class RepeatMaskerTrack extends Track{
 	}
 	
     @Override
-    public String getName() {
+    public String getTrackName() {
     	return "RepeatMaskerTrack";
     }
 }
