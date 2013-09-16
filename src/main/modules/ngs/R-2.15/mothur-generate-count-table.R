@@ -1,8 +1,9 @@
-# TOOL mothur-generate-count-table: mothur-generate-count-table (Generate a table of count per taxonomic group from the combined results.)
-# INPUT all.grp: "groups file" TYPE GENERIC
-# INPUT all.tax: "taxonomy file" TYPE GENERIC
+# TOOL mothur-generate-count-table.R: "Generate count table for taxonomic groups" (Generates a count table where rows are samples and columns are taxonomic groups. You need the groups file and a taxonomy file as inputs.)
+# INPUT all.grp: "Groups file" TYPE GENERIC
+# INPUT all.tax: "Taxonomy file" TYPE GENERIC
 # OUTPUT counttable.tsv: counttable.tsv
-# PARAMETER cutlevel: cutlevel TYPE INTEGER FROM 0 TO 9 DEFAULT 0 (Cut levels for taxonomic names. 0 mean retain full names, e.g. Bacteria;Actinobacteria;Actinobacteria;Coriobacteridae;Coriobacteriales;Coriobacterineae;Coriobacteriaceae;Slackia;unclassified.)
+# OUTPUT META phenodata.tsv: phenodata.tsv
+# PARAMETER cutlevel: "Cutting level for taxonomic names" TYPE INTEGER FROM 0 TO 9 DEFAULT 0 (Cutting level for taxonomic names. 0 means retain full names, e.g. Bacteria;Actinobacteria;Actinobacteria;Coriobacteridae;Coriobacteriales;Coriobacterineae;Coriobacteriaceae;Slackia;unclassified.)
 
 
 # JTT 2012-11-05
@@ -11,7 +12,7 @@
 # Reads the data and tabulates it
 grp<-read.table("all.grp", header=F, sep="\t")
 tax<-read.table("all.tax", header=F, sep="\t")
-dat<-merge(tax, grp, by.x="V1", by.y="V1")
+dat<-merge(grp, tax, by.x="V1", by.y="V1")
 dat2<-dat
 dat2$V2.y<-gsub(".[[:digit:]]{1,}.?[[:digit:]]?)", "", as.character(dat2$V2.y))
 
@@ -30,6 +31,8 @@ if(cutlevel==0) {
 # Creating the count table
 tab<-table(dat2$V2.x, dat2$newnames)
 tab2<-as.data.frame.matrix(tab)
+chiptype<-c("metagenomics")
 
 # Writing the table to disk
 write.table(tab, "counttable.tsv", col.names=T, row.names=T, sep="\t", quote=FALSE)
+write.table(data.frame(sample=rownames(tab2), chiptype=chiptype, group=rep("", length(rownames(tab2)))), "phenodata.tsv", col.names=T, row.names=F, sep="\t", quote=F)

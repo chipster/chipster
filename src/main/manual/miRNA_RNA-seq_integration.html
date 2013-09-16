@@ -8,13 +8,14 @@
 <h3>Description</h3>
 
 <p>Given miRNA-seq data and a matching set of RNA-seq data from the same samples, 
- this tool identifies which of the target genes correlate negatively (or positively) with the miRNA expression.</p>
+ this tool identifies which genes correlate negatively (or positively) with the miRNA expression.</p>
 
 <h3>Parameters</h3>
 
 <ul>
 <li>Phenodata column indicating sample order in miRNA data [EMPTY] </li>
 <li>Phenodata column indicating sample order in RNA data [EMPTY]</li>
+<li>Normalization (none, cpm, TMM) [none]</li>
 <li>Filter by (correlation, p-value) [correlation]</li>
 <li>Filtering threshold (0..1) [0.90]</li>
 <li>Output also the full miRNA-RNA correlation matrix (yes, no) [no]</li>
@@ -22,8 +23,7 @@
 
 <h3>Details</h3>
 
-<p>This tool integrates miRNA-seq data with matching RNA-seq data, and performs a correlation analysis to identify which of the gene targets correlate negatively (or positively)
-with the miRNA expression. Note that you need miRNA-seq and RNA-seq from the same samples. The two data sets should optimally have the same number of conditions or time-points, but the tool
+<p>You need to have miRNA-seq and RNA-seq data from the same samples. The two data sets should optimally have the same number of conditions or time-points, but the tool
  is also able to extract just the matching samples. You need to indicate the matching samples with numbers in a given phenodata column. The following analysis steps are performed:</p>
 
 <ol>
@@ -44,7 +44,7 @@ with the miRNA expression. Note that you need miRNA-seq and RNA-seq from the sam
    <ul>
       <li>Result table containing the known interactions only (step 3)</li>
       <li>Result table containing miRNAs which have annotation in the above mentioned databases (step 2)</li>
-      <li>The unfiltered, full correlation matrix (step 1). It has as many rows as there are RNAs in the data, and three time as many columns as there are miRNAs. The columns consists of three sets of data: correlation (columns with the prefix cor. in their names), p-values (prefix p.) and number of observations (prefic .nObs).</li>
+      <li>The unfiltered, full correlation matrix (step 1). It has as many rows as there are genes in the data, and three times as many columns as there are miRNAs. The columns consists of three sets of data: correlation (columns with the prefix cor. in their names), p-values (prefix p.) and number of observations (prefix .nObs).</li>
    </ul>
 </p>
 

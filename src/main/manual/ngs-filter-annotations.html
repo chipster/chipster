@@ -10,22 +10,24 @@
 	
 <h3>Description</h3>
 
-<p>Filter genomic regions on the basis of information in one of the data columns.</p>
+<p>Filters NGS data based on textual terms in the selected data column.</p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>column (...) [empty]</li>
-<li>match.term (...) [empty]</li>
+<li>Column to filter by (...) [empty]</li>
+<li>Term to match (...) [empty]</li>
+<li>Does the first column have a title (yes, no) [yes]
 </ul>
 
 <h3>Details</h3>
 
-<p>Filters rows in a table containing genomic regions based on textual terms in the selected data column. You can filter for text matches such as "upstream" or "downstream" in the output file from the "Find nearest genes for regions" tool.
+<p>Filters rows in a table based on textual terms in the selected data column. 
+For example, you can filter for text matches such as "upstream" or "downstream" in the output file from the "Find nearest genes for regions" tool.
 Notice that rows where the match term is only a part of the whole term are also passing the filter. </p>
 
 <h3>Output</h3>
 
-<p>A tabular text file containing only the set of genomic regions that pass the filtering criteria.</p>
+<p>A tabular text file containing only the set of rows that pass the filtering criteria.</p>
 
 </body>

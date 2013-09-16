@@ -94,7 +94,7 @@
 		<tool runtime="R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
-		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
+		<tool runtime="R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>

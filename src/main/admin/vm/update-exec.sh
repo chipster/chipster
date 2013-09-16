@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.7.1
+LATEST_VERSION=2.8.1
 
 # Exit immediately if some command fails
 set -e
@@ -944,6 +944,51 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+
+
+# 2.8.0
+compare_to_current_and_latest "2.8.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+
+  # Update Bowtie 2
+  echo "** Updating Bowtie 2"
+  cd ${TMPDIR_PATH}/
+  wget -nv -O bowtie2-2.1.0-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.1.0/bowtie2-2.1.0-linux-x86_64.zip/download
+  unzip -q bowtie2-2.1.0-linux-x86_64.zip
+  mv bowtie2-2.1.0 ${TOOLS_PATH}
+  mv ${TOOLS_PATH}/bowtie2/indexes ${TOOLS_PATH}/bowtie2-2.1.0/ 
+  mv ${TOOLS_PATH}/bowtie2-2.0.0-beta7 ${BACKUPDIR_PATH}/
+  rm ${TOOLS_PATH}/bowtie2
+  ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
+  rm ${TMPDIR_PATH}/bowtie2-2.1.0-linux-x86_64.zip
+ 
+  # Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  echo "** Installing RmiR.Hs.miRNA to R-2.15.1_bioc-2.11"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
+
+fi
+
+
+compare_to_current_and_latest "2.8.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+
+  # Update Tophat 2
+  echo "** Updating Tophat 2"
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.9.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  mv ${TOOLS_PATH}/tophat-2.0.4.Linux_x86_64 ${BACKUPDIR_PATH}/
+  rm ${TOOLS_PATH}/tophat2
+  ln -s tophat-2.0.9.Linux_x86_64 ${TOOLS_PATH}/tophat2
+
+  # ** Install tabix
+  echo "** Installing tabix"
+  # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
+  # cd ${TOOLS_PATH}/tabix-0.2.6
+  # make
+  # ln -s tabix-0.2.6 ${TOOLS_PATH}/tabix 
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/tabix-0.2.6-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tabix-0.2.6 ${TOOLS_PATH}/tabix 
+
+fi
 
 
   

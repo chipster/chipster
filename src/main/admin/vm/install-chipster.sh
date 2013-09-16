@@ -416,6 +416,8 @@ then
 
   ## R-2.15.1_bioc-2.11	
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+	# Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
 	
 
   ## External apps:
@@ -479,6 +481,11 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
+  # tabix
+  # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/tabix-0.2.6-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tabix-0.2.6 ${TOOLS_PATH}/tabix 
+
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
   wget -nv -O bowtie-0.12.7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip/download
@@ -489,11 +496,11 @@ then
 
   # Bowtie 2, Artistic License
   cd ${TMPDIR_PATH}/
-  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
-  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
-  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
-  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
-  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+  wget -nv -O bowtie2-2.1.0-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.1.0/bowtie2-2.1.0-linux-x86_64.zip/download
+  unzip -q bowtie2-2.1.0-linux-x86_64.zip
+  mv bowtie2-2.1.0 ${TOOLS_PATH}
+  ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.1.0-linux-x86_64.zip
 
 	# Fasta files
   cd ${TMPDIR_PATH}/
@@ -594,8 +601,8 @@ then
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.9.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.9.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/

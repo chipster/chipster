@@ -10,23 +10,23 @@
 	
 <h3>Description</h3>
 
-<p>Filters rows in a table containing genomic regions based on the values in the selected data column.</p></p>
+<p>Filters rows in a table containing NGS based on the values in the selected data column.</p></p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>column (...) [empty]</li>
-<li>cutoff (-100000...100000) [1]</li>
-<li>smaller.or.larger (equal-to, smaller-than, larger-than, within, outside) [smaller-than]</li>
-</ul>
+<li>Column to filter by (...) [empty]</li>
+<li>Cutoff (-100000...100000) [1]</li>
+<li>Filtering criteria (equal-to, smaller-than, larger-than, within, outside) [smaller-than]</li>
+<li>Does the first column have a title (yes, no) [yes]
 
 <h3>Details</h3>
 
-<p>Filters rows in a table with genomic regions based on continuous values in the selected data column, for example after using the tool "Find peaks using MMACS, treatment vs. control""). 
+<p>Filters rows in a table based on continuous values in the selected data column, for example genomic regions detected by the tool "Find peaks using MACS, treatment vs. control""). 
 The options "within" and "outside" can be used to filter based on a symmetrical range of values. </p>
 
 <h3>Output</h3>
 
-<p>A tabular text file containing only the genomic regions that pass the filtering criteria.</p>
+<p>A tabular text file containing only the rows that pass the filtering criteria.</p>
 
 </body>

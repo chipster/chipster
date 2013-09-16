@@ -197,14 +197,15 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Load session
 		sourceManager.loadSession(session, false);
 		
-		// Find import operations and load imported data beans to target manager 
-		// Also map OperationRecords to outputs TODO check that order is right in all cases, might need to traverse links
-		LinkedList<OperationRecord> importOperationRecords = new LinkedList<OperationRecord>();
+		// Pick import operations and copy imported data beans to target manager 
+		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
+		LinkedList<OperationRecord> rootLevelOperationRecords = new LinkedList<OperationRecord>();
 		Map<OperationRecord, List<DataBean>> outputMap = new HashMap<OperationRecord, List<DataBean>>();
+		LinkedList<DataBean> dataBeansInSourceManagerWhichWereCopied = new LinkedList<DataBean>();
 		for (DataBean dataBean : sourceManager.databeans()) {
 			OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations
+			// pick import operations and others without parent dataset
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
 				
@@ -218,13 +219,14 @@ public class SessionReplayTest extends MessagingTestBase {
 				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
 
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
+				dataBeansInSourceManagerWhichWereCopied.add(dataBean);
 				
 				// avoid NPE 
 				dataBeanCopy.setOperationRecord(operationRecord);
 				
 				// TODO what if not in the root folder in the source manager
 				manager.connectChild(dataBeanCopy, manager.getRootFolder());
-				importOperationRecords.add(operationRecord);
+				rootLevelOperationRecords.add(operationRecord);
 			}
 
 			// store output mappings
@@ -238,6 +240,19 @@ public class SessionReplayTest extends MessagingTestBase {
 			}
 		}
 
+		
+		// Add links between copied (imported, without parents) data beans
+		for (DataBean originalBean : dataBeansInSourceManagerWhichWereCopied) {
+			for (Link linkType : Link.values()) {
+				for (DataBean originalLinkSourceBean : originalBean.getLinkSources(linkType)) {
+					if (dataBeansInSourceManagerWhichWereCopied.contains(originalLinkSourceBean)) {
+						sourceDataBeanToTargetDataBean.get(originalLinkSourceBean).addLink(linkType, sourceDataBeanToTargetDataBean.get(originalBean));
+					}
+				}
+			}
+		}
+		
+		
 		// Get operation records, avoid duplicates for tools with many outputs
 		LinkedList<OperationRecord> operationRecords = new LinkedList<OperationRecord>();
 		for (DataBean dataBean : sourceManager.databeans()) {
@@ -251,8 +266,8 @@ public class SessionReplayTest extends MessagingTestBase {
 		for (OperationRecord operationRecord : operationRecords) {
 
 			// Skip import operations
-			if (importOperationRecords.contains(operationRecord)) {
-				System.out.println("skipping import or local or something operation " + operationRecord.getFullName());
+			if (rootLevelOperationRecords.contains(operationRecord)) {
+				System.out.println("skipping root level operation " + operationRecord.getFullName());
 				continue;
 			}
 
@@ -713,6 +728,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				"<th>Test error message</th>" + 
 				"<th>Task error message</th>" +
 				"<th>Task screen output</th>" + 
+				"<th>Duration</th>" + 
 				"<th>Outputs with mismatching sizes</th>" + 
 				"<th>Outputs with mismatching contents</th>" + 
 				"</tr>");
@@ -727,6 +743,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
+					"<td><nobr>" + getDurationString(toolTestResult.getTask()) + "</nobr></td>" +
 					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
 					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
 					"</tr>");
@@ -742,6 +759,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
+					"<td><nobr>" + getDurationString(toolTestResult.getTask()) + "</nobr></td>" +
 					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
 					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
 					"</tr>");
@@ -952,6 +970,11 @@ public class SessionReplayTest extends MessagingTestBase {
 		return "<a href=\"" + SCREEN_OUTPUTS_DIR + "/" + outputFile.getName() + "\">" + "output" + "</a>";
 	}
 
+	private String getDurationString(Task task) {
+		long duration = task.getExecutionTime() / 1000;
+		return String.format("%02dm %02ds", (duration/60), (duration%60));
+	}
+	
 	
 	public static class SessionLoadingSkeletonApplication extends ClientApplication {
 
