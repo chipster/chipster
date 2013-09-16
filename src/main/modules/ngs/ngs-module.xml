@@ -305,12 +305,15 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-go.R</resource>
+		</tool> 
+		<tool runtime="R-2.12" module="common">
+			<resource>pathways-mirna-hyperg-go.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
+		</tool>
+		<tool runtime="R-2.15_bioc-2.11">
+			<resource>miRNA_RNA-seq_integration.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-correlation-analysis-mirna.R</resource>
@@ -397,7 +400,13 @@
 		</tool>
 	</category>
 	
-	<category name="Metagenomics (beta)" color="#83010b">
+	<category name="Metagenomics" color="#83010b">
+		<tool runtime="R-2.15">
+      		<resource>mothur-sffinfo.R</resource>
+    	</tool>
+    	<tool runtime="R-2.15">
+      		<resource>merge-fasta-qual.R</resource>		
+		</tool>
 		<tool runtime="R-2.15">
 			<resource>mothur-summaryseqs.R</resource>
 		</tool>
@@ -422,14 +431,8 @@
 		<tool runtime="R-2.15">
 			<resource>mothur-classifyseqs.R</resource>
 		</tool>
-    	<tool runtime="R-2.15">
-       		<resource>mothur-summaryseqs.R</resource>
-     	</tool>
-    	<tool runtime="R-2.15">
-      		<resource>mothur-sffinfo.R</resource>
-    	</tool>
-    	<tool runtime="R-2.15">
-      	<resource>merge-fasta-qual.R</resource>		
+	    <tool runtime="R-2.15_bioc-2.11">
+			<resource>mothur-analyses.R</resource>
 		</tool>
 	</category>
 </module>

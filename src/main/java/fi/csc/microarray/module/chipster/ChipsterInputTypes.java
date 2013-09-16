@@ -141,6 +141,56 @@ public class ChipsterInputTypes {
 
 	};
 
+	public static final InputType MOTHUR_OLIGOS = new InputType() {
+
+		public String getName() {
+			return "MOTHUR_OLIGOS";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("text/mothur-oligos");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
+
+	public static final InputType MOTHUR_NAMES = new InputType() {
+
+		public String getName() {
+			return "MOTHUR_NAMES";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("text/mothur-names");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
+
+	public static final InputType MOTHUR_GROUPS = new InputType() {
+
+		public String getName() {
+			return "MOTHUR_GROUPS";
+		}
+
+		public boolean isTypeOf(DataBean dataBean) {
+			return dataBean.isContentTypeCompatitible("text/mothur-groups");
+		}
+
+		public boolean isMetadata() {
+			return false;
+		}
+
+	};
+
+	
+	
 	
 	public static boolean hasRawType(DataBean data) {
 		return AFFY.isTypeOf(data) || CDNA.isTypeOf(data);

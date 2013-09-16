@@ -13,7 +13,7 @@ package fi.csc.microarray.client.visualisation.methods.threed;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
- * Takes care of the current projection parematers, as rotation and camera
+ * Takes care of the current projection parameters, as rotation and camera
  *
  * @author esa, Petri Klemelä
  */

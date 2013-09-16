@@ -141,6 +141,18 @@ public class DataFolder extends DataItemBase {
 				
 			}
 
+			// mothur
+			if (data.isContentTypeCompatitible("text/mothur-oligos")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-names")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-groups")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+			}
+			
+			
 			// the rest is microarray specific
 			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 				return;

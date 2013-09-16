@@ -33,8 +33,6 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
-import fi.csc.microarray.client.dataimport.ColumnType;
-import fi.csc.microarray.client.dataimport.ColumnTypeManager;
 import fi.csc.microarray.client.dataimport.ColumnTypePattern;
 import fi.csc.microarray.client.dataimport.Delimiter;
 import fi.csc.microarray.client.dataimport.ImportScreen;
@@ -76,7 +74,6 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	
 	private ImportScreen screen;
 	private ChipCountPanel chipCountPanel;
-	private FlagValuePanel flagValuePanel;
 
 	private JButton fillTheRestButton;
 	private JButton useCustomDelimButton;
@@ -116,9 +113,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 
 //		secondStepOptionPanel.add(this.getDataTypePanel());
 		secondStepOptionPanel.add(this.getChipCountPanel());		
-		secondStepOptionPanel.add(this.createGuessTheRestPanel());
-		//Hidden temporarily until scripts support flags
-		/*secondStepOptionPanel.add(this.getFlagValuePanel());*/this.getFlagValuePanel();//To avoid nullPointer		
+		secondStepOptionPanel.add(this.createGuessTheRestPanel());		
 		secondStepOptionPanel.add(this.createDataTrimmingPanel());
 		JScrollPane scroll = new JScrollPane(secondStepOptionPanel);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -391,16 +386,6 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		return chipCountPanel;
 	}
 	
-	public FlagValuePanel getFlagValuePanel() {
-		if(flagValuePanel == null){
-			flagValuePanel = new FlagValuePanel(screen);
-			flagValuePanel.setTitle("Flag Modification");
-			flagValuePanel.setEnabled(false);
-			flagValuePanel.setToolTipText("Changes the values of flag column to P/M/A format");
-		}
-		return flagValuePanel;
-	}
-	
 	/**
 	 * Find-and-replace functionality.
 	 */
@@ -517,23 +502,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	public void columnTypeChanged(ColumnTypeChangedEvent event) {
 		
 		logger.debug("columnTypeChanged");
-		this.getChipCountPanel().updateAllKeyColumnCounters();
-		
-		if(event.getSource() instanceof ColumnTypeManager){
-			ColumnTypeManager typeManager = (ColumnTypeManager)event.getSource();
-			if(typeManager.getCountOfType(ColumnType.FLAG_LABEL) > 0){
-				logger.debug("Flag columns found");
-				flagValuePanel.setEnabled(true);
-				
-				// Update flag trimmer to affect to the newly selected column
-				flagValuePanel.updateFlagTrimmer();
-				
-			} else {
-				logger.debug("Flag columns not found");
-				flagValuePanel.setEnabled(false);
-				flagValuePanel.updateFlagTrimmer();
-			}
-		}
+		this.getChipCountPanel().updateAllKeyColumnCounters();		
 	}
 
 	public void chipNumberChanged(ChipNumberChangedEvent event) {

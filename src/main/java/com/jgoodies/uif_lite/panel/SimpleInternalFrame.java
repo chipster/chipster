@@ -30,8 +30,6 @@
 
 package com.jgoodies.uif_lite.panel;
 
-import org.apache.log4j.Logger;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -56,6 +54,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
+
+import org.apache.log4j.Logger;
 
 /** 
  * A <code>JPanel</code> subclass that has a drop shadow border and 
@@ -616,47 +616,28 @@ public class SimpleInternalFrame extends JPanel implements MouseListener {
     /**
      * Maximizes the frame if it is on a split pane and user double clicks 
      * to the title panel
-     * 
-     * NOTICE! This is not tested very well, so there may be some errors
-     * - mikko
-     * 
      */
 	public void mouseClicked(MouseEvent e) {
 		
 		if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2){
 			if(this.getParent() instanceof JSplitPane){
 				JSplitPane split = (JSplitPane)this.getParent();
-				if(split.getTopComponent() == this){
-					if(!isMaximized()){
-						split.setDividerLocation(split.getHeight() - (gradientPanel.getHeight() + split.getDividerSize() + SPLIT_MARGIN));
-						if(split.getBottomComponent() instanceof SimpleInternalFrame){
-							((SimpleInternalFrame)split.getBottomComponent()).getContent().setVisible(false);
-							((SimpleInternalFrame)split.getBottomComponent()).getToolBar().setVisible(false);
-						}
-					} else {
-						split.setDividerLocation(split.getLastDividerLocation());
-						if(split.getBottomComponent() instanceof SimpleInternalFrame){
-							((SimpleInternalFrame)split.getBottomComponent()).getContent().setVisible(true);
-							((SimpleInternalFrame)split.getBottomComponent()).getToolBar().setVisible(true);
-						}
-					}
+				
+				int maximizedDividerLocation = 0;
+				
+				if(split.getTopComponent() == this) {
+					maximizedDividerLocation = split.getHeight() - (gradientPanel.getHeight() + split.getDividerSize() + SPLIT_MARGIN);
 				} else {
-					if(!isMaximized()){
-						split.setDividerLocation(gradientPanel.getHeight());
-						if(split.getBottomComponent() instanceof SimpleInternalFrame){
-							((SimpleInternalFrame)split.getBottomComponent()).getContent().setVisible(false);
-						}
-					} else {
-						split.setDividerLocation(split.getLastDividerLocation());
-						if(split.getBottomComponent() instanceof SimpleInternalFrame){
-							((SimpleInternalFrame)split.getBottomComponent()).getContent().setVisible(true);
-							((SimpleInternalFrame)split.getBottomComponent()).getToolBar().setVisible(true);
-						}
-					}
+					maximizedDividerLocation = gradientPanel.getHeight();
+				}
+				
+				if (isMaximized()) {
+					split.setDividerLocation(split.getLastDividerLocation());
+				} else {
+					split.setDividerLocation(maximizedDividerLocation);
 				}
 			}
 		}
-		
 	}
 
 

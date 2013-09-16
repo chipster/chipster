@@ -8,11 +8,11 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfToFeatureConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.InMemoryIndex;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.InMemoryIndex;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 
 /**
  * FIXME Find out why 400 MB file is only 150 MB after sorting. 
@@ -27,7 +27,7 @@ public class GtfUtil {
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
 		try {
-			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL(), GtfToFeatureConversion.class), new GtfLineParser());
+			index = new InMemoryIndex(new LineDataSource(file.toURI().toURL()), new GtfLineParser());
 			
 			GtfLineParser parser = new GtfLineParser();
 			

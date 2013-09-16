@@ -2,14 +2,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 
 /**
  * Line that separates real tracks.
@@ -18,20 +14,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 public class SeparatorTrack extends Track {
 
 	private Color color;
-	private long maxBpLength;
-	private long minBpLength;
 	private int thickness;
 	private String name = "separator";
 	
-	protected SeparatorTrack(long minBpLength, long maxBpLength) {
+	public SeparatorTrack(Color color, int thickness) {
 
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
-	}
-	
-	public SeparatorTrack(Color color, int thickness, long minBpLength, long maxBpLength) {
-
-		this(minBpLength, maxBpLength);
 		this.color = color;
 		this.thickness = thickness;
 	}
@@ -55,26 +42,12 @@ public class SeparatorTrack extends Track {
 		return drawables;
 	}
 
-
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 		// ignore
 	}  
 
     @Override
     public int getHeight() {
         return thickness;
-    }
-    
-    @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
     }    
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        return null;
-    }
 }

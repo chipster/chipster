@@ -576,6 +576,15 @@ public class OperationDefinition implements ExecutionItem {
 		} else if (type == GenericInputTypes.GENERIC) {
 			return true;
 			
+		} else if (type == ChipsterInputTypes.MOTHUR_OLIGOS) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+			
+		} else if (type == ChipsterInputTypes.MOTHUR_NAMES) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+			
+		} else if (type == ChipsterInputTypes.MOTHUR_GROUPS) {
+				return data.hasTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+		
 		} else {
 			throw new IllegalArgumentException();
 		}

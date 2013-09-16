@@ -1,12 +1,13 @@
-# TOOL mothur-filterseqs.R: "Filter aligned sequences with Mothur" (Filter aligned sequences in a fasta-formatted sequence file. This tool is based on the Mothur package.)
-# INPUT a.align: "Aligned reads in FASTA format" TYPE GENERIC
+# TOOL mothur-filterseqs.R: "Filter sequence alignment with Mothur" (Filters out columns from a fasta formatted sequence alignment. By removing empty columns, the distance calculation is accelerated. This tool is based on the Mothur package.)
+# INPUT a.align: "Aligned reads in FASTA format" TYPE FASTA
 # OUTPUT filtered-aligned.fasta
-# OUTPUT OPTIONAL log.txt
+# OUTPUT filtered-log.txt
+# OUTPUT filtered-summary.tsv
 
 # EK 05.06.2013
 
 # binary
-binary <- c(file.path(chipster.tools.path, "mothur", "1.28.0", "mothur"))
+binary <- c(file.path(chipster.tools.path, "mothur", "mothur"))
 
 # batch file
 write("filter.seqs(fasta=a.align, vertical=T, trump=.)", "batch.mth", append=F)
@@ -17,6 +18,18 @@ command <- paste(binary, "batch.mth", "> log_raw.txt")
 # run
 system(command)
 
+# result post-processing
 system("mv a.filter.fasta filtered-aligned.fasta")
+system("grep -A 4 filtered log_raw.txt > filtered-log.txt")
 
-system("grep -A 4 Length log_raw.txt > log.txt")
+# batch file 2
+write("summary.seqs(fasta=filtered-aligned.fasta)", "summary.mth", append=F)
+
+# command 2
+command2 <- paste(binary, "summary.mth", "> log_raw.txt")
+
+# run
+system(command2)
+
+# Post process output
+system("grep -A 9 Start log_raw.txt > filtered-summary.tsv")

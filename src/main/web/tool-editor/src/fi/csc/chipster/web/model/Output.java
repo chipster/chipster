@@ -1,63 +1,96 @@
 package fi.csc.chipster.web.model;
 
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 
-public class Output extends BasicModel{
+import fi.csc.chipster.web.tooledit.ToolEditor;
+import fi.csc.microarray.description.SADLDescription;
 
-	private Label lbOptional;
-	private Label lbType;
-	private Label lbType2;
+/**
+ * Tool editor output model.
+ * @author Gintare Pacauskaite
+ *
+ */
+public class Output extends InputOutputUI{
+
+	private static final long serialVersionUID = 6280877684047822425L;
 	
-	private ComboBox optional;
-	private ComboBox type;
-	private TextField type2;
-	
-	@Override
-	public GridLayout createUI() {
-//		grid.addComponent(new Label("Output"), 0, 0);
-		initElements();
-		addRow(lbType2, type2);
-		addRow(lbType, type);
-		addRow(lbOptional, optional);
-		addRow(lbDescription, description);
-		return grid;
+	public Output(ToolEditor root) {
+		this.root = root;
+		createUI();
 	}
 	
-	private void initElements() {
+	@Override
+	public Output createUI() {
+		generateHeader();
+		initElements();
+		createBasicUI();
+		// just for now
+		removeTypeRow();
+		return this;
+	}
+	
+	@Override
+	protected void initElements() {
+		super.initElements();
 		lbId.setValue("Output file:");
-		lbOptional = new Label("Output is:");
 		lbType = new Label("Output is:");
 		lbType2 = new Label("Type:");
 		
-		type2 = new TextField();
-		
-		optional = new ComboBox();
-		optional.addItem(NOT_OPTIONAL);
-		optional.addItem(OPTIONAL);
-		optional.setNullSelectionAllowed(false);
-		type = new ComboBox();
-		type.setWidth("100px");
-		type.addItem("Single file");
 	}
 	
-	public GridLayout createUIWithData(fi.csc.microarray.description.SADLDescription.Output output) {
-		createUI();
+	public Output createUIWithData(SADLDescription.Output output) {
 		fillWithData(output);
-		return grid;
+		return this;
 	}
 	
-	private void fillWithData(fi.csc.microarray.description.SADLDescription.Output output) {
-		id.setValue(output.getName().getID());
+	/**
+	 * Fills up output fields from SADL output
+	 * @param output SADL output
+	 */
+	public void fillWithData(SADLDescription.Output output) {
 		name.setValue(output.getName().getDisplayName());
+		cbMeta.setValue(output.isMeta());
 		description.setValue(getValue(output.getComment()));
-		if (output.isOptional()) {
-			optional.select(OPTIONAL);
+		optional.setValue(output.isOptional());
+		
+		if(output.getName().getPrefix() == null || output.getName().getPrefix().isEmpty()) {
+			type.select(SINGLE_FILE);
+			id.setValue(output.getName().getID());
+			getSingleFileUI();
 		} else {
-			optional.select(NOT_OPTIONAL);
+			type.select(MULTI_FILE);
+			prefix.setValue(output.getName().getPrefix());
+			postfix.setValue(output.getName().getPostfix());
+			getMultipleFilesUI();
 		}
+	}
+	
+	/**
+	 * Creates SADL output from tool editor output
+	 * @return SADL output
+	 */
+	public SADLDescription.Output getSadlOutput() {
+		SADLDescription.Output output = new SADLDescription.Output();
+		output.setName(getNameFromUI(type.getValue().toString()));
+		output.setOptional(optional.getValue());
+		output.setComment(getValueOrNull(description.getValue()));
+		output.setMeta(cbMeta.getValue());
+		
+		return output;
+	}
+
+	@Override
+	protected void generateHeader() {
+		lbTitle.setValue(getBoldText("Output"));	
+	}
+	
+	@Override
+	public String toString() {
+		return getValue((id.getValue() != null && !id.getValue().isEmpty() ? id.getValue() :name.getValue()));
+	}
+	
+	private void removeTypeRow() {
+		this.removeRow(this.getComponentArea(type2).getRow1());
 	}
 
 }

@@ -17,10 +17,6 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
@@ -216,6 +212,10 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion);
+											
+											if (!skipFrame) {
+												parentPlot.redraw();											
+											}
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {

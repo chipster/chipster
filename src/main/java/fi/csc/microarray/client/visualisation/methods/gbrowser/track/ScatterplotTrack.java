@@ -7,13 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.IndexKey;
 
 public class ScatterplotTrack extends Track {
 
@@ -21,27 +21,22 @@ public class ScatterplotTrack extends Track {
 
 	private TreeMap<IndexKey, RegionContent> data = new TreeMap<IndexKey, RegionContent>();
 
-	private long maxBpLength;
-	private long minBpLength;
-
 	private Color color;
 	private int height;
 	private float minValue;
 	private float maxValue;
 
-	private ColumnType column = null;
+	private DataType column = null;
 	private int floatListIndex;
 
 
-	public ScatterplotTrack(Color color, int height, float minValue, float maxValue, ColumnType column, long minBpLength, long maxBpLength) {
+	public ScatterplotTrack(Color color, int height, float minValue, float maxValue, DataType column) {
 
 		this.color = color;
 		this.height = height;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
-		this.column = column;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;		
+		this.column = column;		
 	}
 
 	public ScatterplotTrack(Color color, int height, float minValue, float maxValue,
@@ -52,8 +47,6 @@ public class ScatterplotTrack extends Track {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.floatListIndex = floatArrayIndex;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -74,7 +67,7 @@ public class ScatterplotTrack extends Track {
 
 				RegionContent regionContent = data.get(iter.next());
 
-				if (!regionContent.region.intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(regionContent.region)) {
 					iter.remove();
 					continue;
 				}
@@ -95,7 +88,7 @@ public class ScatterplotTrack extends Track {
 				} else {
 					
 					@SuppressWarnings("unchecked")
-					List<Float> floatList = (List<Float>) regionContent.values.get(ColumnType.FLOAT_LIST);
+					List<Float> floatList = (List<Float>) regionContent.values.get(DataType.FLOAT_LIST);
 					value = floatList.get(floatListIndex);
 				}
 				
@@ -122,22 +115,22 @@ public class ScatterplotTrack extends Track {
 		return new RectDrawable(rect, color, color);
 	}
 	
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent region : areaResult.getContents()) {
-			this.data.put((IndexKey)region.values.get(ColumnType.ID), region);
+		for (RegionContent region : dataResult.getContents()) {
+			this.data.put((IndexKey)region.values.get(DataType.ID), region);
 		}
-		
-		getView().redraw();
 	}
-    
+	
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }
+	public void defineDataTypes() {
+    	addDataType(DataType.REGION);
+    	if (column == null) {
+        	addDataType(DataType.FLOAT_LIST);
+    	} else {
+        	addDataType(column);	
+    	}
+	}	    
 	
 	@Override
 	public int getMinHeight() {

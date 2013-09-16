@@ -35,8 +35,8 @@ import net.sf.picard.PicardException;
 import net.sf.picard.reference.FastaSequenceIndex;
 import net.sf.picard.reference.FastaSequenceIndexEntry;
 import net.sf.picard.reference.ReferenceSequence;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ByteDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 
 /**
  * Copy of Picard class modified to support urls and 
@@ -45,7 +45,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.LineDa
  */
 public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequenceFile {
  
-	private final ChunkDataSource channel;
+	private final ByteDataSource channel;
 
     private final FastaSequenceIndex index;
     
@@ -54,14 +54,14 @@ public class ChipsterIndexedFastaSequenceFile extends PicardIndexedFastaSequence
      */
     protected static final int BUFFER_SIZE = 1 * 1024;
 
-     public ChipsterIndexedFastaSequenceFile(final ChunkDataSource file, final FastaSequenceIndex index) {
+     public ChipsterIndexedFastaSequenceFile(final ByteDataSource file, final FastaSequenceIndex index) {
 
         super();
         this.index = index;
         channel = file;
     }
 
-    public ChipsterIndexedFastaSequenceFile(ChunkDataSource data, LineDataSource index) throws FileNotFoundException {
+    public ChipsterIndexedFastaSequenceFile(ByteDataSource data, LineDataSource index) throws FileNotFoundException {
         this(data, new ChipsterFastaSequenceIndex(index));
     }
 

@@ -44,7 +44,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		 * this is used to keep the Ruler track in place, although the amount of Transcripts varies 
 		 * around it.
 		 */
-		private int referenceY = 0;
+		private int referenceY = -1;
 			
 		public void setHeight(int height) {
 			int scrollBarWidth = ((Integer) UIManager.get("ScrollBar.width")).intValue();
@@ -57,6 +57,7 @@ public class GBrowserChartPanel extends ChartPanel {
 		 * @param maximum
 		 * @param extent
 		 * @param referenceY
+		 * @param referenceYDefault 
 		 */
 		public void set(int maximum, int extent, int referenceY) {
 			
@@ -100,29 +101,31 @@ public class GBrowserChartPanel extends ChartPanel {
 
 		//in genomeBrowser getSize() doesn't work below width of 680
 		//but parent seems to know better
-		int height =  getParent().getSize().height;
+		if (getParent() != null && getParent().getSize() != null) {
+			int height =  getParent().getSize().height;
 
-		Dimension size = new Dimension(getParent().getSize().width, height);
 
-		//Required for JScrollPane (not used in the current Chipster implementation) to understand that content requires scrolling
-		this.setPreferredSize(size);
+			Dimension size = new Dimension(getParent().getSize().width, height);
 
-		//Required for JFreeChart to avoid scaling after the view is drawn
-		this.setSize(size);
+			//Required for JScrollPane (not used in the current Chipster implementation) to understand that content requires scrolling
+			this.setPreferredSize(size);
 
-		//Required for JFreeChart to do the view drawing in correct resolution
-		Insets insets = getInsets();
-		Rectangle2D available = new Rectangle2D.Double(insets.left, insets.top,
-				size.getWidth() - insets.left - insets.right,
-				size.getHeight() - insets.top - insets.bottom);
+			//Required for JFreeChart to avoid scaling after the view is drawn
+			this.setSize(size);
 
-		this.setMinimumDrawWidth((int)available.getWidth() - 1);
-		this.setMinimumDrawHeight((int)available.getHeight() - 1);
-		this.setMaximumDrawWidth((int)available.getWidth() + 1);
-		this.setMaximumDrawHeight((int)available.getHeight() + 1);
+			//Required for JFreeChart to do the view drawing in correct resolution
+			Insets insets = getInsets();
+			Rectangle2D available = new Rectangle2D.Double(insets.left, insets.top,
+					size.getWidth() - insets.left - insets.right,
+					size.getHeight() - insets.top - insets.bottom);
 
-		udpateScrollBars();
+			this.setMinimumDrawWidth((int)available.getWidth() - 1);
+			this.setMinimumDrawHeight((int)available.getHeight() - 1);
+			this.setMaximumDrawWidth((int)available.getWidth() + 1);
+			this.setMaximumDrawHeight((int)available.getHeight() + 1);
 
+			udpateScrollBars();
+		}
 		super.paintComponent(g);
 	}
 

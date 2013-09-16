@@ -6,22 +6,24 @@
 	<title></title>
 </head>
 <body>
-	<h2>miRNA-seq / Extract data for miRNA targets</h2>
+	<h2>miRNA-seq / Extract gene expression array data for miRNA targets</h2>
 	
 	<h3>Description</h3>
-	<p>This tool extracts gene expression data from a gene expression data set, based on the result list from one of themiRNA to gene expression correlation tools.</p>
+	<p>This tool extracts array expression data for genes based on the result list of the miRNA-RNA correlation tool.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
-		<li>The name of the column in each data table that holds the gene symbols,  or entrez gene id:s, that are used to do the matching between the predicted miRNA targets and the probes in the gene expression  data.</li>
+		<li>The name of the column in each data table that holds the gene symbols or entrez gene id:s, that are used to do the matching between the predicted miRNA targets and the probes in the gene expression data.</li>
 
 	</ul>
 	
 	<h3>Details</h3>
-	After a statistical analysis of correlation between miRNA expression and matching gene expression data, the result files contain miRNA-target gene pairs with significant associations. This tool enables extraction of  the gene expression data for the target genes, allowing  visualization and further downstream analyses of the data. It is required to select both the miRNA correlation result file and the file containing the matching gene expression data in order to run the tool. The matching of target genes to probes in the gene expression data is typically done using the &quot;symbol&quot; or &quot;entrez_id&quot; id column.<br />
+	After correlation analysis between miRNA and matching gene expression data, the result files contain miRNA-target gene pairs with significant associations. This tool enables extraction of the gene expression data for the target genes, 
+	allowing  visualization and further downstream analysis. In order to run the tool, please select both the miRNA correlation result file and the file containing the matching gene expression array data. 
+	The matching of target genes to probes in the gene expression data is typically done using the &quot;symbol&quot; or &quot;entrez_id&quot; id column.<br />
 
 	<h3>Output</h3>
-	<p>The portion of the input gene expression data table containing only the rows for probes that were succesfully mapped to the list of predicted target genes from the miRNA correlation analysis.<br /></p>
+	<p>The portion of the gene expression array data table containing only the rows for probes that were mapped to the list of predicted target genes from the miRNA correlation analysis.<br /></p>
 	
 	<h3>References</h3>
 	

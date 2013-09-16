@@ -3,6 +3,100 @@
 
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 30.8.2013: What is new in Chipster 2.8</h2>
+
+<br>Chipster 2.8 contains many improvements to visualizations and some new analysis tools. It requires Java 1.7, and contains a fix to the file import problem that some Windows users experienced.
+
+<ol>
+<li><b>General</b></li>
+<ul>
+<li>This version requires Java 1.7. If you experience problems when launching Chipster, please check your Java version.</li>
+<li>A bug causing occasional issues when importing files in Windows has been fixed.</li>
+</ul>
+<br>
+<li><b>Improvements to genome browser</b></li>
+<ul>
+<li>Visualization of copy number data: Losses and gains are shown as red and blue boxes, respectively. Frequencies and log ratios are shown as line graph.</li>
+<li>Clearer display of gene names.</li>
+<li>Faster coverage calculation and display.</li>
+<li>Options for showing scale and type (total, strand-specific) of rough coverage at zoomed out level (> 50 kb).</li>
+<li>Spinning circle indicates that more data is being loaded to the track.</li>
+<li>Problems in faulty BAM files are tolerated (e.g. alignment extends past the end of a chromosome)</li>
+<li>Mitochondrial chromosome names M and MT are recognized as identical</li>
+</ul>
+<br>
+<li><b>Improvements to other visualizations</b></li>
+<ul>
+<li>Interactive 3D scatter plot has more intuitive color scale and options to change the shape of the data points and the background color (new default is white).</li>
+<li>Interactive 3D scatterplot for PCA has the above mentioned changes and a new color scheme.</li>
+<li>BAM viewer is more tolerant to problems (e.g. alignment extends past the end of a chromosome).</li>
+</ul>
+<br>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="miRNA_RNA-seq_integration.html">miRNA-seq / Correlate miRNA-seq and RNA-seq data</a>. Detects miRNA target genes whose expression correlates with miRNA expression, either negatively or positively.</li>
+<li><a href="mothur-analyses.html">Metagenomics / Statistical analysis for marker gene studies</a>. Compares the diversity or abundance between groups using several ANOVA-type of analyses. Makes also an RDA ordination plot and rank abundance and rarefaction curves.</li>
+</ul>
+<br>
+<li><b>Updates to NGS analysis tools</b></li>
+<ul>
+<li><a href="DEXSeq.R">RNA-seq / DEXSeq</a>. Dispersion plot, MA-plot and a visualization of genes which contain differentially expressed exons have been added.</li>
+<li><a href="mothur-classifyseqs.html">Metagenomics / Classify sequences to taxonomic units using Mothur</a>. Generates now a count table and a phenodata file, which you can use for further statistical analyses.</li>
+<li><a href="ngs-filter-annotations.html">Filtering / Filter table by column term</a>. Supports now also tables which have rownames (= the first column doesn't have a title).</li>
+<li>Bowtie2 has been updated to version 2.1.0.</li>
+</ul>
+<br>
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li><a href="http://chipster.csc.fi/manual/delete-and-subtract-columns.html">Utilities / Delete and subtract columns</a>. Deletes the specified column or columns from the data and subtract their values from their associated samples.</li>
+</ul>
+<br>
+</ol>
+<hr>
+
+<html lang="en"><head><title>Chipster manual</title></head><body>
+
+<h2>Version update 28.6.2013: What is new in Chipster 2.7</h2>
+
+<br>Chipster 2.7 contains important updates to microarray tools and a new NGS tool category Metagenomics, which consists of Mothur tools for investigating bacterial composition from 16 S rRNA data.
+
+<ol>
+
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="mothur-summaryseqs.html">Metagenomics / Summarize sequences with Mothur</a>. Provides summary information on unaligned or aligned sequences.</li>
+<li><a href="mothur-trimseqs-uniqueseqs.html">Metagenomics / Trim and filter sequences with Mothur</a>. Trim and filter reads and remove duplicate reads.</li>
+<li><a href="mothur-alignseqs.html">Metagenomics / Align sequences with Mothur</a>. Given a fasta file of 16S rRNA sequences, aligns them to the Silva reference set.</li>
+<li><a href="mothur-filterseqs.html">Metagenomics / Filter sequence alignment with Mothur</a>. Filters out columns from a fasta formatted sequence alignment.</li>
+<li><a href="mothur-uniqueseqs.html">Metagenomics / Extract unique aligned sequences with Mothur</a>. Removes identical sequences from the alignment.</li>
+<li><a href="mothur-precluster.html">Metagenomics / Precluster sequences with Mothur</a>. Preclusters sequences in order to remove sequences that are likely to contain sequencing errors.</li>
+<li><a href="mothur-chimera-uchime.html">Metagenomics / Remove chimeric sequences with Mothur</a>. Removes chimeric sequences.</li>
+<li><a href="mothur-classifyseqs.html">Metagenomics / Classify sequences to taxonomic units with Mothur</a>. Given a fasta file of aligned 16S rRNA sequences, assigns them to taxonomic units (~ species).</li>
+<li><a href="mothur-sffinfo.html">Metagenomics / Extract sequences from SFF file</a>. Helper tool to extract FASTA and QUAL files from a SFF file.</li>
+<li><a href="merge-fasta-qual.html">Metagenomics / Merge FASTA or QUAL files</a>. Helper tool to merge FASTA files or QUAL files together.</li>
+</ul>
+<br>
+<li><b>Updates to NGS analysis tools</b></li>
+<ul>
+<li>Dog genome CanFam3 has been updated to Bowtie, Bowtie2 and BWA scripts. </li>
+<li>Cufflinks tools have been updated to v2.1.1
+</ul>
+<br>
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li><a href="norm-combat.html">Normalization / ComBat - batch normalisation</a>. Enables simultaneous adjustment of multiple batch effects.</li>
+<li><a href="stat-linear-modelling-designmat.html">Statistics / Linear modelling using user-defined design matrix</a>. Advanced tool for applying your own design-matrices in limma analyses.</li>
+</ul>
+<br>
+<li><b>Updates to microarray analysis tools</b></li>
+<ul>
+<li><a href="norm-illumina.html">Normalization / Illumina</a>. Detection p-value thresholds have been updated in the parameter "Produce flags". <b>If you have used Illumina flag filtering for data from BeadStudio v2 or higher, we recommend rerunning the filter</b>.</li>
+<li><a href="classification.html">Clustering / Classification</a>. Outputs now also chip-class specific confusion matrices in addition to the class-prediction type of confusion matrices.</li>
+<li>Pearson correlation calculation with different Bioconductor functions in tools <u>Visualization / Dendrogram,  Visualization / Heatmap,  and Statistics / Time series</u> has been kindly unified by Oliver Heil, DKFZ.
+</ul>
+</ol>
+<hr>
+
 <h2>Version update 27.5.2013: What is new in Chipster 2.6</h2>
 
 <br>Chipster 2.6 contains important updates to microarray and NGS analysis tools and some new NGS tools.
