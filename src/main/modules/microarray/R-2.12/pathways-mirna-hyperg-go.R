@@ -11,10 +11,12 @@
 # PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
 # PARAMETER database: database TYPE [PicTar: PicTar, TargetScan: TargetScan, both: both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan databases, or whether to restrict the enrichment analysis to those targets that are common to both databases. To last option is recommended to minimize the occurrence of false positives.)
 
+
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009
 # IS, 1.10.2010, rewritten to use GOstats
 # MG, 7.3.2011, added the "database" parameter
+# modify to support KEGG
 
 # load packages
 library(GOstats)
