@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,22 +9,24 @@ import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.TabixDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class BedTabixToRegionConversion extends DataThread {
 
 	private TabixDataSource dataSource;
 	private BedLineParser parser = new BedLineParser(false);
 
-	public BedTabixToRegionConversion(URL tabixFile, URL tabixIndexFile, final GBrowser browser) {
+	public BedTabixToRegionConversion(DataUrl repeatUrl, DataUrl repeatIndexUrl, final GBrowser browser) {
 
-		super(browser);
+		super(browser, null);
 
 		try {
-			this.dataSource = new TabixDataSource(tabixFile, tabixIndexFile);
+			this.dataSource = new TabixDataSource(repeatUrl, repeatIndexUrl);
+			super.setDataSource(dataSource);
 
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
@@ -49,7 +50,7 @@ public class BedTabixToRegionConversion extends DataThread {
 
 		try {
 			String line;
-			List<RegionContent> resultList = new LinkedList<RegionContent>();
+			List<Feature> resultList = new LinkedList<Feature>();
 
 			if (iterator != null) { //null if there isn't such chromosome in annotations
 
@@ -57,7 +58,7 @@ public class BedTabixToRegionConversion extends DataThread {
 
 					parser.setLine(line);
 					Region region = parser.getRegion();				
-					resultList.add(new RegionContent(region));
+					resultList.add(new Feature(region));
 				}
 			}
 

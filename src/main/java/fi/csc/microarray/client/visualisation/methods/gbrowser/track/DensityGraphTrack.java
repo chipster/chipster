@@ -39,7 +39,7 @@ public class DensityGraphTrack extends Track {
 	private boolean previousWasAverage;
 
     public DensityGraphTrack(Color color) {
-    	    	
+    	super();
         this.color = color;
     }
 
@@ -50,7 +50,7 @@ public class DensityGraphTrack extends Track {
 
         // draw a black rectangle as the background
         drawables.add(new RectDrawable(new Rectangle(0, 0,
-        		getView().getWidth(), this.getHeight()), BACKGROUND, BACKGROUND));
+        		getView().getWidth(), this.getTrackHeight()), BACKGROUND, BACKGROUND));
 
         float maxValue = 1L;
         
@@ -128,7 +128,7 @@ public class DensityGraphTrack extends Track {
 
         	// draw a rectangle for each region
         	drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-        			(int)(endX-startX), this.getHeight()), c, c));
+        			(int)(endX-startX), this.getTrackHeight()), c, c));
         }
         
         return drawables;
@@ -141,8 +141,8 @@ public class DensityGraphTrack extends Track {
     }
 
     @Override
-    public int getHeight() {
-        return 16;       
+    public int getTrackHeight() {
+        return 24;       
     }    
     
     private boolean isAverage() {
@@ -166,7 +166,7 @@ public class DensityGraphTrack extends Track {
 	}
     
     @Override
-    public String getName() {
+    public String getTrackName() {
     	return "DensityGraphTrack";
     }
 }

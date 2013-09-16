@@ -8,6 +8,7 @@ import java.net.URL;
 import org.broad.tribble.readers.TabixReader;
 import org.broad.tribble.readers.TabixReader.Iterator;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -21,16 +22,18 @@ public class TabixDataSource extends DataSource {
 
 	private TabixReader reader;
 
-    public TabixDataSource(URL tabixFile, URL tabixIndexFile) throws URISyntaxException, IOException {
+    public TabixDataSource(DataUrl repeat, DataUrl repeatIndex) throws URISyntaxException, IOException {
     	//TODO use the provided index instead of guessing
-        super(tabixFile, null);
+        super(repeat);
+        
+        URL repeatUrl = repeat.getUrl();
         
         String fileString = null;
         
-        if ("http".equals(tabixFile.getProtocol())) {
-        	fileString = tabixFile.toExternalForm();
+        if ("http".equals(repeatUrl.getProtocol())) {
+        	fileString = repeatUrl.toExternalForm();
         } else {
-        	fileString = (new File(tabixFile.toURI()).getPath()); //Translate '%20' to space character, required in Windows
+        	fileString = (new File(repeatUrl.toURI()).getPath()); //Translate '%20' to space character, required in Windows
         }
         
         this.reader = new TabixReader(fileString);

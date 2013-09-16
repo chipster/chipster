@@ -7,16 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,13 +29,15 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.AnnotationTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SampleTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.util.LinkUtil;
 
 /**
@@ -79,8 +78,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JPanel settingsPanel = new JPanel();
 	private JPanel genomePanel;
 	private JPanel locationPanel;
-	private JPanel datasetsPanel;
-	private JPanel datasetSwitchesPanel;
 	private JPanel optionsPanel;
 	private JPanel linksPanel;
 
@@ -103,26 +100,26 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JLabel coverageTypeLabel = new JLabel("Coverage type");
 	private JComboBox<CoverageType> coverageTypeBox; 
 
-	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
-	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
-
-	private JCheckBox showFullHeightBox;
+	private Map<String, JCheckBox> trackSwitches = new LinkedHashMap<>();
 
 	private JXHyperlink ensemblLink;
 	private JXHyperlink ucscLink;
 	private GBrowser browser;
 	private Long lastLocation;
 	private JCheckBox cacheBox;
+	private JTabbedPane tabPane;
+	private GBrowserLegend legend;
+	private SelectionPanel selectionPanel;
 
 	public void initialise(GBrowser browser) throws Exception {
 		
 		this.browser = browser;
 
-		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
-		trackSwitches.put(new JCheckBox("Highlight SNPs", true), "highlightSNP");
+		trackSwitches.put("Reads", new JCheckBox("Reads", true));
+		trackSwitches.put("highlightSNP", new JCheckBox("Highlight SNPs", true));
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
-		trackSwitches.put(new JCheckBox("Density graph", false), "DensityGraphTrack");
-		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack");
+		trackSwitches.put("DensityGraphTrack", new JCheckBox("Density graph", false));
+		trackSwitches.put("RepeatMaskerTrack", new JCheckBox("Low complexity regions", false));
 	}
 	
 	public JPanel getParameterPanel() {
@@ -135,10 +132,24 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			JScrollPane settingsScrollPane = new JScrollPane(settings);
 			settingsScrollPane.setBorder(BorderFactory.createEmptyBorder());
 			settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			
+			legend = new GBrowserLegend(browser);
+			selectionPanel = new SelectionPanel(browser.getSelectionManager()); 
 
-			JTabbedPane tabPane = new JTabbedPane();
+			tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
-			tabPane.addTab("Legend", new GBrowserLegend(browser));
+			tabPane.addTab("Selected", selectionPanel);
+			tabPane.addTab("Legend", legend);
+			
+			browser.getSelectionManager().addSelectionListener(new BrowserSelectionListener() {				
+				@Override
+				public void selectionChanged(DataUrl data, Selectable selectable, Object source) {
+					//there is nothing to show if the selection was cleared 
+					if (selectable != null) {
+						tabPane.setSelectedComponent(selectionPanel);
+					}
+				}
+			});
 
 			GridBagConstraints c = new GridBagConstraints();
 
@@ -154,28 +165,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		}
 		
 		return paramPanel;
-	}
-
-	private JPanel getDatasetsPanel() {
-		if (datasetsPanel == null) { 
-			datasetsPanel = new JPanel(new GridBagLayout());
-			datasetsPanel.setBorder(createSettingsPanelSubPanelBorder("Datasets"));
-
-			GridBagConstraints dc = new GridBagConstraints();
-			dc.gridy = 0;
-			dc.gridx = 0;
-			dc.anchor = GridBagConstraints.NORTHWEST;
-			dc.fill = GridBagConstraints.BOTH;
-			dc.weighty = 1.0;
-			dc.weightx = 1.0;
-
-			datasetSwitchesPanel = new JPanel();
-			datasetSwitchesPanel.setLayout(new BoxLayout(datasetSwitchesPanel, BoxLayout.Y_AXIS));
-
-			datasetsPanel.add(datasetSwitchesPanel, dc);
-		}
-
-		return datasetsPanel;
 	}
 
 	public JPanel getOptionsPanel() {
@@ -209,7 +198,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			c.gridy = 0;
 
 			setTrackSwitchesEnabled(false);
-			for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+			for (JCheckBox trackSwitch : trackSwitches.values()) {
 				trackSwitch.addActionListener(this);
 				menu.add(trackSwitch, c);
 				c.gridy++;
@@ -238,12 +227,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
-
-			c.gridy++;
-			showFullHeightBox = new JCheckBox("Show all reads", false);
-			showFullHeightBox.setEnabled(false);
-			showFullHeightBox.addActionListener(this);
-			menu.add(showFullHeightBox, c);
 
 			optionsPanel.add(menu, oc);
 		}
@@ -352,8 +335,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		// datasets
 		c.insets.set(0, 5, 5, 5);
-		settingsPanel.add(getDatasetsPanel(), c);
-		c.gridy++;
+//		settingsPanel.add(getDatasetsPanel(), c);
+//		c.gridy++;
 
 		// external links
 		c.fill = GridBagConstraints.BOTH;
@@ -473,24 +456,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			chrBox.addItem(chromosome);
 		}
 	}
-
-	public void updateDatasetSwitches() {
-		datasetSwitches.clear();
-
-		datasetSwitchesPanel.removeAll();
-
-		for (TrackDefinition track : browser.getTracks()) {
-			JCheckBox box = new JCheckBox(track.name, true);
-			box.setToolTipText(track.name);
-			box.setEnabled(false);
-			track.checkBox = box;
-			if (track.interpretation.getType().isToggleable) {
-				datasetSwitchesPanel.add(box);
-				datasetSwitches.add(box);
-				box.addActionListener(this);
-			}
-		}
-	}
 	
 	/**
 	 * A method defined by the ActionListener interface. Allows this panel to
@@ -562,18 +527,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 				this.setExternalLinksEnabled();
 			}
 
-		} else if (datasetSwitches.contains(source) && this.initialised) {
-
-			showFullHeightBox.setSelected(false);
-			browser.setFullHeight(false);
-
-			browser.updateData();
-
 		} else if (source == coverageScaleBox && this.initialised) {
 
 			browser.updateCoverageScale();
 
-		} else if ((trackSwitches.keySet().contains(source) || source == coverageTypeBox) && this.initialised) {
+		} else if ((trackSwitches.values().contains(source) || source == coverageTypeBox) && this.initialised) {
 			updateVisibilityForTracks();
 		} 
 
@@ -595,11 +553,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			this.locationField.setEnabled(true);
 			this.viewsizeLabel.setEnabled(true);
 			this.viewsizeField.setEnabled(true);
-			this.showFullHeightBox.setEnabled(true);
-
-			for (TrackDefinition track : browser.getTracks()) {
-				track.checkBox.setEnabled(true);
-			}
 
 			coverageTypeLabel.setEnabled(true);
 			coverageTypeBox.setEnabled(true);
@@ -608,15 +561,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			coverageScaleBox.setEnabled(true);
 
 			this.setTrackSwitchesEnabled(true);
-
-		} else if (source == showFullHeightBox && this.initialised) {
-
-			browser.setFullHeight(showFullHeightBox.isSelected());
 		}
 	}
 	
 	private void setTrackSwitchesEnabled(boolean enabled) {
-		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+		for (JCheckBox trackSwitch : trackSwitches.values()) {
 			trackSwitch.setEnabled(enabled);
 			
 			if (enabled && "RepeatMaskerTrack".equals(trackSwitches.get(trackSwitch))) {
@@ -658,27 +607,20 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	 * 
 	 */
 	public void updateVisibilityForTracks() {
-		for (TrackDefinition track : browser.getTracks()) {
-			if (track.trackGroup != null) {
-				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
-					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
-				}
+		for (TrackGroup trackGroup : browser.getPlot().getDataView().getTrackGroups()) {
 			
-				if (track.trackGroup instanceof ReadTrackGroup) {										
-					if (coverageTypeBox.getSelectedItem() == CoverageType.NONE) {
-						track.trackGroup.showOrHide("Coverage", false);
-						track.trackGroup.showOrHide("CoverageEstimate", false);
-					} else 	if (coverageTypeBox.getSelectedItem() == CoverageType.TOTAL) {
-						track.trackGroup.showOrHide("Coverage", true);
-						track.trackGroup.showOrHide("CoverageEstimate", true);	
-						track.trackGroup.showOrHide("StrandSpecificCoverageType", false);
-					} else 	if (coverageTypeBox.getSelectedItem() == CoverageType.STRAND) {
-						track.trackGroup.showOrHide("Coverage", true);
-						track.trackGroup.showOrHide("CoverageEstimate", true);	
-						track.trackGroup.showOrHide("StrandSpecificCoverageType", true);
-					}
-				}
+			if (trackGroup instanceof AnnotationTrackGroup) {
+				AnnotationTrackGroup annotations = (AnnotationTrackGroup) trackGroup;
+				annotations.setRepeatVisible(trackSwitches.get("RepeatMaskerTrack").isSelected());
 			}
+
+			if (trackGroup instanceof SampleTrackGroup) {
+				SampleTrackGroup samples = (SampleTrackGroup)trackGroup;
+				samples.setCoverageType((CoverageType) coverageTypeBox.getSelectedItem());
+				samples.setReadsVisible(trackSwitches.get("Reads").isSelected());
+				samples.setHighlightSnp(trackSwitches.get("highlightSNP").isSelected());
+				samples.setDensityGraphVisible(trackSwitches.get("DensityGraphTrack").isSelected());
+			}		
 		}
 		this.browser.getPlot().getDataView().reloadData();
 	}
@@ -697,10 +639,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 	public Chromosome getChromosome() {
 		return (Chromosome)chrBox.getSelectedItem();
-	}
-
-	public boolean isFullHeight() {
-		return showFullHeightBox.isSelected();
 	}
 
 	public void processLocationPanelInput() {
@@ -784,3 +722,4 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		updateVisibilityForTracks();
 	}
 }
+

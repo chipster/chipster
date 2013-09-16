@@ -1,10 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 
 /**
  * <p>One source of genomic content. Abstraction hides the physical data source, that can be either 
@@ -19,29 +20,30 @@ import java.net.URL;
  */
 public abstract class DataSource {
 
+	protected DataUrl dataUrl;
 	protected File file = null;
 	protected URL url = null;
 	protected String name;
 
-	public DataSource(URL url) throws FileNotFoundException, URISyntaxException {
+	public DataSource(DataUrl dataUrl) throws URISyntaxException, IOException {
+		
+		this.dataUrl = dataUrl;
+		this.url = dataUrl.getUrl();
 		
 		if (url != null) {
 			if ("file".equals(url.getProtocol())) {
 				file = new File(url.toURI());
-			} else {
-				this.url = url;
 			}
 			this.name = url.toString(); 
 		}
 	}
 	
-	public DataSource(URL urlRoot, String path)
-	        throws FileNotFoundException, MalformedURLException, URISyntaxException {
-		this(new URL(urlRoot.toString() + "/" + path));
-	}
-	
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public DataUrl getDataUrl() {
+		return dataUrl;
 	}
 }

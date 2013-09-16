@@ -16,10 +16,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.La
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem.CigarItemType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
@@ -33,15 +33,15 @@ public class ReadPileTrack extends Track {
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 
 	private DataThread refData;
-	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
+	private Collection<Feature> referenceSequenceFeatures = new TreeSet<Feature>();
 
 	private boolean highlightSNP = false;
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private Collection<Feature> reads = new TreeSet<Feature>();
 
 
 	public ReadPileTrack(DataThread refData, Color fontColor) {
-
+		super();
 		this.refData = refData;
 		this.layoutMode = this.defaultLayoutMode = LayoutMode.FILL;
 	}
@@ -51,12 +51,12 @@ public class ReadPileTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		// If SNP highlight mode is on, we need reference sequence data
-		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
+		char[] refSeq = highlightSNP ? getReferenceArray(referenceSequenceFeatures, view, strand) : null;		
 
-		Iterator<RegionContent> readIter = reads.iterator();
-		RegionContent read = null;
+		Iterator<Feature> readIter = reads.iterator();
+		Feature read = null;
 		
-		TreeSet<RegionContent> dividedReads = new TreeSet<RegionContent>();
+		TreeSet<Feature> dividedReads = new TreeSet<Feature>();
 	
 		Collection<CigarItemType> splitters = new HashSet<CigarItemType>();
 		splitters.add(CigarItemType.N);
@@ -71,7 +71,7 @@ public class ReadPileTrack extends Track {
 			}
 			
 			dividedReads.addAll(Cigar.splitRead(read, splitters));
-		}
+		}	
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
 		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
@@ -79,8 +79,8 @@ public class ReadPileTrack extends Track {
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
 
-		Iterator<RegionContent> splittedReadIter = dividedReads.iterator();
-		RegionContent splittedRead = null;
+		Iterator<Feature> splittedReadIter = dividedReads.iterator();
+		Feature splittedRead = null;
 
 		while (splittedReadIter.hasNext()) {
 			splittedRead = splittedReadIter.next();
@@ -122,15 +122,18 @@ public class ReadPileTrack extends Track {
 			readRect.height = GBrowserConstants.READ_HEIGHT;
 
 			boolean lastBeforeMaxStackingDepthCut = false;
+			int maxHeight = getComponent().getHeight();
 			
 			if (getLayoutMode() != LayoutMode.FULL) {
 				// Check if we are about to go over the edge of the drawing area
-				lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT) > getHeight();
+				int nextLayerY = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT);
+				lastBeforeMaxStackingDepthCut = nextLayerY >= maxHeight;
 				
 				// Check if we are over the edge of the drawing area
-				if (readRect.y > getHeight()) {
+				if (readRect.y > maxHeight) {
+					
 					continue;
-				}
+				}				
 			}
 			
 
@@ -165,7 +168,7 @@ public class ReadPileTrack extends Track {
 							color = CUTOFF_COLOR;
 						}
 
-						drawables.add(new RectDrawable(rect, color, color, cigar.toInfoString()));
+						drawables.add(new RectDrawable(rect, color, color));
 
 					} else {
 						// Enough space - show color coding for each nucleotide
@@ -247,7 +250,7 @@ public class ReadPileTrack extends Track {
 
 						rect.grow(0, -1);
 
-						drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
+						drawables.add(new RectDrawable(rect, color, null));
 					}
 
 					if (readPart.getCigarItem().getCigarItemType().equals(CigarItemType.I)) {
@@ -259,7 +262,7 @@ public class ReadPileTrack extends Track {
 					}					
 				}
 			}
-		}
+		}		
 
 		return drawables;
 	}
@@ -270,15 +273,14 @@ public class ReadPileTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent regCont : dataResult.getContents()) {
+		for (Feature regCont : dataResult.getFeatures()) {
 			if (regCont.values.get(DataType.STRAND) == this.getStrand() && regCont.values.containsKey(DataType.SEQUENCE)) {
 				this.reads.add(regCont);
 			}
 		}
 
-		// "Spy" on reference sequence data, if available
-		if (dataResult.getStatus().getDataThread() == refData) {
-			this.refReads.addAll(dataResult.getContents());
+		if (dataResult.getStatus().getDataThread() == refData) {			
+			this.referenceSequenceFeatures.addAll(dataResult.getFeatures());
 		}
 	}
 	
@@ -296,53 +298,43 @@ public class ReadPileTrack extends Track {
 	}
 
 	/**
-	 * Enable SNP highlighting and set reference data.
+	 * Set SNP highlighting enabled or disabled.
+	 * @param highlightSnp
 	 * 
 	 * @param highlightSNP
 	 * @see ReadPileTrack.setReferenceSeq
 	 */
-	public void enableSNPHighlight() {
-		// turn on highlighting mode
-		highlightSNP = true;
-	}
-
-	/**
-	 * Disable SNP highlighting.
-	 * 
-	 * @param dataThreads
-	 */
-	public void disableSNPHiglight() {
-		// turn off highlighting mode
-		highlightSNP = false;
+	public void setSNPHighlight(boolean highlightSnp) {
+		this.highlightSNP = highlightSnp;
 	}
 
 	/**
 	 * Convert reference sequence reads to a char array.
 	 */
-	public static char[] getReferenceArray(Collection<RegionContent> refReads, GBrowserView view, Strand strand) {
+	public static char[] getReferenceArray(Collection<Feature> refFeatures, GBrowserView view, Strand strand) {
 		char[] refSeq = new char[0];
-		Iterator<RegionContent> iter = refReads.iterator();
+		Iterator<Feature> iter = refFeatures.iterator();
 		refSeq = new char[view.getBpRegion().getLength().intValue() + 1];
 		int startBp = view.getBpRegion().start.bp.intValue();
 		int endBp = view.getBpRegion().end.bp.intValue();
-		RegionContent read;
+		Feature feature;
 		while (iter.hasNext()) {
-			read = iter.next();
-			if (!read.region.intersects(view.getBpRegion())) {
+			feature = iter.next();
+			if (!view.requestIntersects(feature.region)) {
 				iter.remove();
 				continue;
 			}
 
 			// we might need to reverse reference sequence
 			char[] readBases = null;
-			if (read.values.get(DataType.SEQUENCE) != null) { //when showing negative coordinates
+			if (feature.values.get(DataType.SEQUENCE) != null) { //when showing negative coordinates
 				if (strand == Strand.REVERSE) {
-					readBases = Sequence.complement((String) read.values.get(DataType.SEQUENCE)).toCharArray();
+					readBases = Sequence.complement((String) feature.values.get(DataType.SEQUENCE)).toCharArray();
 				} else {
-					readBases = ((String) read.values.get(DataType.SEQUENCE)).toCharArray();
+					readBases = ((String) feature.values.get(DataType.SEQUENCE)).toCharArray();
 				}
 
-				int readStart = read.region.start.bp.intValue();
+				int readStart = feature.region.start.bp.intValue();
 				int readNum = 0;
 				int nextPos = 0;
 				for (char c : readBases) {
@@ -357,12 +349,12 @@ public class ReadPileTrack extends Track {
 	}
 
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "Reads";
 	}
 	
 	@Override
-	public int getMinHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 	
@@ -374,5 +366,10 @@ public class ReadPileTrack extends Track {
 		if (dataThreads != null && refData != null) {
 			view.getQueueManager().addDataResultListener(refData, this);
 		}
+	}
+	
+	@Override
+	public boolean isShowMoreCapable() {
+		return true;
 	}
 }

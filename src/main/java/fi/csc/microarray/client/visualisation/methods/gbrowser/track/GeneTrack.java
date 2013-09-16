@@ -11,16 +11,15 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Track for genes. Higher zoom level version of {@link TranscriptTrack}.
@@ -35,9 +34,8 @@ public class GeneTrack extends Track {
 
 
 	public GeneTrack(Color color) {
-
+		super();
 		this.color = color;
-		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
 	@Override
@@ -117,13 +115,13 @@ public class GeneTrack extends Track {
 		if (isNameVisible(rect)) {
 
 			// draw name to leftmost visible part of the gene rectangle
-			drawTextAboveRectangle(name, drawables, rect, 1);
+			drawTextAboveRectangle(name, drawables, rect, 0);
 		}
 	}
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : dataResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
 			Object value = content.values.get(DataType.VALUE);
 			
@@ -144,7 +142,7 @@ public class GeneTrack extends Track {
 	}
     	
 	@Override
-	public int getMinHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 }

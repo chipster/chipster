@@ -37,7 +37,7 @@ public class CoverageStorage {
 		if (request != null) {
 			if (request.getRequestedContents().contains(DataType.COVERAGE_AVERAGE)) {
 
-				CoverageTool.convertRegionContentListToFloatList(dataResult.getContents(), forwardAverages, reverseAverages);		
+				CoverageTool.convertRegionContentListToFloatList(dataResult.getFeatures(), forwardAverages, reverseAverages);		
 				filterAverages(forwardAverages, filterRegion);
 				filterAverages(reverseAverages, filterRegion);
 				totalAveragesNeedsRefresh = true;				
@@ -52,7 +52,7 @@ public class CoverageStorage {
 		if (request != null) {
 			if (request.getRequestedContents().contains(DataType.COVERAGE)) {
 
-				CoverageTool.convertRegionContentListToBaseList(dataResult.getContents(), forwardBases, reverseBases);				
+				CoverageTool.convertRegionContentListToBaseList(dataResult.getFeatures(), forwardBases, reverseBases);				
 				filterBases(forwardBases, filterRegion);
 				filterBases(reverseBases, filterRegion);
 				totalBasesNeedsRefresh = true;

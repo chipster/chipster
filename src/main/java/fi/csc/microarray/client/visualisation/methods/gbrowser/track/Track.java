@@ -1,8 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,12 +17,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import javax.swing.JComponent;
+import javax.swing.JScrollBar;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.SelectionManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
@@ -25,26 +37,153 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
 
 /**
  * Single track inside a {@link GBrowserView}. Typically multiple instances
- * are used to construct what user perceives as a track. 
+ * are used to construct a TrackGroup what user perceives as a track. 
  */
-public abstract class Track implements DataResultListener, LayoutComponent {
+public abstract class Track implements DataResultListener, MouseListener {
+	
+	private JComponent component = new JComponent() {
+
+		@Override
+		public void paintComponent(Graphics g) {
+			
+			//System.out.println("" + this + g);
+			
+			printTime(null);
+			
+			//super.paintComponent(g);
+			
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			g2.setPaint(this.getBackground());
+			g2.fillRect(0, 0, getWidth(), getHeight());
+
+			// prepare coordinates
+			int x = 0;
+
+			List<Selectable> selectables = getSelectables();	
+			
+			updateSelections(getSelectionManager());
+			
+ 			for (Selectable selectable : selectables) {
+				
+				List<Drawable> drawables = selectable.getDrawables();
+				drawDrawables(g2, x, drawables);
+			}
+ 			
+			printTime(getTrackName() + "\tdraw " + selectables.size() + " drawables");
+			
+		}
+
+		private void drawDrawables(Graphics2D g2, int x,
+				Collection<Drawable> drawables) {		
+			
+			// decide if we will expand drawable for this track
+			boolean expandDrawables = canExpandDrawables();
+
+			TrackContext trackContext = null;
+			Track thisTrack = Track.this;
+			// create view context for this track only if we will use it
+			// currently only used for tracks that contain information
+			// about reads
+			if (expandDrawables && 
+					(thisTrack instanceof CoverageTrack ||
+							thisTrack instanceof CoverageAverageTrack ||
+							thisTrack instanceof CoverageEstimateTrack ||
+							thisTrack instanceof QualityCoverageTrack)) {
+
+				if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+					trackContext = new TrackContext(thisTrack, getMaxY(drawables));
+				} else {
+					trackContext = new TrackContext(thisTrack, view.parentPlot.getReadScale().numReads);
+				}
+			}
+			
+			if (LayoutMode.FULL == getLayoutMode()) {
+				setFullHeight(drawables);
+			}
+				
+			//Add track height before the track drawables are drawn, because the track coordinates start
+			//from the bottom and grow upwards
+			int y = convertGraphicsCoordinateToTrack(0);
+
+			for (Drawable drawable : drawables) {
+
+				if(drawable == null) {
+					continue;
+				}
+
+				// expand drawables to stretch across all height if necessary
+				if (expandDrawables) {
+					drawable.expand(trackContext);
+				}									
+
+				// recalculate position for reversed strands
+				int maybeReversedY = (int) y;
+				if (isReversed()) {
+					maybeReversedY -= getHeight();
+				} else {
+					drawable.upsideDown();
+				}			
+
+				// draw the drawable to the buffer
+				drawable.draw(g2, x, maybeReversedY);
+			}
+		}
+		
+		@Override
+		public Dimension getPreferredSize() {
+			Dimension size = super.getPreferredSize();
+			if (LayoutMode.FULL == getLayoutMode()) {
+				size.height = getFullHeight();	
+			} else {
+				size.height = getTrackHeight();
+			}
+			return size;
+		}
+	};
 
 	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
+
+	private static final float MAX_SELECTION_DISTANCE = 10;
 	protected GBrowserView view;
 	protected List<DataThread> dataThreads = new LinkedList<DataThread>();
 	protected Strand strand = Strand.FORWARD;
-	protected int layoutHeight;
-	protected boolean visible = true;
+
 	protected LayoutMode layoutMode = LayoutMode.FIXED;
 	protected LayoutMode defaultLayoutMode = LayoutMode.FIXED;
 	private Map<DataThread, Set<DataType>> dataTypeMap = new HashMap<DataThread, Set<DataType>>();
+	private TrackGroup trackGroup;
 	
 	private long maxViewLength = Long.MAX_VALUE;
 	private long minViewLength = 0;
+	private int trackHeight = 100;
+	
+	private String name = "Track";
+	private int fullHeight;
+	private int FULL_HEIGHT_MARGIN = 10;
 
+	public Track() {
+		component.setBackground(Color.white);
+		component.setInheritsPopupMenu(true);
+		component.addMouseListener(this);
+	}
+
+	protected SelectionManager getSelectionManager() {
+		return getView().getPlot().getSelectionManager();
+	}
+
+	public Track(int height) {
+		this();
+		this.trackHeight = height;
+	}
 
 	public void setView(GBrowserView view) {
     	this.view = view;
+		component.addMouseListener(view);
+		component.addMouseMotionListener(view);
+		component.addMouseWheelListener(view);
     }
     
     /**
@@ -68,11 +207,39 @@ public abstract class Track implements DataResultListener, LayoutComponent {
 		} 
 	}
 
+	private Integer getMaxY(Collection<Drawable> drawables) {
+
+		int maxY = 0;
+
+		for (Drawable drawable : drawables) {
+			maxY = Math.max(drawable.getMaxY() + 1, maxY);            
+		}
+
+		return maxY;
+	}
+
+
+	private long time = 0;
+
+	private void printTime(String operation) {
+		if (operation == null) {
+			time = System.currentTimeMillis();
+		} else {
+			long elapsed = System.currentTimeMillis() - time;
+			time = System.currentTimeMillis();
+			if (elapsed > 5) {
+				//System.out.println(operation + "\t" + elapsed);
+			}
+		}
+	}
+
 	/**
 	 * The method where the actual work of a track typically happens. Each track needs to manage drawables, possibly
 	 * caching them.
 	 */
-	public abstract  Collection<Drawable> getDrawables();
+	public Collection<Drawable> getDrawables() {
+		return null;
+	}
 	/**
 	 * The view under which this track operates.
 	 */
@@ -137,35 +304,20 @@ public abstract class Track implements DataResultListener, LayoutComponent {
 	/**
 	 * @return height of this track in pixels.
 	 */
-	public int getHeight() {
-	    return Math.max(layoutHeight, getMinHeight());
+	public int getTrackHeight() {
+	    return trackHeight;
 	}
-	
-	/**
-	 * Set height of this track.
-	 */
-    public void setHeight(int height) {
-        this.layoutHeight = height;
-    }
 	
     /**
      * Determine if the track is visible.
      * 
      * @return false.
      */
-    public boolean isVisible() {
+    public boolean isSuitableViewLength() {
     	
-        return (visible &&
-                getView().getBpRegion().getLength() >= minViewLength &&
+        return (getView().getBpRegion().getLength() >= minViewLength &&
                 getView().getBpRegion().getLength() < maxViewLength);
-    }
-    
-    /**
-     * Set track visibility.
-     */
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
+    }   
 
 	public void setStrand(Strand s) {
 		this.strand = s;
@@ -194,9 +346,6 @@ public abstract class Track implements DataResultListener, LayoutComponent {
     }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
-	private String name = "Track";
-	private int fullHeight;
-	private int FULL_HEIGHT_MARGIN = 10;
 
 	/**
 	 * DOCME
@@ -229,24 +378,23 @@ public abstract class Track implements DataResultListener, LayoutComponent {
 		return parts;
 	}
 	
-	public String getName() {
+	public String getTrackName() {
 		return name ;
 	}
 	
-	public void setName(String name) {
+	public void setTrackName(String name) {
 		this.name = name;
 	}
 	
 	public boolean isNameVisible(Rectangle rect) {
-		return rect.width > getView().getWidth()/NAME_VISIBLE_VIEW_RATIO;
+		boolean wideEnough = rect.width > getView().getWidth()/NAME_VISIBLE_VIEW_RATIO;
+		return wideEnough;
 	}
 
 	protected void drawTextAboveRectangle(String text, Collection<Drawable> drawables, Rectangle rect, int offset) {
-		drawables.add(new TextDrawable(rect.x < 0 ? 0 : rect.x, rect.y + offset, text, Color.DARK_GRAY));
-	}
-
-	public int getMinHeight() {
-		return 0;
+		int x = rect.x < 0 ? 0 : rect.x;
+		int y = rect.y + offset;
+		drawables.add(new TextDrawable(x, y, text, Color.DARK_GRAY));
 	}
 
 	public void setFullHeight(Collection<Drawable> drawables) {
@@ -261,14 +409,15 @@ public abstract class Track implements DataResultListener, LayoutComponent {
 			maxY += FULL_HEIGHT_MARGIN;
 		}
 		this.fullHeight = maxY;
+		
+		//Repaint until the fullHeigth doesn't change
+		if (this.fullHeight != getComponent().getHeight()) {
+			getComponent().revalidate();	
+		}
 	}
 
 	public int getFullHeight() {
-		if (getLayoutMode() == LayoutMode.FIXED || getLayoutMode() == LayoutMode.FILL) {
-			return getHeight();
-		} else {
-			return Math.max(fullHeight, this.getHeight());
-		}
+		return Math.max(fullHeight, Math.max(component.getHeight(), getTrackHeight()));
 	}
 	
 	public void setLayoutMode(LayoutMode mode) {
@@ -304,5 +453,132 @@ public abstract class Track implements DataResultListener, LayoutComponent {
 	public void setViewLimits(long minViewLength, long maxViewLength) {
 		this.minViewLength = minViewLength;
 		this.maxViewLength = maxViewLength;
+	}
+
+	public TrackGroup getTrackGroup() {
+		return trackGroup;
+	}
+
+	public void setTrackGroup(TrackGroup trackGroup) {
+		this.trackGroup = trackGroup;
+	}
+
+	public void setVisible(boolean state) {
+		component.setVisible(state);
+	}
+
+	public boolean isVisible() {
+		return component.isVisible();
+	}
+
+	public JComponent getComponent() {
+		return component;
+	}
+
+	public List<Selectable> getSelectables() {
+		Collection<Drawable> drawables = getDrawables();
+		PassiveItem item = new PassiveItem((List<Drawable>) drawables);
+		LinkedList<Selectable> itemList = new LinkedList<>();
+		itemList.add(item);
+		return itemList;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Point point = e.getPoint();
+		point.y = convertGraphicsCoordinateToTrack(point.y);
+		boolean isControlDown = e.isControlDown();
+		
+		TreeMap<Double, Selectable> closestSelectables = new TreeMap<>();
+		
+		for (Selectable selectable : getSelectables()) {
+
+			double distance = selectable.getDistance(point);
+			if (distance < MAX_SELECTION_DISTANCE) {
+				closestSelectables.put(distance, selectable);
+			}
+		}		
+		
+		SelectionManager selectionManager = getSelectionManager();
+
+		Selectable closestSelectable = null;
+		if (closestSelectables.size() > 0) {
+			closestSelectable = closestSelectables.firstEntry().getValue();
+		}
+		
+		if (isControlDown) {
+			if (closestSelectable != null) {
+				//Add one more item to selection
+				selectionManager.toggle(getDataUrl(), closestSelectable);
+			}
+		} else {
+			//Remove old selection and add a new one
+			//If the click did not hit anything, just set selection to null 
+			selectionManager.set(getDataUrl(), closestSelectable);			
+		}
+		
+		updateSelections(selectionManager);	
+		getView().redraw();
+	}
+
+	private void updateSelections(SelectionManager selectionManager) {
+		for (Selectable selectable : getSelectables()) {
+			selectable.setSelected(selectionManager.isSelected(getDataUrl(), selectable));
+		}
+	}
+
+
+	/**
+	 * Track coordinates grow upwards, whereas Java Graphics coordinates grow downwards.
+	 * 
+	 * @param y
+	 * @return
+	 */
+	private int convertGraphicsCoordinateToTrack(int y) {
+		
+		int height = getComponent().getHeight();
+		
+		return height - y;
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+	
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	public DataUrl getDataUrl() {
+		if (dataThreads.size() > 0) {
+			return dataThreads.get(0).getDataSource().getDataUrl();
+		}
+		return null;
+	}
+
+	public boolean isShowMoreCapable() {
+		return false;
+	}
+
+	public int getVisibleWidth() {
+		JScrollBar bar = getTrackGroup().getScrollGroup().getComponent().getVerticalScrollBar();
+		int width = view.getWidth();
+	
+		if (bar.isVisible()) {
+			return width - bar.getWidth();
+		} else {
+			return width;
+		}
 	}
 }

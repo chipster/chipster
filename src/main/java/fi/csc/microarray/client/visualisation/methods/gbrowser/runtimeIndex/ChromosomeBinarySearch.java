@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
@@ -29,10 +30,10 @@ public class ChromosomeBinarySearch {
 
 	private LineParser parser;
 
-	public ChromosomeBinarySearch(URL url, LineParser parser)
+	public ChromosomeBinarySearch(DataUrl data, LineParser parser)
 			throws IOException, GBrowserException, URISyntaxException, UnsortedDataException {
 		
-		this.file = new RandomAccessLineDataSource(url);					
+		this.file = new RandomAccessLineDataSource(data);					
 		this.parser = parser;
 	}
 	
@@ -205,7 +206,7 @@ public class ChromosomeBinarySearch {
 
 	private static void printTestTime(URL url, String description) throws IOException,
 			GBrowserException, URISyntaxException {
-		ChromosomeBinarySearch index = new ChromosomeBinarySearch(url, new GtfLineParser());
+		ChromosomeBinarySearch index = new ChromosomeBinarySearch(new DataUrl(url, url.getPath()), new GtfLineParser());
 
 		long t = System.currentTimeMillis();
 		

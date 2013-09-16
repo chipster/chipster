@@ -14,12 +14,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageEstimateTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 
 /**
  * This conversion class uses Picard to read Bam files and creates a coverage estimate by sampling.
@@ -37,7 +36,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 
 	public BamToCoverageEstimateConversion(BamDataSource file, final GBrowser browser) {
 	    
-		super(browser);
+		super(browser, file);
 		
 		this.dataSource = file;
 	}
@@ -138,7 +137,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 	private void convertCacheHits(DataRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
 
 		// Return one result pair for each region covered by one cache hit
-		LinkedList<RegionContent> responseList = new LinkedList<RegionContent>(); 
+		LinkedList<Feature> responseList = new LinkedList<Feature>(); 
 		long cachePos = 0; 
 
 		for (BpCoord coord : indexedValues.keySet()) {
@@ -152,7 +151,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 			values.put(DataType.COVERAGE_ESTIMATE_FORWARD, indexedValues.get(coord).forwardCount);
 			values.put(DataType.COVERAGE_ESTIMATE_REVERSE,  indexedValues.get(coord).reverseCount);
-			responseList.add(new RegionContent(recordRegion, values));
+			responseList.add(new Feature(recordRegion, values));
 		}
 		
 		super.createDataResult(new DataResult(request.getStatus(), responseList));
@@ -228,13 +227,13 @@ public class BamToCoverageEstimateConversion extends DataThread {
 			cache.store(new BpCoord(stepMiddlepoint, from.chr), countForward, countReverse);		
 
 			// Send result
-			LinkedList<RegionContent> content = new LinkedList<RegionContent>();
+			LinkedList<Feature> content = new LinkedList<Feature>();
 
 			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 			values.put(DataType.COVERAGE_ESTIMATE_FORWARD, countForward);
 			values.put(DataType.COVERAGE_ESTIMATE_REVERSE, countReverse);
 
-			content.add(new RegionContent(new Region(start, end, from.chr), values));
+			content.add(new Feature(new Region(start, end, from.chr), values));
 
 			super.createDataResult(new DataResult(request.getStatus(), content));
 		}

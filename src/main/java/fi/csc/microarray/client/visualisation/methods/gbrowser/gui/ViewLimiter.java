@@ -12,9 +12,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
+/**
+ * It is not possible to move the View to negative coordinates, because this is prevented 
+ * internally in the View. This class implements similar restriction for the right side 
+ * end of the coordinates. The location of the right side end depends on the data, and is 
+ * currently based on cytoband information. 
+ * 
+ * @author klemela
+ */
 public class ViewLimiter implements RegionListener {
 
 	private QueueManager queueManager;
@@ -40,7 +48,7 @@ public class ViewLimiter implements RegionListener {
 				if (limit != null) {
 					Long previousLimit = limit.bp;
 
-					for (RegionContent regCont : dataResult.getContents()) {
+					for (Feature regCont : dataResult.getFeatures()) {
 
 						BpCoord value = regCont.region.end;
 

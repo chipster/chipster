@@ -1,14 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
 /**
  * Utility class for creating predefined {@link TrackGroup} objects.  
@@ -16,17 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
  *@author Petri Klemelä, Aleksi Kallio
  *
  */
-public class TrackFactory {
-	
-    public static TrackGroup getGeneTrackGroup(
-    		GBrowserPlot genomePlot, DataThread annotationDataSource, DataThread repeatDataSource, boolean isUserData) {
-        
-		GBrowserView dataView = genomePlot.getDataView();
-		
-		TrackGroup geneGroup = new GeneTrackGroup(dataView, annotationDataSource, repeatDataSource, isUserData);
-			    
-	    return geneGroup;
-	}
+public class TrackFactory {	
     
 	public static TrackGroup getThinSeparatorTrackGroup(GBrowserPlot genomePlot) {
 		GBrowserView view = genomePlot.getDataView();
@@ -53,108 +38,6 @@ public class TrackFactory {
 		separator2.setView(view);	
 		group.addTrack(separator2);
 		
-		return group;
-	}
-	
-	public static TrackGroup getReadTrackGroup(GBrowserPlot genomePlot, DataThread details, DataThread coverage, DataThread estimate, 
-			DataThread seqFile, String title) {
-	
-		GBrowserView dataView = genomePlot.getDataView();
-		
-		// Group containing tracks for this data source
-		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, details, coverage, estimate, seqFile, title);
-		readGroup.initialise();
-        
-        return readGroup;
-	}
-	
-	public static TrackGroup getPeakTrackGroup(GBrowserPlot plot, DataThread dataThread) {
-		GBrowserView dataView = plot.getDataView();
-
-		
-		PeakTrack peak = new PeakTrack(GBrowserConstants.BED_COLOR);
-		peak.setView(dataView);
-		peak.addDataThread(dataThread);
-		
-		return new TrackGroup(peak);
-	}
-
-	public static TrackGroup getCytobandTrackGroup(GBrowserPlot plot, DataThread cytobandData) {
-		
-		CytobandTrack overviewCytobands = new CytobandTrack(false);
-		overviewCytobands.setView(plot.getOverviewView());
-		overviewCytobands.addDataThread(cytobandData);
-		
-		return new TrackGroup(overviewCytobands);
-	}
-
-	public static TitleTrack getTitleTrack(GBrowserPlot genomePlot, String title) {
-		GBrowserView dataView = genomePlot.getDataView();
-		
-		TitleTrack titleTrack = new TitleTrack(title, Color.black);
-		titleTrack.setView(dataView);
-		return titleTrack;
-	}
-
-	public static TrackGroup getCnaTrackGroup(GBrowserPlot plot,
-			CnaConversion conversion, LinkedList<String> sampleNames, boolean showFrequencies, boolean showCalls, boolean showLogratios) {
-		
-		GBrowserView view = plot.getDataView();
-		TrackGroup group = new TrackGroup(view);
-		
-		if (showFrequencies) {
-			TitleTrack title2 = new TitleTrack("loss frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
-			title2.setView(view);
-			group.addTrack(title2);
-
-			ScatterplotTrack lossFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, DataType.LOSS);
-			lossFreq.setView(view);
-			lossFreq.addDataThread(conversion);
-			group.addTrack(lossFreq);
-
-			TitleTrack title3 = new TitleTrack("gain frequency", Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
-			title3.setView(view);
-			group.addTrack(title3);
-			
-			ScatterplotTrack gainFreq = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 100, 0f, 1.0f, DataType.GAIN);
-			gainFreq.setView(view);
-			gainFreq.addDataThread(conversion);
-			group.addTrack(gainFreq);
-		}
-				
-		for (int i = 0; i < sampleNames.size(); i++) {
-			
-			String name = sampleNames.get(i);
-
-			if (showCalls) {
-				
-				TitleTrack title = new TitleTrack(name, Color.black);
-				title.setView(view);
-				group.addTrack(title);
-				
-				CnaFlagTrack flag = new CnaFlagTrack(GBrowserConstants.BED_COLOR, i, Color.RED);
-				flag.setView(view);
-				flag.addDataThread(conversion);
-				group.addTrack(flag);
-
-				SeparatorTrack separator1 = new SeparatorTrack(Color.gray, 1);
-				separator1.setView(view);
-				group.addTrack(separator1);
-			}
-			
-			if (showLogratios) {
-				
-				TitleTrack title = new TitleTrack(name, Color.black, GBrowserConstants.SCATTERPLOT_TITLE_COLOR);
-				title.setView(view);
-				group.addTrack(title);			
-				
-				ScatterplotTrack logRatio = new ScatterplotTrack(GBrowserConstants.BED_COLOR, 24, -1.0f, 1.0f, i, 0, Long.MAX_VALUE);				
-				logRatio.setView(view);
-				logRatio.addDataThread(conversion);		
-				group.addTrack(logRatio);
-			}
-		}		
-
 		return group;
 	}
 }

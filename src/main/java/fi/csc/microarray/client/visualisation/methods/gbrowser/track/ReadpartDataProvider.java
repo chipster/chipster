@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
 /**
@@ -21,13 +21,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
  */
 public class ReadpartDataProvider {
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private Collection<Feature> reads = new TreeSet<Feature>();
 	private LinkedList<ReadPart> readParts = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsF = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsR = new LinkedList<ReadPart>();
 	private boolean needsRefresh = false;
 	
-	public void addReads(LinkedList<RegionContent> reads) {
+	public void addReads(LinkedList<Feature> reads) {
 
 
 		// Add this to queue of RegionContents to be processed
@@ -35,7 +35,7 @@ public class ReadpartDataProvider {
 
 			// Here identical region contents are removed (set semantics, no duplicates)
 			// So it is essential that reads have their unique ID's.
-			for (RegionContent read : reads) {	  
+			for (Feature read : reads) {	  
 				if (
 						read.values.containsKey(DataType.STRAND) &&
 						read.values.containsKey(DataType.SEQUENCE) && 
@@ -74,10 +74,10 @@ public class ReadpartDataProvider {
 		readParts.clear();
 		readPartsF.clear();
 		readPartsR.clear();
-		Iterator<RegionContent> iter = reads.iterator();
+		Iterator<Feature> iter = reads.iterator();
 		while (iter.hasNext()) {
 
-			RegionContent read = iter.next();
+			Feature read = iter.next();
 
 			// Split read into continuous blocks (elements) by using the cigar
 			List<ReadPart> visibleRegions = Cigar.splitElements(read);
