@@ -36,16 +36,16 @@ if(pcaon=="chips") {
 
 # PCA calculations
 if(scaling=="yes" & centering=="yes") {
-	pc<-prcomp(t(dat2), scale=T, center=T)
+	pc<-prcomp(dat2, scale=T, center=T)
 }
 if(scaling=="yes" & centering=="no") {
-	pc<-prcomp(t(dat2), scale=T, center=F)
+	pc<-prcomp(dat2, scale=T, center=F)
 }
 if(scaling=="no" & centering=="yes") {
-	pc<-prcomp(t(dat2), scale=F, center=T)
+	pc<-prcomp(dat2, scale=F, center=T)
 }
 if(scaling=="no" & centering=="no") {
-	pc<-prcomp(t(dat2), scale=F, center=F)
+	pc<-prcomp(dat2, scale=F, center=F)
 }
 
 # How many PCs to save?
@@ -53,15 +53,8 @@ no<-as.vector(head(which(summary(pc)$importance[3,]>=(expvar/100)), n=1)[1])
 if(no<3) {
 	no<-c(3)
 }
-if(pcaon=="genes") {
-	pcs<-pc$x[,1:no]
-}
-if(pcaon=="chips") {
-	pcs<-pc$x[,1:no]
-}
-
 # Converting PCs from matrix format into data frame
-pcs<-as.data.frame(pcs)
+pcs<-as.data.frame(pc$x[,1:no])
 
 # Giving the PC headers new names
 names(pcs)<-paste("chip.", names(pcs), sep="")
