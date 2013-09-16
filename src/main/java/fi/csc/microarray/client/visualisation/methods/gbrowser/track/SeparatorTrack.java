@@ -18,25 +18,26 @@ public class SeparatorTrack extends Track {
 	private String name = "separator";
 	
 	public SeparatorTrack(Color color, int thickness) {
-
+		super();
 		this.color = color;
 		this.thickness = thickness;
 	}
 
-	public void setName(String name) {
+	public void setTrackName(String name) {
 		this.name = name;
 	}
 	
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return name;
 	}
 	
 	@Override
 	public Collection<Drawable> getDrawables() {
+		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		for (int i = 0; i < thickness; i++) {
-			drawables.add(new LineDrawable(0, i, getView().getWidth(), i, color));
+			drawables.add(new LineDrawable(0, i + 1, getView().getWidth(), i + 1, color));		
 		}
 
 		return drawables;
@@ -47,7 +48,7 @@ public class SeparatorTrack extends Track {
 	}  
 
     @Override
-    public int getHeight() {
+    public int getTrackHeight() {
         return thickness;
     }    
 }

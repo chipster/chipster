@@ -79,7 +79,7 @@ public class LocalNGSPreprocess implements Runnable {
 				
 				if ("bed".equals(extension)) {
 					preprocess(dataManager, inputFile, "bed", new BedLineParser(false), 
-							BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal());
+							BedLineParser.Column.CHROM.ordinal(), BedLineParser.Column.CHROM_START.ordinal());
 					
 				} else if ("gtf".equals(extension)) {
 					preprocess(dataManager, inputFile, "gtf", new GtfLineParser(), 

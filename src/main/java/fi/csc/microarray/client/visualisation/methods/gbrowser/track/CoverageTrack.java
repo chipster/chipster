@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
@@ -35,7 +35,7 @@ public class CoverageTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
+	private Collection<Feature> refReads = new TreeSet<Feature>();
 	private boolean strandSpecificCoverageType;
 	private Integer detailsIndex = null;
 	private Integer referenceIndex = null;
@@ -43,6 +43,8 @@ public class CoverageTrack extends Track {
 	private CoverageStorage coverageStorage = new CoverageStorage();
 
 	public CoverageTrack(DataThread coverage, DataThread referenceSequenceFile) {
+		
+		super();
 
 		detailsIndex = addDataThread(coverage);
 
@@ -185,12 +187,12 @@ public class CoverageTrack extends Track {
 		
 		// "Spy" on reference sequence data, if available
 		if (dataResult.getStatus().getDataThread() == dataThreads.get(referenceIndex)) {
-			this.refReads.addAll(dataResult.getContents());
+			this.refReads.addAll(dataResult.getFeatures());
 		}
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 	
@@ -212,13 +214,8 @@ public class CoverageTrack extends Track {
 		return true;
 	}
 
-	public void enableSNPHighlight() {
-		// turn on highlighting mode
-		highlightSNP = true;
-	}
-
-	public void disableSNPHighlight() {
-		highlightSNP = false;
+	public void setSNPHighlight(boolean highlightSnp) {
+		this.highlightSNP = highlightSnp;
 	}
 
 	public void setStrandSpecificCoverageType(boolean b) {

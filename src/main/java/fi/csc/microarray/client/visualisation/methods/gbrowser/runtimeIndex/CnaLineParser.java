@@ -9,8 +9,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
  * Parser for tsv files produced by CNA tools. 
  * 
  * It is assumed that the header line is given for this parser object before 
- * requesting it to parse any real content rows, because wihtout header line
- * no way to know the order and number of columns.  
+ * requesting it to parse any real content rows, because without header line
+ * there is no way for parser to know the order and number of columns.  
  * 
  * @author klemela
  */
@@ -144,5 +144,11 @@ public class CnaLineParser extends TsvLineParser {
 	@Override
 	public String getHeaderStart() {
 		return "chromosome	start	end";
+	}
+
+	@Override
+	public FileLine getFileLine() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

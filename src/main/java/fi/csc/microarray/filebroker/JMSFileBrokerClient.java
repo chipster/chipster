@@ -284,7 +284,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			CommandMessage fileRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_FILES_REQUEST);
 			//Chipster2 backport fix
 			urlTopic.sendReplyableMessage(fileRequestMessage, replyListener);
-			urlList = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			urlList = replyListener.waitForReply(FILE_AVAILABLE_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}

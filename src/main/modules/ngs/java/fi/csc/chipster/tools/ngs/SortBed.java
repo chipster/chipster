@@ -49,7 +49,7 @@ public class SortBed extends JavaAnalysisJobBase {
 			//BEDParser increments coordinates by one, but it's not a problem because only its column order is used
 			new TsvSorter().sort(
 					inputFile, outputFile, CHROMOSOME_NORMALISER,
-					BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal(), new BedLineParser(false));
+					BedLineParser.Column.CHROM.ordinal(), BedLineParser.Column.CHROM_START.ordinal(), new BedLineParser(false));
 
 		} catch (Exception e) {
 			updateState(JobState.FAILED, e.getMessage());

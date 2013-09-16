@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
@@ -14,7 +14,7 @@ import fi.csc.microarray.util.IOUtils;
 
 public abstract class RegionTool extends JavaAnalysisJobBase {
 
-	protected abstract LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws Exception;
+	protected abstract LinkedList<Feature> operate(LinkedList<List<Feature>> inputs, List<String> parameters) throws Exception;
 	
 	@Override
 	protected void execute() { 
@@ -23,7 +23,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 
 			// Parse inputs
 			RegionOperations tool = new RegionOperations();
-			LinkedList<List<RegionContent>> inputs = new LinkedList<List<RegionContent>>();
+			LinkedList<List<Feature>> inputs = new LinkedList<List<Feature>>();
 			for (int i = 0; i < analysis.getInputFiles().size(); i++) {
 				File inputFile = new File(jobWorkDir, analysis.getInputFiles().get(i).getFileName());
 				inputs.add(tool.loadFile(inputFile));
@@ -31,7 +31,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 
 			// Delegate actual processing to subclasses
 			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, analysis);
-			LinkedList<RegionContent> output = operate(inputs, parameters);
+			LinkedList<Feature> output = operate(inputs, parameters);
 			
 			// Sort result
 			new RegionOperations().sort(output);

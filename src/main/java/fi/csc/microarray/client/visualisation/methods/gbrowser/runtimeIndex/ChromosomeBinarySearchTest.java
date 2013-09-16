@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
@@ -15,9 +16,11 @@ public class ChromosomeBinarySearchTest {
 	
 	public static void main(String[] args) throws IOException, GBrowserException, URISyntaxException {
 
-		File testFile = getTestFile();
+		File file = getTestFile();
 		
-		ChromosomeBinarySearch search = new ChromosomeBinarySearch(testFile.toURI().toURL(), new GtfLineParser());
+		DataUrl dataUrl = new DataUrl(file);
+		
+		ChromosomeBinarySearch search = new ChromosomeBinarySearch(dataUrl, new GtfLineParser());
 		TreeSet<Chromosome> chrs = search.getChromosomes();
 		
 		Iterator<Chromosome> chrIter = chrs.iterator();
@@ -29,7 +32,7 @@ public class ChromosomeBinarySearchTest {
 			}			
 		}
 		
-		testFile.delete();
+		file.delete();
 	}
 	
 	

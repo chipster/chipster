@@ -13,7 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadpartDataProvider;
@@ -32,7 +32,7 @@ public class BamToCoverageConversion extends DataThread {
 	
 	public BamToCoverageConversion(BamDataSource file, final GBrowser browser) {
 	    
-		super(browser);
+		super(browser, file);
 		
 		this.dataSource = file;
 	}
@@ -67,7 +67,7 @@ public class BamToCoverageConversion extends DataThread {
 				
 		CloseableIterator<SAMRecord> iterator = dataSource.query(from.chr, (int)start, (int)end);
 		
-		LinkedList<RegionContent> reads = new LinkedList<RegionContent>();
+		LinkedList<Feature> reads = new LinkedList<Feature>();
 		
 		while (iterator.hasNext()) {
 			
@@ -76,7 +76,7 @@ public class BamToCoverageConversion extends DataThread {
 			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
 			Region recordRegion = new Region((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
-			RegionContent read = new RegionContent(recordRegion, values);
+			Feature read = new Feature(recordRegion, values);
 
 			values.put(DataType.ID, record.getReadName());
 			
@@ -111,12 +111,12 @@ public class BamToCoverageConversion extends DataThread {
 		reverseBaseStorage.filter(filterRegion);
 
 		// Send result		
-		LinkedList<RegionContent> resultList = new LinkedList<RegionContent>();					
+		LinkedList<Feature> resultList = new LinkedList<Feature>();					
 		
 		createResultList(from, forwardBaseStorage, resultList, Strand.FORWARD);
 		createResultList(from, reverseBaseStorage, resultList, Strand.REVERSE);		
 		
-		LinkedList<RegionContent> averageCoverage = CoverageTool.average(resultList, from.chr);
+		LinkedList<Feature> averageCoverage = CoverageTool.average(resultList, from.chr);
 		
 		if (request.getRequestedContents().contains(DataType.COVERAGE)) {		
 			super.createDataResult(new DataResult(request, resultList));
@@ -128,7 +128,7 @@ public class BamToCoverageConversion extends DataThread {
 	}
 
 	private void createResultList(BpCoord from, BaseStorage baseStorage,
-			LinkedList<RegionContent> resultList, Strand strand) {
+			LinkedList<Feature> resultList, Strand strand) {
 		
 		Iterator<Base> baseIter = baseStorage.iterator();
 		
@@ -140,7 +140,7 @@ public class BamToCoverageConversion extends DataThread {
 			values.put(DataType.VALUE, base);
 			values.put(DataType.STRAND, strand);
 			
-			resultList.add(new RegionContent(region, values));
+			resultList.add(new Feature(region, values));
 		}
 	}
 	

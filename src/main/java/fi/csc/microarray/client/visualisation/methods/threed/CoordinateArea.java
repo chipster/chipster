@@ -82,7 +82,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 
 	Scatterplot3D controller;
 
-	//Just any number to make rotation speed slow enough
+	//Any number to make rotation speed slow enough
 	final double ANGLE_INCREMENT = Math.PI/(360*4);
 	
 	private AutomatedMovement.RotationTask kineticMovement;

@@ -1,17 +1,16 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.awt.Rectangle;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SelectionText;
 
 /**
  * Track for showing the location of predicted peaks. Peaks cannot overlap. 
@@ -19,64 +18,59 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class PeakTrack extends Track {
 
-	private static final int MIN_VISIBLE_PEAK_SIZE = 5;
-
-	private static final int PEAK_SYMBOL_HEIGHT = 10;
-
-	private Collection<RegionContent> peaks = new TreeSet<RegionContent>();
+	private TreeMap<IndexKey, PeakSelectable> peaks = new TreeMap<>();
 	
 	private Color color;
 
 	public PeakTrack(Color color) {
-
+		super();
 		this.color = color;
 	}
-
+	
 	@Override
-	public Collection<Drawable> getDrawables() {
-		Collection<Drawable> drawables = getEmptyDrawCollection();
+	public List<Selectable> getSelectables() {
+		List<Selectable> items = new LinkedList<>();
 
 		if (peaks != null) {
 
-			Iterator<RegionContent> iter = peaks.iterator();
+			Iterator<IndexKey> iter = peaks.keySet().iterator();
 			while (iter.hasNext()) {
+				
+				PeakSelectable selectable = peaks.get(iter.next());
 
-				RegionContent peak = iter.next();
-
-				if (!getView().requestIntersects(peak.region)) {
+				if (!getView().requestIntersects(selectable.getRegion())) {
 					iter.remove();
 					continue;
 				}
 
-				createDrawable(peak.region.start, peak.region.end, PEAK_SYMBOL_HEIGHT, color, drawables);
+				selectable.render(getView(), color);				 
+				items.add(selectable);
 			}
 		}
 
-		return drawables;
-	}
-
-	private void createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c, Collection<Drawable> drawables) {
-		Rectangle rect = new Rectangle();
-
-		rect.x = getView().bpToTrack(startBp);
-		rect.width = getView().bpToTrack(endBp) - rect.x;
-		
-		if (rect.width < MIN_VISIBLE_PEAK_SIZE) {
-			rect.width = MIN_VISIBLE_PEAK_SIZE;
-		}
-
-		rect.y = getHeight() / 2;
-		rect.height = height;
-
-		drawables.add(new RectDrawable(rect, c, c.darker()));
+		return items;
 	}
 
 	public void processDataResult(DataResult dataResult) {
+		
+		for (Feature feature : dataResult.getFeatures()) {
+			
+			IndexKey key = feature.getIndexKey();
 
-		this.peaks.addAll(dataResult.getContents());
+			if (!peaks.containsKey(key)) {
+				SelectionText text = null;
+
+				Object value = feature.getValueObject();
+				if (value instanceof SelectionText) {
+					text = (SelectionText) value;
+				}
+				PeakSelectable selectable = new PeakSelectable(feature.region, key, text);
+				peaks.put(key, selectable);
+			}
+		}
 	}    
-    
-    @Override
+	
+	@Override
 	public void defineDataTypes() {
 		addDataType(DataType.CHROMOSOME);
 		addDataType(DataType.START);
@@ -84,7 +78,7 @@ public class PeakTrack extends Track {
 	}
 	
 	@Override
-	public int getHeight() {
-		return PEAK_SYMBOL_HEIGHT * 2;
+	public int getTrackHeight() {
+		return PeakSelectable.PEAK_SYMBOL_HEIGHT + 1;
 	}
 }

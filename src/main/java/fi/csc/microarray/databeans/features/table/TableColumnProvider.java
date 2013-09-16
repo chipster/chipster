@@ -227,31 +227,13 @@ public class TableColumnProvider extends FeatureProviderBase {
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
-						String line = null;
-						if (source.peekLine().startsWith("#")) {
-							//TODO this will fail if the last row of header isn't unique
-							int i = 1;
-							while (source.peekLine(i).startsWith("#")) {
-								line = source.peekLine(i);
-								i++;
-							}
-						}
 						
-						settings.headerTerminator = line;
+						readHeaderSettings(settings, "#", source);
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
-						String line = null;
-						if (source.peekLine().startsWith("##")) {
-							//TODO this will fail if the last row of header isn't unique
-							int i = 1;
-							while (source.peekLine(i).startsWith("##")) {
-								line = source.peekLine(i);
-								i++;
-							}
-						}
 						
-						settings.headerTerminator = line;
+						readHeaderSettings(settings, "##", source);
 					}
 					
 					// note: it is safe to call tokeniseRow with null input				
@@ -303,6 +285,22 @@ public class TableColumnProvider extends FeatureProviderBase {
 			} finally {
 				IOUtils.closeIfPossible(bufferedReader);
 			}
+		}
+
+		private void readHeaderSettings(MatrixParseSettings settings,
+				String headerSymbol, LookaheadLineReader source) throws IOException {
+			String line = "";
+			
+			for (int i = 1; line != null; i++) {
+				String nextLine = source.peekLine(i);
+				if (nextLine.startsWith(headerSymbol)) {
+					line = nextLine;
+				} else {
+					break;
+				}
+			}
+			
+			settings.headerTerminator = line;
 		}
 
 		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {

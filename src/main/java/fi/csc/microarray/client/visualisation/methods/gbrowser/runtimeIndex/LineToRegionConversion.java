@@ -3,7 +3,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,12 +10,13 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 
@@ -43,8 +43,8 @@ public class LineToRegionConversion extends DataThread {
 
 	private LineParser parser;
 
-	public LineToRegionConversion(URL url, LineParser parser, GBrowser browser) throws FileNotFoundException, URISyntaxException {
-		super(browser);
+	public LineToRegionConversion(DataUrl data, LineParser parser, GBrowser browser) throws FileNotFoundException, URISyntaxException {
+		super(browser, null);
 			    
 		this.parser = parser;
 				
@@ -57,7 +57,8 @@ public class LineToRegionConversion extends DataThread {
 		
 		try {					
 						 			
-			RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(url);
+			RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(data);
+			super.setDataSource(dataSource);
 			this.index = new BinarySearchIndex(dataSource, parser);
 		
 		} catch (UnsortedDataException e) {
@@ -100,7 +101,7 @@ public class LineToRegionConversion extends DataThread {
 			e.printStackTrace();
 		}	
 				
-		List<RegionContent> list = new LinkedList<RegionContent>();
+		List<Feature> list = new LinkedList<Feature>();
 		
 		for (Entry<IndexKey, String> entry : lines.entrySet()) {
 			
@@ -113,7 +114,7 @@ public class LineToRegionConversion extends DataThread {
 			
 			valueMap.put(DataType.ID, id);
 			valueMap.put(DataType.VALUE, line);			
-			RegionContent regionContent = new RegionContent(region, valueMap);
+			Feature regionContent = new Feature(region, valueMap);
 			
 			list.add(regionContent);
 		}						

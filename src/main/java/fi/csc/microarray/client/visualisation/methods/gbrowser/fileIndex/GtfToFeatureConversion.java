@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,19 +12,20 @@ import javax.swing.SwingUtilities;
 import org.broad.tribble.readers.TabixReader;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BinarySearchIndex;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
@@ -44,19 +44,21 @@ public class GtfToFeatureConversion extends DataThread {
 	private TabixDataSource tabixDataSource;
 	private RandomAccessLineDataSource gtfDataSource;
 
-	public GtfToFeatureConversion(URL dataUrl, URL indexUrl, final GBrowser browser) {
+	public GtfToFeatureConversion(DataUrl gtfTabixUrl, DataUrl gtfIndexUrl, final GBrowser browser) {
 	    
-		super(browser);
+		super(browser, null);
 
-		this.isTabix = indexUrl != null;
+		this.isTabix = gtfIndexUrl != null;
 		this.parser = new GtfLineParser();
 		try {
 			
 			if (isTabix) {
-				tabixDataSource = new TabixDataSource(dataUrl, indexUrl);
+				tabixDataSource = new TabixDataSource(gtfTabixUrl, gtfIndexUrl);
+				super.setDataSource(tabixDataSource);
 			} else {
-				gtfDataSource = new RandomAccessLineDataSource(dataUrl);
+				gtfDataSource = new RandomAccessLineDataSource(gtfTabixUrl);
 				this.index = new BinarySearchIndex(gtfDataSource, parser);
+				super.setDataSource(gtfDataSource);
 
 				//		try {
 				//			this.index = new InMemoryIndex(file, parser);
@@ -96,7 +98,7 @@ public class GtfToFeatureConversion extends DataThread {
 		if (request instanceof GeneRequest) {
 
 			GeneRequest geneRequest = (GeneRequest)request;
-			List<RegionContent> resultList;
+			List<Feature> resultList;
 			try {
 				resultList = processGeneSearch(geneRequest);
 				createDataResult(new GeneResult(geneRequest.getStatus(), resultList, geneRequest.getSearchString()));
@@ -129,7 +131,7 @@ public class GtfToFeatureConversion extends DataThread {
 	
 	protected void processDataRequestChunk(DataRequest request, Region chunkRegion) {
 		
-		List<RegionContent> resultList = new LinkedList<RegionContent>();
+		List<Feature> resultList = new LinkedList<Feature>();
 		List<Exon> exons = fetchExons(request, chunkRegion);						
 		
 		for (Exon exon : exons) {
@@ -138,7 +140,7 @@ public class GtfToFeatureConversion extends DataThread {
 
 			valueMap.put(DataType.VALUE, exon);
 
-			RegionContent feature = new RegionContent(exon.getRegion(), valueMap);
+			Feature feature = new Feature(exon.getRegion(), valueMap);
 
 			resultList.add(feature);
 		}
@@ -262,7 +264,7 @@ public class GtfToFeatureConversion extends DataThread {
 		return lines;
 	}
 	
-	private List<RegionContent> processGeneSearch(GeneRequest request) throws IOException {
+	private List<Feature> processGeneSearch(GeneRequest request) throws IOException {
 
 		String searchString = request.getSearchString().toLowerCase();
 		Chromosome chr = request.start.chr;
@@ -274,7 +276,7 @@ public class GtfToFeatureConversion extends DataThread {
 		GeneSet genes = new GeneSet();				
 		genes.add(exons.iterator(), region);
 
-		List<RegionContent> resultList = new LinkedList<RegionContent>();
+		List<Feature> resultList = new LinkedList<Feature>();
 
 		for (Gene gene : genes.values()) {
 
@@ -283,7 +285,7 @@ public class GtfToFeatureConversion extends DataThread {
 				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
 				values.put(DataType.VALUE, gene);
-				resultList.add(new RegionContent(gene.getRegion(), values));
+				resultList.add(new Feature(gene.getRegion(), values));
 			}
 		}
 

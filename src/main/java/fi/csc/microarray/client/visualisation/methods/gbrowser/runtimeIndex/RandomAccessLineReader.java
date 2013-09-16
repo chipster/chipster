@@ -1,11 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
@@ -41,8 +41,8 @@ public class RandomAccessLineReader {
 	//Reads random access bytes from file or http
 	private ByteDataSource byteDataSource;
 
-	public RandomAccessLineReader(URL url) throws FileNotFoundException, URISyntaxException {
-		byteDataSource = new ByteDataSource(url);
+	public RandomAccessLineReader(DataUrl dataUrl) throws URISyntaxException, IOException {
+		byteDataSource = new ByteDataSource(dataUrl);
 	}
 	
 

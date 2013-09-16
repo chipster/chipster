@@ -43,4 +43,10 @@ public class CytobandLineParser extends TsvLineParser {
 	public String getStain() {
 		return getString(Column.STAIN.ordinal());
 	}
+
+	@Override
+	public FileLine getFileLine() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

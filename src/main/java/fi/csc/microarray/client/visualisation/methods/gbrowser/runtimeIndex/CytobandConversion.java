@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,13 +9,14 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cytoband;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cytoband;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 public class CytobandConversion extends DataThread {
@@ -25,16 +25,17 @@ public class CytobandConversion extends DataThread {
 
 	private CytobandLineParser parser;
 
-	public CytobandConversion(URL url, final GBrowser browser) {
+	public CytobandConversion(DataUrl data, final GBrowser browser) {
 
-		super(browser);
+		super(browser, null);
 
 		this.parser = new CytobandLineParser();
 
 		try {
 
-			LineDataSource cytobandDataSource = new LineDataSource(url);
+			LineDataSource cytobandDataSource = new LineDataSource(data);
 			this.index = new InMemoryIndex(cytobandDataSource, parser);
+			super.setDataSource(cytobandDataSource);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -55,7 +56,7 @@ public class CytobandConversion extends DataThread {
 		try {
 			lineMap = index.getFileLines(request);
 
-			List<RegionContent> resultList = new ArrayList<RegionContent>();
+			List<Feature> resultList = new ArrayList<Feature>();
 
 			for (Entry<IndexKey, String> entry : lineMap.entrySet()) {
 
@@ -68,7 +69,7 @@ public class CytobandConversion extends DataThread {
 				values.put(DataType.ID, entry.getKey());
 				values.put(DataType.VALUE, cytoband);
 
-				resultList.add(new RegionContent(region, values));
+				resultList.add(new Feature(region, values));
 			}
 
 			super.createDataResult(new DataResult(request.getStatus(), resultList));

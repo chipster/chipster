@@ -7,6 +7,7 @@ import java.net.URL;
 import net.sf.picard.PicardException;
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ByteDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
@@ -20,20 +21,21 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNa
  */
 public class IndexedFastaDataSource extends DataSource {
 	
-	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
+	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();	
 
 	private URL dataUrl;
     private URL indexUrl;
 	private ChipsterIndexedFastaSequenceFile picard;
 
-	public IndexedFastaDataSource(URL data, URL index) throws URISyntaxException, IOException {
-        super(data, null);
+
+	public IndexedFastaDataSource(DataUrl data, DataUrl index) throws URISyntaxException, IOException {
+        super(data);        
         
-        this.dataUrl = data;
-        this.indexUrl = index;
+        this.dataUrl = data.getUrl();
+        this.indexUrl = index.getUrl();
         
-		ByteDataSource dataSource = new ByteDataSource(dataUrl);
-		LineDataSource indexSource = new LineDataSource(indexUrl);
+		ByteDataSource dataSource = new ByteDataSource(data);
+		LineDataSource indexSource = new LineDataSource(index);
 
 		picard = new ChipsterIndexedFastaSequenceFile(dataSource, indexSource);
 		

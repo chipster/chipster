@@ -15,10 +15,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 
+/**
+ * This class contains a generic implementations for managing the execution and messaging of the background
+ * data threads. These threads extend this class and usually convert String or binary content of the file to Java objects.  Therefore names 
+ * of those classes usually include a word 'Conversion'. 
+ * 
+ * @author klemela
+ */
 public abstract class DataThread {
 
 	private LinkedBlockingDeque<DataRequest> dataRequestQueue;
@@ -31,10 +38,12 @@ public abstract class DataThread {
 	private Region dataRegion;
 
 	private GBrowser browser;
+	private DataSource dataSource;
 
-	public DataThread(GBrowser browser) {
+	public DataThread(GBrowser browser, DataSource dataSource) {
 		
 		this.browser = browser;
+		this.dataSource = dataSource;
 	}
 
 	/**
@@ -174,7 +183,7 @@ public abstract class DataThread {
 		DataStatus status = new DataStatus();
 		status.setDataThread(this);
 		status.setDataRequestCount(dataRequestQueue.size() + (increaseByOne ? 1 : 0));		
-		List<RegionContent> emptyList = new LinkedList<RegionContent>();		
+		List<Feature> emptyList = new LinkedList<Feature>();		
 		createDataResult(new DataResult(status, emptyList));		
 	}
 
@@ -203,5 +212,13 @@ public abstract class DataThread {
 				browser.reportException(e);
 			}
 		});
+	}
+
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	public DataSource getDataSource() {
+		return dataSource;
 	}
 }

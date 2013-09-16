@@ -35,7 +35,7 @@ public class SeparatorTrack3D extends Track {
 	
 	
 	public SeparatorTrack3D(boolean reversed) {		
-		
+		super();
 		this.reversed = reversed;
 	}
 
@@ -57,7 +57,7 @@ public class SeparatorTrack3D extends Track {
 	}
 	
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
             return colorSlide.size();
 	}
 

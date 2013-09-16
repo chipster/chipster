@@ -12,9 +12,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
 /**
@@ -30,10 +30,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 public class QualityCoverageTrack extends Track {
 
 	//Contains also reverse complemented reverse reads
-	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
+	private Collection<Feature> forwardReads = new TreeSet<Feature>();
 	private Color forwardColor;
 
 	public QualityCoverageTrack(Color forwardColor) {
+		super();
 
 		this.forwardColor = forwardColor;
 		
@@ -45,7 +46,7 @@ public class QualityCoverageTrack extends Track {
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Collection<RegionContent> reads, Color color) {
+	private Collection<Drawable> getDrawableReads(Collection<Feature> reads, Color color) {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		Chromosome chr = getView().getBpRegion().start.chr;
@@ -115,15 +116,15 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 	
-	private TreeMap<Long, Float> getQualities(Collection<RegionContent> reads) {
+	private TreeMap<Long, Float> getQualities(Collection<Feature> reads) {
 
 		TreeMap<Long, Float> collector = new TreeMap<Long, Float>();
-		Iterator<RegionContent> iter = reads.iterator();
+		Iterator<Feature> iter = reads.iterator();
 
 		// iterate over RegionContent objects (one object corresponds to one read)
 		while (iter.hasNext()) {
 
-			RegionContent read = iter.next();
+			Feature read = iter.next();
 
 			// remove those that are not in this view
 			if (!read.region.intersects(getView().getBpRegion())) {
@@ -177,7 +178,7 @@ public class QualityCoverageTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : dataResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
 			// check that dataResult has 
 			// correct strand
@@ -190,7 +191,7 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 	
@@ -211,7 +212,7 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "QualityCoverageTrack";
 	}
 }

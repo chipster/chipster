@@ -14,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.FileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
@@ -24,6 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Gene
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ScatterplotFileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -42,9 +44,7 @@ public class Interpretation {
 		HIDDEN(false), 
 		VCF(true), 
 		GTF(true),
-		CNA_CALLS(true), 
-		CNA_LOGRATIOS(true), 
-		CNA_FREQUENCIES(true);
+		CNA(true); 
 
 		public boolean isToggleable;
 
@@ -59,8 +59,9 @@ public class Interpretation {
 	private String name;
 	private CnaConversion cnaDataThread;
 	private GtfToFeatureConversion gtfDataThread;
-	private LineToRegionConversion vcfDataThread;
-	private LineToRegionConversion bedDataThread;
+	private FileLineConversion vcfDataThread;
+	private LineToRegionConversion bedRegionDataThread;
+	private ScatterplotFileLineConversion bedLineDataThread;
 	private TreeSet<Chromosome> chrNames;
 
 	public Interpretation(TrackType type, DataUrl primaryData) {
@@ -106,13 +107,13 @@ public class Interpretation {
 	
 	public static CytobandConversion getCytobandDataThread(GBrowser browser) {
 
-		URL cytobandUrl = browser.getAnnotationUrl(browser.getGenome(), AnnotationManager.AnnotationType.CYTOBANDS);
+		DataUrl cytobandUrl = browser.getAnnotationUrl(browser.getGenome(), AnnotationManager.AnnotationType.CYTOBANDS);
 
 		if (cytobandUrl != null) {
 
 			return new CytobandConversion(cytobandUrl, browser);
 		}
-		return null;
+		throw new IllegalStateException("Cytoband url is null");
 	}
 	
 	public static GeneIndexActions getGeneSearchDataThread(GBrowser browser) {
@@ -123,7 +124,7 @@ public class Interpretation {
 
 		if (gtfDataThread != null) {
 			//Init gene search
-			URL geneUrl = browser.getAnnotationManager().getAnnotation(
+			DataUrl geneUrl = browser.getAnnotationManager().getAnnotation(
 					genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
 
 			GeneSearchConversion geneRequestHandler = new GeneSearchConversion(geneUrl, browser);
@@ -131,16 +132,16 @@ public class Interpretation {
 			return new GeneIndexActions(browser.getPlot().getDataView().getQueueManager(), gtfDataThread, geneRequestHandler);
 		} 
 		
-		return null;
+		throw new IllegalStateException("Can't initialize gene search without gtf data");
 	}	
 	
 	public static GtfToFeatureConversion getAnnotationDataThread(GBrowser browser) {
 		
 		Genome genome = browser.getGenome();
 		
-		URL gtfUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF);
-		URL gtfTabixUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
-		URL gtfIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
+		DataUrl gtfUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF);
+		DataUrl gtfTabixUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX);
+		DataUrl gtfIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.GTF_TABIX_INDEX);
 		
 		GtfToFeatureConversion gtfDataThread = null;
 
@@ -158,8 +159,8 @@ public class Interpretation {
 		
 		Genome genome = browser.getGenome();
 
-		URL repeatUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
-		URL repeatIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
+		DataUrl repeatUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT);
+		DataUrl repeatIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REPEAT_INDEX);
 					
 		if (repeatUrl != null && repeatIndexUrl != null) {							
 			return new BedTabixToRegionConversion(repeatUrl, repeatIndexUrl, browser);
@@ -172,8 +173,8 @@ public class Interpretation {
 		
 		Genome genome = browser.getGenome();
 
-		URL fastaUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
-		URL fastaIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
+		DataUrl fastaUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE);
+		DataUrl fastaIndexUrl = browser.getAnnotationUrl(genome, AnnotationManager.AnnotationType.REFERENCE_INDEX);
 
 		IndexedFastaConversion refSeqDataThread = null;
 		
@@ -192,14 +193,14 @@ public class Interpretation {
 			BamDataSource dataSource;
 			try {
 				//Create always a new data source, because picard doesn't support concurrent access
-				dataSource = new BamDataSource(getPrimaryData().getUrl(), getIndexData().getUrl());
+				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
 				return new BamToDetailsConversion(dataSource, browser);
 				
 			} catch (URISyntaxException | IOException e) {
 				browser.reportException(e);
 			}
 		}
-		return null;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
 	public BamToCoverageConversion getBamCoverageDataThread(GBrowser browser) {
@@ -209,14 +210,14 @@ public class Interpretation {
 			try {
 				//Create always a new data source, because picard doesn't support concurrent access
 				BamDataSource dataSource;
-				dataSource = new BamDataSource(getPrimaryData().getUrl(), getIndexData().getUrl());
+				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
 				return new BamToCoverageConversion(dataSource, browser);
 				
 			} catch (URISyntaxException | IOException e) {
 				browser.reportException(e);
 			}
 		}
-		return null;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
 	public BamToCoverageEstimateConversion getBamCoverageEstimateDataThread(GBrowser browser) {
@@ -226,79 +227,98 @@ public class Interpretation {
 			BamDataSource dataSource;
 			try {
 				//Create always a new data source, because picard doesn't support concurrent access
-				dataSource = new BamDataSource(getPrimaryData().getUrl(), getIndexData().getUrl());
+				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
 				return new BamToCoverageEstimateConversion(dataSource, browser);
 				
 			} catch (URISyntaxException | IOException e) {
 				browser.reportException(e);
 			}
 		}
-		return null;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public LineToRegionConversion getBedDataThread(GBrowser browser) {
+	public LineToRegionConversion getBedRegionDataThread(GBrowser browser) {
 
 		if (getType() == TrackType.REGIONS) {
 
-			if (bedDataThread == null) {
+			if (bedRegionDataThread == null) {
 				try {
-					bedDataThread = new LineToRegionConversion(getPrimaryData().getUrl(), new BedLineParser(true), browser);
+					bedRegionDataThread = new LineToRegionConversion(getPrimaryData(), new BedLineParser(true), browser);
 
 				} catch (URISyntaxException | IOException e) {
 					browser.reportException(e);
 				}
 			}
+			return bedRegionDataThread;
 		}
-		return bedDataThread;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public LineToRegionConversion getVcfDataThread(GBrowser browser) {
+	public ScatterplotFileLineConversion getBedLineDataThread(GBrowser browser) {
+
+		if (getType() == TrackType.REGIONS) {
+
+			if (bedLineDataThread == null) {
+				try {
+					bedLineDataThread = new ScatterplotFileLineConversion(getPrimaryData(), new BedLineParser(true), browser);
+
+				} catch (URISyntaxException | IOException e) {
+					browser.reportException(e);
+				} catch (GBrowserException e) {
+					e.printStackTrace();
+				}
+			}
+			return bedLineDataThread;
+		}
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
+	}
+	
+	public FileLineConversion getVcfDataThread(GBrowser browser) {
 
 		if (getType() == TrackType.VCF) {
 
 			if (vcfDataThread == null) {
 				try {
-					vcfDataThread = new LineToRegionConversion(getPrimaryData().getUrl(), new VcfLineParser(), browser);
+					vcfDataThread = new FileLineConversion(getPrimaryData(), new VcfLineParser(), browser);
 
 				} catch (URISyntaxException | IOException e) {
 					browser.reportException(e);
 				}
 			}
+			return vcfDataThread;
 		}
-		return vcfDataThread;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
 	public GtfToFeatureConversion getGtfDataThread(GBrowser browser) {
 
-		if (getType() == TrackType.VCF) {
+		if (getType() == TrackType.GTF) {
 
 			if (gtfDataThread == null) {
-				try {
-					gtfDataThread = new GtfToFeatureConversion(getPrimaryData().getUrl(), null, browser);
-
-				} catch (IOException e) {
-					browser.reportException(e);
-				}
+				gtfDataThread = new GtfToFeatureConversion(getPrimaryData(), null, browser);
 			}
+			return gtfDataThread;
 		}
-		return gtfDataThread;
+		
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
 	public CnaConversion getCnaDataThread(GBrowser browser) {
 
-		if (getType() == TrackType.CNA_FREQUENCIES || getType() == TrackType.CNA_CALLS || getType() == TrackType.CNA_LOGRATIOS) {
+		if (getType() == TrackType.CNA) {
 			
 			if (cnaDataThread == null) {
 
 				try {
-					cnaDataThread = new CnaConversion(new RandomAccessLineDataSource(getPrimaryData().getUrl()), browser);
+					cnaDataThread = new CnaConversion(new RandomAccessLineDataSource(getPrimaryData()), browser);
 					
 				} catch (URISyntaxException | IOException e) {
 					browser.reportException(e);
 				}									
 			}
+			return cnaDataThread;
 		}
-		return cnaDataThread;
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
 	public TreeSet<Chromosome> getChromosomeNames() throws URISyntaxException, IOException, UnsortedDataException, GBrowserException {
@@ -319,10 +339,7 @@ public class Interpretation {
 		boolean isBed = (getType() == TrackType.REGIONS);
 		boolean isVcf = (getType() == TrackType.VCF);
 		boolean isGtf = (getType() == TrackType.GTF);
-		boolean isCna = (
-				getType() == TrackType.CNA_FREQUENCIES ||
-				getType() == TrackType.CNA_CALLS ||
-				getType() == TrackType.CNA_LOGRATIOS);
+		boolean isCna = (getType() == TrackType.CNA);
 
 		if (isBed || isVcf || isGtf || isCna) {
 
@@ -330,13 +347,13 @@ public class Interpretation {
 			ChromosomeBinarySearch chrSearch = null;
 
 			if (isBed) {					
-				chrSearch = new ChromosomeBinarySearch(data.getUrl(), new BedLineParser(true));			
+				chrSearch = new ChromosomeBinarySearch(data, new BedLineParser(true));			
 			} else if (isVcf) {							
-				chrSearch = new ChromosomeBinarySearch(data.getUrl(), new VcfLineParser());				
+				chrSearch = new ChromosomeBinarySearch(data, new VcfLineParser());				
 			} else if (isGtf) {
-				chrSearch = new ChromosomeBinarySearch(data.getUrl(), new GtfLineParser());				
+				chrSearch = new ChromosomeBinarySearch(data, new GtfLineParser());				
 			} else if (isCna) {
-				chrSearch = new ChromosomeBinarySearch(data.getUrl(), new CnaLineParser());
+				chrSearch = new ChromosomeBinarySearch(data, new CnaLineParser());
 			}
 
 			chrNames = chrSearch.getChromosomes();

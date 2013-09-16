@@ -17,7 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cytoband;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 /**  
  * The appearance of a chromosome. Used for high level navigation.
@@ -51,7 +51,7 @@ public class CytobandTrack extends Track {
 	}
 
 	public CytobandTrack(boolean showText) {
-		
+		super();
 		this.showText = showText;
 	}
 
@@ -111,7 +111,7 @@ public class CytobandTrack extends Track {
 
 				} else if (stain == Cytoband.Stain.ACEN) {
 
-					int y = (int) MARGIN;
+					int y = (int) MARGIN + 1;
 
 					int sideX = getView().bpToTrack(cband.getRegion().end);
 					int cornerX = getView().bpToTrack(cband.getRegion().start);
@@ -160,7 +160,7 @@ public class CytobandTrack extends Track {
 
 	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : dataResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 			
 			if (getView().getBpRegion().intersects(content.region)) {
 				
@@ -173,7 +173,7 @@ public class CytobandTrack extends Track {
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return showText ? 40 : 22;
 	}
 	
@@ -183,7 +183,7 @@ public class CytobandTrack extends Track {
 	}
     	
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "cytoband";
 	}
 }
