@@ -17,6 +17,8 @@
 # modified IS 1.10.2010
 # modified EK 2.7.2012
 
+# Note that organism specific annotation packages and GO.db must have same version number
+
 # Parameter settings (default) for testing purposes
 #ontology<-"biological_process"
 #p.value.threshold<-0.05
@@ -77,7 +79,6 @@ if (annotpkg=="yeast2scentrezg.db") {
 	annotpkg <- "yeast2.db"
 }
 
-
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {
   conditional <- FALSE
@@ -92,7 +93,7 @@ output <- data.frame(total=integer(0), expected=numeric(0), observed=integer(0),
 
 if (ontology == 'biological_process' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=myids, annotation=annotpkg, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
-  go <- hyperGTest(params)
+  go <- hyperGTest(params)  
   go.table <- summary(go, pvalue=2)
   if (nrow(go.table)>0) {
     go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)

@@ -1,4 +1,4 @@
-# TOOL sample-size-with-bh.R: "Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
+# TOOL sample-size-with-bh.R: "Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method. Needs data that consists of two groups.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT skewness.pdf: skewness.pdf 

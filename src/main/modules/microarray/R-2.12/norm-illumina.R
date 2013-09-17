@@ -31,11 +31,11 @@ files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 # Normalization
-dat2<-normalizeBetweenArrays(dat$R, method=normba)
 if(normba!="vsn") {
-   dat2<-log2(dat2)
+	dat2 <- normalizeBetweenArrays(dat$R, method=normba)
+	dat2 <- log2(dat2)
 } else {
-   dat2<-dat2
+	dat2 <- normalizeVSN(dat$R)
 }
 
 # Rounding expression data to two digits

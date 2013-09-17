@@ -5,13 +5,7 @@
 # PARAMETER column: column TYPE COLUMN_SEL DEFAULT EMPTY (Data file column containing the p-values to adjust)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY, Storey-Q: Storey-Q] DEFAULT BH (Multiple testing correction method)
 
-
-# P-value adjustment
-# JTT 12.12.2008
-
-# Parameter settings (default) for testing purposes
-#column<-c("p.adjusted")
-#p.value.adjustment.method<-c("BH")
+# JTT 12.12.2008: P-value adjustment created
 
 # Loads the libraries
 library(multtest)
@@ -32,8 +26,10 @@ if(adj.method=="Storey-Q") {
    adjp<-qvalue(rawp)
    adjp2<-adjp$qvalues
 } else {
-   adjp<-mt.rawp2adjp(rawp, proc=as.character(adj.method))
-   adjp2<-adjp$adjp[order(adjp$index),][,2]
+	if(!(adj.method %in% c("BH", "BY"))) {
+		adj.method <- tolower(adj.method)
+	}
+	adjp2 <- p.adjust(rawp, method=adj.method)
 }
 
 # Small manipulations

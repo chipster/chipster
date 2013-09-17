@@ -4,13 +4,10 @@
 # OUTPUT data-with-annotations.tsv: data-with-annotations.tsv 
 # PARAMETER conditional: conditional TYPE [yes: yes, no: no] DEFAULT no (When run in Conditional mode, each gene is not only annotated to the most specific GO term but also to all its parent terms up to the top of the hierarchy. This option is recommended in conjunction to the tool Hypergeometric test for GO run in the Conditional testing mode.)
 
-# Adds the annotation to the data
-# JTT 21.1.2009
-#
-# MG 25.10.2010
-# modified to cope with annomalies in Description names
-# MG 25.1.2012
-# modified to allow for conditional mode for GO terms
+# JTT 21.1.2009: Created
+# MG 25.10.2010: modified to cope with annomalies in Description names
+# MG 25.1.2012: modified to allow for conditional mode for GO terms
+# MK 27.08.2012: fix column headers that were shited by one column
 
 # Reads the chiptype from phenodata table
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
@@ -22,7 +19,7 @@ if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
 
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
-# from Chipster 1.3 and earlier. 
+# from Chipster 1.3 and earlier.
 if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
 	lib <- paste(lib, ".db", sep="")
 }
@@ -46,6 +43,9 @@ annot$Pathway<-gsub("\'", "", annot$Pathway)
 annot$Gene.Ontology<-gsub("\'", "", annot$Gene.Ontology)
 datannot<-merge(dat, annot, by.x="row.names", by.y="row.names")
 rownames(datannot)<-datannot[,1]
+
+save.image(file="/tmp/matti/test2.Rdata")
+
 datannot<-datannot[,-1]
 
 # If Conditional mode run this
@@ -81,7 +81,12 @@ datannot$Description <- gsub("'", "", datannot$Description)
 # between a probe id and GO id
 datannot$Gene.Ontology[datannot$Gene.Ontology == " NA"] <- ""
 
+# Java script somehow notices empty cells and is unable to read the table in ? Can be corected inserting NAs or adding meaningful column
+# at the end of the matrix if empty space cells are wished to be retained
+datannot[datannot==""] <- NA
+# datannot <- cbind(datannot, row.index=rownames(datannot))
+
 # Writing out the annotated data
-write.table(datannot, file="data-with-annotations.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(datannot), file="data-with-annotations.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
 # EOF

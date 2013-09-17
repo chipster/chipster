@@ -3,18 +3,16 @@
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER normalization.method: normalization.method TYPE [mas5: mas5, plier: plier, rma: rma, gcrma: gcrma, li-wong: li-wong] DEFAULT rma (Preprocessing method)
-# PARAMETER stabilize.variance: stabilize.variance TYPE [yes: yes, no: no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype: custom.chiptype TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
-
+# PARAMETER stabilize.variance: stabilize.variance TYPE [yes: yes, no: no] DEFAULT no (Variance stabilazing normalization. Can be performed only in conjuction with MAS5 and Plier type of normalizations)
+# PARAMETER custom.chiptype: custom.chiptype TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (Custom chiptype. If not given, inferred from the chips themselves. Note that quality anlaysis is only possible for annotation files having PM and MM information)
 
 # Affymetrix normalization
-# JTT 8.6.2006
-# Changes to column naming on 29.6.2006
-# Changes to phenodata table writing on 29.1.2007
-# Modified to work with R 2.9.0 on 12th May 2009
-# Modifications by MG
-# Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12), 23.9.2009
-# Changes to cope with dropped custom package support for certain array types, 12.11.2009
+# JTT: 08.06.2006 Created
+# JTT: 29.06.2006 Changes to column naming
+# JTT: 29.01.2007 Changes to phenodata table writing
+# MG: 23.09.2009 Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12)
+# MG: 12.11.2009 Changes to cope with dropped custom package support for certain array types
+# MK: 11.05.2012 Fixed plier to accept standard chip-types
 
 # Renaming variables
 norm<-normalization.method
@@ -29,11 +27,11 @@ dat<-ReadAffy()
 
 # Modifies the data objects to take custom chiptype into account
 if(custom.chiptype!="empty") {
-   chiptype<-custom.chiptype
-   library(Biostrings)
-   chiptype<-substr(x=chiptype, start=1, stop=(matchPattern("(", chiptype)@start-1))
-   dat@annotation<-chiptype
-   dat@cdfName<-chiptype
+	chiptype <- custom.chiptype
+	#regular expression matches a string staring from an opening bracket and ending in the first closing bracket
+	chiptype <- gsub("\\(.*?\\)", "", chiptype) 
+	dat@annotation<-chiptype
+	dat@cdfName<-chiptype
 } else {
    chiptype<-dat@annotation
 }
@@ -56,7 +54,7 @@ if(norm=="mas5") {
    calls<-exprs(mas5calls(dat))
    if(stabvar=="yes") {
       if(ncol(dat2)<2) {
-         stop("You need to have at least two chip to be able to use VSN!")
+         stop("CHIPSTER-NOTE: You need to have at least two chip to be able to use VSN!")
       }
       library(vsn)
       dat2<-exprs(vsn(dat2))
@@ -71,13 +69,13 @@ if(norm=="mas5") {
 }
 
 # PLIER normalization
-if(norm=="plier" & custom.chiptype=="empty") {
+if(norm=="plier") {
    library(plier)
    dat2<-exprs(justPlier(eset=dat,replicate=1:length(dat),get.affinities=FALSE,normalize=FALSE,norm.type=c("together"),augmentation=0.1,defaultaffinity=1.0,defaultconcentration=1.0,attenuation=0.005,seaconvergence=0.000001,seaiteration=3000,gmcutoff=0.15,probepenalty=0.001,concpenalty=0.000001,usemm=TRUE,usemodel=FALSE,fitaffinity=T,plierconvergence=0.000001,plieriteration=3000,dropmax=3.0,lambdalimit=0.01,optimization=0))
    calls<-exprs(mas5calls(dat))
    if(stabvar=="yes") {
       if(ncol(dat2)<2) {
-         stop("You need to have at least two chip to be able to use VSN!")
+         stop("CHIPSTER-NOTE: You need to have at least two chip to be able to use VSN!")
       }
       library(vsn)
       dat2<-exprs(vsn(dat2))
@@ -89,9 +87,6 @@ if(norm=="plier" & custom.chiptype=="empty") {
    names(dat2)<-paste("chip.", names(dat2), sep="")
    names(calls)<-paste("flag.", names(calls), sep="")
    dat2<-data.frame(dat2, calls)
-}
-if(norm=="plier" & custom.chiptype!="empty") {
-   stop("Custom chipstypes can't be used with Plier! Use some other preprocessing method.")
 }
 
 # RMA normalization
@@ -138,13 +133,14 @@ if(norm=="gcrma" & custom.chiptype!="empty") {
 
 # Li-Wong (dChip) normalization
 if(norm=="li-wong") {
-   dat2<-exprs(expresso(dat, normalize.method="invariantset", bg.correct=FALSE, pmcorrect.method="pmonly", summary.method="liwong"))
-   calls<-exprs(mas5calls(dat))
-   dat2<-as.data.frame(round(dat2, digits=2))
-   calls<-as.data.frame(calls)
-   names(dat2)<-paste("chip.", names(dat2), sep="")
-   names(calls)<-paste("flag.", names(calls), sep="")
-   dat2<-data.frame(dat2, calls)
+	dat2 <- exprs(expresso(dat, normalize.method="invariantset", bg.correct=FALSE, pmcorrect.method="pmonly", summary.method="liwong"))
+	calls <- exprs(mas5calls(dat))
+	dat2 <- log2(dat2)
+	dat2 <- as.data.frame(round(dat2, digits=2))
+	calls <- as.data.frame(calls)
+	names(dat2) <- paste("chip.", names(dat2), sep="")
+	names(calls) <- paste("flag.", names(calls), sep="")
+	dat2 <- data.frame(dat2, calls)
 }
 
 # Writes out a phenodata table

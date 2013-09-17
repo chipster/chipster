@@ -86,7 +86,7 @@ if(ontology=="KEGG" & sum(pvalues(result)<pcut)>=1) {
    write(x="<HTML>", file="hypergeo.html", append=T) 
    write(x="<BODY>", file="hypergeo.html", append=T)
    write(x="<TABLE border=1>", file="hypergeo.html", append=T)
-   write(x="<CAPTION> KEGG - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
+   write(x=paste("<CAPTION> " ,ontology, " - test for ", choisedirec, "-representation </CAPTION>", sep=""), file="hypergeo.html", append=T)
    write(x="<TR> <TH>  </TH> <TH> ID </TH> <TH> Pvalue </TH> <TH> OddsRatio </TH> <TH> ExpCount </TH> <TH> Count </TH> <TH> Size </TH> <TH> Term </TH>  </TR>", file="hypergeo.html", append=T)
    for(i in 1:length(ID)) {
       write(x=paste("<TR> <TD> ", i, " </TD> <TD> ", ID[i], " </TD> <TD> ", round(Pvalue[i], digits=6), " </TD> <TD> ", round(OddsRatio[i], digits=2), " </TD> <TD> ", round(ExpCount[i], digits=2), " </TD> <TD> ", Count[i], " </TD> <TD> ", Size[i], " </TD> <TD> ", "<a href=", cat("\""), "http://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&locale=en&serv=gn&dbkey=pathway&keywords=", ID[i], "&page1", cat("\""), ">", Term[i], "</a>", "</TD> </TR>", sep=""), file="hypergeo.html", append=T)
@@ -111,8 +111,8 @@ if(ontology=="PFAM" & sum(pvalues(result)<pcut)>=1) {
    Size<-universeCounts(result)[pvalues(result)<=pcut]
    write(x="<HTML>", file="hypergeo.html", append=T) 
    write(x="<BODY>", file="hypergeo.html", append=T)
-   write(x="<TABLE border=1>", file="hypergeo.html", append=T)
-   write(x="<CAPTION> PFAM - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
+   write(x="<TABLE border=1>", file="hypergeo.html", append=T)   
+   write(x=paste("<CAPTION> " ,ontology, " - test for ", choisedirec, "-representation </CAPTION>", sep=""), file="hypergeo.html", append=T)
    write(x="<TR> <TH>  </TH> <TH> ID </TH> <TH> Pvalue </TH> <TH> OddsRatio </TH> <TH> ExpCount </TH> <TH> Count </TH> <TH> Size </TH> <TH> Term </TH>  </TR>", file="hypergeo.html", append=T)
    for(i in 1:length(ID)) {
       write(x=paste("<TR> <TD> ", i, " </TD> <TD> ", ID[i], " </TD> <TD> ", round(Pvalue[i], digits=2), " </TD> <TD> ", round(OddsRatio[i], digits=2), " </TD> <TD> ", round(ExpCount[i], digits=2), " </TD> <TD> ", Count[i], " </TD> <TD> ", Size[i], " </TD> <TD> ", "<a href=", cat("\""), "http://www.sanger.ac.uk/cgi-bin/Pfam/qquerypfam.pl?terms=", ID[i], cat("\""), ">", ID[i], "</a>", "</TD> </TR>", sep=""), file="hypergeo.html", append=T)

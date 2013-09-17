@@ -2,14 +2,16 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT classification.txt: classification.txt 
-# PARAMETER method: method TYPE [knn: knn, lda: lda, dlda: dlda, slda: slda, qda: qda, rpart: rpart, svm: svm, lvq: lvq, naiveBayes: naiveBayes, nnet: nnet, bagging: bagging] DEFAULT knn (Analysis method)
+# PARAMETER method: method TYPE [knn: knn, lda: lda, dlda: dlda, slda: slda, rpart: rpart, svm: svm, lvq: lvq, naiveBayes: naiveBayes, nnet: nnet, bagging: bagging] DEFAULT knn (Analysis method)
 # PARAMETER standardize: standardize TYPE [yes: yes, no: no] DEFAULT yes (Standardize genes before analysis)
-# PARAMETER validation.type: validation.type TYPE [crossvalidate: crossvalidate, predict: predict] DEFAULT crossvalidate (Use crossvalidation)
-# PARAMETER crossvalidation.type: crossvalidation.type TYPE [LOO: LOO] DEFAULT LOO (How to crossvalidate)
 # PARAMETER feature.selection.in.crossvalidation: feature.selection.in.crossvalidation TYPE [yes: yes, no: no] DEFAULT no (Include a feature selection step in crossvalidation)
 # PARAMETER feature.selection.threshold: feature.selection.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.75 (What percentage of the t-test values to discard)
 # PARAMETER group.column: group.column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER max.genes: max.genes TYPE INTEGER FROM 0 TO 50000 DEFAULT 100 (Maximum number of genes to be given to the classifier. If the data-matrix has more genes, the analysis in terminated)
+
 # PARAMETER training.column: training.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
+# PARAMETER validation.type: validation.type TYPE [crossvalidate: crossvalidate, predict: predict] DEFAULT crossvalidate (Use crossvalidation)
+# PARAMETER crossvalidation.type: crossvalidation.type TYPE [LOO: LOO] DEFAULT LOO (How to crossvalidate)
 
 # JTT 22.01.2009
 # MK 18.06.2013 Chip-prediction table added to the output
@@ -18,12 +20,12 @@
 # Parameter settings (default) for testing purposes
 #method<-"knn"
 #standardize<-"yes"
-#validation.type<-"crossvalidate"
-#crossvalidation.type<-"LOO"
 #feature.selection.in.crossvalidation<-"no"
 #feature.selection.threshold<-0.75
 #group.column<-"group"
 #training.column<-"EMPTY"
+validation.type<-"crossvalidate"
+crossvalidation.type<-"LOO"
 
 # Loads the libraries
 library(MLInterfaces)
@@ -35,6 +37,10 @@ feature.sel.in.crossval<-feature.selection.in.crossvalidation
 # Loads the data
 file<-c("normalized.tsv")
 dat<-read.table(file, sep="\t", header=T, row.names=1)
+
+if(nrow(dat) > max.genes) {
+	stop("CHIPSTER-NOTE: The MLearn function is not meant for and can unintentionally crash when processing very large dataset. If you still wish to proceed, please reset max.genes parameter to a number which higher than the number of rows in your data matrix")
+}
 
 # Reads the phenodata table
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
@@ -74,101 +80,115 @@ fsFun.rowtQ3 = function(formula, data) {
 # Performing the analysis
 if(method=="knn") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-fit<-MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, knnI(k=5, l=1), xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="lda") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, ldaI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, ldaI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, ldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, ldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
-if(method=="dlda") {
-   if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, dldaI, xvalSpec("LOO"))
+if(method=="dlda") {	
+	if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
+      fit<-try(MLearn(as.factor(group)~., data=dat3, dldaI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, dldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, dldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="slda") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, sldaI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, sldaI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, sldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, sldaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="qda") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, qdaI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, qdaI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, qdaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, qdaI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="rpart") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, rpartI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, rpartI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, rpartI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, rpartI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="svm") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, svmI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, svmI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, svmI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, svmI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="lvq") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, lvqI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, lvqI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, lvqI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, lvqI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="naiveBayes") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, naiveBayesI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, naiveBayesI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, naiveBayesI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, naiveBayesI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="nnet") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, nnetI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, nnetI, size=1, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, nnetI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, nnetI, size=1, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
 }
 
 if(method=="bagging") {
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
-      fit<-MLearn(as.factor(group)~., data=dat3, baggingI, xvalSpec("LOO"))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, baggingI, xvalSpec("LOO")))
    }
    if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
-      fit<-MLearn(as.factor(group)~., data=dat3, baggingI, xvalSpec("LOO", fsFun=fsFun.rowtQ3))
+      fit<-try(MLearn(as.factor(group)~., data=dat3, baggingI, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
    }
+}
+
+#not implemented
+if(method=="rf") {
+	if(validation.type=="crossvalidate" & feature.sel.in.crossval=="no") {
+		fit<-try(MLearn(as.factor(group)~., data=dat3, randomForestI, ntree=500, xvalSpec("LOO")))
+	}
+	if(validation.type=="crossvalidate" & feature.sel.in.crossval=="yes") {
+		fit<-try(MLearn(as.factor(group)~., data=dat3, randomForestI, ntree=500, xvalSpec("LOO", fsFun=fsFun.rowtQ3)))
+	}
+}
+
+if(class(fit) == "try-error") {
+	stop("CHIPSTER-NOTE: MLearn has terminated unintentionally. Please consider using another classifier and/or redo the analysis after discarding some genes")
 }
 
 # Writing output

@@ -4,7 +4,7 @@
 # OUTPUT two-sample.tsv: two-sample.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER OPTIONAL pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-matched data or you have expression data at multiple tissue sites from the same individuals, etc. LPE, F-test and fast-t-test do not support pairing information.)
-# PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE] DEFAULT empiricalBayes (Test type)
+# PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE, RankProd: RankProd] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER show.na: show.na TYPE [yes: yes, no:no] DEFAULT yes (include results where p-value is NA)
@@ -119,9 +119,6 @@ if(meth=="RankProd") {
 		group_vec <- rep(0, ncol(dat.rp));
 	}
 
-	print(dat.rp[1:10,]);
-	print(group_vec)
-	
 	RPdata 	<- RP(dat.rp, cl=group_vec, num.perm=10, logged=TRUE)
 	p.raw   <- cbind(RPdata$pval[,1],  RPdata$pval[,2]);
 }
@@ -162,10 +159,10 @@ if(meth=="t-test") {
 		#find shared elements (remove elements not present in one of the arrays)
 		dat2.1 <- dat2.1[, which(pairs.1 %in% intersect(pairs.1, pairs.2))]
 		dat2.2 <- dat2.2[, which(pairs.2 %in% intersect(pairs.1, pairs.2))]
-		
+
 		pairs.1 <- pairs.1[which(pairs.1 %in% intersect(pairs.1, pairs.2))];
 		pairs.2 <- pairs.2[which(pairs.2 %in% intersect(pairs.1, pairs.2))];
-		
+	
 		#average over those that are found multiple times in one
 		temp.1 <- t(rowsum(t(dat2.1), factor(pairs.1), reorder = FALSE, na.rm = TRUE));
 		temp.2 <- t(rowsum(1L - is.na(t(dat2.1)), factor(pairs.1), reorder = FALSE));
@@ -177,11 +174,16 @@ if(meth=="t-test") {
 
 		#sort columns so that samples have the same order
 		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
-		
+
 		for(i in 1:nrow(dat2)) {
-			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)
+			print(dat2.1[i,])
+			print(dat2.2[i,])
+			
+			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1) && length(unique(round(dat2.1[i,] - dat2.2[i,], digits=10))) > 1 &&
 				( length(which(!dat2.1[i,]==mean(dat2.1[i,])))>0 || length(which(!dat2.2[i,]==mean(dat2.2[i,])))>0 )
-			) { 
+		    ) { 
+				print(dat2.1[i,])
+				print(dat2.2[i,])
 				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,], paired=TRUE)$p.value
 			}
 		}	

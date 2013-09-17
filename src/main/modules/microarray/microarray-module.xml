@@ -3,97 +3,97 @@
 <module name="microarray">
 		
 	<category name="Normalisation" color="#d5c796">
-		<tool runtime="R-2.12"><resource>norm-affy.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-affy-exon.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-affy-gene.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-affy-gene.R</resource></tool>
 		<tool runtime="R-2.15"><resource>norm-affy-snp.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-agilent.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-agilent-miRNA.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-cdna.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-illumina.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-2.15"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-lme.R</resource></tool>
 		<tool runtime="R-2.15_bioc-2.11"><resource>norm-combat.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-chip-average.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-gene-average.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-specific-samples.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-specific-genes.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-chip-average.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-gene-average.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-specific-samples.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-specific-genes.R</resource></tool>
 	</category>
 	
 	<category name="Quality control" color="#e7df70">
-		<tool runtime="R-2.12"><resource>qc-affy.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-illumina.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-agilent.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
-		<tool runtime="R-2.12"><resource>qc-cdna.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-rle-nuse.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-illumina.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-agilent.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-agilent-one-color.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>qc-cdna.R</resource></tool>
 	</category>
 	
 	<category name="Preprocessing" color="#d59f45">
-		<tool runtime="R-2.12"><resource>filter-expression.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-flags.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-sd.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-iqr.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-cv.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column-term.R</resource></tool>
-		<tool runtime="R-2.12"><resource>filter-by-column-value.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-expression.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-flags.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-sd.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-iqr.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-cv.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-by-column-term.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>filter-by-column-value.R</resource></tool>
 		<tool runtime="R-2.12"><resource>impute.R</resource></tool>
 		<tool runtime="R-2.12"><resource>na-omitted.R</resource></tool>
-		<tool runtime="R-2.12"><resource>dichotomize-continious-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>dichotomize-continious-data.R</resource></tool>
 	</category>
 	
 	<category name="Statistics" color="#e7881c">
-		<tool runtime="R-2.12"><resource>stat-one-group.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-two-groups.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-ROTS.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-one-group.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-two-groups.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-ROTS.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-sam.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-several-groups.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-linear-modelling.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling-designmat.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-proportions.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-chisq-snp.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-pca.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-ca.R</resource></tool>
-		<tool runtime="R-2.12"><resource>ordination-nmds.R</resource></tool>
-		<tool runtime="R-2.12"><resource>estimate-samplesize.R</resource></tool>
-		<tool runtime="R-2.12"><resource>sample-size-with-bh.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-pca.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-ca.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>ordination-nmds.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>estimate-samplesize.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>sample-size-with-bh.R</resource></tool>
 		<tool runtime="R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
 	</category>
 	
 	<category name="Clustering" color="#d53833">
-		<tool runtime="R-2.12"><resource>classification-knn.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-hierarchical.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-kmeans.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-kmeans-testK.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-qt.R</resource></tool>
-		<tool runtime="R-2.12"><resource>cluster-som.R</resource></tool>
-		<tool runtime="R-2.12"><resource>classification.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>classification-knn.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-hierarchical.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-kmeans.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-kmeans-testK.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-qt.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>cluster-som.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>classification.R</resource></tool>
 	</category>
 	
 	<category name="Annotation" color="#80a3b7">
-		<tool runtime="R-2.12"><resource>annotate-genelist2html.R</resource></tool>
-		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
-		<tool runtime="R-2.12"><resource>add-locations-to-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-genelist2html.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-add-to-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>add-locations-to-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
 	</category>
 	
 	<category name="Pathways" color="#0177b7">
-		<tool runtime="R-2.12"><resource>stat-hyperG-GO.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-KEGG-PFAM.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
-		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-GO.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-KEGG-PFAM.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
@@ -188,3 +188,4 @@
 		<tool runtime="R-2.12"><resource>input-sleep-output.R</resource></tool>
 	</category>
 </module>
+
