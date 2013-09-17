@@ -7,25 +7,30 @@
 
 <h3>Description</h3>
 
-<p>Calculates principal components for the selected gene list, and saves them for further use.</p>
+<p>Calculates principal components for the selected sample list and saves them for further use.</p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Data to use for the analysis (genes, chips) [genes] </li>
+<li>Data to use for the analysis (chips) [chips] </li>
 <li>Variability to explain (0...100) [80]</li>
+<li>Should data be scaled (yes,no) [no]</li>
+<li>Should data be centered (yes, no) [yes]</li>
 </ul>
 
 <h3>Details</h3>
 
-<p>A principal component analysis is run for either genes or the samples. Principal components
-are retained until the explained variability exceeds the specified value.</p>
-
-<p>When PCA is run on samples, it's output can be visualized in Chipster GUI using the 3D scatterplot.</p>
+<p>A principal component analysis is run for samples. Principal components
+are retained until the explained variability exceeds the specified value.
+The output of the analysis can be visualized using the 3D scatterplot in the
+visualization panel. To do this, select the pca.tsv spreadhseet and change 
+the visualization method to 3D scatterplot for PCA</p>
+</p>
 
 <h3>Output</h3>
 
-<p>A gene list with principal components (those are not expression values).</p>
+<p>A sample list with principal components (those are not expression values) and 
+another table indicating the proportion of variance explained by each component.</p>
 
 </body>
 
