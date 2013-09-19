@@ -257,7 +257,7 @@
 		<tool runtime="R-2.15_bioc-2.11">
 			<resource>dea-deseq.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.15_bioc-2.11">
