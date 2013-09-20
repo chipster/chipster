@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans.features.table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -325,10 +326,23 @@ public class TableColumnProvider extends FeatureProviderBase {
 				String[] result = ROW_TOKENISER_REGEX.split(row);
 				
 				if (row.endsWith("\t")) {
+					
 					// split eats away trailing empty strings, which is bad
-					String[] fullResult = new String[result.length + 1];
+					
+					//count missing columns
+					int eatenColumns = 0; 
+					for (int i = row.length() - 1; i >= 0; i--) {
+						if ('\t' == row.charAt(i)) {
+							eatenColumns++;
+						} else {
+							break;
+						}
+					}
+					
+					//put them back
+					String[] fullResult = new String[result.length + eatenColumns];
 					System.arraycopy(result, 0, fullResult, 0, result.length);
-					fullResult[result.length] = "";
+					Arrays.fill(fullResult, result.length, fullResult.length, "\t");
 					result = fullResult;
 				}
 				

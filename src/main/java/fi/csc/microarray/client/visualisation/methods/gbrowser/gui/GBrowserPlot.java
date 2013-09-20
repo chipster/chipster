@@ -250,4 +250,8 @@ public class GBrowserPlot implements ActionListener, Printable {
 	public SelectionManager getSelectionManager() {
 		return browser.getSelectionManager();
 	}
+
+	public GBrowser getBrowser() {
+		return browser;
+	}
 }

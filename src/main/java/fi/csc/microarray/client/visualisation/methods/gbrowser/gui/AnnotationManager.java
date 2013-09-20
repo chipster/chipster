@@ -349,13 +349,13 @@ public class AnnotationManager {
 				} else if (fileName.endsWith(".gtf")) {
 					annotationType = AnnotationType.GTF;
 					
-				} else if (fileName.endsWith(".cytoband-chr.txt")) {
+				} else if (fileName.endsWith("cytoband-chr.txt")) {
 					annotationType = AnnotationType.CYTOBANDS;
 					
-				} else if (fileName.endsWith(".repeat-tabix.bed.gz")) {
+				} else if (fileName.endsWith("repeat-tabix.bed.gz")) {
 					annotationType = AnnotationType.REPEAT;
 					
-				} else if (fileName.endsWith(".repeat-tabix.bed.gz.tbi")) {
+				} else if (fileName.endsWith("repeat-tabix.bed.gz.tbi")) {
 					annotationType = AnnotationType.REPEAT_INDEX;
 					
 				} else if (fileName.endsWith(".fa")) {
