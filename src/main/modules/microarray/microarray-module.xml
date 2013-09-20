@@ -152,6 +152,7 @@
 		<tool runtime="R-2.12"><resource>search-coordinates.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-datasets.R</resource></tool>
+		<tool runtime="R-2.12"><resource>merge-pheno-and-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-clustering.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-go.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-kegg.R</resource></tool>
