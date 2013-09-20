@@ -34,6 +34,8 @@ public class CytobandConversion extends DataThread {
 		try {
 
 			LineDataSource cytobandDataSource = new LineDataSource(data);
+			
+			//Cytoband data is not sorted, but InMemoryIndex handles that
 			this.index = new InMemoryIndex(cytobandDataSource, parser);
 			super.setDataSource(cytobandDataSource);
 
