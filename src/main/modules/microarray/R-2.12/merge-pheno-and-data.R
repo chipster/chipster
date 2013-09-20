@@ -29,7 +29,7 @@ for(i in 1:length(prefixes)) {
 	dat3[2:(ncol(dat1)+1), cols] <- t(temp)
 }
 
-rownames(dat3) <- c("sample", colnames(dat1), rownames(dat2))
+rownames(dat3) <- make.names(c("sample", colnames(dat1), rownames(dat2)), unique=TRUE)
 
 # Writes out the combined table
 if(excel.file == "no") {
