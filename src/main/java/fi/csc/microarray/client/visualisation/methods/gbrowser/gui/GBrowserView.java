@@ -741,7 +741,7 @@ public abstract class GBrowserView implements MouseListener, MouseMotionListener
 
 	public void reloadData() {
 		getQueueManager().clearDataResultListeners();
-		parentPlot.initializeDataResultListeners();
+		parentPlot.getBrowser().initializeDataResultListeners();
 		reloadDataLater();
 		fireDataRequests();
 		redraw();

@@ -707,4 +707,12 @@ public class GBrowser {
 	public SelectionManager getSelectionManager() {
 		return selectionManager;
 	}
+
+	public void initializeDataResultListeners() {
+		plot.initializeDataResultListeners();
+		//This happens in initialization		
+		if (gia != null) {
+			gia.initializeDataResultListeners();
+		}
+	}
 }
