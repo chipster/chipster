@@ -1,43 +1,43 @@
 <module name="ngs">
 
 	<category name="Quality control" color="#d5c796">
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>fastqc.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>fastx-statistics.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-statistics.R</resource>
 		</tool>			
 	</category>
 	
 	<category name="Filtering" color="#e7df70">
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>fastx-quality-filter.R</resource>
 		</tool>	
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-length-filter.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-N-filter.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-complexity-filter.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-duplicate-filter.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>prinseq-filter.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>fastx-clipper.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>ngs-filter-annotations.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>ngs-filter-results-column.R</resource>
 		</tool>
 	</category>
@@ -86,7 +86,7 @@
 		<tool runtime="R-2.12">
 			<resource>samtools-convert-SAMtoBAM-sort-index.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -119,7 +119,7 @@
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortVcf</resource>
 		</tool>		
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-slopbed.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
@@ -146,34 +146,34 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
 			</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-subtractbed.R</resource>
 		</tool>	
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-intersectbed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-closestbed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-windowbed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-mergebed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-coveragebed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-genomecoveragebed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-overlap.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-pairtobed.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bedtools-pairtopair.R</resource>
 		</tool>	
 	</category>

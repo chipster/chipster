@@ -1,7 +1,8 @@
 # TOOL bedtools-genomecoveragebed.R: "Genome coverage BED" (Compute the coverage of a feature file among a genome. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file" TYPE GENERIC
 # INPUT file.b: "Genome file" TYPE GENERIC
-# OUTPUT genomecoveragebed.txt 
+# OUTPUT OPTIONAL genomecoveragebed.txt 
+# OUTPUT OPTIONAL error.txt
 # PARAMETER ibam: "Input file is BAM format" TYPE [yes, no] DEFAULT no (The input file is in BAM format. Note: BAM must be sorted by position.)
 # PARAMETER output: "Output type" TYPE [histogram, depth, BedGraph, BedGraph-all] DEFAULT histogram (Set the output type. Depth = the depth at each genome position. BedGraph = depth in BedGraph format. BedGraph-all = BedGraph format with regions with zero coverage also reported.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat split BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
@@ -10,6 +11,7 @@
 # PARAMETER OPTIONAL maxdepth: "Max depth" TYPE INTEGER DEFAULT 1 ()
 
 # AMS 23.4.2012
+# AMS 23.9.2013 Improved outout/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "genomeCoverageBed"))
@@ -29,8 +31,16 @@ if (ibam == "yes") {options <- paste(options, "-ibam file.a -g file.b")}
 if (ibam == "no") {options <- paste(options, "-i file.a -g file.b")}
 
 # command
-command <- paste(binary, options, " > genomecoveragebed.txt")
+command <- paste(binary, options, " > genomecoveragebed.tmp 2> error.tmp")
 
 # run
 system(command)
-if (file.info("genomecoveragebed.txt")$size == 0) {system("echo \"No results found\" > genomecoveragebed.txt")}
+
+# Generate output/error message
+if (file.info("genomecoveragebed.tmp")$size > 0) {
+	system("mv genomecoveragebed.tmp genomecoveragebed.txt")
+} else if (file.info("error.tmp")$size > 0) {
+	system("mv error.tmp error.txt")
+} else{
+	system("echo \"# No results found\" > error.txt")
+}

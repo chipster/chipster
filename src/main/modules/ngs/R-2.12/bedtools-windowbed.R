@@ -3,6 +3,7 @@
 # INPUT file.b: "Input file B" TYPE GENERIC
 # OUTPUT OPTIONAL windowbed.bed 
 # OUTPUT OPTIONAL windowbed.bam
+# OUTPUT OPTIONAL error.txt
 # PARAMETER abam: "The A input file is in BAM format" TYPE [yes,no] DEFAULT no (The A input file is in BAM format. By default output will be BAM as well.) 
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes,no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.) 
 # PARAMETER OPTIONAL bed: "When using BAM input, write output as BED." TYPE [yes,no] DEFAULT no (When using BAM input, write output as BED. The default is to write output in BAM.) 
@@ -16,21 +17,23 @@
 
 # AMS 23.4.2012
 # AMS 11.10.2012 Fixed BAM file support
+# AMS 23.9.2013 Improved outout/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "windowBed"))
 
 # options
-outfile <- "windowbed.bed"
 options <- paste("")
+
+outputfiletype <- "bed"
 if (abam == "yes") {
-	outfile <- "windowbed.bam"
+	outputfiletype <- "bam"
 	if (ubam == "yes") {
 		options <- paste(options, "-ubam")
 	}
 	if (bed == "yes") {
+		outputfiletype <- "bed"
 		options <- paste(options, "-bed")
-		outfile <- "windowbed.bed"
 	}
 }
 
@@ -47,14 +50,21 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, ">", outfile)
+command <- paste(binary, options, "> windowbed.tmp 2> error.tmp")
 
 # run
 system(command)
 
-if (file.exists("windowbed.bed")){
-	if (file.info("windowbed.bed")$size == 0) {
-		system("echo \"# No results found\" > windowbed.bed")
+# Generate output/error message
+if (file.info("windowbed.tmp")$size > 0) {
+	if (outputfiletype == "bed"){
+		system("mv windowbed.tmp windowbed.bed")
+	}
+	if (outputfiletype == "bam"){
+		system("mv windowbed.tmp windowbed.bam")
 	}	
+} else if (file.info("error.tmp")$size > 0) {
+	system("mv error.tmp error.txt")
+} else{
+	system("echo \"# No results found\" > error.txt")
 }
-

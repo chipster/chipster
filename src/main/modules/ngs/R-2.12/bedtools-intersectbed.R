@@ -3,6 +3,7 @@
 # INPUT file.b: "Input file B, the smaller file" TYPE GENERIC
 # OUTPUT OPTIONAL intersectbed.bed 
 # OUTPUT OPTIONAL intersectbed.bam
+# OUTPUT OPTIONAL error.txt
 # PARAMETER wa: "Write the original entry in A for each overlap" TYPE [yes, no] DEFAULT no (Report the original A feature when an overlap is found. The entire A feature is reported, not just the portion that overlaps with the B feature.)
 # PARAMETER u: "Write the original A entry once if any overlaps found in B" TYPE [yes, no] DEFAULT no (Write the original A entry once if any overlaps found in B)
 # PARAMETER v: "Only report those entries in A that have no overlaps with B" TYPE [yes, no] DEFAULT no (Only report those entries in A that have no overlaps with B)
@@ -20,21 +21,22 @@
 
 # AMS 23.4.2012
 # AMS 11.10.2012 Fixed BAM file support
+# AMS 23.9.2013 Improved outout/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "intersectBed"))
 
 # options
-outfile <- "intersectbed.bed"
 options <- paste("")
+outputfiletype <- "bed"
 if (abam == "yes") {
-	outfile <- "intersectbed.bam"
+	outputfiletype <- "bam"
 	if (ubam == "yes") {
-		options <- paste(options, "-ubam")
+		options <- paste(options, "-ubam")		
 	}
 	if (bed == "yes") {
-		options <- paste(options, "-bed")
-		outfile <- "intersectbed.bed"
+		outputfiletype <- "bed"
+		options <- paste(options, "-bed")		
 	}
 }
 if (wa == "yes") {options <- paste(options,"-wa")}
@@ -54,15 +56,23 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, ">", outfile)
+command <- paste(binary, options, "> intersectbed.tmp 2> error.tmp")
 
 #stop(paste('CHIPSTER-NOTE: ', command))
 
 # run
 system(command)
 
-if (file.exists("intersectbed.bed")){
-	if (file.info("intersectbed.bed")$size == 0) {
-		system("echo \"# No results found\" > intersectbed.bed")
+# Generate output/error message
+if (file.info("intersectbed.tmp")$size > 0) {
+	if (outputfiletype == "bed"){
+		system("mv intersectbed.tmp intersectbed.bed")
+	}
+	if (outputfiletype == "bam"){
+	system("mv intersectbed.tmp intersectbed.bam")
 	}	
+} else if (file.info("error.tmp")$size > 0) {
+	system("mv error.tmp error.txt")
+} else{
+	system("echo \"# No results found\" > error.txt")
 }

@@ -3,6 +3,7 @@
 # INPUT file.b: "BED file" TYPE GENERIC
 # OUTPUT OPTIONAL pairtobed.bed
 # OUTPUT OPTIONAL pairtobed.bam
+# OUTPUT OPTIONAL error.txt
 # PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes,no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.) 
 # PARAMETER OPTIONAL bedpe: "When using BAM input, write output as BEDPE." TYPE [yes,no] DEFAULT no (When using BAM input, write output as BEDPE. The default is to write output in BAM.) 
@@ -21,21 +22,22 @@
 # notospan: Report A if ospan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.)
 
 # AMS 23.4.2012
+# AMS 23.9.2013 Improved outout/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToBed"))
 
 # optional options
-outfile <- "pairtobed.bed"
+outputfiletype <- "bed"
 options <- paste("")
 if (abam == "yes") {
-	outfile <- "pairtobed.bam"
+	outputfiletype <- "bam"
 	if (ubam == "yes") {
 		options <- paste(options, "-ubam")
 	}
 	if (bed == "yes") {
-		options <- paste(options, "-bedbe")
-		outfile <- "pairtobed.bed"
+		outputfiletype <- "bed"
+		options <- paste(options, "-bedbe")		
 	}
 }
 
@@ -51,13 +53,22 @@ if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 
 # command
-command <- paste(binary, options, ">", outfile)
+command <- paste(binary, options, "> pairtobed.tmp 2> error.tmp")
 
 # run
 system(command)
 
-if (file.exists("pairtobed.bed")){
-	if (file.info("pairtobed.bed")$size == 0) {
-		system("echo \"# No results found\" > pairtobed.bed")
+# Generate output/error message
+if (file.info("pairtobed.tmp")$size > 0) {
+	if (outputfiletype == "bed"){
+		system("mv pairtobed.tmp pairtobed.bed")
+	}
+	if (outputfiletype == "bam"){
+		system("mv pairtobed.tmp pairtobed.bam")
 	}	
+} else if (file.info("error.tmp")$size > 0) {
+	system("mv error.tmp error.txt")
+} else{
+	system("echo \"# No results found\" > error.txt")
 }
+
