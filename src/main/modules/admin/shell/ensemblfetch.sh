@@ -11,11 +11,9 @@ if [[ "$1" == "" ]]
    exit
 fi
 
-
 seqtype=("dna")
 mode=("single")
 outputmode=("single")
-
 
 while [[ $# -ge 1 ]]
 do
@@ -32,10 +30,11 @@ do
                    mkdir tmp_$$
                    cd tmp_$$
                    echo ftp://ftp.ensembl.org/pub/current_fasta/ > ensembl_list
-                   for ((number=1; number<=27; number++))
-                   do
-                     echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
-                   done
+                   # bakteerit poitettu väliaikaisesti sillä niille ei ole MySQL tiedostoja
+                   #for ((number=1; number<=27; number++))
+                   #do
+                   #  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+                   #done
                    echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/ >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/fasta/  >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
@@ -45,7 +44,7 @@ do
                    then
                      rm -rf $TMPDIR/ensembl_urls
                    fi
-                   grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensembl.org:21/pub/current_fasta/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls    
+                   grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls    
                    cd ..
                    cat $TMPDIR/ensembl_urls |\
                      sed s/"bacillus_collection\/b_"/"bacillus_"/g | \
@@ -167,7 +166,7 @@ then
 
   echo "Getting the name list"
   wget -S -o log -i ensembl_list >> /dev/null
-  grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls
+  grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/fasta/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls
 fi
 
 
@@ -215,12 +214,12 @@ then
   done
   echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/mysql/ >> ensembl_list
   echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/mysql/  >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
-  echo ftp://ftp.ensemblgenomes.org/pub/protists/current/fasta/  >> ensembl_list
+  echo ftp://ftp.ensemblgenomes.org/pub/plants/current/mysql/ >> ensembl_list
+  echo ftp://ftp.ensemblgenomes.org/pub/protists/current/mysql/  >> ensembl_list
 
   echo "Getting the name list" 
   wget -S -o log -i ensembl_list >> /dev/null
-  grep Directory index.html* | grep "_core_"  | grep -v "ensembl.org:21/pub/current_mysql/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_mysql/saccharomyces_cerevisiae" | awk -F \" '{print $2}' > ensembl_species.txt   
+  grep Directory index.html* | grep "_core_"  | grep -v "ensembl.org:21/pub/current_mysql/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_mysql/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > ensembl_species.txt   
 
 fi
  
@@ -296,7 +295,7 @@ do
     echo "Please select a uniqe species name "
     echo ""
     echo "The list of matching species names:"
-    grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-2)}'
+    grep -i "/$species/" tmp_$$/ensembl_species.txt 
 
   fi
 done

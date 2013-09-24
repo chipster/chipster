@@ -7,6 +7,7 @@
 # OUTPUT OPTIONAL junctions.bed
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
+# OUTPUT OPTIONAL tophat2.log
 # PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)",  Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", Arabidopsis_lyrata.v.1.0.16: "A. lyrata genome (1.0.16\)", ovis_aries_texel: "Sheep genome (oar3.1\)"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER OPTIONAL use.gtf: "Use annotation GTF" TYPE [yes, no] DEFAULT yes (If this option is provided, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final TopHat output. If no GTF file is provided by user, internal annotation file will be used if available. Internal annotation is provided for human, mouse and rat.)
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT yes (If annotation GTF is used, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final TopHat output. If no GTF file is provided by the user, internal annotation file will be used if available. Internal annotation is provided for human, mouse and rat.)
@@ -63,7 +64,7 @@ if (is_gtf) {
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
 genome_available <- FALSE
-if (genome == "hg19" ||	genome == "mm9" || genome == "mm10" || genome == "rn4" || genome = "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome = "Canis_familiaris.CanFam3.1.71.dna.toplevel") genome_available <- TRUE
+if (genome == "hg19" ||	genome == "mm9" || genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") genome_available <- TRUE
 if (!is_gtf && genome_available) {
 
 	# annotation file setup
@@ -95,7 +96,7 @@ if (!is_gtf && genome_available) {
 }
 
 # command ending
-command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq'")
+command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq >> tophat2.log '")
 
 # run tophat
 if (use.gtf == "yes"){ 
@@ -103,6 +104,8 @@ if (use.gtf == "yes"){
 }else{
 	command <- paste(command.start, command.parameters, command.end)
 }
+echo.command <- paste("echo '",command ,"' > tophat2.log " )
+system(echo.command)
 system(command)
 
 # samtools binary
@@ -123,6 +126,14 @@ source(file.path(chipster.common.path, "bed-utils.R"))
 
 size <- 0
 size <- file.info("junctions.u.bed")$size
+
+echo.command <- paste("echo ",size ," >> tophat2.log" )
+system(echo.command)
+#system("sleep 120")
+#stop(paste('CHIPSTER-NOTE: ', size))
+
+
+
 if (size > 100){	
 	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
 	colnames(bed)[1:2] <- c("chr", "start")

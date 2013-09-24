@@ -1,4 +1,7 @@
-#!/bin/bash 
+#!/bin/bash
+
+species=x
+chipster_path=x 
 while [[ $# -ge 1 ]]
 do
   case "$1" in
@@ -19,6 +22,21 @@ do
               ;; 
   esac
 done
+
+if [[ $chipster_path == "x" ]] 
+then
+  echo "Please define the location of your chipster installation with option:"
+  echo "-chipster_path"
+  exit 1
+fi
+
+
+if [[ $species == "x" ]] 
+then
+  echo "Available species names:" 
+  ls "$chipster_path"/tools/genomes/fasta/nochr/*.fa "$chipster_path"/tools/genomes/fasta/*.fa | awk -F "/" '{ print $NF}'   | sort | uniq | sed s/".toplevel.fa"/".toplevel"/g  
+  exit 1
+fi
 
 tools_path="$chipster_path""/tools"
 export PATH=${PATH}:"$chipster_path"/comp/modules/admin/shell/:"$tools_path"/emboss/bin/
@@ -82,7 +100,7 @@ fi
 
 if [[ -e $tools_path/genomes/fasta/nochr/$species.fa ]]
 then 
-   rm $tools_path/genomes/fasta/nochr/$species.fa
+   rm $tools_path/genomes/fasta/nochr/$species.fa*
 fi 
 
 #Remove gtf fiiles
