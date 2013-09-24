@@ -293,11 +293,13 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		sh.addConstraintMapping(cm);
 		
 		WebAppContext context = new WebAppContext();
-		
-        context.setDescriptor(new ClassPathResource("WebContent/WEB-INF/web.xml").getURI().toString());
-        context.setResourceBase(new ClassPathResource("WebContent").getURI().toString());
+		context.setWar(new File(DirectoryLayout.getInstance().getWebappsDir(), "admin-web.war").getAbsolutePath());
         context.setContextPath("/");
-        context.setParentLoaderPriority(true);
+		
+//        context.setDescriptor(new ClassPathResource("WebContent/WEB-INF/web.xml").getURI().toString());
+//        context.setResourceBase(new ClassPathResource("WebContent").getURI().toString());
+//        context.setContextPath("/");
+//        context.setParentLoaderPriority(true);
 				
         context.setHandler(sh);
 		HandlerCollection handlers = new HandlerCollection();

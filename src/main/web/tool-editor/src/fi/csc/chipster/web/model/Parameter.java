@@ -14,6 +14,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.SourceIs;
 import com.vaadin.server.Page;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
 import com.vaadin.shared.ui.slider.SliderOrientation;
 import com.vaadin.ui.AbstractSelect;
@@ -389,7 +390,7 @@ public class Parameter extends BasicModel{
 		vLayoutTypetable.addComponent(typeTable);
 		Button btAddNewRow = new Button("New Value");
 		btAddNewRow.setDescription("Adds new Value to the table");
-		btAddNewRow.setIcon(Icon.getResource(Icon.getAddButtonIconPath()));
+		btAddNewRow.setIcon(new ThemeResource("images/edit-add-2.png"));
 		btAddNewRow.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 2039910564036291751L;
 
@@ -469,7 +470,7 @@ public class Parameter extends BasicModel{
 	
 	private Button getDeleteButton(final Object itemId) {
 		Button btDelete = new Button();
-		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+		btDelete.setIcon(new ThemeResource("images/close.png"));
 		btDelete.setStyleName(BaseTheme.BUTTON_LINK);
 		btDelete.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = -3695725710938486562L;
