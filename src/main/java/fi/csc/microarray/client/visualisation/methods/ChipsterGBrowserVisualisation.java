@@ -446,13 +446,28 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
 				// Gtf file
 				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
-			} else if ((data.isContentTypeCompatitible("text/tab") && 
-					data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
+											
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+					
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
+						
+					interpretations.add(new DataBeanInterpretation(TrackType.TSV, new BeanDataFile(data)));	
+				}
+							
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
-					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
-				
-				// Cna file				
-				interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data, data.getName())));
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+					
+					interpretations.add(new DataBeanInterpretation(TrackType.TSV_WITH_ROW_ID, new BeanDataFile(data)));
+				}
+			
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CNA)) {
+
+					// Cna file				
+					interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data, data.getName())));
+				}
 			}						
 		}
 

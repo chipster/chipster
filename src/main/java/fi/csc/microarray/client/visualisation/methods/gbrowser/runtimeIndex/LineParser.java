@@ -17,5 +17,5 @@ public interface LineParser {
 
 	public boolean isContentLine();
 
-	public FileLine getFileLine();
+	public FileLine getFileLine();	
 }

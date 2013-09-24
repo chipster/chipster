@@ -26,7 +26,7 @@ public class ScatterplotFileLineConversion extends FileLineConversion {
 	private Float minScatterplotValue;
 	private Float maxScatterplotValue;
 
-	public ScatterplotFileLineConversion(DataUrl data, LineParser parser, GBrowser browser) throws URISyntaxException, IOException, GBrowserException {
+	public ScatterplotFileLineConversion(DataUrl data, AbstractTsvLineParser parser, GBrowser browser) throws URISyntaxException, IOException, GBrowserException {
 		super(data, parser, browser);
 		
 		udpatesScatterplotValues();

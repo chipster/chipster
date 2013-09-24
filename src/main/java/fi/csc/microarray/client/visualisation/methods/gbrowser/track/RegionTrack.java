@@ -16,13 +16,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Sele
  * Track for showing the location of predicted peaks. Peaks cannot overlap. 
  *
  */
-public class PeakTrack extends Track {
+public class RegionTrack extends Track {
 
 	private TreeMap<IndexKey, PeakSelectable> peaks = new TreeMap<>();
 	
 	private Color color;
 
-	public PeakTrack(Color color) {
+	public RegionTrack(Color color) {
 		super();
 		this.color = color;
 	}
