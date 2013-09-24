@@ -1,16 +1,7 @@
 package fi.csc.chipster.web.tooledit;
 
-import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
-
-import fi.csc.chipster.web.listener.CSCTextToToolClickListener;
-import fi.csc.chipster.web.listener.CSCToolToTextClickListener;
 
 /**
  * Text editor
@@ -21,46 +12,14 @@ public class TextEditor extends VerticalLayout{
 	private static final long serialVersionUID = -7074541336842177583L;
 	
 	private TextArea txtArea;
-	private Button btUpdateToolEditor;
-	private Button btUpdateTextEditor;
-	private ToolEditorUI root;
 	
 	public static final String NEW_LINE = "\n";
-	
 
 	public TextEditor(ToolEditorUI root) {
-		this.root = root;
 		init();
 	}
 	
 	private void init() {
-		
-		HorizontalLayout hLayout = new HorizontalLayout();
-		hLayout.setSpacing(true);
-		
-		btUpdateTextEditor = new Button();
-		btUpdateTextEditor.setDescription("Update text area");
-		btUpdateTextEditor.setIcon(new ThemeResource("images/arrow_down.png"));
-		btUpdateTextEditor.addClickListener(new CSCToolToTextClickListener(root));
-		hLayout.addComponent(btUpdateTextEditor);
-		btUpdateToolEditor = new Button();
-		btUpdateToolEditor.setDescription("Update tool elements");
-		btUpdateToolEditor.setIcon(new ThemeResource("images/arrow_up.png"));
-		btUpdateToolEditor.addClickListener(new CSCTextToToolClickListener(root));
-		hLayout.addComponent(btUpdateToolEditor);
-		Button btClearAll = new Button("Clear All");
-		btClearAll.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 1487893808578560989L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				
-				root.addWindow(new ConfirmClearAll(root));
-			}
-		});
-		hLayout.addComponent(btClearAll);
-		this.addComponent(hLayout);
-		this.setComponentAlignment(hLayout, Alignment.MIDDLE_CENTER);
 		
 		txtArea = new TextArea();
 		txtArea.setSizeFull();

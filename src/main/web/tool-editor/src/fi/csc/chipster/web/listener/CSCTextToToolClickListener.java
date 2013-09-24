@@ -14,6 +14,7 @@ import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
+import fi.csc.microarray.util.Exceptions;
 
 /**
  * Creating tool editor from text
@@ -54,7 +55,7 @@ public class CSCTextToToolClickListener implements ClickListener{
 			}
 			
 		} catch (Exception e) {
-			new Notification("Please fill text area", Type.WARNING_MESSAGE).show(Page.getCurrent());
+			new Notification("Something wrong with the header\n\n" + e.getMessage(), Type.WARNING_MESSAGE).show(Page.getCurrent());
 		}
 		
 	}

@@ -117,6 +117,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	            moveNode(sourceItemId, targetItemId, location);
 			}
 		});
+
 	}
 	
 	/**
@@ -223,6 +224,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 				}
 			});
 		}
+
 		return hLayout;
 	}
 	
