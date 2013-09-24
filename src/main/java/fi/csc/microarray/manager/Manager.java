@@ -356,10 +356,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		    for (String[] log : feedback.getLogs()) {
                 emailBody += log[0] + ": " + log[1] + "\n";
             }
+		    
+		    String subject = "Help request from " + feedback.getUsername();
 		    // send the email
-		    Emails.sendEmail(feedbackEmail,
-		            !feedback.getEmail().equals("") ? feedback.getEmail() : null,
-		            "User report", emailBody);
+		    Emails.sendEmail(feedbackEmail, !feedback.getEmail().equals("") ? feedback.getEmail() : null, subject, emailBody);
+		    
 		} else {
 	        logger.warn("Got other than JobLogMessage: " + chipsterMessage.toString());
 	        return; 

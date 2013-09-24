@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
@@ -21,6 +22,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
+import fi.csc.microarray.messaging.UrlListMessageListener;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
@@ -265,6 +267,31 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		return url;
 	}
+	
+	/**
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
+	 */
+	@Override
+	public List<URL> getPublicFiles() throws JMSException {
+		return fetchPublicFiles();
+	}
+
+	private List<URL> fetchPublicFiles() throws JMSException {
+
+		UrlListMessageListener replyListener = new UrlListMessageListener();  
+		List<URL> urlList;
+		try {
+			CommandMessage fileRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_FILES_REQUEST);
+			//Chipster2 backport fix
+			urlTopic.sendReplyableMessage(fileRequestMessage, replyListener);
+			urlList = replyListener.waitForReply(FILE_AVAILABLE_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+
+		return urlList;
+	}
+
 
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()

@@ -1,35 +1,54 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.PlotState;
-import org.jfree.data.general.DatasetChangeEvent;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
+import net.miginfocom.swing.MigLayout;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.util.ImageExportUtils;
 
 /**
  * <p>The main visual component for Genome browser. GenomePlot is the core of the view layer and runs inside Swing event
- * dispatch thread. The plot is constructed out of {@link GBrowserView} components. Compatible with JFreeChart visualization library.</p>
+ * dispatch thread. The plot is constructed out of {@link GBrowserView} components. Implements also support for printing the component
+ * or saving it as an image.</p>
  * 
  * @author Petri Klemelä, Aleksi Kallio
  * @see GBrowserViewdrawView
  */
-public class GBrowserPlot extends Plot implements LayoutContainer {
-
+public class GBrowserPlot implements ActionListener, Printable {
+	
+	JPanel component = new JPanel() {
+		
+	};
+	
 	private List<GBrowserView> views = new LinkedList<GBrowserView>();
 	private GBrowserView dataView = null;
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
-    public TooltipAugmentedChartPanel chartPanel;
+	
+	private JMenuItem saveMenuItem;
+	private JMenuItem printMenuItem;
+	private GBrowser browser;
+	private JFileChooser saveFileChooser;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -58,31 +77,22 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
         }
     }    
 
-	public GBrowserPlot(TooltipAugmentedChartPanel panel, boolean horizontal) {
-		
-	    // set chart panel
-	    this.chartPanel = panel;
-	    this.chartPanel.setLayout(null);
+	public GBrowserPlot(GBrowser browser, boolean horizontal, Region defaultLocation) {		
+				
+		this.browser = browser;
 	    
 		// add overview view
 		this.overviewView = new OverviewHorizontalView(this);
-		this.overviewView.margin = 0;
+		this.dataView = new HorizontalView(this, true, true, false);
+
 		this.views.add(overviewView);
-
-		// add horizontal or circular data view
-		if (horizontal) {
-			
-			this.dataView = new HorizontalView(this, true, true, false);
-
-		} else {
-			
-			this.dataView = new CircularView(this, true, true, false);
-			this.dataView.margin = 20;
-			//this.dataView.addTrack(new EmptyTrack(dataView, 30));
-		}
-
 		this.views.add(dataView);
-		chartPanel.addTooltipRequestProcessor(dataView);
+		
+		component.setLayout(new MigLayout("flowy, fillx, gap 0! 0!, insets 0"));
+		component.add(overviewView.getComponent(), "growx");					
+		component.add(dataView.getComponent(), "grow");		
+				
+//		chartPanel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(Region bpRegion) {
@@ -103,8 +113,20 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 			}		
 		});
 		
+		component.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-	}
+		JPopupMenu popup = new JPopupMenu();
+		saveMenuItem = new JMenuItem("Save as...");
+		printMenuItem = new JMenuItem("Print...");
+		saveMenuItem.addActionListener(this);
+		printMenuItem.addActionListener(this);
+		popup.add(saveMenuItem);
+		popup.add(printMenuItem);
+		component.setComponentPopupMenu(popup);
+		
+		//Set default location to plot to avoid trouble in track initialization. 
+		dataView.setBpRegion(new RegionDouble(defaultLocation));
+	}	
 
 	public GBrowserView getDataView() {
 		return dataView;
@@ -151,85 +173,11 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 		return "GenomeBrowser";
 	}
 
-	/**
-	 * Draws the plot on a Java2D graphics device (such as the screen or a printer).
-	 * 
-	 * @param g2
-	 *            the graphics device.
-	 * @param plotArea
-	 *            the area within which the plot should be drawn.
-	 * @param anchor
-	 *            the anchor point (<code>null</code> permitted).
-	 * @param parentState
-	 *            the state from the parent plot, if there is one (<code>null</code> permitted.)
-	 * @param info
-	 *            collects info about the drawing (<code>null</code> permitted).
-	 * @throws NullPointerException
-	 *             if g2 or area is null.
-	 */
-	public void draw(java.awt.Graphics2D g2, java.awt.geom.Rectangle2D plotArea, java.awt.geom.Point2D anchor, PlotState parentState, PlotRenderingInfo info) {
-
-		if (info != null) {
-			info.setPlotArea(plotArea);
-			info.setDataArea(plotArea);
-		}		
-		
-		Shape savedClip = g2.getClip();
-		
-		Rectangle viewArea = (Rectangle) plotArea.getBounds().clone();
-		
-		//Decide how to divide space between ScrollGroup, TrackGroup and Tracks
-		LayoutTool.doLayout(this, (int) plotArea.getBounds().getHeight());
-		
-		//Draw all views
-		for (int i = 0; i < views.size(); i++) {
-			GBrowserView view = views.get(i);
-						
-			viewArea.height = view.getHeight();
-			
-			g2.setClip(viewArea);
-			view.draw(g2, plotArea.getBounds(), viewArea);
-			
-			viewArea.y += viewArea.height;
-		}
-		
-		//Update ScrollGroups' scroll bars locations and values. Height of content is known only after it is drawn.
-		chartPanel.setScrollGroupOrder(getScrollGroups(), (int) plotArea.getHeight());		
-		
-		g2.setClip(savedClip);
-	}
-
-	private Collection<ScrollGroup> getScrollGroups() {
-		
-		List<ScrollGroup> groups = new LinkedList<ScrollGroup>();
-		for ( GBrowserView view : views) {
-			groups.addAll(view.getScrollGroups());
-		}
-		return groups;
-	}
-
-	/**
-	 * Tests this plot for equality with an arbitrary object. Note that the plot's dataset is NOT included in the test for equality.
-	 * 
-	 * @param obj
-	 *            the object to test against (<code>null</code> permitted).
-	 * 
-	 * @return <code>true</code> or <code>false</code>.
-	 */
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
-		if (!(obj instanceof GBrowserPlot)) {
-			return false;
-		}
-
-		// can't find any difference...
-		return true;
-	}
-
 	public void redraw() {
-		this.datasetChanged(new DatasetChangeEvent(this, null));		
+		for (GBrowserView view : views) {
+			view.updateLayout();
+		}
+		component.repaint();
 	}
 
 	public Collection<GBrowserView> getViews() {
@@ -242,39 +190,68 @@ public class GBrowserPlot extends Plot implements LayoutContainer {
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
-        this.dataView.redraw();
-    }
-    
-    public void setFullLayoutMode(boolean enabled) {
-    	
-    	LayoutTool.setFullLayoutMode(this, enabled);
-    
-    	redraw();
+        this.dataView.reloadData();
     }
 
 	public void clean() {		
-		chartPanel.clean();
 		overviewView.clean();
 		dataView.clean();
 		dataView = null;
 	}
 
-	@Override
-	public Collection<? extends LayoutComponent> getLayoutComponents() {
-		return views;
-	}
-
-	public void initializeTracks() {
+	public void initializeDataResultListeners() {
 		for (GBrowserView view : views) {
-			for (Track track : view.getTracks()) {
-				track.initializeListener();
+			for (TrackGroup group : view.getTrackGroups()) {
+				group.initializeListener();
 			}			
 		}		
 	}
 
 	public void updateData() {
 		for (GBrowserView view : views) {
-			view.fireAreaRequests();			
+			view.fireDataRequests();			
 		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() == saveMenuItem) {
+			try {
+				saveFileChooser = ImageExportUtils.saveComponent(component, saveFileChooser);
+				//Remove the  visual artifacts caused by the rendering of external buffer
+				this.redraw();
+			} catch (IOException e) {
+				browser.reportException(e);
+			}
+		}
+		
+		if (event.getSource() == printMenuItem) {
+
+			try {
+				ImageExportUtils.printComponent(this);
+				//Remove the  visual artifacts caused by the rendering of external buffer
+				this.redraw();
+			} catch (PrinterException e) {	
+				browser.reportException(e);
+			}
+		}
+	}
+
+	@Override
+	public int print(Graphics g, PageFormat pf, int page)
+			throws PrinterException {
+		return ImageExportUtils.printComponent(g, pf, page, component);		
+	}
+
+	public Component getComponent() {
+		return component;
+	}
+
+	public SelectionManager getSelectionManager() {
+		return browser.getSelectionManager();
+	}
+
+	public GBrowser getBrowser() {
+		return browser;
 	}
 }

@@ -12,9 +12,11 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
+import org.apache.activemq.kaha.impl.async.DataFile;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 
@@ -46,9 +48,10 @@ public class GBrowserStarter {
 
 		//Define data
 		
-		String dataPath = System.getProperty("user.home") + "/chipster/";
-		DataUrl BAM_DATA_FILE = new DataUrl(new File(dataPath + "hg19_chr20.bam").toURI().toURL(), "hg19_chr20.bam");
-		DataUrl BAI_DATA_FILE = new DataUrl(new File(dataPath + "hg19_chr20.bam.bai").toURI().toURL(), "hg19_chr20.bam.bai");
+		String dataPath = System.getProperty("user.home") + "/example-data/";
+		DataUrl BAM_DATA_FILE = new DataUrl(new File(dataPath + "GM12878.bam").toURI().toURL(), "GM12878.bam");
+		DataUrl BAI_DATA_FILE = new DataUrl(new File(dataPath + "GM12878.bam.bai").toURI().toURL(), "GM12878.bam.bai");
+		DataUrl BED_DATA_FILE = new DataUrl(new File(dataPath + "colors.bed").toURI().toURL(), "colors.bed");
 		DataUrl VCF_DATA_FILE = new DataUrl(new File(dataPath + "var.flt.vcf").toURI().toURL(), "var.flt.vcf");
 		DataUrl GTF1_DATA_FILE = new DataUrl(new File(dataPath + "cufflinks-gtf/merged-sort.gtf").toURI().toURL(), "merged-sort.gtf");
 		//DataUrl GTF2_DATA_FILE = new DataUrl(new File(dataPath + "cufflinks-gtf/transcripts-sort.gtf").toURI().toURL(), "transcripts-sort.gtf");	
@@ -60,21 +63,21 @@ public class GBrowserStarter {
 
 		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
-//		for (int i = 0; i < 2; i++) {
-//			Interpretation reads = new Interpretation(TrackType.READS, BAM_DATA_FILE);
-//			reads.setIndexData(BAI_DATA_FILE);			
-//			interpretations.add(reads);
-//		}
+		for (int i = 0; i < 2; i++) {
+			Interpretation reads = new Interpretation(TrackType.READS, BAM_DATA_FILE);
+			reads.setIndexData(BAI_DATA_FILE);			
+			interpretations.add(reads);
+		}
 
 		//Bed with or without header
+		interpretations.add(new Interpretation(TrackType.REGIONS, BED_DATA_FILE));
 //		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
-//		interpretations.add(new Interpretation(TrackType.REGIONS, new DataFile(BED_DATA_FILE)));
-//		interpretations.add(new BasicInterpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));		
+//		interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, new BasicDataFile(data)));		
 //		interpretations.add(new Interpretation(TrackType.VCF, new DataFile(VCF_DATA_FILE)));		
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF2_DATA_FILE));
 //		interpretations.add(new Interpretation(TrackType.GTF, GTF3_DATA_FILE));
-		Interpretation cna = new Interpretation(TrackType.CNA_CALLS, CNA_DATA_FILE);
-		interpretations.add(cna);
+//		Interpretation cna = new Interpretation(TrackType.CNA, CNA_DATA_FILE);
+//		interpretations.add(cna);
 
 		checkData(BAM_DATA_FILE, BAI_DATA_FILE);
 

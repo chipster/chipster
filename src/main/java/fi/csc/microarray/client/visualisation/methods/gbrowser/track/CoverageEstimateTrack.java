@@ -1,25 +1,20 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 /**
  * Generic track for showing high level distribution of items (genes, transcripts, reads...) on the genome.
@@ -28,117 +23,197 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CoverageEstimateTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 200;
+    final public static int SAMPLING_GRANULARITY = 4;
 
-	private static final int MAX_VALUE_COUNT = SAMPLING_GRANULARITY * 2;
+	private static final int MAX_VALUE_COUNT = 1000;
 
-	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
-	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
-	private long minBpLength;
-	private Color color;
-	private boolean doLog;
-	private boolean removeTooWide;
+	private SortedSet<Feature> values = new TreeSet<Feature>();
+	private LinkedList<Feature> valueStorageOrder = new LinkedList<Feature>();
 
-	public CoverageEstimateTrack(Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
-
-		this.color = c;
-		this.doLog = doLog;
-		this.minBpLength = maxBpLength;
-		this.removeTooWide = removeTooWide;
-	}
+	private boolean strandSpecificCoverageType;
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
-		
 		// remove values when they get "too big"
 		while (values.size() > MAX_VALUE_COUNT) {
-			RegionContent oldest = valueStorageOrder.pop();
+			Feature oldest = valueStorageOrder.pop();
 			values.remove(oldest);
 		}
-
-		Iterator<RegionContent> iterator = values.iterator();
+		
+		List<RegionValue> forward = new LinkedList<RegionValue>();
+		List<RegionValue> reverse = new LinkedList<RegionValue>();		
+		
+		Iterator<Feature> iterator = values.iterator();
 		while (iterator.hasNext()) {
 
-			RegionContent regCont = iterator.next();
+			Feature regCont = iterator.next();
 			
 			// remove values that have gone out of view
-			if (!regCont.region.intersects(getView().getBpRegion())) {
+			if (!getView().requestIntersects(regCont.region)) {
+				
 				iterator.remove();
 				continue;
 			}
-			
-			// remove values that are too wide for this view (when zooming in)
-			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
-				iterator.remove();
-				continue;
-			}
-			
-//			// remove values that are too narrow to show (when zooming out)
-//			if (regCont.region.getLength() < (getView().getBpRegion().getLength() / (SAMPLING_GRANULARITY * 4))) {
-//				iterator.remove();
-//				continue;
-//			}
-			
-			// do the plotting for this concised value
+						
 			int x1 = getView().bpToTrack(regCont.region.start);
-			int x2 = getView().bpToTrack(regCont.region.end) + 2;
-			int y = 0;						
+			int x2 = getView().bpToTrack(regCont.region.end);
 			
-			double count;
-			if (this.getStrand() == Strand.FORWARD) {				
-				count = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_FORWARD));
-			} else  {
-				count = (Integer) (regCont.values.get(ColumnType.COVERAGE_ESTIMATE_REVERSE));
+			x2 = Math.max(x2, x1 + 2);
+			
+			int fCount = (Integer) (regCont.values.get(DataType.COVERAGE_ESTIMATE_FORWARD));
+			int rCount = (Integer) (regCont.values.get(DataType.COVERAGE_ESTIMATE_REVERSE));							
+			
+			if (!strandSpecificCoverageType) {				
+				fCount += rCount;
+				rCount = 0;
 			}
+
+			forward.add(new RegionValue(x1, x2, fCount / (float)regCont.region.getLength()));
+			reverse.add(new RegionValue(x1, x2, rCount / (float)regCont.region.getLength()));
+		}
 			
-			if (doLog) {
-				count = Math.log(count);
+		float[] continuousForward = makeContinuous(forward, getView().getWidth(), getView().getWidth() / SAMPLING_GRANULARITY * 4);
+		float[] continuousReverse = makeContinuous(reverse, getView().getWidth(), getView().getWidth() / SAMPLING_GRANULARITY * 4);		
+		
+		int[] smoohtForward = smooth(continuousForward);
+		int[] smoohtReverse = smooth(continuousReverse);
+		
+		int y = 0;
+		
+		Color forwardColor;
+		Color reverseColor;
+		
+		if (strandSpecificCoverageType) {
+			forwardColor = GBrowserConstants.FORWARD_COLOR;
+			reverseColor = GBrowserConstants.REVERSE_COLOR;
+		} else {
+			forwardColor = GBrowserConstants.getCoverageColor();
+			reverseColor = null;
+		}
+			
+		for (int i = 0; i < smoohtForward.length; i++) {
+			
+			int fValue = (int) smoohtForward[i];			
+			int rValue = (int) smoohtReverse[i];
+									
+			drawables.add(new RectDrawable(i, y, 1, fValue, forwardColor, null));
+			
+			if (strandSpecificCoverageType) {
+				drawables.add(new RectDrawable(i, y, 1, rValue, reverseColor, null));
 			}
-			
-			int height = (int) Math.min(count * (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS), getHeight());			
-
-			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
-
 		}
 		
 		return drawables;
 	}
+	
+	private class RegionValue {
+		public RegionValue(int start, int end, float value) {
+			this.start = start;
+			this.end = end;
+			this.value = value;
+		}
+		int start;
+		int end;
+		float value;
+	}
 
-	public void processAreaResult(AreaResult areaResult) {		
+	private float[] makeContinuous(List<RegionValue> points, int width, int maxPointDistance) {
+		
+		RegionValue lastPoint = null;
+		
+		float[] continuous = new float[width];
+		
+		for (RegionValue point : points) {
+					
+			for (int i = point.start; i < point.end; i++) {
+				if (i >= 0 && i < width) {
+					continuous[i] = point.value;  
+				}
+			}				
 
-		for (RegionContent content : areaResult.getContents()) {
-			if (content.region.intersects(getView().getBpRegion()) && content.values.containsKey(ColumnType.COVERAGE_ESTIMATE_FORWARD)) {
+			if (lastPoint != null) {
+
+					if (lastPoint.end < point.start && point.start - lastPoint.start <= maxPointDistance) {
+	
+						for (int i = lastPoint.end; i < point.start; i++) {
+							if (i >= 0 && i < width) {
+								continuous[i] = (point.value + lastPoint.value) / 2;  
+							}
+						}
+					}
+			}
+			
+			lastPoint = point;
+		}
+		
+		return continuous;		
+	}
+
+	private int[] smooth(float[] values) {
+		
+		final int WINDOW = 8;
+		
+		int[] smooth = new int[values.length];
+		
+		for (int i = 0; i < values.length; i++) {
+			int sum = 0;
+			int divisor = WINDOW;
+			for (int j = i - WINDOW / 2; j < i + WINDOW / 2; j++) {
+				if (j >= 0 && j < values.length) {
+					sum += values[j];
+				} else {
+					divisor--;
+				}
+			}
+			smooth[i] = sum / divisor;
+			//smooth[i] = (int) values[i]; //turn off smoothing
+		}
+				
+		return smooth;
+	}
+
+	public void processDataResult(DataResult dataResult) {		
+
+		for (Feature content : dataResult.getFeatures()) {
+			if (getView().requestIntersects(content.region) && content.values.containsKey(DataType.COVERAGE_ESTIMATE_FORWARD)) {
 								
 				values.add(content);
 				valueStorageOrder.add(content);
 			}
 		}
-
-		getView().redraw();
-	}
+	}   
     
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength);
-    }
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-                HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-				ColumnType.COVERAGE_ESTIMATE_FORWARD,
-				ColumnType.COVERAGE_ESTIMATE_REVERSE})));
-        return datas;
-    }
+	public void defineDataTypes() {
+		
+		if (isSuitableViewLength()) {
+			
+			addDataType(DataType.COVERAGE_ESTIMATE_FORWARD);
+			addDataType(DataType.COVERAGE_ESTIMATE_REVERSE);
+			
+		} else {
+			
+			addDataType(DataType.CANCEL);
+		}
+	}
 	
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 	    return 100;
+	}
+	
+	/**
+	 * @see GBrowserView#drawView
+	 */
+	@Override
+	public boolean canExpandDrawables() {
+		return true;
+	}
+
+	public void setStrandSpecificCoverageType(boolean b) {
+		strandSpecificCoverageType = b;
 	}
 }

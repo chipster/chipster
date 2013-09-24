@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.AbstractTsvLineParser;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
@@ -23,13 +23,22 @@ public class TsvSorter {
 	private int chrCol;
 	private int bpCol;
 	private ChromosomeNormaliser chromosomeNormaliser = new ChromosomeNormaliser() {
-		@Override
+
 		public String normaliseChromosome(String chromosomeName) {
-			// Do default chromosome name normalisation
-			return chromosomeName.replace("chr", "").replace(".fa", "");
+
+			// Leave prefix as it is
+			
+			// Remove postfix, if present
+			String SEPARATOR = ".";
+			if (chromosomeName.contains(SEPARATOR)) {
+				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
+			}
+			
+			return chromosomeName;
 		}
 	};
-	private TsvLineParser parser;
+	
+	private AbstractTsvLineParser parser;
 	
 	public void sort(File in, File out, int chrColumn, int startColumn) throws Exception {
 		this.chrCol = chrColumn;
@@ -37,14 +46,9 @@ public class TsvSorter {
 		externalSort(in, out);
 	}
 	
-	public void sort(File in, File out, int chrColumn, int startColumn, TsvLineParser parser) throws Exception {
+	public void sort(File in, File out, int chrColumn, int startColumn, AbstractTsvLineParser parser) throws Exception {
 		this.parser = parser;
 		sort(in, out, chrColumn, startColumn);
-	}
-	
-	public void sort(File in, File out, ChromosomeNormaliser chromosomeNormaliser, int chrColumn, int startColumn, TsvLineParser parser) throws Exception {
-		this.chromosomeNormaliser = chromosomeNormaliser;
-		sort(in, out, chrColumn, startColumn, parser);
 	}	
 
 	private class Row extends BpCoord {
@@ -291,8 +295,23 @@ public class TsvSorter {
 
 	public static void main(String[] args) throws Exception {
 
-		String filename = "/home/akallio/Desktop/cisREDgroup_contents_for_40193-STAT1_trimmed.tsv";
-		String resultFilename = filename + ".sorted";
-		new TsvSorter().sort(new File(filename), new File(resultFilename), 0, 1);				
+		try {
+		File in = new File(args[0]);
+		File out = new File(args[1]);
+		int chr = Integer.parseInt(args[2]);
+		int start = Integer.parseInt(args[3]);
+		
+		new TsvSorter().sort(in, out, chr, start);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+						
+			System.out.println(
+					"usage: \n" +
+					"  TsvSorter <file-in> <file-out> <chr-column> <start-position-column>\n" +
+					"  Column indexes start from 0\n\n" +
+					"example:\n " +
+					"  java -cp chipster-2.7.1.jar fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter Homo_sapiens.GRCh37.70.gtf Homo_sapiens.GRCh37.70-sort.gtf 0 3");
+		}				
 	}
 }

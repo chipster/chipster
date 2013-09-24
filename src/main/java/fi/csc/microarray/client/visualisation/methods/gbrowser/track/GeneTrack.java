@@ -3,28 +3,23 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Track for genes. Higher zoom level version of {@link TranscriptTrack}.
@@ -32,21 +27,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class GeneTrack extends Track {
 
-	private Collection<Gene> genes = new TreeSet<Gene>();
+	private HashSet<Exon> exons = new HashSet<Exon>();
 	private List<Integer> occupiedSpace = new ArrayList<Integer>();
-
-	private long maxBpLength;
-	private long minBpLength;
 
 	private Color color;
 
 
-	public GeneTrack(Color color, long minBpLength, long maxBpLength) {
-
+	public GeneTrack(Color color) {
+		super();
 		this.color = color;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
-		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
 	}
 
 	@Override
@@ -54,19 +43,21 @@ public class GeneTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		occupiedSpace.clear();
-		
-		TreeMap<PositionAndStringKey, Gene> sortedGenes = new TreeMap<PositionAndStringKey, Gene>();
-		
-		if (genes != null) {
+				
+		if (exons != null) {
+			
+			GeneSet geneSet = new GeneSet();				
+			geneSet.add(exons.iterator(), view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));		
+			
+			TreeMap<PositionAndStringKey, Gene> sortedGenes = new TreeMap<PositionAndStringKey, Gene>();
 
-			Iterator<Gene> iter = genes.iterator();
-			while (iter.hasNext()) {
+			Iterator<Gene> geneIter = geneSet.values().iterator();
+			while (geneIter.hasNext()) {
 
-				Gene gene = iter.next();
+				Gene gene = geneIter.next();
 
-				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!gene.getRegion().intersects(getView().getBpRegion())) {
-					iter.remove();
+				if (!getView().requestIntersects(gene.getRegion())) {
+					geneIter.remove();
 					continue;
 				}
 
@@ -75,6 +66,10 @@ public class GeneTrack extends Track {
 			}
 
 			for (Gene gene : sortedGenes.values()) {
+				
+				if (!getView().getBpRegion().intersects(gene.getRegion())) {
+					continue;
+				}
 				
 				String name = null;
 				
@@ -86,10 +81,10 @@ public class GeneTrack extends Track {
 					name = "n/a";
 				}
 
-				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
+				createDrawable(gene.getRegion().start, gene.getRegion().end, 4, color, name, drawables);
 			}
 		}
-
+		
 		return drawables;
 	}
 
@@ -113,55 +108,41 @@ public class GeneTrack extends Track {
 			occupiedSpace.add(end);
 		}
 
-		rect.y = (int) ((i + 1) * (height + 2));
+		rect.y = (int) ((i + 1) * (height + 10));
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, null));
 		if (isNameVisible(rect)) {
 
 			// draw name to leftmost visible part of the gene rectangle
-			drawTextAboveRectangle(name, drawables, rect, 10);
+			drawTextAboveRectangle(name, drawables, rect, 0);
 		}
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
-			Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+			Object value = content.values.get(DataType.VALUE);
+			
+			if (value instanceof Exon) {
+				Exon exon = (Exon)value;
 
-			if (gene.getRegion().getStrand() == getStrand()) {
+				if (exon.getRegion().getStrand() == getStrand()) {
 
-				//Genes at edge of edge of screen may contain only visible exons, but moving should
-				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
-				//new ones with better information for the current view location.
-				this.genes.remove(gene);
-
-				this.genes.add(gene);
+					this.exons.add(exon);
+				}
 			}
 		}
-		getView().redraw();
 	}
-	
+    
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }    
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.VALUE })));
-        return datas;
-    }
-	
+	public void defineDataTypes() {
+		addDataType(DataType.VALUE);
+	}
+    	
 	@Override
-	public int getMinHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
 }

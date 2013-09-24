@@ -96,29 +96,30 @@ public class DataPoint
         double screenRadius = 0.5;
         if (effectiveRadius * width > 0.5) {
             screenRadius = effectiveRadius * width;
-        }
+        }       
         
         int x = deviceCoords[0][0]-(int)screenRadius;
         int y = deviceCoords[0][1]-(int)screenRadius;
         int w = (int)(screenRadius*2);
         int h = (int)(screenRadius*2);
      
-        if(paintMode == CoordinateArea.PaintMode.PIXEL){
+        if(paintMode == CoordinateArea.PaintMode.RECT){
         	g2d.setPaint(color);        
-        	g2d.drawLine(x + w/2, y + h/2,x + w/2, y + h/2);
+        	g2d.fillRect(x, y, w, h);
         	
-        } else {//(CoordinateArea.getPaintMode() == CoordinateArea.PaintMode.GRADIENT){
+        } else {
         	paintBall(x, y, w, h, color, g2d);
         }
                               
         if (selected == true) {
-        	g2d.setPaint(Color.WHITE);
+        	g2d.setPaint(Color.gray);
         	g2d.drawOval(x-2, y-2, w+4, h+4);
         }
     }
     
-    public static void paintBall(int x, int y, int w, int h, Color c, Graphics2D g2d) {
-    	int radius = (int)(w * 0.75);
+    public static void paintBall(int x, int y, int w, int h, Color c, Graphics2D g2d) {    	  
+    	
+    	int radius = (int)(w * 1);
     	radius = radius > 0 ? radius : 1;
     	
     	g2d.setPaint(new RoundGradientPaint(

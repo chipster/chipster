@@ -32,7 +32,7 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig", "text/bed", "text/fastq", "text/gtf", "text/vcf", "text/qual");
+		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig", "text/bed", "text/fastq", "text/gtf", "text/vcf", "text/qual", "text/mothur-oligos", "text/mothur-names", "text/mothur-groups", "text/sff");
 	}
 	
 	public static JTextPane makeTxtPane(String txt) {

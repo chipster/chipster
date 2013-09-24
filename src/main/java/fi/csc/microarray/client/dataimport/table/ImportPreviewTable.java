@@ -205,16 +205,7 @@ public class ImportPreviewTable extends JXTable implements MouseMotionListener, 
 				
 				// Default
 				this.setForeground(UIManager.getColor("Table.foreground"));
-				
-				if(columnTypeManager.getColumnType(column).equals(ColumnType.FLAG_LABEL) &&
-						screen.getToolsFrame().getFlagValuePanel().isFlagModificationEnabled()){											
 					
-					// Flags
-					if(columnTypeManager.getColumnType(column).equals(ColumnType.FLAG_LABEL) &&
-						screen.getToolsFrame().getFlagValuePanel().isFlagModificationEnabled()){
-						this.setText(screen.getFlagTrimmer().doTrimming(this.getText(), column));
-					}
-				}	
 				this.setBackground(columnTypeManager.getColumnType(column).getColor());
 				
 			}

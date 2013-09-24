@@ -32,10 +32,12 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.ChipVisualisation;
+import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea.PaintMode;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.ScaleUtil;
 
 /**
  * Class for 3d scatterplot implementing functionality required in interface Visualisation. The side panel is done and handled here, but the
@@ -74,6 +76,10 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	protected JComboBox yBox;
 	protected JComboBox zBox;
 	protected JComboBox colorBox;
+	
+	private JCheckBox blackBackgroundCheckBox;
+	private JLabel paintModeLabel;
+	private JComboBox<PaintMode> paintModeBox;
 
 	private JButton useButton;
 
@@ -84,10 +90,11 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
 
 	private static final Cursor ROTATE_AND_ZOOM_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
-
-	protected DataModel dataModel = new DataModel();
+	private static final int DEFAULT_TO_DOT_PAINT_MODE = 20000;
 
 	protected DataBean data;
+	protected ColorScalePanel scalePanel;
+	protected DataModel dataModel;
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -118,6 +125,14 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 			autoCheckBox = new JCheckBox("Automated rotation");
 			autoCheckBox.addActionListener(this);
+			
+			blackBackgroundCheckBox = new JCheckBox("Black background");
+			blackBackgroundCheckBox.setSelected(false);
+			blackBackgroundCheckBox.addActionListener(this);
+			
+			paintModeLabel = new JLabel("Symbol: ");
+			paintModeBox = new JComboBox<PaintMode>(PaintMode.values());
+			paintModeBox.addActionListener(this);
 
 			JPanel settings = this.createSettingsPanel();
 			list = createListPanel();
@@ -147,14 +162,22 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			paramPanel.add(toXZ, c);
 			c.gridx++;
 			paramPanel.add(toYZ, c);
-
-			c.gridx = 0;
 			c.gridy++;
+			c.gridx = 0;
 			c.gridwidth = 3;
-			c.fill = GridBagConstraints.BOTH;
-			c.weighty = 1.0;
 			paramPanel.add(autoCheckBox, c);
 			c.gridy++;
+			paramPanel.add(blackBackgroundCheckBox, c);
+			c.gridy++;
+			paramPanel.add(paintModeLabel, c);
+			c.gridy++;
+			paramPanel.add(paintModeBox, c);
+			c.gridy++;
+			paramPanel.add(new JLabel(" "), c);
+			c.gridy++;
+			
+			c.fill = GridBagConstraints.BOTH;
+			c.weighty = 1.0;
 			c.insets.set(5, 0, 0, 0);
 			paramPanel.add(tabPane, c);
 		}
@@ -220,7 +243,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		c.gridy++;
 		settingsPanel.add(colorLabel, c);
 		c.gridy++;
-		settingsPanel.add(colorBox, c);
+		settingsPanel.add(colorBox, c);		
 		c.gridy++;
 		settingsPanel.add(useButton, c);
 		c.gridy++;
@@ -298,6 +321,33 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 				stopAutoRotation();
 			}
 		}
+		
+		if (source == blackBackgroundCheckBox) {
+			
+			updateBackgroundColor();
+		}
+		
+		if (source == paintModeBox) {
+			
+			coordinateArea.setPaintMode((PaintMode) paintModeBox.getSelectedItem());
+		}
+	}
+	
+	private void updateBackgroundColor() {
+		Color bg;
+		Color fg;
+		
+		if (blackBackgroundCheckBox.isSelected()) {
+			bg = Color.black;
+			fg = Color.white;
+		} else {
+			bg = Color.white;
+			fg = Color.black;
+		}			
+		coordinateArea.setBackground(bg);
+		coordinateArea.setForeground(fg);
+		scalePanel.setBackground(bg);
+		scalePanel.setForeground(fg);
 	}
 
 	protected void useButtonPressed() {
@@ -308,8 +358,6 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		vars.add((Variable) colorBox.getSelectedItem());
 
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.SCATTERPLOT3D, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
-
-		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);
 	}
 
 	public void stopAutoRotation() {
@@ -372,6 +420,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		if (variables.size() >= 4 && variables.get(0) != null && variables.get(1) != null && variables.get(2) != null && variables.get(3) != null) {
 
 			retrieveData(variables);
+			
 
 			JPanel panel = new JPanel();
 			panel.setLayout(new BorderLayout());
@@ -379,21 +428,26 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			coordinateArea = new CoordinateArea(this);
 			coordinateArea.addKeyListener(this);
 			coordinateArea.requestFocus();
+			
+			if (getDataModel().getDataArray().length > DEFAULT_TO_DOT_PAINT_MODE) {
+				paintModeBox.setSelectedItem(PaintMode.RECT);
+			}
 
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 			split.setDividerSize(3);
 			split.setOpaque(true);
 			split.setRightComponent(coordinateArea);
+			scalePanel = null;
 			split.setLeftComponent(getColorScalePanel());
 			split.setContinuousLayout(true);
+			split.setDividerLocation(150);
 
 			panel.add(split, BorderLayout.CENTER);
 
-			// panel.add(coordinateArea, BorderLayout.CENTER);
-			// panel.add(getColorScalePanel(), BorderLayout.WEST);
-
 			coordinateArea.setCursor(ROTATE_CURSOR);
 			this.setToolsEnabled(true);
+			
+			updateBackgroundColor();
 
 			return panel;
 		}
@@ -401,7 +455,22 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	}
 
 	protected JComponent getColorScalePanel() {
-		return new ColorScalePanel(dataModel);
+		
+		if (scalePanel == null) {
+			List<String> colorGroupNames = new LinkedList<>();
+			List<Float> colorScaleValues = new LinkedList<>();
+
+			float[] scale = getDataModel().getColorScaleValues();
+			for (int i = 0; i < scale.length - 1; i++) {
+				String floor = ScaleUtil.format(scale[i]);
+				String ceiling = ScaleUtil.format(scale[i+1]);
+				colorGroupNames.add("" + floor + " - " + ceiling);
+				colorScaleValues.add(scale[i]);
+			}
+
+			scalePanel = new ColorScalePanel(getDataModel(), colorGroupNames, colorScaleValues);
+		}
+		return scalePanel;
 	}
 
 	protected void retrieveData(List<Variable> variables) throws MicroarrayException {
@@ -409,12 +478,16 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		Iterable<Float> xValues = data.queryFeatures(variables.get(0).getExpression()).asFloats();
 		Iterable<Float> yValues = data.queryFeatures(variables.get(1).getExpression()).asFloats();
 		Iterable<Float> zValues = data.queryFeatures(variables.get(2).getExpression()).asFloats();
-		Iterable<Float> cValues = data.queryFeatures(variables.get(3).getExpression()).asFloats();
+		Iterable<Float> cValues = data.queryFeatures(variables.get(3).getExpression()).asFloats();		
 
-		dataModel.setData(identifier, xValues, yValues, zValues, cValues);
+		getDataModel().setData(identifier, xValues, yValues, zValues, cValues);	
 	}
 
 	public DataModel getDataModel() {
+		
+		if (dataModel == null) {
+			dataModel = new DataModel();
+		}
 		return dataModel;
 	}
 

@@ -2,36 +2,26 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 public class RepeatMaskerTrack extends Track{
 
-	private long minBpLength;
-	private long maxBpLength;
 	private Color color;
 
-	private Collection<RegionContent> regions = new TreeSet<RegionContent>();
+	private Collection<Feature> regions = new TreeSet<Feature>();
 
-	public RepeatMaskerTrack(long minBpLength, long maxBpLength){
-
+	public RepeatMaskerTrack(){
+		super();
 		this.color = Color.lightGray;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -41,15 +31,15 @@ public class RepeatMaskerTrack extends Track{
 
 		if (regions != null) {
 
-			Iterator<RegionContent> iter = regions.iterator();
+			Iterator<Feature> iter = regions.iterator();
 
-			RegionContent regionContent = null;
+			Feature regionContent = null;
 
 			while (iter.hasNext()) {
 
 				regionContent = iter.next();
 
-				if (!regionContent.region.intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(regionContent.region)) {
 					iter.remove();
 					continue;
 				}
@@ -63,7 +53,7 @@ public class RepeatMaskerTrack extends Track{
 				long endX = getView().bpToTrack(endBp);
 
 				drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-						(int)(endX-startX), this.getHeight()), color, color));
+						(int)(endX-startX), this.getTrackHeight()), color, color));
 			}
 		}
 
@@ -72,35 +62,23 @@ public class RepeatMaskerTrack extends Track{
 	}
 
 	@Override
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		this.regions.addAll(areaResult.getContents());
-		getView().redraw();
+		this.regions.addAll(dataResult.getFeatures());
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 5;
-	}
-
-	@Override
-	public boolean isVisible() {
-		// visible region is not suitable
-		return (super.isVisible() &&
-				getView().getBpRegion().getLength() > minBpLength &&
-				getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-		HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-				HashMap<AreaRequestHandler, Set<ColumnType>>();
-		datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {})));
-		return datas;
 	}
 	
     @Override
-    public String getName() {
+	public void defineDataTypes() {
+    	addDataType(DataType.REGION);
+	}
+	
+    @Override
+    public String getTrackName() {
     	return "RepeatMaskerTrack";
     }
 }

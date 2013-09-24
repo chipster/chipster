@@ -1,10 +1,10 @@
-# TOOL pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Performs a statistical test for enrichmens of KEGG pathways in the predicted gene targets of a list of miRNA ID:s.)
+# TOOL pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Given a list of miRNA identifiers, tests for enrichment of KEGG pathways in their predicted gene targets.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT hyperg_kegg.tsv: hyperg_kegg.tsv 
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
-# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
-# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (minimum number of genes in in the reference list that map to a pathway)
-# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
+# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (Method for adjusting the p-value in order to account for multiple testing)
+# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (Minimum number of genes in in the reference list that map to a pathway)
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 

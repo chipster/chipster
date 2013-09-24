@@ -3,19 +3,19 @@
 <head><title></title></head>
 <body>
 
-<h2>miRNA-seq / Correlate miRNA with target expression</h2>
+<h2>miRNA-seq / Correlate miRNA with gene expression array data</h2>
 
 <h3>Description</h3>
 
-<p>Given a list of miRNAs and a matching data set with gene expression array data from a multi-condition or time-series experiment,
- this tool identifies which of the target genes that correlate positively or negatively with the miRNA expression.
- Note that the miRNA and gene expression data sets must have the same number of conditions or time-points.</p>
+<p>Given a list of miRNAs and matching gene expression array data,
+ this tool identifies which of the target genes correlate positively or negatively with the miRNA expression.
+ Note that the miRNA and gene expression data sets must have the same number of samples.</p>
 
 <h3>Parameters</h3>
 
 <ul>
 <li>Order column miRNA [EMPTY] </li>
-<li>Order column gene [EMPTY</li>
+<li>Order column gene [EMPTY]</li>
 <li>ID type (probe_id, entrez_id) [probe_id]</li>
 <li>Correlation method (pearson, spearman, kendall) [pearson]</li>
 <li>P-value threshold (0..1) [0.05]</li>
@@ -24,24 +24,19 @@
 
 <h3>Details</h3>
 
-<p>This tool integrates expression data from matching multi-condition or time-course data sets with miRNA and gene
-expression, and performs a correlation analysis to identify which of the gene targets exhibit significant positive
-or negative correlation with the miRNA expression. In order to be able to match up the different conditions, or time-points, in the two data sets
-a column that specifies the sample order has to be added to the phenodata file of each data set. It is advisable not to use the "group" column for this purpose,
-but rather make an additional column titled "order". NOTE: you need to select both the file with the miRNA expression and the file with the matching gene expression,
-which is done by holding down the Control key while mousing over the files in the "Datasets" or "Workflow" windows.<br>
+<p>You need to have miRNA-seq and gene expression array data from the same samples, and indicate the matching samples with numbers in a given phenodata column.<br>
 
-<br>The analysis consists of two parts, that perform the following:<br>
+<br>The analysis consists of two parts:<br>
 
-<br>Firstly, predicted target genes for the list of miRNAs are fetched from the targetScan and PicTar databases, after which an intersection
-is made so as to include only those genes that are predicted in both databases. Then, another intersection is made with the list of genes
+<br>Firstly, predicted target genes for the list of miRNAs are fetched from the TargetScan and PicTar databases, and only those genes that are predicted in both databases are included. 
+Then, another intersection is made with the list of genes
 present in the matching gene expression data set.<br>
 
 <br>Secondly, the correlation is calculated between the expression of a miRNA and each of its target genes, using Pearson, Spearman or Kendall's measure of correlation.
-Pearson correlation is parametric, so can be sensitive to outliers, while the rank-based Spearman method is not and therefore more robust. In cases when the direction
+Pearson correlation is parametric, so it can be sensitive to outliers, while the rank-based Spearman method is more robust. In cases when the direction
 of the change between two-conditions, or time-points, is more important than the absolute values of the expression profile, Kendall's correlation method is recommended.
 
-The statistically significant results are reported in separate tables for the positively and negatively correlating genes, respectively.  
+The statistically significant results are reported in separate tables for the positively and negatively correlating genes.  
   
 </p>
 

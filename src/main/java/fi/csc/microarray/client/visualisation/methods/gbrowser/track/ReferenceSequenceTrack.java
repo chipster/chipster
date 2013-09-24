@@ -2,26 +2,20 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.Sequence;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Sequence;
 
 /**
  * Track for showing the reference sequence. Useful only for low zoom levels.
@@ -30,14 +24,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.Sequence;
 public class ReferenceSequenceTrack extends Track {
 
 	private TreeMap<BpCoord, String> reads = new TreeMap<BpCoord, String>();
-
-	private long maxBpLength;
-
-	public ReferenceSequenceTrack(long maxBpLength) {
-
-		this.maxBpLength = maxBpLength;
-
-	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
@@ -51,7 +37,7 @@ public class ReferenceSequenceTrack extends Track {
 
 				Entry<BpCoord, String> read = iter.next();
 
-				if (!getView().getBpRegion().contains(read.getKey())) {
+				if (!getView().requestContains(read.getKey())) {
 
 					iter.remove();
 					continue;
@@ -115,13 +101,13 @@ public class ReferenceSequenceTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 		
 		//Sequence strings has to be cut in pieces to recognise data that we have already
 		
-		for (RegionContent rc : areaResult.getContents()) {
+		for (Feature rc : dataResult.getFeatures()) {
 			
-			String seq = ((String) rc.values.get(ColumnType.SEQUENCE));
+			String seq = ((String) rc.values.get(DataType.SEQUENCE));
 			
 			if (seq != null) { //when showing negative coordinates
 				for ( int i = 0; i < seq.length(); i++ ) {
@@ -132,33 +118,20 @@ public class ReferenceSequenceTrack extends Track {
 				}
 			}
 		}
-		
-		getView().redraw();
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 20;
 	}
     
     @Override
-    public boolean isVisible() {
-        // visible region is not suitable
-        return (super.isVisible() &&
-                getView().getBpRegion().getLength() <= maxBpLength);
-    }
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.SEQUENCE })));
-        return datas;
-    }
+	public void defineDataTypes() {
+    	addDataType(DataType.SEQUENCE);
+	}
 
 	@Override
-	public String getName() {
-		return "Reads";
+	public String getTrackName() {
+		return "Reference sequence";
 	}
 }

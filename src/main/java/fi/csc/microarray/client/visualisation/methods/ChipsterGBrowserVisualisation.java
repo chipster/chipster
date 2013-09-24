@@ -5,10 +5,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,19 +21,24 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.DataUrl;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.Interpretation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser.TrackType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.BrowserSelectionListener;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
@@ -75,25 +80,23 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 */
 		@Override
 		public InputStream getInputStream() throws IOException {
-							
 			return bean.getContentByteStream();
 		}
-		
+
 		@Override
 		public File getLocalFile() throws IOException {
+			//Chipster2 backport fix
 			return Session.getSession().getDataManager().getLocalFile(bean);
 		}
 		
 		@Override
-		public URL getUrl() {
-			try {
-				return getLocalFile().toURI().toURL();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
+		public URL getUrl() throws IOException {
+			//Chipster2 backport fix
+			return getLocalFile().toURI().toURL();
+		}
+
+		public DataBean getDataBean() {
+			return bean;
 		}
 	}
 	
@@ -113,14 +116,15 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	 * 
 	 * @author klemela
 	 */
-	private static class ChipsterGBrowser extends GBrowser implements PropertyChangeListener {
+	private static class ChipsterGBrowser extends GBrowser implements PropertyChangeListener, BrowserSelectionListener {
 		
 		private ClientApplication application;
+		private List<DataBean> datas;
 
 		public ChipsterGBrowser() {
-			this.application = Session.getSession().getApplication();
+			this.application = Session.getSession().getApplication();							
 		}
-		
+
 		@Override
 		public void reportException(Exception e) {
 			application.reportException(e);
@@ -156,32 +160,105 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 			super.showVisualisation();
 							
-			// Add selection listener (but try to remove first old one that would prevent garage collection of the visualization) 
+			// Add selection listener (but try to remove first old one that would prevent garbage collection of the visualization) 
 			application.removeClientEventListener(this);
 			application.addClientEventListener(this);
+			
+			getSelectionManager().addSelectionListener(this);
+			
+			//Update selections for every data
+			for (DataBean bean : datas) {
+				updateSelectionsFromChipster(bean, null);
+			}
 		}
 		
 		@Override
-		public void propertyChange(PropertyChangeEvent event) {
-			if (event instanceof PointSelectionEvent) {
+		public void selectionChanged(DataUrl data, Selectable changedSelectable, Object eventSource) {
+		
+			//Selection changed in genome browser and notify Chipster about it
+			
+			if (eventSource != this) {
+				//The event came from Chipster. Do not send it forward.
+				return;
+			}
+			
+			DataSelectionManager dataSelectionManager = Session.getSession().getApplication().getSelectionManager();
+						
+			DataBean dataBean = null;
 
-				IntegratedEntity sel = application.getSelectionManager().getSelectionManager(null).getPointSelection();
+			if (data instanceof BeanDataFile) {
+				BeanDataFile dataBeanFile = (BeanDataFile) data;
+				dataBean = dataBeanFile.getDataBean();
+			} else {
+				return;
+			}
 
-				// Check if we can process this
-				if (sel.containsKey("chromosome") && sel.containsKey("start")) {
+			IntegratedSelectionManager rowSelectionManager = dataSelectionManager.getSelectionManager(dataBean);
 
-					Chromosome chr = new Chromosome(sel.get("chromosome"));
-					Long start = Long.parseLong(sel.get("start"));
+			HashSet<Integer> selected = new HashSet<>();								
+			for (Selectable selectable : getSelectionManager().getSelectableSet(data)) {
 
-					Long end;
-					if (sel.containsKey("end")) {
-						end = Long.parseLong(sel.get("end"));
-					} else {
-						end = null;
-					}
-					
-					setLocation(chr, start, end);
+				Integer row = selectable.getIndexKey().getRowNumber();
+
+				//Row number is available only with small files (using InMemoryIndex)
+				if (row != null) {					
+					selected.add(row);
 				}
+			}			
+			rowSelectionManager.setSelected(selected, eventSource);			
+		}			
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			
+			//Do not process this event, if it originated from the genome browser
+			if (event instanceof PointSelectionEvent && event.getSource() != this) {
+
+				PointSelectionEvent pse = (PointSelectionEvent) event;
+				DataBean bean = pse.getData();
+				
+				updateSelectionsFromChipster(bean, event.getSource());
+			}		
+		}
+
+		private void updateSelectionsFromChipster(DataBean bean, Object eventSource) {
+			
+			/*
+			 * Update selections
+			 */
+			
+			DataSelectionManager dataSelectionManager = application.getSelectionManager();
+			IntegratedSelectionManager rowSelectionManager = dataSelectionManager.getSelectionManager(bean);
+			
+			BeanDataFile data = new BeanDataFile(bean);
+			
+			//Convert int array to Integer set
+			HashSet<Integer> rows = new HashSet<Integer>();
+			for (int i : rowSelectionManager.getSelectionAsRows()) {					
+				rows.add((Integer)i);
+			}								
+
+			getSelectionManager().setRowSelections(data, rows, eventSource);
+							
+			/*
+			 * Not a selection but a request to move
+			 */
+			
+			IntegratedEntity sel = application.getSelectionManager().getSelectionManager(null).getPointSelection();
+
+			if (sel != null && sel.containsKey("chromosome") && sel.containsKey("start")) {
+
+				Chromosome chr = new Chromosome(sel.get("chromosome"));
+				Long start = Long.parseLong(sel.get("start"));
+
+				Long end;
+				if (sel.containsKey("end")) {
+					end = Long.parseLong(sel.get("end"));
+				} else {
+					end = null;
+				}
+				
+				setLocation(chr, start, end);
 			}
 		}
 		
@@ -193,9 +270,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			for (Interpretation interpretation : getInterpretations()) {
 				initialiseUserData(interpretation.getPrimaryData());
 				initialiseUserData(interpretation.getIndexData());
-				for (DataUrl summaryData : interpretation.getSummaryDatas()) {
-					initialiseUserData(summaryData);
-				}
 			}
 		}
 
@@ -236,17 +310,33 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		}
 		
+		@Deprecated
 		public URL getRemoteAnnotationsUrl() throws Exception {
 			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 			
-			URL publicURL = fileBroker.getPublicUrl();
-			if (publicURL != null) {
-				return new URL(publicURL + "/" + ANNOTATIONS_PATH);
-
-			} else {
-				return null;
+			List<URL> publicFiles = fileBroker.getPublicFiles();
+			if (publicFiles != null) {
+				
+				//find only the annotations folder for now
+				for (URL url : publicFiles) {
+					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
+						
+						String urlString = url.toString();
+						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
+						return new URL(annotationString);
+					}
+				}
 			}
+			
+			return null;			
 		}
+
+		public List<URL> getRemoteAnnotationFiles() throws Exception {
+			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			
+			return fileBroker.getPublicFiles();			
+		}
+		
 		
 		public File getLocalAnnotationDir() throws IOException {
 			return DirectoryLayout.getInstance().getLocalAnnotationDir();
@@ -274,13 +364,16 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			
 			return sampleNames;
 		}
+
+		public void setDatas(List<DataBean> datas) {
+			this.datas = datas;
+		}
 	}
 	
 	private ChipsterGBrowser browser;
 
 	private final ClientApplication application = Session.getSession()
 			.getApplication();
-
 
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -297,8 +390,16 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+
+		browser.setDatas(datas);
 		
-		return browser.getVisualisation(interpretUserDatas(datas));
+		List<Interpretation> interpretations = interpretUserDatas(datas);
+		
+		if (interpretations != null) {
+			return browser.getVisualisation(interpretations);
+		} else {
+			return null;
+		}
 	}
 
 	private boolean isIndexData(DataBean bean) {
@@ -345,24 +446,28 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			} else if ((data.isContentTypeCompatitible("text/gtf"))) {
 				// Gtf file
 				interpretations.add(new DataBeanInterpretation(TrackType.GTF, new BeanDataFile(data)));
-			} else if ((data.isContentTypeCompatitible("text/tab") && 
-					data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
+											
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+					
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN) &&
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN)) {
+						
+					interpretations.add(new DataBeanInterpretation(TrackType.TSV, new BeanDataFile(data)));	
+				}
+							
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN) &&
 					data.hasTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN) &&
-					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN))) {
-				
-				// Cna file
-				
-				DataBeanInterpretation freqs = new DataBeanInterpretation(TrackType.CNA_FREQUENCIES, new BeanDataFile(data, data.getName()));
-				freqs.setName(data.getName() + " frequencies");
-				interpretations.add(freqs);
-				
-				DataBeanInterpretation calls = new DataBeanInterpretation(TrackType.CNA_CALLS, new BeanDataFile(data, data.getName()));
-				calls.setName(data.getName() + " calls");
-				interpretations.add(calls);
-				
-				DataBeanInterpretation logratios = new DataBeanInterpretation(TrackType.CNA_LOGRATIOS, new BeanDataFile(data, data.getName()));
-				logratios.setName(data.getName() + " log ratios");
-				interpretations.add(logratios);
+					data.hasTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN)) {
+					
+					interpretations.add(new DataBeanInterpretation(TrackType.TSV_WITH_ROW_ID, new BeanDataFile(data)));
+				}
+			
+				if (data.hasTypeTag(MicroarrayModule.TypeTags.CNA)) {
+
+					// Cna file				
+					interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data, data.getName())));
+				}
 			}						
 		}
 
@@ -384,11 +489,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 
 			if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-					(data.getName().contains(".bam-summary"))) {
-				// BAM summary file (from custom preprocessor)
-				primaryInterpretation.getSummaryDatas().add(new BeanDataFile(data));
-
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(isIndexData(data))) {
 				// BAI file
 				if (primaryInterpretation.getIndexData() != null) {
@@ -403,13 +503,35 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
 				
 				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
-				DataBean indexBean = application.getDataManager().getDataBean(indexName);
 				
-				if (indexBean == null) {
+				//Chipster2 backport fixes on following 20 lines
+				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
 				
-					return null; // BAM is missing BAI
-				} else {
+				if (beanList.size() == 1) {
+					
+					DataBean indexBean = beanList.get(0);
 					interpretation.setIndexData(new BeanDataFile(indexBean));
+					
+				} else if (beanList.size() > 1) { 					
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+						browser.showDialog(
+								"Unable to determine index file"  , 
+								"There are several index files with name '" + indexName + "'. " +
+										"Please identify the right index file by selecting it or rename bam and bai file pairs with unique names." , 
+										null, false, false, true, true);
+						return null;
+					}
+					
+				} else {
+					if (browser != null) {						
+						//A real visualization attempt, not just applicability check
+
+						browser.showDialog("Missing index file", 
+								"There is no index file for data '" + interpretation.getPrimaryData().getName() + "'.",
+								null, false, false, true, true);
+					}
+					return null;
 				}
 			}
 		}

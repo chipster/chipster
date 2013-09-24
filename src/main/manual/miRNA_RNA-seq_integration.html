@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>miRNA-seq / Correlate miRNA-seq and RNA-seq data</h2>
+
+<h3>Description</h3>
+
+<p>Given miRNA-seq data and a matching set of RNA-seq data from the same samples, 
+ this tool identifies which genes correlate negatively (or positively) with the miRNA expression.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Phenodata column indicating sample order in miRNA data [EMPTY] </li>
+<li>Phenodata column indicating sample order in RNA data [EMPTY]</li>
+<li>Normalization (none, cpm, TMM) [none]</li>
+<li>Filter by (correlation, p-value) [correlation]</li>
+<li>Filtering threshold (0..1) [0.90]</li>
+<li>Output also the full miRNA-RNA correlation matrix (yes, no) [no]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>You need to have miRNA-seq and RNA-seq data from the same samples. The two data sets should optimally have the same number of conditions or time-points, but the tool
+ is also able to extract just the matching samples. You need to indicate the matching samples with numbers in a given phenodata column. The following analysis steps are performed:</p>
+
+<ol>
+   <li>Pearson correlation coefficients and the corresponding p-values are calculated for all possible miRNA-mRNA pairs.</li>
+   <li>The correlation table is filtered so that</li>
+   <ul>
+      <li>genes that don't have Entrez Gene IDs are removed</li>
+      <li>miRNAs that are not expressed in any of the samples are removed</li>
+      <li>miRNAs that are not included in either Miranda, miRBase, TargetScan, Pictar or Tarbase database are removed</li>
+   </ul> 
+   <li>miRNA-RNA pairs that are not included in any of the above listed databases are removed</li>
+</ol>
+
+
+<h3>Output</h3>
+
+<p>The following result tables are generated:
+   <ul>
+      <li>Result table containing the known interactions only (step 3)</li>
+      <li>Result table containing miRNAs which have annotation in the above mentioned databases (step 2)</li>
+      <li>The unfiltered, full correlation matrix (step 1). It has as many rows as there are genes in the data, and three times as many columns as there are miRNAs. The columns consists of three sets of data: correlation (columns with the prefix cor. in their names), p-values (prefix p.) and number of observations (prefix .nObs).</li>
+   </ul>
+</p>
+
+<h3>References</h3>
+<p>More info on the databases of predicted miRNA targets can be found at:<br/>
+<br/>TargetScan<br/>
+http://www.targetscan.org/
+<br/><br> PicTar<br/>http://pictar.mdc-berlin.de/</p>
+
+</body>
+</html>

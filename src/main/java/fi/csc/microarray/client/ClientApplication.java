@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -24,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -71,7 +69,6 @@ import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -95,8 +92,9 @@ public abstract class ClientApplication {
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract void initialiseGUI() throws MicroarrayException, IOException;
+	protected abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
+	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
@@ -108,7 +106,7 @@ public abstract class ClientApplication {
     public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
     public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
     public abstract void visualiseWithBestMethod(FrameType target);
-    public abstract void reportInitialisation(String report, boolean newline);
+    public abstract void reportInitialisationThreadSafely(String report, boolean newline);
     public abstract Icon getIconFor(DataItem data);
 	public abstract void viewHelp(String id);
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
@@ -200,6 +198,8 @@ public abstract class ClientApplication {
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
 		
+		//Executed outside EDT, modification of Swing forbidden
+		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
 
@@ -209,7 +209,7 @@ public abstract class ClientApplication {
 			fetchAnnouncements();
 			
 			// Initialise modules
-			ModuleManager modules = new ModuleManager(requestedModule);
+			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
 
 			// Initialise workflows
@@ -224,24 +224,24 @@ public abstract class ClientApplication {
 		
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
+			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisation(" ok", false);
+			reportInitialisationThreadSafely(" ok", false);
 
 			// Check services
-			reportInitialisation("Checking remote services...", true);
+			reportInitialisationThreadSafely("Checking remote services...", true);
 			String status = serviceAccessor.checkRemoteServices();
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
 				throw new Exception(status);
 			}
-			reportInitialisation(" ok", false);
+			reportInitialisationThreadSafely(" ok", false);
 			
 			// Fetch descriptions from compute server
-	        reportInitialisation("Fetching analysis descriptions...", true);
-	        this.initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			this.toolModules.addAll(serviceAccessor.getModules());
+			reportInitialisationThreadSafely("Fetching analysis descriptions...", true);
+			initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
+			toolModules.addAll(serviceAccessor.getModules());
 
 			// Add local modules also when in remote mode
 			if (!isStandalone) {
@@ -260,16 +260,20 @@ public abstract class ClientApplication {
 			toolModules.add(internalModule);
 
 			// Update to splash screen that we have loaded tools
-			reportInitialisation(" ok", false);
-			
+			reportInitialisationThreadSafely(" ok", false);
+
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
 
 			// definitions are now initialised
 			definitionsInitialisedLatch.countDown();
 			
+			reportInitialisationThreadSafely("Checking session backups...", true);
+			File mostRecentDeadTempDirectory = checkTempDirectories();
+			reportInitialisationThreadSafely(" ok", false);
+
 			// we can initialise graphical parts of the system
-			initialiseGUI();
+			initialiseGUIThreadSafely(mostRecentDeadTempDirectory);
 
 			// Remember changes to confirm close only when necessary and to backup when necessary
 			manager.addDataChangeListener(new DataChangeListener() {
@@ -289,34 +293,29 @@ public abstract class ClientApplication {
 			memoryCheckTimer.setRepeats(true);
 			memoryCheckTimer.setInitialDelay(0);
 			memoryCheckTimer.start();
-			
+
 			// Start checking if background backup is needed
 			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
 			aliveSignalFile.createNewFile();
 			aliveSignalFile.deleteOnExit();
-			
+
 			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							if (unbackuppedChanges) {
-								
-								File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
-								sessionFile.deleteOnExit();
-								
-								try {
-									getDataManager().saveLightweightSession(sessionFile);
-									
-								} catch (Exception e) {
-									logger.warn(e); // do not care that much about failing session backups
-								}
-							}
-							unbackuppedChanges = false;
+					if (unbackuppedChanges) {
+
+						File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
+						sessionFile.deleteOnExit();
+
+						try {
+							getDataManager().saveLightweightSession(sessionFile);
+
+						} catch (Exception e1) {
+							logger.warn(e1); // do not care that much about failing session backups
 						}
-					});
+					}
+					unbackuppedChanges = false;
 				}
 			});
 
@@ -324,13 +323,11 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
-
-
 	}
 
 	/**
@@ -759,13 +756,13 @@ public abstract class ClientApplication {
 			// Skip current temp directory
 			if (directory.equals(getDataManager().getRepository())) {
 				continue;
-			}
-			
+			}			
 			
 			// Check is it alive, wait until alive file should have been updated
 			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
 			long originalLastModified = aliveSignalFile.lastModified();
-			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {
+			boolean unsuitable = false;
+			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {			
 				
 				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
 				// until we see new update that confirms it is alive, or have waited long
@@ -779,12 +776,14 @@ public abstract class ClientApplication {
 					// So we will skip this and if it was dead, it will be anyway 
 					// cleaned away in the next client startup.
 					
-					continue;
+					unsuitable = true;
+					break;
 				}
 				
 				// Check if updated
 				if (aliveSignalFile.lastModified() != originalLastModified) {
-					continue; // we saw an update, it is alive
+					unsuitable = true;
+					break; // we saw an update, it is alive
 				}
 
 				// Wait for it to update
@@ -795,15 +794,17 @@ public abstract class ClientApplication {
 				}
 			}
 
-			// It is dead, might be the one that should be recovered, check that
-			deadDirectories.add(directory);
-			File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
-			if (UserSession.findBackupFile(directory, false) != null 
-					&& (mostRecentDeadSignalFile == null 
-							|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
-				
-				mostRecentDeadSignalFile = deadSignalFile;
-				
+			if (!unsuitable) {
+				// It is dead, might be the one that should be recovered, check that
+				deadDirectories.add(directory);
+				File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+				if (UserSession.findBackupFile(directory, false) != null 
+						&& (mostRecentDeadSignalFile == null 
+						|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
+
+					mostRecentDeadSignalFile = deadSignalFile;
+
+				}
 			}
 		}
 		

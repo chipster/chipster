@@ -18,6 +18,7 @@
 		<tool runtime="R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-2.15_bioc-2.11"><resource>norm-combat.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-chip-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-gene-average.R</resource></tool>
 		<tool runtime="R-2.12"><resource>norm-specific-samples.R</resource></tool>
@@ -54,6 +55,7 @@
 		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-linear-modelling-designmat.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
@@ -92,7 +94,7 @@
 		<tool runtime="R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
-		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
+		<tool runtime="R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
@@ -141,7 +143,7 @@
 		<tool runtime="R-2.12"><resource>plot-dendrogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-histogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-corrgram.R</resource></tool>
-		<tool runtime="R-2.15"><resource>plot-heatmap.R</resource></tool>
+		<tool runtime="R-2.12"><resource>plot-heatmap.R</resource></tool>
 	</category>
 
 	<category name="Utilities" color="#83010b">
@@ -150,6 +152,7 @@
 		<tool runtime="R-2.12"><resource>search-coordinates.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-datasets.R</resource></tool>
+		<tool runtime="R-2.12"><resource>merge-pheno-and-data.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-clustering.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-go.R</resource></tool>
 		<tool runtime="R-2.12"><resource>extract-genes-from-kegg.R</resource></tool>
@@ -162,6 +165,7 @@
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
+		<tool runtime="R-2.12"><resource>delete-and-subtract-columns.R</resource></tool>
 		<tool runtime="R-2.12"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-samples.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sort-genes.R</resource></tool>

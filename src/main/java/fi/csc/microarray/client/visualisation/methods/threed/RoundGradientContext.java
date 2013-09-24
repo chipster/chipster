@@ -7,7 +7,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
  
 /**
- * Class for drawing fake 3d balls.
+ * Class for drawing fake 3d spheres.
  * 
  * @author Petri Klemelä
  */

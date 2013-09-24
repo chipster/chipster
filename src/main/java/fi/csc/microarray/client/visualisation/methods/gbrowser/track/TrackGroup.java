@@ -1,23 +1,24 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
 
+import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutComponent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutContainer;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.ScrollGroup;
 
 /**
  * <p>A collection of tracks representing a single data source or
@@ -32,108 +33,69 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.La
  * @author Rimvydas Naktinis, Petri Klemelä
  *
  */
-public class TrackGroup implements LayoutComponent, LayoutContainer {
+public class TrackGroup implements ActionListener {
+	
+	JPanel component = new JPanel();
     
-    protected List<Track> tracks = new LinkedList<Track>();
+    protected List<Track> tracks = new LinkedList<Track>();//current tracks    
     protected GBrowserView view;
-    protected boolean menuVisible = false;
-    protected boolean visible = true;
-    public SideMenu menu;
-    private JButton resize;
-	private int layoutHeight;
-        
-    public class SideMenu extends JPanel implements ActionListener {
-        
-        // Width of side menu in pixels
-        public static final int WIDTH = 110;
-        public static final int COLLAPSED_WIDTH = 20;
-        
-        // Position of this menu
-        int x, y;
-        
-        // Inner panel for holding controls
-        private JPanel controls = new JPanel();
-        int startControlsAt = 25;
-        int lastControlAt = 0;
-        
-        protected boolean menuCollapsed = true;
-        protected TrackGroup group = TrackGroup.this;
-        
-        public SideMenu() {
-            // Absolute positioning inside the menu
-            this.setLayout(null);
-            try {
-                resize = new JButton(
-                        new ImageIcon(this.getClass().
-                        getResource("/arrow_left.png").toURI().toURL()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            resize.setBackground(new Color(0, 0, 0, 0));
-            resize.setBorder(null);
-            resize.setBounds(1, 1, 20, 20);
-            resize.setOpaque(false);
-            resize.setFocusPainted(false);
-            resize.addActionListener(this);
 
-            // Panel with controls
-            controls.setLayout(new BoxLayout(controls, BoxLayout.PAGE_AXIS));
-            controls.setBounds(5, startControlsAt, 100, 100);
-            controls.setVisible(!menuCollapsed);
-            add(controls);
-            
-            // Button for resizing side menu
-            add(resize);
-        }
-        
-        public void addItem(JComponent component) {
-            controls.add(component);
-        }
-        
-        public int getWidth() {
-            return menuCollapsed ? COLLAPSED_WIDTH : WIDTH;
-        }
-        
-        /**
-         * Sets the absolute position and draws the menu.
-         * 
-         * @param x rightmost pixel of the menu
-         * @param y topmost pixel of the menu
-         */
-        public void setPosition(int x, int y) {
-            this.x = x;
-            this.y = y;
-            this.setBounds(x - getWidth(), y, getWidth(), group.getHeight());
-        }
-        
-        /**
-         * Redraw menu after collapsing.
-         */
-        public void redraw() {
-            controls.setVisible(!menuCollapsed);
-            setPosition(x, y);
-        }
+	JPanel settingsPanel;
+	JCheckBox visibleBox = new JCheckBox();
+	JCheckBox showMoreBox = new JCheckBox();
+	private boolean isSettingsEnabled = false;
+	
+	private JPanel trackLayer;
 
-        public void actionPerformed(ActionEvent event) {
-            if (event.getSource() == resize) {
-                menuCollapsed = !menuCollapsed;
-                redraw();
-            }
-        }
-    }
+	private JPanel settingsLayer;
+
+	private Track singleTrack;
+
+	private String name;
+
+	private boolean minimized;
+
+	private boolean showMore;
+
+	private StatusAnimation statusAnimation;
+
+	private boolean settingsPanelInitialized;
+
+	private ScrollGroup scrollGroup;
 
     public TrackGroup(GBrowserView view) {
         this.view = view;
+        component.setLayout(new GridBagLayout());    
+        component.setInheritsPopupMenu(true);
+        //Usually track fills the whole track group and listen for these events. 
+        //When the height of the settings panel exceeds the height of the tracks, also the 
+        //TrackGroup becomes visible and has to listen for events.
+        component.addMouseListener(getView());
+        component.addMouseMotionListener(getView());
+        component.addMouseWheelListener(getView());
         
-        // Add side menu
-        menu = new SideMenu();
+        component.setBackground(Color.white);     
         
-        //FIXME Memory leak, the reference isn't removed when the visualization is changed to none.
-        //Fix if the side panel is needed
-        //this.view.parentPlot.chartPanel.add(menu);
+		component.setLayout(new OverlayLayout(component));				
+		
+		trackLayer = new JPanel();
+		settingsLayer = new JPanel();
+		
+		trackLayer.setInheritsPopupMenu(true);
+		settingsLayer.setInheritsPopupMenu(true);
+		
+		//First component added is the topmost when drawn
+		component.add(settingsLayer);
+		component.add(trackLayer); 		
+		
+		trackLayer.setLayout(new MigLayout("flowy, fillx, gap 0! 0!, insets 0"));
+		settingsLayer.setLayout(new MigLayout("gap 0! 0!, insets 0"));
+		
+		settingsLayer.setOpaque(false);		
+		trackLayer.setBackground(Color.white);			
     }
-    
-    /**
+
+	/**
      * It is quite common to have track group consisting of a
      * single data track.
      * 
@@ -142,7 +104,8 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
      */
     public TrackGroup(Track track) {
         this(track.view);
-        tracks.add(track);
+        this.singleTrack = track;
+        addTrack(track);
     }
     
     /**
@@ -150,6 +113,8 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
      */
     public void addTrack(Track track) {
         tracks.add(track);
+        track.setTrackGroup(this);
+        updateLayout();
     }
     
     /**
@@ -158,103 +123,183 @@ public class TrackGroup implements LayoutComponent, LayoutContainer {
      * @return a list of tracks do be drawn.
      */
     public List<Track> getTracks() {
-        // TODO add separator tracks
         return tracks;
     }
     
     public GBrowserView getView() {
         return view;
-    }
-    
-    /**
-     * Set visibility of this group.
-     */
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-        menu.setVisible(visible);
-    }
-    
-    /**
-     * Get visibility of this group.
-     */
-    public boolean isVisible() {
-        return visible;
-    }
-    
-    /**
-     * Determine if a side menu should be shown for this track.
-     * 
-     * @return true if a menu should be shown, false otherwise.
-     */
-    public boolean isMenuVisible() {
-        return visible && menuVisible;
-    }
-    
-    /**
-     * Set side menu visibility. 
-     */
-    public void setMenuVisible(boolean isVisible) {
-        menuVisible = isVisible;
-    }
+    }      
     
     public String getName() {
-    	return "Track Group";
-    }
-    
-    /**
-     * Sets the visibility of a track, if it is a need of SNP highlighting, method should be overridden.
-     * @param track name
-     * @param state
-     */
-    public void showOrHide(String name, boolean state) {
-    	
-		for (Track track : tracks) {
-    		if (track.getName().equals(name)) {
-    			track.setVisible(state);
-    			track.getView().redraw();
-    		}
+    	if (name != null) {
+    		return name;
+    	} else {
+    		return "Track Group";
     	}
     }
-
-	@Override
-	public Collection<? extends LayoutComponent> getLayoutComponents() {
-		return tracks;
+    
+	public LayoutMode getLayoutMode() {
+		return LayoutTool.inferTrackGroupLayoutMode(tracks);
 	}
 
-	@Override
-	public int getHeight() {
-		return LayoutTool.getHeight(this, layoutHeight);
-	}
-
-	@Override
-	public void setHeight(int height) {
-		this.layoutHeight = height;
-	}
-
-	@Override
-	public int getMinHeight() {
-		return LayoutTool.getMinHeightSum(this);
+	public boolean isSettingsEnabled() {
+		return isSettingsEnabled;
 	}
 	
-	@Override
-	public int getFullHeight() {
-		return LayoutTool.getFullHeight(this);
+	public void setSettingsEnabled(boolean enabled) {
+		isSettingsEnabled = enabled;
 	}
 
-	@Override
-	public LayoutMode getLayoutMode() {
-		return LayoutTool.inferLayoutMode(this);
+	private JComponent initSettingsIfNecesasry() {
+		if (!settingsPanelInitialized) {
+			createSettingsPanel();		
+			updateButtons();
+			settingsPanelInitialized = true;
+		}
+		return settingsPanel;
 	}
 
-	@Override
-	public void setLayoutMode(LayoutMode mode) {
-		// TODO Auto-generated method stub
+	public void createSettingsPanel() {
+		settingsLayer.setOpaque(false);
 		
+		visibleBox.setText(getName());
+		Font font = visibleBox.getFont().deriveFont(Font.BOLD);
+		visibleBox.setFont(font);
+		visibleBox.setSelected(!isMinimized());
+		visibleBox.setOpaque(false);
+		visibleBox.addActionListener(this);
+				
+		showMoreBox.setText(getShowMoreName());
+		font = showMoreBox.getFont().deriveFont(Font.PLAIN);
+		showMoreBox.setFont(font);
+		showMoreBox.setOpaque(false);
+		showMoreBox.addActionListener(this);
+				
+		settingsLayer.add(visibleBox);		
+		settingsLayer.add(getStatusAnimation(), "wrap");
+		settingsLayer.add(showMoreBox);		
+	}
+
+	public String getShowMoreName() {
+		return "Show all";
 	}
 
 	@Override
-	public void setDefaultLayoutMode() {
-		// TODO Auto-generated method stub
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == visibleBox) {
+			setMinimzed(!visibleBox.isSelected());
+		}		
+		if (e.getSource() == showMoreBox) {			
+			showMore(showMoreBox.isSelected());
+		}
+	}
+	
+	private void updateButtons() {
 		
+		boolean showMore = isShowMorePossible();
+		showMoreBox.setVisible(showMore);
+	}
+
+	public boolean isShowMorePossible() {
+		boolean showMore = false;
+		for(Track track : tracks) {
+			if (track.isVisible() && track.isSuitableViewLength() && track.isShowMoreCapable()) {
+				showMore = true;
+				break;
+			}
+		}
+		return showMore;
+	}
+	
+	protected void setMinimzed(boolean minimized) {
+		this.minimized = minimized;
+		addTracks();
+		updateButtons();
+		view.reloadData();
+	}
+
+	public void addTracks() {
+		//Hook for TrackGroups to update tracks after a press of increase or decrease button
+		
+		tracks.clear();
+		if (!isMinimized()) {
+			addTrack(singleTrack);
+		}
+	}
+
+	protected void showMore(boolean showMore) {
+		this.showMore = showMore;
+		
+		addTracks();		
+		updateButtons();
+		view.reloadData();
+	}
+
+	public void updateLayout() {
+		trackLayer.removeAll();
+		
+		if (isSettingsEnabled()) {
+			initSettingsIfNecesasry();
+		} else {
+			settingsLayer.removeAll();
+			settingsPanelInitialized = false;
+		}
+		
+		for (Track track : tracks) {
+			
+			if (track.isVisible() && track.isSuitableViewLength()) {	        	
+
+				Component trackComponent = track.getComponent();	        
+				LayoutMode mode = track.getLayoutMode();
+
+				if (LayoutMode.FILL == mode) {
+					trackLayer.add(trackComponent, "grow");
+				} else {
+					trackLayer.add(trackComponent, "growx");
+				}	        	
+			}				
+		}
+		//component sizes may have changed
+		trackLayer.revalidate();
+		
+		updateButtons();
+	}
+
+	public JComponent getComponent() {
+		return component;
+	}
+	
+	public boolean isMinimized() {
+		return minimized;
+	}
+	
+	public boolean isShowMore() {
+		return showMore;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public StatusAnimation getStatusAnimation() {
+		if (statusAnimation == null) {
+			statusAnimation = new StatusAnimation(view.getQueueManager());
+		}
+		return statusAnimation;
+	}
+
+	public void initializeListener() {
+		getStatusAnimation().initilizeListeners();
+		for (Track track : tracks) {
+			track.initializeListener();
+		}
+	}
+
+	public ScrollGroup getScrollGroup() {
+		return scrollGroup;
+	}
+
+	public void setScrollGroup(ScrollGroup scrollGroup) {
+		this.scrollGroup = scrollGroup;
 	}
 }

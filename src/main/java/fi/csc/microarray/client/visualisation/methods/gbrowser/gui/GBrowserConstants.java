@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 /**
  * Genome browser wide constants.
@@ -12,13 +14,7 @@ public class GBrowserConstants {
 		new Color(159, 223, 159), // A
 		new Color(159, 159, 223), // C
 		new Color(191, 191, 191), // G
-		new Color(223, 159, 159) // T
-		
-		
-//		new Color(64, 192, 64, 128), // A
-//		new Color(64, 64, 192, 128), // C
-//		new Color(128, 128, 128, 128), // G
-//		new Color(192, 64, 64, 128) // T
+		new Color(223, 159, 159) // T		
 	};
 	
 	public static final Color BED_COLOR = new Color(1, 119, 183);
@@ -28,10 +24,38 @@ public class GBrowserConstants {
 	public static final Color COLOR_ORANGE = new Color(0xe7881c);
 	
 	public static final Color SCATTERPLOT_TITLE_COLOR = new Color(0f, 0f, 0f, 0.1f);
+	
+	public static final Color FORWARD_COLOR = new Color(0,0,0, 64);
+	public static final Color REVERSE_COLOR = new Color(
+    		GBrowserConstants.COLOR_BLUE.getRed(), 
+    		GBrowserConstants.COLOR_BLUE.getGreen(), 
+    		GBrowserConstants.COLOR_BLUE.getBlue(),     	    
+    		64);
+
+	private static Color coverageColor;
+	
+	public static Color getCoverageColor() {
+		if (coverageColor == null) {
+			
+			//Calculate the sum of two transparent colors
+			BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);   		    
+		    Graphics imgG = img.getGraphics();
+		    
+		    imgG.setColor(FORWARD_COLOR);
+		    imgG.fillRect (0,0,1,1);		    
+		    imgG.setColor(REVERSE_COLOR);
+		    imgG.fillRect (0,0,1,1);
+		    
+		    coverageColor = new Color(img.getRGB(0, 0), true);
+		}
+		
+		return coverageColor;
+	}
 
 	// Visibility level thresholds
 	public static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;
 	public static int SWITCH_VIEWS_AT = 50000;
+	public static int SHOW_AVERAGES = 2000;
 	public static int SHOW_REFERENCE_AT = 800;
 	public static final int SHOW_SNP_AT = 800;
 	
@@ -74,4 +98,6 @@ public class GBrowserConstants {
             "/gbrowserLegend/read-end.png";
     public static final String GB_LEGEND_REPEAT_ICON = 
             "/gbrowserLegend/repeat.png";
+    public static final String GB_LEGEND_GENE_ICON = 
+    		"/gbrowserLegend/gene.png";
 }
