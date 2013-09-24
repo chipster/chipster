@@ -13,7 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
  * 
  * @author klemela
  */
-public class BedLineParser extends TsvLineParser {		
+public class BedLineParser extends AbstractTsvLineParser {		
 	
 	public enum Column {
 		

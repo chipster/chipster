@@ -15,7 +15,7 @@ public class FileLine {
 			if (!"null".equals(value)) {
 				//builder.append("   ");
 				builder.append(name);
-				builder.append(":\t");
+				builder.append("\t");
 				builder.append(value);
 				builder.append("\n");
 			}
@@ -23,5 +23,4 @@ public class FileLine {
 
 		return builder.toString();
 	}
-
 }

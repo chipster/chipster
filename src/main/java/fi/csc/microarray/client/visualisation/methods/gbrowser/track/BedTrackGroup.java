@@ -9,7 +9,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Scat
 
 public class BedTrackGroup extends TrackGroup {
 	
-	private PeakTrack regionTrack;
+	private RegionTrack regionTrack;
 	private ScatterplotTrack scatterplotTrack;
 	private ScatterplotFileLineConversion dataThread;
 
@@ -27,7 +27,7 @@ public class BedTrackGroup extends TrackGroup {
 		SeparatorTrack separator = new SeparatorTrack(Color.white, 20);
 		separator.setView(view);
 		addTrack(separator);
-		regionTrack = new PeakTrack(GBrowserConstants.BED_COLOR);
+		regionTrack = new RegionTrack(GBrowserConstants.BED_COLOR);
 		regionTrack.setView(view);
 		regionTrack.addDataThread(dataThread);
 		addTrack(regionTrack);

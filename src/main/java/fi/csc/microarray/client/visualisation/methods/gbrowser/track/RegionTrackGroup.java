@@ -6,12 +6,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConst
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
-public class VcfTrackGroup extends TrackGroup {
+public class RegionTrackGroup extends TrackGroup {
 	
-	private PeakTrack regionTrack;
+	private RegionTrack regionTrack;
 	private DataThread dataThread;
 
-	public VcfTrackGroup(GBrowserView view, DataThread dataThread, String title) {
+	public RegionTrackGroup(GBrowserView view, DataThread dataThread, String title) {
 		super(view);
 		this.setSettingsEnabled(true);
 		this.dataThread = dataThread;
@@ -30,7 +30,7 @@ public class VcfTrackGroup extends TrackGroup {
 			SeparatorTrack separator = new SeparatorTrack(Color.white, 20);
 			separator.setView(view);
 			addTrack(separator);
-			regionTrack = new PeakTrack(GBrowserConstants.BED_COLOR);
+			regionTrack = new RegionTrack(GBrowserConstants.BED_COLOR);
 			regionTrack.setView(view);
 			regionTrack.addDataThread(dataThread);
 			addTrack(regionTrack);			
