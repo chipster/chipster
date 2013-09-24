@@ -1,5 +1,6 @@
 package fi.csc.chipster.web.tooledit;
 
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -39,12 +40,12 @@ public class TextEditor extends VerticalLayout{
 		
 		btUpdateTextEditor = new Button();
 		btUpdateTextEditor.setDescription("Update text area");
-		btUpdateTextEditor.setIcon(Icon.getResource(Icon.getDownButtonIconPath()));
+		btUpdateTextEditor.setIcon(new ThemeResource("images/arrow_down.png"));
 		btUpdateTextEditor.addClickListener(new CSCToolToTextClickListener(root));
 		hLayout.addComponent(btUpdateTextEditor);
 		btUpdateToolEditor = new Button();
 		btUpdateToolEditor.setDescription("Update tool elements");
-		btUpdateToolEditor.setIcon(Icon.getResource(Icon.getUpButtonIconPath()));
+		btUpdateToolEditor.setIcon(new ThemeResource("images/arrow_up.png"));
 		btUpdateToolEditor.addClickListener(new CSCTextToToolClickListener(root));
 		hLayout.addComponent(btUpdateToolEditor);
 		Button btClearAll = new Button("Clear All");

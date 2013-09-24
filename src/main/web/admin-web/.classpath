@@ -58,5 +58,5 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-theme-compiler-jar-7.0.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-themes-jar-7.0.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/validation-api-jar-1.0.0.GA.jar"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

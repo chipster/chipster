@@ -5,11 +5,11 @@
 		<description>
 		Vaadin production mode</description>
 		<param-name>productionMode</param-name>
-		<param-value>false</param-value>
+		<param-value>true</param-value>
 	</context-param>
 	<servlet>
 		<servlet-name>Tool editor</servlet-name>
-		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+		   <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
 		<init-param>
 			<description>
 			Vaadin UI class to use</description>

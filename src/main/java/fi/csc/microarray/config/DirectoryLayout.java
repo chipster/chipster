@@ -35,7 +35,9 @@ public class DirectoryLayout {
 	public static final String LOCAL_ANNOTATION_DIR = "annotations";
 	
 	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
+	public static final String WEB_APPS_DIR = "webapps"; 
 
+	
 	private static final String DEBUG_BASE_DIR = "debug-base-dir";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
@@ -185,6 +187,16 @@ public class DirectoryLayout {
 
 	public File getLogsDir() throws IOException {
 		return check(new File(getBaseDir(), LOGS_DIR));
+	}
+
+	public File getWebappsDir() throws IOException {
+		if (type == Type.SERVER) {
+			File webappsDir = new File(getBaseDir(), WEB_APPS_DIR);
+			return initialise(webappsDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
