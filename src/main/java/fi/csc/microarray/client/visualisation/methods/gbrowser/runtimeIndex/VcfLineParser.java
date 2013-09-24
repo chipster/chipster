@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
-public class VcfLineParser extends TsvLineParser {		 
+public class VcfLineParser extends AbstractTsvLineParser {		 
 	
 	public enum Column {
 

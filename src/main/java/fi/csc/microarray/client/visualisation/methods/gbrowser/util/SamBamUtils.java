@@ -59,14 +59,27 @@ public class SamBamUtils {
 	
 	
 	private SamBamUtilStateListener stateListener;
-	private ChromosomeNormaliser chromosomeNormaliser;
+	private ChromosomeNormaliser chromosomeNormaliser = new ChromosomeNormaliser() {
+
+		public String normaliseChromosome(String chromosomeName) {
+
+			// Leave prefix as it is
+			
+			// Remove postfix, if present
+			String SEPARATOR = ".";
+			if (chromosomeName.contains(SEPARATOR)) {
+				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
+			}
+			
+			return chromosomeName;
+		}
+	};
 	
 	public SamBamUtils() {
 	}
 	
-	public SamBamUtils(SamBamUtilStateListener stateListener, ChromosomeNormaliser chromosomeNormaliser) {
+	public SamBamUtils(SamBamUtilStateListener stateListener) {
 		this.stateListener = stateListener;
-		this.chromosomeNormaliser = chromosomeNormaliser;
 	}
 
 	private void updateState(String state, double percentage) {
