@@ -49,7 +49,7 @@ if (number_samples < 8) {
 	plot_symbol <- rep(plot_symbol[1:number_samples], 100)
 }
 
-if(is.na(unique(rownames(mm(dat))))) {
+if(length(which(is.na(rownames(mm(dat))))) / length(rownames(mm(dat))) > 0) {
 	stop("CHIPSTER-NOTE: The simpleaffy quality analysis tool has not been designed for PM-only arrays. Please use another quality assessment method");
 }
 
