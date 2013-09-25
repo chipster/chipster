@@ -1,6 +1,7 @@
 package fi.csc.chipster.web.adminweb.data;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -8,6 +9,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import javax.jms.JMSException;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.chipster.web.adminweb.ui.ServicesView;
@@ -121,16 +124,20 @@ Serializable {
 					view.updateDone();
 
 				} catch (MicroarrayException e) {
+					if (e.getCause() != null) {
+						//The cause has better message, at least when the broker is not available 
+						Throwable cause = e.getCause();
+						Notification notification = new Notification(cause.getClass().getSimpleName(), cause.getMessage(), Type.ERROR_MESSAGE); 
+						notification.show(view.getApp().getPage());
+					}
 					e.printStackTrace();
 				} catch (JMSException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalConfigurationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
 			}
