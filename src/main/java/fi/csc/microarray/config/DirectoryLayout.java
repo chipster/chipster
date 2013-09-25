@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.PropertyConfigurator;
+
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 
@@ -33,7 +35,9 @@ public class DirectoryLayout {
 	public static final String LOCAL_ANNOTATION_DIR = "annotations";
 	
 	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
+	public static final String WEB_APPS_DIR = "webapps"; 
 
+	
 	private static final String DEBUG_BASE_DIR = "debug-base-dir";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
@@ -133,6 +137,14 @@ public class DirectoryLayout {
 		this.availableConfiguration = availableConfiguration;
 		
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
+		
+		// workaround for IcedTea-web (disable logging if OpenJDK)
+		String javaRuntimeName = System.getProperty("java.runtime.name");
+		if (type == Type.SERVER || javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
+			// enable logging for all server runtimes and all client runtimes that are not OpenJDK
+			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config
+		}
+		
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
 		
 		switch (availableConfiguration) {
@@ -175,6 +187,16 @@ public class DirectoryLayout {
 
 	public File getLogsDir() throws IOException {
 		return check(new File(getBaseDir(), LOGS_DIR));
+	}
+
+	public File getWebappsDir() throws IOException {
+		if (type == Type.SERVER) {
+			File webappsDir = new File(getBaseDir(), WEB_APPS_DIR);
+			return initialise(webappsDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
@@ -263,7 +285,7 @@ public class DirectoryLayout {
 		if (dir == null) {
 			dir = new File(System.getProperty("user.home"), ".chipster");
 		}
-		
+
 		return check(dir);
 	}
 

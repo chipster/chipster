@@ -9,7 +9,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>prinseq-statistics.R</resource>
-		</tool>
+		</tool>			
 	</category>
 	
 	<category name="Filtering" color="#e7df70">
@@ -117,6 +117,9 @@
 			<resource>fi.csc.chipster.tools.ngs.SortGtf</resource>
 		</tool>
 		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.SortTsv</resource>
+		</tool>
+		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortVcf</resource>
 		</tool>		
 		<tool runtime="R-2.12">
@@ -179,55 +182,55 @@
 	</category>
 
 	<category name="Alignment" color="#d53833">
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie2.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie2-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie2-with-index-building.R</resource>
 		</tool>
-	    <tool runtime="R-2.12">
+	    <tool runtime="R-3.0-R-2.12">
 			<resource>bowtie2-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>tophat2.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>tophat2-single-end.R</resource>
 		</tool>
-	    <tool runtime="R-2.12">
+	    <tool runtime="R-3.0-R-2.12">
 			<resource>bwa.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bwa-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bwa-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bwa-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bwasw-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>bowtie-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>tophat.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0-R-2.12">
 			<resource>tophat-single-end.R</resource>
 		</tool>
 	</category>
@@ -305,12 +308,15 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-go.R</resource>
+		</tool> 
+		<tool runtime="R-2.12" module="common">
+			<resource>pathways-mirna-hyperg-go.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
+		</tool>
+		<tool runtime="R-2.15_bioc-2.11">
+			<resource>miRNA_RNA-seq_integration.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-correlation-analysis-mirna.R</resource>
@@ -394,6 +400,42 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>MEDIPS_two_samples.R</resource>
+		</tool>
+	</category>
+	
+	<category name="Metagenomics" color="#83010b">
+		<tool runtime="R-2.15">
+      		<resource>mothur-sffinfo.R</resource>
+    	</tool>
+    	<tool runtime="R-2.15">
+      		<resource>merge-fasta-qual.R</resource>		
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-summaryseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-trimseqs-uniqueseqs.R</resource>
+		</tool>	
+		<tool runtime="R-2.15">
+			<resource>mothur-alignseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-filterseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-uniqueseqs.R</resource>
+		</tool>
+		<tool runtime="R-2.15">
+			<resource>mothur-precluster.R</resource>
+		</tool>		
+		<tool runtime="R-2.15">
+			<resource>mothur-chimera-uchime.R</resource>
+		</tool>		
+		<tool runtime="R-2.15">
+			<resource>mothur-classifyseqs.R</resource>
+		</tool>
+	    <tool runtime="R-2.15_bioc-2.11">
+			<resource>mothur-analyses.R</resource>
 		</tool>
 	</category>
 </module>

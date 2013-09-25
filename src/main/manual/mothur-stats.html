@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Metagenomics / Statistical analysis for marker gene studies</h2>
+
+<h3>Description</h3>
+
+<p>
+Compares the diversity or abundance between groups of samples using several ANOVA-type of analyses. 
+</p>
+
+
+<h3>Parameters</h3>
+<ul>
+<li>Method for standardizing species abundance values (total, normalize, pa, chi.square, hellinger, log [hellinger]</li>
+</ul>
+
+
+<h3>Details</h3>
+<p>
+This tool takes two input files: a count table that contains the counts of the identified species or operational taxonomic units (OTUs) in each sample, and a phenodata
+table that specifies the grouping of the samples. Statistical tests only work for a dataset that contains 2-3 groups.
+The analyses are performed using the functionality offered by the R packages vegan, rich, biodiversityR, pegas and labdsv. 
+</p>
+
+<p>
+The tool produces rank abundance curves and rarefaction curves for all groups, and an RDA ordination plot. 
+<ul>
+<li>Rank abundance curve is used for displaying the relative species abundances or species evenness across the groups.</li>
+<li>Rarefaction curve allows one to assess how much the sampling efficiency affects the number of observed taxa or OTUs.</li>
+<li>RDA ordination plot shows how certain environmental factors (here groups) affect the species abundance. Note that RDA might not be suitable for your particular data set, but at the moment it is the only ordination technique the tool offers.</li>
+</ul> 
+
+Before running the RDA analysis, the species abundance values are standardized using the method specified by the parameter. The standardized values
+ are also used for running the following ANOVA type of statistical analyses, which compare the diversity or abundance between the groups: 
+<ul>
+<li>Permutational Multivariate Analysis of Variance Using Distance Matrices</li>
+<li>Analysis of Molecular Variance</li>
+<li>Multivariate homogeneity of groups dispersions (variances)</li>
+</ul> 
+</p>
+
+<p>
+Contributed diversity analysis splits the observed "species" (taxa or OTUs) diversity to 
+<ul>
+<li>alpha = diversity inside one ecosystem (one group of samples) </li>
+<li>beta = change of diversity between two ecosystems (two groups of samples)</li>
+<li>gamma = overall diversity of the whole region across ecosystems (all samples in the experiment) </li>
+</ul> 
+Indicator species analysis using the Dufrene-Legendre method tries to find the "species" (taxa or OTUs) that have a high specificity to a single group. 
+Indicator Species Analysis Minimizing Intermediate Occurrences calculates the degree of the species being present or absent in a certain group of samples.
+</p>
+
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+<ul>
+<li>rank-abundance_rarefaction_RDA.pdf: plots</li>  
+<li>stat-results.txt: test results</li>  
+</ul>
+
+
+<h3>References</h3>
+<p>Consult the R packages vegan, rich, biodiversityR, pegas and labdsv for more details about the methods.</p>
+
+</body>
+
+</html>

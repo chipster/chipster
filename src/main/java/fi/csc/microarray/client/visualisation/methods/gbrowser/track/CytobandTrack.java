@@ -2,26 +2,22 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytoband;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cytoband;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 /**  
  * The appearance of a chromosome. Used for high level navigation.
@@ -55,7 +51,7 @@ public class CytobandTrack extends Track {
 	}
 
 	public CytobandTrack(boolean showText) {
-		
+		super();
 		this.showText = showText;
 	}
 
@@ -77,7 +73,7 @@ public class CytobandTrack extends Track {
 				Cytoband cband = cbandIter.next();
 				
 				//Remove items that don't belong to this view area
-				if (!getView().getBpRegion().intersects(cband.getRegion())) {
+				if (!getView().requestIntersects(cband.getRegion())) {
 					cbandIter.remove();
 					continue;
 				}
@@ -115,7 +111,7 @@ public class CytobandTrack extends Track {
 
 				} else if (stain == Cytoband.Stain.ACEN) {
 
-					int y = (int) MARGIN;
+					int y = (int) MARGIN + 1;
 
 					int sideX = getView().bpToTrack(cband.getRegion().end);
 					int cornerX = getView().bpToTrack(cband.getRegion().start);
@@ -162,47 +158,32 @@ public class CytobandTrack extends Track {
 		return new RectDrawable(rect, c, Color.black);
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
-//			if (content.values.containsKey(ColumnType.METADATA) &&
-//					((Map<?, ?>)(content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
-//					getView().getBpRegion().start.chr.equals(content.region.start.chr)) {					
-//
-//				if (maxBp == null || maxBp.compareTo(content.region.end) < 0) {
-//					maxBp = new BpCoord(content.region.end);
-//				}
-//			}				
-//
+		for (Feature content : dataResult.getFeatures()) {
 			
 			if (getView().getBpRegion().intersects(content.region)) {
 				
-				Cytoband cband = (Cytoband) content.values.get(ColumnType.VALUE);
+				Cytoband cband = (Cytoband) content.values.get(DataType.VALUE);
 				
 				cbands.add(cband);
 				
 			}						
 		}
-		getView().redraw();
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return showText ? 40 : 22;
 	}
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-    	    	
-        HashMap<AreaRequestHandler, Set<ColumnType>> datas = new
-        HashMap<AreaRequestHandler, Set<ColumnType>>();
-        datas.put(areaRequestHandler, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.VALUE })));
-        return datas;
-    }
 	
 	@Override
-	public String getName() {
+	public void defineDataTypes() {
+		addDataType(DataType.VALUE);
+	}
+    	
+	@Override
+	public String getTrackName() {
 		return "cytoband";
 	}
 }

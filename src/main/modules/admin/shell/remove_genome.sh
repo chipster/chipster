@@ -1,4 +1,7 @@
-#!/bin/bash 
+#!/bin/bash
+
+species=x
+chipster_path=x 
 while [[ $# -ge 1 ]]
 do
   case "$1" in
@@ -19,6 +22,21 @@ do
               ;; 
   esac
 done
+
+if [[ $chipster_path == "x" ]] 
+then
+  echo "Please define the location of your chipster installation with option:"
+  echo "-chipster_path"
+  exit 1
+fi
+
+
+if [[ $species == "x" ]] 
+then
+  echo "Available species names:" 
+  ls "$chipster_path"/tools/genomes/fasta/nochr/*.fa "$chipster_path"/tools/genomes/fasta/*.fa | awk -F "/" '{ print $NF}'   | sort | uniq | sed s/".toplevel.fa"/".toplevel"/g  
+  exit 1
+fi
 
 tools_path="$chipster_path""/tools"
 export PATH=${PATH}:"$chipster_path"/comp/modules/admin/shell/:"$tools_path"/emboss/bin/
@@ -73,22 +91,30 @@ then
   rm $tools_path/bowtie2/indexes/$species.rev.2.bt2
 fi
 
+
+#remove fasta files
 if [[ -e $tools_path/genomes/fasta/$species.fa ]]
 then
-   rm $tools_path/genomes/fasta/$species.fa
+   rm $tools_path/genomes/fasta/$species.fa*
 fi 
 
 if [[ -e $tools_path/genomes/fasta/nochr/$species.fa ]]
 then 
-   rm $tools_path/genomes/fasta/nochr/$species.fa
+   rm $tools_path/genomes/fasta/nochr/$species.fa*
 fi 
 
-
+#Remove gtf fiiles
 species_gtf=$(echo $species | sed s/".dna.toplevel"/""/g) 
 if [[ -e  $tools_path/genomes/gtf/$species_gtf.gtf ]]
 then
-  rm $tools_path/genomes/gtf/$species_gtf.gtf
+  rm $tools_path/genomes/gtf/$species_gtf.*
 fi
+
+#Remove genomebrowser files.
+version=$(echo $species | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')
+species_name=$(echo $species | awk -F "." '{print $1}')
+rm -rf $tools_path/genomebrowser/annotations/$species_name/$version
+
 
 
 awk '{ if ( $3 != "'$species.fa'" ) print $0}' $tools_path/genomes/genome_list > $tools_path/genomes/genome_list.tmp.$$

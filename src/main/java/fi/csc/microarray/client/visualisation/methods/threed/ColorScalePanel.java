@@ -1,62 +1,75 @@
 package fi.csc.microarray.client.visualisation.methods.threed;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
- * JPanel with black background and rainbow gradient. Values of the different colors
- * are taken from the dataModel and their colors from the color model.
- * 
  * @author Petri Klemelä
  */
 public class ColorScalePanel extends JPanel{
-	
+
 	DataModel dataModel;
-	float[] scaleValues;
-	
-	public ColorScalePanel(DataModel dataModel){
+	List<Float> colorGroupValues;
+
+	public ColorScalePanel(DataModel dataModel, List<String> colorGroupNames, List<Float> colorGroupValues){
 		this.dataModel = dataModel;
-		this.scaleValues = dataModel.getColorScaleValues();
-		this.setSize(60, 300);
-		this.setPreferredSize(new Dimension(60, 300));
-		this.setBackground(Color.BLACK);
-		this.setOpaque(true);		
+		this.colorGroupValues = colorGroupValues;
+						
+		this.setLayout(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1.0;
+
+		for(String groupStr : colorGroupNames){
+			Image image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+
+			Graphics2D g = (Graphics2D)image.getGraphics();
+
+			Color color = dataModel.getColorFor(colorGroupValues.get(colorGroupNames.indexOf(groupStr)));
+
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+
+			DataPoint.paintBall(2, 2, 18, 18, color, g);
+
+			ImageIcon icon = new ImageIcon(image);			
+			JLabel label =  new JLabel(groupStr, icon, SwingConstants.LEFT );
+			label.setOpaque(false);
+			label.setForeground(super.getForeground());		
+			this.add(label, c );
+
+			c.gridy++;			
+		}
 	}
 	
 	@Override
-	protected void paintComponent(Graphics g){
-		super.paintComponent(g);
-		float upperLimit = (float)g.getClipBounds().getHeight() - 20;
-		for(int y = 0 ; y < upperLimit ; y++){
-			g.setColor(dataModel.getColorModel().getColorFor((y/upperLimit)));
-			g.drawLine(10, 10+y, 20, 10+y);
-		}
-		
-		for(float value : scaleValues){
-			int y = (int)(((value - scaleValues[0]) / 
-					(scaleValues[scaleValues.length-1] - scaleValues[0])) * upperLimit-1);
-			
-			//Little fix for rounding problem, which causes first line to be one pixel too high
-			if(value == scaleValues[0]){
-				y = 0;
-			}
-			
-			g.setColor(Color.WHITE);
-			
-			int[] xPoints = new int[]{
-					21, 26, 26
-			};
-			
-			int[] yPoints = new int[]{
-					10+y, 7+y, 13+y
-			};
-			
-			g.fillPolygon(xPoints, yPoints, 3);
-			//g.drawLine(21, 10+y, 25, 10+y);
-			g.drawString(""+value, 30, y+15);
+	public void setBackground(Color c) {		
+		super.setBackground(c);
+		for (Component component : this.getComponents()) {
+			component.setBackground(c);
+		}	
+	}
+	
+	@Override
+	public void setForeground(Color c) {
+		super.setForeground(c);
+		for (Component component : this.getComponents()) {
+			component.setForeground(c);
 		}
 	}
 }

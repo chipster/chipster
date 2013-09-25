@@ -9,11 +9,10 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.BedLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.TsvLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.VcfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.AbstractTsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilState;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils.SamBamUtilStateListener;
@@ -25,22 +24,6 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class LocalNGSPreprocess implements Runnable {
 	
 	private static final Logger logger = Logger.getLogger(LocalNGSPreprocess.class);
-
-	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
-
-		public String normaliseChromosome(String chromosomeName) {
-
-			// Leave prefix as it is
-			
-			// Remove postfix, if present
-			String SEPARATOR = ".";
-			if (chromosomeName.contains(SEPARATOR)) {
-				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
-			}
-			
-			return chromosomeName;
-		}
-	};
 	
 	private Task task;
 	
@@ -79,7 +62,7 @@ public class LocalNGSPreprocess implements Runnable {
 				
 				if ("bed".equals(extension)) {
 					preprocess(dataManager, inputFile, "bed", new BedLineParser(false), 
-							BedLineParser.Column.CHROMOSOME.ordinal(), BedLineParser.Column.START.ordinal());
+							BedLineParser.Column.CHROM.ordinal(), BedLineParser.Column.CHROM_START.ordinal());
 					
 				} else if ("gtf".equals(extension)) {
 					preprocess(dataManager, inputFile, "gtf", new GtfLineParser(), 
@@ -136,7 +119,7 @@ public class LocalNGSPreprocess implements Runnable {
 				task.setStateDetail(newState.getState() + " " + newState.getPercentage());
 			}
 			 
-		}, CHROMOSOME_NORMALISER);
+		});
 		
 		if (SamBamUtils.isSamBamExtension(extension)) {
 			samBamUtil.preprocessSamBam(inputFile, outputFile, indexOutputFile);
@@ -154,19 +137,19 @@ public class LocalNGSPreprocess implements Runnable {
 		OperationRecord operationRecord = new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
 		outputBean.setOperationRecord(operationRecord);
 		indexOutputBean.setOperationRecord(operationRecord);
+		//Chipster2 backport fix
 		dataManager.getRootFolder().addChild(outputBean);
 		dataManager.getRootFolder().addChild(indexOutputBean);
 	}
 	
-	private void preprocess(DataManager dataManager, File inputFile, String fileExtension, TsvLineParser lineParser, int chrColumn, int startColumn) throws Exception {
+	private void preprocess(DataManager dataManager, File inputFile, String fileExtension, AbstractTsvLineParser lineParser, int chrColumn, int startColumn) throws Exception {
 		
 		String outputName = generateFilename(inputFile, fileExtension);
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
 		new TsvSorter().sort(
-				inputFile, outputFile, CHROMOSOME_NORMALISER, 
-				chrColumn, startColumn, lineParser);
+				inputFile, outputFile, chrColumn, startColumn, lineParser);
 		
 		createOutput(dataManager, outputName, outputFile);
 	}
@@ -185,6 +168,7 @@ public class LocalNGSPreprocess implements Runnable {
 		
 		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
+		//Chipster2 backport fix
 		dataManager.getRootFolder().addChild(outputBean);
 	}
 }

@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 /**
  * Single spliced part of a spliced read. 
@@ -11,22 +10,22 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 public class ReadPart extends Region {
 	
 	private String sequencePart;
-	private RegionContent read;
+	private Feature read;
 	private CigarItem cigarItem;
 
-	public ReadPart(Long start, Long end, Chromosome chr, RegionContent read, String sequencePart) {
+	public ReadPart(Long start, Long end, Chromosome chr, Feature read, String sequencePart) {
 		super(start, end, chr);
 		this.read = read;
 		this.sequencePart = sequencePart;
 	}
 
-	public ReadPart(RegionContent read) {
+	public ReadPart(Feature read) {
 		super(read.region);
 		this.read = read;
-		this.sequencePart = (String)read.values.get(ColumnType.SEQUENCE);
+		this.sequencePart = (String)read.values.get(DataType.SEQUENCE);
 	}
 
-	public RegionContent getRead() {
+	public Feature getRead() {
 		return read;
 	}
 

@@ -25,6 +25,9 @@ public class ChipsterSADLParser extends SADLParser {
 		addInputType(ChipsterInputTypes.BAM);
 		addInputType(ChipsterInputTypes.FASTA);
 		addInputType(ChipsterInputTypes.GTF);
+		addInputType(ChipsterInputTypes.MOTHUR_OLIGOS);
+		addInputType(ChipsterInputTypes.MOTHUR_NAMES);
+		addInputType(ChipsterInputTypes.MOTHUR_GROUPS);
 	}
 	
 	public static class Validator {

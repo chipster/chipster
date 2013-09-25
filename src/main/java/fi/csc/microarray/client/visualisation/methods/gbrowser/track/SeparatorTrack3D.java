@@ -6,14 +6,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 
 /**
  * 3D line that separates real tracks.
  *
  */
-public class SeparatorTrack3D extends SeparatorTrack {
+public class SeparatorTrack3D extends Track {
 
 	private boolean reversed;
 
@@ -33,9 +34,8 @@ public class SeparatorTrack3D extends SeparatorTrack {
 	}
 	
 	
-	public SeparatorTrack3D(long minBpLength, long maxBpLength, boolean reversed) {
-		
-		super(minBpLength, maxBpLength);
+	public SeparatorTrack3D(boolean reversed) {		
+		super();
 		this.reversed = reversed;
 	}
 
@@ -52,8 +52,12 @@ public class SeparatorTrack3D extends SeparatorTrack {
 		return drawables;
 	}
 	
+	public void processDataResult(DataResult dataResult) {
+		// ignore
+	}
+	
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
             return colorSlide.size();
 	}
 

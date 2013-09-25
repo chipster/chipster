@@ -9,7 +9,7 @@
 # PARAMETER background.offset: "Background offset" TYPE [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips: "Normalize chips" TYPE [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER remove.control.probes: "Remove control probes" TYPE [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype: "Chiptype" TYPE [empty, "Human-miRNA (v1)", "Human-miRNA (v2)", "Human-miRNA (v3)", "Mouse-miRNA (v1)", "Mouse-miRNA (v2)", "Rat-miRNA"]  DEFAULT empty (Chiptype)
+# PARAMETER chiptype: "Chiptype" TYPE [empty, "Human", "Mouse", "Rat"]  DEFAULT empty (Chiptype)
 
 # Agilent miRNA chip normalization
 # MG 
@@ -60,22 +60,13 @@ if(chiptype=="empty") {
 }
 
 # Annotation package name conversions}
-if(chiptype=="Human-miRNA(v1)") {
+if(chiptype=="Human") {
 	chiptype<-c("miRNA")
 }
-if(chiptype=="Human-miRNA(v2)") {
+if(chiptype=="Mouse") {
 	chiptype<-c("miRNA")
 }
-if(chiptype=="Human-miRNA(v3)") {
-	chiptype<-c("miRNA")
-}
-if(chiptype=="Mouse-miRNA(v1)") {
-	chiptype<-c("miRNA")
-}
-if(chiptype=="Mouse-miRNA(v2)") {
-	chiptype<-c("miRNA")
-}
-if(chiptype=="Rat-miRNA(v1)") {
+if(chiptype=="Rat") {
 	chiptype<-c("miRNA")
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)

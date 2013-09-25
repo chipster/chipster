@@ -4,11 +4,15 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.dialog.LoginDialog;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
 
 public class Authenticator implements AuthenticationRequestListener {
+	
+	private static final Logger logger = Logger.getLogger(Authenticator.class);
 
 	private static class CredentialsHolder {
 		Credentials credentials = null;
@@ -31,7 +35,7 @@ public class Authenticator implements AuthenticationRequestListener {
 	public Credentials authenticationRequest() {
 		final CredentialsHolder credentialsHolder = new CredentialsHolder();
 		final CountDownLatch loginLatch = new CountDownLatch(1);
-		LoginCallback callback = new LoginCallback() {
+		final LoginCallback callback = new LoginCallback() {
 
 			public boolean authenticate(String username, String password) {
 				// store credentials 
@@ -43,16 +47,19 @@ public class Authenticator implements AuthenticationRequestListener {
 				return true;
 			}
 		};
+		
+		final boolean wasSuccess = previousAttemptSuccessful;			
+		previousAttemptSuccessful = false;
 
-		if (previousAttemptSuccessful) {
-			previousAttemptSuccessful = false;
-			new LoginDialog(callback).setVisible(true);
-		} else {
-			new LoginDialog(callback, true).setVisible(true);
-		}
+		SwingUtilities.invokeLater(new Runnable() {			
+			@Override
+			public void run() {
+				new LoginDialog(callback, !wasSuccess).setVisible(true);
+			}
+		});		
 		
 		try {
-			loginLatch.await();
+			loginLatch.await();			
 		} catch (InterruptedException e) {			
 			throw new RuntimeException(e);
 		}

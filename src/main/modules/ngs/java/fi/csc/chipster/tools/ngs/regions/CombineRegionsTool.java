@@ -3,7 +3,7 @@ package fi.csc.chipster.tools.ngs.regions;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 
 public class CombineRegionsTool extends RegionTool {
@@ -19,7 +19,7 @@ public class CombineRegionsTool extends RegionTool {
 	}
 
 	@Override
-	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
+	protected LinkedList<Feature> operate(LinkedList<List<Feature>> inputs, List<String> parameters) {
 		RegionOperations tool = new RegionOperations();
 		boolean flatten = "yes".equals(parameters.get(0));
 		Long minOverlap = Long.parseLong(parameters.get(1));

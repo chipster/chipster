@@ -3,28 +3,12 @@ package fi.csc.chipster.tools.ngs;
 import java.io.File;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.stack.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNormaliser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.TsvSorter;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.util.Exceptions;
 
 public class SortGtf extends JavaAnalysisJobBase {
-
-	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
-
-		public String normaliseChromosome(String chromosomeName) {
-
-			// Leave prefix as it is
-			
-			// Remove postfix, if present
-			String SEPARATOR = ".";
-			if (chromosomeName.contains(SEPARATOR)) {
-				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
-			}
-			
-			return chromosomeName;
-		}
-	};
 	
 	@Override
 	public String getSADL() {
@@ -47,12 +31,13 @@ public class SortGtf extends JavaAnalysisJobBase {
 
 			// run sort
 			new TsvSorter().sort(
-					inputFile, outputFile, CHROMOSOME_NORMALISER, 
+					inputFile, outputFile,
 					GtfLineParser.Column.SEQNAME.ordinal(), 
 					GtfLineParser.Column.START.ordinal(), new GtfLineParser());
 
 		} catch (Exception e) {
-			updateState(JobState.FAILED, e.getMessage());
+			getResultMessage().setErrorMessage(Exceptions.getStackTrace(e));
+			updateState(JobState.FAILED, "");
 			return;
 		}
 

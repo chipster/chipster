@@ -9,6 +9,8 @@
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [yes: yes, no: no] DEFAULT yes (Apply Benjamimi-Hochberg correction?)
 # PARAMETER SD.for.ICA: SD.for.ICA TYPE DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
 # PARAMETER k.for.maSigPro: k.for.maSigPro TYPE DECIMAL FROM 0 TO 1000 DEFAULT 9 (maSigPro see.genes k=9)
+# PARAMETER degree.for.maSigPro: degree.for.maSigPro TYPE DECIMAL FROM 0 TO 1000 DEFAULT 2 (maSigPro make.design.matrix degree=2)
+# PARAMETER rsq.for.maSigPro: rsq.for.maSigPro TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.7 (maSigPro get.siggenes rsq=0.7)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -19,6 +21,18 @@
 # OH 10.10.2012
 # added maSigPro as alternative time series analysis
 # parameter added: k.for.maSigPro
+# see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
+#
+
+# OH 17.01.2013
+# added maSigPro as alternative time series analysis
+# parameter added: degree.for.maSigPro
+# see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
+#
+
+# OH 17.01.2013
+# added maSigPro as alternative time series analysis
+# parameter added: rsq.for.maSigPro
 # see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
 #
 
@@ -172,8 +186,8 @@ if(analysis=="maSigPro") {
 	alfa=Q
 	cluster.data = 1
 	k = k.for.maSigPro
-	degree = 2
-	rsq=0.7
+	degree = degree.for.maSigPro
+	rsq=rsq.for.maSigPro
 	cluster.method = "hclust"
 	distance = "cor"
 	agglo.method = "ward"

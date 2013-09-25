@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,32 +66,73 @@ public class DataFolder extends DataItemBase {
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-					String line = in.readLine();
-					String[] split = line.split("\t");
+					String headerLine = in.readLine();
+					String contentLine = in.readLine();
 					
-					// Some special tags for the tsv output of tool Annotate variants 
-					if (split.length > 4 && 
-							"SEQNAMES".equals(split[1]) && 
-							"START".equals(split[2]) && 
-							"END".equals(split[3])) {
+					if (headerLine != null && contentLine != null) {						
 						
-						data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+						List<String> chrColumns = Arrays.asList(new String[] { "chr", "SEQNAMES", "chromosome"});
+						List<String> startColumns = Arrays.asList(new String[] { "start", "START"});
+						List<String> endColumns = Arrays.asList(new String[] { "end", "END"});											
+
+						String[] split = headerLine.split("\t");
+						
+						int shiftHeader = 0;
+						
+						//TableColumnProvider has this check already, but can we use Feature api here?
+						if (split.length == contentLine.split("\t").length - 1) {
+							shiftHeader = 1;
+						}
+						
+						for (int i = 0; i < split.length; i++) {
+							String column = split[i];
+						
+							if (chrColumns.contains(column)) {
+								switch(i + shiftHeader) {
+								case 0:
+									data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_FIRST_TABLE_COLUMN);
+									break;
+								case 1:
+									data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
+									break;
+								}
+							}
+							if (startColumns.contains(column)) {
+								switch(i + shiftHeader) {
+								case 1:
+									data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_SECOND_TABLE_COLUMN);
+									break;
+								case 2:									
+									data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
+									break;
+								}
+							}
+							if (endColumns.contains(column)) {
+								switch(i + shiftHeader) {
+								case 2:
+									data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN);
+									break;
+								case 3:
+									data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
+									break;
+								}
+							}
+							
+							if (column.contains("loss.freq") ||
+								column.contains("gain.freq") ||
+								column.startsWith("flag.") || 
+								column.startsWith("segmented.")) {
+								
+								if (!data.hasTypeTag(MicroarrayModule.TypeTags.CNA)) {
+									data.addTypeTag(MicroarrayModule.TypeTags.CNA);
+								}
+							}							
+						}						 
 					}
 					
-					//Cna data, first data column of rownames is missing in header
-					if (split.length > 3 && 
-							"chromosome".equals(split[0]) && 
-							"start".equals(split[1]) && 
-							"end".equals(split[2])) {
-						
-						data.addTypeTag(MicroarrayModule.TypeTags.CHROMOSOME_IN_SECOND_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.START_POSITION_IN_THIRD_TABLE_COLUMN);
-						data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_FOURTH_TABLE_COLUMN);
-					}
 				} catch (IOException e) {
 					throw new RuntimeException(e);
+					
 				} finally {
 					IOUtils.closeIfPossible(in);
 				}				
@@ -123,7 +165,8 @@ public class DataFolder extends DataItemBase {
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-					if (in.readLine().startsWith("track")) {
+					String line = in.readLine();
+					if (line != null && line.startsWith("track")) {
 						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
 					}
 				} catch (IOException e) {
@@ -134,6 +177,18 @@ public class DataFolder extends DataItemBase {
 				
 			}
 
+			// mothur
+			if (data.isContentTypeCompatitible("text/mothur-oligos")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-names")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+			}
+			if (data.isContentTypeCompatitible("text/mothur-groups")) {
+				data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+			}
+			
+			
 			// the rest is microarray specific
 			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 				return;

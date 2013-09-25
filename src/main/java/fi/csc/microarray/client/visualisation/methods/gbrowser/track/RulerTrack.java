@@ -2,17 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
@@ -22,10 +18,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 public class RulerTrack extends Track {
 
 	private static final int textY = 10;
+	private final static int boxY = 12;
 	private final static int MINOR_STEPS = 10;
-
-	public RulerTrack() {
-	}
+	private static final int TICK_W = 2; 
+	private static final int BOX_HEIGHT = 4;
+	private static final int TICK_H = 4; //on both sides of the box
 
 	@Override
 	public Collection<Drawable> getDrawables() {
@@ -44,7 +41,9 @@ public class RulerTrack extends Track {
 			int x = getView().bpToTrack(new BpCoord(bp, region.start.chr));
 			String text = Utils.toHumanReadable(bp);
 
-			drawables.add(new TextDrawable(x, textY, text, Color.black));
+			drawables.add(new TextDrawable(x + 4, textY, text, Color.black));
+			//drawables.add(new LineDrawable(x, textY - 2, x, textY + 6, Color.black));
+			drawables.add(new RectDrawable(x - TICK_W, boxY - TICK_H, TICK_W, TICK_H * 2 + BOX_HEIGHT, Color.black, Color.black));
 		}
 		
 		boolean whiteStart = false;
@@ -59,7 +58,6 @@ public class RulerTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		boolean isWhite = whiteStart;
-		final int boxHeight = 5;
 
 		double increment = bpRegion.getLength() / (double) steps;
 		BpCoordDouble boxBp = new BpCoordDouble(bpRegion.start);
@@ -74,8 +72,8 @@ public class RulerTrack extends Track {
 
 			boxX = getView().bpToTrackFloat(boxBp.asBpCoord());
 
-			drawables.add(new RectDrawable(Math.round(lastBoxX), textY,
-			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, null));
+			drawables.add(new RectDrawable(Math.round(lastBoxX), boxY,
+			        Math.round(boxX) - Math.round(lastBoxX), BOX_HEIGHT, c, null));
 
 			lastBoxX = boxX;
 		}
@@ -84,29 +82,24 @@ public class RulerTrack extends Track {
 		float startX = getView().bpToTrackFloat(bpRegion.start);
 		float endX = boxX;
         drawables.add(new RectDrawable(
-                Math.round(startX), textY,
-                Math.round(endX) - Math.round(startX), boxHeight, null, Color.black));		
+                Math.round(startX), boxY,
+                Math.round(endX) - Math.round(startX), BOX_HEIGHT, null, Color.black));		
 		
 		return drawables;
 
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 		// no data
 	}
 	
     @Override
-    public int getHeight() {
-        return textY * 2;
-    }
-
-    @Override
-    public Map<AreaRequestHandler, Set<ColumnType>> requestedData() {
-        return null;
+    public int getTrackHeight() {
+        return boxY + BOX_HEIGHT + TICK_H;
     }
 	
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "ruler";
 	}
 }

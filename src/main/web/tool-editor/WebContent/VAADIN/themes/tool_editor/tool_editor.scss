@@ -1,12 +1,24 @@
 /* Import the reindeer theme.*/
 /* This only allows us to use the mixins defined in it and does not add any styles by itself. */
+/* @import "../reindeer/reindeer.scss"; */
 @import "../reindeer/reindeer.scss";
 
 /* This contains all of your theme.*/
 /* If somebody wants to extend the theme she will include this mixin. */
-@mixin tool_editor {
+/* @mixin tool_editor { */
   /* Include all the styles from the reindeer theme */
-  @include reindeer;
+ /* @include reindeer; */
 
   /* Insert your theme rules here */
+/*} */
+
+.tooleditor {
+	@include reindeer;
+	
+	.topborder {
+		border-style: solid none solid none;
+		border-color: #C2C3C4;
+		border-width: 2px;
+	}
+	
 }

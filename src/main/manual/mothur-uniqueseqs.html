@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Metagenomics / Extract unique aligned sequences with Mothur</h2>
+
+<h3>Description</h3>
+
+<p>
+Given a fasta-formatted alignment and a names file, removes identical sequences from the alignment.
+</p>
+
+<h3>Parameters</h3>
+
+None
+
+<h3>Details</h3>
+<p>
+When you filter an alignment of unique sequences, you might be removing bases that accounted for differences between the sequences. 
+It is therefore recommended to remove redundant sequences from the filtered alignment in order to speed up distance calculations later. 
+In addition to the alignment, you need to supply the names file that was created by the tool "Trim and filter reads with Mothur".
+When redundant sequences are found, the list of names corresponding to the sequence names will be merged.
+<p>
+This tool is based on the <a href="http://www.mothur.org/wiki/Unique.seqs">Unique.seqs</a> command of the Mothur package.
+</p>
+
+
+</p>
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+<ul>
+<li>unique.fasta: Alignment with redundant sequences removed</li> 
+<li>unique-summary.tsv: Summary statistics for the alignment </li> 
+<li>unique.names: A list of the unique sequences and the redundant sequences corresponding to each. </li>
+</ul>
+</p>
+
+
+<h3>References</h3>
+<p>Schloss PD, Westcott SL, Ryabin T, Hall JR, Hartmann M, Hollister EB, Lesniewski RA, Oakley BB, Parks DH, Robinson CJ, Sahl JW, Stres B, Thallinger GG, Van Horn DJ, Weber CF.
+<a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2786419/">Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.</a> 
+</p>
+
+</body>
+

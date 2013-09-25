@@ -1,27 +1,16 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionDouble;
 
 /**
@@ -32,96 +21,14 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 
 	private Timer keyTimer;
 	private Set<Integer> keySet = new HashSet<Integer>();
-	private Map<Rectangle, Drawable> drawableMap = new HashMap<Rectangle, Drawable>();
-	private Shape clip;
 
 	public HorizontalView(GBrowserPlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		super(parent, movable, zoomable, selectable);
-		parent.chartPanel.addKeyListener(this);
-	}
-
-	@Override
-	public void draw(Graphics2D g, Rectangle viewPort, Rectangle viewCanvasArea) {
-
-		// Clear previous tooltip mappings
-		drawableMap.clear();
-
-		// Store clip
-		this.clip = g.getClip();
-		
-		// Do the actual drawing
-		super.draw(g, viewPort, viewCanvasArea);
-
-		// Show current position on top of chromosome cytoband
-		if (highlight != null) {
-			Rectangle rect = g.getClip().getBounds();
-						
-			rect.x = bpToTrack(highlight.start);
-			rect.width = Math.max(3, bpToTrack(highlight.end) - rect.x);
-			rect.height = 20;
-						
-			g.setPaint(new Color(0, 0, 0, 64));
-			g.fill(rect);
-			g.setPaint(new Color(0, 0, 0, 255));
-			g.draw(rect);
-		}
-	}
-
-	protected void drawDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-
-		g.setPaint(drawable.color);
-
-		if (drawable instanceof TextDrawable) {
-			drawTextDrawable(g, x, y, drawable);
-
-		} else if (drawable instanceof RectDrawable) {
-			drawRectDrawable(g, x, y, drawable);
-
-		} else if (drawable instanceof LineDrawable) {
-			drawLineDrawable(g, x, y, drawable);
-		} 
-	}
-
-	protected void drawTextDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-
-		g.setFont(g.getFont().deriveFont(10f));
-		TextDrawable text = (TextDrawable) drawable;
-
-		g.drawString(text.text, text.x + x, text.y + y);
-	}
-
-	protected void drawRectDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-
-		RectDrawable rect = (RectDrawable) drawable;
-
-		// Draw fill
-		if (rect.color != null) {
-			g.setPaint(rect.color);
-			g.fillRect(rect.x + x + 1, rect.y + y + 1, rect.width, rect.height);
-		}
-
-		// Draw outline after fill to hide gaps between adjacent rectangles
-		if (rect.lineColor != null) {
-			g.setPaint(rect.lineColor);
-			g.drawRect(rect.x + x + 1, rect.y + y + 1, rect.width - 1, rect.height - 1);
-		}
-		
-		// register tooltip, if needed
-		String tooltipText = drawable.getTooltipText();
-		if (tooltipText != null) {
-			try {
-				drawableMap.put(new Rectangle(rect.x + x + clip.getBounds().x, rect.y + y + clip.getBounds().y, rect.width, rect.height), drawable);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
-	protected void drawLineDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-		LineDrawable line = (LineDrawable) drawable;
-		g.drawLine(line.x + x, line.y + y, line.x2 + x, line.y2 + y);
-	}
+		getComponent().addKeyListener(this);
+		getComponent().addMouseListener(this);
+		getComponent().addMouseMotionListener(this);
+		getComponent().addMouseWheelListener(this);	
+	}	
 
 	@Override
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
@@ -186,7 +93,7 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 								}
 																
 								// Do until all keys are released or component has lost the focus
-								if (!keySet.isEmpty() && parentPlot.chartPanel.hasFocus()) {
+								if (!keySet.isEmpty() && getComponent().hasFocus()) {
 
 									if (zoomable) {
 										/* This value was obtained with trial-and-error method
@@ -216,6 +123,10 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion);
+											
+											if (!skipFrame) {
+												parentPlot.redraw();											
+											}
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {
@@ -272,39 +183,5 @@ public class HorizontalView extends GBrowserView implements KeyListener {
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// ignore		
-	}
-	
-	@Override
-	public String tooltipRequest(Point2D locationOnPanel) {
-
-		for (Rectangle rect : drawableMap.keySet()) {
-			if (rect.contains(locationOnPanel)) {
-				return drawableMap.get(rect).getTooltipText();
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public int getFullHeight() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public LayoutMode getLayoutMode() {
-		return LayoutTool.inferLayoutMode(this);
-	}
-
-	@Override
-	public void setLayoutMode(LayoutMode mode) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setDefaultLayoutMode() {
-		// TODO Auto-generated method stub
-		
 	}
 }

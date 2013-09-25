@@ -2,7 +2,9 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.LinkedList;
 
-public class CnaRow {
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SelectionText;
+
+public class CnaRow implements SelectionText {
 	
 	public static class Sample {
 		
@@ -27,6 +29,13 @@ public class CnaRow {
 		}
 		public void setName(String name) {
 			this.name = name;
+		}
+		
+		@Override 
+		public String toString() {
+			return "  " + getName() + 
+					"\n   flag \t" + getFlag() + 
+					"\n   segmented \t" + getLogRatio();
 		}
 	}
 	
@@ -58,5 +67,31 @@ public class CnaRow {
 	}
 	public void setGainFreg(Float gainFreg) {
 		this.gainFreg = gainFreg;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("CNA feature info" + 
+		"\n chromosome \t" + getRegion().start.chr + 
+		"\n start \t" + getRegion().start.bp + 
+		"\n end \t" + getRegion().end.bp + 
+		"\n gain.freq \t" + getGainFreg() + 
+		"\n loss.freq \t" + getLossFreg() + "\n");
+				
+		builder.append(" Samples\n");
+		
+		for (Sample sample : getSamples()) {			
+			builder.append(sample);
+			builder.append("\n");
+		}
+		
+		return builder.toString();
+	}
+	
+	@Override
+	public String getText() {
+		return this.toString();
 	}
 }
