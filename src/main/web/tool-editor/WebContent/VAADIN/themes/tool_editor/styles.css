@@ -6220,7 +6220,7 @@ body .tooleditor.v-app-loading {
 }
 
 .tooleditor .topborder {
-	border-style: solid none none none;
+	border-style: solid none solid none;
 	border-color: #C2C3C4;
-	border-width: 3px;
+	border-width: 2px;
 }
