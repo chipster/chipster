@@ -1,4 +1,4 @@
-package fi.csc.microarray.manager.web.data;
+package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,8 +13,8 @@ import javax.jms.JMSException;
 
 import com.vaadin.data.util.BeanItemContainer;
 
-import fi.csc.microarray.manager.web.ChipsterConfiguration;
-import fi.csc.microarray.manager.web.ui.StorageView;
+import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
+import fi.csc.chipster.web.adminweb.ui.StorageView;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
