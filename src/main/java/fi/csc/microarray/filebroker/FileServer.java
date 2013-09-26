@@ -138,9 +138,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.endpoint = new MessagingEndpoint(this);
     		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
     		filebrokerTopic.setListener(this);
-
     		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
     		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
+
     		
     		this.managerClient = new ManagerClient(endpoint); 
 
@@ -546,6 +546,16 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				
 			} else {
 
+				String localPath = file.toURI().toString();//convert spaces to %20 etc.
+				String publicRootString = publicRoot.toURI().toString();//convert spaces to %20 etc.
+
+				String urlString = localPath.replace(publicRootString, host + ":" + port + "/" + publicPath + "/");
+
+				files.add(new URL(urlString));
+			}
+		}		
+	}
+
 	private class FilebrokerAdminMessageListener implements MessagingListener {
 
 		@Override
@@ -580,14 +590,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					
 		}
 	}
-	
-				String localPath = file.toURI().toString();//convert spaces to %20 etc.
-				String publicRootString = publicRoot.toURI().toString();//convert spaces to %20 etc.
 
-				String urlString = localPath.replace(publicRootString, host + ":" + port + "/" + publicPath + "/");
 
-				files.add(new URL(urlString));
-			}
-		}		
-	}
+
 }
