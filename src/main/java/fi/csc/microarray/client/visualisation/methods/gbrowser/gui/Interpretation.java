@@ -14,18 +14,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.FileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CytobandConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.FileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineToRegionConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ScatterplotFileLineConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.VcfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -44,7 +44,9 @@ public class Interpretation {
 		HIDDEN(false), 
 		VCF(true), 
 		GTF(true),
-		CNA(true); 
+		CNA(true), 		
+		TSV(true),
+		TSV_WITH_ROW_ID(true);
 
 		public boolean isToggleable;
 
@@ -57,11 +59,11 @@ public class Interpretation {
 	private DataUrl primaryData;
 	private DataUrl indexData;
 	private String name;
-	private CnaConversion cnaDataThread;
+	private CnaConversion cnaDataThread;	
 	private GtfToFeatureConversion gtfDataThread;
 	private FileLineConversion vcfDataThread;
-	private LineToRegionConversion bedRegionDataThread;
 	private ScatterplotFileLineConversion bedLineDataThread;
+	private FileLineConversion tsvDataThread;
 	private TreeSet<Chromosome> chrNames;
 
 	public Interpretation(TrackType type, DataUrl primaryData) {
@@ -237,23 +239,6 @@ public class Interpretation {
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public LineToRegionConversion getBedRegionDataThread(GBrowser browser) {
-
-		if (getType() == TrackType.REGIONS) {
-
-			if (bedRegionDataThread == null) {
-				try {
-					bedRegionDataThread = new LineToRegionConversion(getPrimaryData(), new BedLineParser(true), browser);
-
-				} catch (URISyntaxException | IOException e) {
-					browser.reportException(e);
-				}
-			}
-			return bedRegionDataThread;
-		}
-		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
-	}
-	
 	public ScatterplotFileLineConversion getBedLineDataThread(GBrowser browser) {
 
 		if (getType() == TrackType.REGIONS) {
@@ -271,6 +256,22 @@ public class Interpretation {
 			return bedLineDataThread;
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
+	}
+	
+	public FileLineConversion getTsvDataThread(GBrowser browser) {
+
+		if (getType() == TrackType.TSV || getType() == TrackType.TSV_WITH_ROW_ID) {
+
+			if (tsvDataThread == null) {
+				try {
+					tsvDataThread = new FileLineConversion(getPrimaryData(), new TsvLineParser(getPrimaryData(), getType()), browser);
+
+				} catch (URISyntaxException | IOException e) {
+					browser.reportException(e);
+				}
+			}
+		}
+		return tsvDataThread;
 	}
 	
 	public FileLineConversion getVcfDataThread(GBrowser browser) {
@@ -334,14 +335,15 @@ public class Interpretation {
 
 				chromosomes.add(new Chromosome(string));
 			}
-		}
+		}		
 		
 		boolean isBed = (getType() == TrackType.REGIONS);
 		boolean isVcf = (getType() == TrackType.VCF);
 		boolean isGtf = (getType() == TrackType.GTF);
+		boolean isTsv = (getType() == TrackType.TSV || getType() == TrackType.TSV_WITH_ROW_ID);
 		boolean isCna = (getType() == TrackType.CNA);
 
-		if (isBed || isVcf || isGtf || isCna) {
+		if (isBed || isVcf || isGtf || isCna || isTsv) {
 
 			DataUrl data = getPrimaryData();						
 			ChromosomeBinarySearch chrSearch = null;
@@ -354,6 +356,8 @@ public class Interpretation {
 				chrSearch = new ChromosomeBinarySearch(data, new GtfLineParser());				
 			} else if (isCna) {
 				chrSearch = new ChromosomeBinarySearch(data, new CnaLineParser());
+			} else if (isTsv) {
+				chrSearch = new ChromosomeBinarySearch(data, new TsvLineParser(data, getType()));
 			}
 
 			chrNames = chrSearch.getChromosomes();

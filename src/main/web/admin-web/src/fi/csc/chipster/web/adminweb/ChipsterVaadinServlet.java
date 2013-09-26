@@ -30,7 +30,7 @@ public class ChipsterVaadinServlet extends VaadinServlet {
 			// try to normalize the path by collapsing ".." before the class
 			// loader sees it.
 			
-			if (resourceUrl.getPath().contains("!/VAADIN/") || resourceUrl.getPath().contains("!/WebContent/VAADIN/")) {
+			if (resourceUrl.getPath().contains("!/VAADIN/") || resourceUrl.getPath().contains("!/WebContent/VAADIN/") || resourceUrl.getPath().contains("!/tool-editor/WebContent/VAADIN/")) {
 				getLogger().fine(
 						"Accepted access to a JAR entry using a class loader: "
 								+ resourceUrl);
@@ -38,7 +38,7 @@ public class ChipsterVaadinServlet extends VaadinServlet {
 			}
 			
 			getLogger().info(
-					"Blocked attempt to access a JAR entry not starting with /VAADIN/: " + resourceUrl + ", getPath(): " + resourceUrl.getPath());
+					"BLOCKED attempt to access a JAR entry not starting with /VAADIN/: " + resourceUrl + ", getPath(): " + resourceUrl.getPath());
 			return false;
 			
 		} else {

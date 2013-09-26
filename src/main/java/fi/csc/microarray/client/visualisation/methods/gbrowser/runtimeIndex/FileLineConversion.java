@@ -42,14 +42,14 @@ public class FileLineConversion extends DataThread {
 
 	private LineParser parser;
 
-	public FileLineConversion(DataUrl data, LineParser parser, GBrowser browser) throws FileNotFoundException, URISyntaxException {
+	public FileLineConversion(DataUrl data, AbstractTsvLineParser parser, GBrowser browser) throws FileNotFoundException, URISyntaxException {
 		super(browser, null);
-			    
-		this.parser = parser;		
-		
+						
 		try {					
 						 			
 			RandomAccessLineDataSource dataSource = new RandomAccessLineDataSource(data);
+			this.parser = parser;
+			
 			if (dataSource.length() < IN_MEMORY_INDEX_LIMIT) {
 				//InMemoryIndex requires different kind of DataSource
 				LineDataSource lineDataSource = new LineDataSource(data);

@@ -20,7 +20,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
  * BinarySearchIndex locates requested region from the sorted file. The requested region is 
  * located by binary search algorithm. First searches require disk seeks, but most subsequent 
  * searches can be satisfied with RAM index, which is build dynamically during the searches.
- * The actual content is read always from the file, keeping the memory usage minimal. 
+ * The actual content is read always from the file, keeping the memory usage minimal.
+ * 
+ * Comment and header lines are tolerated only in the beginning of the file.
  * 
  * @author klemela
  */

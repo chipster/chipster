@@ -16,7 +16,6 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 				"INPUT data.bam: \"Input bam file\" TYPE GENERIC" + "\n" +
 				"OUTPUT preprocessed.bam: \"Preprocessed bam file\"" + "\n" + 
 		        "OUTPUT preprocessed.bam.bai: \"Preprocessed bam index file\"" + "\n"; 
-
 	}
 	
 	
@@ -41,7 +40,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 					updateStateDetailToClient("preprocess: " + newState.getState());
 				}
 
-			}, LocalNGSPreprocess.CHROMOSOME_NORMALISER);
+			});
 
 			samBamUtil.preprocessSamBam(inputFile, outputFile, indexOutputFile);
 

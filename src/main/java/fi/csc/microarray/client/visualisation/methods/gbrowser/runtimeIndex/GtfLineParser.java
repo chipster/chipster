@@ -7,7 +7,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
-public class GtfLineParser extends TsvLineParser {
+public class GtfLineParser extends AbstractTsvLineParser {
 	
 	public enum Column {
 			

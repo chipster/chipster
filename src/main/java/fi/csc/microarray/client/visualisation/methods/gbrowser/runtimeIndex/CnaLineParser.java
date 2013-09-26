@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
  * 
  * @author klemela
  */
-public class CnaLineParser extends TsvLineParser {		 
+public class CnaLineParser extends AbstractTsvLineParser {		 
 	
 	public enum Column {
 

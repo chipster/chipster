@@ -32,11 +32,10 @@ public class CSCTextToToolClickListener implements ClickListener{
 
 	@Override
 	public void buttonClick(ClickEvent event) {
-		String text = root.getTextEditor().takeHeader(root.getTextEditor().getText());
 		
 		ChipsterSADLParser parser = new ChipsterSADLParser();
 		try {
-			SADLDescription description = parser.parse(text);
+			SADLDescription description = parser.parse(root.getTextEditor().getHeader());
 			root.getToolEditor().removeItems();
 			root.getTreeToolEditor().removeAllChildren();
 			root.getToolEditor().addTool(description);
@@ -54,11 +53,7 @@ public class CSCTextToToolClickListener implements ClickListener{
 			}
 			
 		} catch (Exception e) {
-			new Notification("Please fill text area", Type.WARNING_MESSAGE).show(Page.getCurrent());
+			new Notification("Something wrong with the header\n\n" + e.getMessage(), Type.WARNING_MESSAGE).show(Page.getCurrent());
 		}
-		
 	}
-
-	
-
 }

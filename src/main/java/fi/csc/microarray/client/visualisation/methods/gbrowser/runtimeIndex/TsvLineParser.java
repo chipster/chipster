@@ -1,59 +1,101 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
- * Generic helper methods for parsing tab separated files.
- * 
  * @author klemela
  */
-public abstract class TsvLineParser implements LineParser {
+public class TsvLineParser extends AbstractTsvLineParser {		 
+
+	private String[] header;
+	private int chrColumn;
+	private int startColumn;
+	private int endColumn;
+	private String headerStart;
 	
-	protected String[] values;
-	
-	public Long getLong(int column) {
-		String string = values[column];
-		return new Long(string);		
-	}
-	
-	public Integer getInteger(int column) {
-		String string = values[column];
-		return new Integer(string);		
-	}
-	
-	public Float getFloat(int column) {
-		String string = values[column];
-		try {
-			return new Float(string);
-		} catch (NumberFormatException e) {
-			if ("inf".equals(string.toLowerCase())) {
-				return Float.POSITIVE_INFINITY;
-			} else if ("-inf".equals(string.toLowerCase())) {
-				return Float.NEGATIVE_INFINITY;
-			}
-			return Float.NaN;
-		}
-	}
-	
-	public String getString(int column) {
-		return values[column];
-	}
-	
-	@Override
-	public boolean setLine(String line) {
-		if (getHeaderStart() != null && line.startsWith(getHeaderStart())) {
-			this.values = null;
-			return false;
+
+	public TsvLineParser(DataUrl data, TrackType trackType) throws IOException, URISyntaxException {
+		this(data);
+		
+		if (TrackType.TSV == trackType) {
+			setChrColumn(0);			
+		} else if (TrackType.TSV_WITH_ROW_ID == trackType) {
+			setChrColumn(1);
 		} else {
-			this.values = line.split("\t"); 
-			return true; 
+			throw new IllegalArgumentException("Unsupported trackType");
 		}
 	}
 	
-	public boolean isContentLine() {
-		return values != null;
+	public TsvLineParser(DataUrl data, int chrColumn) throws IOException, URISyntaxException {
+		
+		this(data);	
+		setChrColumn(chrColumn);				
+	}
+	
+	private TsvLineParser(DataUrl data) throws IOException, URISyntaxException {
+		
+		LineDataSource dataSource = new LineDataSource(data);
+		headerStart = dataSource.readLine();
+		String contentRow = dataSource.readLine();
+		
+		String[] splittedHeader = headerStart.split("\t");
+		String[] splittedContent = contentRow.split("\t");
+		
+		if (splittedHeader.length == splittedContent.length - 1) {
+			//Some R results don't have column title for the first column. (similar to generic Chipster implementation in TableColumnProvider)
+			String[] headerWithId = new String[contentRow.length()];
+			headerWithId[0] = "";
+			System.arraycopy(splittedHeader, 0, headerWithId, 1, splittedHeader.length);
+			
+			this.header = headerWithId;  
+		} else {
+			this.header = splittedHeader;
+		}
+		
+	}
+	
+	private void setChrColumn(int chrColumn) {
+		this.chrColumn = chrColumn;
+		this.startColumn = chrColumn + 1;
+		this.endColumn = chrColumn + 2;
 	}
 
+	@Override
+	public Region getRegion() {
+		
+		if (isContentLine()) {
+			
+			long start = getLong(startColumn);
+			long end = getLong(endColumn);
+			
+			Chromosome chr = new Chromosome(getString(chrColumn));
+			return new Region(start, end, chr);
+			
+		} else {
+			//This is header line
+			return null;
+		}
+	}		
+	
+	@Override
 	public String getHeaderStart() {
-		return null;
+		return headerStart;
+	}	
+
+	@Override
+	public FileLine getFileLine() {
+		TsvLine line = new TsvLine();
+		
+		line.setRegion(getRegion());
+		line.setHeaders(header);
+		line.setValues(values);
+		
+		return line;
 	}
 }

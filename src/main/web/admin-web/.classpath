@@ -9,11 +9,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/chipster"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/activation-jar-1.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/antlr-jar-2.7.7.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/c3p0-jar-0.9.1.jar"/>
@@ -58,5 +53,10 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-theme-compiler-jar-7.0.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-themes-jar-7.0.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/validation-api-jar-1.0.0.GA.jar"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
