@@ -14,7 +14,6 @@ import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
-import fi.csc.microarray.util.Exceptions;
 
 /**
  * Creating tool editor from text
@@ -33,11 +32,10 @@ public class CSCTextToToolClickListener implements ClickListener{
 
 	@Override
 	public void buttonClick(ClickEvent event) {
-		String text = root.getTextEditor().takeHeader(root.getTextEditor().getText());
 		
 		ChipsterSADLParser parser = new ChipsterSADLParser();
 		try {
-			SADLDescription description = parser.parse(text);
+			SADLDescription description = parser.parse(root.getTextEditor().getHeader());
 			root.getToolEditor().removeItems();
 			root.getTreeToolEditor().removeAllChildren();
 			root.getToolEditor().addTool(description);
@@ -57,9 +55,5 @@ public class CSCTextToToolClickListener implements ClickListener{
 		} catch (Exception e) {
 			new Notification("Something wrong with the header\n\n" + e.getMessage(), Type.WARNING_MESSAGE).show(Page.getCurrent());
 		}
-		
 	}
-
-	
-
 }
