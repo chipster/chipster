@@ -138,6 +138,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.endpoint = new MessagingEndpoint(this);
     		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
     		filebrokerTopic.setListener(this);
+    		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
+    		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
+
+    		
     		this.managerClient = new ManagerClient(endpoint); 
 
     		// create keep-alive thread and register shutdown hook
@@ -551,4 +555,42 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			}
 		}		
 	}
+
+	private class FilebrokerAdminMessageListener implements MessagingListener {
+
+		@Override
+		public void onChipsterMessage(ChipsterMessage msg) {
+
+			// get totals
+			if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_BY_USER.equals(((CommandMessage)msg).getCommand())) {
+				System.out.println("GET-STORAGE-USAGE");
+		
+			} 
+			
+			// get sessions for user
+			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_SESSIONS_FOR_USER.equals(((CommandMessage)msg).getCommand())) {
+				String username = ((ParameterMessage)msg).getNamedParameter("username");
+				CommandMessage reply;
+				
+				try {
+					reply = new CommandMessage();
+					reply.addNamedParameter("neppi", username + " jepjep");
+					endpoint.replyToMessage(msg, reply);
+				} catch (Exception e) {
+					// FIXME
+					System.out.println(e);
+				}
+			}
+			
+			
+			// get sessions for session name
+			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_SESSIONS_FOR_SESSION_NAME.equals(((CommandMessage)msg).getCommand())) {
+				// TODO
+			}
+					
+		}
+	}
+
+
+
 }
