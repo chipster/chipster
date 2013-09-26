@@ -8,17 +8,17 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.ChunkDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineReader;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -31,10 +31,10 @@ public class RegionOperations {
 
 	private static final String EMPTY_EXTRA_FIELDS = "";
 
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, GBrowserException {
 		RegionOperations tool = new RegionOperations();
-		List<RegionContent> file1 = null;
-		List<RegionContent> file2 = null;
+		List<Feature> file1 = null;
+		List<Feature> file2 = null;
 		try {
 			file1 = tool.loadFile(new File("test1.bed"));
 			file2 = tool.loadFile(new File("test2.bed"));
@@ -55,20 +55,20 @@ public class RegionOperations {
 	 * @param mergeOrIntersect if true return union, otherwise intersection
 	 * @return
 	 */
-	public LinkedList<RegionContent> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, PairPolicy pairPolicy, boolean flatten) {
+	public LinkedList<Feature> intersect(List<Feature> leftRegions, List<Feature> rightRegions, Long minIntersectionLength, PairPolicy pairPolicy, boolean flatten) {
 		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, pairPolicy, flatten);
 	}
 
-	public LinkedList<RegionContent> subtract(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength) {
+	public LinkedList<Feature> subtract(List<Feature> leftRegions, List<Feature> rightRegions, Long minIntersectionLength) {
 		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
 	}
 
-	public LinkedList<RegionContent> merge(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean flatten) {
+	public LinkedList<Feature> merge(List<Feature> leftRegions, List<Feature> rightRegions, Long minIntersectionLength, boolean flatten) {
 		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, flatten);
 	}
 
-	public LinkedList<RegionContent> flatten(List<RegionContent> leftRegions) {
-		return operate(leftRegions, new LinkedList<RegionContent>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
+	public LinkedList<Feature> flatten(List<Feature> leftRegions) {
+		return operate(leftRegions, new LinkedList<Feature>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
 	}
 
 	/**
@@ -87,16 +87,16 @@ public class RegionOperations {
 	 * 
 	 * @return results produced from paired regions and non-paired regions
 	 */
-	public LinkedList<RegionContent> operate(List<RegionContent> leftRegions, List<RegionContent> rightRegions, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
+	public LinkedList<Feature> operate(List<Feature> leftRegions, List<Feature> rightRegions, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
 		
 		// Initialise collectors
-		LinkedList<RegionContent> result = new LinkedList<RegionContent>();
-		HashSet<RegionContent> leftPaired = new HashSet<RegionContent>();
-		HashSet<RegionContent> rightPaired = new HashSet<RegionContent>();
+		LinkedList<Feature> result = new LinkedList<Feature>();
+		HashSet<Feature> leftPaired = new HashSet<Feature>();
+		HashSet<Feature> rightPaired = new HashSet<Feature>();
 		
 		// Find pairs from a Cartesian product
-		for (RegionContent leftRegion : leftRegions) {
-			for (RegionContent rightRegion : rightRegions) {
+		for (Feature leftRegion : leftRegions) {
+			for (Feature rightRegion : rightRegions) {
 				if (pairRule.isPair(leftRegion.region, rightRegion.region)) {
 					leftPaired.add(leftRegion);
 					rightPaired.add(rightRegion);
@@ -108,14 +108,14 @@ public class RegionOperations {
 		}
 		
 		// Process left orphans
-		for (RegionContent leftRegion : leftRegions) {
+		for (Feature leftRegion : leftRegions) {
 			if (!leftPaired.contains(leftRegion)) {
 				leftOrphanPolicy.process(leftRegion, result);
 			}
 		}
 		
 		// Process right orphans
-		for (RegionContent rightRegion : rightRegions) {
+		for (Feature rightRegion : rightRegions) {
 			if (!rightPaired.contains(rightRegion)) {
 				rightOrphanPolicy.process(rightRegion, result);
 			}
@@ -169,54 +169,54 @@ public class RegionOperations {
 	 * Decides what should be output when a pair is found. 
 	 */
 	public static interface PairPolicy {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector);
+		public void process(Feature left, Feature right, LinkedList<Feature> collector);
 	}
 
 	public static PairPolicy ORIGINALS_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			collector.add(left);
 			collector.add(right);
 		}
 	};
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.merge(right.region), EMPTY_EXTRA_FIELDS));
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
+			collector.add(new Feature(left.region.merge(right.region), getEmptyExtraFieldMap()));
 		}
 	};
 
 	public static PairPolicy LEFT_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			collector.add(left);
 		}
 	};
 
 	public static PairPolicy LEFT_PAIR_POLICY_WITH_AUGMENTATION = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			collector.add(augment(left, right));
 		}
 	};
 
 	public static PairPolicy RIGHT_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			collector.add(right);
 		}
 	};
 
 	public static PairPolicy RIGHT_PAIR_POLICY_WITH_AUGMENTATION = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			collector.add(augment(right, left));
 		}
 	};
 
 	public static PairPolicy INTERSECT_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.intersect(right.region), EMPTY_EXTRA_FIELDS));
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
+			collector.add(new Feature(left.region.intersect(right.region), getEmptyExtraFieldMap()));
 		}
 	};
 
 	public static PairPolicy EXCLUDE_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+		public void process(Feature left, Feature right, LinkedList<Feature> collector) {
 			// do nothing
 		}
 	};
@@ -226,18 +226,18 @@ public class RegionOperations {
 	 * Decides what is done to non-paired regions.
 	 */
 	public static interface OrphanPolicy {
-		public void process(RegionContent region, LinkedList<RegionContent> collector);
+		public void process(Feature region, LinkedList<Feature> collector);
 	}
 
 	
 	public static OrphanPolicy INCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(RegionContent region, LinkedList<RegionContent> collector) {
+		public void process(Feature region, LinkedList<Feature> collector) {
 			collector.add(region);
 		}
 	};
 
 	public static OrphanPolicy EXCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(RegionContent region, LinkedList<RegionContent> collector) {
+		public void process(Feature region, LinkedList<Feature> collector) {
 			// do nothing
 		}
 	};
@@ -249,48 +249,90 @@ public class RegionOperations {
 	 * @param input BED file
 	 * @return regions and their extra data
 	 * @throws URISyntaxException 
+	 * @throws GBrowserException 
 	 */
-	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException {
-		ChunkDataSource dataSource = new ChunkDataSource(input.toURI().toURL(), new BEDParser(), ChunkTreeHandlerThread.class);
-		byte[] fileChunk = dataSource.readAll();
-		return parseString(new String(fileChunk));
+	public List<Feature> loadFile(File input) throws FileNotFoundException, IOException, URISyntaxException, GBrowserException {
+		
+		DataUrl dataUrl = new DataUrl(input);
+		RandomAccessLineReader lineReader = new RandomAccessLineReader(dataUrl);
+		lineReader.setPosition(0);
+		
+		String line;
+		List<Feature> regions = new LinkedList<Feature>();
+		
+		while ((line = lineReader.readLine()) != null) {	
+			
+			Feature region = parseString(line);
+			
+			if (region != null) {
+				regions.add(region);
+			}
+		}
+		
+		lineReader.close();
+		
+		return regions;
 	}
 
 	/**
-	 * Parses regions from a BED text formatted String.
+	 * Parses region from a BED text formatted String.
 	 * 
 	 * @param string BED string
 	 * @return  regions and their extra data
 	 */
-	public List<RegionContent> parseString(String string) throws FileNotFoundException, IOException {
+	public Feature parseString(String string) throws FileNotFoundException, IOException {
 		
 		// Process track name, if exists
-		BEDParser parser = new BEDParser();
-		int headerLength = (int)parser.getHeaderLength(string);
-		string = string.substring(headerLength > 0 ? (headerLength + 1) : 0);
+		BedLineParser parser = new BedLineParser(false);
+		parser.setLine(string);
+		Region region = parser.getRegion();
 		
+		if (region == null) {
+			//header
+			return null;
+		}
+						
 		// Count fields and create list of what extra types we need
-		int fieldCount = string.split("\n")[0].split("\t").length;
+		int fieldCount = parser.getColumnCount();
 		if (fieldCount < 3) {
 			throw new IllegalArgumentException("BED must have at least chromosome, start and end fields");
 		}
-		LinkedList<ColumnType> extraTypes = new LinkedList<ColumnType>();
+		
+		DataType[] legacyBedColumns = new DataType[] {
+				DataType.CHROMOSOME,
+				DataType.START,
+				DataType.END,
+				DataType.ID,
+				DataType.VALUE,
+				DataType.STRAND,
+				DataType.THICK_START,
+				DataType.THICK_END,
+				DataType.ITEM_RGB,
+				DataType.BLOCK_COUNT,
+				DataType.BLOCK_SIZES,
+				DataType.BLOCK_STARTS
+		};
+		
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+		
 		for (int i = 3; i < fieldCount; i++) {
-			extraTypes.add(BEDParser.completeBedColumns.get(i).content);
+						
+			DataType key = legacyBedColumns[i];
+			String value = parser.getString(i);
+			values.put(key, value);
 		}
 		
-		// Parse it
-		return parser.getAll(new Chunk(string), extraTypes);
+		return new Feature(region, values);
 	}
 
 
-	private LinkedList<RegionContent> mergeContinuous(LinkedList<RegionContent> regions) {
+	private LinkedList<Feature> mergeContinuous(LinkedList<Feature> regions) {
 		
 		// Sort to bring continuous pieces together
 		sort(regions);
 		
 		// Write out continuous regions
-		LinkedList<RegionContent> mergedRegions = new LinkedList<RegionContent>();
+		LinkedList<Feature> mergedRegions = new LinkedList<Feature>();
 		for (int i = 0; i < regions.size(); ) {
 			
 			// Iterate as long as continuous
@@ -307,7 +349,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new RegionContent(new Region(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
+			mergedRegions.add(new Feature(new Region(regions.get(i).region.start, regions.get(j).region.end), getEmptyExtraFieldMap()));
 			
 			// Jump to region after the previously written one
 			i = j+1;
@@ -319,9 +361,9 @@ public class RegionOperations {
 	/**
 	 * Prints out regions and their extra fields in BED text format (without track header row).
 	 */
-	public void print(List<RegionContent> regionContents, OutputStream outputStream) {
+	public void print(List<Feature> regionContents, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
-		for (RegionContent regionContent : regionContents) {
+		for (Feature regionContent : regionContents) {
 			out.println(regionContent.toString());
 		}
 		out.flush();
@@ -333,7 +375,7 @@ public class RegionOperations {
 	 * Row names must be unique, so repeating ID's are ignored.
 	 * 
 	 */
-	public void printTSV(List<RegionContent> regionContents, OutputStream outputStream) {
+	public void printTSV(List<Feature> regionContents, OutputStream outputStream) {
 
 		// Print header (row name column is nameless)
 		PrintWriter out = new PrintWriter(outputStream);
@@ -341,8 +383,8 @@ public class RegionOperations {
 		
 		// Print row names and values
 		HashSet<String> rowNames = new HashSet<String>();
-		for (RegionContent regionContent : regionContents) {
-			String rowName = regionContent.values.get(ColumnType.ID).toString();
+		for (Feature regionContent : regionContents) {
+			String rowName = regionContent.values.get(DataType.ID).toString();
 			if (rowNames.contains(rowName)) {
 				continue;
 			}
@@ -353,7 +395,7 @@ public class RegionOperations {
 		out.flush();
 	}
 
-	public void sort(List<RegionContent> rows) {
+	public void sort(List<Feature> rows) {
 		Collections.sort(rows);
 	}
 	
@@ -361,13 +403,13 @@ public class RegionOperations {
 	 * Augment extra fields of primary RegionContent with secondary RegionContent.
 	 * @return
 	 */
-	private static RegionContent augment(RegionContent primary, RegionContent secondary) {
+	private static Feature augment(Feature primary, Feature secondary) {
 		
-		RegionContent augmented = new RegionContent(primary.region, "");
+		Feature augmented = new Feature(primary.region, getEmptyExtraFieldMap());
 		augmented.values.clear();
 		
 		// Copy from primary, but augmenting from secondary
-		for (Entry<ColumnType, Object> entry : primary.values.entrySet()) {
+		for (Entry<DataType, Object> entry : primary.values.entrySet()) {
 			Object value = entry.getValue();
 			if (value == null || "".equals(value.toString().trim())) {
 				Object valueInSecondary = secondary.values.get(entry.getKey());
@@ -381,5 +423,11 @@ public class RegionOperations {
 		
 		return augmented;
 	}
+	
 
+	public static LinkedHashMap<DataType, Object> getEmptyExtraFieldMap() {
+		LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+		values.put(DataType.VALUE, EMPTY_EXTRA_FIELDS);
+		return values;
+	}
 }

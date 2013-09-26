@@ -34,6 +34,12 @@ smart.install.packages(package="snowfall", mirror=repo.cran)
 smart.install.packages(package="sm", mirror=repo.cran)
 smart.install.packages(package="rda", mirror=repo.cran)
 smart.install.packages(package="flexmix", mirror=repo.cran) ## required by WECCA
+smart.install.packages(package="MKmisc", mirror=repo.cran)
+smart.install.packages(package="multicore", mirror=repo.cran) # required by zinba
+smart.install.packages(package="doMC", mirror=repo.cran) # required by zinba
+smart.install.packages(package="foreach", mirror=repo.cran) # required by zinba
+smart.install.packages(package="quantreg", mirror=repo.cran) # required by zinba
+smart.install.packages(package="R.utils", mirror=repo.cran) # required by zinba
 
 
 # Install packages, and their dependencies, from Bioconductor
@@ -99,7 +105,6 @@ smart.install.packages(bioconductor.package="safe", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="CGHbase", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="CGHcall", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="CGHregions", mirror=repo.bioc) 
-smart.install.packages(bioconductor.package="CGHregions", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="DNAcopy", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="MLInterfaces", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="MEDIPS", mirror=repo.bioc) 
@@ -124,23 +129,148 @@ smart.install.packages(bioconductor.package="edgeR", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="rtracklayer", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="maSigPro", mirror=repo.bioc) 
 smart.install.packages(bioconductor.package="qvalue", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="DESeq", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="RPA", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="methylumi", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="IlluminaHumanMethylation450k.db", mirror=repo.bioc) # annotation package, not needed if all annotation packages from the repository are installed
+smart.install.packages(bioconductor.package="IlluminaHumanMethylation27k.db", mirror=repo.bioc) # annotation package, not needed if all annotation packages from the repository are installed
+smart.install.packages(bioconductor.package="VariantAnnotation", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="TxDb.Hsapiens.UCSC.hg19.knownGene", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="DEXSeq", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="BSgenome.Hsapiens.UCSC.hg19", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="rich", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="BiodiversityR", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pegas", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="labdsv", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="sva", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="Mfuzz", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="WGCNA", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="RmiR.Hs.miRNA", mirror=repo.bioc)
+
+
+
+# SNP 5.0 / 6.0
+smart.install.packages(bioconductor.package="crlmm", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="oligo", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping50k.hind240", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping50k.xba240", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping250k.nsp", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.mapping250k.sty", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.genomewidesnp.5", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="pd.genomewidesnp.6", mirror=repo.bioc)
+
+smart.install.packages(bioconductor.package="genomewidesnp6Crlmm", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="genomewidesnp5Crlmm", mirror=repo.bioc)
+
+smart.install.packages(bioconductor.package="human1mduov3bCrlmm", mirror=repo.bioc)          #Illumina
+smart.install.packages(bioconductor.package="human1mv1cCrlmm", mirror=repo.bioc)             #Illumina
+smart.install.packages(bioconductor.package="human370quadv3cCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="human370v1cCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human550v3bCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human610quadv1bCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="human650v3aCrlmm", mirror=repo.bioc)            #Illumina
+smart.install.packages(bioconductor.package="human660quadv1aCrlmm", mirror=repo.bioc)        #Illumina
+smart.install.packages(bioconductor.package="humanomni1quadv1bCrlmm", mirror=repo.bioc)      #Illumina
+smart.install.packages(bioconductor.package="humanomniexpress12v1bCrlmm", mirror=repo.bioc)  #Illumina
+
 
 
 # Install non-repo packages
-smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/NoWaves_0.4.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/FruitFlyAgilent.db.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/hgug4851a.db.tar.gz")
-smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtest_1.1.tar.gz")
-smart.install.packages(url.package="http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtestpar_0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CGHtest_1.1.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CGHtestpar_0.0.tar.gz")
 smart.install.packages(url.package="http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz")
 smart.install.packages(url.package="http://www.math.utu.fi/projects/software/bio/ROTS_1.1.1.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/A2R_0.0-4.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/exon.pmcdf_1.1.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/mouseexonpmcdf_1.1.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/ratexonpmcdf_1.1.tar.gz")
-smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.53.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.54.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.30.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/zinba_2.02.03.tar.gz")
+
+
+# affy_20 for R-2.12"
+		
+		# TAIR annotations for Arabidosis 1.0 and 1.1
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgprobe_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgprobe_17.0.0.tar.gz'
+		
+		# Entrez annotations for human
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgprobe_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgprobe_17.0.0.tar.gz'
+		
+		# Entrez annotations for Arabidosis 1.0 and 1.1
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgprobe_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgprobe_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgcdf_17.0.0.tar.gz'
+		
+		# Entrez annotations for ragene_20 and ragene_21
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgprobe_17.0.0.tar.gz'
+		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezg.db_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgprobe_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgcdf_17.0.0.tar.gz'
+		
+		# Entrez annotations for mouse_20 and mouse_21
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgprobe_17.0.0.tar.gz'
+		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezg.db_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgprobe_17.0.0.tar.gz'
+		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezg.db_17.0.0.tar.gz'
+		
+		# Entrez annotations for Danio rerio 1.0 and 1.1
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
+		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezg.db_17.0.0.tar.gz'
+		
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
+		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezg.db_17.0.0.tar.gz'
+		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
+		
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgcdf_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgprobe_17.0.0.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgcdf_17.0.0.tar.gz")
+
+
+
+
+
+
+
+
+
+
 
 
 # Install the whole annotation repository from Bioconductor
@@ -148,4 +278,5 @@ smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0,
 
 
 # Install BrainArray custom CDF's
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/entrezg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/tairg.asp")

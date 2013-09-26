@@ -21,23 +21,9 @@ public class Gene extends HashMap<String, Transcript> implements Comparable<Gene
 		
 		return this.id.compareTo(other.id);
 
-//		int regionComparison = this.region.compareTo(other.region);
-//		int biotypeComparison = 0;
-//		
-//		if (regionComparison != 0) {
-//			return regionComparison;
-//		}
-//		
-//		if (this.biotype != null) {
-//			biotypeComparison = this.biotype.compareTo(other.getBiotype());
-//		} else if (other.getBiotype() != null) {
-//			biotypeComparison = 1;
-//		}
-//	
-//		return biotypeComparison;
 	}
 
-	private String getBiotype() {
+	public String getBiotype() {
 		return biotype;
 	}
 

@@ -39,7 +39,7 @@ public class ClientContextUtil {
 	private static class SkeletonApplication extends ClientApplication {
 
 		@Override
-		protected void initialiseGUI() throws MicroarrayException, IOException {
+		protected void initialiseGUIThreadSafely(File backupSession) throws MicroarrayException, IOException {
 			// do nothing
 		}
 
@@ -99,7 +99,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void reportInitialisation(String report, boolean newline) {
+		public void reportInitialisationThreadSafely(String report, boolean newline) {
 			// do nothing
 		}
 
@@ -164,7 +164,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void loadSessionFrom(URL url) {
+		public void loadExampleSession(String url) {
 			// do nothing
 		}
 
@@ -222,7 +222,12 @@ public class ClientContextUtil {
 		public void manageRemoteSessions() {
 			// do nothing
 		}
-		
+
+		@Override
+		public void reportExceptionThreadSafely(Exception e) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 

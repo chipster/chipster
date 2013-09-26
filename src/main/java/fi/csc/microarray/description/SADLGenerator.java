@@ -25,6 +25,8 @@ public class SADLGenerator {
 	 * source. However if the returned String is used to create a new parsed syntax, it 
 	 * should return the exactly same string.
 	 * 
+	 * @see SADLDescription
+	 * 
 	 * @return SADL source representation
 	 */
 	public static String generate(SADLDescription sadl) {
@@ -141,7 +143,7 @@ public class SADLGenerator {
 	}
 	
 	private static String quoteIfNeeded(String string) {
-		if (string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
+		if (string.isEmpty() || string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
 			return "\"" + escapeIfNeeded(string) + "\"";
 		} else {
 			return string;

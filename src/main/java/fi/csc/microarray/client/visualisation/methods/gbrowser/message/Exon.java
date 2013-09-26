@@ -8,13 +8,20 @@ public class Exon implements Comparable<Exon> {
 	private int exonNumber;
 	private Transcript transcript;
 
+	private String geneId;
+	private String transcriptId;
+	private String geneName;
+	private String transcName;
+	private String biotype;
+
 	public static enum Feature {
 
-		CDS("CDS"), 
+		UNRECOGNIZED(null),
+		TRANSCRIPT("transcript"), //Cufflinks gtf
 		EXON("exon"),
+		CDS("CDS"), 
 		START_CODON("start_codon"),
-		STOP_CODON("stop_codon"),
-		UNRECOGNIZED(null);
+		STOP_CODON("stop_codon");
 
 		private String id;
 
@@ -42,44 +49,38 @@ public class Exon implements Comparable<Exon> {
 		this.exonNumber = exonNumber;
 	}
 
+	public Exon(Region region, String feature, int exonNumber,
+			String geneId, String transcId, String geneName, String transcName,
+			String biotype) {
+
+		this(region, feature, exonNumber);
+		this.geneId = geneId;
+		this.transcriptId = transcId;
+		this.geneName = geneName;
+		this.transcName = transcName;
+		this.biotype = biotype;
+	}
+
 	public int compareTo(Exon other) {
 		
-		int transcriptComparison = this.transcript.compareTo(other.transcript);
-		int exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
-		int featureComparison = this.feature.compareTo(other.feature);
+		//All exons here should be from same transcript		
+		int transcriptIdComparison = this.transcriptId.compareTo(other.transcriptId);		
+		//Sort higher level features (transcript, exon) before lower level features (CDS, start codon),
+		//because this is a practical drawing order
+		int featureComparison = this.feature.compareTo(other.feature);		
+		//Together, transcript, feature and start position should make an unique identifier, so that data isn't lost
+		int startComparison = region.start.compareTo(other.region.start);
 		
-		if (transcriptComparison != 0) {
-			return transcriptComparison;
-		} else if (exonNumberComparison != 0){
-			return exonNumberComparison;
-		} else {
+		if (transcriptIdComparison != 0) {
+			return transcriptIdComparison;
+		} else if (featureComparison != 0){
 			return featureComparison;
+		} else {
+			return startComparison;
 		}
-
-//		int featureComparison = 0;
-//		int exonNumberComparison = 0;
-//
-//		int regionComparison = this.region.compareTo(other.region);
-//		
-//		if (regionComparison != 0) {
-//			return regionComparison;
-//		}
-//
-//		if (this.feature != null) {
-//			featureComparison = this.feature.compareTo(other.getFeature());
-//		} else if (other.getFeature() != null) {
-//			featureComparison = 1;
-//		}
-//		
-//		exonNumberComparison = ((Integer)this.exonNumber).compareTo((Integer)other.getExonNumber());
-//
-//		if (featureComparison != 0) {
-//			return featureComparison;
-//		}
-//		return exonNumberComparison;
 	}	
 	
-	private Object getExonNumber() {
+	public Object getExonNumber() {
 		return exonNumber;
 	}
 
@@ -89,7 +90,7 @@ public class Exon implements Comparable<Exon> {
 
 	@Override
 	public int hashCode() {
-		return transcript.hashCode() << 8 + exonNumber << 2 + feature.ordinal();
+		return transcriptId.hashCode() << 8 + exonNumber << 2 + feature.ordinal();
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class Exon implements Comparable<Exon> {
 	@Override
 	public String toString() {
 		
-		return region.toString(true) + ", " + feature;
+		return region.toString(true) + " \t" + feature + " \t" + transcriptId + " \t" + transcName + " \t" + exonNumber;
 	}
 
 	public Region getRegion() {
@@ -117,5 +118,25 @@ public class Exon implements Comparable<Exon> {
 
 	public void setTranscript(Transcript transc) {
 		this.transcript = transc;
+	}
+	
+	public String getGeneId() {
+		return geneId;
+	}
+
+	public String getTranscriptId() {
+		return transcriptId;
+	}
+
+	public String getGeneName() {
+		return geneName;
+	}
+
+	public String getTranscName() {
+		return transcName;
+	}
+
+	public String getBiotype() {
+		return biotype;
 	}
 }

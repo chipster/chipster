@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-
 /**
  * This implementation is not tested, because a prerelease of the annotation was found from Ensembl.
  * 

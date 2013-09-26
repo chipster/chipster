@@ -1,27 +1,21 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
@@ -31,22 +25,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * If track's strand is set to {@link Strand#BOTH}, two profiles are drawn, one for
  * each strand.
  *
- * @see IntensityTrack
+ * @see CoverageEstimateTrack
  */
 public class QualityCoverageTrack extends Track {
 
-	private long maxBpLength;
-	private long minBpLength;
-
 	//Contains also reverse complemented reverse reads
-	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
+	private Collection<Feature> forwardReads = new TreeSet<Feature>();
 	private Color forwardColor;
 
-	public QualityCoverageTrack(GBrowserView view, DataSource file, Color forwardColor, long minBpLength, long maxBpLength) {
-		super(view, file);
+	public QualityCoverageTrack(Color forwardColor) {
+		super();
+
 		this.forwardColor = forwardColor;
-		this.minBpLength = minBpLength;
-		this.maxBpLength = maxBpLength;
 		
 		this.setStrand(Strand.BOTH);
 	}
@@ -56,7 +46,7 @@ public class QualityCoverageTrack extends Track {
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Collection<RegionContent> reads, Color color) {
+	private Collection<Drawable> getDrawableReads(Collection<Feature> reads, Color color) {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		Chromosome chr = getView().getBpRegion().start.chr;
@@ -126,15 +116,15 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 	
-	private TreeMap<Long, Float> getQualities(Collection<RegionContent> reads) {
+	private TreeMap<Long, Float> getQualities(Collection<Feature> reads) {
 
 		TreeMap<Long, Float> collector = new TreeMap<Long, Float>();
-		Iterator<RegionContent> iter = reads.iterator();
+		Iterator<Feature> iter = reads.iterator();
 
 		// iterate over RegionContent objects (one object corresponds to one read)
 		while (iter.hasNext()) {
 
-			RegionContent read = iter.next();
+			Feature read = iter.next();
 
 			// remove those that are not in this view
 			if (!read.region.intersects(getView().getBpRegion())) {
@@ -142,9 +132,9 @@ public class QualityCoverageTrack extends Track {
 				continue;
 			}
 
-			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
+			Cigar cigar = (Cigar) read.values.get(DataType.CIGAR);
 
-			String quality = ((String) read.values.get(ColumnType.QUALITY));
+			String quality = ((String) read.values.get(DataType.QUALITY));
 			
 			if (quality == null) {
 				continue;
@@ -186,51 +176,31 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
-			// check that areaResult has same concised status (currently always false)
-			// and correct strand
-			if (areaResult.getStatus().concise == isConcised()) {
-				if (getStrand() == content.values.get(ColumnType.STRAND) || 
-						getStrand() == Strand.BOTH) {
+			// check that dataResult has 
+			// correct strand
+			if (getStrand() == content.values.get(DataType.STRAND) || 
+					getStrand() == Strand.BOTH) {
 
-					forwardReads.add(content);
-				}
+				forwardReads.add(content);
 			}
 		}
-		getView().redraw();
 	}
 
 	@Override
-	public int getHeight() {
+	public int getTrackHeight() {
 		return 100;
 	}
-
-	@Override
-	public boolean isVisible() {
-		// visible region is not suitable
-		return (super.isVisible() &&
-				getView().getBpRegion().getLength() > minBpLength &&
-				getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-		HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-				ColumnType.ID, 
-				ColumnType.STRAND,
-				ColumnType.QUALITY,
-				ColumnType.CIGAR })));
-		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
+	
+    @Override
+	public void defineDataTypes() {
+		addDataType(DataType.ID);
+		addDataType(DataType.STRAND);
+		addDataType(DataType.QUALITY);
+		addDataType(DataType.CIGAR);
 	}
 
 	/**
@@ -242,7 +212,7 @@ public class QualityCoverageTrack extends Track {
 	}
 
 	@Override
-	public String getName() {
+	public String getTrackName() {
 		return "QualityCoverageTrack";
 	}
 }

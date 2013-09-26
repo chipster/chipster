@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
@@ -116,7 +117,7 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		gatherMetadata(true, false);
+		gatherMetadata(true, true);
 		boolean metadataValid = validateMetadata();
 	
 		writeSessionToFile(true);
@@ -131,16 +132,22 @@ public class SessionSaver {
 		writeSessionToFile(false);
 	}
 
-	public void saveStorageSession() throws Exception {
+	public LinkedList<URL> saveStorageSession() throws Exception {
 
 		// move data bean contents to storage
+		LinkedList<URL> urls = new LinkedList<URL>();
 		for (DataBean dataBean : dataManager.databeans()) {
-			dataManager.putToStorage(dataBean);
+			URL url = dataManager.putToStorage(dataBean);
+			if (url != null) {
+				urls.add(url);				
+			}
 		}
 		
 		// save metadata
 		gatherMetadata(false, true);
 		writeSessionToUrl(false);
+		
+		return urls;
 	}
 	
 	
@@ -308,8 +315,7 @@ public class SessionSaver {
 			writeSourceCodesToZip(zipOutputStream);
 			
 			// close the zip stream
-			zipOutputStream.flush();
-//			zipOutputStream.close();
+			zipOutputStream.close();
 		} 
 		
 		catch (Exception e) {
@@ -327,7 +333,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION, newURLs.get(bean));
+			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
 		}
 	}
 	
@@ -469,7 +475,7 @@ public class SessionSaver {
 		// write newly created URL inside session files, if exists
 		if (newURL != null) {
 			LocationType locationType = new LocationType();
-			locationType.setMethod(StorageMethod.LOCAL_SESSION.name());
+			locationType.setMethod(StorageMethod.LOCAL_SESSION_ZIP.name());
 			locationType.setUrl("file:#" + newURL.getRef());
 			dataType.getLocation().add(locationType);
 		}
@@ -585,7 +591,11 @@ public class SessionSaver {
 			String entryName = entry.getValue().getRef();
 
 			// write bean contents to zip
-			writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
+			try {
+				writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
+			} catch (IllegalStateException e) {
+				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
+			}
 		}
 	}
 	

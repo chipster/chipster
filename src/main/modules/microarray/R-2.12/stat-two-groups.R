@@ -1,12 +1,13 @@
-# TOOL stat-two-groups.R: "Two groups tests" (Tests for comparing the mean gene expression of two groups. LPE only works, if the whole data is used, i.e., the data should not be pre-filtered, if LPE is used. Other than empiricalBayes might be slow, if run on unfiltered data.)
+# TOOL stat-two-groups.R: "Two groups tests" (Tests for comparing the mean gene expression of two groups. LPE only works, if the whole normalized data is used, i.e., the data should not be filtered. Other than empiricalBayes might be slow, if run on unfiltered data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT two-sample.tsv: two-sample.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-macthed data or you have interested of comparing expression in one tissue against the expression in another collected from same individuals, etc.)
+# PARAMETER OPTIONAL pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-matched data or you have expression data at multiple tissue sites from the same individuals, etc. LPE, F-test and fast-t-test do not support pairing information.)
 # PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER show.na: show.na TYPE [yes: yes, no:no] DEFAULT yes (include results where p-value is NA)
 
 # Two-group parametric and non-parametric tests
 # JTT 4.7.2006
@@ -26,6 +27,7 @@ if(test=="empiricalBayes" & (p.value.adjustment.method!="BH" & p.value.adjustmen
 	adj.method<-p.value.adjustment.method
 }
 p.cut<-p.value.threshold
+show.p.na<-show.na
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -147,9 +149,11 @@ if(meth=="t-test") {
 	p      <- rep(as.numeric(NA), nrow(dat2))
 	if (pairing=="EMPTY") {
 		for(i in 1:nrow(dat2)) {
-			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+			if( (sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1) &&
+				( length(which(!dat2.1[i,]==mean(dat2.1[i,])))>0 || length(which(!dat2.2[i,]==mean(dat2.2[i,])))>0 )
+			  ) { 
 				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,])$p.value
-			}
+			} 
 		}
 	} else {
 		pairs.1 <-pairs[groups==unique(groups)[1]]
@@ -175,7 +179,9 @@ if(meth=="t-test") {
 		dat2.2 <- dat2.2[,match(pairs.1, pairs.2)]
 		
 		for(i in 1:nrow(dat2)) {
-			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)) { 
+			if((sum(!is.na(dat2.1[i,])) > 1) & (sum(!is.na(dat2.2[i,])) > 1)
+				( length(which(!dat2.1[i,]==mean(dat2.1[i,])))>0 || length(which(!dat2.2[i,]==mean(dat2.2[i,])))>0 )
+			) { 
 				p[i] <- t.test(x=dat2.1[i,], y=dat2.2[i,], paired=TRUE)$p.value
 			}
 		}	
@@ -251,8 +257,13 @@ if (meth %in% c("Mann-Whitney", "fast-t-test", "t-test", "F-test")){
 	} else {
 		p.adjusted <- p.adjust(p.raw, method=adj.method)
 	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	if( show.p.na == "yes" ) {
+		dat<-dat[which(p.adjusted<=p.cut|is.na(p.adjusted)),]   
+		p.adjusted<-p.adjusted[which(p.adjusted<=p.cut|is.na(p.adjusted))]
+	} else {
+		dat<-dat[which(p.adjusted<=p.cut),]   
+		p.adjusted<-p.adjusted[which(p.adjusted<=p.cut)]
+	}
 	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)),
 			file="two-sample.tsv", sep="\t", row.names=TRUE,
 			col.names=TRUE, quote=FALSE)
@@ -271,9 +282,15 @@ if(meth=="RankProd") {
 		p.adjusted[, 1] <- p.adjust(p.raw[, 1], method=adj.method)
 		p.adjusted[, 2] <- p.adjust(p.raw[, 2], method=adj.method)
 	}
-	dat <- dat[apply(p.adjusted,1,min)<=p.cut,]   
-	p.adjusted <- p.adjusted[apply(p.adjusted,1,min)<=p.cut, ]
-	p.adjusted <- apply(p.adjusted,1,min)
+	if( show.p.na == "yes" ) {
+		dat <- dat[which(apply(p.adjusted,1,min)<=p.cut|is.na(apply(p.adjusted,1,min))),]   
+		p.adjusted <- p.adjusted[which(apply(p.adjusted,1,min)<=p.cut|is.na(apply(p.adjusted,1,min))), ]
+		p.adjusted <- apply(p.adjusted,1,min)
+	} else {
+		dat <- dat[which(apply(p.adjusted,1,min)<=p.cut),]   
+		p.adjusted <- p.adjusted[which(apply(p.adjusted,1,min)<=p.cut), ]
+		p.adjusted <- apply(p.adjusted,1,min)
+	}
 	
 	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)),
 			file="two-sample.tsv", sep="\t", row.names=TRUE,
@@ -317,8 +334,13 @@ if(meth=="LPE") {
 		#dat2<-dat2[,-ncol(dat2)] # Removes the last columns that holds Z-test values
 		#names(dat2)[which(names(dat2)=="FDR")]<-"p.adjusted" # Renames "FDR" with "p.adjusted"
 	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
+	if( show.p.na == "yes" ) {
+		dat<-dat[which(p.adjusted<=p.cut|is.na(p.adjusted)),]   
+		p.adjusted<-p.adjusted[which(p.adjusted<=p.cut|is.na(p.adjusted))]
+	} else {
+		dat<-dat[which(p.adjusted<=p.cut),]   
+		p.adjusted<-p.adjusted[which(p.adjusted<=p.cut)]
+	}
 	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 

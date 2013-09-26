@@ -1,4 +1,4 @@
-# TOOL htseq-count-own-gtf.R: "Map aligned reads to genes with HTSeq using own GTF" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the GTF format. Please note that the chromosome names have to be same in the GTF and BAM files. This tool is based on the HTSeq package. In order to use the output in edgeR or DESeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
+# TOOL htseq-count-own-gtf.R: "Count aligned reads per genes with HTSeq using own GTF" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the GTF format. Please note that the chromosome names have to be same in the GTF and BAM files. This tool is based on the HTSeq package. In order to use the output in edgeR or DESeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # INPUT features.gtf: "GTF feature file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv
@@ -9,8 +9,10 @@
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
 # PARAMETER OPTIONAL id.attribute: "Feature ID to use" TYPE [gene_id, transcript_id, gene_name, transcript_name, protein_name] DEFAULT gene_id (GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.)
+# PARAMETER OPTIONAL print.coord: "Add chromosomal coordinates to the count table" TYPE [yes, no] DEFAULT yes (If you select yes, chromosomal coordinates are added to the output file. Given are the minimum and maximum coordinates of features, e.g. exons, associated with a given identifier)
 
-# TH and EK 22.8.2011
+# 22.8.2011 TH and EK 
+# 6.5.2013 MK added chr-location information to the output
 
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.6", "site-packages"), ":$PYTHONPATH")
@@ -25,7 +27,12 @@ samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignm
 samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
-htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
+if(print.coord == "no") {
+	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count")
+} else {
+	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
+}
+
 htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
 
 # run
@@ -39,7 +46,11 @@ system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
 # bring in file to R environment for formating
 file <- c("htseq-counts.tsv")
 dat <- read.table(file, header=F, sep="\t")
-names(dat) <- c("id", "count")
+if(print.coord == "no") {
+	names(dat) <- c("id", "count")
+} else {
+	names(dat) <- c("id", "chr", "start", "end", "len", "strand", "count")
+}
 
 # write result table to output
 write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)

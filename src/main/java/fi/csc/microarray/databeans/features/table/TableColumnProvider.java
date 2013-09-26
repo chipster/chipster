@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans.features.table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -231,31 +232,13 @@ public class TableColumnProvider extends FeatureProviderBase {
 					
 					//TODO same as comment above about Affymetrix CEL specific functionality 
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
-						String line = null;
-						if (source.peekLine().startsWith("#")) {
-							//TODO this will fail if the last row of header isn't unique
-							int i = 1;
-							while (source.peekLine(i).startsWith("#")) {
-								line = source.peekLine(i);
-								i++;
-							}
-						}
 						
-						settings.headerTerminator = line;
+						readHeaderSettings(settings, "#", source);
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
-						String line = null;
-						if (source.peekLine().startsWith("##")) {
-							//TODO this will fail if the last row of header isn't unique
-							int i = 1;
-							while (source.peekLine(i).startsWith("##")) {
-								line = source.peekLine(i);
-								i++;
-							}
-						}
 						
-						settings.headerTerminator = line;
+						readHeaderSettings(settings, "##", source);
 					}
 					
 					// note: it is safe to call tokeniseRow with null input				
@@ -309,6 +292,22 @@ public class TableColumnProvider extends FeatureProviderBase {
 			}
 		}
 
+		private void readHeaderSettings(MatrixParseSettings settings,
+				String headerSymbol, LookaheadLineReader source) throws IOException {
+			String line = "";
+			
+			for (int i = 1; line != null; i++) {
+				String nextLine = source.peekLine(i);
+				if (nextLine.startsWith(headerSymbol)) {
+					line = nextLine;
+				} else {
+					break;
+				}
+			}
+			
+			settings.headerTerminator = line;
+		}
+
 		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
 			while (!source.peekLine().contains(settings.headerTerminator)) {
 				source.readLine();
@@ -327,10 +326,23 @@ public class TableColumnProvider extends FeatureProviderBase {
 				String[] result = ROW_TOKENISER_REGEX.split(row);
 				
 				if (row.endsWith("\t")) {
+					
 					// split eats away trailing empty strings, which is bad
-					String[] fullResult = new String[result.length + 1];
+					
+					//count missing columns
+					int eatenColumns = 0; 
+					for (int i = row.length() - 1; i >= 0; i--) {
+						if ('\t' == row.charAt(i)) {
+							eatenColumns++;
+						} else {
+							break;
+						}
+					}
+					
+					//put them back
+					String[] fullResult = new String[result.length + eatenColumns];
 					System.arraycopy(result, 0, fullResult, 0, result.length);
-					fullResult[result.length] = "";
+					Arrays.fill(fullResult, result.length, fullResult.length, "\t");
 					result = fullResult;
 				}
 				

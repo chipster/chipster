@@ -47,10 +47,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private JMenu fileMenu = null;
 	private JMenu importMenu = null;
-	private JMenu importRemoteMenu = null;
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
-	private JMenuItem importFromRemoteURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
@@ -148,7 +146,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getDirectImportMenuItem());
 			fileMenu.add(getAddDirMenuItem());
 			fileMenu.add(getImportMenu());
-			fileMenu.add(getImportRemoteMenu());
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
@@ -182,16 +179,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importMenu;
 	}
 
-	private JMenu getImportRemoteMenu() {
-		if (importRemoteMenu == null) {
-			importRemoteMenu = new JMenu();
-			importRemoteMenu.setText("Import remote data from");
-			
-			importRemoteMenu.add(getImportFromRemoteURLMenuItem());
-		}
-		return importRemoteMenu;
-	}
-
 	private JMenuItem getDirectImportMenuItem() {
 		if (directImportMenuItem == null) {
 			directImportMenuItem = new JMenuItem();
@@ -217,7 +204,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromURLMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.openURLImport(true);
+						application.openURLImport();
 					} catch (Exception me) {
 						application.reportException(me);
 					}
@@ -225,23 +212,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return importFromURLMenuItem;
-	}
-
-	private JMenuItem getImportFromRemoteURLMenuItem() {
-		if (importFromRemoteURLMenuItem == null) {
-			importFromRemoteURLMenuItem = new JMenuItem();
-			importFromRemoteURLMenuItem.setText("URL...");
-			importFromRemoteURLMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						application.openURLImport(false);
-					} catch (Exception me) {
-						application.reportException(me);
-					}
-				}
-			});
-		}
-		return importFromRemoteURLMenuItem;
 	}
 
 	private JMenuItem getHelpWorkflowMenuItem() {
@@ -652,8 +622,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			helpInfoMenu.add(getStartedMenuItem());
 			helpInfoMenu.add(getContentMenuItem());
 			if (DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-contact-support")) {
-				// disabled for server side sessions
-				// helpInfoMenu.add(getSendFeedbackMenuItem());
+				helpInfoMenu.add(getSendFeedbackMenuItem());
 			}
 
 			helpInfoMenu.add(getAboutMenuItem());
@@ -778,7 +747,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem() {
 		if (loadSessionMenuItem == null) {
 			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open server session...");
+			loadSessionMenuItem.setText("Open session...");
 			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -815,7 +784,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save server session...");
+			saveSessionMenuItem.setText("Save session...");
 			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -829,7 +798,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Server sessions...");
+			manageSessionsMenuItem.setText("Manage sessions...");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.manageRemoteSessions();

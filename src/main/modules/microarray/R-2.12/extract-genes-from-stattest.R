@@ -10,7 +10,7 @@
 
 # Loads the data file
 file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1, check.names=F)
 
 # Sanity checks
 if(p.value.column=="empty") {

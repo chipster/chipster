@@ -38,5 +38,4 @@ public class DataFolder extends DataItemBase {
 	public String toString() {
 		return getName();
 	}
-
 }

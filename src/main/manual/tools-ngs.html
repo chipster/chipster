@@ -17,9 +17,10 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="#variants">Variants</a> </li>
 <li> <a href="#RNA">RNA-seq</a> </li>
 <li> <a href="#miRNA">miRNA-seq</a> </li>
-<li> <a href="#ChIP">ChIP-seq</a> </li>
+<li> <a href="#ChIP">ChIP-seq and FAIRE-seq</a> </li>
 <li> <a href="#CNA">CNA-seq</a> </li>
 <li> <a href="#methyl">Methyl-seq</a> </li>
+<li> <a href="#meta">Metagenomics</a> </li>
 </ol>
 <hr>
 <ul>
@@ -42,7 +43,12 @@ allowing you to view reads and results in their genomic context.</p>
 <br>
 <br>
 <b><a name="utilities">Utilities</a></b>
-<li> <a href=" ngs-create-experiment.html">Define NGS experiment </a> </li>
+<li> <a href="ngs-create-experiment.html">Define NGS experiment </a> </li>
+<li> <a href="extract-samples-from-dataset.html">Extract samples from dataset </a> </li>
+<li> <a href="process-preprocessed-counts.html">Preprocess count table </a> </li>
+<li><a href="tagcleaner-predict.html">Predict primers/adaptors (TagCleaner)</a></li>
+<li><a href="tagcleaner-statistics.html">Statistics for primers/adaptors (TagCleaner)</a></li>
+<li><a href="tagcleaner-trim.html">Trim primers/adaptors (TagCleaner)</a></li>
 <li> <a href="fastx-trimmer.html">Trim reads (FASTX)</a> </li>
 <li> <a href="prinseq-quality-trimmer.html">Trim reads by quality (PRINSEQ) </a> </li>
 <li> <a href="prinseq-AT-trimmer.html">Trim reads for poly-A/T tails (PRINSEQ) </a> </li>
@@ -61,6 +67,8 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="samtools-consensus.html">Create consensus sequence from BAM </a> </li>
 <li> <a href="annotate-variants.html">Annotate variants </a> </li>
 <li> <a href="bedtools-sort.html">Sort BED </a> </li>
+<li><a href="sort-gtf.html">Sort GTF</a></li>
+<li><a href="sort-vcf.html">Sort VCF</a></li>
 <li> <a href="bedtools-fastafrombed.html">FASTA from BED </a> </li>
 <li> <a href="bedtools-slopbed.html">Slop BED </a> </li>
 <li> Extract features from BED </li>
@@ -87,14 +95,18 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="bowtie-paired-end.html">Bowtie for paired-end reads</a> </li>
 <li> <a href="bowtie-with-index-building.html">Bowtie for single-end reads and own genome </a> </li>
 <li> <a href="bowtie-paired-end-with-index-building.html">Bowtie for paired-end reads and own genome </a> </li>
+<li><a href="bowtie2.html">Bowtie2 for single end reads</a>.</li>
+<li><a href="bowtie2-paired-end.html">Bowtie2 for paired end reads</a>.</li>
+<li><a href="bowtie2-with-index-building.html">Bowtie2 for single end reads and own genome</a>.</li>
+<li><a href="bowtie2-paired-end-with-index-building.html">Bowtie2 for paired end reads and own genome</a>.</li>
 <li> <a href="bwa.html">BWA for single-end reads </a> </li>
 <li> <a href="bwasw.html">BWA-SW for single-end reads </a> </li>
 <li> <a href="bwa-paired-end.html">BWA for paired-end reads </a> </li>
 <li> <a href="bwa-with-index-building.html">BWA for single-end reads and own genome</a> </li>
 <li> <a href="bwasw-with-index-building.html">BWA-SW for single-end reads and own genome</a> </li>
 <li> <a href="bwa-paired-end-with-index-building.html">BWA for paired-end reads and own genome </a> </li>
-<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a> </li>
-<li><a href="tophat2-single-end.html">Alignment / TopHat2 for single end reads</a></li>
+<li><a href="tophat2.html">TopHat2 for paired end reads</a> </li>
+<li><a href="tophat2-single-end.html">TopHat2 for single end reads</a></li>
 <li> <a href="tophat.html">TopHat for paired end reads </a> </li>
 <li> <a href="tophat-single-end.html">TopHat for single end reads </a> </li>
 <br>
@@ -106,45 +118,66 @@ allowing you to view reads and results in their genomic context.</p>
 <br>
 <br>
 <b><a name="RNA">RNA-seq</a></b>
-<li> <a href="htseq-count.html">Map aligned reads to genes with HTSeq</a> </li>
-<li> <a href="htseq-count-own-gtf.html">Map aligned reads to genes with HTSeq using own GTF </a> </li>
+<li><a href="htseq-count.html">Map aligned reads to genes with HTSeq</a> </li>
+<li><a href="htseq-count-own-gtf.html">Map aligned reads to genes with HTSeq using own GTF </a> </li>
 <!--  <li> Map aligned reads to genes with coverageBed using own BED </li>-->
-<li><a href="dea-cufflinks.html">Differential expression analysis using Cufflinks</a></li>
-<li> <a href="ngs-dea-edger-RNA.html"> Differential expression analysis using edgeR</a></li>
-<li> <a href="edger-multivariate.html"> Differential expression analysis using edgeR for multivariate experiments</a></li>
-<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
-<li><a href="dexseq-exoncount.html">RNA-seq / Map aligned reads to exons for DEXSeq</a></li>
-<li><a href="DEXSeq.html">RNA-seq / Differential exon expression using DEXSeq</a></li>
+<li><a href="dexseq-exoncount.html">Map aligned reads to exons for DEXSeq</a></li>
+<li><a href="ngs-dea-edger-RNA.html"> Differential expression using edgeR</a></li>
+<li><a href="edger-multivariate.html"> Differential expression using edgeR for multivariate experiments</a></li>
+<li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
+<li><a href="DEXSeq.html">Differential exon expression using DEXSeq</a></li>
+<li><a href="cufflinks2.html">Assemble reads into transcripts using Cufflinks</a></li>
+<li><a href="cuffmerge2.html">Merge transcript assemblies with Cuffmerge</a></li>
+<li><a href="cuffdiff2.html">Differential expression using Cuffdiff</a></li>
+<li><a href="dea-cufflinks.html">Differential expression using Cufflinks v1.0.3</a></li>
 <br>
 <br>
 <b><a name="miRNA">miRNA-seq</a></b>
-<li><a href="convert-bam-to-edger.html">Convert genomic BAM to edgeR input format</a></li>
-<li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to edgeR input format</a></li>
-<li><a href="ngs-dea-edger.html">Differential expression analysis using edgeR</a></li>
-<li><a href="dea-deseq.html">Differential expression analysis using DESeq</a></li>
+<li><a href="convert-bam-to-edger.html">Convert genomic BAM to count table</a></li>
+<li><a href="convert-miRBase-bam-to-edger.html">Convert miRBased BAM to count table</a></li>
+<li><a href="ngs-dea-edger.html">Differential expression using edgeR</a></li>
+<li><a href="dea-deseq.html">Differential expression using DESeq</a></li>
 <li><a href="ngs-annotate-miRNA-targets.html">Find miRNA targets</a></li>
 <li><a href="ngs-pathways-mirna-hyperg-go.html">GO enrichment for miRNA targets</a></li>
 <li><a href="ngs-pathways-mirna-hyperg-kegg.html">KEGG enrichment for miRNA targets</a></li>
-<li><a href="ngs-correlation-analysis-mirna.html">Correlate miRNA with target expression</a></li>
-<li><a href="ngs-up-down-analysis-mirna.html">Up-down analysis of miRNA targets</a></li>
-<li><a href="ngs-extract-target-gene-expression.html">Extract miRNA target expression data</a></li>
+<li><a href="miRNA_RNA-seq_integration.html">Correlate miRNA-seq and RNA-seq data</a></li>
+<li><a href="ngs-correlation-analysis-mirna.html">Correlate miRNA-seq and gene expression array data</a></li>
+<li><a href="ngs-up-down-analysis-mirna.html">Up-down analysis of miRNA target genes with array data</a></li>
+<li><a href="ngs-extract-target-gene-expression.html">Extract gene expression array data for miRNA targets</a></li>
 <br>
 <br>
-<b><a name="ChIP">ChIP-seq</a></b>
+<b><a name="ChIP">ChIP-seq and FAIRE-seq</a></b>
 <li> <a href="ngs-find-peaks-macs-one.html">Find peaks using MACS, treatment only </a> </li>
 <li> <a href="ngs-find-peaks-macs-two.html">Find peaks using MACS, treatment vs. control </a> </li>
 <li> <a href="ngs-find-motifs-jaspar.html">Find common motifs and match to JASPAR </a> </li>
 <li> <a href="ngs-find-nearest-genes.html">Find the nearest genes for regions </a> </li>
 <li> <a href="ngs-find-unique-genes.html">Find unique and annotated genes</a></li>
 <li> <a href="pathways-ngs-hyperg-go.html">GO enrichment for list of genes </a> </li>
+<li><a href="ngs-find-peaks-fseq.html">Find broad peaks using F-seq</a></li>
 <br>
 <br>
 <b><a name="CNA">CNA-seq</a></b>
 <li><a href="cna-bin-hits.html">Count reads in fixed bins</a></li>
-<li> <a href="cna-pool-bins.html">Pool binned read counts </a> </li>
-<li> <a href="cna-define-experiment.html ">Define CNA-seq experiment </a> </li>
-<li> <a href="cna-segment-and-call-aberrations.html">Segment and call copy number aberrations </a> </li>
-<li><a href="cna-plot-profile.html">Plot copy number profile</a></li>
+<li><a href="cna-define-experiment.html ">Define CNA-seq experiment </a> </li>
+<li><a href="cna-correct.html">Correct for GC content</a></li>
+<li><a href="acgh-normalize.html">Normalize copy number data</a></li>
+<li><a href="cna-plot-profile.html">Plot copy number profiles</a></li>
+<li><a href="acgh-segment.html">Segment copy number data</a></li>
+<li><a href="acgh-call-aberrations.html">Call aberrations from segmented copy number data</a></li>
+<li><a href="acgh-identify-regions.html">Identify common regions from called copy number data</a></li>
+<li><a href="acgh-plot-frequencies.html">Plot copy number aberration frequencies</a></li>
+<li><a href="acgh-cluster.html">Cluster called copy number data</a></li>
+<li><a href="acgh-group-test.html">Group tests for called copy number data</a></li>
+<li><a href="acgh-survival-test.html">Survival test for called copy number data</a></li>
+<li><a href="acgh-plot-survival.html">Plot survival curves for called copy number data</a></li>
+<li><a href="acgh-convert-from-probes-to-genes.html">Detect genes from called copy number data</a></li>
+<li><a href="acgh-pathways-go.html">GO enrichment for called gene copy numbers</a></li>
+<li><a href="acgh-match-probes.html">Match copy number and expression features</a></li>
+<li><a href="acgh-plot-combined-profile.html">Plot profiles of matched copy number and expression</a></li>
+<li><a href="acgh-expression-test.html">Test for copy number induced expression changes</a></li>
+<li><a href="acgh-plot-combined-expression.html">Plot copy number induced gene expression</a></li>
+<li><a href="acgh-add-cytobands.html">Add cytogenetic bands</a></li>
+<li><a href="acgh-count-overlapping-cnvs.html">Count overlapping CNVs</a></li>
 <br>
 <br>
 <b><a name="methyl">Methyl-seq</a></b>
@@ -152,6 +185,20 @@ allowing you to view reads and results in their genomic context.</p>
 <li> <a href="combineMEDIPS.html">Combine MEDIPS input files </a> </li>
 <li> <a href="MEDIPS_one_sample.html">MEDIPS -methylation analysis, treatment only </a> </li>
 <li> <a href="MEDIPS_two_samples.html">MEDIPS -methylation analysis, treatment and control </a> </li>
+<br>
+<br>
+<b><a name="meta">Metagenomics</a></b>
+<li><a href="mothur-sffinfo.html">Extract sequences from SFF file</a></li>
+<li><a href="merge-fasta-qual.html">Merge FASTA or QUAL files</a></li>
+<li><a href="mothur-summaryseqs.html">Summarize sequences with Mothur</a></li>
+<li><a href="mothur-trimseqs-uniqueseqs.html">Trim and filter sequences with Mothur</a></li>
+<li><a href="mothur-alignseqs.html">Align sequences with Mothur</a></li>
+<li><a href="mothur-filterseqs.html">Filter sequence alignment with Mothur</a></li>
+<li><a href="mothur-uniqueseqs.html">Extract unique aligned sequences with Mothur</a></li>
+<li><a href="mothur-precluster.html">Precluster sequences with Mothur</a></li>
+<li><a href="mothur-chimera-uchime.html">Remove chimeric sequences with Mothur</a></li>
+<li><a href="mothur-classifyseqs.html">Classify sequences to taxonomic units with Mothur</a></li>
+<li><a href="mothur-analyses.html">Statistical analysis for marker gene studies</a></li>
 
 
 

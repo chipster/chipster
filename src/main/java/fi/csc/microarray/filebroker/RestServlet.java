@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -13,16 +14,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 
 /**
 * <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
@@ -33,6 +35,8 @@ import fi.csc.microarray.util.Files;
 */
 public class RestServlet extends DefaultServlet {
 
+	private Logger logger = Log.getLogger((String)null); // use Jetty default logger
+	
 	private String cachePath;
 	private String publicPath;
 	private String storagePath;
@@ -40,12 +44,16 @@ public class RestServlet extends DefaultServlet {
 	private int cleanUpTargetPercentage;
 	private int cleanUpMinimumFileAge;
 	
-	private AuthorisedUrlRepository urlRepository;
 	private String rootUrl;
+	private AuthorisedUrlRepository urlRepository;
+	private DerbyMetadataServer metadataServer;
+	
+	
 
-	public RestServlet(AuthorisedUrlRepository urlRepository, String rootUrl) {
-		this.urlRepository = urlRepository;
+	public RestServlet(String rootUrl, AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
 		this.rootUrl = rootUrl;
+		this.urlRepository = urlRepository;
+		this.metadataServer = metadataServer;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		cachePath = configuration.getString("filebroker", "cache-path");
@@ -86,6 +94,7 @@ public class RestServlet extends DefaultServlet {
 			return true;
 		}
 		
+		// everything else is forbidden
 		return false;
 	}
 
@@ -127,19 +136,30 @@ public class RestServlet extends DefaultServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (Log.isDebugEnabled()) {
-			Log.debug("RESTful file access: GET request for " + request.getRequestURI());
+		if (logger.isDebugEnabled()) {
+			logger.debug("RESTful file access: GET request for " + request.getRequestURI());
 		}
 		
 		// handle welcome page here, delegate rest to super class
 		if (isWelcomePage(request)) {
 			new WelcomePage(rootUrl).print(response);
-		} else {
+			
+		} else {			
 			
 			// touch the file
 			File file = locateFile(request);
 			file.setLastModified(System.currentTimeMillis());
 			
+			// touch metadata database
+			if (isStorageRequest(request)) {
+				String uuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
+				try {
+					metadataServer.markFileAccessed(uuid);
+				} catch (SQLException e) {
+					throw new ServletException(e);
+				}
+			}
+
 			// delegate to super class
 			super.doGet(request, response);	
 		}
@@ -149,43 +169,61 @@ public class RestServlet extends DefaultServlet {
 	
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (Log.isDebugEnabled()) {
-			Log.debug("RESTful file access: PUT request for " + request.getRequestURI());
+		
+		// log
+		if (logger.isDebugEnabled()) {
+			logger.debug("RESTful file access: PUT request for " + request.getRequestURI());
 		}
 		
-		// check that URL is authorised
+		// check that URL is authorised (authorised URL also implies that quota has been checked)
 		if (!urlRepository.isAuthorised(constructUrl(request))) {
 			// deny request
-			if (Log.isDebugEnabled()) {
-				Log.debug("PUT denied for " + constructUrl(request));
+			if (logger.isDebugEnabled()) {
+				logger.debug("PUT denied for " + constructUrl(request));
 			}
 			
 			response.sendError(HttpURLConnection.HTTP_UNAUTHORIZED);
 			return;			
 		}
 		
+		// replace file if it exists
 		File file = locateFile(request);
 		if (file.exists()) {			
-			// replace file if it exists
 			boolean success = file.delete(); 
 			if (!success) {
 				response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // file existed and could not be deleted
 				return;
 			}
 		}
-		
+
+		// get file contents
 		FileOutputStream out = new FileOutputStream(file);
 		InputStream in = request.getInputStream();
 		try {
 			IO.copy(in, out);
+			
 		} catch (IOException e) {
-			Log.warn(Log.EXCEPTION, e); // is this obsolete?
+			logger.warn(Log.EXCEPTION, e);
 			file.delete();
 			throw(e);
+			
 		} finally {
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(in);
+			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(in);
 		}
+		
+		// add file to metadata database, if needed
+		if (isStorageRequest(request)) {
+			String uuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
+			long size = file.length();
+			try {
+				metadataServer.addFile(uuid, size);
+				
+			} catch (SQLException e) {
+				throw new ServletException(e);
+			}
+		}
+
 		
 		// make sure there's enough usable space left after the transfer
 		new Thread(new Runnable() {
@@ -197,41 +235,25 @@ public class RestServlet extends DefaultServlet {
 					long usableSpaceSoftLimit =  (long) ((double)userDataDir.getTotalSpace()*(double)(100-cleanUpTriggerLimitPercentage)/100);
 
 					if (userDataDir.getUsableSpace() <= usableSpaceSoftLimit) {
-						Log.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
+						logger.info("after put, user data dir usable space soft limit " + FileUtils.byteCountToDisplaySize(usableSpaceSoftLimit) + 
 								" (" + (100-cleanUpTriggerLimitPercentage) + "%) reached, cleaning up");
 						Files.makeSpaceInDirectoryPercentage(new File(getServletContext().getRealPath(cachePath)), 100-cleanUpTargetPercentage, cleanUpMinimumFileAge, TimeUnit.SECONDS);
-						Log.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(cachePath)).getUsableSpace()));
+						logger.info("after clean up, usable space is: " + FileUtils.byteCountToDisplaySize(new File(getServletContext().getRealPath(cachePath)).getUsableSpace()));
 					} 
 
 				} catch (Exception e) {
-					Log.warn("could not clean up space after put", e);
+					logger.warn("could not clean up space after put", e);
 				}
 			}
 		}, "chipster-fileserver-cache-cleanup").start();
 
-		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
+		// we return no content
+		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); 
 	}
 	
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (Log.isDebugEnabled()) {
-			Log.debug("RESTful file access: DELETE request for " + request.getRequestURI());
-		}
-		
-		File file = locateFile(request);
-		
-		if (!file.exists()) {
-			response.sendError(HttpURLConnection.HTTP_NOT_FOUND); // file not found
-			return;
-		} 
-		
-		boolean success = IO.delete(file); // actual delete operation
-		
-		if (success) {
-			response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); // we return no content
-		} else {
-			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // could not be deleted due to internal error
-		}
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
 	}
 	
 	@Override

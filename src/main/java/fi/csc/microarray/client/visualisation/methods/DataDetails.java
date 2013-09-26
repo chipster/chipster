@@ -39,6 +39,9 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -49,6 +52,36 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
+	
+	class LinkMouseListener implements MouseListener {
+		private JXHyperlink link;
+
+		public LinkMouseListener(JXHyperlink link) {
+			this.link = link;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			link.setOpaque(true);
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			link.setOpaque(false);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}				
+	}
 
 	private final String PLEASE_ADD_NOTES = "(Add your notes here)";
 
@@ -64,8 +97,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	final int INDENTION = 20;
 
 	private List<DataBean> datas;
-
-	private JPanel cachePanel;
 
 	private JTextArea titleField;
 
@@ -178,16 +209,21 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
 		
 		for (VisualisationMethod method : orderedMethods) {
-			
-//			JLabel icon = new JLabel(resizeImage(method.getIcon()));
-			JLabel icon = new JLabel(method.getIcon());
+	
 			JXHyperlink link = new JXHyperlink();
+			
+			link.setBackground(new Color(0.95f, 0.95f, 0.95f));
+			link.setPreferredSize(new Dimension(300, 50));
+			
+			link.addMouseListener(new LinkMouseListener(link));
+			//hide focus border because it doesn't obey component size
+			link.setFocusPainted(false);
+
+			link.setIcon(method.getIcon());
+			link.setIconTextGap(16);
 			link.addActionListener(new VisualisationStarter(method, Session.getSession().getApplication()));
 			link.setText(method.getName());
 			c.gridx = 0;
-			c.weightx = 0;
-			panel.add(icon, c);
-			c.gridx = 1;
 			c.weightx = 1.0;
 			panel.add(link, c);
 			c.gridy++;
@@ -255,29 +291,29 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.setBackground(BG);
 
 			JLabel dateLabel = new JLabel(data.getDate().toString());
-			JLabel locationLabel = new JLabel("Location: chipster.csc.fi ");
-
-			cachePanel = new JPanel(new BorderLayout());
-			cachePanel.setBackground(BG);
-
-
-			JLabel cacheStartLabel = new JLabel("(");
-			cachePanel.add(cacheStartLabel, BorderLayout.WEST);
-
-			JXHyperlink link = new JXHyperlink();
-			link.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					cachePanel.removeAll();
-					cachePanel.add(new JLabel("(cached locally)"));
-					cachePanel.validate();
-				}
-			});
-			link.setText("Get local copy");
-			cachePanel.add(link, BorderLayout.CENTER);
-
-			JLabel cacheEndLabel = new JLabel(")");
-			cachePanel.add(cacheEndLabel, BorderLayout.EAST);
+//			JLabel locationLabel = new JLabel("Location: chipster.csc.fi ");
+//
+//			cachePanel = new JPanel(new BorderLayout());
+//			cachePanel.setBackground(BG);
+//
+//
+//			JLabel cacheStartLabel = new JLabel("(");
+//			cachePanel.add(cacheStartLabel, BorderLayout.WEST);
+//
+//			JXHyperlink link = new JXHyperlink();
+//			link.addActionListener(new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent arg0) {
+//					cachePanel.removeAll();
+//					cachePanel.add(new JLabel("(cached locally)"));
+//					cachePanel.validate();
+//				}
+//			});
+//			link.setText("Get local copy");
+//			cachePanel.add(link, BorderLayout.CENTER);
+//
+//			JLabel cacheEndLabel = new JLabel(")");
+//			cachePanel.add(cacheEndLabel, BorderLayout.EAST);
 
 			//"Local file"
 			//"Remote file (chipster.csc.fi)"
@@ -293,13 +329,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 			panel.add(dateLabel, c);
 
-			c.gridy++;
-			c.gridx = 0;
+//			c.gridy++;
+//			c.gridx = 0;
 			c.gridwidth = 1;
-			panel.add(locationLabel, c);
-
-			c.gridx++;
-			panel.add(cachePanel, c);
+//			panel.add(locationLabel, c);
+//
+//			c.gridx++;
+//			panel.add(cachePanel, c);
 
 			c.gridx++;
 			c.weightx = 1.0;
@@ -314,7 +350,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			ySpaceFiller.setBackground(BG);
 			panel.add(ySpaceFiller, c);
 
-			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, locationLabel.getFont().getSize() * 5));
+			datasetPanel.setPreferredSize(new Dimension(LEFT_WIDTH + INDENTION, dateLabel.getFont().getSize() * 3));
 			datasetPanel.add(panel, BorderLayout.CENTER);
 		}
 		return datasetPanel;
@@ -527,12 +563,37 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 				if (params != null) {
 					for (ParameterRecord parameterRecord : params) {
 
+						//Find out default value
 						OperationDefinition tool = application.getOperationDefinition(operationRecord.getNameID().getID());
-						String defaultValue = tool.getParameter(parameterRecord.getNameID().getID()).getValueAsString();
 						
-						JLabel name = new JLabel(parameterRecord.getNameID().getDisplayName());
-						JLabel value = new JLabel(parameterRecord.getValue());
+						String defaultValue = "";
+
+						Parameter parameter = tool.getParameter(parameterRecord.getNameID().getID());
+						if (parameter != null) {
+							 defaultValue = parameter.getValueAsString();
+						}
 						
+						//Parameter value
+						String valueString = parameterRecord.getValue();
+						
+						//EnumParameters have a display name for values
+						if (parameter instanceof EnumParameter) {
+							EnumParameter enumParameter = (EnumParameter) parameter;
+						
+							List<SelectionOption> options = enumParameter.getSelectedOptions();
+														
+							for (SelectionOption option : options) {
+								if (parameterRecord.getValue().equals(option.getValue())) {
+									
+									valueString = option.toString();
+								}
+							}
+						}
+						
+						JLabel name = new JLabel(parameterRecord.getNameID().getDisplayName());					
+						JLabel value =  new JLabel(valueString);
+						
+						//Fade out default values
 						if (defaultValue.equals(parameterRecord.getValue())) {
 							value.setForeground(Color.gray);
 						}
@@ -559,7 +620,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(spaceFiller, c);
 			
 			return panel;
-			//return attrib.toString();
 
 		} else {
 			return null;

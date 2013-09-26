@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.CountDownLatch;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
@@ -18,17 +19,20 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.ReplyMessageListener;
-import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.UrlListMessageListener;
+import fi.csc.microarray.messaging.UrlMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
-import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
+import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
@@ -50,40 +54,6 @@ import fi.csc.microarray.util.UrlTransferUtil;
  *
  */
 public class JMSFileBrokerClient implements FileBrokerClient {
-
-	/**
-	 * Reply listener for the url request.
-	 * 
-	 */
-	private class UrlMessageListener extends TempTopicMessagingListenerBase {
-		
-		private URL newUrl;
-		private CountDownLatch latch = new CountDownLatch(1);
-		
-		public void onChipsterMessage(ChipsterMessage msg) {
-			if (msg instanceof UrlMessage) {
-				UrlMessage urlMessage = (UrlMessage) msg;
-				this.newUrl = urlMessage.getUrl();
-				latch.countDown();
-			}
-		}
-	
-		/**
-		 * @param timeout in given units
-		 * @param unit unit of the timeout
-		 * @return 
-		 * @throws RuntimeException if interrupted
-		 */
-		public URL waitForReply(long timeout, TimeUnit unit) {
-			try {
-				latch.await(timeout, unit);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			return this.newUrl;
-		}
-	}
-
 	
 	private static final int SPACE_REQUEST_TIMEOUT = 300; // seconds
 	private static final int QUICK_POLL_OPERATION_TIMEOUT = 5; // seconds 
@@ -112,9 +82,22 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		this(urlTopic, null);
 	}
 
-
+	@Override
+	public URL addSessionFile() throws JMSException, FileBrokerException {
+		// quota checks are not needed for session files (metadata xml file)
+		
+		// return new url
+		URL url = getNewUrl(useCompression, FileBrokerArea.STORAGE, 1024*1024); // assume 1 MB is enough for all session files
+		if (url == null) {
+			throw new FileBrokerException("filebroker is not responding");
+		}
+		
+		return url;
+	}
 
 	/**
+	 * Add file to file broker. Must be a cached file, for other types, use other versions of this method.
+	 * 
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
@@ -128,13 +111,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			throw new NotEnoughDiskSpaceException();
 		}
 		
-		// Get new url
+		// get new url
 		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
-			throw new FileBrokerException("New URL is null.");
+			throw new FileBrokerException("filebroker is not responding");
 		}
 
-		// Try to move/copy it locally, or otherwise upload the file
+		// try to move/copy it locally, or otherwise upload the file
 		if (localFilebrokerPath != null && !useCompression) {
 			String filename = IOUtils.getFilenameWithoutPath(url);
 			File dest = new File(localFilebrokerPath, filename);
@@ -191,7 +174,38 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		
 		return url;
 	}
-	
+
+	/**
+	 * Add to storage a file that currently exists in cache.
+	 */
+	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException {
+		logger.debug("moving from cache to storage: " + cacheURL);
+
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL storageURL;
+		try {
+			
+			// ask file broker to move it or give url to upload to
+			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_FILE);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));			
+			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
+			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			
+			// check if it was moved, if not, then upload
+			if (!UrlTransferUtil.isAccessible(storageURL)) {
+				// Upload the stream into a file at filebroker
+				UrlTransferUtil.uploadStream(storageURL, file, useChunked, useCompression, null);				
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+		logger.debug("storage url is: " + storageURL);
+		return storageURL; 
+	}
+
+
 	
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(java.net.URL)
@@ -289,29 +303,28 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	/**
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
 	 */
 	@Override
-	public URL getPublicUrl() throws JMSException {
-		return fetchPublicUrl();
+	public List<URL> getPublicFiles() throws JMSException {
+		return fetchPublicFiles();
 	}
 
-	private URL fetchPublicUrl() throws JMSException {
+	private List<URL> fetchPublicFiles() throws JMSException {
 
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL url;
+		UrlListMessageListener replyListener = new UrlListMessageListener();  
+		List<URL> urlList;
 		try {
-			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
+			CommandMessage fileRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_FILES_REQUEST);
 			
-			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+			filebrokerTopic.sendReplyableMessage(fileRequestMessage, replyListener);
+			urlList = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
 		}
 
-		return url;
+		return urlList;
 	}
-
 
 	/**
 	 * Get a local copy of a file. If the filename part of the url matches any of the files found from 
@@ -377,42 +390,25 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL saveRemoteSession(String sessionName) throws JMSException {
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL url;
+	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException {
+		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm());
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_URL_LIST, Strings.delimit(dataUrls, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-			url = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
+			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			
+			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				throw new JMSException("failed to save session metadata remotely");
+			}
+
 			
 		} finally {
 			replyListener.cleanUp();
 		}
-
-		return url;	
-	}
-
-	@Override
-	public URL moveFileToStorage(URL cacheURL, long contentLength) throws JMSException {
-		logger.debug("moving from cache to storage: " + cacheURL);
-
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL storageURL;
-		try {
-			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE);
-			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
-			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
-			
-			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
-			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
-		} finally {
-			replyListener.cleanUp();
-		}
-		logger.debug("storage url is: " + storageURL);
-
-		return storageURL;	
 	}
 
 	@Override

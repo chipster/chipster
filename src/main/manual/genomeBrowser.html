@@ -6,9 +6,8 @@
 
 <p>
 Chipster genome browser enables you to view next generation sequencing data and results in their genomic context using Ensembl annotations. 
-This interactive visualization allows you to zoom in to nucleotide level, view coverage, highlight SNPs, and view spliced reads (RNA-seq). 
-The supported file formats are SAM, BAM, BED, VCF and tsv. 
-The genome browser is available both as an integrated visualization in Chipster v2.1 and as an individual application (shown in this tutorial). 
+This interactive visualization allows you to zoom in to nucleotide level, view coverage, highlight SNPs, and view spliced reads (RNA-seq).  
+The genome browser is available both as an integrated visualization in Chipster and as an individual application (shown in this tutorial). 
 The data used in this tutorial comes from the STAT1 ChIP-seq experiment by Rozowsky et al (Nat Biotechnology 2009, 27:66-75).
 </p>
 
@@ -23,7 +22,10 @@ The data used in this tutorial comes from the STAT1 ChIP-seq experiment by Rozow
 <a name="import"><h3>Data import: file formats, preprocessing</h3></a>
 
 <p>
-Chipster genome browser supports SAM, BAM, BED and VCF files as well as tsv, where the first three columns are chr, start and end. SAM files need to be converted to BAM, BAM files need to be sorted and indexed, and BED files need to be sorted. All this is accomplished during the data import step with Chipster preprocessor. If your data is already in the right format and your BAM file has the matching index file (.bai), you can skip the preprocessing step and import your data directly.
+Chipster genome browser supports SAM, BAM, BED, GTF and VCF files as well as tsv, where the first three columns are chr, start and end. 
+SAM files need to be converted to BAM, BAM files need to be sorted and indexed, and BED, GTF and VCF files need to be sorted. 
+All this is accomplished during the data import step with Chipster preprocessor. 
+If your data is already in the right format and your BAM file has the matching index file (.bai), you can skip the preprocessing step and import your data directly.
 </p>
 <img src="imageGBpreprocessBAM.jpg">
 
@@ -49,7 +51,7 @@ There are several ways to move around:
 <li>Clicking on the chromosome image will move you to that location. </li>
 <li>In order to move sideways, you can pull with the mouse or use the arrow keys.</li>
 <li>In order to zoom in and out, you can use the mouse wheel or the arrow keys.</li>
-<li>You can use BED and VCF files to quickly view a list of features such as SNPs or ChIP-seq peaks: 
+<li>You can use BED, GTF and VCF files to quickly view a list of features such as SNPs or ChIP-seq peaks: 
 First open the BED/VCF file as a spreadsheet, click the Detach button, and then select files for the genome browser visualization. 
 Clicking on the start position in the BED/VCF file now becomes a link, which automatically moves the genome browser to that position.</li>
 </ul>
@@ -94,5 +96,11 @@ When you finish viewing your data, you can save the session by selecting "File /
 You can name the session file anything you like, but the ending has to be .zip. 
 If you would like to save an individual preprocessed file, please right-click on it in either Datasets or Workflow panel and select "Export".
 </p>
+
+<h3>References</h3>
+
+<p>This visualization uses the Picard package.</p> 
+
+<p>Please see the <a href = "http://picard.sourceforge.net/">Picard homepage</A> for more details.</p>
 
 </body></html>

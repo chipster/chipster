@@ -48,17 +48,17 @@ public class DataManager {
 
 	public static enum StorageMethod {
 		
-		LOCAL_USER(true, true),
+		LOCAL_ORIGINAL(true, true),
 		LOCAL_TEMP(true, true),
-		LOCAL_SESSION(true, false),
+		LOCAL_SESSION_ZIP(true, false),
 		REMOTE_CACHED(false, true),
-		REMOTE_STORAGE(false, true);
+		REMOTE(false, true);
 		
 		// Groups that describe how fast different methods are to access.
 		// Keep these up-to-date when you add methods!
-		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_USER, LOCAL_TEMP};
-		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_CACHED, REMOTE_STORAGE};
-		public static StorageMethod[] OTHER_SLOW_METHODS = {LOCAL_SESSION};
+		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_ORIGINAL, LOCAL_TEMP};
+		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_CACHED, REMOTE};
+		public static StorageMethod[] OTHER_SLOW_METHODS = {LOCAL_SESSION_ZIP};
 		
 		private boolean isLocal;
 		private boolean isRandomAccess;
@@ -75,6 +75,27 @@ public class DataManager {
 		public boolean isRandomAccess() {
 			return isRandomAccess;
 		}
+		
+		/**
+		 * Returns value of given name, so that old names are first converted to new naming scheme and
+		 * then used to call {@link Enum#valueOf(Class, String)}.
+		 * 
+		 * @param name name or old name of StorageMethod enum value
+		 * 
+		 * @return StorageMethod enum value
+		 */
+		public static StorageMethod valueOfConverted(String name) {
+			if ("REMOTE_STORAGE".equals(name)) {
+				name = "REMOTE";
+			} else if ("LOCAL_USER".equals(name)) {
+				name = "LOCAL_ORIGINAL";
+			} else if ("LOCAL_SESSION".equals(name)) {
+				name = "LOCAL_SESSION_ZIP";
+			}
+
+			return valueOf(name);
+		}
+		
 	}
 
 	private static final String TEMP_DIR_PREFIX = "chipster";
@@ -462,7 +483,6 @@ public class DataManager {
 		// no match found
 		return null;
 	}
-
 	
 	/**
 	 * Find and return the first DataBean with the given name.
@@ -476,6 +496,23 @@ public class DataManager {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Find and return all DataBeans with the given name.
+	 * @param name the name of the DataBean being search for
+	 * @return A list of found DataBeans with given name. Empty list is returned if none was found. 
+	 */
+	public LinkedList<DataBean> getDataBeans(String name) {
+		
+		LinkedList<DataBean> list = new LinkedList<>();
+		
+		for (DataBean dataBean : databeans()) {
+			if (dataBean.getName().equals(name)) {
+				list.add(dataBean);
+			}
+		}
+		return list;
 	}
 	
 	
@@ -515,7 +552,7 @@ public class DataManager {
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
 		try {
 			DataBean bean = createDataBean(name);
-			addUrl(bean, StorageMethod.LOCAL_USER, contentFile.toURI().toURL());
+			addUrl(bean, StorageMethod.LOCAL_ORIGINAL, contentFile.toURI().toURL());
 			return bean;
 			
 		} catch (IOException e) {
@@ -624,9 +661,16 @@ public class DataManager {
 	}
 
 	public void saveStorageSession(String name) throws Exception {
-		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name);
+		
+		// get url for the metadata file
+		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().addSessionFile();				
+		
+		// upload/move data files and upload metadata files, if needed
 		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
-		sessionSaver.saveStorageSession();
+		LinkedList<URL> dataFileUrls = sessionSaver.saveStorageSession();
+		
+		// add metadata to file broker database (make session visible)
+		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionUrl, dataFileUrls);
 	}
 
 	
@@ -788,6 +832,32 @@ public class DataManager {
 		return handler.getFile(location);
 	}
 	
+	/**
+	 * Get a local file with random access support, in practice a temp file. If random access support 
+	 * isn't really needed, please use method getLocalFile().
+	 * 
+	 * 
+	 * @param bean
+	 * @return
+	 * @throws IOException
+	 */
+	public File getLocalRandomAccessFile(DataBean bean) throws IOException {
+		
+		//Check if there is a suitable location already
+		ContentLocation location = bean.getClosestRandomAccessContentLocation();		
+		if (location == null || !location.getMethod().isLocal()) {
+			//Closest random access location isn't local, make a local copy (temp files do support random access)
+			this.convertToLocalTempDataBean(bean);
+		}
+				
+		//Now this is a local random access copy
+		location = bean.getClosestRandomAccessContentLocation();
+		
+		// get the file
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
+	}
+	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
 
@@ -930,15 +1000,15 @@ public class DataManager {
 	private ContentHandler getHandlerFor(StorageMethod method) {
 		switch (method) {
 		
-		case LOCAL_SESSION:
+		case LOCAL_SESSION_ZIP:
 			return zipContentHandler;
 
 		case LOCAL_TEMP:
-		case LOCAL_USER:
+		case LOCAL_ORIGINAL:
 			return localFileContentHandler;
 			
 		case REMOTE_CACHED:
-		case REMOTE_STORAGE:
+		case REMOTE:
 			return remoteContentHandler;
 			
 		default:
@@ -951,37 +1021,41 @@ public class DataManager {
 		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
 	}
 
-	public void putToStorage(DataBean dataBean) throws Exception {
+	public URL putToStorage(DataBean dataBean) throws Exception {
 
 		// check if content is still available
 		if (dataBean.getContentLocations().size() == 0) {
-			return; // no content, nothing to put to storage
+			return null; // no content, nothing to put to storage
 		}
 		
 		// check if already in storage
-		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE_STORAGE); 
+		ContentLocation storageLocation = dataBean.getContentLocation(StorageMethod.REMOTE); 
 		if (storageLocation != null && storageLocation.getHandler().isAccessible(storageLocation)) {
-			return;
+			return storageLocation.getUrl();
 		}
 		
-		// move from cache to storage, if in cache
-		for (ContentLocation cacheLocation : dataBean.getContentLocations(StorageMethod.REMOTE_CACHED)) {
-			if (cacheLocation != null && cacheLocation.getHandler().isAccessible(cacheLocation)) {
-				
-				// move file in filebroker
-				URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().moveFileToStorage(cacheLocation.getUrl(), dataBean.getContentLength());
-				dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));
-
-				// remove cache location(s), because it is now obsolete  
-				dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
-				return;
-			}
+		// check if we have cache location
+		URL cacheURL = null;
+		if (dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).size() > 0) {
+			cacheURL = dataBean.getContentLocations(StorageMethod.REMOTE_CACHED).get(0).getUrl();
 		}
-
-		// if not in cache, upload to storage
+		
+		// ask for url to upload to, while notifying about existing cache location (filebroker can then just move it)
 		ContentLocation closestLocation = dataBean.getClosestContentLocation();
-		URL storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), closestLocation.getHandler().getContentLength(closestLocation), null);
-		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE_STORAGE, getHandlerFor(StorageMethod.REMOTE_STORAGE), storageURL));		
+		URL storageURL;
+		if (cacheURL != null) {
+			// might need upload
+			storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(closestLocation.getHandler().getInputStream(closestLocation), cacheURL, dataBean.getContentLength());
+		} else {			
+			// will need upload
+			storageURL = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), dataBean.getContentLength(), null);
+		}
+		dataBean.addContentLocation(new ContentLocation(StorageMethod.REMOTE, getHandlerFor(StorageMethod.REMOTE), storageURL));
+
+		// remove cache locations, because they might have been obsoleted  
+		dataBean.removeContentLocations(StorageMethod.REMOTE_CACHED);
+		
+		return storageURL;		
 	}
 
 	/**
@@ -1002,7 +1076,7 @@ public class DataManager {
 			bean.getLock().readLock().lock();
 
 			// upload only if no valid storage or cached location is found
-			for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE_STORAGE)) {
+			for (ContentLocation location : bean.getContentLocations(StorageMethod.REMOTE_CACHED, StorageMethod.REMOTE)) {
 				if (location.getHandler().isAccessible(location)) {
 					url = location.getUrl();
 					break;

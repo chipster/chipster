@@ -9,9 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -59,8 +58,6 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportScreen;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
-import fi.csc.microarray.client.dataimport.ImportUtils.FileLoaderProcess;
-import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
@@ -121,7 +118,6 @@ import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.GeneralFileFilter;
-import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.Strings;
 
@@ -133,6 +129,7 @@ import fi.csc.microarray.util.Strings;
  */
 public class SwingClientApplication extends ClientApplication {
 
+	private static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
@@ -177,57 +174,103 @@ public class SwingClientApplication extends ClientApplication {
 
 		super(isStandalone, overridingARL);
 		
-		this.clientListener = clientListener;
-
 		// this had to be delayed as logging is not available before loading configuration
 		logger = Logger.getLogger(SwingClientApplication.class);
+		
+		if (!SwingUtilities.isEventDispatchThread()) {
+			logger.error(new MicroarrayException("SwingClientApplication was created outside the Event Dispatch Thread."));
+			System.exit(1);
+		}
+		
+		this.clientListener = clientListener;
 
         // set the module that user wants to load
         this.requestedModule = module;
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
-		reportInitialisation("Initialising " + ApplicationConstants.TITLE, true);
+		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
-		try {
-			initialiseApplication();
+		
+		/*Wait descriptions in another thread and let EDT continue.
+		 * We can't wait in EDT, because otherwise there is a deadlock: LoginWindow
+		 * waits for EDT to get free and EDT waits for LoginWindow to get done with authentication. 
+		 */
+		Thread t = new Thread(new Runnable() {
 			
-		} catch (Exception e) {
-			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
-					"Please see the details below for more information about the problem.\n\n" + 
-					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
-					Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
-					new PluginButton() {
-						@Override
-						public void actionPerformed() {
-							try {
-								new SwingClientApplication(getShutdownListener(), null, null, true);
+			@Override
+			public void run() {
+				try {
+					initialiseApplication();
 
-							} catch (Exception e) {
-								// ignore
-							}
+				} catch (Exception e) {
+					reportInitalisationErrorThreadSafely(e);
+				}
+			}
+		});
+		t.start();
+	}
+	
+	private void reportInitalisationErrorThreadSafely(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+
+				showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
+						"Please see the details below for more information about the problem.\n\n" + 
+						"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
+						Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
+						new PluginButton() {
+					@Override
+					public void actionPerformed() {
+						try {
+							new SwingClientApplication(getShutdownListener(), null, null, true);
+							
+						} catch (Exception e) {
+							// ignore
 						}
-						@Override
-						public String getText() {
-							return "Start standalone";
-						}
-					});
-			splashScreen.close();
-			logger.error(e);
-		}
+					}
+					@Override
+					public String getText() {
+						return "Start standalone";
+					}
+				});
+				splashScreen.close();
+				logger.error(e);			
+			}
+		});
 	}
 
-	public void reportInitialisation(String report, boolean newline) {
-		if (newline) {
-			splashScreen.writeLine(report);
-		} else {
-			splashScreen.write(report);
-		}
-
+	public void reportInitialisationThreadSafely(final String report, final boolean newline) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (newline) {
+					splashScreen.writeLine(report);
+				} else {
+					splashScreen.write(report);
+				}			
+			}
+		});
 	}
 
-	protected void initialiseGUI() throws MicroarrayException, IOException {
+	protected void initialiseGUIThreadSafely(final File mostRecentDeadTempDirectory) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					initialiseGUI(mostRecentDeadTempDirectory);
+				} catch (MicroarrayException | IOException e) {
+					reportInitalisationErrorThreadSafely(e);
+				}
+			}
+		});
+	}
+	
+	private void initialiseGUI(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException {
 
 		// assert state of initialisation
 		try {
@@ -392,8 +435,12 @@ public class SwingClientApplication extends ClientApplication {
 		restoreDefaultView();
 		enableKeyboardShortcuts();
 		
+		// check for warnings generated at earlier non-GUI stages
+		if (!getInitialisationWarnings().isEmpty()) {
+			showDialog("Missing tools", "Some tools were not loaded during the startup and they will not be shown in the tool lists. This suggests that there are technical problems with the server you are connected to.", getInitialisationWarnings(), Severity.WARNING, true);
+		}
+		
 		// check for session restore need
-		File mostRecentDeadTempDirectory = checkTempDirectories();
 		if (mostRecentDeadTempDirectory != null) {
 			
 			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);
@@ -672,7 +719,7 @@ public class SwingClientApplication extends ClientApplication {
 
 					for (ImportItem item : datas) {
 
-						String dataSetName = item.getOutput().getName();
+						String dataSetName = item.getInputFilename();
 						ContentType contentType = item.getType();
 						Object dataSource = item.getInput();
 
@@ -681,58 +728,19 @@ public class SwingClientApplication extends ClientApplication {
 						// new one
 						DataFolder folder = initializeFolderForImport(folderName);
 
-						// get the InputStream for the data source
-						InputStream input;
-
-						
 						// create the DataBean
-						DataBean data = null;
+						DataBean data = manager.createDataBean(dataSetName);
 
 						if (dataSource instanceof File) {
-							data = manager.createDataBean(dataSetName, (File) dataSource);
+							manager.addUrl(data, StorageMethod.LOCAL_ORIGINAL, ((File) dataSource).toURI().toURL());
 							
 						} else if (dataSource instanceof URL) {
-							// TODO Not used anymore, URL-files are saved to the
-							// temp file
-							URL url = (URL) dataSource;
-							try {
-								input = url.openStream();
-								manager.createDataBean(dataSetName, input);
-							} catch (FileNotFoundException fnfe) {
-								SwingUtilities.invokeAndWait(new Runnable() {
-									public void run() {
-										showDialog("File not found.", null, "File not found. Check that the typed URL is pointing to a valid location", Severity.ERROR, false);
-									}
-								});
-								break;
-
-							} catch (IOException ioe) {
-								SwingUtilities.invokeAndWait(new Runnable() {
-									public void run() {
-										showDialog("Import failed.", null, "Error occured while importing data from URL", Severity.ERROR, false);
-									}
-								});
-								break;
-							}
-
-						} else if (dataSource instanceof InputStream) {
-							logger.info("loading data from a plain stream, caching can not be used!");
-							input = (InputStream) dataSource;
-
+							manager.addUrl(data, StorageMethod.REMOTE, (URL)dataSource);
+							
 						} else {
-							throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
+							throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
 						}
 
-						// make sure that the new bean is not null
-						if (data == null) {
-							SwingUtilities.invokeAndWait(new Runnable() {
-								public void run() {
-									showDialog("Importing dataset filed.", null, "Created DataBean was null.", Severity.WARNING, false);
-								}
-							});
-							return;
-						}
-						
 						// set the content type
 						data.setContentType(contentType);
 
@@ -934,6 +942,15 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
+	}
+	
+	public void reportExceptionThreadSafely(final Exception e) {
+		SwingUtilities.invokeLater(new Runnable() {			
+			@Override
+			public void run() {
+				reportException(e);
+			}
+		});
 	}
 
 	public void reportException(Exception e) {
@@ -1177,13 +1194,13 @@ public class SwingClientApplication extends ClientApplication {
 		access.setDefaults();
 		int ret = fc.showOpenDialog(getMainFrame());
 		if (ret == JFileChooser.APPROVE_OPTION) {
-			List<File> files = new ArrayList<File>();
+			List<Object> files = new LinkedList<Object>();
 
 			for (File file : fc.getSelectedFiles()) {
 				files.add(file);
 			}
 
-			ImportSession importSession = new ImportSession(ImportSession.Source.FILES, files, access.getImportFolder(), access.skipActionChooser());
+			ImportSession importSession = new ImportSession(ImportSession.Source.FILE, files, access.getImportFolder(), access.skipActionChooser());
 			ImportUtils.executeImport(importSession);
 		}
 	}
@@ -1198,27 +1215,12 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void openURLImport(boolean downloadURL) throws MicroarrayException, IOException {
+	public void openURLImport() throws MicroarrayException, IOException {
 		URLImportDialog urlImportDlg = new URLImportDialog(this);
 		URL selectedURL = urlImportDlg.getSelectedURL();
 		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
-			
-			if (downloadURL) {
-				File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
-				ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
-			
-			} else {
-				
-				// TODO a bit of ImportUtils functionality is repeated here, should refactor
-				String name = IOUtils.getFilenameWithoutPath(selectedURL);
-				DataFolder folder = initializeFolderForImport(importFolder);
-				DataBean data = manager.createDataBean(name);
-				manager.addUrl(data, StorageMethod.REMOTE_STORAGE, selectedURL);
-				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
-				data.setOperationRecord(new OperationRecord(importOperation));
-				manager.connectChild(data, folder);
-			}
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new URL[] { selectedURL }, importFolder, urlImportDlg.isSkipSelected()));
 		}
 	}
 	
@@ -1342,7 +1344,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		ClientListener shutdownListener = getShutdownListener();
 		
-		try {
+		try {						
 			new SwingClientApplication(shutdownListener, null, module, false);
 			
 		} catch (Throwable t) {
@@ -1570,7 +1572,7 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
 		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths("Sessions at server", sessions[0]);
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions[0]);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
 		sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1587,7 +1589,7 @@ public class SwingClientApplication extends ClientApplication {
 			try {
 				sessionFileChooser = populateFileChooserFromServer();
 				if (preselectFile) {
-					sessionFileChooser.setSelectedFile(new File("server-session." + UserSession.SESSION_FILE_EXTENSION));
+					sessionFileChooser.setSelectedFile(new File("Session name"));
 				}
 
 			} catch (Exception e) {
@@ -1632,10 +1634,17 @@ public class SwingClientApplication extends ClientApplication {
 	 * Opens import tool directly
 	 * 
 	 * @param useSameSettings
-	 * 
-	 * @param file
 	 */
 	public void openImportTool(ImportSession importSession) {
+		
+		// make ImportSession compatible with import tool
+		try {
+			importSession.makeLocal();
+		} catch (IOException e) {
+			reportException(e);
+		}
+		
+		// fire up import tool
 		ImportScreen importScreen = (ImportScreen) childScreens.get("Import");
 		importScreen.setImportSession(importSession);
 		importScreen.updateTable(false);
@@ -1726,7 +1735,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-		ImportSession importSession = new ImportSession(ImportSession.Source.FILES, new File[] { file }, destinationFolder, skipActionChooser);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, new File[] { file }, destinationFolder, skipActionChooser);
 		openImportTool(importSession);
 	}
 
@@ -1736,20 +1745,18 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadSessionFrom(URL url) {
+	public void loadExampleSession(String name) {
 		try {
-			final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
-			InformationDialog info = new InformationDialog("Loading session", "Loading session from the specified URL", null);
-			
-			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
-				@Override
-				protected void postProcess() {
-					loadSessionImpl(tempFile, null, false, false);
-				};
-			};			
-			fileLoaderProcess.runProcess();
-			
-		} catch (IOException e) {
+			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+			URL sessionURL = findMatchingSessionURL(sessions, name);
+			if (sessionURL == null) {
+				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
+				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
+				return;
+			}
+			loadSessionImpl(null, sessionURL, true, false);		
+
+		} catch (Exception e) {
 			reportException(e);
 		}
 	}
@@ -1784,7 +1791,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (remote) {
 				try {
-					sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+					sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 					if (sessionURL == null) {
 						throw new RuntimeException();
 					}
@@ -2064,7 +2072,8 @@ public class SwingClientApplication extends ClientApplication {
 			URL sessionURL = null;
 
 			try {
-				sessionURL = findMatchingSessionURL(fileChooser, selectedFile, sessionURL);
+				String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+				sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 				if (sessionURL == null) {
 					throw new RuntimeException();
 				}
@@ -2085,10 +2094,10 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(final JFileChooser fileChooser, File selectedFile, URL sessionURL) throws MalformedURLException {
-		String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+	private URL findMatchingSessionURL(String[][] sessions, String name) throws MalformedURLException {
+		URL sessionURL = null;
 		for (int i = 0; i < sessions[0].length; i++) {
-			if (selectedFile.getName().equals(sessions[0][i])) {
+			if (sessions[0][i] != null && sessions[0][i].equals(name)) {
 				sessionURL = new URL(sessions[1][i]);
 				break;
 			}

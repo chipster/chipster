@@ -11,7 +11,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 
 /**
- * Class for drawing fake 3d balls.
+ * Class for drawing fake 3d spheres.
  * 
  * @author Petri Klemelä
  */

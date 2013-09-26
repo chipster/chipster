@@ -1,10 +1,10 @@
-# TOOL ngs-extract-target-gene-expression.R: "Extract miRNA target expression data" (Extracts the expression data for a set of target genes identified by an integrative analysis of miRNA and gene expression. Two files need to be selected: the result file from an integrative analysis and the file containing the gene expression data.)
+# TOOL ngs-extract-target-gene-expression.R: "Extract gene expression array data for miRNA targets" (Extracts expression array data for genes which correlate with miRNA expression, as judged by an integrative analysis of miRNA and gene expression. Two files need to be selected: the result file from the correlation analysis and the file containing the gene expression array data.)
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENERIC 
 # INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT target-gene-expression.tsv: target-gene-expression.tsv 
 # OUTPUT phenodata-target-gene.tsv: phenodata-target-gene.tsv 
-# PARAMETER common.column: common.column TYPE STRING DEFAULT empty (The name of the column that is common to the data tables.)
+# PARAMETER common.column: "The gene name column in both files" TYPE STRING DEFAULT empty (The gene name column that is common to both data tables.)
 
 # Setting up test parameter settings
 # common.column <- "symbol"

@@ -1,6 +1,7 @@
 package fi.csc.microarray.manager;
 
 import java.net.URL;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -20,8 +21,12 @@ public class ManagerClient {
 		
 	}
 
+	@Deprecated
 	public void publicUrlRequest(String username, URL url) {
 		
 	}
 
+	public void publicFilesRequest(String username, List<URL> files) {
+		
+	}
 }

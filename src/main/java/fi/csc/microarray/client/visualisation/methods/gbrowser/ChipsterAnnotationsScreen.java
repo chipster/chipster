@@ -34,7 +34,7 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.screen.ScreenBase;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
 
 /**
  * Screen for downloading annotations files used by the genome browser.
@@ -107,7 +107,7 @@ public class ChipsterAnnotationsScreen extends ScreenBase implements ActionListe
 			Column col = Column.values()[column];
 			
 			if (col == Column.GENOME) {
-				return annotations.getGenomes().get(row).species + " " + annotations.getGenomes().get(row).version;
+				return annotations.getGenomes().get(row).speciesId + " " + annotations.getGenomes().get(row).versionId;
 
 			} else if (col == Column.ANNOTATIONS) {
 				if (annotations.hasLocalAnnotations(annotations.getGenomes().get(row))) {

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 public class SessionLoaderImpl2 {
 	/**
@@ -91,13 +93,23 @@ public class SessionLoaderImpl2 {
 			
 			InputStream metadataStream = null;
 			if (sessionFile != null) {
+				
+				if (!sessionFile.exists()) {
+					throw new IOException("session file does not exist: " + sessionFile);
+				}
+				
 				// get the session.xml zip entry using TrueZip
 				zipFile = new ZipFile(sessionFile);
 				metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
 				
-			} else {
+			} else if (sessionURL != null) {
 				// get the session.xml zip entry using JDK, we don't need large ZIP support here because URL based sessions have no data
-				zipStream = new ZipInputStream(sessionURL.openStream());
+				HttpURLConnection conn = (HttpURLConnection)sessionURL.openConnection();
+				if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
+					throw new IOException("session URL not found: " + conn.getResponseCode());
+				}
+				zipStream = new ZipInputStream(conn.getInputStream());
+				
 				ZipEntry entry;
 		        while ((entry = zipStream.getNextEntry()) != null) {
 		        	if (UserSession.SESSION_DATA_FILENAME.equals(entry.getName())) {
@@ -105,6 +117,9 @@ public class SessionLoaderImpl2 {
 		        		break; 
 		        	}
 		        }
+		        
+			} else {
+				throw new RuntimeException("internal error: session file or url not specified");
 			}
 			
 			// validate
@@ -179,12 +194,12 @@ public class SessionLoaderImpl2 {
 						continue;
 					}
 
-					if (StorageMethod.LOCAL_SESSION.toString().equals(location.getMethod()) && !isDatalessSession) {
+					if (StorageMethod.LOCAL_SESSION_ZIP.toString().equals(location.getMethod()) && !isDatalessSession) {
 						// data is inside the session file, use the url for the real session file 
 						url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					}
 
-					dataManager.addUrl(dataBean, StorageMethod.valueOf(location.getMethod()), url);
+					dataManager.addUrl(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
 				}
 			
 			} catch (Exception e) {

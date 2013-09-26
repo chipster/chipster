@@ -147,6 +147,8 @@ public class VisualConstants {
     		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/txt.png"));
     public static ImageIcon IMAGE_MENUICON = 
     		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/no3D.png"));
+    public static ImageIcon HTML_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/agt_web.png"));
     
 //Modified icons based on the Crystal icons, LGPL, http://www.everaldo.com/crystal/   
     public static ImageIcon PDF_MENUICON = 
@@ -155,8 +157,6 @@ public class VisualConstants {
     		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/histogram.png"));
     public static ImageIcon EXT_BROWSER_MENUICON = 
     		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/ext-browser.png"));
-    public static ImageIcon HTML_MENUICON = 
-    		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/agt_web.png"));
     public static ImageIcon HC_MENUICON = 
 		new ImageIcon(VisualConstants.class.getResource("/listicons/crystal-LGPL/modified/hc.png"));
     public static ImageIcon SCATTER3DPCA_MENUICON = 

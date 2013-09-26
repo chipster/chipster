@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.servlet.http.HttpServletRequest;
+
 import de.schlichtherle.truezip.zip.ZipFile;
 
 /**
@@ -209,7 +211,12 @@ public class IOUtils {
 	public static String getFilenameWithoutPath(URL url) {
 		return url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
 	}
-	
+
+	public static String getFilenameWithoutPath(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		return path.substring(path.lastIndexOf('/') + 1);
+	}
+
 	/**
 	 * Compare the contents of two Streams to determine if they are equal or not.
 	 * 
@@ -246,6 +253,27 @@ public class IOUtils {
 
 		int ch2 = input2.read();
 		return (ch2 == -1);
+	}
+
+	
+	/**
+	 * Gets filename of various object types, currently supporting: File, URL. If type is unknown, null
+	 * is returned.
+	 *  
+	 * @param input some object with "filename" type of property
+	 * @return
+	 */
+	public static String getFilename(Object o) {
+		
+		if (o instanceof File) {
+			return ((File)o).getName();
+		
+		} else if (o instanceof URL) {
+			return getFilenameWithoutPath((URL)o);
+
+		} else {
+			return null;
+		}
 	}
 
 }

@@ -3,34 +3,28 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.PositionAndStringKey;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcript;
 
 /**
@@ -39,7 +33,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Transcrip
  */
 public class TranscriptTrack extends Track {
 
-	private Collection<Gene> genes = new TreeSet<Gene>();
+	private HashSet<Exon> exons = new HashSet<Exon>();
 
 	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
@@ -53,11 +47,8 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(GBrowserView view, DataSource file, long maxBpLength) {
-
-		super(view, file);
-		this.maxBpLength = maxBpLength;
-		this.layoutMode = this.defaultLayoutMode = LayoutMode.FULL;
+	public TranscriptTrack() {
+		super();
 	}
 
 	@Override
@@ -66,32 +57,37 @@ public class TranscriptTrack extends Track {
 
 		occupiedSpace.clear();
 
-		TreeMap<Region, Transcript> sortedTranscripts = new TreeMap<Region, Transcript>();
+		TreeMap<PositionAndStringKey, Transcript> sortedTranscripts = new TreeMap<PositionAndStringKey, Transcript>();
 
-		if (genes != null) {
+		if (exons != null) {
+			
+			GeneSet geneSet = new GeneSet();				
+			geneSet.add(exons.iterator(), view.getRequestRegion().grow(GtfToFeatureConversion.MAX_INTRON_LENGTH * 2));						
 
-			Iterator<Gene> iter = genes.iterator();
+			Iterator<Gene> iter = geneSet.values().iterator();
 			while (iter.hasNext()) {
-
+				
 				//Use iterator to be able to remove genes that are out of sight
-				Gene gene = iter.next();
+				Gene gene = iter.next();			
 
-				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!gene.getRegion().intersects(getView().getBpRegion())) {
+				if (!getView().requestIntersects(gene.getRegion())) {
 					iter.remove();
 					continue;
 				}
 
 				for (Transcript transcript : gene.getTranscripts()) {
-					sortedTranscripts.put(transcript.getRegion(), transcript);
+					PositionAndStringKey key = new PositionAndStringKey(transcript.getRegion().start, transcript.getId());
+					sortedTranscripts.put(key, transcript);
 				}
 			}
 
 			List<Drawable> geneDrawables = new ArrayList<Drawable>();
 
-			//Transcript collection refers to original data from the data layer, so out-of-sight
-			//transcripts can't be removed
 			for (Transcript transcript : sortedTranscripts.values()) {
+				
+				if (!getView().getBpRegion().intersects(transcript.getRegion())) {
+					continue;
+				}
 
 				Rectangle rect = new Rectangle();
 
@@ -126,7 +122,7 @@ public class TranscriptTrack extends Track {
 				rect.height = 4;
 
 				// draw arrow
-				if (transcript.getRegion().getStrand() == Strand.REVERSED) {
+				if (transcript.getRegion().getStrand() == Strand.REVERSE) {
 					drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
 				} else {
 					drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
@@ -145,14 +141,14 @@ public class TranscriptTrack extends Track {
 						name = "n/a";
 					}
 
-					drawTextAboveRectangle(name, drawables, rect, 1);
+					drawTextAboveRectangle(name, drawables, rect, 0);
 				}
 
 				for (Exon exon : transcript.getExons()) {
 
 					//					if (part.values == null) {
 					//						drawables.add(createDrawable(part.region.start, part.region.end, color));
-					//					} else {
+					//					} else {					
 
 					Exon.Feature feature = exon.getFeature();
 					Color c;
@@ -170,18 +166,24 @@ public class TranscriptTrack extends Track {
 					case STOP_CODON:
 						c = PartColor.CDS.c;
 						break;
+					case TRANSCRIPT:
+						c = null;
+						break;
 					default:
 						System.err.println("Gene description not recognised: " + feature);
-						c = Color.blue;
+						c = Color.gray;
 					}
 
+					
 					rect.x = getView().bpToTrack(exon.getRegion().start);
 					//End has to be increased by one, because the transcript includes the base at the end location
 					BpCoord exonEnd = new BpCoord(exon.getRegion().end.bp + 1, exon.getRegion().end.chr);
 					rect.width = getView().bpToTrack(exonEnd) - rect.x;
 					rect.height = 4;
 
-					geneDrawables.add(new RectDrawable(rect, c, null));
+					if (c != null) {
+						geneDrawables.add(new RectDrawable(rect, c, null));
+					}
 				}
 			}
 
@@ -205,52 +207,37 @@ public class TranscriptTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processDataResult(DataResult dataResult) {
 
-		for (RegionContent content : areaResult.getContents()) {
+		for (Feature content : dataResult.getFeatures()) {
 
-			// Sorting is needed to draw partly overlapping genes in the same order every time
-			if (!areaResult.getStatus().concise && content.region.getStrand() == getStrand()) {
 
-				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
-				
-				//Genes at edge of edge of screen may contain only visible exons, but moving should
-				//reveal also rest of the gene. Remove the old genes (if it exists) to make space for the
-				//new ones with better information for the current view location.
-				this.genes.remove(gene);
+				// Sorting is needed to draw partly overlapping genes in the same order every time
+				if (content.region.getStrand() == getStrand()) {
 
-				genes.add(gene);
+					Object value = content.values.get(DataType.VALUE);
+					
+					if (value instanceof Exon) {
+						Exon exon = (Exon)value;
 
+					exons.add(exon);					
+				}
 			}
 		}
-		getView().redraw();
 	}
-
-	private long maxBpLength;
-
-	@Override
-	public boolean isVisible() {
-		// hide if visible region is too large
-		return (super.isVisible() &&
-				getView().getBpRegion().getLength() <= maxBpLength);
-	}
-
-	@Override
-	public Map<DataSource, Set<ColumnType>> requestedData() {
-		HashMap<DataSource, Set<ColumnType>> datas = new
-				HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-				ColumnType.VALUE })));
-		return datas;
-	}
-
-	@Override
-	public boolean isConcised() {
-		return false;
+	
+    @Override
+	public void defineDataTypes() {
+    	addDataType(DataType.VALUE);
 	}
 	
 	@Override
-	public int getMinHeight() {
+	public int getTrackHeight() {
 		return 100;
+	}
+	
+	@Override
+	public boolean isShowMoreCapable() {
+		return true;
 	}
 }

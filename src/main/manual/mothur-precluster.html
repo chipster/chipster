@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Metagenomics / Precluster aligned sequences with Mothur</h2>
+
+<h3>Description</h3>
+
+<p>
+Given a fasta-formatted alignment and a names file, preclusters sequences in order to remove sequences that are likely to contain sequencing errors.
+</p>
+
+<h3>Parameters</h3>
+
+None
+
+<h3>Details</h3>
+<p>
+The basic idea is that abundant sequences are more likely to generate erroneous sequences than rare sequences. 
+With that in mind, the algorithm proceeds by ranking sequences in order of their abundance. It then walks through the list of sequences looking for rarer sequences that are within one mismatch of the original sequence. 
+Those that are within this threshold are merged with the larger sequence. By pre-clustering you remove a large number of sequences making the distance calculation much faster. 
+<p>
+This tool is based on the <a href="http://www.mothur.org/wiki/Pre.cluster">Pre.cluster</a> command of the Mothur package.
+</p>
+
+
+</p>
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+<ul>
+<li>preclustered.fasta: Alignment with preclustered sequences</li> 
+<li>preclustered-summary.tsv: Summary statistics for the alignment </li> 
+<li>preclustered.names: A list of the original sequences and the rarer sequences corresponding to each. </li>
+</ul>
+</p>
+
+
+<h3>References</h3>
+<p>Schloss PD, Westcott SL, Ryabin T, Hall JR, Hartmann M, Hollister EB, Lesniewski RA, Oakley BB, Parks DH, Robinson CJ, Sahl JW, Stres B, Thallinger GG, Van Horn DJ, Weber CF.
+<a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2786419/">Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.</a> 
+</p>
+
+</body>
+

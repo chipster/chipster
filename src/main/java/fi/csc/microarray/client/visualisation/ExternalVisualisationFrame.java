@@ -48,7 +48,10 @@ public class ExternalVisualisationFrame extends VisualisationFrame{
 				
 				@Override
 				public void windowClosed(WindowEvent e) {
-					getVisualisation().removeVisualisation();
+					Visualisation vis = getVisualisation();
+					if (vis != null) {
+						vis.removeVisualisation();
+					}
 				}
 				
 				@Override

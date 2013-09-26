@@ -114,6 +114,7 @@ system("mv tophat_out/deletions.bed deletions.u.bed")
 source(file.path(chipster.common.path, "bed-utils.R"))
 
 size <- file.info("junctions.u.bed")$size
+
 if (size > 100){	
 #if (file.info("juctions.u.bed")$size > 100) {
 	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")

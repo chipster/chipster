@@ -16,6 +16,9 @@ set -e
 # Set fail on pipe
 set -o pipefail
 
+# Set exit on unset variable
+set -u
+
 # Wrapper function to run commands and check return values
 #run ()
 #{
@@ -106,12 +109,13 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # tk-dev (tk)
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
+# libnetcdf6, for R
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
   ## Runtime:
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk libnetcdf6
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -193,6 +197,18 @@ ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
+# TODO Chipster announcements
+#mkdir /opt/chipster-announcements
+#/opt/chipster-announcements/get-chipster-announcements.sh
+# chown -R chipster:chipster /opt/chipster-announcements
+
+#/etc/cron.d/chipster-announcements.crontab
+#/etc/update-motd.d/31-vm-instructions
+#/etc/update-motd.d/32-announcements
+echo "Chipster announcements not done yet"
+exit -1
+
+
 ##############################################
 # Install external applications and datasets #
 ##############################################
@@ -208,7 +224,11 @@ rm macs_1.4.1.deb
 
 # HTSeq, GPL v3 or later
 # part 1
-pip install HTSeq==0.5.3p3
+pip install HTSeq==0.5.4p3
+wget -O /usr/local/bin/htseq-count_chr http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/htseq-count_chr 
+chmod 755 /usr/local/bin/htseq-count_chr
+wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq/count_chr.py
+
 
 ## In tools:
  
@@ -219,6 +239,10 @@ then
   ln -s R-${R_VER} ${TOOLS_PATH}/R
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/hgug4851a.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/widgetTools-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/tkWidgets-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/Mfuzz-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  
   # maSigPro is included in the R-2.12.1-vmbin.tar.gz
         
                         
@@ -246,6 +270,104 @@ then
   wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
   ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
   rm nz131a520662fcdf.tar.gz
+  
+  
+  # affy_20 for R-2.12"
+  cd ${TMPDIR_PATH}/
+  
+  # TAIR annotations for Arabidosis 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgprobe_17.0.0.tar.gz'
+
+  # Entrez annotations for human
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgprobe_17.0.0.tar.gz'
+
+  # Entrez annotations for Arabidosis 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgcdf_17.0.0.tar.gz'
+
+  # Entrez annotations for ragene_20 and ragene_21
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgprobe_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgcdf_17.0.0.tar.gz'
+
+  # Entrez annotations for mouse_20 and mouse_21
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezg.db_17.0.0.tar.gz'
+
+  # Entrez annotations for Danio rerio 1.0 and 1.1
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezg.db_17.0.0.tar.gz'
+
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
+  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezg.db_17.0.0.tar.gz'
+  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
+  
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
+  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
+
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgprobe_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgcdf_17.0.0.tar.gz
+  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgprobe_17.0.0.tar.gz
+  
+  
   
   
       
@@ -285,10 +407,17 @@ then
 
   # could also use the package from nic
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+
+  # extra data for zinba R library
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
 
 
   ## R-2.15.1_bioc-2.11	
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
+	# Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
 	
 
   ## External apps:
@@ -352,6 +481,11 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
 
+  # tabix
+  # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/tabix-0.2.6-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tabix-0.2.6 ${TOOLS_PATH}/tabix 
+
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
   wget -nv -O bowtie-0.12.7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie/0.12.7/bowtie-0.12.7-linux-x86_64.zip/download
@@ -362,11 +496,11 @@ then
 
   # Bowtie 2, Artistic License
   cd ${TMPDIR_PATH}/
-  wget -nv -O bowtie2-2.0.0-beta7-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.0.0-beta7/bowtie2-2.0.0-beta7-linux-x86_64.zip/download
-  unzip -q bowtie2-2.0.0-beta7-linux-x86_64.zip
-  mv bowtie2-2.0.0-beta7 ${TOOLS_PATH}
-  ln -s bowtie2-2.0.0-beta7 ${TOOLS_PATH}/bowtie2
-  rm bowtie2-2.0.0-beta7-linux-x86_64.zip
+  wget -nv -O bowtie2-2.1.0-linux-x86_64.zip http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.1.0/bowtie2-2.1.0-linux-x86_64.zip/download
+  unzip -q bowtie2-2.1.0-linux-x86_64.zip
+  mv bowtie2-2.1.0 ${TOOLS_PATH}
+  ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
+  rm bowtie2-2.1.0-linux-x86_64.zip
 
 	# Fasta files
   cd ${TMPDIR_PATH}/
@@ -378,6 +512,10 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+
 
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -387,12 +525,24 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_canFam2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_e_coli.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase18_mmu_matureT.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
-	ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie/
+
+  ln -s -t ${TOOLS_PATH}/bowtie/indexes ../../genomes/fasta/nochr
+  rm -f ${TOOLS_PATH}/bowtie/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie/indexes
+
+
 
 	# Bowtie2 indexes, built for Chipster
   cd ${TMPDIR_PATH}/
@@ -407,8 +557,19 @@ then
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_ovis_aries_texel.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Rattus_norvegicus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Homo_sapiens.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_miRBase19_Mus_musculus.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+	
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/bowtie2_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/bowtie2/
+	
 	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
-				
+  rm -f ${TOOLS_PATH}/bowtie2/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+  ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie2/indexes
+								
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip
@@ -423,12 +584,13 @@ then
   mkdir -p ${TOOLS_PATH}/htseq/
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
+  ln -s /usr/local/bin/htseq-count_chr ${TOOLS_PATH}/htseq/htseq-count_chr
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/cufflinks
-  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.0.2.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.1.1.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
  
   # Tophat, The Artistic License
@@ -439,8 +601,8 @@ then
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.4.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s tophat-2.0.4.Linux_x86_64 ${TOOLS_PATH}/tophat2
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.9.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.9.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
@@ -472,6 +634,14 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.RGSC3.4.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar xz -C ${TOOLS_PATH}/
+
+
+
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/miRNA_mappings/
@@ -493,6 +663,14 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_mm10.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/	
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_athaliana.TAIR10.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+
+
 
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
@@ -508,40 +686,47 @@ then
   ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
 
   # Fasta files for genome browser
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Arabidopsis_thaliana.TAIR10.17.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.BROADD2.67-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gallus_gallus.Gallus_gallus-4.0.pre-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Homo_sapiens.NCBI36.54-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Human-MT.NC_012920.1-v2.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Vitis_vinifera.IGGP_12x.17.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Canis_familiaris.CanFam3.1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
 
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
   mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_lyrata.v.1.0.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Arabidopsis_thaliana.TAIR10.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Bos_taurus.UMD3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Canis_familiaris.CanFam3.1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Gasterosteus_aculeatus.BROADS1.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.GRCh37.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.GRCm38.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Sus_scrofa.Sscrofa10.2.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/Vitis_vinifera.IGGP_12x.16.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
-  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.4.0/contents2.txt
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Arabidopsis_lyrata.v.1.0.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Arabidopsis_thaliana.TAIR10.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Bos_taurus.UMD3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.BROADD2.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Canis_familiaris.CanFam3.1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.2/Drosophila_melanogaster.BDGP5.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gallus_gallus.Gallus_gallus-4.0.pre.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Gasterosteus_aculeatus.BROADS1.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Homo_sapiens.GRCh37.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Homo_sapiens.NCBI36.54.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Human-MT.NC_012920.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Mus_musculus.GRCm38.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Mus_musculus.NCBIM37.67.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/N916Ysi.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Ovis_aries_v3.1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/R1-RT.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Rattus_norvegicus.RGSC3.4.69.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Rattus_norvegicus.Rnor_5.0.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Sus_scrofa.Sscrofa10.2.70.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Vitis_vinifera.IGGP_12x.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/contents2.txt
 
   
   # DEXSeq
@@ -566,7 +751,34 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/
   ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/GenomeAnalysisTK2
 
- 	 	 	 	  	 	 	 	  	 	 	 	 
+  # tagcleaner, GPLv3
+  curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
+ 	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
+ 	
+ 	# EMBOSS, GPL
+  curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+  ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
+  make
+  make install
+  # curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
+  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
+  
+  # fseq, GPLv3
+  curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
+  mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
+  ln -s fseq-1.84 ${TOOLS_PATH}/fseq
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/read_extend_bed.pm -o ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
+  chmod 775 ${TOOLS_PATH}/fseq/bin/read_extend_bed.pm
+
+  # mothur GPLv3
+  cd ${TMPDIR_PATH}/
+  wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/mothur/Mothur-1.28.cen_64.noReadLine.zip
+  unzip -q Mothur-1.28.cen_64.noReadLine.zip
+  mv mothur ${TOOLS_PATH}/mothur-1.28
+  ln -s mothur-1.28 ${TOOLS_PATH}/mothur
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum

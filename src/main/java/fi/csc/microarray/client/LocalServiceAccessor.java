@@ -49,10 +49,11 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	 * FIXME get tool list from configs
 	 * FIXME put the code for creating the OperationDefinition to a place where both this and
 	 * DescriptionMessageListener can use it
+	 * @return 
 	 * 
 	 */
 	@Override
-	public void fetchDescriptions(Module primaryModule) throws Exception {
+	public String fetchDescriptions(Module primaryModule) throws Exception {
 		ToolModule module = new ToolModule(LOCAL_MODULE_NAME);
 		this.modules.add(module);
 		
@@ -81,6 +82,8 @@ public class LocalServiceAccessor implements ServiceAccessor {
                 parameter.getComment(), parameter.getFrom(), parameter.getTo(),
                 parameter.getDefaultValues(), parameter.isOptional()));      
         }
+        
+        return ""; // errors not possible here
 	}
 
 	

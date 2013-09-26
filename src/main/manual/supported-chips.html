@@ -3,15 +3,13 @@
 
 <h2>Supported chip types</h2>
 
-<p> Currently the following chip types have annotation packages in Chipster, which means that they can be annotated and used for pathway 
-and promoter analysis. Please note that if your array doesn't appear on the list, you can still bring the data into Chipster 
-and run preprocessing, statistical analysis and clustering for it. The only exception is Affymetrix data, which requires the CDF and probe 
-packages for the preprocessing to work. Currently some Affymetrix chip types (marked with asterisk on the list) have only the CDF and probe 
-packages in Chipster, which means that the annotation based analyses are not available for them. The names in brackets indicate the annotation 
-package names, which you need to use (with the ending .db) to define the chiptype if bringing normalized data into Chipster.</p>
+<p> Chipster supports currently the following chip types. The names in brackets indicate the annotation 
+package names, which you need to use (with the ending .db) to define the chip type if bringing normalized data into Chipster. The Affymetrix chips 
+marked with an asterisk have only the CDF and probe packages, which means that annotation based functionality like pathway and promoter analysis is not available for them.</p>
 
-<!--<p>If your chip doesn't appear on the list and you would like an annotation package to be installed for it, please send an email to 
-Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www.bioconductor.org/packages/2.1/AnnotationData.html">annotation packages available in Bioconductor</a> or elsewhere can be added to Chipster. If there is no ready made annotation package available we can look into creating one, if you can provide a list of probe names and their corresponding EntrezGene identifiers.</p>-->
+<p> <b>Please note that if your array is not listed, you can still bring the data into Chipster 
+and run normalization, quality control, filtering, statistical analysis and clustering for it</b>. The only exception is Affymetrix data, which requires the CDF and probe 
+packages for the preprocessing to work. </p>
 
 
 <h3>Affymetrix - 3' expression</h3>
@@ -94,8 +92,27 @@ Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www
 <h3>Affymetrix - Gene arrays</h3>
 <ul>
 <li>Human 1.0 ST (hugene10stv1hsentrezg)</li>
+<li>Human 1.1 ST (hugene11stv1hsentrezg)</li>
+<li>Human 2.0 ST (hugene20sthsentrezg)</li>
+<li>Human 2.1 ST (hugene21sthsentrezg)</li>
+
 <li>Mouse 1.0 ST (mogene10stv1mmentrezg) </li>
+<li>Mouse 1.1 ST (mogene11stv1mmentrezg) </li>
+<li>Mouse 2.0 ST (mogene20stmmentrezg) </li>
+<li>Mouse 2.1 ST (mogene21stmmentrezg) </li>
+
 <li>Rat 1.0 ST (ragene10stv1rnentrezg)</li>
+<li>Rat 1.1 ST (ragene11stv1rnentrezg)</li>
+<li>Rat 2.0 ST (ragene20strnentrezg)</li>
+<li>Rat 2.1 ST (ragene21strnentrezg)</li>
+
+<li>Zebrafish 1.0 ST (zebgene10stdrentrezg)</li>
+<li>Zebrafish 1.1 ST (zebgene11stdrentrezg)</li>
+
+<li>Arabidopsis 1.0 ST (aragene10statentrezg or aragene10stattairg)</li>
+<li>Arabidopsis 1.1 ST (aragene11statentrezg or aragene11stattairg)</li>
+
+
 </ul>
 
 <h3>Affymetrix - SNP arrays</h3>
@@ -122,17 +139,30 @@ Jarno.Tuimala [at] csc.fi. Support for chip types which have <a href="http://www
 <li>Sentrix Human-6 v2 (illuminaHumanv2)</li>
 <li>Sentrix HumanRef-8 v2 (illuminaHumanv2)</li>
 <li>Sentrix Human-6 v3 (illuminaHumanv3)</li>
-<li>Sentrix HumanRef-8 v3 (illuminaHumanV3)</li>
-<li>Sentrix Human HT-12 (IlluminaHumanv4)</li>
-
+<li>Sentrix HumanRef-8 v3 (illuminaHumanv3)</li>
+<li>Sentrix Human HT-12 (illuminaHumanv4)</li>
 <li>Sentrix Mouse-6 v1.0a (illuminaMousev1)</li>
 <li>Sentrix MouseRef-8 v1.0a (illuminaMousev1)</li>
 <li>Sentrix Mouse-6 v1.1 (illuminaMousev1p1)</li>
 <li>Sentrix MouseRef-8 v1.1 (illuminaMousev1p1)</li>
 <li>Sentrix Mouse-6 v2 (illuminaMousev2)</li>
 <li>Sentrix MouseRef-8 v2 (illuminaMousev2)</li>
-
 <li>Sentrix RatRef-12 v1 (illuminaRatv1)</li>
+</ul>
+
+<h3>Illumina SNP arrays</h3>
+
+<ul>
+<li>human1mduov3b</li>
+<li>human1mv1c</li>
+<li>human370quadv3c</li>
+<li>human370v1c</li>
+<li>human550v3b</li>
+<li>human610quadv1b</li>
+<li>human650v3a</li>
+<li>human660quadv1a</li>
+<li>humanomni1quadv1b</li>
+<li>humanomniexpress12v1b</li>
 </ul>
 
 <h3>Agilent</h3>

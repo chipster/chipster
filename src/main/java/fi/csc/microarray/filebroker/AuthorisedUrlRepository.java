@@ -119,12 +119,17 @@ public class AuthorisedUrlRepository {
 		return contains;
 	}
 	
-	public boolean checkFilenameSyntax(String filename) {
-		String fileNameToCheck = filename;
+	
+	public String stripCompressionSuffix(String filename) {
 		if (filename.endsWith(COMPRESSION_SUFFIX)) {
-			fileNameToCheck = filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
+			return filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
+		} else {
+			return filename;
 		}
-		
+
+	}
+	public boolean checkFilenameSyntax(String filename) {
+		String fileNameToCheck = stripCompressionSuffix(filename);
 		return CryptoKey.validateKeySyntax(fileNameToCheck);
 	}
 	

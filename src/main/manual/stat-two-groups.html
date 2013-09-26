@@ -29,6 +29,12 @@ is much faster than the usual t-test. LPE test is especially well suited for sma
 F-test, compare differences in two groups mean expression. F-test compares the differences in variance between the two 
 groups.</p>
 
+<p>If interested in performing a paired t, Mann-Whitney or empiricalBayes test, the phenodata column describing the sample pairs
+must be defined with the pairing parameter. In the phenodata matrix, a unique identifier (like 1,2,3 or pair1,pair2,pair3, or patient1,
+patient2, patient3, etc) must be given for each pair of samples. Please note that if a sample does not have a pair, it is not used 
+in assessing the significance.
+</p>
+
 <p>Multiple testing correction options are Bonferroni, Holm, and Hochberg for family-wise error rate (FWER) and
 Benjamini-Hochberg and Benjamini-Yakutieri for false discovery rate (FDR). Of these Bonferroni is the most
 conservative, returning the smallest number of significant results, and FDR-based adjustments are less

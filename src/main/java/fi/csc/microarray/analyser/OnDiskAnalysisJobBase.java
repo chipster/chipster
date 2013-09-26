@@ -54,7 +54,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		}
 
 		// extract input files to work dir
-		// TODO security check input file names
+		String additionalExceptionInfo = "";
 		try {
 			for (String fileName : inputMessage.payloadNames()) {
 				cancelCheck();
@@ -65,10 +65,13 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 				
 				// make local file available, by downloading, copying or symlinking
 				resultHandler.getFileBrokerClient().getFile(new File(jobWorkDir, fileName), url);
+				if ("localhost".equals(url.getHost())) {
+					additionalExceptionInfo = " (WARNING: localhost URL!)";
+				}
 				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 			}
 		} catch (Exception e) {
-			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
+			outputMessage.setErrorMessage("Transferring input data to computing service failed." + additionalExceptionInfo);
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;

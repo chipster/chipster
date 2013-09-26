@@ -7,15 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataSource.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 
 /**
  * Splices reads into spliced parts, returned as {@link ReadPart} objects.
@@ -23,38 +19,32 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * @author Aleksi Kallio
  *
  */
-public class ReadpartDataProvider implements AreaResultListener {
+public class ReadpartDataProvider {
 
-	private GBrowserView view;
-	private DataSource readData;
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private Collection<Feature> reads = new TreeSet<Feature>();
 	private LinkedList<ReadPart> readParts = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsF = new LinkedList<ReadPart>(); 
 	private LinkedList<ReadPart> readPartsR = new LinkedList<ReadPart>();
 	private boolean needsRefresh = false;
+	
+	public void addReads(LinkedList<Feature> reads) {
 
-	public ReadpartDataProvider(GBrowserView view, DataSource readData) {
-		this.view = view;
-		this.readData = readData;
-		
-		// start listening
-		view.getQueueManager().addResultListener(readData, this);
-	}
 
-	@Override
-	public void processAreaResult(AreaResult areaResult) {
-		// Check that areaResult has false concised status and correct strand
-		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false) {
-			
-			// Add this to queue of RegionContents to be processed
-			synchronized (reads) {
+		// Add this to queue of RegionContents to be processed
+		synchronized (reads) {
 
-				// Here identical region contents are removed (set semantics, no duplicates)
-				// So it is essential that reads have their unique ID's.
-				this.reads.addAll(areaResult.getContents());
-				needsRefresh = true;
+			// Here identical region contents are removed (set semantics, no duplicates)
+			// So it is essential that reads have their unique ID's.
+			for (Feature read : reads) {	  
+				if (
+						read.values.containsKey(DataType.STRAND) &&
+						read.values.containsKey(DataType.SEQUENCE) && 
+						read.values.containsKey(DataType.CIGAR)) {
+					
+					this.reads.add(read);
+					needsRefresh = true;
+				}
 			}
-			view.redraw();
 		}
 	}
 
@@ -72,44 +62,34 @@ public class ReadpartDataProvider implements AreaResultListener {
 				return readParts;
 			case FORWARD:
 				return readPartsF;
-			case REVERSED:
+			case REVERSE:
 				return readPartsR;
+			default:
+				throw new IllegalArgumentException("illegal strand: " + strand);
 			}
-			throw new IllegalArgumentException("illegal strand: " + strand);
 		}
-
 	}
 
 	private void refreshReadparts() {
 		readParts.clear();
 		readPartsF.clear();
 		readPartsR.clear();
-		Iterator<RegionContent> iter = reads.iterator();
+		Iterator<Feature> iter = reads.iterator();
 		while (iter.hasNext()) {
 
-			RegionContent read = iter.next();
-
-			// Remove reads that are not in this view
-			if (!read.region.intersects(view.getBpRegion())) {
-				iter.remove();
-				continue;
-			}
+			Feature read = iter.next();
 
 			// Split read into continuous blocks (elements) by using the cigar
 			List<ReadPart> visibleRegions = Cigar.splitElements(read);
 			
 			// Pool and sort read parts by strands
 			for (ReadPart visibleRegion : visibleRegions) {
-				// Skip read parts that are not in this view
-				if (!visibleRegion.intersects(view.getBpRegion())) {
-					continue;
-				}
-				
+				// Skip read parts that are not in this view				
 				readParts.add(visibleRegion); 
 				
-				if (read.values.get(ColumnType.STRAND) == Strand.FORWARD) {
+				if (read.values.get(DataType.STRAND) == Strand.FORWARD) {
 					readPartsF.add(visibleRegion);
-				} else if (read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
+				} else if (read.values.get(DataType.STRAND) == Strand.REVERSE) {
 					readPartsR.add(visibleRegion);
 				}
 			}
@@ -119,5 +99,4 @@ public class ReadpartDataProvider implements AreaResultListener {
 		Collections.sort(readPartsF);
 		Collections.sort(readPartsR);
 	}
-
 }

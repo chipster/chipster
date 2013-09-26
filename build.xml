@@ -3,8 +3,7 @@
 <project name="Chipster" default="package" basedir=".">
 	<description>
 		The Chipster server installation package (incl. clients and everything)
-    </description>
-
+    	</description>
 
 	<!-- get the environment variables -->
 	<property environment="env" />
@@ -12,7 +11,10 @@
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="admin-src" location="src/main/admin" />
-	<property name="admin-web" location="src/main/admin/admin-web" />
+	<property name="admin-web" location="src/main/web/admin-web" />
+	<property name="admin-web-bin" location="${admin-web}/bin/ant" />
+	<property name="tool-editor" location="src/main/web/tool-editor" />
+	<property name="tool-editor-bin" location="${tool-editor}/bin/ant" />
 	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
 	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
 	<property name="modules" location="src/main/modules" />
@@ -48,6 +50,10 @@
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
 	<property name="client-jar" value="${dist}/chipster-all-${release-version}.jar" />
 
+	<property name="javac-target" value="1.7" />
+	<property name="javac-source" value="1.7" />
+	
+	
 	<!-- external stuff -->
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.5.7" />
@@ -57,8 +63,7 @@
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
-    <property name="keyalias" value="csc" />
-	<property name="keystorepass" value="chipster" />
+	<property name="keyalias" value="chipster" />
 	<property name="default-keystore" value="keystore.ks" />
 
 	<target name="clean" description="Remove previously compiled and generated files">
@@ -97,8 +102,8 @@
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-	    	<fatjar.jarsource file="${lib}/sam-1.75.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/picard-1.75.jar" relpath=""/>
+	    	<fatjar.jarsource file="${lib}/sam-1.89.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/picard-1.89.jar" relpath=""/>
 	    	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
@@ -111,6 +116,7 @@
  		    <fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.3.163.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/snakeyaml-1.11.jar" relpath=""/>	
 			<fatjar.jarsource file="${lib}/truezip-samples-7.3.4-jar-with-dependencies.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/tribble_2012-05-25.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-ajp-8.1.5.v20120716.jar" relpath=""/>
@@ -133,12 +139,15 @@
 		    <fatjar.jarsource file="${lib}/jetty-util-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-webapp-8.1.5.v20120716.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/jetty-websocket-8.1.5.v20120716.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
-		    
+		    <fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>		    
+			<fatjar.jarsource file="${lib}/spring.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/miglayout-4.0-swing.jar" relpath=""/>
 		    </fatjar.build>
 
 		<!-- sign it -->
-		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
+		<input message="Give keystore passphrase for client JAR signing:" addproperty="keystorepass" />
+		<input message="Give key passphrase for client JAR signing:" addproperty="keypass" />
+		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}" keypass="${keypass}" />
 		<verifyjar jar="${client-jar}" />
 
     </target>
@@ -172,18 +181,31 @@
 			<entry key="version.number" value="${release-version}" />
 		</propertyfile>
 
+		<!-- compile chipster main -->
 		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
+		<javac destdir="${build}" target="${javac-target}" source="${javac-source}" debug="true" failonerror="true">
 			<src path="${src}" />
 			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />
 			<src path="${modules-src-ngs}" />
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+
+		<!-- compile admin web -->		
+		<delete dir="${admin-web-bin}" quiet="true" />
+		<mkdir dir="${admin-web-bin}" />
+		<javac destdir="${admin-web-bin}" target="${javac-target}" source="${javac-source}" debug="true" failonerror="true">
 			<src path="${admin-web}/src" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
 				</fileset>
+				<pathelement location="${build}" />
 				<fileset dir="${admin-web}/WebContent/WEB-INF/lib">
 					<include name="**/*.jar" />
 				</fileset>
@@ -193,25 +215,50 @@
 			</classpath>
 		</javac>
 
+		<!-- compile tooleditor -->		
+		<delete dir="${tool-editor-bin}" quiet="true" />
+		<mkdir dir="${tool-editor-bin}" />
+		<javac destdir="${tool-editor-bin}" target="${javac-target}" source="${javac-source}" debug="true" failonerror="true">
+			<src path="${tool-editor}/src" />
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement location="${build}" />
+				<fileset dir="${tool-editor}/WebContent/WEB-INF/lib-ivy">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+
+		<!-- compile tooleditor sass style sheet to css style sheet which is required by vaadin production mode-->		
+		<java classname="com.vaadin.sass.SassCompiler">
+			<arg value="${tool-editor}/WebContent/VAADIN/themes/tool_editor/styles.scss" />
+			<arg value="${tool-editor}/WebContent/VAADIN/themes/tool_editor/styles.css" />
+			<classpath>
+				<fileset dir="${tool-editor}/WebContent/WEB-INF/lib-ivy">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</java>			
+		
+		
+		<!-- add other stuff to build dir -->
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/log4j-enabled.properties" tofile="${build}/log4j-enabled.properties" />
+
 		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
 		<copy file="${src}/fi/csc/microarray/client/session/session2.xsd" tofile="${build}/fi/csc/microarray/client/session/session2.xsd" />
 
 	</target>
 
-	<target name="package-jar" depends="compile" description="Create chipster jar">
+	<target name="package-jar" depends="compile, package-admin-web-war, package-tool-editor-war" description="Create chipster jar">
 		<jar destfile="${release-jar}">
 			<manifest>
 				<attribute name="Main-Class" value="fi.csc.microarray.MicroarrayMain" />
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
-			<fileset dir="${admin-web}/">
-				<include name="WebContent/**/*" />
-				<exclude name="WebContent/WEB-INF/lib/*" />
-				<exclude name="WebContent/WEB-INF/lib-ext/*" />
-				<exclude name="WebContent/WEB-INF/lib-ivy/*" />
-			</fileset>
 		</jar>
 	</target>
 
@@ -240,7 +287,6 @@
 			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />	
 			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
-			<tarfileset dir="${admin-web}/WebContent/WEB-INF/lib" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
 			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
 			<tarfileset file="${ext-src}/wrapper/chipster" filemode="755" prefix="chipster" />
@@ -389,6 +435,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
+			<tarfileset file="${dist}/tool-editor.war" prefix="chipster/webstart/webapps" />
 			
 			
 			<!-- manager -->
@@ -414,6 +461,7 @@
 			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
+			<tarfileset file="${dist}/admin-web.war" prefix="chipster/manager/webapps" />
 		
 			
 			<!-- activemq -->
@@ -442,10 +490,9 @@
 	</target>
 	
 	
-	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
+	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-admin-web-war, package-tool-editor-war, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
-
 	
 	<target name="generate-session-classes" description="">
 		<delete dir="src/main/java/fi/csc/microarray/client/session/schema2" />
@@ -457,10 +504,31 @@
             	<arg value="src/main/java"/>
 	    		<arg value="src/main/java/fi/csc/microarray/client/session/session2.xsd" />
 	    </java>
+	</target>	
+	
+	<target name="package-tool-editor-war" description="Package tool-editor web application">
+		<war destfile="${dist}/tool-editor.war" webxml="${tool-editor}/WebContent/WEB-INF/web.xml">
+			<lib dir="${tool-editor}/WebContent/WEB-INF/lib-ivy" />
+			<fileset dir="${tool-editor}/WebContent">
+				<include name="VAADIN/**"/>
+			</fileset>
+			<classes dir="${tool-editor-bin}" />
+		</war>
 	</target>
 
-	
-	
+	<target name="package-admin-web-war" description="Package admin web web application">
+		<war destfile="${dist}/admin-web.war" webxml="${admin-web}/WebContent/WEB-INF/web.xml">
+			<lib dir="${admin-web}/WebContent/WEB-INF/lib-ivy" />
+			<lib dir="${admin-web}/WebContent/WEB-INF/lib" />
+			<fileset dir="${admin-web}/WebContent">
+				<include name="VAADIN/**"/>
+			</fileset>
+			<classes dir="${admin-web-bin}" />
+		</war>
+	</target>
+
+
+
 	<!--
     <path id="testngpath">
       <pathelement location="${test-src}"/>

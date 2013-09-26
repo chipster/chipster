@@ -782,26 +782,47 @@ public class DataBean extends DataItemBase {
 	 */
 	public ContentLocation getClosestContentLocation() {
 
-		// first tier
-		ContentLocation plainLocal = getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
-		if (plainLocal != null && isAccessible(plainLocal)) {
-			return plainLocal;
-		}
-		
-		// second tier
-		ContentLocation plainRemote = getContentLocation(StorageMethod.REMOTE_FILE_METHODS);
-		if (plainRemote != null && isAccessible(plainRemote)) {
-			return plainRemote;
-		}
-		
-		// third tier
-		ContentLocation somethingSlow = getContentLocation(StorageMethod.OTHER_SLOW_METHODS);
-		if (somethingSlow != null && isAccessible(somethingSlow)) {
-			return somethingSlow;
+		List<ContentLocation> closestContentLocations = getClosestContentLocationList();
+			
+		for (ContentLocation contentLocation : closestContentLocations) {
+			if (contentLocation != null && isAccessible(contentLocation)) {
+				return contentLocation;
+			}
 		}
 
 		// nothing was accessible
 		return null;
+	}
+	
+	/**
+	 * Returns the ContentLocation that is likely to be the fastest available and 
+	 * supports random access. 
+	 * All returned ContentLocations are checked to be accessible. Returns null
+	 * if none of the locations are accessible.
+	 */
+	public ContentLocation getClosestRandomAccessContentLocation() {
+
+		List<ContentLocation> closestContentLocations = getClosestContentLocationList();
+			
+		for (ContentLocation contentLocation : closestContentLocations) {
+			if (contentLocation != null && contentLocation.method.isRandomAccess() && isAccessible(contentLocation)) {
+				return contentLocation;
+			}
+		}
+
+		// nothing was accessible
+		return null;
+	}
+	
+	private List<ContentLocation> getClosestContentLocationList() {
+		
+		List<ContentLocation> closestLocations = new LinkedList<ContentLocation>();
+
+		closestLocations.addAll(getContentLocations(StorageMethod.LOCAL_FILE_METHODS));
+		closestLocations.addAll(getContentLocations(StorageMethod.REMOTE_FILE_METHODS));
+		closestLocations.addAll(getContentLocations(StorageMethod.OTHER_SLOW_METHODS));
+
+		return closestLocations;
 	}
 
 

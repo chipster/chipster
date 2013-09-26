@@ -124,15 +124,36 @@
 			<value>100</value>
 		</entry>
 
-
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		
         <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
         </entry>
 
+        <entry entryKey="metadata-port" type="int" description="server port to use for web interface to metadata server or 0 for no interface">
+			<value>0</value>
+        </entry>
+
 		<entry entryKey="jetty-debug" type="boolean" description="should Jetty web server run in debug mode (logs/wrapper.log)">
 			<value>false</value>
+		</entry>
+        
+        <entry entryKey="enable-metadata-backups" type="boolean" description="true to enable filebroker metadata db backups">
+			<value>true</value>
+		</entry>
+
+        <entry entryKey="metadata-backup-dir" type="string" description="base directory for metadata backups">
+			<value>metadata-backups</value>
+		</entry>
+
+        <entry entryKey="metadata-backup-time" type="string" description="cron like syntax for scheduling backups, see http://www.sauronsoftware.it/projects/cron4j/manual.php#p02 or cron manual for more info">
+			<value>10 0 * * *</value> <!-- ten past midnight, every day -->
+			<!-- <value>0 * * * *</value> --> <!-- ten past midnight, every day -->
+			<!-- <value>0 12 * * Sun</value> --> <!-- midday every Sunday -->
+		</entry>
+
+        <entry entryKey="metadata-backup-keep-count" type="int" description="max number of backups to keep, the oldest are deleted first, use -1 to keep all backups">
+			<value>100</value>
 		</entry>
         
 	</configuration-module>
@@ -264,6 +285,10 @@
 
 	    <entry entryKey="admin-password" type="string" description="admin web console password">
 			<value>chipster</value>
+		</entry>
+
+	    <entry entryKey="admin-test-account-list" type="string" description="comma separated list of accounts, which are considered test accounts in admin web stats">
+			<value></value>
 		</entry>
 	
 			

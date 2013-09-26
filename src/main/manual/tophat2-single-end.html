@@ -7,38 +7,33 @@
 
 <h3>Description</h3>
 
-<p>This tool aligns Illumina single end RNA-seq reads to publicly available genomes. 
-You need to supply the reads in a FASTQ file. You can also supply a GTF file, if you would like TopHat to use existing splice site information. 
-If you would like us to add new reference genomes to Chipster, please contact us.
+<p>This tool aligns Illumina single end RNA-seq reads to publicly available genomes. If you would like us to add new reference genomes to Chipster, please contact us.
+You need to supply the reads in a FASTQ file. Supplying a GTF file is optional but recommended, because using annotation information improves the alignment process. 
+Chipster provides GTF files for human, mouse and rat (rn4) genomes.
+</p> 
+
 
 <h3>Parameters</h3> 
 
 <ul>
-<li>Genome (human hg19, mouse mm10, rat rn4) [mouse mm9]</li>
+<li>Genome (human hg19, mouse mm10, rat rn4, sheep oar3.1, Arabidopsis thaliana TAIR 10, Gasterosteus aculeatus BROADS1.67) [human hg19]</li>
+<li>Use annotation GTF (yes, no) [yes]</li>
+<li>When GTF file is used, ignore novel junctions (yes, no) [yes]</li>
 <li>Minimum anchor length (3-1000) [8]</li>
 <li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
 <li>Minimum intron length (10-1000) [70]</li>
 <li>Maximum intron length (1000-1,000,000) [500,000]</li>
 <li>How many hits is a read allowed to have (1-1000000) [20]</li>
-<li>Use annotation GTF (yes, no) [yes]</li>
-<li>When GTF file is used, ignore novel junctions (yes, no) [yes]</li>
 </ul>
 
 <h3>Details</h3>
 
-
-<p>TopHat2 first identifies potential exons by mapping the reads to the genome using the Bowtie2 aligner. 
-Using this initial mapping, it builds a database of possible splice junctions, and then maps the reads against these junctions to confirm them. 
-As many exons are shorter than reads, TopHat2 splits the reads into smaller segments,
-which are then mapped independently. The segment alignments are "glued" back together in a final step of the program to produce end-to-end read alignments.
-TopHat generates its database of possible splice junctions from two sources of evidence:</p>
-<ul>
-<li>Pairings of "coverage islands", which are distinct regions of piled up reads in the initial mapping. 
-Neighboring islands are often spliced together in the transcriptome, so TopHat2 looks for ways to join these with an intron.
-</li>
-<li>Two segments from the same read are mapped far apart, or when an internal segment fails to map.
-</li>
-</ul> 
+<p>TopHat2 maps Illumina RNA-Seq reads to a genome in order to identify exon-exon splice junctions. The alignment process consists of three steps. 
+If annotation is available as a GTF file, TopHat will extract the transcript sequences and use Bowtie2 to align reads to this virtual transcriptome first. 
+Only the reads that do not fully map to the transcriptome will then be mapped on the genome. 
+The reads that still remain unmapped are split into shorter segments, which are then aligned to the genome. Segment mappings are used to find potential splice sites. 
+Sequences flanking a splice site are concatenated, and unmapped segments are mapped to them. Segment alignments are then stitched together to form whole read alignments. 
+</p>
 <p>
 The "anchor length" means that TopHat2 will report junctions spanned by reads with at least this many bases on each side of the junction. 
 Note that individual spliced alignments may span a junction with fewer than this many bases on one side. However, every junction involved 
@@ -46,13 +41,6 @@ in spliced alignments is supported by at least one read with this many bases on 
 </p>
 <p>
 TopHat2 will ignore donor-acceptor pairs which are closer than the minimum intron length or further than the maximum intron length apart.  
-With long (>=75bp) reads, "GT-AG", "GC-AG" and "AT-AC" introns can be found ab initio. 
-With shorter reads, TopHat only reports alignments across "GT-AG" introns.
-</p>
-<p>
-TopHat can optionally use existing gene model annotations (splice sites). If GTF file is supplied (by the user or available from the server), TopHat will use the exon records in this file to build a set of known splice site junctions for each gene, 
-and it will attempt to align reads to these junctions even if they would not normally be covered by the initial mapping. 
-If the GTF file is used, the user can specify if TopHat should look for reads across the known splice junctions only.
 </p>
 
 <p>After running TopHat2, Chipster indexes the BAM file using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package. This way the results are ready to be visualized in the genome browser.</p>
@@ -73,7 +61,7 @@ The score is the number of alignments spanning the junction.</li>
 <h3>Reference</h3>
 
 <p>This tool is based on the <a href="http://tophat.cbcb.umd.edu/">TopHat</a> package. Please cite the following article:</p>
-Trapnell C, Pachter L, Salzberg SL. <a href="http://bioinformatics.oxfordjournals.org/content/25/9/1105.abstract">TopHat: discovering splice junctions with RNA-Seq.</a>  Bioinformatics (2009) 25 (9): 1105-1111. 
-
+Kim D, Petrtea G, Trapnell C, et al. <a href="http://genomebiology.com/2013/14/4/R36/abstract">TopHat2: accurate alignments of transcriptomes in the presence of insertions, deletions and gene fusions.</a>  Genome Biology (2013) 14: R36. 
+</p>
 
 </body>

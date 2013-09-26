@@ -36,22 +36,30 @@ import fi.csc.microarray.constants.VisualConstants;
 public class CoordinateArea extends JComponent 
 implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChangeListener  {
 	
-    private static final int TARGET_FPS = 5;
-
 	private static final double KINETIC_SPEED_FACTOR = 0.002;
 	
 	private static long MOVE_TIME_LIMIT = 10; //ms
 
-	private static final int DRAW_MODE_CHANGE_DELAY = 5;
-    
 	private JMenuItem hideSelected;
     private JMenuItem showAll;
-    private JMenuItem invertSelection;
+    private JMenuItem invertSelection;   
+        
+	public enum PaintMode {
+		SPHERE("Sphere"), RECT("Rectangle");
+		
+		private String name;
+
+		PaintMode(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
+		}
+	};
     
-    private int tooFastPaintCounter;
-    
-    public enum PaintMode {PIXEL, GRADIENT };
-    public PaintMode paintMode = PaintMode.GRADIENT;
+    public PaintMode paintMode = PaintMode.SPHERE;
     
     //Just a little toy
     private boolean kineticMoveMode = false;
@@ -62,6 +70,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
     
     public void setPaintMode(PaintMode mode) {
     	paintMode = mode;
+    	this.repaint();
     }    
 
 	private LinkedList<DataPoint> selectedPoints;
@@ -73,7 +82,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 
 	Scatterplot3D controller;
 
-	//Just any number to make rotation speed slow enough
+	//Any number to make rotation speed slow enough
 	final double ANGLE_INCREMENT = Math.PI/(360*4);
 	
 	private AutomatedMovement.RotationTask kineticMovement;
@@ -93,6 +102,8 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		setOpaque(true);
 
 		setFocusable(true);
+		
+		this.setBackground(Color.black);
 
 		selectedPoints = new LinkedList<DataPoint>();
 		projection = new Projection(controller.getDataModel());
@@ -118,7 +129,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	 * @param g 
 	 */
 	protected void paintComponent(Graphics g) {
-		long startTime = System.currentTimeMillis();
+//		long startTime = System.currentTimeMillis();
 		
 		if(this.getHeight() <= this.getWidth()){
 			projection.setViewWindowWidth(projection.getViewWindowHeight() * 
@@ -135,7 +146,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		
 		if (points != null && !points.isEmpty()) {
 			
-			g2d.setColor(Color.BLACK);
+			g2d.setColor(this.getBackground());
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			
 			Drawable p = null;
@@ -151,29 +162,14 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				int w = Math.abs(mouseX - mousePressX);
 				int h = Math.abs(mouseY - mousePressY);
 				
+				g2d.setColor(this.getForeground());
 				g2d.drawRect(x,y,w,h);
 			}
 		} else {
 			worker.workRequest();
 		}
 		
-		long endTime = System.currentTimeMillis();
-		
-		//If drawing was done very fast, change better paint mode
-		if(endTime - startTime < 1000 / TARGET_FPS){
-			tooFastPaintCounter++;
-			if(getPaintMode() == CoordinateArea.PaintMode.PIXEL && 
-					tooFastPaintCounter > DRAW_MODE_CHANGE_DELAY){
-				
-				tooFastPaintCounter = 0;
-				setPaintMode(CoordinateArea.PaintMode.GRADIENT);
-			} 
-		//If drawing was done too slowly, use simplier paint mode
-		} else if(endTime - startTime > 1000 / TARGET_FPS){
-			if(getPaintMode() == CoordinateArea.PaintMode.GRADIENT){
-				setPaintMode(CoordinateArea.PaintMode.PIXEL);
-			} 
-		}
+//		long endTime = System.currentTimeMillis();			
 	}
 
 	//Methods required by the MouseInputListener interface.
@@ -238,8 +234,6 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				} else if (mousePressY - mouseY > 0) {
 					projection.setXAxisRotation(deg -ANGLE_INCREMENT*yfactor);	
 				}
-//			} else { 
-				//kineticMovement = movement.restartKineticMove();
 				kineticMovement.setAngleIncs(KINETIC_SPEED_FACTOR*(mouseY - mousePressY), KINETIC_SPEED_FACTOR*( mouseX-mousePressX), 0);
 			}
 		}
@@ -380,7 +374,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	private void selectOne(MouseEvent e) {
 		clearSelections();
 		selectedPoints =
-			DataPoint.getNearest(e.getX(), e.getY(), controller.getDataModel().getDataArray(), 4);
+			DataPoint.getNearest(e.getX(), e.getY(), controller.getDataModel().getDataArray(), 8);
 		for (DataPoint dp : selectedPoints) {
 			if (dp != null)
 				dp.selected = true;

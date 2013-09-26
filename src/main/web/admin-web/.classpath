@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=admin-web&amp;ivyXmlPath=ivy.xml&amp;confs=default&amp;ivySettingsPath=%24%7Bworkspace_loc%3Aadmin-web%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/chipster"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/activation-jar-1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/antlr-jar-2.7.7.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/c3p0-jar-0.9.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/commons-cli-jar-1.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/commons-jexl-jar-2.1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/commons-logging-jar-1.1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/cssparser-jar-0.9.5.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/dom4j-jar-1.6.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/geronimo-jms_1.1_spec-jar-1.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/guava-jar-13.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/guava-javadoc-13.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/guava-source-13.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-c3p0-jar-4.1.7.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-c3p0-source-4.1.7.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-commons-annotations-jar-4.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-core-jar-4.1.7.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-core-source-4.1.7.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hibernate-jpa-2.0-api-jar-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/hsqldb-jar-2.2.8.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/javaee-api-jar-5.0-2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/javassist-jar-3.15.0-GA.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/jboss-logging-jar-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/jboss-transaction-api_1.1_spec-jar-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/jsoup-jar-1.6.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/jsr305-jar-1.3.9.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/log4j-bundle-1.2.17.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/log4j-javadoc-1.2.17.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/log4j-source-1.2.17.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/mail-jar-1.4.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/sac-jar-1.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/slf4j-api-jar-1.6.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/slf4j-log4j12-jar-1.6.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/slf4j-log4j12-javadoc-1.6.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/slf4j-log4j12-source-1.6.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-client-compiled-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-client-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-client-javadoc-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-client-source-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-server-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-shared-deps-jar-1.0.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-shared-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-theme-compiler-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/vaadin-themes-jar-7.0.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib-ivy/validation-api-jar-1.0.0.GA.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin/eclipse"/>
+</classpath>

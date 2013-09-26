@@ -51,6 +51,7 @@ public class GenbankToGtf {
 					//Rest of the file is sequences, conversion is ready
 					parseFeatureQualifier(featureQualifier, ids);
 					writeLine(ids, feature, chr, writer);
+					feature = null;
 					break;
 				}
 
@@ -68,6 +69,7 @@ public class GenbankToGtf {
 					//The line has a new feature, save previous feature first (unless this is a first one)
 					parseFeatureQualifier(featureQualifier, ids);
 					writeLine(ids, feature, chr, writer);
+					feature = null;
 					
 					feature = parseFeatureHeader(col1, col2, ids);
 
@@ -85,6 +87,7 @@ public class GenbankToGtf {
 			//Write last line
 			parseFeatureQualifier(featureQualifier, ids);
 			writeLine(ids, feature, chr, writer);
+			feature = null;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,12 +111,17 @@ public class GenbankToGtf {
 	}
 
 	private static String parseFeatureHeader(String column1, String column2, Map<String, String> ids) {
+		
+			if (column2.contains("join(")) {
+				System.err.println("Skipping line, because output format doesn't support 'join': " + column1 + " " + column2);
+				return null;
+			}
 
 			String feature = column1;
 
 			if (column2.contains("complement")) {
 				ids.put(STRAND, "-");
-				column2 = column1.replace("complement(", "").replace(")", "");
+				column2 = column2.replace("complement(", "").replace(")", "");
 			} else {
 				ids.put(STRAND, "+");
 			}
@@ -135,6 +143,12 @@ public class GenbankToGtf {
 	}
 
 	private static void writeLine(Map<String, String> ids, String feature, String chr, BufferedWriter writer) throws IOException {
+		
+		if (feature == null) {
+			ids.clear();
+			return;
+		}
+		
 		if (ids.size() > 0) {
 			String biotype = "biotype";
 			feature = "GenBank " + feature;
@@ -177,7 +191,7 @@ public class GenbankToGtf {
 			writer.write(outLine + "\n");
 
 			ids.clear();
-		}
+		}		
 	}
 
 	public static String mapToString(Map<String, String> map) {

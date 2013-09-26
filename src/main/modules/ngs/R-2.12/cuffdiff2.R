@@ -2,8 +2,8 @@
 # INPUT treatment1.bam: "Treatment BAM" TYPE BAM
 # INPUT control1.bam: "Control BAM" TYPE BAM
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GTF
-# OUTPUT de-genes-cufflinks.tsv
-# OUTPUT de-isoforms-cufflinks.tsv
+# OUTPUT OPTIONAL de-genes-cufflinks.tsv
+# OUTPUT OPTIONAL de-isoforms-cufflinks.tsv
 # OUTPUT OPTIONAL cufflinks-log.txt
 # OUTPUT OPTIONAL de-genes-cufflinks.bed
 # OUTPUT OPTIONAL de-isoforms-cufflinks.bed
@@ -30,6 +30,7 @@
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
 # PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output.)
 # PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER OPTIONAL fdr: "Allowed false discovery rate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR-adjusted p-values (q-values\) are calculated. The concise output files include only those genes or transcripts which have a q-value lower than the given FDR. The value of the Significant-column is adjusted accordingly (yes/no\) in all output files.) 
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Bias correction for stranded data" TYPE [yes, no] DEFAULT no (Cuffdiff can detect sequence-specific bias and correct for it in abundance estimation. Note that bias correction works only if your data was produced with a strand specific protocol.)
@@ -38,7 +39,7 @@
 # AMS 21.1.2013
 # check column renaming when replicates are enabled
 # This parameter is not yet functional due to a bug in Cuffdiff itself. PARAMETER OPTIONAL normalize: "Upper-quartile normalization " TYPE [yes, no] DEFAULT yes (Upper quartile normalization can improve robustness of differential expression calls for less abundant genes and transcripts. It excludes very abundant genes when normalizing expression values for the number of reads in each sample by using the upper quartile of the number of fragments mapping to individual loci.)
-
+# AMS 02.07.2013 Added chr1/1 option, fixed handling of errors when no results are found.
 
 # binary
 cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffdiff"))
@@ -65,23 +66,43 @@ if (bias == "yes") {
 	if (genome == "rn4"){
 		genomefile <- "rn4.fa"
 	}
-	genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+	if (chr == "chr1"){
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genomefile))
+	}else{
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+	}
 	cuffdiff.options <- paste(cuffdiff.options, "-b", genomefile)
 }
 if (file.exists("annotation.gtf")){
 	cuffdiff.options <- paste(cuffdiff.options, "annotation.gtf")
 }else{
 	if (internalgtf == "hg19") {
-		annotation.file <- "Homo_sapiens.GRCh37.68.gtf"
+		if (chr == 1){
+			annotation.file <- "Homo_sapiens.GRCh37.68.gtf"
+		}else {
+			annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
+		}		
 	}
 	if (internalgtf == "mm9") {
-		annotation.file <- "Mus_musculus.NCBIM37.62.gtf"
+		if (chr == 1){
+			annotation.file <- "Mus_musculus.NCBIM37.62.gtf"
+		}else {
+			annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
+		}
 	}
 	if (internalgtf == "mm10") {
-		annotation.file <- "Mus_musculus.GRCm38.68.gtf"
+		if (chr == 1){
+			annotation.file <- "Mus_musculus.GRCm38.68.gtf"
+		}else{
+			annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
+		}
 	}
 	if (internalgtf == "rn4") {
-		annotation.file <- "Rattus_norvegicus.RGSC3.4.68.gtf"
+		if (chr == 1){
+			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.gtf"
+		}else{
+			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
+		}
 	}
 	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 	cuffdiff.options <- paste(cuffdiff.options, annotation.file)
@@ -99,7 +120,8 @@ system(command)
 source(file.path(chipster.common.path, "bed-utils.R")) # bed sort
 
 # Only do post-processing if file exists
-if (file.exists("tmp/gene_exp.diff")){
+if (file.exists("tmp/gene_exp.diff") && file.info("tmp/gene_exp.diff")$size > 0){
+#if (file.exists("tmp/gene_exp.diff")){
 	# DE genes
 	# Extract chromosome locations and add in the first three table columns
 	dat <- read.table(file="tmp/gene_exp.diff", header=T, sep="\t")
@@ -125,16 +147,18 @@ if (file.exists("tmp/gene_exp.diff")){
 	dat2 <- dat2[dat2$status=="OK",]
 	results_list <- dat2
 	results_list <- results_list[results_list$significant=="yes",]
-		
-	# order according to increasing q-value
-	results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-	number_genes <- dim (results_list) [1]
-	row_names <- 1:number_genes
-	rownames(results_list) <- row_names
-	write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
-
-	# Also output a BED file for visualization and region matching tools
+	
+	# Write output only if signicant results exist
 	if (dim(results_list)[1] > 0) {
+	
+		# order according to increasing q-value
+		results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
+		number_genes <- dim (results_list) [1]
+		row_names <- 1:number_genes
+		rownames(results_list) <- row_names
+		write.table(results_list, file="de-genes-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
+	
+		# Also output a BED file for visualization and region matching tools
 		bed_output <- results_list[,c("chr","start","end","gene_id","log2_FC")]
 		# sort according to chromosome location
 		write.table(bed_output, file="sortme.bed", sep="\t", row.names=F, col.names=T, quote=F)
@@ -143,25 +167,28 @@ if (file.exists("tmp/gene_exp.diff")){
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="de-genes-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}	
-}
-# Report numbers to the log file
-if (dim(results_list)[1] > 0) {
-	sink(file="cufflinks-log.txt")
+
+	# Report numbers to the log file
 	number_genes_tested <- dim(dat)[1]
-	number_filtered <- number_genes_tested-dim(results_list)[1]
-	number_significant <- dim(results_list)[1]
-	cat("GENE TEST SUMMARY\n")
-	cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
-	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "genes were found to be statistically significantly differentially expressed.\n")	
-} else {
-	cat("GENE TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
+	sink(file="cufflinks-log.txt")
+	if (dim(results_list)[1] > 0) {
+		number_filtered <- number_genes_tested-dim(results_list)[1]
+		number_significant <- dim(results_list)[1]
+		cat("GENE TEST SUMMARY\n")
+		cat("In total,", number_genes_tested, "genes were tested for differential expression.\n")
+		cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+		cat(number_significant, "genes were found to be statistically significantly differentially expressed.\n")	
+	} else {
+		cat("GENE TEST SUMMARY\n")
+		cat("Out of the", number_genes_tested, "genes tested, there were no statistically significantly differentially expressed ones found.")
+	}
+	sink()
+}else{
+	write("Cuffdiff did not complete succesfully. Please check your input files.", "cufflinks-log.txt", append=F)
 }
-sink()
 
 # Only do post-processing if file exists
-if (file.exists("tmp/isoform_exp.diff")){
+if (file.exists("tmp/isoform_exp.diff") && file.info("tmp/isoform_exp.diff")$size > 0) {
 	# DE isoforms
 	# Extract chromosome locations and add in the first three table columns
 	dat <- read.table(file="tmp/isoform_exp.diff", header=T, sep="\t")
@@ -188,15 +215,17 @@ if (file.exists("tmp/isoform_exp.diff")){
 	results_list <- dat2
 	results_list <- results_list[results_list$significant=="yes",]
 	
-	# order according to increasing q-value
-	results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
-	number_genes <- dim (results_list) [1]
-	row_names <- 1:number_genes
-	rownames(results_list) <- row_names
-	write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
-	
-	# Also output a BED file for visualization and region matching tools
+	# Write output only if signicant results exist
 	if (dim(results_list)[1] > 0) {
+	
+		# order according to increasing q-value
+		results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
+		number_genes <- dim (results_list) [1]
+		row_names <- 1:number_genes
+		rownames(results_list) <- row_names
+		write.table(results_list, file="de-isoforms-cufflinks.tsv", sep="\t", row.names=TRUE, col.names=T, quote=F)
+	
+		# Also output a BED file for visualization and region matching tools
 		bed_output <- results_list[,c("chr","start","end","gene_id","log2_FC")]
 		write.table(bed_output, file="", sep="\t", row.names=F, col.names=T, quote=F)
 		# sort according to chromosome location
@@ -206,24 +235,23 @@ if (file.exists("tmp/isoform_exp.diff")){
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="de-isoforms-cufflinks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
-}	
-
-# Report numbers to the log file
-if (dim(results_list)[1] > 0) {
+	
+	# Report numbers to the log file
 	sink(file="cufflinks-log.txt", append=TRUE)
 	number_genes_tested <- dim(dat)[1]
-	number_filtered <- number_genes_tested-dim(results_list)[1]
-	number_significant <- dim(results_list)[1]
-	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-	cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
-	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
-	cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.\n")	
-} else {
-	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
-	cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.\n")
+	if (dim(results_list)[1] > 0) {
+		number_filtered <- number_genes_tested-dim(results_list)[1]
+		number_significant <- dim(results_list)[1]
+		cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+		cat("In total,", number_genes_tested, "transcript isoforms were tested for differential expression.\n")
+		cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+		cat(number_significant, "transcripts were found to be statistically significantly differentially expressed.\n")	
+	} else {
+		cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+		cat("Out of the", number_genes_tested, "transcripts tested, there were no statistically significantly differentially expressed ones found.\n")
+	}
+	sink()
 }
-sink()
-
 
 # Rename files
 # Non-processed cuffdiff output shown only when complete output selected
