@@ -22,7 +22,7 @@
 # notospan: Report A if ospan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.)
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToBed"))

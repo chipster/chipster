@@ -8,7 +8,7 @@
 # PARAMETER OPTIONAL t: "Approach to reporting multiple overlaps" TYPE [all, first, last] DEFAULT all (How ties for closest feature are handled. This occurs when two features in B have exactly the same overlap with A. By default, all such features in B are reported. The options are: all (Report all ties\), first (Report the first tie that occurred in the B file\) and  last (Report the last tie that occurred in the B file\).)
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "closestBed"))

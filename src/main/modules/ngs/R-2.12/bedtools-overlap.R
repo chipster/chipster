@@ -5,7 +5,7 @@
 # PARAMETER cols: "Columns to use" TYPE STRING DEFAULT "2,3,6,7" (Specify the columns (1-based\) for the starts and ends of the features for which you'd like to compute the overlap/distance. The columns must be listed in the following order: start1,end1,start2,end2.)
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 # Note: overlap binary for now from from version 2.12.0 as it is not present in 2.17.0

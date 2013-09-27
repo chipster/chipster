@@ -10,7 +10,7 @@
 # PARAMETER OPTIONAL score.type: "Score report type" TYPE [sum, min, max, mean, median, mode, antimode, collapse] DEFAULT sum ()
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "mergeBed"))
@@ -39,5 +39,3 @@ if (file.info("mergebed.tmp")$size > 0) {
 } else{
 	system("echo \"# No results found\" > error.txt")
 }
-
-if (file.info("mergebed.bed")$size == 0) {system("echo \"No results found\" > mergebed.bed")}

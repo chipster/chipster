@@ -11,7 +11,7 @@
 # PARAMETER OPTIONAL rf: "The fraction to add to the end coordinate" TYPE DECIMAL DEFAULT 0 ()
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "slopBed"))

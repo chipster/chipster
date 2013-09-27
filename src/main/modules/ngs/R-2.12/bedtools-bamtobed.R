@@ -9,7 +9,7 @@
 # PARAMETER OPTIONAL cigar: "Add the CIGAR string" TYPE [yes,no] DEFAULT no (Add the CIGAR string to the BED entry as a 7th column.)
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "bamToBed"))

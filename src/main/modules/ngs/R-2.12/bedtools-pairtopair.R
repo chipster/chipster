@@ -12,7 +12,7 @@
 # PARAMETER OPTIONAL ss: "Add slop based to each BEDPE footprint based on strand" TYPE [yes, no] DEFAULT no (Add slop based to each BEDPE footprint based on strand. If strand is +, slop is only added to the end coordinates. If strand is -, slop is only added to the start coordinates. By default, slop is added in both directions.) 
 
 # AMS 23.4.2012
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToPair"))

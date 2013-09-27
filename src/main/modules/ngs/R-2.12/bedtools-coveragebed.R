@@ -11,7 +11,7 @@
 
 # AMS 23.4.2012
 # AMS 11.10.2012 Fixed BAM file support
-# AMS 23.9.2013 Improved outout/error file handling
+# AMS 23.9.2013 Improved output/error file handling
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "coverageBed"))
