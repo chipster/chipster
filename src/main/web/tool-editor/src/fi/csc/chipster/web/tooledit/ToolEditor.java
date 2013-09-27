@@ -189,7 +189,7 @@ public class ToolEditor extends VerticalLayout {
 	 * @throws Exception
 	 *             output is valid
 	 */
-	public List<SADLDescription.Output> getDaslOutputs() throws Exception {
+	public List<SADLDescription.Output> getSADLOutputs() throws Exception {
 		ArrayList<SADLDescription.Output> outputs = new ArrayList<SADLDescription.Output>();
 		Collection<Output> out = root.getTreeToolEditor().getOutputs();
 		if (out == null)

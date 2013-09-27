@@ -454,15 +454,15 @@ public class Parameter extends BasicModel{
 	}
 	
 	private Name[] getEnumList() {
-		if(typeTable == null || typeTable.getItemIds().isEmpty())
+		if (typeTable == null || typeTable.getItemIds().isEmpty())
 			return null;
 		Name[] names = typeTable.getItemIds().toArray(new Name[0]);
 		ArrayList<Name> list = new ArrayList<Name>();
-		for(Name name : names) {
-			if(!name.getID().isEmpty() && !name.getDisplayName().isEmpty())
+		for (Name name : names) {
+			if (!name.getID().isEmpty()) {
 				list.add(name);
-			else {
-				new Notification("Not all ENUM types were generated to text, because display name or id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());
+			} else {
+				new Notification("Not all ENUM types were generated to text, because id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());
 			}
 		}
 		return list.toArray(new Name[0]);
