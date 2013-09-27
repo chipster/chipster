@@ -43,7 +43,7 @@ public class CSCToolToTextClickListener implements ClickListener{
 			root.getToolEditor().addParameters(sadlDescription);
 			root.getToolEditor().setHeaderToTextEditor(sadlDescription.toString());
 		} catch(Exception e) {
-			Notification.show("All elements must be filled up correctly", Type.WARNING_MESSAGE);
+			Notification.show("All elements must be filled up correctly\n" + e.getMessage(), Type.WARNING_MESSAGE);
 			e.printStackTrace();
 			return;
 		}

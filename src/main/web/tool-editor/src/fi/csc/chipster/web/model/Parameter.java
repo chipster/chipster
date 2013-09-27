@@ -445,7 +445,7 @@ public class Parameter extends BasicModel{
 	
 	private String getDefaultValue() {
 		if(type.getValue().equals(ParameterType.ENUM)) {
-			return (defaultValue2.getValue() != null ? ((Name) defaultValue2.getValue()).getDisplayName() : null);
+			return (defaultValue2.getValue() != null ? ((Name) defaultValue2.getValue()).getID() : null);
 		} else if(type.getValue().equals(ParameterType.PERCENT)){
 			return String.valueOf(defaultSlider.getValue());
 		} else {
@@ -460,6 +460,10 @@ public class Parameter extends BasicModel{
 		ArrayList<Name> list = new ArrayList<Name>();
 		for (Name name : names) {
 			if (!name.getID().isEmpty()) {
+				if ("".equals(name.getDisplayName())) {
+					name.setDisplayName(null);
+				}
+				
 				list.add(name);
 			} else {
 				new Notification("Not all ENUM types were generated to text, because id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());

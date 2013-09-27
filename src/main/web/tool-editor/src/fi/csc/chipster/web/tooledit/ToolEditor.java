@@ -176,7 +176,7 @@ public class ToolEditor extends VerticalLayout {
 			if (input.isValid())
 				inputs.add(input.getSadlInput());
 			else
-				throw new Exception();
+				throw new Exception("Invalid input: " + input);
 		}
 		return inputs;
 	}
