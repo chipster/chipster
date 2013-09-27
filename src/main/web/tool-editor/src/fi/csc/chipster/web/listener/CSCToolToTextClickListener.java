@@ -38,7 +38,7 @@ public class CSCToolToTextClickListener implements ClickListener{
 			return;
 		}
 		try {
-			sadlDescription.addInputs(root.getToolEditor().getDaslInputs());
+			sadlDescription.addInputs(root.getToolEditor().getSADLInputs());
 			sadlDescription.addOutputs(root.getToolEditor().getSADLOutputs());
 			root.getToolEditor().addParameters(sadlDescription);
 			root.getToolEditor().setHeaderToTextEditor(sadlDescription.toString());
