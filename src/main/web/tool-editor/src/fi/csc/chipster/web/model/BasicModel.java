@@ -209,6 +209,11 @@ public abstract class BasicModel extends GridLayout{
 		return id.getValue();
 	}
 	
+	/**
+	 * Input overrides this to avoid multiple input being invalid
+	 * 
+	 * @return
+	 */
 	public boolean isValid() {
 		return id.isValid();
 	}

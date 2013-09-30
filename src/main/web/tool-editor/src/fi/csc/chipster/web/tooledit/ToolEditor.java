@@ -167,7 +167,7 @@ public class ToolEditor extends VerticalLayout {
 	 * @throws Exception
 	 *             if input is not valid
 	 */
-	public List<SADLDescription.Input> getDaslInputs() throws Exception {
+	public List<SADLDescription.Input> getSADLInputs() throws Exception {
 		ArrayList<SADLDescription.Input> inputs = new ArrayList<SADLDescription.Input>();
 		Collection<Input> in = root.getTreeToolEditor().getInputs();
 		if (in == null)
@@ -176,7 +176,7 @@ public class ToolEditor extends VerticalLayout {
 			if (input.isValid())
 				inputs.add(input.getSadlInput());
 			else
-				throw new Exception();
+				throw new Exception("Invalid input: " + input);
 		}
 		return inputs;
 	}
@@ -189,7 +189,7 @@ public class ToolEditor extends VerticalLayout {
 	 * @throws Exception
 	 *             output is valid
 	 */
-	public List<SADLDescription.Output> getDaslOutputs() throws Exception {
+	public List<SADLDescription.Output> getSADLOutputs() throws Exception {
 		ArrayList<SADLDescription.Output> outputs = new ArrayList<SADLDescription.Output>();
 		Collection<Output> out = root.getTreeToolEditor().getOutputs();
 		if (out == null)
