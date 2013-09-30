@@ -102,8 +102,8 @@
 	</category>
 
 	<category name="Promoter analysis" color="#629a9b">
-		<tool runtime="R-2.12"><resource>promoter-tfbs.R</resource></tool>
-		<tool runtime="R-2.12"><resource>promoter-tfbs-cosmo.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>promoter-tfbs.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>promoter-tfbs-cosmo.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>promoter-retrprom.R</resource></tool>
 	</category>
 
