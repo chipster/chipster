@@ -1,7 +1,9 @@
-package fi.csc.microarray.manager.web.data;
+package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -13,8 +15,7 @@ import javax.jms.JMSException;
 
 import com.vaadin.data.util.BeanItemContainer;
 
-import fi.csc.microarray.manager.web.ChipsterConfiguration;
-import fi.csc.microarray.manager.web.ui.StorageView;
+import fi.csc.chipster.web.adminweb.ui.StorageView;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -40,7 +41,7 @@ Serializable {
 		USERNAME, 		NAME, 			SIZE, 	DATE, 		DELETE_LINK };
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", 	"Session name", "Size", "Date", 	" " };
+		"Username", 	"Session name", "Size", "Last access date", 	" " };
 
 	
 	
@@ -50,7 +51,7 @@ Serializable {
 		super(StorageEntry.class);
 	}
 
-	public void update(final StorageView view) {
+	public void update(final StorageView view, final String username) {
 
 		ExecutorService execService = Executors.newCachedThreadPool();
 		execService.execute(new Runnable() {
@@ -67,14 +68,14 @@ Serializable {
 						}
 					};
 
-					ChipsterConfiguration.init();
+//					ChipsterConfiguration.init();
 					endpoint = new MessagingEndpoint(nodeSupport);
 					
 					// TODO close topic
 					MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
 
-					CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_SESSIONS_FOR_USER);
-					request.addNamedParameter("username", "testiuuseri");
+					CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS);
+					request.addNamedParameter("username", username);
 					final CountDownLatch latch = new CountDownLatch(1);
 
 					// TODO clean up this
@@ -153,14 +154,33 @@ Serializable {
 		public void onChipsterMessage(ChipsterMessage msg) {
 			ParameterMessage resultMessage = (ParameterMessage) msg;
 			
-			entries = new LinkedList<StorageEntry>();
-			StorageEntry entry = new StorageEntry();
-			entry.setDate(new Date());
-			entry.setUsername(resultMessage.getNamedParameter("neppi"));
-			entry.setSize(122);
-			entry.setName("sessssio");
-			entries.add(entry);
+			String usernamesString =  resultMessage.getNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST);
+			String namesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
+			String sizesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST);
+			String datesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_DATE_LIST);
 			
+			String[] usernames = usernamesString.split("\t");
+			String[] names = namesString.split("\t");
+			String[] sizes = sizesString.split("\t");
+			String[] dates = datesString.split("\t");
+			
+			DateFormat dateParser = new SimpleDateFormat();
+			entries = new LinkedList<StorageEntry>();
+			try {
+				for (int i = 0; i < names.length; i++) {
+
+					StorageEntry entry = new StorageEntry();
+					entry.setDate(dateParser.parse(dates[i]));
+					entry.setUsername(usernames[i]);
+					entry.setSize(Long.parseLong(sizes[i]));
+					entry.setName(names[i]);
+					entries.add(entry);
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+								
 			latch.countDown();
 		}
 

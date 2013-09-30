@@ -107,7 +107,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	public void update() {
 		
-		entryDataSource.update(this);
+		aggregateDataSource.update(this);		
 		
 		//Disable during data update avoid concurrent modification
 		refreshButton.setEnabled(false);
@@ -174,8 +174,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	private void updateDiskUsageBar() {
 		
-		long used = aggregateDataSource.getDiskUsage();
-		long total = aggregateDataSource.getDiskAvailable() + used;
+//		long used = aggregateDataSource.getDiskUsage();
+//		long total = aggregateDataSource.getDiskAvailable() + used;
+		
+		long used = 250000000000l;
+		long total = 500000000000l;
 		
 		diskUsageBar.setValue(used / (float)total);
 		diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
@@ -238,24 +241,13 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	public void valueChange(ValueChangeEvent event) {
 		Property<?> property = event.getProperty();
 		if (property == aggregateTable) {
-			updateEntryFilter();
-			StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
-
-			if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-				entryDataSource.showUser(null);
-			} else {
-			}
-		}
-	}
-	
-	public void updateEntryFilter() {
-		
-		StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
-
-		if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-			entryDataSource.showUser(null);
-		} else {
-			entryDataSource.showUser(selection.getUsername());
+						
+			Object tableValue = aggregateTable.getValue();
+			if (tableValue instanceof StorageAggregate) {
+				StorageAggregate storageUser = (StorageAggregate) tableValue;
+				
+				entryDataSource.update(this, storageUser.getUsername());
+			}			
 		}
 	}
 	
@@ -269,7 +261,6 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		entryDataSource.removeItem(itemId);
 		
 		aggregateDataSource.update(this);
-		updateEntryFilter();
 		updateDiskUsageBar();
 	}
 	
@@ -296,11 +287,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
 			aggregateTableLock.lock();
 			try {						
-				StorageAggregate totalItem = aggregateDataSource.update(this);
+				//StorageAggregate totalItem = aggregateDataSource.update(this);
 
-				aggregateTable.select(totalItem);
+				//aggregateTable.select(totalItem);
 				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);				
 
 			} finally {
 				aggregateTableLock.unlock();

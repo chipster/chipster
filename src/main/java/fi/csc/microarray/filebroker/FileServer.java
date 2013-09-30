@@ -95,7 +95,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.port = configuration.getInt("filebroker", "port");    	
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
-    		this.publicPath = configuration.getString("filebroker", "public-data-path");
 
     		// initialise metadata database
     		logger.info("starting derby metadata server");
@@ -558,34 +557,75 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 	private class FilebrokerAdminMessageListener implements MessagingListener {
 
+		/* (non-Javadoc)
+		 * @see fi.csc.microarray.messaging.MessagingListener#onChipsterMessage(fi.csc.microarray.messaging.message.ChipsterMessage)
+		 */
 		@Override
 		public void onChipsterMessage(ChipsterMessage msg) {
 
 			// get totals
-			if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_BY_USER.equals(((CommandMessage)msg).getCommand())) {
-				System.out.println("GET-STORAGE-USAGE");
-		
-			} 
-			
-			// get sessions for user
-			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_SESSIONS_FOR_USER.equals(((CommandMessage)msg).getCommand())) {
-				String username = ((ParameterMessage)msg).getNamedParameter("username");
+			if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS.equals(((CommandMessage)msg).getCommand())) {
+				
+				CommandMessage requestMessage = (CommandMessage) msg;
 				CommandMessage reply;
 				
+				List<String>[] users;
 				try {
+					users = metadataServer.getListStorageusageOfUsers();
+					
 					reply = new CommandMessage();
-					reply.addNamedParameter("neppi", username + " jepjep");
-					endpoint.replyToMessage(msg, reply);
-				} catch (Exception e) {
-					// FIXME
-					System.out.println(e);
+					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(users[0], "\t"));
+					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(users[1], "\t"));				
+
+					endpoint.replyToMessage(requestMessage, reply);
+				
+				} catch (SQLException | JMSException e) {
+					logger.error(e);
+				}
+			}
+			
+			// get sessions for user
+			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
+				String username = ((ParameterMessage)msg).getNamedParameter("username");
+				CommandMessage requestMessage = (CommandMessage) msg;
+				CommandMessage reply;
+				
+				List<String>[] sessions;
+				try {
+					sessions = metadataServer.listStorageUsageOfSessions(username);
+					
+					reply = new CommandMessage();
+					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(sessions[0], "\t"));
+					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[1], "\t"));
+					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(sessions[2], "\t"));
+					reply.addNamedParameter(ParameterMessage.PARAMETER_DATE_LIST, Strings.delimit(sessions[3], "\t"));
+
+					endpoint.replyToMessage(requestMessage, reply);
+				
+				} catch (JMSException | SQLException e) {
+					logger.error(e);
 				}
 			}
 			
 			
 			// get sessions for session name
-			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_SESSIONS_FOR_SESSION_NAME.equals(((CommandMessage)msg).getCommand())) {
-				// TODO
+			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS.equals(((CommandMessage)msg).getCommand())) {
+				CommandMessage requestMessage = (CommandMessage) msg;
+				CommandMessage reply;
+				
+				try {
+					LinkedList<String> totals = new LinkedList<String>();
+					
+					totals.add(metadataServer.getStorageUsageTotals());										
+					
+					reply = new CommandMessage();
+					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(totals, "\t"));				
+
+					endpoint.replyToMessage(requestMessage, reply);
+				
+				} catch (JMSException | SQLException e) {
+					logger.error(e);
+				}
 			}
 					
 		}

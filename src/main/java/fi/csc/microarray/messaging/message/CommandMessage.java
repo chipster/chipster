@@ -37,9 +37,9 @@ public class CommandMessage extends ParameterMessage {
 	public static final String COMMAND_FILE_OPERATION_FAILED = "file-operation-failed";
 	public static final String COMMAND_FILE_OPERATION_DENIED = "file-operation-denied";
 
-	public static final String COMMAND_GET_STORAGE_USAGE_BY_USER = "get-storage-usage-by-user";
-	public static final String COMMAND_GET_SESSIONS_FOR_USER = "get-sessions-for-user";
-	public static final String COMMAND_GET_SESSIONS_FOR_SESSION_NAME = "get-sessions-for-session-name";
+	public static final String COMMAND_LIST_STORAGE_USAGE_OF_USERS = "get-storage-usage-by-user";
+	public static final String COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS = "get-sessions-for-user";
+	public static final String COMMAND_GET_STORAGE_USAGE_TOTALS = "get-sessions-for-session-name";
 
 	
 	private String command;

@@ -1,8 +1,5 @@
 package fi.csc.microarray.filebroker;
 
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.config.DirectoryLayout;
 import it.sauronsoftware.cron4j.Scheduler;
 
 import java.io.File;
@@ -26,6 +23,10 @@ import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 
 /**
  * Metadata server keeps track of files and sessions that are saved to long term storage space of the file broker.
@@ -94,6 +95,10 @@ public class DerbyMetadataServer {
 	
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO chipster.special_users (username, show_as_folder) VALUES (?, ?)";
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM chipster.special_users WHERE username = ?";
+	
+	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
+	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
+	private static String SQL_GET_TOTAL_DISK_USAGE = "SELECT SUM(chipster.files.size) AS size FROM chipster.files";
 
 	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 	
@@ -491,5 +496,62 @@ public class DerbyMetadataServer {
 			}
 		}
 	}
+
+
+	@SuppressWarnings("unchecked")
+	public List<String>[] getListStorageusageOfUsers() throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_LIST_STORAGE_USAGE_OF_USERS);
+
+		ResultSet rs = ps.executeQuery();
+		LinkedList<String> usernames = new LinkedList<String>();
+		LinkedList<String> sizes = new LinkedList<String>();
+
+		while (rs.next()) {
+			String username = rs.getString("username");
+			String size = rs.getString("size");
+			usernames.add(username);
+			sizes.add(size);
+		}
+
+		return new List[] { usernames, sizes };
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<String>[] listStorageUsageOfSessions(String username) throws SQLException {
+		
+		PreparedStatement ps = connection.prepareStatement(SQL_LIST_STORAGE_USAGE_OF_SESSIONS);
+		ps.setString(1, username);
+		ResultSet rs = ps.executeQuery();
+		
+		LinkedList<String> usernames = new LinkedList<String>();
+		LinkedList<String> sessions = new LinkedList<String>();
+		LinkedList<String> sizes = new LinkedList<String>();
+		LinkedList<String> dates = new LinkedList<String>();
+		
+		//FIXME SimpleDateFormat is different in different locales, not good for messaging
+		DateFormat dateFormatter = new SimpleDateFormat();
+		
+		while (rs.next()) {
+			String user = rs.getString("username");
+			String session = rs.getString("name");
+			String size = rs.getString("size");
+			Date date = rs.getDate("date");
+			usernames.add(user);
+			sessions.add(session);
+			sizes.add(size);
+			dates.add(dateFormatter.format(date));
+		}
+
+		return new List[] { usernames, sessions, sizes, dates };
+	}
 	
+	public String getStorageUsageTotals() throws SQLException {
+		
+		PreparedStatement ps = connection.prepareStatement(SQL_GET_TOTAL_DISK_USAGE);
+		ResultSet rs = ps.executeQuery();
+		
+		String size = rs.getString("size");		
+
+		return size;
+	}
 }
