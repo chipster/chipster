@@ -116,6 +116,9 @@ Serializable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
+					
+					view.entryUpdateDone();
+					
 					if (endpoint != null) {
 						try {
 							endpoint.close();

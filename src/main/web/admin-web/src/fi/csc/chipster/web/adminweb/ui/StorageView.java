@@ -107,7 +107,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	public void update() {
 		
-		aggregateDataSource.update(this);		
+		aggregateDataSource.update(this);
+		waitForUpdate();
+	}
+	
+	private void waitForUpdate() {
 		
 		//Disable during data update avoid concurrent modification
 		refreshButton.setEnabled(false);
@@ -247,6 +251,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 				StorageAggregate storageUser = (StorageAggregate) tableValue;
 				
 				entryDataSource.update(this, storageUser.getUsername());
+				waitForUpdate();
 			}			
 		}
 	}

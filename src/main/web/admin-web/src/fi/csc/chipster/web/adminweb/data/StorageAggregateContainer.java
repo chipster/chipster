@@ -165,7 +165,8 @@ Serializable {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} finally {
+				} finally {			
+					
 					if (endpoint != null) {
 						try {
 							endpoint.close();
