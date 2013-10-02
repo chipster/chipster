@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script packages genomes to bundle packages. First, use script 'add_genome.sh' to fetch and 
-# convert necessary files. Then check that all files are ok and fill in the details of the genome 
+# convert necessary files. Then check that all files are ok and fill in the details of each genome 
 # in the yaml file under tools/genomebrowser/annotation. After that, this script can be used to create the bundle
 # packages. Internally the packages are created with a tool 'to_bundle.py'.
 
@@ -83,4 +83,19 @@ done < genomes.txt
 
 rm genomes.txt
 rm all.txt
+
+# to_bundle.py creates separate yaml files
+cat *.yaml > bundles-local.yaml
+# prefix package file names with url, sed explanation:
+# - search for 'packages:'
+# - 'n' to continue processing on next line
+# - 's' to search and replace
+# - search for first four spaces 
+# - replace with four spaces and url
+sed '/packages:/{n; s/    /    http:\/\/www.nic.funet.fi\/pub\/sci\/molbio\/chipster\/dist\/tools_extras\/bundle\//}' bundles-local.yaml > bundles-$BUNDLE_VERSION.yaml
+
+#If everything went well
+# - copy packages and bundles-X.X.yaml to nic /pub/sci/molbio/chipster/dist/tools_extras/bundle/
+# - append bundles-X.X.yaml to bundles.yaml
+
 
