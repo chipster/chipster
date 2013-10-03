@@ -95,7 +95,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.port = configuration.getInt("filebroker", "port");    	
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
-    		this.publicPath = configuration.getString("filebroker", "public-data-path");
 
     		// initialise metadata database
     		logger.info("starting derby metadata server");
