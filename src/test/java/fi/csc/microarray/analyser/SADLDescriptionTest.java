@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -28,7 +28,7 @@ public class SADLDescriptionTest {
 		System.out.println("SADLDescriptionTest OK");
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	private void testSADLTool() throws IOException {
 		
 		String rScript = 
@@ -48,7 +48,7 @@ public class SADLDescriptionTest {
 
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testDescriptions() throws Exception {
 
 		DirectoryLayout.uninitialise();

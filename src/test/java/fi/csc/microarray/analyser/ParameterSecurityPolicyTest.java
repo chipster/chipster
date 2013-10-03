@@ -1,7 +1,7 @@
 package fi.csc.microarray.analyser;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.analyser.emboss.EmbossAnalysisJob;
 import fi.csc.microarray.analyser.r.RAnalysisJob;

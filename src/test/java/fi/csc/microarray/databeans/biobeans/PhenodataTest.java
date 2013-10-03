@@ -3,9 +3,9 @@ package fi.csc.microarray.databeans.biobeans;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
@@ -20,7 +20,7 @@ public class PhenodataTest {
 
 	private DataManager manager; 
 	
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	public void init() throws Exception {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
@@ -28,7 +28,7 @@ public class PhenodataTest {
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testPhenodataRetrieval() throws MicroarrayException, IOException {
 		DataBean normalised = manager.createLocalTempDataBean("normalised.tsv");
 		DataBean filtered = manager.createLocalTempDataBean("filtered.tsv");
@@ -45,7 +45,7 @@ public class PhenodataTest {
 	}
 	
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testPhenodataGeneration() throws MicroarrayException, IOException {
 
 		DataBean normalised1 = manager.createLocalTempDataBean("normalised.tsv");

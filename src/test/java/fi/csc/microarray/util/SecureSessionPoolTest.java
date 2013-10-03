@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -18,13 +18,13 @@ import fi.csc.microarray.security.SecureSessionPool.Session;
 
 public class SecureSessionPoolTest  {
 	
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"auth"}));
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testBasicUsage() {
 		SecureSessionPool ssp = new SecureSessionPool();
 		Session session = ssp.createSession();
@@ -39,7 +39,7 @@ public class SecureSessionPoolTest  {
 		Assert.assertTrue(ssp.getSession(reloadedSession.getID()) == null);
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testKeyRandomness() {
 		SecureSessionPool ssp = new SecureSessionPool();
 
@@ -49,7 +49,7 @@ public class SecureSessionPoolTest  {
 		for (int i = 0; i < valCount; i++) {
 			UUID id = UUID.fromString(ssp.createSession().getID());
 			long xorredValue = id.getLeastSignificantBits() ^ id.getMostSignificantBits();
-			Assert.assertFalse(numbers.contains(xorredValue), "duplicate key generated");
+			Assert.assertFalse("duplicate key generated", numbers.contains(xorredValue));
 			numbers.add(xorredValue);
 		}
 		
@@ -65,9 +65,9 @@ public class SecureSessionPoolTest  {
 		for (int i = 0; i < bitCounts.length; i++) {
 			int count = bitCounts[i];
 			sum += count;
-			Assert.assertTrue(BigInteger.valueOf(count - average).abs().intValue() < allowedError, "bit count too far from theoretical average: " + count);
+			Assert.assertTrue("bit count too far from theoretical average: " + count, BigInteger.valueOf(count - average).abs().intValue() < allowedError);
 		}
-		Assert.assertTrue(BigInteger.valueOf(sum/Long.SIZE-average).abs().intValue() < allowedErrorInAvg, "average too far from theoretical average");		
+		Assert.assertTrue("average too far from theoretical average", BigInteger.valueOf(sum/Long.SIZE-average).abs().intValue() < allowedErrorInAvg);		
 	}
 	
 }

@@ -3,9 +3,9 @@ package fi.csc.microarray.analyser;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.tasks.Task;
@@ -60,7 +60,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 	
 
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 		this.manager = new DataManager();
@@ -68,9 +68,9 @@ public class AnalysisTestBase extends MessagingTestBase {
 		
 	}
 
-	@AfterTest(groups = {"unit"} )
+	@After
 	public void tearDown() throws Exception {
-//		super.tearDown();
+		super.tearDown();
 	}
 
 	

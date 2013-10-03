@@ -2,9 +2,9 @@ package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.analyser.emboss.ACDToSADL.SADLParameterCreator;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -17,7 +17,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 public class ACDToSADLTest {
     private static String path = "src/test/resources/";
     
-    @BeforeTest
+    @Before
     protected void setUp() throws Exception {
     	DirectoryLayout.uninitialise();
         DirectoryLayout.initialiseSimpleLayout();

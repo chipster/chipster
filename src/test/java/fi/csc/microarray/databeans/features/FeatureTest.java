@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -29,7 +29,7 @@ public class FeatureTest {
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testPhenodataFeatures() throws IOException, MicroarrayException {
 		DataBean data = manager.createDataBean("filtered.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_RESOURCE));
 		DataBean phenoData= manager.createDataBean("phenodata.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_PHENODATA_RESOURCE));
@@ -44,7 +44,7 @@ public class FeatureTest {
 		Assert.assertTrue(data.queryFeatures("/phenodata/linked/is_complete").exists());
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testModifiers() throws IOException, MicroarrayException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult feature = affyMicroarray.queryFeatures("log(/normalised-expression)");
@@ -58,14 +58,14 @@ public class FeatureTest {
 		for (float f : feature.asFloats()) {
 			last = f;
 		}
-		Assert.assertEquals(last, 7.426265f);
+		Assert.assertEquals(last, 7.426265f, 0.01f);
 		
 		QueryResult doubleFeature = affyMicroarray.queryFeatures("log(log(/normalised-expression))");
 		Assert.assertTrue(doubleFeature.exists());
 
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testTableColumnIterable() throws MicroarrayException, FileNotFoundException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult mean = affyMicroarray.queryFeatures("/column/MEAN");
@@ -86,15 +86,15 @@ public class FeatureTest {
 		}
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testFeatures() throws MicroarrayException, IOException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		affyMicroarray.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 		affyMicroarray.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		for (String feature : new String [] {"/normalised-expression", "/column/MEAN"}) {			
-			Assert.assertNotNull(affyMicroarray.queryFeatures(feature).asFloats(),"error in " + feature);
+			Assert.assertNotNull("error in " + feature, affyMicroarray.queryFeatures(feature).asFloats());
 			for (float f : affyMicroarray.queryFeatures(feature).asFloats()) {
-				Assert.assertTrue(f > 0.0, "illegal value: " + f + " in " + feature);
+				Assert.assertTrue("illegal value: " + f + " in " + feature, f > 0.0);
 			}
 		}
 		Assert.assertTrue(affyMicroarray.queryFeatures("/column/MEAN").asFloats().iterator().next() == 190f);

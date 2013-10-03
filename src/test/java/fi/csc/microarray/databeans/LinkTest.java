@@ -2,9 +2,9 @@ package fi.csc.microarray.databeans;
 
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -14,14 +14,14 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class LinkTest {
 	private DataManager manager; 
 	
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	public void init() throws Exception {
 		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testLinks() throws MicroarrayException {
 		DataBean bean1 = manager.createLocalTempDataBean("test1");
 		DataBean bean2 = manager.createLocalTempDataBean("test2");
@@ -56,7 +56,7 @@ public class LinkTest {
 		Assert.assertEquals(bean3.getLinkSources(Link.ANNOTATION).size(), 1);
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testTraversal() throws MicroarrayException {
 		final DataBean bean1 = manager.createLocalTempDataBean("test1");
 		final DataBean bean2 = manager.createLocalTempDataBean("test2");

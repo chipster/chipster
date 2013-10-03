@@ -3,8 +3,8 @@ package fi.csc.microarray.messaging;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.junit.After;
+import org.junit.Before;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -38,7 +38,7 @@ public abstract class MessagingTestBase {
 
 	
 	
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	protected void setUp() throws Exception {
 		
 		
@@ -75,7 +75,7 @@ public abstract class MessagingTestBase {
 		endpoint.setAuthenticationListener(authenticationListener);		
 	}
 	
-	@AfterTest(groups = {"unit"} )
+	@After
 	protected void tearDown() throws Exception {
 		if (endpoint != null) {
 			System.out.println("closing messaging endpoint");

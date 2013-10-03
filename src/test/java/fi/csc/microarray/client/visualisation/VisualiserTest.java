@@ -6,8 +6,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.Session;
@@ -36,7 +36,7 @@ public class VisualiserTest {
 		new VisualiserTest().testHC();
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testSom() throws Exception {
 		DataBean dataset = manager.createDataBean("SOM", this.getClass().getResourceAsStream(TestConstants.SOM_CLUSTERED_RESOURCE));
 
@@ -44,7 +44,7 @@ public class VisualiserTest {
 		makeFrame(component);
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testHC() throws Exception {
 		String[] trees = new String[] {
 				TestConstants.HIERARCHICAL_CLUSTERED_RESOURCE,
@@ -67,7 +67,7 @@ public class VisualiserTest {
 		}
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testVisualisations() throws Exception {
 
 		String[] resources = new String[] {TestConstants.CDNA_RESOURCE, TestConstants.RESULSET_RESOURCE, TestConstants.AFFY_RESOURCE};
@@ -85,7 +85,7 @@ public class VisualiserTest {
 		}
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testScatterplot() throws Exception {
 		for (String resource : new String[] {TestConstants.FOUR_CHIPS_RESOURCE, TestConstants.SCATTER_HARDCASE1, TestConstants.SCATTER_HARDCASE2}) {
 			try {
@@ -103,7 +103,7 @@ public class VisualiserTest {
 		}
 	}
 
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testHistogram() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Hist. data", this.getClass().getResourceAsStream(TestConstants.FOUR_CHIPS_RESOURCE));		
@@ -115,7 +115,7 @@ public class VisualiserTest {
 		makeFrame(visualisation);
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testExpressionProfile() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Profiledata", this.getClass().getResourceAsStream(TestConstants.FOUR_CHIPS_RESOURCE));
@@ -123,7 +123,7 @@ public class VisualiserTest {
 		makeFrame(visualisation);
 	}
 
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testClusteredProfiles() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Profiledata", this.getClass().getResourceAsStream(TestConstants.CLUSTERED_PROFILES_RESOURCE));
@@ -131,7 +131,7 @@ public class VisualiserTest {
 		makeFrame(visualisation);
 	}
 
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testApplicabilityChecks() throws MicroarrayException, IOException {
 		DataBean affyMicroarray = manager.createDataBean("", this.getClass().getResourceAsStream(TestConstants.AFFY_RESOURCE));
 		

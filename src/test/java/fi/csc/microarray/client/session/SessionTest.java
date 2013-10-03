@@ -5,8 +5,8 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Random;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
@@ -26,7 +26,7 @@ public class SessionTest extends MessagingTestBase {
 		super("demo", "ddemo");
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testStorageSessions() throws Exception {
 		
 		// set up modules

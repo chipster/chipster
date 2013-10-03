@@ -1,6 +1,6 @@
 package fi.csc.microarray.cluster;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 public class ClusterParserTest {
 
@@ -21,7 +21,7 @@ public class ClusterParserTest {
 	
 	private static String geneNamesWithNumbers = "(211357:0.0085309292,211357:0.0085309292);";
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void test() throws TreeParseException {
 		new ClusterParser(basicTree).getTree();
 		new ClusterParser(geneNamesWithNumbers).getTree();

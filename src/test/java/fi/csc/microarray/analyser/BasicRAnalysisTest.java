@@ -6,20 +6,20 @@ package fi.csc.microarray.analyser;
 
 import java.io.IOException;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class BasicRAnalysisTest extends AnalysisTestBase {
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void testRNoOperation() throws Exception {
 //		Task job = executor.createTask("\"Test\"/\"No-op\"");
 //		executeJob(job);
 	}
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void testREcho() throws Exception {
 //		Task job = executor.createTask("\"Test\"/\"Echo\"");
 //		String input = "Haloo!";
@@ -31,14 +31,14 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		Assert.assertTrue(job.getScreenOutput().contains("[1] \"" + input + "\""));
 	}
 	
-	@Test(groups = { "smoke"})
+	@Test
 	public void testFailing() throws Exception {
 //		Task job = executor.createTask("\"Test\"/\"Fail\"");
 //		executeJob(job, State.FAILED);
 //		Assert.assertTrue(job.getScreenOutput() != null);
 	}
 	
-	@Test(groups = { "smoke"}, threadPoolSize = 1, invocationCount = 500)
+	@Test
 	public void testInputOutput() throws Exception {
 		
 //		
@@ -58,7 +58,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		
 	}
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void testUniqueInputOutput() throws Exception {
 //		
 //		Task job = executor.createTask("\"Test\"/\"SimpleInputOutput\"");
@@ -86,7 +86,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		Assert.assertEquals(expectedString, outputString);
 	}
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void fetchDescriptions() throws TaskException, InterruptedException, IOException {
 //		Task job = executor.createTask("describe");
 //		executeJob(job);
@@ -94,7 +94,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		Assert.assertTrue(descriptions.contains("ANALYSIS"));
 	}
 	
-	@Test(groups = { "smoke"})
+	@Test
 	public void fetchSourceCode() throws TaskException, InterruptedException, IOException {
 //		Task job = executor.createTask("describe-operation");
 //		// FIXME rewrite job.addParameter("operation-name", "\"Normalisation\"/\"Affymetrix\"");
@@ -118,7 +118,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 	}
 	
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void testCancelTask() throws TaskException, InterruptedException, MicroarrayException {
 //		Task task = executor.createTask("\"Test\"/\"InputSleepOutput\"");
 //		String[] inputNames = new String[] {"affy_example.cel"};
@@ -141,17 +141,17 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		assert (task.getState() == State.CANCELLED);
 	}
 	
-	@Test(threadPoolSize = 5, invocationCount = 30, groups = { "stress" })
+	@Test
 	public void testRNoOperationStress() throws Exception {
 		testREcho();
 	}
 	
-	@Test(threadPoolSize = 10, invocationCount = 200, groups = { "stress"})
+	@Test
 	public void testUniqueInputOutputStress() throws Exception {
 		testUniqueInputOutput();
 	}	
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testScreenOutput() throws Exception {
 //		Task job = executor.createTask("\"Test\"/\"Fail\"");
 //		executeJob(job, State.FAILED);
@@ -162,7 +162,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 //		Assert.assertTrue(job.getScreenOutput().contains("Error:"));
 	}
 
-	@Test(groups = {"stress"}, threadPoolSize = 10, invocationCount = 100 )
+	@Test
 	public void testScreenOutputStress() throws Exception {
 //		Task job = executor.createTask("\"Test\"/\"Fail\"");
 //		executeJob(job, State.FAILED);

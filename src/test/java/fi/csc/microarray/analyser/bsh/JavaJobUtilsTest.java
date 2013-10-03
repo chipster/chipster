@@ -3,7 +3,7 @@ package fi.csc.microarray.analyser.bsh;
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 public class JavaJobUtilsTest {
 

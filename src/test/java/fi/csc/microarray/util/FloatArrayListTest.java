@@ -3,12 +3,12 @@ package fi.csc.microarray.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FloatArrayListTest {
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void test() {
 		int size = 100000;
 		int iterations = 1000;
@@ -50,13 +50,13 @@ public class FloatArrayListTest {
 		Assert.assertTrue(a.length == b.size());
 		Assert.assertTrue(b.size() == c.size());
 		for (int i = 0; i < a.length; i++) {
-			Assert.assertTrue(closeEnough(a[i], result), "got " + a[i]);
-			Assert.assertTrue(closeEnough(b.get(i)*(float)tuneDownDivider, result), "got " + b.get(i)*(float)tuneDownDivider);
-			Assert.assertTrue(closeEnough(c.get(i), result), "got " + c.get(i));
+			Assert.assertTrue("got " + a[i], closeEnough(a[i], result));
+			Assert.assertTrue("got " + b.get(i)*(float)tuneDownDivider, closeEnough(b.get(i)*(float)tuneDownDivider, result));
+			Assert.assertTrue("got " + c.get(i), closeEnough(c.get(i), result));
 		}
 		
-		Assert.assertTrue(diff3/diff1 < 15.0f, "FloatArrayList was " + diff3/diff1 + " times slower than primitive array, which is too much");
-		Assert.assertTrue(diff2/diff3 > 3.0f, "FloatArrayList was only " + diff2/diff3 + " times faster than ArrayList, which is too little");
+		Assert.assertTrue("FloatArrayList was " + diff3/diff1 + " times slower than primitive array, which is too much", diff3/diff1 < 15.0f);
+		Assert.assertTrue("FloatArrayList was only " + diff2/diff3 + " times faster than ArrayList, which is too little", diff2/diff3 > 3.0f);
 	}
 	
 	private boolean closeEnough(float f1, float f2) {

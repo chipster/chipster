@@ -6,9 +6,9 @@ import java.util.Random;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
@@ -34,7 +34,7 @@ public class ShellRoundtripTest {
     
     private boolean isResultOK = false; 
 
-    @BeforeTest
+    @Before
     protected void setUp() throws Exception {
     	DirectoryLayout.uninitialise();
         DirectoryLayout.initialiseSimpleLayout();
