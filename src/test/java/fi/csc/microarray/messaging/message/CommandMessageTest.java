@@ -2,9 +2,9 @@ package fi.csc.microarray.messaging.message;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTestBase;
@@ -16,18 +16,18 @@ public class CommandMessageTest extends MessagingTestBase {
 	
 	private String command;
 	
-	@BeforeTest(groups = {"smoke"} )
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 	}
 	
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testSend() throws JMSException {
 		CommandMessage msg = new CommandMessage("test");
 		endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.WRITE).sendMessage(msg);
 	}
 
-	@Test(groups = {"smoke"} )
+	@Test
 	public void testReceive() throws JMSException, InterruptedException {
 		
 		endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.READ).setListener(new MessagingListener() {

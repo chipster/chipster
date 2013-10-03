@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class LookaheadLineReaderTest {
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void test() throws IOException {
 		String buffer = "hello hello\nhello hello\nhello hello\nhowdy\nrockrock";
 		LookaheadLineReader lineReader = new LookaheadLineReader(new BufferedReader(new StringReader(buffer)));

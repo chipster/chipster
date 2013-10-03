@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
 
+import org.junit.Assert;
 import org.springframework.validation.Errors;
-import org.testng.Assert;
 
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
 import fi.csc.microarray.client.AtEndListener;
@@ -479,12 +479,12 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		// exact size
 		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {
-			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength(), "comparing output size");
+			Assert.assertEquals("comparing output size", bean1.getContentLength(), bean2.getContentLength());
 		}
 
 		// zero size not allowed if source non-zero
 		if (bean1.getContentLength() > 0) {
-			Assert.assertTrue(bean2.getContentLength() > 0, "zero size dataset");
+			Assert.assertTrue("zero size dataset", bean2.getContentLength() > 0);
 		}
 	}
 

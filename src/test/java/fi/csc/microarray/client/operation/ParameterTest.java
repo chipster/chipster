@@ -6,10 +6,10 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import fi.csc.microarray.client.operation.parameter.EnumParameter;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
@@ -32,7 +32,7 @@ public class ParameterTest {
     private Parameter paramMulti;
     private Parameter paramSingle;
     
-    @BeforeTest
+    @Before
     protected void setUp() throws Exception {
     	DirectoryLayout.uninitialise();
         DirectoryLayout.initialiseSimpleLayout();

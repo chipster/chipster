@@ -3,18 +3,17 @@ package fi.csc.microarray.analyser.emboss;
 import java.io.File;
 import java.util.LinkedHashMap;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Before;
+import org.junit.Test;
 
-import fi.csc.microarray.analyser.emboss.ACDDescription;
+import org.junit.*;
 
 public class ACDDescriptionTest {
     ACDDescription acd;
     
     String path = "src/test/resources/";
     
-    @BeforeClass
+    @Before
     public void setUp() {
         acd = new ACDDescription(new File(path + "emma.acd"));
     }

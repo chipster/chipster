@@ -10,15 +10,15 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 
 public class LoginTest {
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void expirationTest() throws IOException, IllegalConfigurationException {
 
 		DirectoryLayout.uninitialise();
@@ -150,7 +150,7 @@ public class LoginTest {
 	}
 	
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void randomTest() {
 		for (int i = 0; i < 100; i++) {
 			Assert.assertTrue(getShortRandomString(3).length() <= 3);

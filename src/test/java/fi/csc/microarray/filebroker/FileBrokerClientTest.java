@@ -9,9 +9,9 @@ import java.net.URL;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.messaging.MessagingTestBase;
@@ -23,13 +23,13 @@ public class FileBrokerClientTest extends MessagingTestBase {
 
 	private FileBrokerClient fbc;
 	
-	@BeforeTest
+	@Before
 	protected void setUp() throws Exception {
 		super.setUp();
 		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	}
 
-	@BeforeTest
+	@Before
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}

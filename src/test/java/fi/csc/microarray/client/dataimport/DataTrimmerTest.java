@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.dataimport;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.client.dataimport.trimmer.DataTrimmer;
 import fi.csc.microarray.client.dataimport.trimmer.NormalStringReplace;
@@ -9,7 +9,7 @@ import fi.csc.microarray.client.dataimport.trimmer.ReqularExpressionStringReplac
 
 public class DataTrimmerTest {
 	
-	@Test(groups = {"unit"} ) 
+	@Test 
 	public void testNormal(){
 		DataTrimmer trimmer = new DataTrimmer();
 		
@@ -34,7 +34,7 @@ public class DataTrimmerTest {
 		Assert.assertTrue(trimmedColumn2.equals("(aAaA}"));
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testRegexp(){
 		DataTrimmer trimmer = new DataTrimmer();
 		

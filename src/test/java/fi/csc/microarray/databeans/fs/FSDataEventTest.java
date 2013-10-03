@@ -1,8 +1,8 @@
 package fi.csc.microarray.databeans.fs;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.ClientContextUtil;
 import fi.csc.microarray.client.Session;
@@ -19,12 +19,12 @@ import fi.csc.microarray.module.ModuleManager;
 
 public class FSDataEventTest implements DataChangeListener {
 	
-	@BeforeTest(groups = {"unit"} )
+	@Before
 	public void init() throws Exception {
 		ClientContextUtil.setupClientContext();
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testEvents() throws Exception {
 		DataManager manager = new DataManager();
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
@@ -65,28 +65,28 @@ public class FSDataEventTest implements DataChangeListener {
 	private void assertDataRemovedEvent() {
 		Assert.assertFalse(gotTwice);
 		Assert.assertNotNull(this.lastEvent);
-		Assert.assertTrue(lastEvent instanceof DataItemRemovedEvent, "wrong event type: " + lastEvent.getClass().getSimpleName());
+		Assert.assertTrue("wrong event type: " + lastEvent.getClass().getSimpleName(), lastEvent instanceof DataItemRemovedEvent);
 		this.lastEvent = null;
 	}
 
 	private void assertContentChangedEvent() {
 		Assert.assertFalse(gotTwice);
 		Assert.assertNotNull(this.lastEvent);
-		Assert.assertTrue(lastEvent instanceof ContentChangedEvent, "wrong event type: " + lastEvent.getClass().getSimpleName());
+		Assert.assertTrue("wrong event type: " + lastEvent.getClass().getSimpleName(), lastEvent instanceof ContentChangedEvent);
 		this.lastEvent = null;
 	}
 
 	private void assertLinksChangedEvent() {
 		Assert.assertFalse(gotTwice);
 		Assert.assertNotNull(this.lastEvent);
-		Assert.assertTrue(lastEvent instanceof LinksChangedEvent, "wrong event type: " + lastEvent.getClass().getSimpleName());
+		Assert.assertTrue("wrong event type: " + lastEvent.getClass().getSimpleName(), lastEvent instanceof LinksChangedEvent);
 		this.lastEvent = null;
 	}
 
 	private void assertDataCreatedEvent() {
 		Assert.assertFalse(gotTwice);
 		Assert.assertNotNull(this.lastEvent);
-		Assert.assertTrue(lastEvent instanceof DataItemCreatedEvent, "wrong event type: " + lastEvent.getClass().getSimpleName());
+		Assert.assertTrue("wrong event type: " + lastEvent.getClass().getSimpleName(), lastEvent instanceof DataItemCreatedEvent);
 		this.lastEvent = null;
 	}
 

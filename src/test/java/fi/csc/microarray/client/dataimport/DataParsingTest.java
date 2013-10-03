@@ -3,11 +3,11 @@ package fi.csc.microarray.client.dataimport;
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.MemUtil;
 
 public class DataParsingTest {
@@ -47,7 +47,7 @@ public class DataParsingTest {
 			}
 			
 			// If memory usage raises too high the test is failed
-			Assert.assertTrue(MemUtil.getUsed() < memoryLimit, "Memory limit exceeded. Limit: " + MemUtil.bytesToMegas(memoryLimit) + " Mb, used " + MemUtil.bytesToMegas(MemUtil.getUsed()));
+			Assert.assertTrue("Memory limit exceeded. Limit: " + MemUtil.bytesToMegas(memoryLimit) + " Mb, used " + MemUtil.bytesToMegas(MemUtil.getUsed()), MemUtil.getUsed() < memoryLimit);
 			
 		}
 
@@ -63,7 +63,7 @@ public class DataParsingTest {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 	}
 	
-	@Test(groups = {"stress"} ) // needs more memory than JVM default
+	@Test
 	public void testSmallSizedRealData() throws IOException{
 		System.out.println("\n");
 		System.out.println("Small sized real data (Rows: ~15000, Column: 4, Size: 384kb, Delimiter: Tab, Decimal separator: Dot)");

@@ -3,9 +3,9 @@ package fi.csc.microarray.databeans;
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.ClientContextUtil;
 import fi.csc.microarray.client.Session;
@@ -14,20 +14,20 @@ public class DataManagerTest {
 
 	private DataManager manager; 
 	
-	@BeforeClass(groups = {"unit"} )
+	@Before
 	public void init() throws Exception {
 		ClientContextUtil.setupClientContext();
 		this.manager = Session.getSession().getDataManager();
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testDataTypes() throws IOException {
 		File file = File.createTempFile("test", ".png");
 		Assert.assertEquals(manager.guessContentType(file).getType(), "image/png");
 	}
 
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testRemoteSessions() throws Exception {
 		
 		// populate with crap

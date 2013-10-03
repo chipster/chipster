@@ -116,4 +116,25 @@ public class Input extends InputOutputUI{
 	public String toString() {
 		return getValue((id.getValue() != null && !id.getValue().isEmpty() ? id.getValue() :name.getValue())) + " " + getValue(getType());
 	}
+
+	private boolean isMultipleInput() {
+		if (MULTI_FILE.equals(type.getValue().toString())) {
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isValid() {
+		if (isMultipleInput()) {
+			if (!prefix.getValue().isEmpty() && !postfix.getValue().isEmpty()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return super.isValid();
+		}
+	}
+
 }
