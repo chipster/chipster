@@ -6,15 +6,9 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
-# Plotting the chromosomal position of expressed genes
-# JTT 13.6.2006
-# Modified by JTT on 22.11.2006 according to DG
-
-# Parameter settings (default) for testing purposes
-#chip.to.plot<-c("chip.microarray001.cel")
-#image.width<-c(600)
-#image.height<-c(600)
+# JTT 13.06.2006, created
+# JTT 22.11.2006, modified according to DG
+# MK 01.10.2013, small polishing
 
 # Loads the libraries
 library(geneplotter)
@@ -48,13 +42,15 @@ if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
 chromloc<-buildChromLocation(gsub(".db", "", lib))
 
 # Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Scaling the data to the same mean
 scaled.dat<-genescale(dat2)
 
 # Which genes are up- or down-regulated
+if(chip > ncol(scaled.dat)) {
+	stop("CHIPSTER-NOTE: You have selected a chip that does not exists")
+}
 up<-dat2[which(scaled.dat[,chip]>0),]
 down<-dat2[which(scaled.dat[,chip]<0),]
 

@@ -13,8 +13,10 @@
 # PARAMETER tfsize: tfsize TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
 
 
-# Promoter sequence analysis
-# JTT 21.5.2008
+# JTT 21.05.2008
+# MK 25.09.2013: promoter sequence retrieve modified
+# MK 01.10.2013: script removed from the tool category, since R.3.0.0 does not support cosmo anymore
+
 
 # Loads the libraries
 library(cosmo)
