@@ -78,15 +78,11 @@ if(chiptype=="cDNA" & keep.annotations=="yes") {
 }
 
 if(length(grep("description", tolower(colnames(dat2)))) > 0) {
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("description", tolower(colnames(dat2)))])
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("description", tolower(colnames(dat2)))])
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("description", tolower(colnames(dat2)))])
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("description", tolower(colnames(dat2)))], perl=T) 
 }
 
 if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("symbol", tolower(colnames(dat2)))], perl=T) 
 }
 
 # Write data out

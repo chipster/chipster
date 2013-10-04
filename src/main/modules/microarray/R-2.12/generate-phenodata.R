@@ -47,16 +47,12 @@ if(chiptype=="empty") {
    chiptype<-chiptype
 }
 
-if(length(grep("description", tolower(colnames(dat)))) > 0) {
-	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\'+", "", dat[, grep("description", tolower(colnames(dat)))])
-	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\"+", "", dat[, grep("description", tolower(colnames(dat)))])
-	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\\#+", "", dat[, grep("description", tolower(colnames(dat)))])
+if(length(grep("description", tolower(colnames(dat2)))) > 0) {
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("description", tolower(colnames(dat2)))], perl=T) 
 }
 
-if(length(grep("symbol", tolower(colnames(dat)))) > 0) {
-	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\'+", "", dat[, grep("symbol", tolower(colnames(dat)))])
-	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\"+", "", dat[, grep("symbol", tolower(colnames(dat)))])
-	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\\#+", "", dat[, grep("symbol", tolower(colnames(dat)))])
+if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("symbol", tolower(colnames(dat2)))], perl=T) 
 }
 
 # Writes out the data and the phenodata table
