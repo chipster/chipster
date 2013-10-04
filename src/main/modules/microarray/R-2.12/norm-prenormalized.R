@@ -7,9 +7,10 @@
 
 
 # Process prenormalized
-# JTT 26.1.2009
+# JTT 26.01.2009
 # MG 21.10.2009
-# EK 23.4.2013 added .tsv ending to expression column names so that sample renaming is possible in interactive visualizations
+# EK 23.04.2013, added .tsv ending to expression column names so that sample renaming is possible in interactive visualizations
+# MK 04.10.2013, special characters trimmed off
 
 # Loads the libraries
 library(limma)
@@ -60,24 +61,36 @@ if (keep.annotations=="yes") {
 }
 
 if(chiptype!="cDNA") {
-	
 	# Including gene names to data
 	lib2<-sub('.db','',chiptype)
 	library(chiptype, character.only=T)
 	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M2),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])
-	
-	# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
+	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])	
 	genename <- gsub("#", "", genename)
-	
-	# Write data out
-	write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	dat2 <- data.frame(symbol, description=genename, round(M2, digits=2))
 }
 
 if(chiptype=="cDNA" & keep.annotations=="no") {
-	write.table(data.frame(round(M2, digits=8)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	dat2 < data.frame(round(M2, digits=8))
+}
+if(chiptype=="cDNA" & keep.annotations=="yes") {
+	dat2 <- data.frame(annotations, round(M2, digits=8))
 }
 
-if(chiptype=="cDNA" & keep.annotations=="yes") {
-	write.table(data.frame(annotations, round(M2, digits=8)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+if(length(grep("description", tolower(colnames(dat2)))) > 0) {
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("description", tolower(colnames(dat2)))])
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("description", tolower(colnames(dat2)))])
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("description", tolower(colnames(dat2)))])
 }
+
+if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
+}
+
+# Write data out
+write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+
+
+
