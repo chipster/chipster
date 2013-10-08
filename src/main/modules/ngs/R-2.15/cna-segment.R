@@ -1,4 +1,4 @@
-# TOOL acgh-segment.R: "Segment copy number data" (Segment copy number data before calling aberrations.)
+# TOOL cna-segment.R: "Segment copy number data" (Segment copy number data before calling aberrations.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT segmented.tsv: segmented.tsv 
 # PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)

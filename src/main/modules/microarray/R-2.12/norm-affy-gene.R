@@ -179,6 +179,12 @@ if(chiptype=="empty" | class(a)=="try-error") {
 		annotated_dataf <- data.frame(annotated_genes)
 		rownames(annotated_dataf) <- annotated_genes[, 1]
 		
+		for (i in 1:ncol(annotated_dataf)) {
+			annotated_dataf[,i] <- gsub("\'+", "", annotated_dataf[,i])
+			annotated_dataf[,i] <- gsub("\"+", "", annotated_dataf[,i])
+			annotated_dataf[,i] <- gsub("\\#+", "", annotated_dataf[,i])
+		}
+
 		write.table(data.frame(symbol=annotated_dataf[gene_id, "external_gene_id"], description=annotated_dataf[gene_id, "description"], dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	} else {
 		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
