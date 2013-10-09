@@ -16,6 +16,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
@@ -205,6 +206,12 @@ public class SessionLoaderImpl2 {
 			} catch (Exception e) {
 				logger.warn("could not create data bean: " + name);
 				continue;
+			}
+
+			// creation time
+			XMLGregorianCalendar xmlCalendar = dataType.getCreationTime();
+			if (xmlCalendar != null) {
+				dataBean.setCreationDate(xmlCalendar.toGregorianCalendar().getTime());
 			}
 
 			dataBean.setNotes(dataType.getNotes());

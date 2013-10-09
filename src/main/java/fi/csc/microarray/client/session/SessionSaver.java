@@ -9,12 +9,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -461,6 +464,17 @@ public class SessionSaver {
 		// notes
 		dataType.setNotes(bean.getNotes());
 
+		// creation time
+		if (bean.getDate() != null) {
+			GregorianCalendar c = new GregorianCalendar();
+			c.setTime(bean.getDate());
+			try {
+				dataType.setCreationTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(c));
+			} catch (DatatypeConfigurationException e) {
+				logger.warn("could not save data bean creation time", e);
+			}
+		}
+		
 		// write all URL's
 		for (ContentLocation location : bean.getContentLocations()) {
 			if (skipLocalLocations && location.getMethod().isLocal()) {
