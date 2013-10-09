@@ -39,9 +39,6 @@
 	<typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 
 
-	<!-- import TestNG -->
-	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
-
 	<!-- version numbering -->
 	<property name="release-version" value="2.8.2" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
@@ -84,7 +81,6 @@
 			<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/log4j-1.2.17.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jgraph-5.12.2.1.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>			
 			<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
@@ -530,15 +526,5 @@
 
 
 
-	<!--
-    <path id="testngpath">
-      <pathelement location="${test-src}"/>
-    </path>
-	<target name="test" description="Run Chipster unit tests (using TestNG)">
-		<testng sourcedir="${test-src}" classpathref="testngpath">       
-		   <xmlfileset dir="${test-src}" includes="chipster-unit-tests.xml"/>
-		</testng>
-	</target>
-	-->
 </project>
 
