@@ -135,7 +135,7 @@
 	<category name="Visualisation" color="#a49900">
 		<tool runtime="R-3.0-R-2.12"><resource>plot-idiogram.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>plot-chrom-pos.R</resource></tool>
-		<tool runtime="R-2.12"><resource>plot-volcano.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>plot-volcano.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-volcano-data-exists.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-boxplot.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-dendrogram.R</resource></tool>
