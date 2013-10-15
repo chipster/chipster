@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -269,6 +270,7 @@ public class DataManager {
 		File repository = new File(tempRoot, fileName);
 		
 		// if directory with that name already exists, add running number 
+		// this could be replaced with Java 7's Files.createTempDirectory
 		boolean repositoryCreated = false;
 		for (int i = 1;  !repositoryCreated && i < 1000; i++) {
 			repositoryCreated = repository.mkdir();
