@@ -55,6 +55,7 @@ public class DirectoryLayout {
 	private Type type;
 	private Configuration configuration = null;
 	private AvailableConfiguration availableConfiguration;
+	private static File baseDirOverride = null;
 	private static DirectoryLayout instance;
 	
 	/**
@@ -62,6 +63,13 @@ public class DirectoryLayout {
 	 */
 	public static void uninitialise() {
 		instance = null;
+	}
+	
+	/**
+	 * Override default base dir with something else. For testing purposes.
+	 */
+	public static void setBaseDirOverride(File baseDirOverride) {
+		DirectoryLayout.baseDirOverride = baseDirOverride;
 	}
 	
 	public static DirectoryLayout initialiseServerLayout(List<String> specificModules)
@@ -308,7 +316,10 @@ public class DirectoryLayout {
 
 	private File getBaseDir() throws IOException {
 
-		if (type == Type.CLIENT) {
+		if (baseDirOverride != null) {
+			return baseDirOverride;
+			
+		} else if (type == Type.CLIENT) {
 			// use OS specific dir for clients
 			return getClientSettingsDir(); 
 			

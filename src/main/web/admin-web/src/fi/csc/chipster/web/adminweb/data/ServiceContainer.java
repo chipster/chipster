@@ -20,6 +20,7 @@ import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.AdminAPI.AdminAPILIstener;
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus;
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
@@ -64,7 +65,7 @@ Serializable {
 					};
 
 					ChipsterConfiguration.init();
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
+					MessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(
 							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
 

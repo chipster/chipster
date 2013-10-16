@@ -24,13 +24,13 @@ public class FileBrokerClientTest extends MessagingTestBase {
 	private FileBrokerClient fbc;
 	
 	@Before
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	}
 
 	@Before
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		super.tearDown();
 	}
 	

@@ -23,6 +23,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.manager.ManagerClient;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -73,10 +74,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 	public static void main(String[] args) {
 		DirectoryLayout.getInstance().getConfiguration();
-		new FileServer(null);
+		new FileServer(null, null);
 	}
 	
-    public FileServer(String configURL) {
+    public FileServer(String configURL, MessagingEndpoint overriddenEndpoint) {
 
     	try {
     		// initialise dir and logging
@@ -134,7 +135,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 //    		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
     		// initialise messaging
-    		this.endpoint = new MessagingEndpoint(this);
+    		if (overriddenEndpoint != null) {
+    			this.endpoint = overriddenEndpoint;
+    		} else {
+        		this.endpoint = new JMSMessagingEndpoint(this);
+    		}
     		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
     		filebrokerTopic.setListener(this);
     		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);

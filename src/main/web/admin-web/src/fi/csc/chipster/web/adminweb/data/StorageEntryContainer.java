@@ -15,6 +15,7 @@ import com.vaadin.data.util.BeanItemContainer;
 
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.chipster.web.adminweb.ui.StorageView;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -68,7 +69,7 @@ Serializable {
 					};
 
 					ChipsterConfiguration.init();
-					endpoint = new MessagingEndpoint(nodeSupport);
+					endpoint = new JMSMessagingEndpoint(nodeSupport);
 					
 					// TODO close topic
 					MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
