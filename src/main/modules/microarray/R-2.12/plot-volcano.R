@@ -9,12 +9,8 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-# Volcano plot
-# JTT 19.9.2007
-#
-# MG. 10.2.2011
-# Added table with FC and p-values to the output
-# Added p-value adjustment capability
+# JTT: 19.09.2007
+# MG: 10.02.2011 Added table with FC and p-values to the output, Added p-value adjustment capability
 
 # Renaming variables
 w<-image.width
@@ -60,10 +56,12 @@ cols[which(p.adj<=pcut & m>ecut)] <- 2
 # Plotting
 pdf(file="volcanoP.pdf", width=w/72, height=h/72)
 plot(m, -log10(p.adj), xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log10 (p)")
+abline(h=-log10(pcut), lty=2)
 dev.off()
 
 pdf(file="volcanoSE.pdf", width=w/72, height=h/72)
 symbols(m, -log10(p.adj), rectangles=cbind(rep(0, length(p.adj)), s), fg=cols, xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), main="Volcano plot", xlab="Mean expression", ylab="-log10 (p)")
+abline(h=-log10(pcut), lty=2)
 dev.off()
 
 # Printing output table

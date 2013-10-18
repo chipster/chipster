@@ -9,12 +9,8 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
-# Dendrogram
-# JTT 3.10.2007
-#
-# MG 25.11.2010
-# Increased the gene/sample limit to 20000
+# JTT 03.10.2007: Dendrogram
+# MG 25.11.2010: Increased the gene/sample limit to 20000
 
 # Renaming variables
 w<-image.width
@@ -42,11 +38,11 @@ colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Manipulate data depending on what to cluster
 if(margin=="chips") {
-dat2<-t(dat2) 
+  dat2<-t(dat2) 
 }
 
 if (nrow(dat2) > 20000) {
-stop("Hierarchical clustering dendrogram can be plotted on maximum 2000 of genes/samples");
+  stop("Hierarchical clustering dendrogram can be plotted on maximum 2000 of genes/samples");
 }
 
 # Does the clustering

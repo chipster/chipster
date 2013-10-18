@@ -1,6 +1,6 @@
 # TOOL stat-two-groups.R: "Two groups tests" (Tests for comparing the mean gene expression of two groups. LPE only works, if the whole normalized data is used, i.e., the data should not be filtered. Other than empiricalBayes might be slow, if run on unfiltered data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
-# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC
 # OUTPUT two-sample.tsv: two-sample.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER OPTIONAL pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing which samples form pairs. This option should be used if you have, for example, monitored your samples before and after treatment, have patient-matched data or you have expression data at multiple tissue sites from the same individuals, etc. LPE, F-test and fast-t-test do not support pairing information.)
