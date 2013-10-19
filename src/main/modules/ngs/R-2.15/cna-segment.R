@@ -5,10 +5,10 @@
 # PARAMETER number.of.chromosomes: "number of chromosomes" TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER minimum.number.of.probes.per.segment: "minimum number of features per segment" TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of features per segment.)
 # PARAMETER minimum.number.of.sds.between.segments: "minimum number of standard deviations between segments" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
-# PARAMETER significance.level: "significance level" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1E-5 (Significance level for the test to accept changepoints.)
+# PARAMETER significance.level: "significance level" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1E-10 (Significance level for the test to accept changepoints.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-10-03
+# 2013-10-19
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
