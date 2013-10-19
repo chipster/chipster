@@ -6,14 +6,17 @@
 
 
 # Combines two different tables using gene names
-# JTT 6.7.2006
-#
-# modified by MG 19.1.2010
-
-# Parameter settings (default) for testing purposes
-#chiptype<-c("hgu133a")
+# JTT 06.07.2006
+# MG 19.01.2010
+# MK 04.10.2013, Bug fixed preveting analysis of Excel sheets with lot's of empty lines at the bottom
 
 # Figure out how the data is organized and load it
+
+system("perl -p -i -e 's/\'//g' normalized.tsv")
+system("perl -p -i -e 's/\"//g' normalized.tsv")
+system("perl -p -i -e 's/\\#//g' normalized.tsv")
+system("perl -p -i -e 's/^\\s+$//g' normalized.tsv")
+
 file<-c("normalized.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1, nrows=1)
 ind.calls <- grep("flag", names(dat))
@@ -42,6 +45,18 @@ if(chiptype=="empty") {
    chiptype<-c("empty")
 } else {
    chiptype<-chiptype
+}
+
+if(length(grep("description", tolower(colnames(dat)))) > 0) {
+	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\'+", "", dat[, grep("description", tolower(colnames(dat)))])
+	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\"+", "", dat[, grep("description", tolower(colnames(dat)))])
+	dat[, grep("description", tolower(colnames(dat)))] <- gsub("\\#+", "", dat[, grep("description", tolower(colnames(dat)))])
+}
+
+if(length(grep("symbol", tolower(colnames(dat)))) > 0) {
+	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\'+", "", dat[, grep("symbol", tolower(colnames(dat)))])
+	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\"+", "", dat[, grep("symbol", tolower(colnames(dat)))])
+	dat[, grep("symbol", tolower(colnames(dat)))] <- gsub("\\#+", "", dat[, grep("symbol", tolower(colnames(dat)))])
 }
 
 # Writes out the data and the phenodata table
