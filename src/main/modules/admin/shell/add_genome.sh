@@ -244,22 +244,22 @@ export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$too
 #Retrieve the fasta file
 ##
 
-#Check if  taxid is used in stead of name
+#Check if  taxid is used in stead of name (commented out to avoid Embos dependency)
 
-taxid=$(echo $species | tr -d "[a-z,A-Z]" )
+#taxid=$(echo $species | tr -d "[a-z,A-Z]" )
 species=$(echo $species | sed s/" "/"_"/g )
-#test for taxnumber
-if [[ "$species" == "$taxid" ]]
-then
-  species=$(taxget taxon:$taxid -oformat excel -filter | sed s/" "/"_"/g | awk '{print $5}')
-  echo "Taxid: $taxid corresponds species: $species"
-else
-  tax_name=$(echo $species | sed s/"_"/" "/g )
-  taxid=$(grep -i "|.$tax_name.|" $tools_path/emboss/share/EMBOSS/data/TAXONOMY/names.dmp  | awk '{print $1}')
-fi
+##test for taxnumber
+#if [[ "$species" == "$taxid" ]]
+#then
+#  species=$(taxget taxon:$taxid -oformat excel -filter | sed s/" "/"_"/g | awk '{print $5}')
+#  echo "Taxid: $taxid corresponds species: $species"
+#else
+#  tax_name=$(echo $species | sed s/"_"/" "/g )
+#  taxid=$(grep -i "|.$tax_name.|" $tools_path/emboss/share/EMBOSS/data/TAXONOMY/names.dmp  | awk '{print $1}')
+#fi
 
 
-echo $species $taxid
+#echo $species $taxid
 
 #reading the data from ensembl
 

@@ -3,6 +3,8 @@
 # convert necessary files. Then check that all files are ok and fill in the details of each genome 
 # in the yaml file under tools/genomebrowser/annotation. After that, this script can be used to create the bundle
 # packages. Internally the packages are created with a tool 'to_bundle.py'.
+#
+# TODO: This version packages genome browser files and fasta to same tar file, but propably those should be separated.
 
 cd /opt/chipster/tools
 
@@ -29,6 +31,7 @@ find /opt/chipster/tools/* -type f > all.txt
 while read LINE; do
   SPECIES=$(echo $LINE | cut -d " " -f 1)
   VERSION=$(echo $LINE | cut -d " " -f 2)
+  MAJOR_VERSION=${VERSION:0:-3} #remove last three characters
 
   #file list names
   BOWTIE="bundle-file-lists/$SPECIES.$VERSION.bowtie.txt"
@@ -37,42 +40,42 @@ while read LINE; do
   OTHER="bundle-file-lists/$SPECIES.$VERSION.txt"
 
   #create file lists
-  #cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie-" > $BOWTIE
-  #cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie2" > $BOWTIE2
-  #cat all.txt | grep $SPECIES | grep $VERSION | grep "bwa_indexes" > $BWA
-  #cat all.txt | grep $SPECIES | grep $VERSION | grep -v "bowtie-" | grep -v "bowtie2" | grep -v "bwa_indexes" >  $OTHER
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie-" > $BOWTIE
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie2" > $BOWTIE2
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "bwa_indexes" > $BWA
+  cat all.txt | grep $SPECIES | grep $VERSION | grep -v "bowtie-" | grep -v "bowtie2" | grep -v "bwa_indexes" >  $OTHER
 
   #create bundles
   #if file list is not empty
   if [ -s $BOWTIE ]
   then
     : #empty script block when following is commented out
-    cat $BOWTIE | python3 to_bundle.py -n $SPECIES.$VERSION.bowtie -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BOWTIE | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
   fi
 
   if [ -s $BOWTIE2 ]
   then
     : #empty script block when following is commented out
-    cat $BOWTIE2 | python3 to_bundle.py -n $SPECIES.$VERSION.bowtie2 -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BOWTIE2 | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie2 -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
   fi
 
   if [ -s $BWA ]
   then
     : #empty script block when following is commented out
-    cat $BWA | python3 to_bundle.py -n $SPECIES.$VERSION.bwa -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BWA | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bwa -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
   fi
 
   if [ -s $OTHER ]
   then
     : #empty script block when following is commented out
-    cat $OTHER | python3 to_bundle.py -n $SPECIES.$VERSION -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $OTHER | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
   fi
 
 done < genomes.txt
 
 
-#Some legacy genomes have non-standard names. To create bundles for these, 
-#you have to run following command  after the file lists are created, but before to_bundle is run
+#Some old genomes have non-standard names. To create bundles for these, 
+#you have to run following command  after the file lists are created, but before to_bundle.py script is run
 
 #find /opt/chipster/tools/* | grep mm9 | grep fasta >> bundle-file-lists/Mus_musculus.NCBIM37.67.txt
 #find /opt/chipster/tools/* | grep rn4 | grep fasta >> bundle-file-lists/Rattus_norvegicus.RGSC3.4.69.txt 
@@ -86,6 +89,7 @@ rm all.txt
 
 # to_bundle.py creates separate yaml files
 cat *.yaml > bundles-local.yaml
+
 # prefix package file names with url, sed explanation:
 # - search for 'packages:'
 # - 'n' to continue processing on next line
@@ -97,5 +101,4 @@ sed '/packages:/{n; s/    /    http:\/\/www.nic.funet.fi\/pub\/sci\/molbio\/chip
 #If everything went well
 # - copy packages and bundles-X.X.yaml to nic /pub/sci/molbio/chipster/dist/tools_extras/bundle/
 # - append bundles-X.X.yaml to bundles.yaml
-
 

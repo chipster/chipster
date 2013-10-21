@@ -728,7 +728,16 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/Vitis_vinifera.IGGP_12x.17.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.5.0/contents2.txt
 
-  
+    # Genome bundles
+  cd ${CHIP_PATH}/
+  apt-get -y install python3-yaml #sudo
+  wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/bundles.yaml -O bundles.yaml
+  #python3 bundle.py install all
+  python3 bundle.py install Drosophila_melanogaster.BDGP5.bowtie
+  python3 bundle.py install Drosophila_melanogaster.BDGP5.bowtie2
+  python3 bundle.py install Drosophila_melanogaster.BDGP5.bwa
+  python3 bundle.py install Drosophila_melanogaster.BDGP5
+
   # DEXSeq
 	cd ${TMPDIR_PATH}/
 	#	curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.1.tar.gz | tar -xz
@@ -809,3 +818,4 @@ ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipste
 #update-rc.d chipster-fileserver defaults
 #update-rc.d chipster-webstart defaults
 #update-rc.d chipster-manager defaults
+
