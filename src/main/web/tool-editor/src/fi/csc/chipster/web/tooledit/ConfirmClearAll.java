@@ -30,7 +30,7 @@ public class ConfirmClearAll extends Window{
 		VerticalLayout vLayout = new VerticalLayout();
 		vLayout.setSpacing(true);
 		vLayout.setMargin(true);
-		vLayout.addComponent(new Label("This will clear all. Allinputs, outputs and parameters. Do you really want to clear all?"));
+		vLayout.addComponent(new Label("This will clear all inputs, outputs, and parameters as well as the the text area. Do you really want to clear all?"));
 		HorizontalLayout hLayout = new HorizontalLayout();
 		hLayout.addComponent(ok);
 		hLayout.addComponent(cancel);

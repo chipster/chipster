@@ -112,9 +112,14 @@ public class ServicesView extends VerticalLayout implements ClickListener, Value
 				try {
 					/* Separate delay from what happens in the ServiceContainer, because communication between
 					 * threads is messy. Nevertheless, these delays should have approximately same duration
-					 * to prevent user from starting several background updates causing concurrent modifications.   
+					 * to prevent user from starting several background updates causing concurrent modifications.
+					 * 
+					 * When the broker is not available, the connection will timeout in 30 seconds. When this connection
+					 * error happens, a notification is created, but there isn't simple way for the server to push it to
+					 * client side. ProgressIndicator however, creates page updates and shows the notification if this 
+					 * timeout is longer than the connection timeout.
 					 */
-					final int DELAY = 300; 				
+					final int DELAY = 350; 				
 					for (int i = 0; i <= DELAY; i++) {
 						
 						if (updateDone) {							

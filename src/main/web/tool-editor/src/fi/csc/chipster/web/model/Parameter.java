@@ -14,6 +14,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.SourceIs;
 import com.vaadin.server.Page;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
 import com.vaadin.shared.ui.slider.SliderOrientation;
 import com.vaadin.ui.AbstractSelect;
@@ -389,7 +390,7 @@ public class Parameter extends BasicModel{
 		vLayoutTypetable.addComponent(typeTable);
 		Button btAddNewRow = new Button("New Value");
 		btAddNewRow.setDescription("Adds new Value to the table");
-		btAddNewRow.setIcon(Icon.getResource(Icon.getAddButtonIconPath()));
+		btAddNewRow.setIcon(new ThemeResource("images/edit-add-2.png"));
 		btAddNewRow.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 2039910564036291751L;
 
@@ -444,7 +445,7 @@ public class Parameter extends BasicModel{
 	
 	private String getDefaultValue() {
 		if(type.getValue().equals(ParameterType.ENUM)) {
-			return (defaultValue2.getValue() != null ? ((Name) defaultValue2.getValue()).getDisplayName() : null);
+			return (defaultValue2.getValue() != null ? ((Name) defaultValue2.getValue()).getID() : null);
 		} else if(type.getValue().equals(ParameterType.PERCENT)){
 			return String.valueOf(defaultSlider.getValue());
 		} else {
@@ -453,15 +454,19 @@ public class Parameter extends BasicModel{
 	}
 	
 	private Name[] getEnumList() {
-		if(typeTable == null || typeTable.getItemIds().isEmpty())
+		if (typeTable == null || typeTable.getItemIds().isEmpty())
 			return null;
 		Name[] names = typeTable.getItemIds().toArray(new Name[0]);
 		ArrayList<Name> list = new ArrayList<Name>();
-		for(Name name : names) {
-			if(!name.getID().isEmpty() && !name.getDisplayName().isEmpty())
+		for (Name name : names) {
+			if (!name.getID().isEmpty()) {
+				if ("".equals(name.getDisplayName())) {
+					name.setDisplayName(null);
+				}
+				
 				list.add(name);
-			else {
-				new Notification("Not all ENUM types were generated to text, because display name or id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());
+			} else {
+				new Notification("Not all ENUM types were generated to text, because id was empty",  Type.WARNING_MESSAGE).show(Page.getCurrent());
 			}
 		}
 		return list.toArray(new Name[0]);
@@ -469,7 +474,7 @@ public class Parameter extends BasicModel{
 	
 	private Button getDeleteButton(final Object itemId) {
 		Button btDelete = new Button();
-		btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+		btDelete.setIcon(new ThemeResource("images/close.png"));
 		btDelete.setStyleName(BaseTheme.BUTTON_LINK);
 		btDelete.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = -3695725710938486562L;
