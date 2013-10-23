@@ -122,6 +122,10 @@ public class AnnotationManager {
 		public Genome getGenome() {
 			return new Genome(species, version);
 		}
+		
+		public String toString() {
+			return getClass().getSimpleName() + " " + getGenome() + " " + getUrl();
+		}
 	}
 
 	public class Genome implements Comparable<Genome> {

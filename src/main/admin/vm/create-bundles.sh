@@ -3,10 +3,8 @@
 # convert necessary files. Then check that all files are ok and fill in the details of each genome 
 # in the yaml file under tools/genomebrowser/annotation. After that, this script can be used to create the bundle
 # packages. Internally the packages are created with a tool 'to_bundle.py'.
-#
-# TODO: This version packages genome browser files and fasta to same tar file, but propably those should be separated.
 
-cd /opt/chipster/tools
+#cd /opt/chipster/tools
 
 cat genomes/genome_list | cut -d " " -f 2,4 | sort > genomes.txt
 
@@ -21,12 +19,15 @@ cat genomes/genome_list | cut -d " " -f 2,4 | sort > genomes.txt
 #echo "phiR1-RT HE956709.1" >> genomes.txt
 #echo "Yersinia_similis N916Ysi" >> genomes.txt
 
-BUNDLE_VERSION="1.1"
-CHIPSTER_VERSION="2.9"
+BUNDLE_VERSION="0.1"
+CHIPSTER_VERSION="2.8"
 
 mkdir bundle-file-lists
 
-find /opt/chipster/tools/* -type f > all.txt
+#regular files
+find * -type f > all.txt
+#links
+find * -type l >> all.txt
 
 while read LINE; do
   SPECIES=$(echo $LINE | cut -d " " -f 1)
@@ -37,42 +38,53 @@ while read LINE; do
   BOWTIE="bundle-file-lists/$SPECIES.$VERSION.bowtie.txt"
   BOWTIE2="bundle-file-lists/$SPECIES.$VERSION.bowtie2.txt"
   BWA="bundle-file-lists/$SPECIES.$VERSION.bwa.txt"
-  OTHER="bundle-file-lists/$SPECIES.$VERSION.txt"
+  GB="bundle-file-lists/$SPECIES.$VERSION.gb.txt"
+  FASTA_GTF="bundle-file-lists/$SPECIES.$VERSION.txt"
 
   #create file lists
   cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie-" > $BOWTIE
   cat all.txt | grep $SPECIES | grep $VERSION | grep "bowtie2" > $BOWTIE2
   cat all.txt | grep $SPECIES | grep $VERSION | grep "bwa_indexes" > $BWA
-  cat all.txt | grep $SPECIES | grep $VERSION | grep -v "bowtie-" | grep -v "bowtie2" | grep -v "bwa_indexes" >  $OTHER
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "nochr" > $FASTA_GTF
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "genomebrowser" > $GB
+  cat all.txt | grep $SPECIES | grep $VERSION | grep "\.gtf$" >> $FASTA_GTF # escape period, line ends with ".gtf"
 
   #create bundles
+
+  ARGS="-v $BUNDLE_VERSION -p $CHIPSTER_VERSION --prefix http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/ --tools $PWD/"
+
   #if file list is not empty
   if [ -s $BOWTIE ]
   then
     : #empty script block when following is commented out
-    cat $BOWTIE | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BOWTIE | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie $ARGS
   fi
 
   if [ -s $BOWTIE2 ]
   then
     : #empty script block when following is commented out
-    cat $BOWTIE2 | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie2 -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BOWTIE2 | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bowtie2 $ARGS
   fi
 
   if [ -s $BWA ]
   then
     : #empty script block when following is commented out
-    cat $BWA | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bwa -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $BWA | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.bwa $ARGS
   fi
 
-  if [ -s $OTHER ]
+  if [ -s $GB ]
   then
     : #empty script block when following is commented out
-    cat $OTHER | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION -v $BUNDLE_VERSION -p $CHIPSTER_VERSION
+    cat $GB | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION.gb $ARGS
+  fi
+
+  if [ -s $FASTA_GTF ]
+  then
+    : #empty script block when following is commented out
+    cat $FASTA_GTF | python3 to_bundle.py -n $SPECIES.$MAJOR_VERSION $ARGS
   fi
 
 done < genomes.txt
-
 
 #Some old genomes have non-standard names. To create bundles for these, 
 #you have to run following command  after the file lists are created, but before to_bundle.py script is run
@@ -89,14 +101,6 @@ rm all.txt
 
 # to_bundle.py creates separate yaml files
 cat *.yaml > bundles-local.yaml
-
-# prefix package file names with url, sed explanation:
-# - search for 'packages:'
-# - 'n' to continue processing on next line
-# - 's' to search and replace
-# - search for first four spaces 
-# - replace with four spaces and url
-sed '/packages:/{n; s/    /    http:\/\/www.nic.funet.fi\/pub\/sci\/molbio\/chipster\/dist\/tools_extras\/bundle\//}' bundles-local.yaml > bundles-$BUNDLE_VERSION.yaml
 
 #If everything went well
 # - copy packages and bundles-X.X.yaml to nic /pub/sci/molbio/chipster/dist/tools_extras/bundle/
