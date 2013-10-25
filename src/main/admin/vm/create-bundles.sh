@@ -8,17 +8,6 @@
 
 cat genomes/genome_list | cut -d " " -f 2,4 | sort > genomes.txt
 
-#Some old genomes
-#echo "Canis_familiaris BROADD2.67" >> genomes.txt
-#echo "Homo_sapiens NCBI36.54" >> genomes.txt
-#echo "Mus_musculus NCBIM37.67" >> genomes.txt
-#echo "Rattus_norvegicus RGSC3.4.69" >> genomes.txt
-
-#echo "Human_mitoch NC_012920" >> genomes.txt
-#echo "Ovis_aries Oar_v3.1" >> genomes.txt
-#echo "phiR1-RT HE956709.1" >> genomes.txt
-#echo "Yersinia_similis N916Ysi" >> genomes.txt
-
 BUNDLE_VERSION="0.1"
 CHIPSTER_VERSION="2.8"
 
@@ -86,23 +75,6 @@ while read LINE; do
 
 done < genomes.txt
 
-#Some old genomes have non-standard names. To create bundles for these, 
-#you have to run following command  after the file lists are created, but before to_bundle.py script is run
-
-#find /opt/chipster/tools/* | grep mm9 | grep fasta >> bundle-file-lists/Mus_musculus.NCBIM37.67.txt
-#find /opt/chipster/tools/* | grep rn4 | grep fasta >> bundle-file-lists/Rattus_norvegicus.RGSC3.4.69.txt 
-#find /opt/chipster/tools/* | grep Human-MT | grep fasta >> bundle-file-lists/Human_mitoch.NC_012920.txt
-#find /opt/chipster/tools/* | grep ovis_aries | grep fasta >> bundle-file-lists/Ovis_aries.Oar_v3.1.txt 
-#find /opt/chipster/tools/* | grep R1-RT | grep fasta >> bundle-file-lists/phiR1-RT.HE956709.1.txt
-#find /opt/chipster/tools/* | grep N916Ysi | grep fasta >> bundle-file-lists/Yersinia_similis.N916Ysi.txt 
-
 rm genomes.txt
 rm all.txt
-
-# to_bundle.py creates separate yaml files
-cat *.yaml > bundles-local.yaml
-
-#If everything went well
-# - copy packages and bundles-X.X.yaml to nic /pub/sci/molbio/chipster/dist/tools_extras/bundle/
-# - append bundles-X.X.yaml to bundles.yaml
 
