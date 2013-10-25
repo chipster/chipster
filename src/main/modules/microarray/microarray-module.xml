@@ -144,9 +144,9 @@
 	</category>
 
 	<category name="Utilities" color="#83010b">
-		<tool runtime="R-2.12"><resource>search-correlation.R</resource></tool>
-		<tool runtime="R-2.12"><resource>search-queryword.R</resource></tool>
-		<tool runtime="R-2.12"><resource>search-coordinates.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>search-correlation.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>search-queryword.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>search-coordinates.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-datasets.R</resource></tool>
 		<tool runtime="R-2.12"><resource>merge-pheno-and-data.R</resource></tool>

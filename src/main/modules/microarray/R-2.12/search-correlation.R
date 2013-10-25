@@ -6,8 +6,8 @@
 # PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman] DEFAULT pearson (Correlation method)
 
 
-# Search genes with correlation to another gene
-# JTT 20.6.2006
+# JTT 20.6.2006: Search genes with correlation to another gene
+# MK 25.10.2013: Modified to search also symbols
 
 # Parameter settings (default) for testing purposes
 #correlation.cutoff<-0.95
@@ -26,7 +26,22 @@ meth<-correlation.method
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
-gene<-as.numeric(dat2[grep(genename, row.names(dat)),][1,])
+
+gene <- NULL;
+if(length(grep(genename, row.names(dat)))>=1) {
+	gene<-as.numeric(dat2[grep(genename, row.names(dat)),][1,])	
+} else {
+	if(length(grep("symbol", colnames(dat)))==1) {
+		if(length(grep(genename, dat[,"symbol"]))>=1) {
+			gene<-as.numeric(dat2[grep(genename, dat[,"symbol"]),][1,])
+		}
+	}
+}
+
+if(is.null(gene)) {
+	stop("CHIPSTER-NOTE: Search string not found or found too many times")
+}
+
 len<-dim(dat2)[[1]]
 corr<-rep(0, len)
 for(i in 1:len) {

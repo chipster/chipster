@@ -30,7 +30,8 @@ dat<-ReadAffy()
 if(custom.chiptype!="empty") {
    chiptype<-custom.chiptype
    library(Biostrings)
-   chiptype<-substr(x=chiptype, start=1, stop=(matchPattern("(", chiptype)@start-1))
+   #chiptype<-substr(x=chiptype, start=1, stop=(matchPattern("(", chiptype)@start-1))
+   chiptype <- gsub("\\(.*\\)", "", chiptype, perl=T)
    dat@annotation<-chiptype
    dat@cdfName<-chiptype
 } else {
