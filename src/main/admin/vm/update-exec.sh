@@ -1065,6 +1065,7 @@ function install_bundle()
   python3 bundle.py install $1.bowtie
   python3 bundle.py install $1.bowtie2
   python3 bundle.py install $1.bwa
+  python3 bundle.py install $1.gb
   python3 bundle.py install $1
 }
 
