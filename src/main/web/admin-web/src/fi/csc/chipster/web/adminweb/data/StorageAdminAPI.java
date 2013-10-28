@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -57,7 +58,7 @@ public class StorageAdminAPI {
 	public StorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 
 		ChipsterConfiguration.init();
-		messagingEndpoint = new MessagingEndpoint(nodeSupport);
+		messagingEndpoint = new JMSMessagingEndpoint(nodeSupport);
 		filebrokerAdminTopic = messagingEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
 	}
 

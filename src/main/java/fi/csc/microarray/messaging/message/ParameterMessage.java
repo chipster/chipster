@@ -47,7 +47,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_SESSION_NAME = "session-name";
 	public static final String PARAMETER_SESSION_NAME_LIST = "session-name-list";
 	public static final String PARAMETER_SESSION_UUID_LIST = "session-uuid-list";
-	public static final String PARAMETER_FILE_URL_LIST = "file-id-list";	
+	public static final String PARAMETER_FILE_ID_LIST = "file-id-list";	
 	public static final String PARAMETER_USERNAME_LIST = "username-list";
 	public static final String PARAMETER_SIZE_LIST = "size-list";
 	public static final String PARAMETER_DATE_LIST = "date-list";
