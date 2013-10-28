@@ -15,6 +15,7 @@ import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.AdminAPI;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
@@ -76,7 +77,7 @@ public class MicroarrayMain {
 				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
-				new FileServer(configURL);
+				new FileServer(configURL, null);
 			
 			} else if (cmdParser.hasValue("webstart")) {
 				new WebstartJettyServer().start();
@@ -98,7 +99,7 @@ public class MicroarrayMain {
 						}
 					};
 					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
+					MessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
 					boolean fastCheck = cmdParser.hasValue("nagios-check");
@@ -140,7 +141,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
+					MessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);
 					endpoint.close();
 					
 				} catch (Exception e) {

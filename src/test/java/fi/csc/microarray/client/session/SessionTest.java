@@ -1,7 +1,10 @@
 package fi.csc.microarray.client.session;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -12,21 +15,42 @@ import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.ToolModule;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.messaging.MessagingTestBase;
+import fi.csc.microarray.filebroker.FileServer;
+import fi.csc.microarray.messaging.MockMessagingEndpoint;
+import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-public class SessionTest extends MessagingTestBase {
+public class SessionTest {
+
+	private String username = "username";
+	private String password = "password";
+	private SimpleAuthenticationRequestListener authenticationListener;
 
 	
-	public SessionTest() {
-		super("demo", "ddemo");
+	@Test
+	public void test() throws IOException {
+
+		// initialise and configure
+		File workDir = Files.createTempDirectory("remote-session-unit-test-temp").toFile();
+		new File(workDir, "conf").mkdir();
+		new File(workDir, "logs").mkdir();
+		new File(workDir, "security").mkdir();
+		File configFile = new File(workDir, "conf" + File.separator + "chipster-config.xml");
+		DirectoryLayout.setBaseDirOverride(workDir);
+
+		// boot up file server so that it is connected to mock messaging fabric
+		MockMessagingEndpoint endpoint = new MockMessagingEndpoint();
+		new FileServer(null, endpoint);
+
 	}
 	
-	@Test
+	
+	//@Test
 	public void testStorageSessions() throws Exception {
 		
 		// set up modules
@@ -34,6 +58,7 @@ public class SessionTest extends MessagingTestBase {
 		Session.getSession().setModuleManager(moduleManager);
 		
 		// set up system
+		this.authenticationListener = new SimpleAuthenticationRequestListener(username, password);
 		DataManager manager = new DataManager();
 		moduleManager.plugAll(manager, null);
 		LinkedList<ToolModule> toolModules = new LinkedList<ToolModule>();
@@ -84,4 +109,5 @@ public class SessionTest extends MessagingTestBase {
 		return sessionURL;
 	}
 
+	
 }

@@ -61,6 +61,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
@@ -211,12 +212,18 @@ public class SessionReplayTest extends MessagingTestBase {
 				
 				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
-				URL urlInSessionZip = dataBean.getUrl(StorageMethod.LOCAL_SESSION_ZIP);
+				URL urlInSessionZip = null;
+				for (ContentLocation contentLocation : sourceManager.getContentLocationsForDataBeanSaving(dataBean)) {
+					if (contentLocation.getMethod() == StorageMethod.LOCAL_SESSION_ZIP) {
+						urlInSessionZip = contentLocation.getUrl(); 
+					}
+				}
+				
 				if (urlInSessionZip == null) {
 					throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
 				}
 				URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
-				manager.addUrl(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
+				manager.addContentLocationForDataBean(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
 
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				dataBeansInSourceManagerWhichWereCopied.add(dataBean);
@@ -382,7 +389,7 @@ public class SessionReplayTest extends MessagingTestBase {
 						OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
 						InputStream sourceIn = null;
 						try {
-							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 							IOUtils.copy(sourceIn, metadataOut);
 						} finally {
 							IOUtils.closeIfPossible(sourceIn);
@@ -409,7 +416,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
 					
 					// Collect size matches
-					if (sourceBean.getContentLength() != targetBean.getContentLength()) {
+					if (Session.getSession().getDataManager().getContentLength(sourceBean) != Session.getSession().getDataManager().getContentLength(targetBean)) {
 						if (sourceBean.getName().equals(targetBean.getName())) {
 							outputsWithMisMatchingSizes.add(sourceBean.getName());
 						} else {
@@ -421,8 +428,8 @@ public class SessionReplayTest extends MessagingTestBase {
 					if (CHECK_CONTENTS) {
 						InputStream sourceIn = null, targetIn = null;
 						try {
-							sourceIn = sourceBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
-							targetIn = targetBean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+							targetIn = manager.getContentStream(targetBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
 
 								if (sourceBean.getName().equals(targetBean.getName())) {
@@ -479,12 +486,12 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		// exact size
 		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {
-			Assert.assertEquals("comparing output size", bean1.getContentLength(), bean2.getContentLength());
+			Assert.assertEquals("comparing output size", Session.getSession().getDataManager().getContentLength(bean1), Session.getSession().getDataManager().getContentLength(bean2));
 		}
 
 		// zero size not allowed if source non-zero
-		if (bean1.getContentLength() > 0) {
-			Assert.assertTrue("zero size dataset", bean2.getContentLength() > 0);
+		if (Session.getSession().getDataManager().getContentLength(bean1) > 0) {
+			Assert.assertTrue("zero size dataset", Session.getSession().getDataManager().getContentLength(bean2) > 0);
 		}
 	}
 

@@ -39,6 +39,7 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -210,7 +211,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	
     	
 		// initialize communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 		
 		// listen for job log messages
 		MessagingTopic jobLogTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.READ);

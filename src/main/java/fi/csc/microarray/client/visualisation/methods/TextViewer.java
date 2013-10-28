@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
@@ -22,7 +23,7 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] txt = data.getContentBytes(CONTENT_SIZE_LIMIT, DataNotAvailableHandling.INFOTEXT_ON_NA);
+		byte[] txt = Session.getSession().getDataManager().getContentBytes(data, CONTENT_SIZE_LIMIT, DataNotAvailableHandling.INFOTEXT_ON_NA);
 
 		if (txt != null) {
 			JTextPane txtPane = makeTxtPane(new String(txt));

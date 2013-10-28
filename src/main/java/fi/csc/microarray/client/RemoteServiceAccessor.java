@@ -9,6 +9,7 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.DescriptionMessageListener;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -35,7 +36,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	private Collection<ToolModule> modules = null;
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
-		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
+		this.endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
 	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
 		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 	    this.taskExecutor = new TaskExecutor(endpoint, manager);

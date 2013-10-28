@@ -79,7 +79,7 @@ public class GraphVertex extends AbstractGraphVertex {
 		try {
 			int rowCount;
 
-			if (data.getContentLength() < MAX_BYTES_TO_COUNT) {
+			if (Session.getSession().getDataManager().getContentLength(data) < MAX_BYTES_TO_COUNT) {
 				// check if rows are counted already 
 				Integer cachedCount = (Integer)data.getFromContentBoundCache(AT_LEAST_ROWS_CACHENAME);
 				if (cachedCount != null) {

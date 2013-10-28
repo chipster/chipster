@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 

@@ -27,6 +27,7 @@ import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -154,7 +155,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		
 		// initialize communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 		
 		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);

@@ -16,6 +16,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
@@ -173,15 +174,23 @@ public class SessionLoaderImpl2 {
 			String name = dataType.getName();
 			String id = dataType.getId();
 			
-			// check for unique id
+			// check for unique session id
 			if (getDataItem(id) != null) {
 				logger.warn("duplicate data bean id: " + id + " , ignoring data bean: " + name);
 				continue;
 			}
 			
+			// check that data id exists
+			String dataId = dataType.getDataId();
+			if (dataId == null) {
+				logger.warn("could not load data bean: " + name + " due to missing data id");
+				throw new RuntimeException("trying to load data without data id");
+			} 
+			
+			
 			DataBean dataBean;
 			try {
-				dataBean = dataManager.createDataBean(name);
+				dataBean = dataManager.createDataBean(name, dataId);
 
 				for (LocationType location : dataType.getLocation()) {
 					
@@ -199,12 +208,18 @@ public class SessionLoaderImpl2 {
 						url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					}
 
-					dataManager.addUrl(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
+					dataManager.addContentLocationForDataBean(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
 				}
 			
 			} catch (Exception e) {
 				logger.warn("could not create data bean: " + name);
 				continue;
+			}
+			
+			// creation time
+			XMLGregorianCalendar xmlCalendar = dataType.getCreationTime();
+			if (xmlCalendar != null) {
+				dataBean.setCreationDate(xmlCalendar.toGregorianCalendar().getTime());
 			}
 
 			dataBean.setNotes(dataType.getNotes());

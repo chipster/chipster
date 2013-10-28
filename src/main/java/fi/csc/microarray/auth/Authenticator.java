@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -69,7 +70,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		sessionPool = new SecureSessionPool();
 		
 		// initialise communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 
 		// create authorised topics
 		authorisedTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.WRITE);       

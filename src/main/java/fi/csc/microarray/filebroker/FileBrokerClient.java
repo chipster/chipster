@@ -36,13 +36,12 @@ public interface FileBrokerClient {
 	 * @param file
 	 * @param contentLength -1 if unknown
 	 * @param progressListener may be null
-	 * @return url to the added file
 	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
 	 * @throws JMSException
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract void addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
 	 * Add file to file broker. Might use local transfer instead of uploading.
@@ -58,10 +57,10 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
-	 *  Get the InputStream for a while from the FileBroker.
+	 *  Get the InputStream for a file from the FileBroker.
 	 *  
 	 *  If payload is not available right a way, wait for a while for
 	 *  the payload to become available. 
@@ -73,24 +72,23 @@ public interface FileBrokerClient {
 	 *  Unfortunately, the waiting slows down getting the InputStream for
 	 *  empty files. Empty files are not too common though.
 	 * 
-	 * @param url
 	 * @return
 	 * @throws IOException
+	 * @throws JMSException 
 	 */
-	public abstract InputStream getFile(URL url) throws IOException;
+	public abstract InputStream getFile(String dataId) throws IOException, JMSException;
 
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
 	 * of downloading.
 	 * 
-	 * @see #getFile(URL)
 	 * 
 	 * @param destFile destination file that must not exist
-	 * @param url source file
 	 * 
 	 * @throws IOException
+	 * @throws JMSException 
 	 */
-	public abstract void getFile(File destFile, URL url) throws IOException;
+	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException;
 
 	/**
 	 * Check if a file exists at the file broker.
@@ -122,8 +120,7 @@ public interface FileBrokerClient {
 	 */
 	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
 
-	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException;
-	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException;
+	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<String> dataIds) throws JMSException;
 	
 	/**
 	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.
@@ -145,4 +142,10 @@ public interface FileBrokerClient {
 	 * @throws FileBrokerException
 	 */
 	public URL addSessionFile() throws JMSException, FileBrokerException;
+
+
+	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException;
+
+
+	public boolean moveFromCacheToStorage(String dataId) throws JMSException;
 }

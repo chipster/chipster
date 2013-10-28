@@ -156,12 +156,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 				componentToReturn = visualisationComponent;
 			}
 			
-			if (logger.isDebugEnabled()) {
-				logger.debug("visualisationpanel contains following components:");
-				for (Component component : paramSplit.getComponents()) {
-					logger.debug("\t" + component);
-				}
-			}
 		} catch (Exception e1) {
 			application.reportException(e1);
 			componentToReturn = visualiser.getDefaultVisualisation();

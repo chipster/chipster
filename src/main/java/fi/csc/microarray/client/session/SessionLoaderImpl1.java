@@ -152,7 +152,7 @@ public class SessionLoaderImpl1 {
 				try {
 					url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					dataBean = dataManager.createDataBean(name);
-					dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
+					dataManager.addContentLocationForDataBean(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
 
 				} catch (MicroarrayException e1) {
 					logger.warn("could not create data bean: " + name);
@@ -171,13 +171,13 @@ public class SessionLoaderImpl1 {
 
 					case LOCAL_SESSION_ZIP:
 						dataBean = dataManager.createDataBean(name);
-						dataManager.addUrl(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
+						dataManager.addContentLocationForDataBean(dataBean, StorageMethod.LOCAL_SESSION_ZIP, url);
 						break;
 						
 					case LOCAL_ORIGINAL:
 					case LOCAL_TEMP:
 						dataBean = dataManager.createDataBean(name);
-						dataManager.addUrl(dataBean, StorageMethod.LOCAL_ORIGINAL, url);
+						dataManager.addContentLocationForDataBean(dataBean, StorageMethod.LOCAL_ORIGINAL, url);
 						break;
 
 					default:
@@ -188,18 +188,6 @@ public class SessionLoaderImpl1 {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				}
-			}
-
-			// cache url
-			String cacheURLString = dataType.getCacheUrl();
-			if (cacheURLString != null) {
-				URL cacheURL = null;
-				try {
-					cacheURL = new URL(cacheURLString);
-				} catch (MalformedURLException e1) {
-					logger.warn("could not parse cache url: "  + cacheURLString + " for data bean: " + name);
-				}
-				dataManager.addUrl(dataBean, StorageMethod.REMOTE_CACHED, cacheURL);
 			}
 
 			// notes

@@ -4,9 +4,6 @@
  */
 package fi.csc.microarray.messaging;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
@@ -155,28 +152,6 @@ public class MessagingTopic {
 			throw new IllegalStateException("Topic was created as write only");
 		}
 	}
-
-	/**
-	 * Creates a stream that is transferred using JMS messages. Stream is sent to all 
-	 * listeners of the topic. Running multiple streams on a same topic simultanously
-	 * will cause hell to break loose. So, this should be used only with dedicated temporary 
-	 * streaming topics. 
-	 * @throws JMSException 
-	 * @see #openJMSInputStream()
-	 */
-	public OutputStream openJMSOutputStream() throws JMSException {		
-		return endpoint.createOutputStream(topic);
-	}
-	
-	/**
-	 * Starts reading message to this topic traffic as a stream.
-	 * @throws JMSException 
-	 * @see #openJMSOutputStream()
-	 */
-	public InputStream openJMSInputStream() throws JMSException {
-		return endpoint.createInputStream(topic);
-	}
-
 
 	public MessagingEndpoint getEndpoint() {
 		return endpoint;

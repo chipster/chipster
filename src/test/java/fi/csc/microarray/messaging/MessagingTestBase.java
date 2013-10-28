@@ -39,7 +39,7 @@ public abstract class MessagingTestBase {
 	
 	
 	@Before
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		
 		
 		// use demo listener if no username or password
@@ -66,7 +66,7 @@ public abstract class MessagingTestBase {
 		System.out.println("setting up messaging");
 		logger = Logger.getLogger(MessagingTestBase.class);
 		logger.debug("loaded config");
-		endpoint =  new MessagingEndpoint(new NodeBase() {
+		endpoint =  new JMSMessagingEndpoint(new NodeBase() {
 			public String getName() {
 				return "test";
 			}
@@ -76,7 +76,7 @@ public abstract class MessagingTestBase {
 	}
 	
 	@After
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		if (endpoint != null) {
 			System.out.println("closing messaging endpoint");
 			endpoint.close();
