@@ -656,7 +656,7 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("text/tab")) {
 			BufferedReader in = null;
 			try {
-				in = new BufferedReader(new InputStreamReader(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
+				in = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 				String headerLine = in.readLine();
 				String contentLine = in.readLine();
 				
@@ -838,7 +838,7 @@ public class MicroarrayModule implements Module {
 
 		BufferedReader reader = null;
 		try {
-			InputStream stream = data.getContentStream(DataNotAvailableHandling.NULL_ON_NA);
+			InputStream stream = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA);
 			if (stream != null) {
 				reader = new BufferedReader(new InputStreamReader(stream));
 				return reader.readLine();

@@ -39,6 +39,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_AS_ID = "as-id";
 	public static final String PARAMETER_JOB_ID = "job-id";
 	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
+	public static final String PARAMETER_FILE_ID = "file-id";
 	public static final String PARAMETER_AREA = "area";
 	public static final String PARAMETER_DISK_SPACE = "disk-space";
 	public static final String PARAMETER_URL = "url";
@@ -46,7 +47,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_SESSION_NAME = "session-name";
 	public static final String PARAMETER_SESSION_NAME_LIST = "session-name-list";
 	public static final String PARAMETER_SESSION_UUID_LIST = "session-uuid-list";
-	public static final String PARAMETER_FILE_URL_LIST = "file-url-list";
+	public static final String PARAMETER_FILE_ID_LIST = "file-id-list";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();

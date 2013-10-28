@@ -28,6 +28,7 @@ public class JobMessage extends PayloadMessage {
 		public boolean isValueValid(String value, ParameterDescription parameterDescription);
 	}
 	
+	@SuppressWarnings("serial")
 	public static class ParameterValidityException extends Exception {
 		
 		public ParameterValidityException(String msg) {

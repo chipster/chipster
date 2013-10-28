@@ -710,7 +710,7 @@ public abstract class ClientApplication {
 
 					newFile.createNewFile();		
 					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA), out);
+					IO.copy(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA), out);
 					out.close();
 				} catch (Exception e) {
 					throw new RuntimeException(e);

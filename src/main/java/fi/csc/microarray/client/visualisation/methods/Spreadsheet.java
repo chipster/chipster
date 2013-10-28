@@ -29,6 +29,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.Table;
@@ -113,7 +114,7 @@ public class Spreadsheet extends Visualisation {
 
 		if (columns == null) {
 			columnTitles = new String[] { "Info" };
-			rowData = new String[][] { new String[] { DataBean.DATA_NA_INFOTEXT }};
+			rowData = new String[][] { new String[] { DataManager.DATA_NA_INFOTEXT }};
 			linkableFlags = new LinkedList<Boolean>();
 			linkableFlags.add(false);
 			rowCount = 1;

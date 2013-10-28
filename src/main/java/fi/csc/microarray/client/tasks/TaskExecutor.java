@@ -330,9 +330,8 @@ public class TaskExecutor {
 		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
-				URL payloadUrl = resultMessage.getPayload(name);
-				DataBean bean = manager.createDataBean(name);
-				manager.addUrl(bean, StorageMethod.REMOTE_CACHED, payloadUrl);
+				String dataId = resultMessage.getPayload(name);
+				DataBean bean = manager.createDataBean(name, dataId);
 				pendingTask.addOutput(name, bean);
 			}
 		}
@@ -459,7 +458,7 @@ public class TaskExecutor {
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							long length = task.getInput(name).getContentLength();
+							long length = Session.getSession().getDataManager().getContentLength(task.getInput(name));
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
@@ -472,13 +471,10 @@ public class TaskExecutor {
 						
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
-						URL url = manager.getURLForCompAndUploadToCacheIfNeeded(bean, progressListener);
-						if (url == null) {
-							throw new RuntimeException("could not upload input data");
-						}
+						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
-						// add the possibly new url to message
-						jobMessage.addPayload(name, url);
+						// add the data id to the message
+						jobMessage.addPayload(name, bean.getId());
 						
 						logger.debug("added input " + name + " to job message.");
 						i++;
@@ -698,12 +694,8 @@ public class TaskExecutor {
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		for (String name : task.getInputNames()) {
 			DataBean bean = task.getInput(name);
-			URL url = manager.getURLForCompAndUploadToCacheIfNeeded(bean, null); // no progress listening on resends
-			if (url == null) {
-				throw new RuntimeException("could not upload input data");
-			}
-			
-			jobMessage.addPayload(name, bean.getUrl(StorageMethod.REMOTE_CACHED));
+			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getId());
 		}
 		jobMessage.setReplyTo(replyTo);
 

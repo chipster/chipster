@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
@@ -208,7 +209,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
 			BufferedReader bufferedReader = null;
 			try {
-				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EMPTY_ON_NA)));
+				bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
 				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 				MatrixParseSettings settings = new MatrixParseSettings();
 

@@ -1,8 +1,5 @@
 package fi.csc.microarray.databeans;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,13 +9,12 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
-import fi.csc.microarray.databeans.handlers.ContentHandler;
-import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.security.CryptoKey;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -41,8 +37,6 @@ import fi.csc.microarray.util.IOUtils;
 public class DataBean extends DataItemBase {
 	
 
-	public static String DATA_NA_INFOTEXT = "Data currently not available";
-	
 	/**
 	 * What to return when none of the data locations are available?
 	 */
@@ -67,35 +61,6 @@ public class DataBean extends DataItemBase {
 		 * Return an info string describing the situation and giving details on data availability.
 		 */
 		INFOTEXT_ON_NA
-	}
-	
-	/**
-	 * Defines a location where the actual file content of the DataBean can be accessed from.
-	 * Location might be local, remote or contained within another file (zip). 
-	 */
-	public static class ContentLocation {
-		
-		private StorageMethod method;
-		private URL url;
-		private ContentHandler handler;
-		
-		public ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
-			this.method = method;
-			this.handler = handler;
-			this.url = url;
-		}
-		
-		public StorageMethod getMethod() {
-			return method;
-		}
-
-		public URL getUrl() {
-			return url;
-		}
-
-		public ContentHandler getHandler() {
-			return handler;
-		}
 	}
 	
 	/**
@@ -173,7 +138,7 @@ public class DataBean extends DataItemBase {
 		DataBean bean;
 	}
 
-	protected DataManager dataManager;
+	private DataManager dataManager;
 	private HashMap<String, Object> contentBoundCache = new HashMap<String, Object>();
 	
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -183,25 +148,40 @@ public class DataBean extends DataItemBase {
 
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
+	private String id;
+	
 	/**
 	 * Timestamp for creation time.
 	 */
-	protected Date date;
+	private Date date;
 	
 	private OperationRecord operationRecord;
 	private String notes;
 
-	protected ContentType contentType;
-	private LinkedList<ContentLocation> contentLocations = new LinkedList<DataBean.ContentLocation>();
+	private ContentType contentType;
+	private LinkedList<ContentLocation> contentLocations = new LinkedList<ContentLocation>();
 	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this.name = name;
 		this.contentType = contentType;
 		this.dataManager = manager;
+		this.id = CryptoKey.generateRandom();
+		this.date = new Date();
+	}
+
+	public DataBean(String name, ContentType contentType, DataManager manager, String dataId) {
+		this.name = name;
+		this.contentType = contentType;
+		this.dataManager = manager;
+		this.id = dataId;
 		this.date = new Date();
 	}
 
 
+	public String getId() {
+		return this.id;
+	}
+	
 	public OperationRecord getOperationRecord() {
 		return operationRecord;
 	}
@@ -262,7 +242,15 @@ public class DataBean extends DataItemBase {
 	}
 
 
-
+	/**
+	 * Only use where really needed.
+	 * 
+	 * @param newId
+	 */
+	public void setId(String newId) {
+		this.id = newId;
+	}
+	
 	public void setName(String newName) {
 		super.setName(newName);
 	
@@ -289,65 +277,6 @@ public class DataBean extends DataItemBase {
 			lock.readLock().unlock();
 		}
 	}
-
-
-	/**
-	 * A convenience method for gathering streamed binary content into
-	 * a byte array. Returns null if none of the content locations are available. 
-	 * 
-	 * @throws IOException 
-	 * 
-	 * @see #getContentStream()
-	 */
-	public byte[] getContentBytes(DataNotAvailableHandling naHandling) throws IOException {
-		return getContentBytes(-1, naHandling); // -1 means "no max length"
-	}
-
-	/**
-	 * A convenience method for gathering streamed binary content into
-	 * a byte array. Gathers only maxLength first bytes. Returns null if 
-	 * none of the content locations are available. 
-	 * 
-	 * @throws IOException 
-	 * 
-	 * @see #getContentStream()
-	 */
-	public byte[] getContentBytes(long maxLength, DataNotAvailableHandling naHandling) throws IOException {
-		
-		InputStream in = null;
-		try {
-			in = getContentStream(naHandling);
-			if (in != null) {
-				return Files.inputStreamToBytes(in, maxLength);	
-				
-			} else {
-				return null;
-			}
-			
-		} finally {
-			IOUtils.closeIfPossible(in);
-		}
-	}
-
-
-
-	/**
-	 * Returns content size in bytes. Returns -1 if 
-	 * none of the content locations are available. 
-	 */
-	public long getContentLength() {
-		try {
-			ContentLocation location = getClosestContentLocation();
-			if (location != null) {
-				return location.getHandler().getContentLength(location);
-			} else {
-				return -1;
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 
 
 	public void delete() {
@@ -597,7 +526,7 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param methods returned ContentLocation must use one of these
 	 */
-	public ContentLocation getContentLocation(StorageMethod... methods) {
+	ContentLocation getContentLocation(StorageMethod... methods) {
 		
 		if (methods.length == 0) {
 			// does not make sense if no methods are specified, check here to avoid programming mistakes
@@ -611,7 +540,7 @@ public class DataBean extends DataItemBase {
 	/**
 	 * Gives all locations for the content of this DataBean.
 	 */
-	public List<ContentLocation> getContentLocations() {
+	List<ContentLocation> getContentLocations() {
 		
 		return contentLocations; 
 	}
@@ -622,10 +551,10 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param methods returned ContentLocations must use one of these
 	 */
-	public List<ContentLocation> getContentLocations(StorageMethod... methods) {
+	List<ContentLocation> getContentLocations(StorageMethod... methods) {
 		
 		// Collect content locations with matching method
-		LinkedList<ContentLocation> locations = new LinkedList<DataBean.ContentLocation>();
+		LinkedList<ContentLocation> locations = new LinkedList<ContentLocation>();
 		for (ContentLocation contentLocation : contentLocations) {
 			for (StorageMethod method : methods) {
 				if (contentLocation.method == method) {
@@ -641,7 +570,7 @@ public class DataBean extends DataItemBase {
 	 * Add ContentLocations to bean. Should be used only by DataManager. Others
 	 * use DataManager to do this.
 	 * 
-	 * @see DataManager#addUrl(DataBean, StorageMethod, URL)
+	 * @see DataManager#addContentLocationForDataBean(DataBean, StorageMethod, URL)
 	 * 
 	 */
 	void addContentLocation(ContentLocation contentLocation) {
@@ -683,13 +612,6 @@ public class DataBean extends DataItemBase {
 		}
 	}
 
-	
-	public URL getUrl(StorageMethod... methods) {
-		ContentLocation contentLocation = getContentLocation(methods);
-		return contentLocation != null ? contentLocation.url : null;
-	}
-	
-
 	public void setCreationDate(Date date) {
 		this.date = date;
 	}
@@ -697,8 +619,6 @@ public class DataBean extends DataItemBase {
 	public ReentrantReadWriteLock getLock() {
 		return this.lock;
 	}
-
-
 
 	/**
 	 * @return A String presentation of this dataset (in this case,
@@ -743,90 +663,5 @@ public class DataBean extends DataItemBase {
 		}
 		return targets;
 	}
-
-
-
-	/**
-	 * Returns raw binary content of this bean. Returns null if 
-	 * none of the content locations are available. Use Feature API for 
-	 * higher level accessing.
-	 * 
-	 * @see #queryFeatures(String)
-	 */
-	public InputStream getContentStream(DataNotAvailableHandling naHandling) throws IOException {
-		ContentLocation location = getClosestContentLocation();
-		if (location != null) {
-			return location.getHandler().getInputStream(location);
-		} else {
-			switch (naHandling) {
-			case EMPTY_ON_NA:
-				return new ByteArrayInputStream(new byte[] {});
-				
-			case INFOTEXT_ON_NA:
-				return new ByteArrayInputStream(DATA_NA_INFOTEXT.getBytes());
-				
-			case NULL_ON_NA:
-				return null;
-				
-			default:
-				throw new IllegalStateException("no content locations available");	
-			
-			}
-		}
-	}
 	
-	/**
-	 * Returns the ContentLocation that is likely to be the fastest available. 
-	 * All returned ContentLocations are checked to be accessible. Returns null
-	 * if none of the locations are accessible.
-	 */
-	public ContentLocation getClosestContentLocation() {
-
-		List<ContentLocation> closestContentLocations = getClosestContentLocationList();
-			
-		for (ContentLocation contentLocation : closestContentLocations) {
-			if (contentLocation != null && isAccessible(contentLocation)) {
-				return contentLocation;
-			}
-		}
-
-		// nothing was accessible
-		return null;
-	}
-	
-	/**
-	 * Returns the ContentLocation that is likely to be the fastest available and 
-	 * supports random access. 
-	 * All returned ContentLocations are checked to be accessible. Returns null
-	 * if none of the locations are accessible.
-	 */
-	public ContentLocation getClosestRandomAccessContentLocation() {
-
-		List<ContentLocation> closestContentLocations = getClosestContentLocationList();
-			
-		for (ContentLocation contentLocation : closestContentLocations) {
-			if (contentLocation != null && contentLocation.method.isRandomAccess() && isAccessible(contentLocation)) {
-				return contentLocation;
-			}
-		}
-
-		// nothing was accessible
-		return null;
-	}
-	
-	private List<ContentLocation> getClosestContentLocationList() {
-		
-		List<ContentLocation> closestLocations = new LinkedList<ContentLocation>();
-
-		closestLocations.addAll(getContentLocations(StorageMethod.LOCAL_FILE_METHODS));
-		closestLocations.addAll(getContentLocations(StorageMethod.REMOTE_FILE_METHODS));
-		closestLocations.addAll(getContentLocations(StorageMethod.OTHER_SLOW_METHODS));
-
-		return closestLocations;
-	}
-
-
-	private boolean isAccessible(ContentLocation location) {
-		return location.getHandler().isAccessible(location);
-	}
 }

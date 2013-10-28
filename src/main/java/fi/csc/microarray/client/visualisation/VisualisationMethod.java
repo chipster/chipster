@@ -113,7 +113,7 @@ public class VisualisationMethod {
 	 */
 	public long estimateDuration(List<DataBean> datas) {
 		if (datas.size() > 0) {
-			return (long) (datas.get(0).getContentLength() * durationEstimationFactor * datas.size());
+			return (long) (Session.getSession().getDataManager().getContentLength(datas.get(0)) * durationEstimationFactor * datas.size());
 		}
 		return -1;
 	}

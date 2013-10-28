@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.Table;
@@ -38,7 +39,7 @@ public class DynamicallyParsedTable implements Table {
 		this.columnNames = settings.columns.keySet().toArray(new String[0]);
 
 		try {
-			this.reader = new BufferedReader(new InputStreamReader(bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
+			this.reader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 			this.source = new LookaheadLineReader(this.reader);
 			this.headerParsed = false;
 

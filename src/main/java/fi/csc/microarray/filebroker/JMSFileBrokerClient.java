@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,7 @@ import fi.csc.microarray.messaging.UrlListMessageListener;
 import fi.csc.microarray.messaging.UrlMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -87,7 +89,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// quota checks are not needed for session files (metadata xml file)
 		
 		// return new url
-		URL url = getNewUrl(useCompression, FileBrokerArea.STORAGE, 1024*1024); // assume 1 MB is enough for all session files
+		URL url = getNewURL(CryptoKey.generateRandom(), useCompression, FileBrokerArea.STORAGE, 1024*1024); // assume 1 MB is enough for all session files
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
@@ -101,7 +103,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
 	@Override
-	public URL addFile(FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
 		if (area != FileBrokerArea.CACHE) {
 			throw new UnsupportedOperationException();
@@ -112,14 +114,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		// get new url
-		URL url = getNewUrl(useCompression, FileBrokerArea.CACHE, file.length());
+		URL url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
 
 		// try to move/copy it locally, or otherwise upload the file
 		if (localFilebrokerPath != null && !useCompression) {
-			String filename = IOUtils.getFilenameWithoutPath(url);
+			String filename = dataId;
 			File dest = new File(localFilebrokerPath, filename);
 			boolean success = file.renameTo(dest);
 			if (!success) {
@@ -134,17 +136,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 				IOUtils.closeIfPossible(stream);
 			}
 		}
-		
-		return url;
 	}
 
 
 
+	
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public URL addFile(FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
 		URL url;
 		if (area == FileBrokerArea.CACHE) {
@@ -153,14 +154,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			}
 
 			// Get new url
-			url = getNewUrl(useCompression, FileBrokerArea.CACHE, contentLength);
+			url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, contentLength);
 			if (url == null) {
 				throw new FileBrokerException("New URL is null.");
 			}
 			
 		} else {
 			// Get new url
-			url = getNewUrl(useCompression, FileBrokerArea.STORAGE, contentLength);
+			url = getNewURL(dataId, useCompression, FileBrokerArea.STORAGE, contentLength);
 			if (url == null) {
 				throw new FileBrokerException("New URL is null.");
 			}
@@ -171,47 +172,18 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		logger.debug("uploading new file: " + url);
 		UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, progressListener);
 		logger.debug("successfully uploaded: " + url);
-		
-		return url;
 	}
-
-	/**
-	 * Add to storage a file that currently exists in cache.
-	 */
-	public URL addFile(InputStream file, URL cacheURL, long contentLength) throws JMSException, IOException {
-		logger.debug("moving from cache to storage: " + cacheURL);
-
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL storageURL;
-		try {
-			
-			// ask file broker to move it or give url to upload to
-			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_FILE);
-			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_URL, cacheURL.toString());
-			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));			
-			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
-			storageURL = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS);
-			
-			// check if it was moved, if not, then upload
-			if (!UrlTransferUtil.isAccessible(storageURL)) {
-				// Upload the stream into a file at filebroker
-				UrlTransferUtil.uploadStream(storageURL, file, useChunked, useCompression, null);				
-			}
-			
-		} finally {
-			replyListener.cleanUp();
-		}
-		logger.debug("storage url is: " + storageURL);
-		return storageURL; 
-	}
-
 
 	
-	/**
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(java.net.URL)
-	 */
+	
 	@Override
-	public InputStream getFile(URL url) throws IOException {
+	public InputStream getFile(String dataId) throws IOException, JMSException {
+		URL url = getURL(dataId);
+		
+		if (url == null) {
+			throw new FileNotFoundException("file not found: " + dataId);
+		}
+		
 		InputStream payload = null;
 		
 		// open stream
@@ -241,7 +213,107 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	/**
+	 * Get a local copy of a file. If the dataId  matches any of the files found from 
+	 * local filebroker paths (given in constructor of this class), then it is symlinked or copied locally.
+	 * Otherwise the file pointed by the dataId is downloaded.
+	 * @throws JMSException 
+	 * 
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
+	 */
+	@Override
+	public void getFile(String dataId, File destFile) throws IOException, JMSException {
+		
+		// Try to find the file locally and symlink/copy it
+		if (localFilebrokerPath != null) {
+			
+			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
+			File fileInFilebrokerCache = new File(localFilebrokerPath, dataId);
+			
+			if (fileInFilebrokerCache.exists()) {
+				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
+	
+				if (!linkCreated) {
+					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
+				}
+			}
+			
+		} else {
+			// Not available locally, need to download
+			BufferedInputStream inputStream = null;
+			BufferedOutputStream fileStream = null;
+			try {
+				// Download to file
+				inputStream = new BufferedInputStream(getFile(dataId));
+				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
+				IOUtils.copy(inputStream, fileStream);
+				
+			} finally {
+				IOUtils.closeIfPossible(inputStream);
+				IOUtils.closeIfPossible(fileStream);
+			}
+		}
+	}
+
+	@Override
+	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException {
+		BooleanMessageListener replyListener = new BooleanMessageListener();  
+		try {
+			
+			CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
+			filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
+			
+			// wait
+			Boolean success = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS); 
+			
+			// check how it went
+			
+			// timeout
+			if (success == null) {
+				throw new RuntimeException("timeout while waiting for the filebroker");
+			} else {
+				return success;
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+	}
+
+	
+	@Override
+	public boolean moveFromCacheToStorage(String dataId) throws JMSException {
+		logger.debug("moving from cache to storage: " + dataId);
+	
+		BooleanMessageListener replyListener = new BooleanMessageListener();  
+		try {
+			
+			// ask file broker to move it
+			CommandMessage moveRequestMessage = new CommandMessage(CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE);
+			moveRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
+			
+			// wait
+			Boolean success = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS); 
+			
+			// check how it went
+			
+			// timeout
+			if (success == null) {
+				throw new RuntimeException("timeout while waiting for the filebroker");
+			} else {
+				return success;
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+	}
+
+	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#checkFile(java.net.URL, long)
+	 * FIXME use dataId instead of url
 	 */
 	@Override
 	public boolean checkFile(URL url, long contentLength) {
@@ -266,43 +338,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	/**
-	 * Get an URL for a new file from the file broker.
-	 * 
-	 * Talks to the file broker using JMS.
-	 * 
-	 * If useCompression is true, request an url ending with .compressed.
-	 * NOTE! Compression does not work with files larger than 4 gigabytes
-	 * in JDK 1.6 and earlier.
-	 *  
-	 * @return the new URL, may be null if file broker sends null or
-	 * if reply is not received before timeout
-	 * 
-	 * @throws JMSException
-	 */
-	private URL getNewUrl(boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException {
-		logger.debug("getting new url");
-
-		UrlMessageListener replyListener = new UrlMessageListener();  
-		URL url;
-		try {
-			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_URL_REQUEST);
-			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
-			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
-
-			if (useCompression) {
-				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
-			}
-			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
-			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
-		} finally {
-			replyListener.cleanUp();
-		}
-		logger.debug("new url is: " + url);
-
-		return url;
-	}
-
-	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
 	 */
 	@Override
@@ -324,47 +359,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		return urlList;
-	}
-
-	/**
-	 * Get a local copy of a file. If the filename part of the url matches any of the files found from 
-	 * local filebroker paths (given in constructor of this class), them it is symlinked or copied locally.
-	 * Otherwise the file pointed by the url is downloaded.
-	 * 
-  	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
-	 */
-	@Override
-	public void getFile(File destFile, URL url) throws IOException {
-		
-		// Try to find the file locally and symlink/copy it
-		if (localFilebrokerPath != null) {
-			
-			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
-			File fileInFilebrokerCache = new File(localFilebrokerPath, UrlTransferUtil.parseFilename(url));
-			
-			if (fileInFilebrokerCache.exists()) {
-				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
-
-				if (!linkCreated) {
-					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
-				}
-			}
-			
-		} else {
-			// Not available locally, need to download
-			BufferedInputStream inputStream = null;
-			BufferedOutputStream fileStream = null;
-			try {
-				// Download to file
-				inputStream = new BufferedInputStream(getFile(url));
-				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
-				IOUtils.copy(inputStream, fileStream);
-				
-			} finally {
-				IOUtils.closeIfPossible(inputStream);
-				IOUtils.closeIfPossible(fileStream);
-			}
-		}
 	}
 
 	@Override
@@ -390,13 +384,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<URL> dataUrls) throws JMSException {
+	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<String> dataIds) throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm());
-			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_URL_LIST, Strings.delimit(dataUrls, "\t"));
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
 			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
@@ -461,6 +455,60 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} finally {
 			replyListener.cleanUp();
 		}
+	}
+	
+	/**
+	 * Get an URL for a new file from the file broker.
+	 * 
+	 * Talks to the file broker using JMS.
+	 * 
+	 * If useCompression is true, request an url ending with .compressed.
+	 * NOTE! Compression does not work with files larger than 4 gigabytes
+	 * in JDK 1.6 and earlier.
+	 *  
+	 * @return the new URL, may be null if file broker sends null or
+	 * if reply is not received before timeout
+	 * 
+	 * @throws JMSException
+	 */
+	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException {
+		logger.debug("getting new url");
+	
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL url;
+		try {
+			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_NEW_URL_REQUEST);
+			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
+			urlRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE, Long.toString(contentLength));
+	
+			if (useCompression) {
+				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
+			}
+			filebrokerTopic.sendReplyableMessage(urlRequestMessage, replyListener);
+			url = replyListener.waitForReply(SPACE_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+		logger.debug("new url is: " + url);
+	
+		return url;
+	}
+
+	private URL getURL(String dataId) throws JMSException {
 		
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL url;
+		try {
+			CommandMessage getURLMessage = new CommandMessage(CommandMessage.COMMAND_GET_URL);
+			getURLMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+	
+			filebrokerTopic.sendReplyableMessage(getURLMessage, replyListener);
+			url = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+	
+		return url;
 	}
 }

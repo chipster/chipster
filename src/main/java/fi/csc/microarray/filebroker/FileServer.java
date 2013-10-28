@@ -36,7 +36,6 @@ import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlListMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
-import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
@@ -53,6 +52,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private MessagingEndpoint endpoint;	
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
+	private FileBrokerAreas filebrokerAreas;
 	private DerbyMetadataServer metadataServer;
 	
 	private File cacheRoot;
@@ -87,14 +87,18 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
     		logger = Logger.getLogger(FileServer.class);
 
-    		// initialise url repository
+    		// get configurations
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
     		String cachePath = configuration.getString("filebroker", "cache-path");
     		String storagePath = configuration.getString("filebroker", "storage-path");
     		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
+
+    		// initialise filebroker areas
+    		this.filebrokerAreas = new FileBrokerAreas(fileRepository, cachePath, storagePath);
     		
+    		// initialise url repository
     		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
 
     		// initialise metadata database
@@ -176,9 +180,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 
-			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {				
-				handleUrlRequest(msg);
+			if (msg instanceof CommandMessage && CommandMessage.COMMAND_NEW_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {				
+				handleNewURLRequest(msg);
 				
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_URL.equals(((CommandMessage)msg).getCommand())) {				
+				handleGetURL(msg);
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_IS_AVAILABLE.equals(((CommandMessage)msg).getCommand())) {				
+				handleIsAvailable(msg);
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handlePublicUrlRequest(msg);
 				
@@ -188,8 +196,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
 				handleSpaceRequest((CommandMessage)msg);
 
-			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_FILE.equals(((CommandMessage)msg).getCommand())) {
-				handleStoreFileRequest((CommandMessage)msg);
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
+				handleMoveFromCacheToStorageRequest((CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_SESSION.equals(((CommandMessage)msg).getCommand())) {
 				handleStoreSessionRequest((CommandMessage)msg);
@@ -232,35 +240,90 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		managerClient.publicFilesRequest(msg.getUsername(), files);
 	}
 
-	private void handleUrlRequest(ChipsterMessage msg)
+	private void handleNewURLRequest(ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
 		
 		// parse request
 		CommandMessage requestMessage = (CommandMessage) msg;
+		String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
 		boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
 		FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
 		String username = msg.getUsername();
 		long space = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		
 		// check quota, if needed
-		ChipsterMessage reply = createUrlReply(username, space, useCompression, area);
+		ChipsterMessage reply = createNewURLReply(fileId, username, space, useCompression, area);
 		
 		// send reply
 		endpoint.replyToMessage(msg, reply);
 	}
-
-	private ChipsterMessage createUrlReply(String username, long space, boolean useCompression,	FileBrokerArea area) throws MalformedURLException {
+	
+	private ChipsterMessage createNewURLReply(String fileId, String username, long space, boolean useCompression, FileBrokerArea area) throws MalformedURLException {
 		ChipsterMessage reply;
-		if (area == FileBrokerArea.STORAGE && !checkQuota(username, space)) {
+		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId) || (area == FileBrokerArea.STORAGE && !checkQuota(username, space))) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
 		} else {
-			URL url = urlRepository.createAuthorisedUrl(useCompression, area);
+			URL url = urlRepository.createAuthorisedUrl(fileId, useCompression, area);
 			reply = new UrlMessage(url);
 			managerClient.urlRequest(username, url);
 		}
 		return reply;
 	}
 
+	
+	private void handleGetURL(ChipsterMessage msg) throws MalformedURLException, JMSException {
+		
+		// parse request
+		CommandMessage requestMessage = (CommandMessage) msg;
+		String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
+		ChipsterMessage reply;
+		URL url = null;
+		
+		// check fileId
+		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId)) {
+			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+		// find url
+		} else if (filebrokerAreas.fileExists(fileId, FileBrokerArea.CACHE)) {
+			url = urlRepository.constructCacheURL(fileId, "");
+		} else if (filebrokerAreas.fileExists(fileId, FileBrokerArea.STORAGE)) {
+			url = urlRepository.constructStorageURL(fileId, "");
+		}
+
+		// url may be null
+		reply = new UrlMessage(url);
+		
+		// send reply
+		endpoint.replyToMessage(msg, reply);
+	}
+
+	private void handleIsAvailable(ChipsterMessage msg) throws JMSException {
+		
+		// parse request
+		CommandMessage requestMessage = (CommandMessage) msg;
+		String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
+		FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
+
+		
+		ChipsterMessage reply;
+		
+		// check fileId
+		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId)) {
+			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+		}
+
+		// find file
+		if (filebrokerAreas.fileExists(fileId, area)) {
+			reply = new BooleanMessage(true);
+		} else {
+			reply = new BooleanMessage(false);
+		}
+
+		// send reply
+		endpoint.replyToMessage(msg, reply);
+	}
+
+	
+	
 	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
@@ -379,7 +442,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 		String username = requestMessage.getUsername();
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
-		String sessionUuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID))));
+		String sessionUuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID))));
 		
 		ChipsterMessage reply; 
 		try {
@@ -395,12 +458,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 			metadataServer.addSession(username, name, sessionUuid);
 			
 			// link files (they have been added when uploaded)
-			String[] dataUrls = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_URL_LIST).split("\t");
-			for (String dataUrl : dataUrls) {
+			String[] fileIds = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t");
+			for (String fileId : fileIds) {
 				// check if the file is stored in this file broker
-				if (dataUrl.startsWith(urlRepository.getRootUrl())) {
-					String uuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(new URL(dataUrl)));
-					metadataServer.linkFileToSession(uuid, sessionUuid);
+				if (filebrokerAreas.fileExists(fileId, FileBrokerArea.STORAGE)) {
+					metadataServer.linkFileToSession(fileId, sessionUuid);
 				}
 			}
 
@@ -438,11 +500,17 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleStoreFileRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+	private void handleMoveFromCacheToStorageRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
-		final URL cacheURL = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_URL));
-		logger.info("move request for: " + cacheURL);
-
+		final String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
+		logger.info("move request for: " + fileId);
+		
+		// check id and if in cache
+		if (!(AuthorisedUrlRepository.checkFilenameSyntax(fileId) && filebrokerAreas.fileExists(fileId, FileBrokerArea.CACHE))) {
+			endpoint.replyToMessage(requestMessage, new BooleanMessage(false));
+		}
+		
+		// move
 		longRunningTaskExecutor.execute(new Runnable() {
 
 			@Override
@@ -450,50 +518,24 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 				ChipsterMessage reply = null;
 				try {
-					// check that url points to our cache dir
-					String[] urlPathParts = cacheURL.getPath().split("/"); 
-					if (urlPathParts.length != 3 || !urlPathParts[1].equals(cacheRoot.getName()) || !CryptoKey.validateKeySyntax(urlPathParts[2])) {
 
-						// cache url does not point here, cannot move, return url to upload to
-						boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
-						String username = requestMessage.getUsername();
-						long space = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
+					// check quota here also 
+					
+					// FIXME send quota exceeded message
+//					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
+//						throw new IOException("quota exceeded");
+//					}
 
-						reply = createUrlReply(username, space, useCompression, FileBrokerArea.STORAGE);
-
+					// move the file
+					if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
+						reply = new BooleanMessage(true);
 					} else {
-
-						File cacheFile = new File(cacheRoot, urlPathParts[2]);
-
-						// check that file exists
-						if (!cacheFile.exists()) {
-							logger.info("cache file does not exist: " + cacheFile.getAbsolutePath());
-							throw new IllegalArgumentException("cache file does not exist: " + cacheFile.getAbsolutePath());
-						}
-
-						// check quota here also
-						if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
-							throw new IOException("quota exceeded");
-						}
-
-						// move the file
-						String storageFileName = CryptoKey.generateRandom();
-						URL storageURL = null;
-						if (cacheFile.renameTo(new File(storageRoot, storageFileName))) {
-							storageURL = new URL(host + ":" + port + "/" + storageRoot.getName() + "/" + storageFileName);
-							reply = new UrlMessage(storageURL);
-
-						} else {
-							logger.info("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
-							throw new IllegalArgumentException("could not move: " + cacheFile.getAbsolutePath() + " to " + storageURL);
-						}
+						reply = new BooleanMessage(false);
+						logger.warn("could not move from cache to storage: " + fileId);
 					}
 
-				} catch (IllegalArgumentException e) {
-					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED); // TODO could add message from exception
-
-				} catch (IOException e) {
-					reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+				} catch (Exception e) {
+					reply = new BooleanMessage(false);
 				}
 
 				// send reply
@@ -501,11 +543,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					endpoint.replyToMessage(requestMessage, reply);
 					
 				} catch (JMSException e) {
-					logger.error(e);
+					logger.error("could not send reply message", e);
 				}
-
 			}
-
 		});
 	}
 	

@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.session.UserSession;
-import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 
 public class ZipContentHandler implements ContentHandler {
 	/**

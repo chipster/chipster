@@ -26,6 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipOutputStream;
 import fi.csc.microarray.client.NameID;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
@@ -40,7 +41,7 @@ import fi.csc.microarray.client.session.schema2.OperationType;
 import fi.csc.microarray.client.session.schema2.ParameterType;
 import fi.csc.microarray.client.session.schema2.SessionType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
@@ -135,14 +136,13 @@ public class SessionSaver {
 		writeSessionToFile(false);
 	}
 
-	public LinkedList<URL> saveStorageSession() throws Exception {
+	public LinkedList<String> saveStorageSession() throws Exception {
 
 		// move data bean contents to storage
-		LinkedList<URL> urls = new LinkedList<URL>();
+		LinkedList<String> dataIds = new LinkedList<String>();
 		for (DataBean dataBean : dataManager.databeans()) {
-			URL url = dataManager.putToStorage(dataBean);
-			if (url != null) {
-				urls.add(url);				
+			if (dataManager.putToStorage(dataBean)) {
+				dataIds.add(dataBean.getId());				
 			}
 		}
 		
@@ -150,7 +150,7 @@ public class SessionSaver {
 		gatherMetadata(false, true);
 		writeSessionToUrl(false);
 		
-		return urls;
+		return dataIds;
 	}
 	
 	
@@ -336,7 +336,7 @@ public class SessionSaver {
 	private void updateDataBeanURLsAndHandlers() {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
-			dataManager.addUrl(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
+			dataManager.addContentLocationForDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
 		}
 	}
 	
@@ -450,6 +450,7 @@ public class SessionSaver {
 		// name and id
 		dataType.setId(beanId);
 		dataType.setName(bean.getName());
+		dataType.setDataId(bean.getId());
 
 		// parent
 		if (bean.getParent() != null) {
@@ -476,7 +477,7 @@ public class SessionSaver {
 		}
 		
 		// write all URL's
-		for (ContentLocation location : bean.getContentLocations()) {
+		for (ContentLocation location : Session.getSession().getDataManager().getContentLocationsForDataBeanSaving(bean)) {
 			if (skipLocalLocations && location.getMethod().isLocal()) {
 				continue; // do not save local locations to remote sessions
 			}
@@ -606,7 +607,7 @@ public class SessionSaver {
 
 			// write bean contents to zip
 			try {
-				writeFile(zipOutputStream, entryName, entry.getKey().getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA));
+				writeFile(zipOutputStream, entryName, Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA));
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
 			}
@@ -666,7 +667,7 @@ public class SessionSaver {
 				DataBean bean = (DataBean)data;
 				buffer.append("\nBean: " + bean.getName() + "\n");
 				
-				for (ContentLocation locations : bean.getContentLocations()) {
+				for (ContentLocation locations : Session.getSession().getDataManager().getContentLocationsForDataBeanSaving(bean)) {
 					buffer.append("  " + locations.getMethod() + ": \t" + locations.getUrl() + "\n");
 				}
 

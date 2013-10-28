@@ -5,7 +5,6 @@
  */
 package fi.csc.microarray.messaging.message;
 
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,7 @@ import org.apache.log4j.Logger;
  * descriptions are transferred as payloads.
  * 
  * The actual data is sent through the FileBroker and payload message only
- * carries the URL for the data in the FileBroker.
+ * carries the id for the data in the FileBroker.
  * 
  * @author Taavi Hupponen, Aleksi Kallio
  *
@@ -35,7 +34,7 @@ public class PayloadMessage extends ParameterMessage {
 
 	private static final String KEY_PAYLOAD_PREFIX = "payload_";
 	
-	private Map<String, URL> payloads = new HashMap<String, URL>();
+	private Map<String, String> payloads = new HashMap<String, String>();
 	
 	/**
 	 * For reflection compatibility (newInstance). DO NOT REMOVE!
@@ -53,16 +52,16 @@ public class PayloadMessage extends ParameterMessage {
 	public void unmarshal(MapMessage from) throws JMSException {
 		super.unmarshal(from);
 
-		// load payload urls
+		// load payload ids
 		try {
 			for (Enumeration<String> names = from.getMapNames(); names.hasMoreElements(); ) {
 				String name = names.nextElement();
 				logger.debug("examining " + name);
 				if (name.startsWith(KEY_PAYLOAD_PREFIX)) {
 					String payloadName = name.substring(KEY_PAYLOAD_PREFIX.length());
-					URL url = new URL(from.getString(name));
-					payloads.put(payloadName, url);
-					logger.debug("Unmarshalled " + name + " -> " + payloadName + ", " + url.toExternalForm());
+					String id  = from.getString(name);
+					payloads.put(payloadName, id);
+					logger.debug("Unmarshalled " + name + " -> " + payloadName + ", " + id);
 				}
 			}
 		} catch (Exception e) {
@@ -75,15 +74,15 @@ public class PayloadMessage extends ParameterMessage {
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
 		
-		// add payload urls
+		// add payload ids
 		String key;
-		String urlString;
+		String idString;
 		try {
 			for (String name : payloadNames()) {
 				key = KEY_PAYLOAD_PREFIX + name;
-				urlString = payloads.get(name).toExternalForm();
-				mapMessage.setString(key, urlString);
-				logger.debug("Marshalled " + name + " -> " + key + " " + urlString);
+				idString = payloads.get(name);
+				mapMessage.setString(key, idString);
+				logger.debug("Marshalled " + name + " -> " + key + " " + idString);
 			}
 		} catch (Exception e) {
 			handleException(e);
@@ -93,29 +92,29 @@ public class PayloadMessage extends ParameterMessage {
 
 	
 	/**
-	 * Add the URL of an already uploaded payload to the payloads.
+	 * Add the id of an already uploaded payload to the payloads.
 	 * 
 	 * 
 	 * @param payloadName name of the payload (the input name of the operation, not the name of the databean)
-	 * @param payloadURL an URL pointing to the server side location of the payload
+	 * @param payloadId the id of the payload on the filebroker
 	 */
-	public void addPayload(String payloadName, URL payloadURL) {
-		payloads.put(payloadName, payloadURL);
+	public void addPayload(String payloadName, String payloadId) {
+		payloads.put(payloadName, payloadId);
 	}
 
 
 	/**
-	 * Return the URL for the payload content.
+	 * Return the id for the payload content.
 	 * 
 	 * @param name
 	 * @return
 	 * @throws JMSException
 	 */
-	public URL getPayload(String name) throws JMSException {
+	public String getPayload(String name) throws JMSException {
 		if (payloads.containsKey(name)) {
 			return payloads.get(name);
 		} else {
-			throw new IllegalArgumentException("No payload with name: + name");
+			throw new IllegalArgumentException("No payload with name: " + name);
 		}
 	}
 	
@@ -135,7 +134,7 @@ public class PayloadMessage extends ParameterMessage {
 	 *  
 	 * @return
 	 */
-	public Map<String, URL> getPayloads() {
+	public Map<String, String> getPayloads() {
 		return payloads;
 	}
 
