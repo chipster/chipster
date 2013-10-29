@@ -126,11 +126,6 @@ for(i in 2:ncol(design)) {
 
 # Rounding, etc.
 ttres2<-round(ttres,6)
-
-# add count columns to the result table
-ttres2<-cbind(ttres2, getCounts(dge))
-
-
 #ttres3<-merge(dat, ttres2, by.x=0, by.y=0)
 
 write.table(ttres2, file="edger-glm.tsv", sep="\t", row.names=T, col.names=T, quote=F)
