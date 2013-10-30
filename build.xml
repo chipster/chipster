@@ -73,7 +73,7 @@
 
 		<!-- build one fat jar -->
 		<fatjar.build output="${client-jar}">
-			<fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
+			<fatjar.manifest manifestfile="${src}/MANIFEST.MF" />
 			<fatjar.filesource path="${build}" relpath=""/>
 			<fatjar.filesource path="${data}" relpath=""/>
 			<fatjar.filesource path="${workflows}" relpath=""/>

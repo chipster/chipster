@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
-import org.testng.log4testng.Logger;
+import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
