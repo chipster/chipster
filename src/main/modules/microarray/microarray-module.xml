@@ -147,18 +147,18 @@
 		<tool runtime="R-3.0-R-2.12"><resource>search-correlation.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>search-queryword.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>search-coordinates.R</resource></tool>
-		<tool runtime="R-2.12"><resource>merge-tables.R</resource></tool>
-		<tool runtime="R-2.12"><resource>merge-datasets.R</resource></tool>
-		<tool runtime="R-2.12"><resource>merge-pheno-and-data.R</resource></tool>
-		<tool runtime="R-2.12"><resource>extract-genes-from-clustering.R</resource></tool>
-		<tool runtime="R-2.12"><resource>extract-genes-from-go.R</resource></tool>
-		<tool runtime="R-2.12"><resource>extract-genes-from-kegg.R</resource></tool>
-		<tool runtime="R-2.12" module="common"><resource>extract-samples-from-dataset.R</resource></tool>		
-		<tool runtime="R-2.12"><resource>extract-genes-from-stattest.R</resource></tool>
-		<tool runtime="R-2.12"><resource>extract-genes.R</resource></tool>
-		<tool runtime="R-2.12"><resource>calculate-fold-change.R</resource></tool>
-		<tool runtime="R-2.12"><resource>average-replicates.R</resource></tool>
-		<tool runtime="R-2.12"><resource>combine-probes-to-genes.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>merge-tables.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>merge-datasets.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>merge-pheno-and-data.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>extract-genes-from-clustering.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>extract-genes-from-go.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>extract-genes-from-kegg.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12" module="common"><resource>extract-samples-from-dataset.R</resource></tool>		
+		<tool runtime="R-3.0-R-2.12"><resource>extract-genes-from-stattest.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>extract-genes.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>calculate-fold-change.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>average-replicates.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>combine-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.12"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.12"><resource>generate-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>delete-columns.R</resource></tool>
