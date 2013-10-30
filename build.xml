@@ -71,11 +71,11 @@
 	<target name="package-client-jar" depends="compile, is-alt-keystore-available, load-alt-keystore-path, use-default-keystore-path, is-keystore-available, warn-about-keystore" description="Creates one fat client jar">
 
 		<!-- build one fat jar -->
-		    <fatjar.build output="${client-jar}">
-            <fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
-        	<fatjar.filesource path="${build}" relpath=""/>
-        	<fatjar.filesource path="${data}" relpath=""/>
-	    	<fatjar.filesource path="${workflows}" relpath=""/>
+		<fatjar.build output="${client-jar}">
+			<fatjar.manifest manifestfile="${src}/MANIFEST.MF" />
+			<fatjar.filesource path="${build}" relpath=""/>
+			<fatjar.filesource path="${data}" relpath=""/>
+			<fatjar.filesource path="${workflows}" relpath=""/>
 
         	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/log4j-1.2.17.jar" relpath=""/>
