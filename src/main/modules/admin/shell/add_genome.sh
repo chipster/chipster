@@ -146,92 +146,6 @@ ensembl_mysql () # parameters 1:url 2:new-name
 	#result files: "$2cytoband-chr.txt", "$2repeat-tabix.bed.gz" and "$2repeat-tabix.bed.gz.tbi"
 }
 
-process_mysql_files ()
-{
-
-		# Download database dump files
-	
-#		download_and_rename "$1seq_region.txt.gz" "$2seq_region.txt"
-#		download_and_rename "$1coord_system.txt.gz" "$2coord_system.txt"
-#		download_and_rename "$1karyotype.txt.gz" "$2cytoband-tmp.txt" 
-#		download_and_rename "$1repeat_feature.txt.gz" "$2repeat_feature.txt"
-
-                cp karyotype.txt cytoband-tmp.txt
-
-		# Prepare chromosome name and identifier mapping
-
-		# search for chomosome (or group) coordinate systems (group for stickleback)
-		cat "coord_system.txt" | grep "chromosome\|group" > coord_system-chr.txt
-
-		# join requires sorted input
-		LANG=en_EN sort -k 1 coord_system-chr.txt > coord_system-sorted.txt
-		LANG=en_EN sort -k 3 seq_region.txt > seq_region-sorted.txt
-
-		# join chromosome names and seq_region identifiers to create map of chromosome identifiers
-		LANG=en_EN join -t '	' -1 1 -2 3 coord_system-sorted.txt seq_region-sorted.txt > chr_map-join.txt
-	
-		# remove extra columns
-		cat chr_map-join.txt | cut -f 7,8 > chr_map.txt
-
-		# join requires sorted input
-		LANG=en_EN sort -k 1 chr_map.txt > chr_map-sorted.txt
-	
-		# clean
-		rm coord_system.txt seq_region.txt
-		rm coord_system-chr.txt coord_system-sorted.txt seq_region-sorted.txt chr_map-join.txt chr_map.txt
-
-	
-		# Low complexity region data
-
-		# remove extra columns
-		#cat repeat-masker-join.txt | cut -f 3,4,5 > repeat-masker.txt		
-		cat repeat_feature.txt | cut -d '	' -f 2,3,4 > repeat-masker.txt
-		
-
-		# join requires sorted input
-		LANG=en_EN sort -k 1 repeat-masker.txt > repeat-masker-sorted.txt
-
-		# join chromosome identifiers and the data
-		LANG=en_EN join -t '	' -1 1 -2 1 chr_map-sorted.txt repeat-masker-sorted.txt > repeat-join.txt
-
-		# remove extra columns
-		# FIXME Ensembl uses 1-based coordinates, whereas standard bed file must have 0-based coordinates
-		cat repeat-join.txt | cut -d '	' -f 2,3,4 > repeat.bed
-	
-		# bed to tabix
-		cat repeat.bed | sort -k1,1 -k2,2n > repeat-sorted.bed		
-		cat repeat-sorted.bed | bgzip > repeat-tabix.bed.gz
-
-		#generate index
-                echo $PATH
-		tabix -p bed repeat-tabix.bed.gz
-
-		# clean
-		rm repeat_feature.txt
-		#rm repeat-masker-row.txt repeat-masker-id.txt repeat-sorted.txt repeat-masker-join.txt
-		rm repeat-masker.txt  repeat-masker-sorted.txt repeat-join.txt
-		rm repeat.bed repeat-sorted.bed
-
-
-		# Cytoband data
-
-
-		# sort the actual data
-		LANG=en_EN sort -k 2 cytoband-tmp.txt > cytoband-sorted.txt
-
-		# join chromosome identifiers and the data
-		LANG=en_EN join -t '	' -1 1 -2 2 chr_map-sorted.txt cytoband-sorted.txt > cytoband-join.txt
-
-		# remove extra columns
-		cat cytoband-join.txt | cut -d '	' -f 2,3,4,5,6,7 > cytoband-chr.txt
-
-		# clean
-		rm cytoband-sorted.txt cytoband-join.txt "cytoband-tmp.txt"
-		rm chr_map-sorted.txt
-
-	#result files: "$2cytoband-chr.txt", "$2repeat-tabix.bed.gz" and "$2repeat-tabix.bed.gz.tbi"
-}
-
 chipster_path="0"
 #export PATH=${PATH}:/opt/chipster4/comp/modules/admin/shell/:/opt/chipster/tools/emboss/bin/:/opt/chipster/tools/samtools/
 
@@ -330,22 +244,22 @@ export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$too
 #Retrieve the fasta file
 ##
 
-#Check if  taxid is used in stead of name
+#Check if  taxid is used in stead of name (commented out to avoid Embos dependency)
 
-taxid=$(echo $species | tr -d "[a-z,A-Z]" )
+#taxid=$(echo $species | tr -d "[a-z,A-Z]" )
 species=$(echo $species | sed s/" "/"_"/g )
-#test for taxnumber
-if [[ "$species" == "$taxid" ]]
-then
-  species=$(taxget taxon:$taxid -oformat excel -filter | sed s/" "/"_"/g | awk '{print $5}')
-  echo "Taxid: $taxid corresponds species: $species"
-else
-  tax_name=$(echo $species | sed s/"_"/" "/g )
-  taxid=$(grep -i "|.$tax_name.|" $tools_path/emboss/share/EMBOSS/data/TAXONOMY/names.dmp  | awk '{print $1}')
-fi
+##test for taxnumber
+#if [[ "$species" == "$taxid" ]]
+#then
+#  species=$(taxget taxon:$taxid -oformat excel -filter | sed s/" "/"_"/g | awk '{print $5}')
+#  echo "Taxid: $taxid corresponds species: $species"
+#else
+#  tax_name=$(echo $species | sed s/"_"/" "/g )
+#  taxid=$(grep -i "|.$tax_name.|" $tools_path/emboss/share/EMBOSS/data/TAXONOMY/names.dmp  | awk '{print $1}')
+#fi
 
 
-echo $species $taxid
+#echo $species $taxid
 
 #reading the data from ensembl
 
@@ -487,9 +401,9 @@ then
   cd $mysql_dir
   gunzip *.gz
   ensembl_mysql .
-  #process_mysql_files 
+  
   cd ..
-  #ln -s $mysql_dir $species
+  
   rm -f $mysql_files
 fi
 ###

@@ -5,6 +5,7 @@
 from pprint import pprint
 import argparse
 import hashlib
+import logging
 import os
 import shutil
 import sys
@@ -13,15 +14,14 @@ import tempfile
 import urllib.request
 import yaml
 import zipfile
-import logging
 
 
-def load_available_bundles(filename):
+def load_all_bundles(filename):
     """
     :type filename: str
     """
     bundles_yaml = yaml.load(open(filename, "r"))
-    logging.debug("load_available_bundles: ")
+    logging.debug("load_all_bundles: ")
     # pprint(bundles_yaml)
     return bundles_yaml
 
@@ -40,7 +40,10 @@ def load_installed_bundles(filename):
             print(e)
         else:
             raise
-    return bundles_yaml
+    if bundles_yaml:    
+        return bundles_yaml
+    else:
+        return {}
 
 
 def save_installed_bundles(filename):
@@ -57,25 +60,31 @@ def install_bundle(name, version):
     :type name: str
     """
     if is_bundle_installed(name):
-        raise Exception("Bundle already installed!")
+        logging.warn("Bundle " + name + " already installed!")
+        return
 
     # If version not given get the latest compatible
     if not version:
         version = max(get_compatible_bundle_versions(name))
     elif version not in get_compatible_bundle_versions(name):
-        raise Exception("Bundle version not compatible or doesn't exist!")
+        logging.warn("Bundle " + name + " version " + version + " not compatible or doesn't exist!")
+        return    
     explode_bundle(name, version)
     installed_bundles[name] = version
     save_installed_bundles(installed_file)
 
 
-def remove_bundle(name):
-    """
+def remove_bundle(name, version):
+    """        
+    Version parameter is not really used for anything, it only makes the interface uniform with other methods.
+    
     :rtype: None
     :type name: str
+    :type version: str
     """
     if not is_bundle_installed(name):
-        raise Exception("Bundle not installed!")
+        logging.warn("Bundle " + name + " not installed!")
+        return
 
     # For now version can only be what is already installed
     version = is_bundle_installed(name)
@@ -93,11 +102,13 @@ def update_bundle(name, n_version):
     # For now o_version can only be what is already installed
     o_version = is_bundle_installed(name)
     if not o_version:
-        raise Exception("Bundle not installed!")
+        logging.warn("Bundle " + name  + " not installed!")
+        return
     if not n_version:
         n_version = max(get_compatible_bundle_versions(name))
     if n_version == o_version:
-        raise Exception("Bundle already this version!")
+        logging.info("Bundle " + name + " is already version " + n_version)
+        return
 
     # remove_bundle(name)
     # install_bundle(name, n_version)
@@ -111,28 +122,28 @@ def is_bundle_installed(name):
     :rtype : str or bool
     :type name: str
     """
-    if name in installed_bundles:
+    if name in get_installed_bundles():
         return installed_bundles[name]
     else:
         return False
 
 
-def get_available_bundle(name):
+def get_bundle(name):
     """
     :rtype : str or None
     :type name: str
     """
     retval = None
-    if name in available_bundles:
-        retval = available_bundles[name]
-    logging.debug("get_available_bundle: %s" % retval)
+    if name in all_bundles:
+        retval = all_bundles[name]
+    logging.debug("get_bundle: %s" % retval)
     return retval
 
-# def get_available_bundle_versions(name):
+# def get_bundle_versions(name):
 #   """
 #   """
-#   retval = [elem["version"] for elem in get_available_bundle(name)]
-#   logging.debug("get_available_bundle_versions: %s"% retval)
+#   retval = [elem["version"] for elem in get_bundle(name)]
+#   logging.debug("get_bundle_versions: %s"% retval)
 #   return retval
 
 
@@ -141,21 +152,24 @@ def get_compatible_bundle_versions(name):
     :rtype: list of str
     :type name: str
     """
-    retval = [elem["version"] for elem in get_available_bundle(name)
+    retval = [elem["version"] for elem in get_bundle(name)
               if "chipster" in elem and float(elem["chipster"]) <= chipster_version]
     logging.debug("get_compatible_bundle_versions: %s" % retval)
     return retval
 
 
-def get_available_bundle_version(name, version):
+def get_bundle_version(name, version):
     """
     :type name: str
     :type version: str
     :rtype: dict
     """
-    retval = [elem for elem in get_available_bundle(name) if elem["version"] == version]
-    logging.debug("get_available_bundle_version: %s" % retval)
-    return retval[0]
+    retval = [elem for elem in get_bundle(name) if elem["version"] == version]
+    logging.debug("get_bundle_version: %s" % retval)
+    if retval:
+        return retval[0]
+    else:
+        return None
 
 
 def is_bundle_deprecated(name, version):
@@ -166,7 +180,7 @@ def is_bundle_deprecated(name, version):
     :type version: str
     :rtype: bool
     """
-    retval = [elem["version"] for elem in get_available_bundle(name)
+    retval = [elem["version"] for elem in get_bundle(name)
               if "deprecated" in elem and float(elem["deprecated"]) < chipster_version]
     logging.debug("is_bundle_deprecated: %s" % retval)
     if retval and retval[0] >= version:
@@ -190,7 +204,7 @@ def are_updates_available():
             logging.debug("i_name: %s" % i_name)
             logging.debug("i_version: %s" % i_version)
 
-            if not get_available_bundle(i_name):
+            if not get_bundle(i_name):
                 logging.info("Bundle is personal!")
                 personal_bundles[i_name] = i_version
             elif is_bundle_deprecated(i_name, i_version):
@@ -210,9 +224,20 @@ def are_updates_available():
 
     return updated_bundles, personal_bundles, deprecated_bundles
 
+def get_all_bundles():
+    return sorted(all_bundles.keys())
+    
+def get_installed_bundles():
+    return sorted(installed_bundles.keys())                
+    
+def get_available_bundles():    
+    available = all_bundles.keys() - installed_bundles.keys()
+    return sorted(available)   
 
-# TODO: Complete this!
-def print_available_bundles():
+def print_bundles(bundle, version):
+    print(bundle)
+
+def print_bundles_verbose(bundle, version):
     """
     """
 
@@ -227,10 +252,14 @@ def print_available_bundles():
         else:
             return version
 
-    for bundle, value in available_bundles.items():
-        if value:
-            versions = sorted([(bundle, version["version"]) for version in value])
-            print(versions)
+    print("%40s" % bundle, end="\t")
+    version_list_of_dicts = all_bundles[bundle]                        
+    version_list_of_strs = sorted([version["version"] for version in version_list_of_dicts])
+    
+    for version in version_list_of_strs:                                
+        print(complement_version_id([bundle, version]), end="\t")
+        
+    print("") # new line
 
 
 def create_tree(dst):
@@ -241,7 +270,7 @@ def create_tree(dst):
         os.makedirs(os.path.dirname(dst))
     except OSError as e:
         handle_file_error(e)
-    logging.info("Created tree: %s" % os.path.dirname(dst))
+    logging.debug("Created tree: %s" % os.path.dirname(dst))
 
 
 def explode_bundle(name, version):
@@ -249,14 +278,14 @@ def explode_bundle(name, version):
     Explode bundle contents into installation path
     """
     # Blindly assume list can only contain one matching version
-    a_version = [b_version for b_version in available_bundles[name] if b_version["version"] == version][0]
+    a_version = [b_version for b_version in all_bundles[name] if b_version["version"] == version][0]
     logging.debug("version: %s" % a_version)
 
     # Loop through packages
     for pkg_name, pkg_values in a_version["packages"].items():
         explode_package(pkg_name, pkg_values)
 
-    logging.info("Bundle %s/%s has exploded!" % (name, version))
+    logging.info("Bundle %s/%s installed!" % (name, version))
 
 
 def implode_bundle(name, version):
@@ -264,14 +293,14 @@ def implode_bundle(name, version):
     Implode bundle contents from installation path
     """
     # Blindly assume list can only contain one matching version
-    a_version = [b_version for b_version in available_bundles[name] if b_version["version"] == version][0]
+    a_version = [b_version for b_version in all_bundles[name] if b_version["version"] == version][0]
     logging.debug("version: %s" % a_version)
 
     # Loop through packages
     for pkg_name, pkg_values in a_version["packages"].items():
         implode_package(pkg_name, pkg_values)
 
-    logging.info("Bundle %s/%s has imploded!" % (name, version))
+    logging.info("Bundle %s/%s uninstalled!" % (name, version))
 
 
 def remove_file(dst):
@@ -288,7 +317,7 @@ def remove_file(dst):
             os.removedirs(os.path.dirname(dst))
         except OSError as e:
             handle_file_error(e)
-        logging.info("Cleaned tree: %s" % os.path.dirname(dst))
+        logging.debug("Cleaned tree: %s" % os.path.dirname(dst))
 
     logging.debug("remove_file(): %s" % dst)
     try:
@@ -296,7 +325,7 @@ def remove_file(dst):
         remove_tree(dst)
     except OSError as e:
         handle_file_error(e)
-    logging.info("Removed: %s" % dst)
+    logging.debug("Removed: %s" % dst)
 
 
 def transform_bundle(bundle, o_version, n_version):
@@ -321,7 +350,7 @@ def transform_bundle(bundle, o_version, n_version):
         :type version: str
         """
         logging.debug("get_package_owning_file: %s, %s, %s" % (tup, bundle, version))
-        for key, values in get_available_bundle_version(bundle, version)["packages"].items():
+        for key, values in get_bundle_version(bundle, version)["packages"].items():
             for file in values["files"]:
                 if file["source"] == tup[0] and file["destination"] == tup[1]:
                     logging.debug("found: %s, %s, %s" % (key, file["source"], file["destination"]))
@@ -333,7 +362,7 @@ def transform_bundle(bundle, o_version, n_version):
         :type name: str
         :type version: str
         """
-        for x in get_available_bundle_version(name, version)["packages"].values():
+        for x in get_bundle_version(name, version)["packages"].values():
             if "symlinks" in x:
                 for y in x["symlinks"]:
                     yield y
@@ -388,7 +417,7 @@ def implode_package(pkg_name, pkg_values):
         logging.debug("checksum: %s" % checksum)
 
         remove_file(refine_path(dst))
-    logging.info("Package %s has imploded!" % pkg_name)
+    logging.debug("Package %s has imploded!" % pkg_name)
 
 
 def explode_package(pkg_name, pkg_values):
@@ -397,12 +426,12 @@ def explode_package(pkg_name, pkg_values):
     :type pkg_values: dict
     """
 
-    def copy_file(src, dst):
+    def move_file(src, dst):
         """
         :type src: str
         :type dst: str
         """
-        logging.debug("copy_file({})".format(src, dst))
+        logging.debug("move_file({})".format(src, dst))
 
         # Copy file into place
         create_tree(dst)
@@ -410,41 +439,49 @@ def explode_package(pkg_name, pkg_values):
         #     logging.debug("Using link() to copy file!")
         #     os.link(src, dst)
         # else:
-        logging.debug("Using copy2() to copy file!")
-        shutil.copy2(src, dst)
-        # shutil.move(src, dst)
-        logging.info("Copied: %s -> %s" % (src, dst))
+        # logging.debug("Using copy2() to copy file!")
+        # shutil.copy2(src, dst)
+        # logging.info("Copied: %s -> %s" % (src, dst))
+        
+        shutil.move(src, dst)
 
     logging.debug("explode_package({})".format(pkg_name, pkg_values))
 
-    # Download archive
-    (f, hm) = urllib.request.urlretrieve(pkg_name)
-    logging.debug(f)
-    logging.debug(hm)
-
     # Recognise archive type
-    if tarfile.is_tarfile(f):
-        logging.info("File is tar (.gz/.bz2)!")
-        pf = tarfile.open(f)
-    elif zipfile.is_zipfile(f):
-        logging.info("File is zip!")
-        pf = zipfile.ZipFile(f)
-    else:
-        logging.exception("File is unknown!")
-        raise Exception("Unknown archive format!")
+    if str(pkg_name).endswith(".tar.gz"):
+        logging.debug("File is tar (.gz/.bz2)!")
+        # Stream archive
+        f = urllib.request.urlopen(pkg_name)
+        pf = tarfile.open(fileobj=f, mode="r|*")
 
-    # Create temporary directory
-    tmp_dir = tempfile.mkdtemp() + "/"
+    else:
+        # Download archive
+        (f, hm) = urllib.request.urlretrieve(pkg_name)
+        logging.debug(f)
+        logging.debug(hm)
+        
+        if zipfile.is_zipfile(f):
+            logging.debug("File is zip!")
+            pf = zipfile.ZipFile(f)
+        else:
+            logging.exception("File is unknown!")
+            raise Exception("Unknown archive format!")
+
+    # Create temporary directory on the same disk to enable quick move operation
+    
+    tmp_path = tools_path + "tmp/"
+    os.makedirs(tmp_path)
+    tmp_dir = tempfile.mkdtemp(dir=tmp_path) + "/"
     logging.debug("tempdir: %s" % tmp_dir)
 
     # Extract archive
     pf.extractall(tmp_dir)
     pf.close()
-    logging.info("Archive unpacked and closed!")
+    logging.debug("Archive unpacked and closed!")
 
     # Loop through files
     for file in pkg_values["files"]:
-        copy_file(tmp_dir + file["source"], refine_path(file["destination"]))
+        move_file(tmp_dir + file["source"], refine_path(file["destination"]))
 
     # Loop through symlinks
     if "symlinks" in pkg_values:
@@ -452,9 +489,9 @@ def explode_package(pkg_name, pkg_values):
             create_symlink(symlink["source"], refine_path(symlink["destination"]))
 
     # Destructively delete temporary directory w/ contents
-    shutil.rmtree(tmp_dir)
-    logging.info("Temp dir deleted!")
-    logging.info("Package %s has exploded!" % pkg_name)
+    shutil.rmtree(tmp_path)
+    logging.debug("Temp dir deleted!")
+    logging.debug("Package %s has exploded!" % pkg_name)
 
 
 def refine_path(path):
@@ -464,7 +501,7 @@ def refine_path(path):
     """
     new_path = path
     if not os.path.isabs(path):
-        new_path = installation_path + path
+        new_path = tools_path + path
     return new_path
 
 
@@ -481,7 +518,7 @@ def create_symlink(src, dst):
         os.symlink(src, dst)
     except OSError as e:
         handle_file_error(e)
-    logging.info("Symlinked: %s -> %s" % (dst, src))
+    logging.debug("Symlinked: %s -> %s" % (dst, src))
 
 
 def calculate_checksum(filename):
@@ -509,11 +546,20 @@ def validate_bundle(name, version):
     # Validate checksums
     for file in list_of_files(name):
         if checksum_on_file == calculate_checksum(file):
-            logging.info("File is OK!")
+            logging.debug("File is OK!")
         else:
-            logging.warning("File is corrupted!")
-
-
+            logging.warning("File " + file + " is corrupted!")
+            
+            
+def check_existence(name, version):
+    if not get_bundle(name):
+        logging.error("There is no bundle with name: " + name)
+        return False;
+    if version and not get_bundle_version(name, version):
+        logging.error("There is no version " + version + " for bundle " + name)
+        return False;
+    return True
+        
 def parse_commandline():
     # TODO: Complete this!
     """
@@ -536,38 +582,82 @@ def parse_commandline():
     # upgrade [bundle name/version]
     # uninstall [bundle name]
 
-    # list [installed, available, upgradeable]
+    # list [all, installed, available]
 
     # -v,--verbose
 
-    parser = argparse.ArgumentParser(description="Admin tool for Chipster bundles", epilog="Blah blah blah")
+    end_help="accepted keywords:\n" + \
+    "  all \t\t\tall bundles\n" + \
+    "  installed \t\tinstalled bundles\n" + \
+    "  available \t\tbundles not installed\n" + \
+    "\n" + \
+    "examples:\n" + \
+    "  list all -v\n" + \
+    "  update installed\n" + \
+    "  install available\n"
+
+    parser = argparse.ArgumentParser(description="Admin tool for Chipster bundles", 
+                                     epilog=end_help, formatter_class=argparse.RawTextHelpFormatter)
     # group = parser.add_mutually_exclusive_group()
-    # group.add_argument("-v", "--verbose", action="store_true")
-    # group.add_argument("-q", "--quiet", action="store_true")
+    parser.add_argument("-d", "--debug", action="store_true", help="Print detailed output for debugging")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Report only if the requested end result wasn't achieved")    
+    parser.add_argument("-v", "--verbose", action="store_true", help="Extend the bundle list with version information")
+    
     parser.add_argument("action", type=str, help="Action to perform",
                         choices=["install", "uninstall", "update", "list"])  # ,metavar="action"
-    parser.add_argument("bundle", type=str, help="Bundle <name>/<version> or <keyword>")  # ,metavar="bundle name"
+    parser.add_argument("bundle", type=str, help="Bundle <name>[/<version>] or <keyword>{all, installed, available}")  # ,metavar="bundle name"
     # parser.add_argument("updates", type=str, help="Check for updates", choices=["check-update"])
+                
+    #args = parser.parse_args(["list", "all", "-v"]) # for testing
+    #args = parser.parse_args(["-h"]) # for testing
     args = parser.parse_args()
+    
+    if args.debug:    
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug("Logging level is debug")    
+    elif args.quiet:
+        logging.getLogger().setLevel(logging.WARNING)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+        
 
     name, version = get_name_version(args.bundle)
+        
+    if name == "all":
+        bundle_list = [(b_name, None) for b_name in get_all_bundles()]
+    elif name == "installed":
+        bundle_list = [(b_name, None) for b_name in get_installed_bundles()]
+    elif name == "available":
+        bundle_list = [(b_name, None) for b_name in get_available_bundles()]
+    else:
+        bundle_list = [(name, version)]
+        if not check_existence(name, version):
+            return
+    
     logging.debug("%s/%s" % (name, version))
     if args.action == "install":
-        logging.info("Install something!")
-        install_bundle(name, version)
+        logging.debug("Install something!")
+        for_each(bundle_list, install_bundle)
+        #install_bundle(name, version)
     elif args.action == "uninstall":
-        logging.info("Uninstall something!")
-        remove_bundle(name)
+        logging.debug("Uninstall something!")
+        for_each(bundle_list, remove_bundle)
+        #remove_bundle(name)
     elif args.action == "update":
-        logging.info("Update something!")
-        update_bundle(name, version)
+        logging.debug("Update something!")
+        for_each(bundle_list, update_bundle)
+        #¤update_bundle(name, version)
     elif args.action == "list":
-        logging.info("List something!")
-        print_available_bundles()
-
-#    if name == "all":
-#        print_available_bundles()
-
+        logging.debug("List something!")
+        if args.verbose:
+            for_each(bundle_list, print_bundles_verbose)            
+        else:
+            for_each(bundle_list, print_bundles)
+            
+            
+def for_each(bundle_list, action):
+    for name, version in bundle_list:
+        action(name, version)    
 
 def diff_bundle(name, version_a, version_b):
     """
@@ -623,8 +713,8 @@ def diff_bundle(name, version_a, version_b):
     if float(version_a) == float(version_b):
         raise Exception("This is pointless!")
 
-    spec_a = get_available_bundle_version(name, version_a)
-    spec_b = get_available_bundle_version(name, version_b)
+    spec_a = get_bundle_version(name, version_a)
+    spec_b = get_bundle_version(name, version_b)
 
     details_a = list(get_details(spec_a))
     details_b = list(get_details(spec_b))
@@ -652,10 +742,10 @@ def handle_file_error(e):
         logging.warning(e)
     # File/Tree exists
     elif e.errno == 17:
-        logging.warning(e)
+        logging.debug(e)
     # Tree not empty
     elif e.errno == 39:
-        logging.warning(e)
+        logging.debug(e)
     else:
         raise
 
@@ -666,10 +756,12 @@ def handle_file_error(e):
 
 if __name__ == '__main__':
     prog_path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/"
-    chipster_version = 2.6
+    chipster_version = 2.8
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
     installation_path = "/opt/chipster/"
+    tools_path = installation_path + "tools/"
+    # use this logging level until the commandline arguments are parsed
     logging.basicConfig(level=logging.INFO)
 
     logging.debug("prog_path: %s" % prog_path)
@@ -677,14 +769,14 @@ if __name__ == '__main__':
     logging.debug("bundles_file: %s" % bundles_file)
     logging.debug("installed_file: %s" % installed_file)
 
-    available_bundles = load_available_bundles(bundles_file)
+    all_bundles = load_all_bundles(bundles_file)
     installed_bundles = load_installed_bundles(installed_file)
-
+    
     # update_list, personal_list, deprecate_list = are_updates_available()
 
     # logging.debug("calculated checksum: %s"% calculate_checksum("/home/mkarlsso/Downloads/cheatsheet-a4-color.pdf"))
     # explode_bundle("hg19", "1.0")
     # implode_bundle("hg19", "1.0")
     # logging.debug(diff_bundle("hg19", "1.0", "1.1"))
-    # transform_bundle("hg19", "1.0", "1.1")
+    # transform_bundle("hg19", "1.0", "1.1")    
     parse_commandline()
