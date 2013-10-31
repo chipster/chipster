@@ -1,9 +1,6 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -70,7 +67,13 @@ public class StorageAdminAPI {
 		return listener.query(username);
 	}
 
-	public class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
+	public List<StorageAggregate> listStorageUsageOfUsers() throws JMSException, InterruptedException {
+		
+		StorageAggregateMessageListener listener = new StorageAggregateMessageListener();
+		return listener.query();
+	}
+	
+	private class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
 
 		private List<StorageEntry> entries;
 		private CountDownLatch latch;
@@ -117,15 +120,8 @@ public class StorageAdminAPI {
 			latch.countDown();
 		}
 	}	
-	
-	public List<StorageAggregate> listStorageUsageOfUsers() throws JMSException, InterruptedException {
-		
-		StorageAggregateMessageListener listener = new StorageAggregateMessageListener();
-		return listener.query();
-	}
 
-
-	public class StorageAggregateMessageListener extends TempTopicMessagingListenerBase {
+	private class StorageAggregateMessageListener extends TempTopicMessagingListenerBase {
 
 		private CountDownLatch latch;
 		private List<StorageAggregate> entries;
