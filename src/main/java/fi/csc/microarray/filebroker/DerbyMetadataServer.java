@@ -23,6 +23,9 @@ import java.util.TimerTask;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
@@ -528,18 +531,17 @@ public class DerbyMetadataServer {
 		LinkedList<String> sizes = new LinkedList<String>();
 		LinkedList<String> dates = new LinkedList<String>();
 		
-		//FIXME SimpleDateFormat is different in different locales, not good for messaging
-		DateFormat dateFormatter = new SimpleDateFormat();
+		DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 		
 		while (rs.next()) {
 			String user = rs.getString("username");
 			String session = rs.getString("name");
 			String size = rs.getString("size");
-			Date date = rs.getDate("date");
+			DateTime date = new DateTime(rs.getTimestamp("date"));
 			usernames.add(user);
 			sessions.add(session);
 			sizes.add(size);
-			dates.add(dateFormatter.format(date));
+			dates.add(dateTimeFormatter.print(date));
 		}
 
 		return new List[] { usernames, sessions, sizes, dates };

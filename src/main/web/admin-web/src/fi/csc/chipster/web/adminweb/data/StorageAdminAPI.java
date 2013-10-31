@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
@@ -99,20 +101,17 @@ public class StorageAdminAPI {
 			String[] sizes = sizesString.split("\t");
 			String[] dates = datesString.split("\t");
 
-			DateFormat dateParser = new SimpleDateFormat();
+			
+			DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 			entries = new LinkedList<StorageEntry>();
-			try {
-				for (int i = 0; i < names.length; i++) {
+			for (int i = 0; i < names.length; i++) {
 
-					StorageEntry entry = new StorageEntry();
-					entry.setDate(dateParser.parse(dates[i]));
-					entry.setUsername(usernames[i]);
-					entry.setSize(Long.parseLong(sizes[i]));
-					entry.setName(names[i]);
-					entries.add(entry);
-				}
-			} catch (ParseException e) {
-				logger.error(e);
+				StorageEntry entry = new StorageEntry();
+				entry.setDate(dateTimeFormatter.parseDateTime(dates[i]).toDate());
+				entry.setUsername(usernames[i]);
+				entry.setSize(Long.parseLong(sizes[i]));
+				entry.setName(names[i]);
+				entries.add(entry);
 			}
 
 			latch.countDown();
