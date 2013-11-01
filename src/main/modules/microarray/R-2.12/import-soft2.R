@@ -5,10 +5,8 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: "Affymetrix/Illumina chiptype" TYPE STRING DEFAULT other (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package. For Illumina arrays, fill in Illumina. For everything else, either cDNA or other.)
 
-# 2013-03-18
-# Ilari Scheinin <firstname.lastname@gmail.com>
-
-# JTT 9.8.2007
+# JTT: 9.8.2007
+# IS: 2013-03-18
 
 # check for valid accession
 GDS.name <- toupper(GDS.name)
