@@ -24,18 +24,16 @@ import subprocess
 __author__ = "Mikael Karlsson <i8myshoes@gmail.com>"
 
 
-def refine_path(src, chipster_path, tools_path):
+def refine_path(src, tools_path):
     """
     Tries to do some refining and validation on path given
     :rtype: str
     """
     if not os.path.isabs(src):
-        if os.path.exists(chipster_path + src):
-            new_src = chipster_path + src
-        elif os.path.exists(tools_path + src):
+        if os.path.exists(tools_path + src):
             new_src = tools_path + src
         else:
-            raise Exception("File path is incomplete!")
+            raise Exception("File path is incomplete! " + tools_path + src)
     else:
         new_src = src
     return new_src
@@ -194,10 +192,9 @@ def create_spec(version, chipster, deprecated, file_list, symlink_list, archive_
 
 def main():
     """
-    Main function
+    Main function    
     """
-    chipster_path = "/opt/chipster/"
-    tools_path = chipster_path + "tools/"
+    
 
     yaml_dict = {}
     file_list = []
@@ -205,6 +202,12 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     params = vars(parse_commandline())
+    
+    if params["tools"]:
+        tools_path = params["tools"]
+    else:
+        tools_path = "/opt/chipster/tools/"
+        
     params["archive"] = "{}-{}.tar{}".format(
         params["name"], params["version"],
         "." + params["compression"] if params["compression"] in ("gz", "bz2") else "")
@@ -214,14 +217,15 @@ def main():
 
     # Process input files
     for file_name in sys.stdin:
-        file_name = refine_path(file_name.strip(), chipster_path, tools_path)
-        if os.path.islink(file_name):
-            symlink_list.append((os.readlink(file_name), file_name))
+        rel_file=file_name.strip()
+        abs_file = refine_path(rel_file, tools_path)
+        if os.path.islink(abs_file):
+            symlink_list.append((os.readlink(abs_file), rel_file))
             logging.debug("symlink_list: %s" % symlink_list)
-        elif os.path.isfile(file_name):
-            file_list.append(process_file(file_name=file_name, file_list=file_list))
+        elif os.path.isfile(abs_file):
+            file_list.append(process_file(file_name=rel_file, file_list=file_list))
             logging.debug("file_list: %s" % file_list)
-        elif os.path.isdir(file_name):
+        elif os.path.isdir(abs_file):
             logging.warning("What are you feeding me!! Directories are rubbish!!")
 
     # Create structure
@@ -245,7 +249,7 @@ def main():
                     deprecated=params["deprecated"],
                     file_list=file_list,
                     symlink_list=symlink_list,
-                    archive_name=params["archive"])
+                    archive_name=params["prefix"] + params["archive"])
     ]
 
     pprint.pprint(yaml_dict)
@@ -294,6 +298,12 @@ def parse_commandline():
     parser.add_argument("-f", "--file",
                         type=str,
                         help="Output <file>")
+    parser.add_argument("--prefix",
+                        type=str,
+                        help="package filename prefix, e.g. URL of the bundle repository")
+    parser.add_argument("-t", "--tools",
+                        type=str,
+                        help="Path for converting file names from relative to absolute")
     # ,metavar="bundle name"
     # parser.add_argument("updates", type=str, help="Check for updates", choices=["check-update"])
     args = parser.parse_args()

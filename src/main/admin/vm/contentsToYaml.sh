@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# I wasn't able to get cut to work with tab delimiter, so convert them first 
+# I wasn't able to get cut to work with tab delimiter, so CONVERT THEM FIRST
 # (note the tab character, copy-paste will lose it, use ctrl+v and tab to type it
 # on command line.
 #
@@ -26,7 +26,7 @@ do
         echo "species: $DISPLAY_SPECIES" > genome_v1.yaml
         echo "version: $DISPLAY_VERSION" >> genome_v1.yaml
 
-        ENSEMBL=$(cat contents.csv | grep "$DISPLAY_SPECIES" | grep "$DISPLAY_VERSION" | grep Ensembl | cut -d "," -$
+        ENSEMBL=$(cat contents.csv | grep "$DISPLAY_SPECIES" | grep "$DISPLAY_VERSION" | grep Ensembl | cut -d "," -f 5)
         UCSC=$(cat contents.csv | grep "$DISPLAY_SPECIES" | grep "$DISPLAY_VERSION" | grep UCSC | cut -d "," -f 5)
 
         echo "ensemblBrowserUrl: $ENSEMBL" >> genome_v1.yaml
