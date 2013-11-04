@@ -300,7 +300,7 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		-->
-		<tool runtime="R-2.15">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.15_bioc-2.11">
