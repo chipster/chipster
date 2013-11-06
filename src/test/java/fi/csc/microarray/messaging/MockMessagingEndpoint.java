@@ -13,7 +13,7 @@ public class MockMessagingEndpoint implements MessagingEndpoint {
 	@Override
 	public MessagingTopic createTopic(Name topicName, AccessMode accessMode)
 			throws JMSException {
-		return null;
+		return new MockMessagingTopic(topicName.name(), accessMode, this);
 	}
 
 	@Override

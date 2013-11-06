@@ -1,7 +1,9 @@
 package fi.csc.microarray.client.session;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -20,10 +22,12 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileServer;
+import fi.csc.microarray.filebroker.MockJettyFileServer;
 import fi.csc.microarray.messaging.MockMessagingEndpoint;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.IOUtils;
 
 public class SessionTest {
 
@@ -33,20 +37,111 @@ public class SessionTest {
 
 	
 	@Test
-	public void test() throws IOException {
+	public void test() throws Exception {
 
 		// initialise and configure
 		File workDir = Files.createTempDirectory("remote-session-unit-test-temp").toFile();
 		new File(workDir, "conf").mkdir();
-		new File(workDir, "logs").mkdir();
+		File logDir = new File(workDir, "logs");
+		logDir.mkdir();
 		new File(workDir, "security").mkdir();
-		File configFile = new File(workDir, "conf" + File.separator + "chipster-config.xml");
 		DirectoryLayout.setBaseDirOverride(workDir);
+
+		File configFile = new File(workDir, "conf" + File.separator + "chipster-config.xml");
+		IOUtils.copy(new ByteArrayInputStream(getMockConfig().getBytes()), configFile);
 
 		// boot up file server so that it is connected to mock messaging fabric
 		MockMessagingEndpoint endpoint = new MockMessagingEndpoint();
-		new FileServer(null, endpoint);
+		new FileServer(null, endpoint, new MockJettyFileServer());
+		
+		// check everything
+		for (File logFile : logDir.listFiles()) {
+			ByteArrayOutputStream contents = new ByteArrayOutputStream();
+			IOUtils.copy(new FileInputStream(logFile), contents);
+			if (contents.toString().contains("Exception")) {
+				throw new Exception(logFile + " contains exception");
+			}
+		}
+		
 
+	}
+
+
+	private String getMockConfig() {
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+				"<configuration content-version=\"3\">\n" + 
+				"\n" + 
+				"	<configuration-module moduleId=\"messaging\">\n" + 
+				"\n" + 
+				"		<!-- host of message broker (JMS server ActiveMQ) to connect to -->\n" + 
+				"		<entry entryKey=\"broker-host\">\n" + 
+				"			<value>not defined</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"		<!-- protocol used to connect to message broker -->\n" + 
+				"		<entry entryKey=\"broker-protocol\">\n" + 
+				"			<value>not defined</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"		<!-- port used to connect to message broker -->\n" + 
+				"		<entry entryKey=\"broker-port\">\n" + 
+				"			<value>-1</value>\n" + 
+				"		</entry>\n" + 
+				"		\n" + 
+				"	</configuration-module>\n" + 
+				"\n" + 
+				"	<configuration-module moduleId=\"security\">\n" + 
+				"\n" + 
+				"		<!-- username for authenticating connection to broker -->\n" + 
+				"		<entry entryKey=\"username\">\n" + 
+				"			<value>not defined</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"		<!-- password for authenticating connection to broker -->\n" + 
+				"		<entry entryKey=\"password\">\n" + 
+				"			<value>not defined</value>\n" + 
+				"		</entry>\n" + 
+				"	\n" + 
+				"	</configuration-module>\n" + 
+				"\n" + 
+				"	<configuration-module moduleId=\"filebroker\">\n" + 
+				"	\n" + 
+				"	    <!-- url of this file broker instance -->\n" + 
+				"		<entry entryKey=\"url\">\n" + 
+				"			<value>not defined</value>\n" + 
+				"		</entry>\n" + 
+				"		\n" + 
+				"		<!-- server port to use in this file broker instance -->\n" + 
+				"		<entry entryKey=\"port\">\n" + 
+				"			<value>-1</value>			\n" + 
+				"        </entry>		\n" + 
+				"        \n" + 
+				"        \n" + 
+				"        <entry entryKey=\"metadata-port\">\n" + 
+				"			<value>-1</value>\n" + 
+				"       		</entry>\n" + 
+				"        \n" + 
+				"        \n" + 
+				"        <entry entryKey=\"clean-up-trigger-limit-percentage\" type=\"int\" description=\"when disk usage reaches this percentage clean up\">\n" + 
+				"			<value>22</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"		<entry entryKey=\"clean-up-target-percentage\" type=\"int\" description=\"when cleaning up drop disk usage to this percentage\">\n" + 
+				"			<value>20</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"\n" + 
+				"		<entry entryKey=\"clean-up-minimum-file-age\" type=\"int\" description=\"only clean up files older than this, seconds\">\n" + 
+				"			<value>259200</value>\n" + 
+				"		</entry>\n" + 
+				"\n" + 
+				"		<entry entryKey=\"minimum-space-for-accept-upload\" type=\"int\" description=\"when client requests for free space, say no if less than this many megabytes would be available after upload, megabytes\">\n" + 
+				"			<value>100</value>\n" + 
+				"		</entry>\n" + 
+				"        \n" + 
+				"	</configuration-module>\n" + 
+				"\n" + 
+				"</configuration>\n";
 	}
 	
 	
