@@ -1,0 +1,110 @@
+
+#
+# Template
+#
+
+#abc:
+#    - version: x.y
+#      chipster: x.y.z
+#      deprecated: x.y.z
+#      packages:
+#        'abc':
+#          files:
+#            - source: 'abc'
+#              destination: 'abc'
+#              checksum: '123'
+#          symlinks:
+#            - source: 'abc/d'
+#              destination: 'd'
+
+yeast:
+    - version: '1.0'
+      chipster: '2.0'
+      files:
+        a: a
+        b: b
+    - version: '1.1'
+      chipster: '2.1'
+      files:
+        a: a
+        b: b
+        c: c
+    - version: '1.2'
+      chipster: '2.4'
+      files:
+        a: a
+        b: b
+        c: c
+        d: d
+
+rat:
+    - version: '1.0'
+      chipster: '2.2'
+      files:
+        a: a
+        b: b
+    - version: '1.1'
+      chipster: '2.4'
+      files:
+        a: a
+        b: b
+        c: c
+
+reindeer:
+
+elk:
+
+cow:
+    - version: '2.07'
+      chipster: '2.4'
+      deprecated: '2.4'
+      files:
+        a: a
+        b: b
+
+chicken:
+
+hg19:
+    - version: '1.0'
+      chipster: '2.2'
+      packages:
+        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz':
+          files:
+            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
+              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
+              checksum: '4ae1be8c603d37b34e5da91987aaed15da3c5b390ada8be3d2e23ceadf8a6507'
+            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
+              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
+              checksum: '38a014a877c61f98b846ea7154867ac1611e5b1e76bde21661e88afbb4713374'
+          symlinks:
+            - source: 'bin/abc'
+              destination: 'abc'
+        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz':
+          files:
+            - source: 'genomes/fasta/hg19.fa'
+              destination: 'genomes/fasta/hg19.fa'
+              checksum: '492c8d6337990dd017b065abb4559509e0853521976868c57dc6634d1d1796d7'
+    - version: '1.1'
+      chipster: '2.3'
+      packages:
+        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_hg19.tar.gz':
+          files:
+            - source: 'genomes/fasta/nochr/hg19.fa'
+              destination: 'genomes/fasta/nochr/hg19.fa'
+              checksum: 'e52ae4ca93abdd03eb91584c2403ae339a470c1ba48d003313d38667b2cb4d1b'
+        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz':
+          files:
+            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
+              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
+              checksum: '4ae1be8c603d37b34e5da91987aaed15da3c5b390ada8be3d2e23ceadf8a6507'
+            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
+              destination: 'genomes/gtf/homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
+              checksum: '38a014a877c61f98b846ea7154867ac1611e5b1e76bde21661e88afbb4713374'
+          symlinks:
+            - source: 'bin/abc'
+              destination: 'abc'
+        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz':
+          files:
+            - source: 'genomes/fasta/hg19.fa'
+              destination: 'genomes/fasta/hg19.fa'
+              checksum: '492c8d6337990dd017b065abb4559509e0853521976868c57dc6634d1d1796d7'
