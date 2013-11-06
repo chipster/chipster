@@ -170,6 +170,8 @@ public class MicroarrayModule implements Module {
 	@Override
 	public String[] getServerModuleNames() {
 		return new String[] { "microarray", "ngs" };
+//		return new String[] { "microarray", "ngs", "seq-comp" };
+
 	}
 
 	@Override
@@ -178,8 +180,10 @@ public class MicroarrayModule implements Module {
 			return "Microarrays";
 		} else if ("ngs".equals(moduleName)) {
 			return "NGS";
+		} else if ("seq-comp".equals(moduleName)) {
+			return "Sequence Comparison";
 		} else {
-			throw new IllegalArgumentException("not recognised: " + moduleName);
+			return moduleName;
 		}
 	}
 
@@ -213,6 +217,7 @@ public class MicroarrayModule implements Module {
 		return importFromGEOMenuItem;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 
@@ -437,6 +442,7 @@ public class MicroarrayModule implements Module {
 	 * Generates nice context link panel for quickly using genome browser. If not in standalone
 	 * mode, null is returned. 
 	 */
+	@SuppressWarnings("serial")
 	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 
@@ -656,7 +662,7 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("text/tab")) {
 			BufferedReader in = null;
 			try {
-				in = new BufferedReader(new InputStreamReader(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
+				in = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 				String headerLine = in.readLine();
 				String contentLine = in.readLine();
 				
@@ -838,7 +844,7 @@ public class MicroarrayModule implements Module {
 
 		BufferedReader reader = null;
 		try {
-			InputStream stream = data.getContentStream(DataNotAvailableHandling.NULL_ON_NA);
+			InputStream stream = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA);
 			if (stream != null) {
 				reader = new BufferedReader(new InputStreamReader(stream));
 				return reader.readLine();

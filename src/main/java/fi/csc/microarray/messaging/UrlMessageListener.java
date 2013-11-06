@@ -31,7 +31,7 @@ public class UrlMessageListener extends TempTopicMessagingListenerBase {
 	/**
 	 * @param timeout in given units
 	 * @param unit unit of the timeout
-	 * @return 
+	 * @return may be null
 	 * @throws RuntimeException if interrupted
 	 */
 	public URL waitForReply(long timeout, TimeUnit unit) {

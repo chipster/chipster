@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 
 public class LocalFileContentHandler implements ContentHandler {

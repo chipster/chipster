@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
@@ -23,12 +24,12 @@ public class SamBamViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		InputStream in = data.getContentStream(DataNotAvailableHandling.NULL_ON_NA);
+		InputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.NULL_ON_NA);
 		String txt;
 		if (in != null) {
 			txt = new SamBamUtils().printSamBam(in, MAX_RECORD_LIMIT);
 		} else {
-			txt = new String(data.getContentBytes(DataNotAvailableHandling.INFOTEXT_ON_NA));
+			txt = new String(Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.INFOTEXT_ON_NA));
 		}
 		JTextPane txtPane = TextViewer.makeTxtPane(txt);
 		return new JScrollPane(txtPane);

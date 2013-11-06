@@ -28,7 +28,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	private static final String PUBLIC_FILES = "public-files.txt";
 
 	@Override
-	public URL addFile(FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(String dataId, FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -37,7 +37,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 		throw new UnsupportedOperationException();	}
 
 	@Override
-	public InputStream getFile(URL url) throws IOException {
+	public InputStream getFile(String dataId) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -66,12 +66,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void getFile(File file, URL inputUrl) throws IOException {
+	public void getFile(String dataId, File file) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public URL addFile(FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -91,7 +91,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String name, URL sessionURL, LinkedList<URL> dataUrls)
+	public void saveRemoteSession(String name, URL sessionURL, LinkedList<String> dataIds)
 			throws JMSException {
 		throw new UnsupportedOperationException();
 	}
@@ -102,7 +102,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public URL addFile(InputStream file, URL cacheURL, long contentLength) {
+	public boolean isAvailable(String dataId, FileBrokerArea area) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean moveFromCacheToStorage(String dataId) {
 		throw new UnsupportedOperationException();
 	}
 }

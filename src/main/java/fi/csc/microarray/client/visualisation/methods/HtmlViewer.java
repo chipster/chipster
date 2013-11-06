@@ -4,6 +4,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
@@ -20,7 +21,7 @@ public class HtmlViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] html = data.getContentBytes(DataNotAvailableHandling.EMPTY_ON_NA);
+		byte[] html = Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.EMPTY_ON_NA);
 		if (html != null) {
 			JTextPane htmlPane = BrowsableHtmlPanel.createHtmlPanel();			
 			String htmlStr = new String(html);

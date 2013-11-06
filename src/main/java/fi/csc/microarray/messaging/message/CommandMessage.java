@@ -22,13 +22,16 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_DESCRIBE = "describe";
 	public final static String COMMAND_GET_SOURCE = "get-source";
 
-	public final static String COMMAND_URL_REQUEST ="url-request";
+	public final static String COMMAND_NEW_URL_REQUEST ="new-url-request";
+	public final static String COMMAND_GET_URL ="get-url";
+
 	@Deprecated
 	public final static String COMMAND_PUBLIC_URL_REQUEST ="public-url-request";
 	public final static String COMMAND_PUBLIC_FILES_REQUEST ="public-url-list-request";
 	public final static String COMMAND_DISK_SPACE_REQUEST ="disk-space-request";
 
-	public static final String COMMAND_STORE_FILE = "move-from-cache-to-storage";
+	public static final String COMMAND_MOVE_FROM_CACHE_TO_STORAGE = "move-from-cache-to-storage";
+	public static final String COMMAND_IS_AVAILABLE = "is-available";
 	public static final String COMMAND_STORE_SESSION = "store-session";
 	public static final String COMMAND_REMOVE_SESSION = "remove-session";
 	public static final String COMMAND_LIST_SESSIONS = "list-sessions";

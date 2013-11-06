@@ -42,7 +42,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -82,7 +82,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 */
 		@Override
 		public InputStream getInputStream() throws IOException {
-			return bean.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA);
+			return Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 		}
 
 		@Override
@@ -93,11 +93,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		
 		@Override
 		public URL getUrl() throws IOException {
-			ContentLocation contentLocation = bean.getClosestRandomAccessContentLocation();
+			ContentLocation contentLocation = Session.getSession().getDataManager().getClosestRandomAccessContentLocation(bean);
 			
 			if (contentLocation == null) {				
 				getLocalFile();
-				contentLocation = bean.getClosestRandomAccessContentLocation();
+				contentLocation = Session.getSession().getDataManager().getClosestRandomAccessContentLocation(bean);
 			}
 			return contentLocation.getUrl();
 		}

@@ -130,82 +130,84 @@ public class FeedbackDialog extends JDialog implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        if (event.getSource() == okButton) {
-            // check mandatory fields
-            if (detailArea.getText().length() == 0) {
-                JOptionPane.showMessageDialog(this.getParent(),
-                        "Please, provide some details in the feedback area.",
-                        "Info", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-
-            this.dispose();
-            
-    		application.runBlockingTask("sending feedback, with large session this may take a while", new Runnable() {
-    			public void run() {						
-   
-    	            // send feedback message using manager topic
-    	            try {              
-    	            	ServiceAccessor serviceAccessor = Session.getSession().getServiceAccessor();
-    	                String sessionURL;
-    	                if (attachSessionBox.isSelected()) {
-							File sessionFile = UserSession.findBackupFile(application.getDataManager().getRepository(), true);
-							sessionFile.deleteOnExit();
-							
-							try {
-								application.getDataManager().saveFeedbackSession(sessionFile);
-								sessionURL = serviceAccessor.getFileBrokerClient().addFile(FileBrokerArea.CACHE, new FileInputStream(sessionFile), sessionFile.length(), null).toString();
-							} catch (Exception e) {
-								logger.warn(e); // do not care that much about failing session backups
-								// lol
-								sessionURL = "http://failed-to-create-or-upload-session";
-							} finally {
-								sessionFile.delete();
-							}
-    	                	
-
-    	                } else {
-    	                    // user does not want to give data
-    	                    sessionURL = "";
-    	                }
-    	                
-    	                // prepare feedback message
-    	                String messageText = detailArea.getText() + "\n\nError message:\n" + errorMessage;
-    	                FeedbackMessage message = new FeedbackMessage(messageText,
-    	                        emailField.getText(), sessionURL);
-    	                
-    	                // attach log files if client allows
-    	                if (attachLogsBox.isSelected()) {
-    	                    File logDir = DirectoryLayout.getInstance().getLogsDir();
-    	                    for (File logFile : logDir.listFiles()) {
-    	                        // save it with the file broker
-    	                    	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-    	                        String logURL = fileBroker.addFile(FileBrokerArea.CACHE, new FileInputStream(logFile), logFile.length(), null).toString();
-    	                        message.addLog(logFile.getName(), logURL);
-    	                    }
-    	                }
-    	                
-    	                // send feedback message to manager
-    	                serviceAccessor.sendFeedbackMessage(message);
-    	                
-    	            } catch (Exception e) {
-    	                application.reportException(e);
-    	            }
-    			
-    			
-    			
-    			
-    			}
-    		});
-
-            
-            
-            
-            
-            
-        } else {
-            // close
-            this.dispose();
-        }
+        throw new RuntimeException("feedback sending not working at the moment");
+//    	
+//        if (event.getSource() == okButton) {
+//            // check mandatory fields
+//            if (detailArea.getText().length() == 0) {
+//                JOptionPane.showMessageDialog(this.getParent(),
+//                        "Please, provide some details in the feedback area.",
+//                        "Info", JOptionPane.INFORMATION_MESSAGE);
+//                return;
+//            }
+//
+//            this.dispose();
+//            
+//    		application.runBlockingTask("sending feedback, with large session this may take a while", new Runnable() {
+//    			public void run() {						
+//   
+//    	            // send feedback message using manager topic
+//    	            try {              
+//    	            	ServiceAccessor serviceAccessor = Session.getSession().getServiceAccessor();
+//    	                String sessionURL;
+//    	                if (attachSessionBox.isSelected()) {
+//							File sessionFile = UserSession.findBackupFile(application.getDataManager().getRepository(), true);
+//							sessionFile.deleteOnExit();
+//							
+//							try {
+//								application.getDataManager().saveFeedbackSession(sessionFile);
+//								sessionURL = serviceAccessor.getFileBrokerClient().addFile(FileBrokerArea.CACHE, new FileInputStream(sessionFile), sessionFile.length(), null).toString();
+//							} catch (Exception e) {
+//								logger.warn(e); // do not care that much about failing session backups
+//								// lol
+//								sessionURL = "http://failed-to-create-or-upload-session";
+//							} finally {
+//								sessionFile.delete();
+//							}
+//    	                	
+//
+//    	                } else {
+//    	                    // user does not want to give data
+//    	                    sessionURL = "";
+//    	                }
+//    	                
+//    	                // prepare feedback message
+//    	                String messageText = detailArea.getText() + "\n\nError message:\n" + errorMessage;
+//    	                FeedbackMessage message = new FeedbackMessage(messageText,
+//    	                        emailField.getText(), sessionURL);
+//    	                
+//    	                // attach log files if client allows
+//    	                if (attachLogsBox.isSelected()) {
+//    	                    File logDir = DirectoryLayout.getInstance().getLogsDir();
+//    	                    for (File logFile : logDir.listFiles()) {
+//    	                        // save it with the file broker
+//    	                    	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
+//    	                        String logURL = fileBroker.addFile(FileBrokerArea.CACHE, new FileInputStream(logFile), logFile.length(), null).toString();
+//    	                        message.addLog(logFile.getName(), logURL);
+//    	                    }
+//    	                }
+//    	                
+//    	                // send feedback message to manager
+//    	                serviceAccessor.sendFeedbackMessage(message);
+//    	                
+//    	            } catch (Exception e) {
+//    	                application.reportException(e);
+//    	            }
+//    			
+//    			
+//    			
+//    			
+//    			}
+//    		});
+//
+//            
+//            
+//            
+//            
+//            
+//        } else {
+//            // close
+//            this.dispose();
+//        }
     }
 }

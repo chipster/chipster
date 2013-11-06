@@ -1,110 +1,1583 @@
-
-#
-# Template
-#
-
-#abc:
-#    - version: x.y
-#      chipster: x.y.z
-#      deprecated: x.y.z
-#      packages:
-#        'abc':
-#          files:
-#            - source: 'abc'
-#              destination: 'abc'
-#              checksum: '123'
-#          symlinks:
-#            - source: 'abc/d'
-#              destination: 'd'
-
-yeast:
-    - version: '1.0'
-      chipster: '2.0'
+Arabidopsis_thaliana.TAIR10:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Arabidopsis_thaliana.TAIR10-1.0.tar.gz:
       files:
-        a: a
-        b: b
-    - version: '1.1'
-      chipster: '2.1'
+      - checksum: b5490fa2c85fbbc0c810d1a552f919473ca462c451e7ca3e1a080d3e6205a815
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.1.ebwt
+        source: athaliana.TAIR10.1.ebwt
+      - checksum: 5440f461582332e78b5cbeaf3da50feaad58e269e05188b68ee265038eba3b75
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.2.ebwt
+        source: athaliana.TAIR10.2.ebwt
+      - checksum: febd4b1106291527aa3449fc5bac1cf2e710efcb4af630c95ccc773fb420c9f7
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.3.ebwt
+        source: athaliana.TAIR10.3.ebwt
+      - checksum: 0e582479c41f673acf4890b493ff1f382f89adb0104a8ee372819f0030103461
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.4.ebwt
+        source: athaliana.TAIR10.4.ebwt
+      - checksum: 18d5aa8d2838f937c99caad59e55777a25caacb2427a4173fa510d0617e41238
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.rev.1.ebwt
+        source: athaliana.TAIR10.rev.1.ebwt
+      - checksum: eec7c7d191fd8bb340030407f2031e41c57c08b454e54939d775c5629934369a
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/athaliana.TAIR10.rev.2.ebwt
+        source: athaliana.TAIR10.rev.2.ebwt
+      - checksum: 372b8b98eac8fe47b59b29842f582bf4d68ff026507f8a129c2b2e128ed62726
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.1.bt2
+        source: athaliana.TAIR10.1.bt2
+      - checksum: 240c6051d335847e5a77f7d44f4221c388bdcc65b6e85b2428a9a41a3540b1ff
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.2.bt2
+        source: athaliana.TAIR10.2.bt2
+      - checksum: febd4b1106291527aa3449fc5bac1cf2e710efcb4af630c95ccc773fb420c9f7
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.3.bt2
+        source: athaliana.TAIR10.3.bt2
+      - checksum: 0e582479c41f673acf4890b493ff1f382f89adb0104a8ee372819f0030103461
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.4.bt2
+        source: athaliana.TAIR10.4.bt2
+      - checksum: 531b6239c02d3e5ddc03cc890c46aee134613dcb035b009db7ea551369970218
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.fa
+        source: athaliana.TAIR10.fa
+      - checksum: c9052cf403d5f886e326d406dad1a2e8361f84c518bdc15b257ff7df6d7804a0
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.rev.1.bt2
+        source: athaliana.TAIR10.rev.1.bt2
+      - checksum: 55b504628e7e226f7d951e5a3b5ea6dac3e11b97e190b41e124e945c037d8eb7
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/athaliana.TAIR10.rev.2.bt2
+        source: athaliana.TAIR10.rev.2.bt2
+      - checksum: a4455ed97b0e0607410216f308a0bb5ed7f7d6e82102de697c4a69896f5c7e6c
+        destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa.amb
+        source: athaliana.TAIR10.fa.amb
+      - checksum: 746c39b9e687712b3dd130b6a03427fbe99c952a5e7cf8addbae9ffa2280620b
+        destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa.ann
+        source: athaliana.TAIR10.fa.ann
+      - checksum: de2d9d41085957c8a24c6b8ffb86ddc5a3cdf05893d7aefab348bbf3495e8527
+        destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa.bwt
+        source: athaliana.TAIR10.fa.bwt
+      - checksum: 949a7264a793c9ced70057199422ba306ef1d71389be9cb84b75b76911ddf342
+        destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa.pac
+        source: athaliana.TAIR10.fa.pac
+      - checksum: 77813697ebe01d7f190294eb51ecc5916758519cacd65f22ad69c93f7b636014
+        destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa.sa
+        source: athaliana.TAIR10.fa.sa
+      - checksum: f8e32ef9360883a381ad33a7a2766acaba5048db561470dd1703958a019084d2
+        destination: /opt/chipster/tools/genomes/fasta/athaliana.TAIR10.fa
+        source: athaliana.TAIR10.fa.1
+      - checksum: e651908285ebef3c08b21127a9119e750c19366357ef6d6c1ff9a9ba532cae76
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa
+        source: Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.cytoband-chr.txt
+        source: Arabidopsis_thaliana.TAIR10.17.cytoband-chr.txt
+      - checksum: a6a527fb02ea9230cf14c28f90a20401ec948fc02ce71c99dc85d76ba0660a8b
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa.fai
+        source: Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa.fai
+      - checksum: a99f638fe333c939ca186783ef7d831aff8d108a63f715fe17f4137547c82fff
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.gene.tsv
+        source: Arabidopsis_thaliana.TAIR10.17.gene.tsv
+      - checksum: 89649ae9b5d6e66e94c2b6add198a4a3b776541524cbf73f3cab18582a24d7f6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.repeat-tabix.bed.gz
+        source: Arabidopsis_thaliana.TAIR10.17.repeat-tabix.bed.gz
+      - checksum: 9e71b4bd003d6ae7b4a77a935324609096ee3c9789b9b2e8ca4ca15d9227dcec
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.repeat-tabix.bed.gz.tbi
+        source: Arabidopsis_thaliana.TAIR10.17.repeat-tabix.bed.gz.tbi
+      - checksum: 403058ad90922bd9fdda57a0a76db08397e869cd9101737e7a3c81f8617ed04c
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.tabix.gtf.gz
+        source: Arabidopsis_thaliana.TAIR10.17.tabix.gtf.gz
+      - checksum: e0093c701610eb71e171698d1d66845614b2ce1bdf770372f9f9bb4e80ff5c99
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.tabix.gtf.gz.tbi
+        source: Arabidopsis_thaliana.TAIR10.17.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/bwa_indexes/athaliana.TAIR10.fa
+        source: ../genomes/fasta/athaliana.TAIR10.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Arabidopsis_thaliana.TAIR10.17.dna.toplevel.fa
+  version: '1.0'
+Arabidopsis_lyrata.v.1.0:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Arabidopsis_lyrata.v.1.0-1.0.tar.gz:
       files:
-        a: a
-        b: b
-        c: c
-    - version: '1.2'
-      chipster: '2.4'
+      - checksum: 9e513d66c5022b41850e0a18c42dd19964873c5c174b0517385ea36c62b64182
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.3.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.3.bt2
+      - checksum: 85a32f581e924aa12b0a96898a8a0efd7d1398f5d3cd4421c55721b0ed93d848
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.rev.1.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.rev.1.bt2
+      - checksum: 871383f41b3482e35c7fcd9430c2b8ecb8461e786f5f4434e649e88ee2886205
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.2.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.2.bt2
+      - checksum: 13ad67c521da562eae5516b1178d34563decc8b717e1cbce3a58bc76e7a17116
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.1.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.1.bt2
+      - checksum: 9ceaf7b9f991345808552e6666a9bb8c3fe0778cdcbf415695c792687e111c1d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.rev.2.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.rev.2.bt2
+      - checksum: 086cf0ac47d0d681bf88c94b75a31c1a6f6aa16d7ba746b39422096f8bbe6ec3
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.4.bt2
+        source: Arabidopsis_lyrata.v.1.0.16.4.bt2
+      - checksum: 8f53e7fa9c3fa04ec9673ff73d8e08411a4f42be2c99d27af17343821526fac3
+        destination: /opt/chipster/tools/bwa_indexes/Arabidopsis_lyrata.v.1.0.16.fa.ann
+        source: Arabidopsis_lyrata.v.1.0.16.fa.ann
+      - checksum: dc523042dc0d5f85750382e6b9ebdea2a59506099d475831e003af35d83eeb39
+        destination: /opt/chipster/tools/bwa_indexes/Arabidopsis_lyrata.v.1.0.16.fa.pac
+        source: Arabidopsis_lyrata.v.1.0.16.fa.pac
+      - checksum: 25394733e09b24629817fc40b0f15b74deef900b0e5479abbc2ee455ac0c12d1
+        destination: /opt/chipster/tools/bwa_indexes/Arabidopsis_lyrata.v.1.0.16.fa.amb
+        source: Arabidopsis_lyrata.v.1.0.16.fa.amb
+      - checksum: 8549e0a1d4433eb6fe92eb21f8f7d7991831cf0171a0832f7d15ab99ac17fa75
+        destination: /opt/chipster/tools/bwa_indexes/Arabidopsis_lyrata.v.1.0.16.fa.sa
+        source: Arabidopsis_lyrata.v.1.0.16.fa.sa
+      - checksum: 21cdee550550cee977647e08ac8a22e362be659bfbd9ceb1b93e992746c57345
+        destination: /opt/chipster/tools/bwa_indexes/Arabidopsis_lyrata.v.1.0.16.fa.bwt
+        source: Arabidopsis_lyrata.v.1.0.16.fa.bwt
+      - checksum: 6711b40194a94de75375baf2789e8861a9bbf25d80ff0ea1b1ff146c54a04a49
+        destination: /opt/chipster/tools/genomes/fasta/Arabidopsis_lyrata.v.1.0.16.fa
+        source: Arabidopsis_lyrata.v.1.0.16.fa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.cytoband-chr.txt
+        source: Arabidopsis_lyrata.v.1.0.17.cytoband-chr.txt
+      - checksum: 682c395ece6aba4d788eaf93e589ef8a509b197b6d7e32ace223e90eb9253859
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.gene.tsv
+        source: Arabidopsis_lyrata.v.1.0.17.gene.tsv
+      - checksum: b5deb27b5f78d1b19a7c228835d430cb3f4e58ef4df59440d6b19b7020fe6d8a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.repeat-tabix.bed.gz
+        source: Arabidopsis_lyrata.v.1.0.17.repeat-tabix.bed.gz
+      - checksum: cbe6fba9914e4ec71e2c500f716e05972e527076e995db825e53509476b08868
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.repeat-tabix.bed.gz.tbi
+        source: Arabidopsis_lyrata.v.1.0.17.repeat-tabix.bed.gz.tbi
+      - checksum: 6f156089326ae2885158fc7d0ca5eb9d07086cbf84d1212c3cc1fb97aa2f10cf
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.tabix.gtf.gz
+        source: Arabidopsis_lyrata.v.1.0.17.tabix.gtf.gz
+      - checksum: c0484d39a66e9e0cdd05928aff509bb934cbc1ef72ea5a521c2dc63ba287a01a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.17.tabix.gtf.gz.tbi
+        source: Arabidopsis_lyrata.v.1.0.17.tabix.gtf.gz.tbi
+      - checksum: a761f2f78aff779829d8a6c6fa88208fbb520633d980a0b497f1bef611f66239
+        destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.16.fa.fai
+        source: Arabidopsis_lyrata.v.1.0.16.fa.fai
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Arabidopsis_lyrata.v.1.0.16.fa
+        source: ../../genomes/fasta/Arabidopsis_lyrata.v.1.0.16.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Arabidopsis_lyrata.v.1.0.16.fa
+        source: ../../genomes/fasta/Arabidopsis_lyrata.v.1.0.16.fa
+  version: '1.0'
+Bos_taurus.UMD3.1:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Bos_taurus.UMD3.1-1.0.tar.gz:
       files:
-        a: a
-        b: b
-        c: c
-        d: d
-
-rat:
-    - version: '1.0'
-      chipster: '2.2'
+      - checksum: 36b583a6061cf7d5d679d7165433e8a0efdca7def7017a2e9daefc370013483e
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Bos_taurus.UMD3.1.70.dna.toplevel.fa
+        source: Bos_taurus.UMD3.1.70.dna.toplevel.fa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.cytoband-chr.txt
+        source: Bos_taurus.UMD3.1.70.cytoband-chr.txt
+      - checksum: b9b075ab709daa71d2451da1ffbd60301588afd7a6848af2c46cced4a2bd624a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.dna.toplevel.fa.fai
+        source: Bos_taurus.UMD3.1.70.dna.toplevel.fa.fai
+      - checksum: 02e96aa37b614b6a79650637ad78268222c4161a94949887f8c6b73b51c4a2f7
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.gene.tsv
+        source: Bos_taurus.UMD3.1.70.gene.tsv
+      - checksum: 5a0062e7321136c25f0a94563332edf7de5762afb267637bc8ab3645cedebbb0
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.repeat-tabix.bed.gz
+        source: Bos_taurus.UMD3.1.70.repeat-tabix.bed.gz
+      - checksum: c07bb5d3c9a13a49f798eaa3e20fbdac7616c06c80ad58fa0ba15bb9e7695d43
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.repeat-tabix.bed.gz.tbi
+        source: Bos_taurus.UMD3.1.70.repeat-tabix.bed.gz.tbi
+      - checksum: 858c220586b5330b9b7a6d110aa359c597ed41a9f1f631e122a529da3166292c
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.tabix.gtf.gz
+        source: Bos_taurus.UMD3.1.70.tabix.gtf.gz
+      - checksum: 34065d221af62b5d4b188d638a6fb51874543786786cd903d3ad26c0aedaa492
+        destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.tabix.gtf.gz.tbi
+        source: Bos_taurus.UMD3.1.70.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Bos_taurus.UMD3.1.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Bos_taurus.UMD3.1.70.dna.toplevel.fa
+  version: '1.0'
+Canis_familiaris.BROADD2:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Canis_familiaris.BROADD2-1.0.tar.gz:
       files:
-        a: a
-        b: b
-    - version: '1.1'
-      chipster: '2.4'
+      - checksum: ecb71b9f8ab90f5ca1525f82ad8e1fc786ae210bfa3575f76e2258d0cd7608a7
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Canis_familiaris.BROADD2.67.dna.toplevel.fa
+        source: Canis_familiaris.BROADD2.67.dna.toplevel.fa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.cytoband-chr.txt
+        source: Canis_familiaris.BROADD2.67.cytoband-chr.txt
+      - checksum: 9c75b48a557612a68583cab1b9e277c9ff910eba256b8e0f02f87007fd115e13
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.dna.toplevel.fa.fai
+        source: Canis_familiaris.BROADD2.67.dna.toplevel.fa.fai
+      - checksum: 6113bcba4b84208570b4c06a2f1827a7929ca448335c8dfc298aba3e2623a9c6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.gene.tsv
+        source: Canis_familiaris.BROADD2.67.gene.tsv
+      - checksum: 83760120e7c176167d5e068630abb23fad2db3ed27d0ca3f6ab86eed3bbc4fc6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.repeat-tabix.bed.gz
+        source: Canis_familiaris.BROADD2.67.repeat-tabix.bed.gz
+      - checksum: 43f422d0e056fb976ba0330288739004661dbf3eca8ef101ddc27f233f1468ba
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.repeat-tabix.bed.gz.tbi
+        source: Canis_familiaris.BROADD2.67.repeat-tabix.bed.gz.tbi
+      - checksum: a53fcf52bf09b2d51132baafcdae481c6e464c0b31140e611306b3161c3c9d57
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.tabix.gtf.gz
+        source: Canis_familiaris.BROADD2.67.tabix.gtf.gz
+      - checksum: 26ba427cc04018f30c7db89941f232d6accd83ecc579a2d0adfb5aaec6537f5f
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.tabix.gtf.gz.tbi
+        source: Canis_familiaris.BROADD2.67.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.BROADD2.67.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Canis_familiaris.BROADD2.67.dna.toplevel.fa
+  version: '1.0'
+Drosophila_melanogaster:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Drosophila_melanogaster-1.0.tar.gz:
       files:
-        a: a
-        b: b
-        c: c
-
-reindeer:
-
-elk:
-
-cow:
-    - version: '2.07'
-      chipster: '2.4'
-      deprecated: '2.4'
+      - checksum: 67af74d095878a8530766198cf4c011c42bcc2640ed862289a8e4c3926540358
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.cytoband-chr.txt
+        source: Drosophila_melanogaster.BDGP5.70.cytoband-chr.txt
+      - checksum: cfab83935c91b399be999db17b803478bc6c906d2b0eee3f5625a668702b6314
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa.fai
+        source: Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa.fai
+      - checksum: 3e2edafcbda1113208e3a169f59165a2e9b90c65ab4a4ef05c2d8ed6d4166ee1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.gene.tsv
+        source: Drosophila_melanogaster.BDGP5.70.gene.tsv
+      - checksum: c4538db4200df22af7a577ad3d2114bbf956f3f98eb9c3662d277cb34df2adca
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.repeat-tabix.bed.gz
+        source: Drosophila_melanogaster.BDGP5.70.repeat-tabix.bed.gz
+      - checksum: 6827616e013ca7c1df927ffc9b2e44156e4f613f17d9904f7c75fe9e783bd09b
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.repeat-tabix.bed.gz.tbi
+        source: Drosophila_melanogaster.BDGP5.70.repeat-tabix.bed.gz.tbi
+      - checksum: 3256938267ab523ce64a4e0646f5dba8ad27461293f0fdfc9c14a281b28dff07
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.tabix.gtf.gz
+        source: Drosophila_melanogaster.BDGP5.70.tabix.gtf.gz
+      - checksum: 64763d1f7570b7225853abfd490b753ca726f06c44cd8281bf498e8e442853e1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.tabix.gtf.gz.tbi
+        source: Drosophila_melanogaster.BDGP5.70.tabix.gtf.gz.tbi
+      - checksum: 1589e049afd5e18f3807ab18e125404e85f7fe42b3413829da85c2d63381b13f
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa
+        source: Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa
+  version: '1.0'
+Gallus_gallus:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Gallus_gallus-1.0.tar.gz:
       files:
-        a: a
-        b: b
-
-chicken:
-
-hg19:
-    - version: '1.0'
-      chipster: '2.2'
-      packages:
-        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz':
-          files:
-            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
-              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
-              checksum: '4ae1be8c603d37b34e5da91987aaed15da3c5b390ada8be3d2e23ceadf8a6507'
-            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
-              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
-              checksum: '38a014a877c61f98b846ea7154867ac1611e5b1e76bde21661e88afbb4713374'
-          symlinks:
-            - source: 'bin/abc'
-              destination: 'abc'
-        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz':
-          files:
-            - source: 'genomes/fasta/hg19.fa'
-              destination: 'genomes/fasta/hg19.fa'
-              checksum: '492c8d6337990dd017b065abb4559509e0853521976868c57dc6634d1d1796d7'
-    - version: '1.1'
-      chipster: '2.3'
-      packages:
-        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_hg19.tar.gz':
-          files:
-            - source: 'genomes/fasta/nochr/hg19.fa'
-              destination: 'genomes/fasta/nochr/hg19.fa'
-              checksum: 'e52ae4ca93abdd03eb91584c2403ae339a470c1ba48d003313d38667b2cb4d1b'
-        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz':
-          files:
-            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
-              destination: 'genomes/gtf/Homo_sapiens.GRCh37.68.gtf'
-              checksum: '4ae1be8c603d37b34e5da91987aaed15da3c5b390ada8be3d2e23ceadf8a6507'
-            - source: 'genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
-              destination: 'genomes/gtf/homo_sapiens.GRCh37.68.chr.DEXSeq.gtf'
-              checksum: '38a014a877c61f98b846ea7154867ac1611e5b1e76bde21661e88afbb4713374'
-          symlinks:
-            - source: 'bin/abc'
-              destination: 'abc'
-        'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_hg19.tar.gz':
-          files:
-            - source: 'genomes/fasta/hg19.fa'
-              destination: 'genomes/fasta/hg19.fa'
-              checksum: '492c8d6337990dd017b065abb4559509e0853521976868c57dc6634d1d1796d7'
+      - checksum: 3a29687280d92ed48c74c637e24baaebfe9d712face9b3e303e07b89ce24d176
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Gallus_gallus.Gallus_gallus-4.0.pre.fa
+        source: Gallus_gallus.Gallus_gallus-4.0.pre.fa
+      - checksum: 05f9ac1762933a7b100a3e277ca08b08e8e2aba325b9cc0e1c1c0f380076f2a2
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gallus_gallus.Gallus_gallus-4.0.pre.fa.fai
+        source: Gallus_gallus.Gallus_gallus-4.0.pre.fa.fai
+      - checksum: 6e06d86bc83a0f014a2d8d4425f475093a5ab37e712afad4f8cfc1aaa2be17f1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gallus_gallus.Gallus_gallus-4.0.pre.gene.tsv
+        source: Gallus_gallus.Gallus_gallus-4.0.pre.gene.tsv
+      - checksum: a47af2781f0c37237f83679b932f7abc685191b08d0d062c6e12892e2f2ca693
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gallus_gallus.Gallus_gallus-4.0.pre.tabix.gtf.gz
+        source: Gallus_gallus.Gallus_gallus-4.0.pre.tabix.gtf.gz
+      - checksum: f24bd0b9010fc4a2cc33c243da23ad873892920bf3bdf2c4ebe7221c1c6ca2ac
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gallus_gallus.Gallus_gallus-4.0.pre.tabix.gtf.gz.tbi
+        source: Gallus_gallus.Gallus_gallus-4.0.pre.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Gallus_gallus.Gallus_gallus-4.0.pre.fa
+        source: ../../genomes/fasta/nochr/Gallus_gallus.Gallus_gallus-4.0.pre.fa
+  version: '1.0'
+Gasterosteus_aculeatus.BROADS1:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Gasterosteus_aculeatus.BROADS1-1.0.tar.gz:
+      files:
+      - checksum: a44eee3959e7316ab315d7c6e8294165c5d5e74106cff14530a26c73df9f85c4
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.3.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.3.ebwt
+      - checksum: 7b76fcb4fe4475548c7e10ed73f75ffda7ef8377fbad433d17da1fc21a379bbd
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.4.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.4.ebwt
+      - checksum: 23f929ca0fb3cda44791201e5cb4f1de6ccbc9fdbf38fa50294f8316885f9a0a
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.1.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.1.ebwt
+      - checksum: 605740e87cc0b6acddfaaaf2816fcb452c2428a392616fb26038216442e40a48
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.2.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.2.ebwt
+      - checksum: d337864c9bf04c584f9cc401117bfb73d7936d1c9ccfe0a37473cb835ff4b459
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.1.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.1.ebwt
+      - checksum: a8e2f67cc388f57b958ea9ea4808bd1f189ab2e9723db841b778ec49ef52e596
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.2.ebwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.2.ebwt
+      - checksum: 0d105ac4c3375c3fb781cfb55d9c9f73beeff508d44d4b983ee50bd3adfb3d91
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.1.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.1.bt2
+      - checksum: aa154ed8e36897f3e4e6e1ce965718115efee321bf7826c697c3fa6abeb7dc9c
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.2.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.2.bt2
+      - checksum: a44eee3959e7316ab315d7c6e8294165c5d5e74106cff14530a26c73df9f85c4
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.3.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.3.bt2
+      - checksum: 7b76fcb4fe4475548c7e10ed73f75ffda7ef8377fbad433d17da1fc21a379bbd
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.4.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.4.bt2
+      - checksum: 1ac7d68cc3b0d7f0619ad4c70dbdefc21fb9e7c79079f98d31c4daa12ee94dd3
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.1.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.1.bt2
+      - checksum: a0618820550d24e884963958d0acac9b90bf3fe7437ce67809679fa3139c9666
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.2.bt2
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.rev.2.bt2
+      - checksum: 0f41dc2ae79c7ad56fab6b8415fb7a9ab14fd5ef2ef63e52bce580534949d627
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/bowtie2_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz
+        source: bowtie2_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz
+      - checksum: 4eab003acec75b283209c4285b16020d574530bdfa506d4a9d7800de859c70af
+        destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.amb
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.amb
+      - checksum: 10a3f62b2e4078b9d1da636511eaf0f4ca2c1f9c02ebbf71fe7a35df321b305a
+        destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.ann
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.ann
+      - checksum: 90544ded6b6c9efb402c78e8c68ecdb705f68f37ef5b711f9f993aa3c93b1752
+        destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.pac
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.pac
+      - checksum: d8268a2b2ea03f1eb6b6075b123f9230c7e7eb9204b186e3c8fb56cd7c08826e
+        destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.bwt
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.bwt
+      - checksum: 2de2bda972207c701d3311c34bafe8ff58469b2498dd8af24f8d0237a19fdb88
+        destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.sa
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa.sa
+      - checksum: 8934377550dc75e0dd859b6b022044efa34632a0afd243e1291d23fccd5eccdb
+        destination: /opt/chipster/tools/genomes/gtf/Gasterosteus_aculeatus.BROADS1.71.gtf
+        source: Gasterosteus_aculeatus.BROADS1.71.gtf
+      - checksum: 521e30c838b4f771e117e9c4cae188de8903e553d31cba02664fd02ae00af1d4
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+        source: Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+      - checksum: 521e30c838b4f771e117e9c4cae188de8903e553d31cba02664fd02ae00af1d4
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa
+        source: Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.cytoband-chr.txt
+        source: Gasterosteus_aculeatus.BROADS1.70.cytoband-chr.txt
+      - checksum: 6048d2f50de089207a82a10c15904b3ed084f08c469b8da9c2656e9e4dac2740
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa.fai
+        source: Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa.fai
+      - checksum: e6d021d1e6a0d2079b03bcba297ab6f4a5b8dc066ae9db1bfdfc7ed4efb565dc
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.gene.tsv
+        source: Gasterosteus_aculeatus.BROADS1.70.gene.tsv
+      - checksum: adbbb8de1b7bb077b976165e10d9b303f2d34b54157ec7a16f8ca34cb15b9d9a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.repeat-tabix.bed.gz
+        source: Gasterosteus_aculeatus.BROADS1.70.repeat-tabix.bed.gz
+      - checksum: 6dd05179bbe68d8687f994e9a455426b5b6c58ab25ab66da6752667448940e6f
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.repeat-tabix.bed.gz.tbi
+        source: Gasterosteus_aculeatus.BROADS1.70.repeat-tabix.bed.gz.tbi
+      - checksum: 3046b2b47ea8fdd8508d37cd26b802c44e1ba7a64ca3f2e37cb3f315bc658960
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.tabix.gtf.gz
+        source: Gasterosteus_aculeatus.BROADS1.70.tabix.gtf.gz
+      - checksum: 00e8ab772c59f7d220ff00ccee521b2ea270596dd59ea893f8343cfccf9445d2
+        destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.tabix.gtf.gz.tbi
+        source: Gasterosteus_aculeatus.BROADS1.70.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bwa_indexes/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+        source: ../genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Gasterosteus_aculeatus.BROADS1.70.dna.toplevel.fa
+  version: '1.0'
+Halorubrum_lacusprofundi:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Halorubrum_lacusprofundi-1.0.tar.gz:
+      files:
+      - checksum: 50c984f83fb31a40736a872e6aa2915daeb8ed587977d3e60510da8775e7c700
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.1.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.1.ebwt
+      - checksum: 2788ae2d2eb317efd88cb2f92f6247e97d3620a4fb2f50e869747a52ebcd53ff
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.4.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.4.ebwt
+      - checksum: 1da8f29a48f44cfbcf21c1282ef1d75689ba54f950e9f7c121bad650735dc845
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.2.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.2.ebwt
+      - checksum: 4d06a9bd4bc15e4ee2acdc73f3ea1d7acaafeaa0d5f6b8ec8868e096aa88098e
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.rev.1.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.rev.1.ebwt
+      - checksum: 2c3cb1b87d6f59aa870df80cdd739846578f06448176671a9f3cb338b97f3212
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.3.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.3.ebwt
+      - checksum: fef63fd0e2ca491a0e002fa96dbe7c9c34d8eab4dc530f09fa8ca1fe1e67df6c
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.rev.2.ebwt
+        source: Halorubrum_lacusprofundi_ATCC_49239.rev.2.ebwt
+      - checksum: cf99a5642b46a56ede93b42363bb1e8d8849ec689c4c8ec5796dc63af402eff3
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.rev.2.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.rev.2.bt2
+      - checksum: 320f4ef7c8f397df544a67f8c151c327630881529f713e34b123aa4bf79c4e23
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.rev.1.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.rev.1.bt2
+      - checksum: 2c3cb1b87d6f59aa870df80cdd739846578f06448176671a9f3cb338b97f3212
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.3.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.3.bt2
+      - checksum: c3d30b72b2a0a1d11f116e0781879a1118ad65be5b04d508223effc01fb3360f
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.2.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.2.bt2
+      - checksum: 2b8c7f73816123710acf2f1e8a411da6351aa037bd0515f53f37b12eb4ab1d1e
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.1.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.1.bt2
+      - checksum: 2788ae2d2eb317efd88cb2f92f6247e97d3620a4fb2f50e869747a52ebcd53ff
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.4.bt2
+        source: Halorubrum_lacusprofundi_ATCC_49239.4.bt2
+      - checksum: 44e8ff32a584c2aebabe0b65a862878b1367ac29575def59a201828467611639
+        destination: /opt/chipster/tools/genomes/fasta/Halorubrum_lacusprofundi_ATCC_49239.fa
+        source: Halorubrum_lacusprofundi_ATCC_49239.fa
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Halorubrum_lacusprofundi_ATCC_49239.fa
+        source: ../../genomes/fasta/Halorubrum_lacusprofundi_ATCC_49239.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Halorubrum_lacusprofundi_ATCC_49239.fa
+        source: ../../genomes/fasta/Halorubrum_lacusprofundi_ATCC_49239.fa
+  version: '1.0'
+Homo_sapiens.NCBI36:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Homo_sapiens.NCBI36-1.0.tar.gz:
+      files:
+      - checksum: e98c438478c768712c013e46cbf43e5ad0cc0963ec30761b9fe42ef8bc40e911
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Homo_sapiens.NCBI36.54.dna.toplevel.fa
+        source: Homo_sapiens.NCBI36.54.dna.toplevel.fa
+      - checksum: 3821c2e9a9da76e9d8fcde7e15470a707173f02bbc057539143f54fd39087fab
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.repeat-tabix.bed.gz
+        source: Homo_sapiens.NCBI36.54.repeat-tabix.bed.gz
+      - checksum: d7475bc8b58fb88c3d8fb22683c20ea645dc2a9f23bda3b06de23e6fb5ecee9f
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.tabix.gtf.gz
+        source: Homo_sapiens.NCBI36.54.tabix.gtf.gz
+      - checksum: 9dbb10276fc4a6df320f452dd23b1dc81e2586f41364be735e2ca3a35d230551
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.tabix.gtf.gz.tbi
+        source: Homo_sapiens.NCBI36.54.tabix.gtf.gz.tbi
+      - checksum: 276d8c134b150060e6ad68dd3feb18ad9476e0e79ea963762e87ec701e34571e
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.cytoband-chr.txt
+        source: Homo_sapiens.NCBI36.54.cytoband-chr.txt
+      - checksum: 88f0c50416dab9917852f9e1b04409586259be8ad437182858434786ee5653e1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.dna.toplevel.fa.fai
+        source: Homo_sapiens.NCBI36.54.dna.toplevel.fa.fai
+      - checksum: b71eca5be10c8de672fbfd05ed081bae4bffde360bfde70a2006840fcbb7b89d
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.gene.tsv
+        source: Homo_sapiens.NCBI36.54.gene.tsv
+      - checksum: ae303c8ce20670a5e2179481c454aacebe55496ad492e28c603f55f4c33615da
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.repeat-tabix.bed.gz.tbi
+        source: Homo_sapiens.NCBI36.54.repeat-tabix.bed.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.NCBI36.54.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Homo_sapiens.NCBI36.54.dna.toplevel.fa
+  version: '1.0'
+Human-MT.NC_012920.1:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Human-MT.NC_012920.1-1.0.tar.gz:
+      files:
+      - checksum: 4da9dfb12d8d954c5c57f1cb99137c001914797c56a8b2eb40284a18748a652f
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Human-MT.NC_012920.1.fa
+        source: Human-MT.NC_012920.1.fa
+      - checksum: acbdf25e10344f693e4a2fda8beefad6782bfcdf2b1aea8cf8151cf02cab820d
+        destination: /opt/chipster/tools/genomebrowser/annotations/Human-MT.NC_012920.1.fa.fai
+        source: Human-MT.NC_012920.1.fa.fai
+      - checksum: 69f2e1a34874b92801735d8c3f8140b83c108584eb6be6ba42a1b45c280760e2
+        destination: /opt/chipster/tools/genomebrowser/annotations/Human-MT.NC_012920.1.gene.tsv
+        source: Human-MT.NC_012920.1.gene.tsv
+      - checksum: 77cbf86c7c609b90aa51a3e78b718d7296c859c33cd46cc7ef013048323ac0ba
+        destination: /opt/chipster/tools/genomebrowser/annotations/Human-MT.NC_012920.1.tabix.gtf.gz
+        source: Human-MT.NC_012920.1.tabix.gtf.gz
+      - checksum: 6bf915afa9f6f0a9d3df69decbb7877b94bf58051a349a7b242cdd61ab2a4d61
+        destination: /opt/chipster/tools/genomebrowser/annotations/Human-MT.NC_012920.1.tabix.gtf.gz.tbi
+        source: Human-MT.NC_012920.1.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Human-MT.NC_012920.1.fa
+        source: ../../genomes/fasta/nochr/Human-MT.NC_012920.1.fa
+  version: '1.0'
+miRBase19_Homo_sapiens:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/miRBase19_Homo_sapiens-1.0.tar.gz:
+      files:
+      - checksum: 7d0d925f2f7ebeeb9268334e8730aac339074fc0e72453b40ffbacd8ee8a1864
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.4.ebwt
+        source: miRBase19_Homo_sapiens.4.ebwt
+      - checksum: 3fedae02b11c9448123ea116906dac0ebc7d2dd090b95e5293a3ece6e262ec78
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.1.ebwt
+        source: miRBase19_Homo_sapiens.1.ebwt
+      - checksum: 5841f826ffe27852d962d5930b27393959f03bf91421547840fb1d7b4a13e565
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.2.ebwt
+        source: miRBase19_Homo_sapiens.2.ebwt
+      - checksum: 7e0fdfeb0830095738a0552092225cda1c9d70c6fbef950815dcbef545cf1019
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.3.ebwt
+        source: miRBase19_Homo_sapiens.3.ebwt
+      - checksum: d55a9466dc1adfd1272d210ae5b06a858d50d0888d7d7e8cb8b3f26afcbff7e2
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.rev.1.ebwt
+        source: miRBase19_Homo_sapiens.rev.1.ebwt
+      - checksum: 897f1b39b094a8360f4136d5acefda4b3bad2a15b51f7f1ca5d501377e6b3a5b
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Homo_sapiens.rev.2.ebwt
+        source: miRBase19_Homo_sapiens.rev.2.ebwt
+      - checksum: 0e911a71840422a72a6001803e35317684bf595e49170a35d16517a635c739c2
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.rev.1.ebwt
+        source: miRBase19_Mus_musculus.rev.1.ebwt
+      - checksum: 0f46a237d283bd68cb971c5e1fa8c1d09688d8849c32f30c15276c6314b57ca1
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.1.bt2
+        source: miRBase19_Homo_sapiens.1.bt2
+      - checksum: 52d1f4a8dfa6adc1c475f150560ae14d48972a69c99023beed150ea05c9b5208
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.2.bt2
+        source: miRBase19_Homo_sapiens.2.bt2
+      - checksum: 7e0fdfeb0830095738a0552092225cda1c9d70c6fbef950815dcbef545cf1019
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.3.bt2
+        source: miRBase19_Homo_sapiens.3.bt2
+      - checksum: 7d0d925f2f7ebeeb9268334e8730aac339074fc0e72453b40ffbacd8ee8a1864
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.4.bt2
+        source: miRBase19_Homo_sapiens.4.bt2
+      - checksum: 65c0ae57a643b6bb25d2bdc7ef87b5d813cfe9d24a0762ce61e1475b3a4bc3ec
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.rev.1.bt2
+        source: miRBase19_Homo_sapiens.rev.1.bt2
+      - checksum: 712f748d5fcf6312b5ab09f92c09cc3ae9fcb5f8b490a314b5bedad7cd247f03
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Homo_sapiens.rev.2.bt2
+        source: miRBase19_Homo_sapiens.rev.2.bt2
+  version: '1.0'
+miRBase19_Mus_musculus:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/miRBase19_Mus_musculus-1.0.tar.gz:
+      files:
+      - checksum: 9e25bf0d9c6e01d8ac6b696b79c58a75e7ca866320bc32ab5d2fc0ee7cdc9f2b
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.1.ebwt
+        source: miRBase19_Mus_musculus.1.ebwt
+      - checksum: 1f239fb7569e031eb344670c7f498a061074f29b422de5057bc5e54487f800d1
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.2.ebwt
+        source: miRBase19_Mus_musculus.2.ebwt
+      - checksum: 597bfcfb1830113e2cb9089b5cff6146233c0ffc8a208042476362b180254dfe
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.3.ebwt
+        source: miRBase19_Mus_musculus.3.ebwt
+      - checksum: 94ed2b8b5c98517dc070c031312ebbab7f4c3857c9fc7cf04b0b3b9a5ccf96fb
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.4.ebwt
+        source: miRBase19_Mus_musculus.4.ebwt
+      - checksum: 0e911a71840422a72a6001803e35317684bf595e49170a35d16517a635c739c2
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.rev.1.ebwt
+        source: miRBase19_Mus_musculus.rev.1.ebwt
+      - checksum: 09b68487e25ffbf649cfc6822305e3e3d3935cdec9966a7f11e6ee3d2cbcf822
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Mus_musculus.rev.2.ebwt
+        source: miRBase19_Mus_musculus.rev.2.ebwt
+      - checksum: 0e1266dbb1bfe3bb3e447db55808faa8ada6cdd615264b70d5c8fc67fee024a2
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.1.bt2
+        source: miRBase19_Mus_musculus.1.bt2
+      - checksum: 247b8db587db324bfc1605348c36e8e7a31ac1628360a4119b5c3253cb5ee4f3
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.2.bt2
+        source: miRBase19_Mus_musculus.2.bt2
+      - checksum: 597bfcfb1830113e2cb9089b5cff6146233c0ffc8a208042476362b180254dfe
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.3.bt2
+        source: miRBase19_Mus_musculus.3.bt2
+      - checksum: 94ed2b8b5c98517dc070c031312ebbab7f4c3857c9fc7cf04b0b3b9a5ccf96fb
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.4.bt2
+        source: miRBase19_Mus_musculus.4.bt2
+      - checksum: bde4ebcb14eaa3cdc2128edbd1d418fcbce376c394207873a68b6a63827b97c4
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.rev.1.bt2
+        source: miRBase19_Mus_musculus.rev.1.bt2
+      - checksum: fa2c316e24de9b2a4a34431cf6047a214e5fdbb20c669ee184dfe0bc4a3b44d6
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Mus_musculus.rev.2.bt2
+        source: miRBase19_Mus_musculus.rev.2.bt2
+  version: '1.0'
+miRBase19_Rattus_norvegicus:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/miRBase19_Rattus_norvegicus-1.0.tar.gz:
+      files:
+      - checksum: ad96b3e425f3cd136c45f07ac647fefa4a9add866b8311ff0140d3924e9a3414
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.1.ebwt
+        source: miRBase19_Rattus_norvegicus.1.ebwt
+      - checksum: efc6c905e08d117e7ea5b3db95c7db56d9cc2ec71c82098ba3ffe8506907d0fe
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.2.ebwt
+        source: miRBase19_Rattus_norvegicus.2.ebwt
+      - checksum: 817caa1459c780a329fb5f25c3025ebdd27c86fb008dd8456876f71e8398834d
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.3.ebwt
+        source: miRBase19_Rattus_norvegicus.3.ebwt
+      - checksum: 95b12d14a593931c58d857cc2c643994398378cef4033f0f1c54a414ae1773da
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.4.ebwt
+        source: miRBase19_Rattus_norvegicus.4.ebwt
+      - checksum: 65fc037c77d2913988cd1130cf17837d58a192715f790d73010de0f8026f8597
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.rev.1.ebwt
+        source: miRBase19_Rattus_norvegicus.rev.1.ebwt
+      - checksum: 7e15919468effa00fda53fb061a54db65a907fd97dd7c8433cf11773cb3bd027
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/miRBase19_Rattus_norvegicus.rev.2.ebwt
+        source: miRBase19_Rattus_norvegicus.rev.2.ebwt
+      - checksum: e4a410dbafb4643856c5e0179574c2218405ccfd8cab2338e1c5e247df2521ba
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.1.bt2
+        source: miRBase19_Rattus_norvegicus.1.bt2
+      - checksum: 922d4d4dc55deed92600fdce948fec4e2b656af35df31a9a3e43168bbe52314b
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.2.bt2
+        source: miRBase19_Rattus_norvegicus.2.bt2
+      - checksum: 817caa1459c780a329fb5f25c3025ebdd27c86fb008dd8456876f71e8398834d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.3.bt2
+        source: miRBase19_Rattus_norvegicus.3.bt2
+      - checksum: 95b12d14a593931c58d857cc2c643994398378cef4033f0f1c54a414ae1773da
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.4.bt2
+        source: miRBase19_Rattus_norvegicus.4.bt2
+      - checksum: cbc41029c92db42ad4f0def5773d93543a72456cb13a04320f37a566737704f1
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.rev.1.bt2
+        source: miRBase19_Rattus_norvegicus.rev.1.bt2
+      - checksum: 88fe355190e91a42cb3df3d169fb6e94a30ff8275c93920797593293ee67c2e7
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/miRBase19_Rattus_norvegicus.rev.2.bt2
+        source: miRBase19_Rattus_norvegicus.rev.2.bt2
+  version: '1.0'
+N916Ysi:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/N916Ysi-1.0.tar.gz:
+      files:
+      - checksum: dc5c4847e269511246b3d5380213eb1ae605daf216c66bfc95c194b09623f1cb
+        destination: /opt/chipster/tools/genomes/fasta/N916Ysi.fa
+        source: N916Ysi.fa
+      - checksum: 18dac77ccebf09fbd1e4b6c9a966f5fd2c775a42999eaaf9e1c62f314058afd9
+        destination: /opt/chipster/tools/genomebrowser/annotations/N916Ysi.fa.fai
+        source: N916Ysi.fa.fai
+      - checksum: ffa53d6e150484f9e4d9b49c45e845a3405dda07ad326b5bcff475cd098cbb8e
+        destination: /opt/chipster/tools/genomebrowser/annotations/N916Ysi.gene.tsv
+        source: N916Ysi.gene.tsv
+      - checksum: 6e3a232a6940f608130ae57326be9486c9352ead32da57020e29a8475ba8ee25
+        destination: /opt/chipster/tools/genomebrowser/annotations/N916Ysi.tabix.gtf.gz
+        source: N916Ysi.tabix.gtf.gz
+      - checksum: a9e0a8c32acb9ae4734d719a1fc162dcbfe2d7317adb72c5ce224cde4510cf26
+        destination: /opt/chipster/tools/genomebrowser/annotations/N916Ysi.tabix.gtf.gz.tbi
+        source: N916Ysi.tabix.gtf.gz.tbi
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/N916Ysi.fa
+        source: ../../genomes/fasta/N916Ysi.fa
+  version: '1.0'
+R1-RT:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/R1-RT-1.0.tar.gz:
+      files:
+      - checksum: 9f58063e0949e7d1a00c6a70de975a92659bfdea090a5bcd49ab5d44622d5e84
+        destination: /opt/chipster/tools/genomebrowser/annotations/R1-RT.fa.fai
+        source: R1-RT.fa.fai
+      - checksum: 9d43065c2c75175157f80370cfc8752737f04565c0e83583c55fd123e299165f
+        destination: /opt/chipster/tools/genomebrowser/annotations/R1-RT.gene.tsv
+        source: R1-RT.gene.tsv
+      - checksum: b956c197372d0dfc58880e188e42194752f3a07d1c663b4035f8cfab13f88ba2
+        destination: /opt/chipster/tools/genomebrowser/annotations/R1-RT.tabix.gtf.gz
+        source: R1-RT.tabix.gtf.gz
+      - checksum: 9b5269079da07d1a5c24d28e8971633f372ade2337fd1e817ffe98632a1bdfa4
+        destination: /opt/chipster/tools/genomebrowser/annotations/R1-RT.tabix.gtf.gz.tbi
+        source: R1-RT.tabix.gtf.gz.tbi
+      - checksum: 9cad3ceac86dcef8c267e4baffcfb620f9d21ecc7a8e8855581072e97278df7b
+        destination: /opt/chipster/tools/genomes/fasta/R1-RT.fa
+        source: R1-RT.fa
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/R1-RT.fa
+        source: ../../genomes/fasta/R1-RT.fa
+  version: '1.0'
+Rattus_norvegicus.Rnor_5.0:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Rattus_norvegicus.Rnor_5.0-1.0.tar.gz:
+      files:
+      - checksum: c1b58a320d3a08193283f3e1357e974cd2a5280fc060b2e7d0aeb475b4a1c501
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.cytoband-chr.txt
+        source: Rattus_norvegicus.Rnor_5.0.70.cytoband-chr.txt
+      - checksum: 2e284608a0eae086c3f104aaa025750ffa8661c372d29ae3cb8c8676ecad64d9
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.fai
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.fai
+      - checksum: bfedce7a172c5d186d50942b4f510752285ccd447da74a7fda732d8eb57176b6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.gene.tsv
+        source: Rattus_norvegicus.Rnor_5.0.70.gene.tsv
+      - checksum: 385b758d891cfb146f1cc1269a6fa7d0074cf0843d1d6ee89270c916da20ec3e
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.repeat-tabix.bed.gz
+        source: Rattus_norvegicus.Rnor_5.0.70.repeat-tabix.bed.gz
+      - checksum: 9699c690c202e2747673ec621298a58ccf5fee9fbf52b7ce72b3ac6bfe25febc
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.repeat-tabix.bed.gz.tbi
+        source: Rattus_norvegicus.Rnor_5.0.70.repeat-tabix.bed.gz.tbi
+      - checksum: d5c9b04c678cfb57ae6e977185aaba3f84e5694a7f3c7450645949c0d810f2da
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.tabix.gtf.gz
+        source: Rattus_norvegicus.Rnor_5.0.70.tabix.gtf.gz
+      - checksum: 4922957d6d8e1038ef2c00117346f65ee95312e605aedcd57cce60683f1a6b9a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.tabix.gtf.gz.tbi
+        source: Rattus_norvegicus.Rnor_5.0.70.tabix.gtf.gz.tbi
+      - checksum: a52f76fdd9201e246c9c1a6e6f4c6a0c06cb8279ce5f8878d0cd692923cb79bf
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+      - checksum: 5a44bc6efd0e38d76ab364a1dcd7a374fe436c85a5c94980a25aceac4933fa5f
+        destination: /opt/chipster/tools/genomes/gtf/Rattus_norvegicus.Rnor_5.0.70.gtf
+        source: Rattus_norvegicus.Rnor_5.0.70.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Rattus_norvegicus.Rnor_5.0.bowtie-1.0.tar.gz:
+      files:
+      - checksum: ee71cd2b9405c98b6b2803ee98089d085c2d49c9e596c363a072cb683764ded4
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.1.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.1.ebwt
+      - checksum: d3f4541131dd5306b434def5b6decc1afdd0d2e39f4eec1d590a4bb23e28ab2e
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.2.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.2.ebwt
+      - checksum: 93cb1719dd373aff700201f5042178aa165ed2c65522f24326bcac0b0e0fcc0d
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.3.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.3.ebwt
+      - checksum: 0da0fe9c95290b6438b015a00d3137e391403984b79ae45a31296778179a18cb
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.4.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.4.ebwt
+      - checksum: 58402f2c0e130ace81f653939bf82cabe7cbbf2af349e965bfc49a70363eb23a
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.1.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.1.ebwt
+      - checksum: 0e735cf2c0f478c12a0f491edd491491499ef9255fa844b4a54d8e166ec2b0e7
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.2.ebwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.2.ebwt
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Rattus_norvegicus.Rnor_5.0.bowtie2-1.0.tar.gz:
+      files:
+      - checksum: 7e937e727263de7bd50d04264d997b4417b0e4d9721767180249d137a9ab6ba5
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.1.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.1.bt2
+      - checksum: e4a10d9fb0d682157ef0952405cb06414e9d804398dcf165d7fb9cef1889c952
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.2.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.2.bt2
+      - checksum: 93cb1719dd373aff700201f5042178aa165ed2c65522f24326bcac0b0e0fcc0d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.3.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.3.bt2
+      - checksum: 0da0fe9c95290b6438b015a00d3137e391403984b79ae45a31296778179a18cb
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.4.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.4.bt2
+      - checksum: 5912a9bee23cbe4ccc972c051d010faa373a85872c446ea1197d0988d15eb9de
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.1.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.1.bt2
+      - checksum: e0f1ab3f8fcefbb31ad43d2b455c6edd7a766911806500d61a18ae66e737ec1d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.2.bt2
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.rev.2.bt2
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Rattus_norvegicus.Rnor_5.0.bwa-1.0.tar.gz:
+      files:
+      - checksum: e46d20375836666d2fa1eda425c0aa41962567eeb4493cc33ab293e958443460
+        destination: /opt/chipster/tools/bwa_indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.amb
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.amb
+      - checksum: 46f3bb752e8a6005c54b5e16391d0d71e2ee25681b2a310af2efd42422d5db8c
+        destination: /opt/chipster/tools/bwa_indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.ann
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.ann
+      - checksum: 6a136af07d793530096db001aedc9a2d91bfb8675dc053356818cda905ac9bc5
+        destination: /opt/chipster/tools/bwa_indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.bwt
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.bwt
+      - checksum: c51c8c696f06033b73d904bf79d388e8d55634fc20f434e7b17c9aa718a0af53
+        destination: /opt/chipster/tools/bwa_indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.pac
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.pac
+      - checksum: be9ba39c2b9e6a3bd2e16143bf8404723cf3e625a4c1e2cc03531356b38d990a
+        destination: /opt/chipster/tools/bwa_indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.sa
+        source: Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa.sa
+  version: '1.0'
+rn5_mirna:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/rn5_mirna-1.0.tar.gz:
+      files:
+      - checksum: 66b7e0c89b0fcca480f53561a415cc7b5c8a5a927e4d212fd360b4e145aa1166
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.1.ebwt
+        source: rn5_mirna.1.ebwt
+      - checksum: 4c2f713dffda2034fe840e4bef512bdf842e9d91951c0f33c93b8bd2317931c7
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.2.ebwt
+        source: rn5_mirna.2.ebwt
+      - checksum: bf92daec6c833bdd412305d6a7aa7c9c4aa0c4e452d360c54b4622e798240d1f
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.3.ebwt
+        source: rn5_mirna.3.ebwt
+      - checksum: a378841ec5163f506a5d0301d809482aa312d8c6dac3454a52f63e4812806606
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.4.ebwt
+        source: rn5_mirna.4.ebwt
+      - checksum: f02ed83c946939581adda8bee3c1192c68a571eba899e147e975d0ce782fee2f
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.rev.1.ebwt
+        source: rn5_mirna.rev.1.ebwt
+      - checksum: 23c294d05358dc95a1d07a5ca9ffdf90b917676f3b14b7cb1c4aa48afb1bda26
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn5_mirna.rev.2.ebwt
+        source: rn5_mirna.rev.2.ebwt
+      - checksum: 28d045fd646ccd9d7ea55bcd79e379f9a6b8de01a7b70b242df7f9f691cde71d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.1.bt2
+        source: rn5_mirna.1.bt2
+      - checksum: 6bb73582f8f7e31b2da5118b963025ac4e23a81dc62d800ae1ce78d9d6fd75c5
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.2.bt2
+        source: rn5_mirna.2.bt2
+      - checksum: bf92daec6c833bdd412305d6a7aa7c9c4aa0c4e452d360c54b4622e798240d1f
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.3.bt2
+        source: rn5_mirna.3.bt2
+      - checksum: a378841ec5163f506a5d0301d809482aa312d8c6dac3454a52f63e4812806606
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.4.bt2
+        source: rn5_mirna.4.bt2
+      - checksum: 45064cd1d5d086a608f8a244a55cade4b4b6c2cdd83ea1fedc73c3db3aa4e03d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.rev.1.bt2
+        source: rn5_mirna.rev.1.bt2
+      - checksum: 5f6fa9492102b4bb654286e86cd78cb478250568b1785aa83bb7f7e5f8fb15f5
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn5_mirna.rev.2.bt2
+        source: rn5_mirna.rev.2.bt2
+      - checksum: a640aab0a22ffaf87fb2be8e317354b4dd646ba92a9e21f9c9672243d97b838f
+        destination: /opt/chipster/tools/bwa_indexes/rn5_mirna.fa.amb
+        source: rn5_mirna.fa.amb
+      - checksum: 82fcbdc0c519ac0e11642e97d0597073262ffe700bdbde5732260238e3424ffd
+        destination: /opt/chipster/tools/bwa_indexes/rn5_mirna.fa.ann
+        source: rn5_mirna.fa.ann
+      - checksum: e6939d421eddeb67edcda9eb31d916a47cb98e6d8b04d94d6ea2ab01c2ddbc35
+        destination: /opt/chipster/tools/bwa_indexes/rn5_mirna.fa.bwt
+        source: rn5_mirna.fa.bwt
+      - checksum: de828b916b538961a87efd85af598ffd6d0a8b2a4c3a86aafcf45767d30b3d10
+        destination: /opt/chipster/tools/bwa_indexes/rn5_mirna.fa.pac
+        source: rn5_mirna.fa.pac
+      - checksum: 0f35f68d77f90697a7111a336a527e1a30d3ec528222add9aa8b4e8c63a866f9
+        destination: /opt/chipster/tools/bwa_indexes/rn5_mirna.fa.sa
+        source: rn5_mirna.fa.sa
+  version: '1.0'
+Sus_scrofa.Sscrofa10.2:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Sus_scrofa.Sscrofa10.2-1.0.tar.gz:
+      files:
+      - checksum: 38c477d4ddc09191aa3a83e6c8f1e143d74b59faf477ae53e18572553b99d1e8
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.1.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.1.bt2
+      - checksum: 26f3b400b6f2ac4b6d761d3f0e26950b46768b60bbbd2628e47e0125fc23aec4
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.2.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.2.bt2
+      - checksum: 16cace2475094d8a5496506a8174127866fd4b5f63f88a81ce1dfd6b32f0d13d
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.3.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.3.bt2
+      - checksum: d2c476cc8b7abe253aa08e6aa9dad5bd4473fd6c09b266bde7c1823c3c35eda8
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.4.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.4.bt2
+      - checksum: e1bcc0187624fe6e155d0514bd2826f27177bb33c665539a84f68991a74d4bc9
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.rev.1.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.rev.1.bt2
+      - checksum: 7dda292a67396d73996e8b8f0cadb14d948ce7ec3b258d06ef90884f9e4678cc
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.rev.2.bt2
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.rev.2.bt2
+      - checksum: c30a53e39f3be2f29c08a3ea4be8c87906657fee0e0832fa33ce5089dba24f40
+        destination: /opt/chipster/tools/bwa_indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.amb
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.amb
+      - checksum: 056a7705df9378c43f7cf37a831c490436d1318781366cf95acfa9d9109989ed
+        destination: /opt/chipster/tools/bwa_indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.ann
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.ann
+      - checksum: 7cffb1d1c01f9c2c0fb9011909bdabdaaaf4e10b20d3ab65371cffc285a56e3d
+        destination: /opt/chipster/tools/bwa_indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.bwt
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.bwt
+      - checksum: aa9060003d3c80b1b5e98a10239024728431e8e5bef5b54dd0d543be572b7c01
+        destination: /opt/chipster/tools/bwa_indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.pac
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.pac
+      - checksum: 21734500df2944c762f3af2d6f866d95eee287e3c097011506fe2803cdffb09a
+        destination: /opt/chipster/tools/bwa_indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.sa
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.sa
+      - checksum: 6e2a12501a697eb298ca78700a66c7a2b8501339427fa1d02125c65fd4920b1e
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.fai
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.fai
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.cytoband-chr.txt
+        source: Sus_scrofa.Sscrofa10.2.70.cytoband-chr.txt
+      - checksum: 650604aad403657ab04d72df0dabf210c6f3f62ff9e72bde30d047a391e9307c
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.gene.tsv
+        source: Sus_scrofa.Sscrofa10.2.70.gene.tsv
+      - checksum: b490024651ace0c7b499647952fc5fb330bbaf886ec50aee321ab5278f0c3671
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.repeat-tabix.bed.gz
+        source: Sus_scrofa.Sscrofa10.2.70.repeat-tabix.bed.gz
+      - checksum: ad2e6af19cc2b475bc8045d430638877e6ae553384496ef8e9c978e1beab96fc
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.repeat-tabix.bed.gz.tbi
+        source: Sus_scrofa.Sscrofa10.2.70.repeat-tabix.bed.gz.tbi
+      - checksum: ce2762654dd3673c8b774c67cdf426d3b8c4cded3d87cb1cc4e1f66621ad0bb2
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.tabix.gtf.gz
+        source: Sus_scrofa.Sscrofa10.2.70.tabix.gtf.gz
+      - checksum: 1fb6464825f22fa3c8a7c14d17a26a59704ec36546d15344758557a32e2c7f15
+        destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.70.tabix.gtf.gz.tbi
+        source: Sus_scrofa.Sscrofa10.2.70.tabix.gtf.gz.tbi
+      - checksum: 9040d757d2dc29cdf3eba082c1bc2fc0a36048b581b873c5a01d4ecbd0b6010b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+      - checksum: 984fe9e9ff0f70bae03f8acc295ecce0a2e941589f44bd17b8a9718dc2b115a7
+        destination: /opt/chipster/tools/genomes/fasta/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+        source: Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa.1
+      - checksum: bec5d4268f6d4c83e070a99cb6c8b548e2e75d607f6df5ce9715300ad7aa5353
+        destination: /opt/chipster/tools/genomes/gtf/Sus_scrofa.Sscrofa10.2.69.gtf
+        source: Sus_scrofa.Sscrofa10.2.69.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+        source: ../../genomes/fasta/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa
+  version: '1.0'
+Vitis_vinifera.IGGP_12x:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Vitis_vinifera.IGGP_12x-1.0.tar.gz:
+      files:
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.cytoband-chr.txt
+        source: Vitis_vinifera.IGGP_12x.17.cytoband-chr.txt
+      - checksum: ad86c3736b4efd35a20091d60f4bc7ec96e72e9be5e6127e296670daad9dd05e
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa.fai
+        source: Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa.fai
+      - checksum: 4ae9d67ba29b7f0c6eb1899383537f71b5c5844e16721450ca1593f57816df63
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.gene.tsv
+        source: Vitis_vinifera.IGGP_12x.17.gene.tsv
+      - checksum: ead3fa7a521bfc6f39bcbf9d3acaf34d7d8634f9018d0228ecb085dad8a16ae6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.repeat-tabix.bed.gz
+        source: Vitis_vinifera.IGGP_12x.17.repeat-tabix.bed.gz
+      - checksum: e5545014194ed89db06b369d30e7b9a41dc74c76c53ed768050aa3f34771941b
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.repeat-tabix.bed.gz.tbi
+        source: Vitis_vinifera.IGGP_12x.17.repeat-tabix.bed.gz.tbi
+      - checksum: 89ee08edc6f2d317e4b8d7082871c113ec9d4cd7f6e5a6307481044f66c51bff
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.tabix.gtf.gz
+        source: Vitis_vinifera.IGGP_12x.17.tabix.gtf.gz
+      - checksum: 6bb499496c72e9e4bc304a732178217adea174fc1e27744da2873fa6dab94629
+        destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.tabix.gtf.gz.tbi
+        source: Vitis_vinifera.IGGP_12x.17.tabix.gtf.gz.tbi
+      - checksum: d33e6dd77fc39db34f577bdb0b3cfc866cb623b844fee8bb7431145dbc3d90ac
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa
+        source: Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa
+      symlinks:
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Vitis_vinifera.IGGP_12x.17.dna.toplevel.fa
+  version: '1.0'
+Canis_familiaris.CanFam3.1:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Canis_familiaris.CanFam3.1-1.0.tar.gz:
+      files:
+      - checksum: ff195c4e3f9af34ff4fcd8f9f97b6ac72e07404035b90ac8b0314c6057b3bbe9
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.1.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.1.ebwt
+      - checksum: 7aa7459a81ce80d2baf2fe28ebd2cc0b162c40f0e0220a11c2cefc61a267f89c
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.2.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.2.ebwt
+      - checksum: ada860a0387234165f226eac526f3be02a72652591b4216f094caec0c4d0c150
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.3.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.3.ebwt
+      - checksum: 3c4f5707990bb0aef92a319d30f76c444de306abb913356b39d1ca40d6c7c5a5
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.4.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.4.ebwt
+      - checksum: 3488d2e82c24c00f3ea4e199e92a123ccc5b67f7f3da63c65eb63926b58c433f
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.1.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.1.ebwt
+      - checksum: 4d02574ae7bea20f6e64557b14294e0d23d9bd62d91d6240b29c64349bb38e15
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.2.ebwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.2.ebwt
+      - checksum: 824e5d699cb9ab5a2888f2851b537524d94906b4263c0fc3e8cbe82a9c877656
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/bowtie2_index_Canis_familiaris.CanFam3.1.71.tar.gz
+        source: bowtie2_index_Canis_familiaris.CanFam3.1.71.tar.gz
+      - checksum: c5551f5f6850cdb4b77146eab9ef1b2fef29dbe4eb3638d7fc1396ef50aec478
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.1.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.1.bt2
+      - checksum: 1abfb2e84faff81422f791f52ba5ef554a778e7adb931836fa70c627f5643739
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.2.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.2.bt2
+      - checksum: ada860a0387234165f226eac526f3be02a72652591b4216f094caec0c4d0c150
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.3.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.3.bt2
+      - checksum: 3c4f5707990bb0aef92a319d30f76c444de306abb913356b39d1ca40d6c7c5a5
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.4.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.4.bt2
+      - checksum: 4e50cffcf7d3074bd6a8c9fd8a6f96d29e3367b0e81c04c49d69bfbec5381c72
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.1.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.1.bt2
+      - checksum: b3973f15cd3f81c0db0a00c3422f491103d6e5c735b0d96c43d0388622860534
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.2.bt2
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.rev.2.bt2
+      - checksum: 54668e5eb16039c18ddf14f8b7b15dd547d9fd44fea7f605ba480c2c4f6f0b6f
+        destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.amb
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.amb
+      - checksum: f424f0e5b65b4c9c5a0884765fa239fe5d96f979ab3c93512238619cf88d32bf
+        destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.ann
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.ann
+      - checksum: 84c0620e773a701d9bd62bb102df971e56216554560c744b3fc686b1f284fc30
+        destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.bwt
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.bwt
+      - checksum: e97f565db3573732483e7404d15a6a505fdb805250d81b0b5c1cb6ada3f029ec
+        destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.pac
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.pac
+      - checksum: 1caa390b748eeb0e9f411f610ae7078b72dc721aa86911d43181983f1bc29970
+        destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.sa
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa.sa
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.cytoband-chr.txt
+        source: Canis_familiaris.CanFam3.1.70.cytoband-chr.txt
+      - checksum: 68d6df52282550f0ae94eecef3597f6b12d8d1c70654951a413a04b33eaf0b04
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.dna.toplevel.fa.fai
+        source: Canis_familiaris.CanFam3.1.70.dna.toplevel.fa.fai
+      - checksum: 3fbb80ef0c7419e15407d84cedaf08b30b26c0acf476432fc3085867bf430e42
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.gene.tsv
+        source: Canis_familiaris.CanFam3.1.70.gene.tsv
+      - checksum: 9e8dc16abe9cd12eaf27470301a493293684fbe0d6f7fd0fd54b5717b35f3e9b
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.repeat-tabix.bed.gz
+        source: Canis_familiaris.CanFam3.1.70.repeat-tabix.bed.gz
+      - checksum: 5af35d8e817070fb3ead9cde2e7a04862256d50acf101ac6ce43350973a31e19
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.repeat-tabix.bed.gz.tbi
+        source: Canis_familiaris.CanFam3.1.70.repeat-tabix.bed.gz.tbi
+      - checksum: d7486f71649419e90477ab09fef8b4eec886e82ec8d0bbd7b453d04add9bac0b
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.tabix.gtf.gz
+        source: Canis_familiaris.CanFam3.1.70.tabix.gtf.gz
+      - checksum: cc250995ab2e02e73b9c5184c1284ce0217f4c13c75b07cf79c571cbb3856c8d
+        destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.tabix.gtf.gz.tbi
+        source: Canis_familiaris.CanFam3.1.70.tabix.gtf.gz.tbi
+      - checksum: cfa5c42517150e0ffb6f29647cd1cf294adff38edb6d0900fda76bf8ebd20a4b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Canis_familiaris.CanFam3.1.70.dna.toplevel.fa
+        source: Canis_familiaris.CanFam3.1.70.dna.toplevel.fa
+      - checksum: cfa5c42517150e0ffb6f29647cd1cf294adff38edb6d0900fda76bf8ebd20a4b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+        source: Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+      - checksum: 34d2b30271b03ba476c4fabf27423807e782024e1f96940385b932113dc30b69
+        destination: /opt/chipster/tools/genomes/gtf/Canis_familiaris.CanFam3.1.71.gtf
+        source: Canis_familiaris.CanFam3.1.71.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bwa_indexes/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+        source: ../genomes/fasta/nochr/Canis_familiaris.CanFam3.1.71.dna.toplevel.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/Canis_familiaris.CanFam3.1.70.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Canis_familiaris.CanFam3.1.70.dna.toplevel.fa
+  version: '1.0'
+Escherichia_coli_n1:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Escherichia_coli_n1-1.0.tar.gz:
+      files:
+      - checksum: 22c4ba2464cc28dc586e0a3c59d282956e679d860a43593a36109d2c89638b86
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa      
+  version: '0.9'
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Escherichia_coli_n1-1.0.tar.gz:
+      files:
+      - checksum: d78523bdff293bf69c461e1bce476719b82f038a2f61cfc7e4b0dc10dd59fe31
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.1.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.1.ebwt
+      - checksum: c7bfaea9a964794d7066dbc6da63d7d4fbe9cb4b1c7e5088368225ff78efe4ec
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.2.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.2.ebwt
+      - checksum: 1372de422bdda4a7cf3de2876a189de06154642aca8506825df786872cf51920
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.3.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.3.ebwt
+      - checksum: e1544908c41b25210629d3be3e064de098dc0765e170740aa6d895df7bb44063
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.4.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.4.ebwt
+      - checksum: f1de373b973013d37c7faa0e80e3210d4e4d3b0ffea588166d1d203d5a389ddc
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.1.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.1.ebwt
+      - checksum: d3caf20ecce5c28d242a53694970c28b3dee8110e93005089c548f16d0d6d042
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.2.ebwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.2.ebwt
+      - checksum: 4742760cfdbbfe3089527fe25940d22ea5eaa8f72f9a2586495bcd58f870c0b2
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/bowtie2_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz
+        source: bowtie2_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz
+      - checksum: fc823111134375ba4b78b0469efee4fea33e8cddfa91257c4d5a0ca9a54737e0
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.1.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.1.bt2
+      - checksum: 7b78db81868d8abf6597be4f01d4d2a039fe4b9f2940626024dc51ce4407894c
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.2.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.2.bt2
+      - checksum: 1372de422bdda4a7cf3de2876a189de06154642aca8506825df786872cf51920
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.3.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.3.bt2
+      - checksum: e1544908c41b25210629d3be3e064de098dc0765e170740aa6d895df7bb44063
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.4.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.4.bt2
+      - checksum: af5fc95c69fa6fe7ef266d4da928fd222b6ea3df209416856e4bd9cd0f29132b
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.1.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.1.bt2
+      - checksum: 2e36d8e7f8270f59f81a60ee7c24412e66a8f8103e404f180b23dec42c4ff63a
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.2.bt2
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.rev.2.bt2
+      - checksum: 1ac24504ddcd2dc0ddb03870ccb60a248693d23c34897d9e65427c433df04d25
+        destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.amb
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.amb
+      - checksum: 0353c26a35577a13137c78d674a9155f2fb9c79171583c767e4426f21c4ae3f1
+        destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.ann
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.ann
+      - checksum: 2c15c2abd11095ea4d56e135c54eaae44a88f4e8dec196f658a8906ea27a0d42
+        destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.bwt
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.bwt
+      - checksum: d35091d722d65e65514333e1fd6bf88421d158152a2d70df5fa3a739681c7de0
+        destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.pac
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.pac
+      - checksum: 65a2eaac95d7c0a29962dc19afce2602f16aa545ba2725468332b303773cd39d
+        destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.sa
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa.sa
+      - checksum: 22c4ba2464cc28dc586e0a3c59d282956e679d860a43593a36109d2c89638b86
+        destination: /opt/chipster/tools/genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+      - checksum: 92721059e18bf05f62cfeca2ce3da933bc35b5b25aea289105f21f79ff811306
+        destination: /opt/chipster/tools/genomes/gtf/Escherichia_coli_n1.GCA_000303635.1.18.gtf
+        source: Escherichia_coli_n1.GCA_000303635.1.18.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: ../../genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+      - destination: /opt/chipster/tools/bwa_indexes/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+        source: ../genomes/fasta/nochr/Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa
+  version: '1.0'
+Homo_sapiens.GRCh37:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Homo_sapiens.GRCh37-1.0.tar.gz:
+      files:
+      - checksum: 8b0c3f2e549598450057a060d0ef40c193686d723e3d66113d877808eb818f0c
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.1.ebwt
+        source: hg19.1.ebwt
+      - checksum: 63aa73977622f0df53cc5e00b355cf0ba6fbf935474c425bdf9d8db063d64e7a
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.2.ebwt
+        source: hg19.2.ebwt
+      - checksum: 73430b9bad288fec97e9027599fadee71088e8ff33be00c2c6fe6d5e6bab2287
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.3.ebwt
+        source: hg19.3.ebwt
+      - checksum: 64444e729c9046c80c40e379ef9eb3307bc0bad4fe51ff1774e063cacfbd35a6
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.4.ebwt
+        source: hg19.4.ebwt
+      - checksum: 23fb991f9f9a28b3a844c975c47771eaf63d3dfb3d22f3551bd863ef8d5b19f5
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.rev.1.ebwt
+        source: hg19.rev.1.ebwt
+      - checksum: 549371b9b31494e2d411bd47488b86f2b131f84f02180d3a2d370ee927f1e0b0
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.rev.2.ebwt
+        source: hg19.rev.2.ebwt
+      - checksum: 5f15423d09c591567fe94dec83f6ba388422ee859b97f5d61a6e1dcb114f7cf2
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.1.bt2
+        source: hg19.1.bt2
+      - checksum: 82a24b706c1943edba5230e6c4eb6fc68ad42018231a0da6b9249f1d4a04b771
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.2.bt2
+        source: hg19.2.bt2
+      - checksum: 73430b9bad288fec97e9027599fadee71088e8ff33be00c2c6fe6d5e6bab2287
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.3.bt2
+        source: hg19.3.bt2
+      - checksum: 64444e729c9046c80c40e379ef9eb3307bc0bad4fe51ff1774e063cacfbd35a6
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.4.bt2
+        source: hg19.4.bt2
+      - checksum: 4f7c9303a8715cec2907b884418d3e440459381c1eed3a17078f1bdb14a68e1b
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.rev.1.bt2
+        source: hg19.rev.1.bt2
+      - checksum: 8e15c69a6a9803f8fc749d6afd1f7ca07a4c56751ab414963e6fb31adad4a19e
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.rev.2.bt2
+        source: hg19.rev.2.bt2
+      - checksum: 1f75660cd463ab970d07ed8ab8d1304ac28e06355b557d106758018f1e8f4931
+        destination: /opt/chipster/tools/bwa_indexes/hg19.fa.amb
+        source: hg19.fa.amb
+      - checksum: c49de36ab6c97488db2ed04989ec8693cadb6847776d02348f793e26681057d8
+        destination: /opt/chipster/tools/bwa_indexes/hg19.fa.ann
+        source: hg19.fa.ann
+      - checksum: 1e6b5a41596f0bb5142e5708eba500752f092876e4a9c0576771979d2f0ae3fe
+        destination: /opt/chipster/tools/bwa_indexes/hg19.fa.bwt
+        source: hg19.fa.bwt
+      - checksum: ac1e27c8d7a6b4dd531d8e087153378ecee2b3c7ed78a8c2950e85fbe3233881
+        destination: /opt/chipster/tools/bwa_indexes/hg19.fa.pac
+        source: hg19.fa.pac
+      - checksum: 1edd696ef190a97bc09c443bba4eb56ecc066d66bdae4ab49d8a98567e531afc
+        destination: /opt/chipster/tools/bwa_indexes/hg19.fa.sa
+        source: hg19.fa.sa
+      - checksum: efa4d1815f8bf808c6943e37d60d1c738eb7054a4c8a8ce25e857d80c5914dfd
+        destination: /opt/chipster/tools/genomebrowser/annotations/hg19.fa.fai
+        source: hg19.fa.fai
+      - checksum: ce1330efa1986e00618edd3df6fac662637544492254635dc07dcafca7266570
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.cytoband-chr.txt
+        source: Homo_sapiens.GRCh37.70.cytoband-chr.txt
+      - checksum: 7e7cee3897da7e296d7d057a6d690f92cece272df6bce0f57f0e702e72be3bac
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.gene.tsv
+        source: Homo_sapiens.GRCh37.70.gene.tsv
+      - checksum: b27d17ce50bffa9ffe675f1ecc85c2874373073b6618b89126f7bbad67638a97
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.repeat-tabix.bed.gz
+        source: Homo_sapiens.GRCh37.70.repeat-tabix.bed.gz
+      - checksum: 689be1ca3f3561e7b3e1b42f735359062ebf8a55e02f19f4015c629901521198
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.repeat-tabix.bed.gz.tbi
+        source: Homo_sapiens.GRCh37.70.repeat-tabix.bed.gz.tbi
+      - checksum: f8ad77750fe05a80433e71583ec63108dcc2a232d6841b4ef28590f68606cf58
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.tabix.gtf.gz
+        source: Homo_sapiens.GRCh37.70.tabix.gtf.gz
+      - checksum: e6e8d16ee9a57c4420b06ea60c12d7bbfaa248c56e1b213a189b6b53ddc8180d
+        destination: /opt/chipster/tools/genomebrowser/annotations/Homo_sapiens.GRCh37.70.tabix.gtf.gz.tbi
+        source: Homo_sapiens.GRCh37.70.tabix.gtf.gz.tbi
+      - checksum: 492c8d6337990dd017b065abb4559509e0853521976868c57dc6634d1d1796d7
+        destination: /opt/chipster/tools/genomes/fasta/hg19.fa
+        source: hg19.fa
+      - checksum: e52ae4ca93abdd03eb91584c2403ae339a470c1ba48d003313d38667b2cb4d1b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/hg19.fa
+        source: hg19.fa.1
+      - checksum: 38a014a877c61f98b846ea7154867ac1611e5b1e76bde21661e88afbb4713374
+        destination: /opt/chipster/tools/genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf
+        source: Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf
+      - checksum: 038df936aa3d7d28eaa89182dd40b52115bbcfadc8ee167951509f537588c6c9
+        destination: /opt/chipster/tools/genomes/gtf/Homo_sapiens.GRCh37.68.chr.gtf
+        source: Homo_sapiens.GRCh37.68.chr.gtf
+      - checksum: e0a058a93379cf54a221013d645d9636ebaf73ce003fd43df19124fab4d56d35
+        destination: /opt/chipster/tools/genomes/gtf/Homo_sapiens.GRCh37.68.DEXSeq.gtf
+        source: Homo_sapiens.GRCh37.68.DEXSeq.gtf
+      - checksum: 4ae1be8c603d37b34e5da91987aaed15da3c5b390ada8be3d2e23ceadf8a6507
+        destination: /opt/chipster/tools/genomes/gtf/Homo_sapiens.GRCh37.68.gtf
+        source: Homo_sapiens.GRCh37.68.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/hg19.fa
+        source: ../../genomes/fasta/hg19.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/hg19.fa
+        source: ../../genomes/fasta/hg19.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/hg19.fa
+        source: ../../genomes/fasta/nochr/hg19.fa
+  version: '1.0'
+Mus_musculus.GRCm38:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Mus_musculus.GRCm38-1.0.tar.gz:
+      files:
+      - checksum: 2685a88cd7a54777df2ef85d7b0b21aa4658703d5de234ab72be08f2103725d8
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.1.ebwt
+        source: mm10.1.ebwt
+      - checksum: eed866590a646d92af8e5cb945c2fcf8fb7f24e110c850f67220d18b7bc9afe2
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.2.ebwt
+        source: mm10.2.ebwt
+      - checksum: 43db35a837be7917947e6b11c5440a446901f19d770bca382d42c6bed8d6eddd
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.3.ebwt
+        source: mm10.3.ebwt
+      - checksum: dc3cd15646b71f9f4841fe6fa95d53ea26959e38c6a683f4450d83318274abb9
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.4.ebwt
+        source: mm10.4.ebwt
+      - checksum: fe3f9dd21115523c43273db35101f8c30d48ebf01091a56e29b9efa79c960a90
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.rev.1.ebwt
+        source: mm10.rev.1.ebwt
+      - checksum: 5dd64b8ac3e44a777f4dbec71d5f93f88383f93f3fd02d191e41fa1106686caa
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.rev.2.ebwt
+        source: mm10.rev.2.ebwt
+      - checksum: 770b3172d74d011b8f3dbaa7a68200de6b6b956631ad9521df5cf413ef7449fb
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.1.bt2
+        source: mm10.1.bt2
+      - checksum: b15f293024a94c49836e7b24a029247c2e71eb2dd5182559edaa54eee297af1f
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.2.bt2
+        source: mm10.2.bt2
+      - checksum: 43db35a837be7917947e6b11c5440a446901f19d770bca382d42c6bed8d6eddd
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.3.bt2
+        source: mm10.3.bt2
+      - checksum: dc3cd15646b71f9f4841fe6fa95d53ea26959e38c6a683f4450d83318274abb9
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.4.bt2
+        source: mm10.4.bt2
+      - checksum: fbe45f073764d4a4cc8f70299e9dc4a7428a670edddd24535b86391f898dac9b
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.rev.1.bt2
+        source: mm10.rev.1.bt2
+      - checksum: f7e5416cd249c68d551f99daf6c73a0dafb808fa4a44c173a496b2a6e17ef400
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.rev.2.bt2
+        source: mm10.rev.2.bt2
+      - checksum: 28336a6a803c9a598ececa4bee1c397a21126ba2a38e1ff9dd0289189c2a637e
+        destination: /opt/chipster/tools/bwa_indexes/mm10.fa.amb
+        source: mm10.fa.amb
+      - checksum: d60bad5881fac04cc2f31def32524f8167c880a9c4eb08748bc746760adb0ae8
+        destination: /opt/chipster/tools/bwa_indexes/mm10.fa.ann
+        source: mm10.fa.ann
+      - checksum: bce1fb9b9ae20d18c12c24d91762f0d09d5b30ba017c38168990e4d463aa73a5
+        destination: /opt/chipster/tools/bwa_indexes/mm10.fa.bwt
+        source: mm10.fa.bwt
+      - checksum: 7d96e32b8a47b6c49cb6559deed83bb0a52c9fe1694b26bda1585e543d93e482
+        destination: /opt/chipster/tools/bwa_indexes/mm10.fa.pac
+        source: mm10.fa.pac
+      - checksum: 4c47daa44623879a38c8fa2f7dd739466f44ff76b3573ccfef34623bb2556d56
+        destination: /opt/chipster/tools/bwa_indexes/mm10.fa.sa
+        source: mm10.fa.sa
+      - checksum: 9b7b2496f9e679810eebd7c1d5fffa4b79156cb964a217e464517b3215e5f980
+        destination: /opt/chipster/tools/genomebrowser/annotations/mm10.fa.fai
+        source: mm10.fa.fai
+      - checksum: 9a6a711f2999ed471348038612bc0fc13f497fb92e1252a9ce5e00ad7df76162
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.cytoband-chr.txt
+        source: Mus_musculus.GRCm38.70.cytoband-chr.txt
+      - checksum: a4f5130e38503ddfe5e08fbb6a815e25d588d35c5497429c191c63f22358dd5f
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.gene.tsv
+        source: Mus_musculus.GRCm38.70.gene.tsv
+      - checksum: 6b8d3a7d777bda909c97bdddf88b3beefa6b1c5605464cf55604bf1d514a3c02
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.repeat-tabix.bed.gz
+        source: Mus_musculus.GRCm38.70.repeat-tabix.bed.gz
+      - checksum: 5742b40c7ff131d95500a0c48877fc22eedbf22d142692bf7fc0f53676517f30
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.repeat-tabix.bed.gz.tbi
+        source: Mus_musculus.GRCm38.70.repeat-tabix.bed.gz.tbi
+      - checksum: 9f7f207995745bc844695a6df324ef09f59e4175bfb248fb3d0e8774e84b6f22
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.tabix.gtf.gz
+        source: Mus_musculus.GRCm38.70.tabix.gtf.gz
+      - checksum: df88713c97b8df31da45e62b12fa4adceb9a1541fbfdb1174e7735c8e2bfa717
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.GRCm38.70.tabix.gtf.gz.tbi
+        source: Mus_musculus.GRCm38.70.tabix.gtf.gz.tbi
+      - checksum: 383fbc47a986ed4ad1ec4160b3a3cefd60d686aa405f6e01091b0d76f9f33661
+        destination: /opt/chipster/tools/genomes/fasta/mm10.fa
+        source: mm10.fa
+      - checksum: 37cf91730e941a46d99463b25b94afba09967f85c67133e6b84c4b4bc264ac1b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/mm10.fa
+        source: mm10.fa.1
+      - checksum: 37503b8e2f3faf36e3ba9f14dfc995064488d6e10b3036046d40172b6a542d1e
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.chr.DEXSeq.gtf
+        source: Mus_musculus.GRCm38.68.chr.DEXSeq.gtf
+      - checksum: 2526476d78113f40a48622ded2fd13d586dcb0570284518a32acaff5816f8fd4
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.chr.gtf
+        source: Mus_musculus.GRCm38.68.chr.gtf
+      - checksum: fe1fd46298cf7c1f37c7ed1227a54d904156fca16eab9e9f4a296b4c767a9a27
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.DEXSeq.gtf
+        source: Mus_musculus.GRCm38.68.DEXSeq.gtf
+      - checksum: a5b8f057a8c7b89625efa92b1b05eac93ae465d9b7ee64d640382ac64d341f61
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.gtf
+        source: Mus_musculus.GRCm38.68.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm10.fa
+        source: ../../genomes/fasta/mm10.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/mm10.fa
+        source: ../../genomes/fasta/mm10.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/mm10.fa
+        source: ../../genomes/fasta/nochr/mm10.fa
+  version: '1.0'
+Mus_musculus.NCBIM37:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Mus_musculus.NCBIM37-1.0.tar.gz:
+      files:
+      - checksum: f281745558036225eb46abdaa8c10dcd71cb1146c902721751bcc1a39a6aaadb
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.1.ebwt
+        source: mm9.1.ebwt
+      - checksum: c6a65d3a9ad69e305db28d30de9333b92d09439da215d0ba4f828e27ae4976e0
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.2.ebwt
+        source: mm9.2.ebwt
+      - checksum: a1ffead8445e9a5549e9ab8fc6adc3cabe3d36df1fabc533c12878463e7696c5
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.3.ebwt
+        source: mm9.3.ebwt
+      - checksum: 3f9594fc02988078a2a282643d149d35955491e9fc03a94492bf84d04c7becc0
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.4.ebwt
+        source: mm9.4.ebwt
+      - checksum: 587b10ca65e0abd6fd9a574360a1ef938d916d65301c3f80dcda1c850616b7ee
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.rev.1.ebwt
+        source: mm9.rev.1.ebwt
+      - checksum: ba246620e50f3377cb96012011eec93b1a783d08dcb1821811ce69e4118b32eb
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.rev.2.ebwt
+        source: mm9.rev.2.ebwt
+      - checksum: 23472155891ae33171db5dd14bbe15468c82fec3835d00f47f3dc8fa23f4992b
+        destination: /opt/chipster/tools/bwa_indexes/mm9.fa.amb
+        source: mm9.fa.amb
+      - checksum: 704ad50b9fc6f6c4c93a1d4df5857aed57e2612ec3f3f9b5adca984309193afa
+        destination: /opt/chipster/tools/bwa_indexes/mm9.fa.ann
+        source: mm9.fa.ann
+      - checksum: 736a8d7656e55dde056a65c144c44df263d421198e5b3020c2fddb13b212f313
+        destination: /opt/chipster/tools/bwa_indexes/mm9.fa.bwt
+        source: mm9.fa.bwt
+      - checksum: 9f062fc6119dac5586db87a39872bcf907793c2dac66242a6c9c9803e6de19c1
+        destination: /opt/chipster/tools/bwa_indexes/mm9.fa.pac
+        source: mm9.fa.pac
+      - checksum: 4af5c79e7d3469d1380dc6e6196e4b3b2274e461948c170d63d6be78e7152d75
+        destination: /opt/chipster/tools/bwa_indexes/mm9.fa.sa
+        source: mm9.fa.sa
+      - checksum: e290006935d357449a32c366772d0c1b2fc0564a432ec3562f5d323336579f66
+        destination: /opt/chipster/tools/genomebrowser/annotations/mm9.fa.fai
+        source: mm9.fa.fai
+      - checksum: 2257f9d6ac23df66b16ee756102b7cbf891112445721c05d86904823d8752c1a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.cytoband-chr.txt
+        source: Mus_musculus.NCBIM37.67.cytoband-chr.txt
+      - checksum: ed1908d55ebbb76cd0ed394d46d097874bce43cc0e3251899d9feea3684cff69
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.gene.tsv
+        source: Mus_musculus.NCBIM37.67.gene.tsv
+      - checksum: bd0241d134d295dcbf43025ac057bfbfbbfc27616a9f5d2733286acdc63143f8
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.repeat-tabix.bed.gz
+        source: Mus_musculus.NCBIM37.67.repeat-tabix.bed.gz
+      - checksum: d44f3580a878b7ae199150bb3800e0c4da6672897dc9dbf62703ebb377d52a86
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.repeat-tabix.bed.gz.tbi
+        source: Mus_musculus.NCBIM37.67.repeat-tabix.bed.gz.tbi
+      - checksum: 3ad90d6df0e369e279c78916f910c4c74f7a63b1215f9da2e4c2497dbbbd327e
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.tabix.gtf.gz
+        source: Mus_musculus.NCBIM37.67.tabix.gtf.gz
+      - checksum: efbb9a11772cfdece0afad5c9292a1ca7702d72afa4ef107c02fa0ea675f1fd6
+        destination: /opt/chipster/tools/genomebrowser/annotations/Mus_musculus.NCBIM37.67.tabix.gtf.gz.tbi
+        source: Mus_musculus.NCBIM37.67.tabix.gtf.gz.tbi
+      - checksum: f1ef8b77a42d621f02e283bb3256f3a0660ba2607d7c4c1ad91a4048c32b072b
+        destination: /opt/chipster/tools/genomes/fasta/mm9.fa
+        source: mm9.fa
+      - checksum: cf738b320f4a3b62440ccd1f57d97315a6e5069348295f7601c372f74ebd925d
+        destination: /opt/chipster/tools/genomes/fasta/nochr/mm9.fa
+        source: mm9.fa.1
+      - checksum: 37503b8e2f3faf36e3ba9f14dfc995064488d6e10b3036046d40172b6a542d1e
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.chr.DEXSeq.gtf
+        source: Mus_musculus.GRCm38.68.chr.DEXSeq.gtf
+      - checksum: 2526476d78113f40a48622ded2fd13d586dcb0570284518a32acaff5816f8fd4
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.chr.gtf
+        source: Mus_musculus.GRCm38.68.chr.gtf
+      - checksum: fe1fd46298cf7c1f37c7ed1227a54d904156fca16eab9e9f4a296b4c767a9a27
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.DEXSeq.gtf
+        source: Mus_musculus.GRCm38.68.DEXSeq.gtf
+      - checksum: a5b8f057a8c7b89625efa92b1b05eac93ae465d9b7ee64d640382ac64d341f61
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.GRCm38.68.gtf
+        source: Mus_musculus.GRCm38.68.gtf
+      - checksum: 5fef84dd696b890519b40b2b481aa4f4999c2c0059556c2e18141942562b33c2
+        destination: /opt/chipster/tools/genomes/gtf/Mus_musculus.NCBIM37.62.chr.gtf
+        source: Mus_musculus.NCBIM37.62.chr.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/mm9.fa
+        source: ../../genomes/fasta/mm9.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/mm9.fa
+        source: ../../genomes/fasta/nochr/mm9.fa
+  version: '1.0'
+ovis_aries:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/ovis_aries-1.0.tar.gz:
+      files:
+      - checksum: 09892c48d93ba7beb2807746b40bca8434143eeed4b09be9b7f39b1ae094e136
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.1.ebwt
+        source: ovis_aries_texel.1.ebwt
+      - checksum: 6169c8af7620c62315f474854e84b5f8550601049526e38566f208effd057f5c
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.2.ebwt
+        source: ovis_aries_texel.2.ebwt
+      - checksum: 9b73776a3bec90b069adfe95b629a3c76b88196b5b2bcfbaea56c6de995f0aa7
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.3.ebwt
+        source: ovis_aries_texel.3.ebwt
+      - checksum: e4bd5a2d4ddf9e9b15acae6b913f301ff95b1d89e04a65ac5457120600472a5a
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.4.ebwt
+        source: ovis_aries_texel.4.ebwt
+      - checksum: 08f23e6d3208e777d6b9fbc7d5083c53d59feeabb156d778e1fc348735cee2c1
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.rev.1.ebwt
+        source: ovis_aries_texel.rev.1.ebwt
+      - checksum: 3705ad6081acd5b5a05dad0cd5a552b242039b776a3ec0d1396eb92476e40580
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.rev.2.ebwt
+        source: ovis_aries_texel.rev.2.ebwt
+      - checksum: a66a0dc6025c5dd53d4e00d93f520736659d3b2f3c273ba86f13cfeb322dc5fe
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.1.bt2
+        source: ovis_aries_texel.1.bt2
+      - checksum: d1af975d38be4dbfa70472d5e248e4c55c669cc0ca98f17ad6a7b96d92968bae
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.2.bt2
+        source: ovis_aries_texel.2.bt2
+      - checksum: 9b73776a3bec90b069adfe95b629a3c76b88196b5b2bcfbaea56c6de995f0aa7
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.3.bt2
+        source: ovis_aries_texel.3.bt2
+      - checksum: e4bd5a2d4ddf9e9b15acae6b913f301ff95b1d89e04a65ac5457120600472a5a
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.4.bt2
+        source: ovis_aries_texel.4.bt2
+      - checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.fa.3.bt2
+        source: ovis_aries_texel.fa.3.bt2
+      - checksum: 2b28dad981475dc145eb27db5787cdb702e7797644257c764b33f653a4f159dd
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.fa.4.bt2
+        source: ovis_aries_texel.fa.4.bt2
+      - checksum: 9c318fcea57325957f5846a17d1e8f1edd5c6ec750d35ce299846f2ec9249671
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.rev.1.bt2
+        source: ovis_aries_texel.rev.1.bt2
+      - checksum: 5666411863823bfb9834eb9f65855be5aa8673d631b043cab3b9dee1a1a51e3e
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.rev.2.bt2
+        source: ovis_aries_texel.rev.2.bt2
+      - checksum: ce15528c6309b7e493fedb3a5e8f27a31db794e6fa1af05a4089aaaed50f0b2c
+        destination: /opt/chipster/tools/bwa_indexes/ovis_aries_texel.fa.amb
+        source: ovis_aries_texel.fa.amb
+      - checksum: ed876cc259cedab49aba819f20254842fa32db25aa542b43fa0d9366a9d7d345
+        destination: /opt/chipster/tools/bwa_indexes/ovis_aries_texel.fa.ann
+        source: ovis_aries_texel.fa.ann
+      - checksum: 230a9cc78873fd0c24f74c3cbef2dda527e5d27d5a90274416093891d1703ecb
+        destination: /opt/chipster/tools/bwa_indexes/ovis_aries_texel.fa.bwt
+        source: ovis_aries_texel.fa.bwt
+      - checksum: 2321670edbe912645dc8ac0ad8eb409a805ddc82263598c53403a4aa2d4673c5
+        destination: /opt/chipster/tools/bwa_indexes/ovis_aries_texel.fa.pac
+        source: ovis_aries_texel.fa.pac
+      - checksum: e8552f2e06905c6b6c9c4dfa8c0eb0098ad0bab0dc65eb3935fc27218223a5ca
+        destination: /opt/chipster/tools/bwa_indexes/ovis_aries_texel.fa.sa
+        source: ovis_aries_texel.fa.sa
+      - checksum: 2fb4db141e3e9f60d172137f4c6975d9fd2566dbdfa0a89182bc3c30fa3b88e3
+        destination: /opt/chipster/tools/genomebrowser/annotations/ovis_aries_texel.fa.fai
+        source: ovis_aries_texel.fa.fai
+      - checksum: 989fd15dd452d8751e5cb6e1af70ad0e417ae2519a5336f751246226b784779c
+        destination: /opt/chipster/tools/genomes/fasta/ovis_aries_texel.fa
+        source: ovis_aries_texel.fa
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/ovis_aries_texel.fa
+        source: ../../genomes/fasta/ovis_aries_texel.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/ovis_aries_texel.fa
+        source: ../../genomes/fasta/ovis_aries_texel.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/ovis_aries_texel.fa
+        source: ../../genomes/fasta/ovis_aries_texel.fa
+  version: '1.0'
+Rattus_norvegicus.RGSC3.4:
+- chipster: '2.6'
+  packages:
+    http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/Rattus_norvegicus.RGSC3.4-1.0.tar.gz:
+      files:
+      - checksum: 56882e782372df851a0471fe9232e62bc0e43aea0fb6db035e0300d4eb5974c2
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.1.ebwt
+        source: rn4.1.ebwt
+      - checksum: ff66b202a878115f27828c102b9436c14571aa238c8195dcc4327889e16e27e4
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.2.ebwt
+        source: rn4.2.ebwt
+      - checksum: e45ce2d07dc21a2a0070d354168d70e01ba1ab6136bf2b072b20e83b6ef470a6
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.3.ebwt
+        source: rn4.3.ebwt
+      - checksum: 5b4726a7de97c635457a9e829e5fad8b2a516d22c489f50eb1fb6a85ebbf61ec
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.4.ebwt
+        source: rn4.4.ebwt
+      - checksum: 923836959a3dbccad99fa482924bbb779c3d28434c57c0f164c8e66a814849c4
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.rev.1.ebwt
+        source: rn4.rev.1.ebwt
+      - checksum: a1e609346dcec35b6749b32a97769a92906eb0073179a4d9569d2f8a24b15320
+        destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.rev.2.ebwt
+        source: rn4.rev.2.ebwt
+      - checksum: 2637926b08a4f0d40d02311e7c7d2d80954766ceda76218fe9278af9f071017a
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.1.bt2
+        source: rn4.1.bt2
+      - checksum: 6a9045b8d5340cca12b1ff444359a8ce38c6bdef9787256cf3c8b65ebac54b35
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.2.bt2
+        source: rn4.2.bt2
+      - checksum: e45ce2d07dc21a2a0070d354168d70e01ba1ab6136bf2b072b20e83b6ef470a6
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.3.bt2
+        source: rn4.3.bt2
+      - checksum: 5b4726a7de97c635457a9e829e5fad8b2a516d22c489f50eb1fb6a85ebbf61ec
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.4.bt2
+        source: rn4.4.bt2
+      - checksum: 903d406b634a2354cc7b7ab5144310d51922cb23cc40efdf5c827089e2ad862b
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.rev.1.bt2
+        source: rn4.rev.1.bt2
+      - checksum: 94dd76d09dce7556bc9ae58610cc10af810a6666071ca2d92611af9284b1f517
+        destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.rev.2.bt2
+        source: rn4.rev.2.bt2
+      - checksum: 617f6a2bc61d17c8fe8a79a0fe6d38e8b18f138df06c2b6203970cfa707d3568
+        destination: /opt/chipster/tools/bwa_indexes/rn4.fa.amb
+        source: rn4.fa.amb
+      - checksum: 5db58d866800e89bb9a7c159a7bc1a50175a0d15050a6e62085fd425a6cc1e8d
+        destination: /opt/chipster/tools/bwa_indexes/rn4.fa.ann
+        source: rn4.fa.ann
+      - checksum: 326b25587d460f54468d98483817f54056dc2aba96dd817103912513c8a3121f
+        destination: /opt/chipster/tools/bwa_indexes/rn4.fa.bwt
+        source: rn4.fa.bwt
+      - checksum: f9e48f50c9ed3b277f1db8a9e13d32b4adcb818ba64e8c6fba24e926ff45a298
+        destination: /opt/chipster/tools/bwa_indexes/rn4.fa.pac
+        source: rn4.fa.pac
+      - checksum: 484fc5e24526b050e4b4fdd6c30f9c78e63d69cdc82dd637706d1bfd0ffefdee
+        destination: /opt/chipster/tools/bwa_indexes/rn4.fa.sa
+        source: rn4.fa.sa
+      - checksum: f08f4e41e8eca286681a92344df1058813f9eda858c38a101ec43a437213dae0
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.cytoband-chr.txt
+        source: Rattus_norvegicus.RGSC3.4.69.cytoband-chr.txt
+      - checksum: 1c242f39a9107f41fcbf7eba711f3535f1c11f888b42b16edbab4f0d29743bb1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.gene.tsv
+        source: Rattus_norvegicus.RGSC3.4.69.gene.tsv
+      - checksum: 422044cd4644e0af61874721cb6b8011a71fcab3ad7c1f409753ff2e73e5c4a1
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.repeat-tabix.bed.gz
+        source: Rattus_norvegicus.RGSC3.4.69.repeat-tabix.bed.gz
+      - checksum: 18a74bc7b91773fc7123969957d09f46ba4937205e45f1608faf0aa70fe34508
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.repeat-tabix.bed.gz.tbi
+        source: Rattus_norvegicus.RGSC3.4.69.repeat-tabix.bed.gz.tbi
+      - checksum: eba7bfcf2496c3c3c3d9b109675fba1019825f14649924ed30c454404ca7014a
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.tabix.gtf.gz
+        source: Rattus_norvegicus.RGSC3.4.69.tabix.gtf.gz
+      - checksum: c003b4160f67c9cf281b2ae2e2ef61e1821ad0683a65b0f82211d593621ccca0
+        destination: /opt/chipster/tools/genomebrowser/annotations/Rattus_norvegicus.RGSC3.4.69.tabix.gtf.gz.tbi
+        source: Rattus_norvegicus.RGSC3.4.69.tabix.gtf.gz.tbi
+      - checksum: ceb1eb75c2439dd145776e189620de65564ac4a06195a2a97c94e8ebe6e2ca18
+        destination: /opt/chipster/tools/genomebrowser/annotations/rn4.fa.fai
+        source: rn4.fa.fai
+      - checksum: 10bf4cc2c62f6d886c97a4dbbc8d09edd428926e66010e54531e47a0fb16520b
+        destination: /opt/chipster/tools/genomes/fasta/nochr/rn4.fa
+        source: rn4.fa
+      - checksum: ae0ba8ffde416a15417353fd67585bb8d26cdf72a9160a19cc24f9f0bc4c25c8
+        destination: /opt/chipster/tools/genomes/fasta/rn4.fa
+        source: rn4.fa.1
+      - checksum: bdd6de54659e7c4a517f1dcc5f39174df0539654b13e01f8a47d57feeb5518d5
+        destination: /opt/chipster/tools/genomes/gtf/Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf
+        source: Rattus_norvegicus.RGSC3.4.68.chr.DEXSeq.gtf
+      - checksum: 5a98f54d6ebda5149ee287fd7a3b7a60831456ee4807cb3e0464e37f2860deab
+        destination: /opt/chipster/tools/genomes/gtf/Rattus_norvegicus.RGSC3.4.68.chr.gtf
+        source: Rattus_norvegicus.RGSC3.4.68.chr.gtf
+      - checksum: 56590a2869237e9d419df3892a38be26c6ab5f9b791318b9344b16c892c072ae
+        destination: /opt/chipster/tools/genomes/gtf/Rattus_norvegicus.RGSC3.4.68.DEXSeq.gtf
+        source: Rattus_norvegicus.RGSC3.4.68.DEXSeq.gtf
+      - checksum: af38cb5deb8b3adae77ccd34dccac8ecb52cb4c87fc2dea5b4f5ef089a9e5d3d
+        destination: /opt/chipster/tools/genomes/gtf/Rattus_norvegicus.RGSC3.4.68.gtf
+        source: Rattus_norvegicus.RGSC3.4.68.gtf
+      symlinks:
+      - destination: /opt/chipster/tools/bowtie-0.12.7/indexes/rn4.fa
+        source: ../../genomes/fasta/rn4.fa
+      - destination: /opt/chipster/tools/bowtie2-2.0.0-beta7/indexes/rn4.fa
+        source: ../../genomes/fasta/rn4.fa
+      - destination: /opt/chipster/tools/genomebrowser/annotations/rn4.fa
+        source: ../../genomes/fasta/nochr/rn4.fa
+  version: '1.0'

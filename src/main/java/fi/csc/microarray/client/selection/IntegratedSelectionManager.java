@@ -68,7 +68,7 @@ public class IntegratedSelectionManager {
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
 		BufferedReader original = null;
-		original = new BufferedReader(new InputStreamReader(data.getContentStream(DataNotAvailableHandling.EXCEPTION_ON_NA)));
+		original = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 		String line;
 
 		//For binary search

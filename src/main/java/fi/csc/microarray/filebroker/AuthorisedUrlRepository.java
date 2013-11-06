@@ -51,7 +51,7 @@ public class AuthorisedUrlRepository {
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl(boolean useCompression, FileBrokerArea area) throws MalformedURLException {
+	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area) throws MalformedURLException {
 
 		URL newUrl;
 
@@ -64,11 +64,10 @@ public class AuthorisedUrlRepository {
 		try {
 			// create url that does not exist in the repository
 			do {
-				String filename = CryptoKey.generateRandom();
 				if (area == FileBrokerArea.STORAGE) {
-					newUrl = constructStorageURL(filename, compressionSuffix);
+					newUrl = constructStorageURL(fileId, compressionSuffix);
 				} else {
-					newUrl = constructCacheURL(filename, compressionSuffix);
+					newUrl = constructCacheURL(fileId, compressionSuffix);
 				}
 				
 			} while (repository.containsKey(newUrl));
@@ -120,7 +119,7 @@ public class AuthorisedUrlRepository {
 	}
 	
 	
-	public String stripCompressionSuffix(String filename) {
+	public static String stripCompressionSuffix(String filename) {
 		if (filename.endsWith(COMPRESSION_SUFFIX)) {
 			return filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
 		} else {
@@ -128,7 +127,7 @@ public class AuthorisedUrlRepository {
 		}
 
 	}
-	public boolean checkFilenameSyntax(String filename) {
+	public static boolean checkFilenameSyntax(String filename) {
 		String fileNameToCheck = stripCompressionSuffix(filename);
 		return CryptoKey.validateKeySyntax(fileNameToCheck);
 	}
@@ -143,6 +142,7 @@ public class AuthorisedUrlRepository {
 	public String getRootUrl() {
 		return host + ":" + port;
 	}
+	
 }
 
 

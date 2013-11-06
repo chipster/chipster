@@ -3,7 +3,6 @@ package fi.csc.microarray.analyser.emboss;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -24,6 +23,7 @@ import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.security.CryptoKey;
 
 public class EmbossRoundtripTest {
     
@@ -74,10 +74,13 @@ public class EmbossRoundtripTest {
         // User uploads two files for input
         InputStream firstInput = new FileInputStream(path + "sequences/human_adh6.fasta");
         InputStream secondInput = new FileInputStream(path + "sequences/funghi_adh6.fasta");
-        URL firstUrl = resultCallback.getFileBrokerClient().addFile(FileBrokerArea.CACHE, firstInput, -1, null);
-        URL secondUrl = resultCallback.getFileBrokerClient().addFile(FileBrokerArea.CACHE, secondInput, -1, null);
-        jobMessage.addPayload("asequence", firstUrl);
-        jobMessage.addPayload("bsequence", secondUrl);
+        String firstDataId = CryptoKey.generateRandom();
+        String secondDataId = CryptoKey.generateRandom();
+
+        resultCallback.getFileBrokerClient().addFile(firstDataId, FileBrokerArea.CACHE, firstInput, -1, null);
+        resultCallback.getFileBrokerClient().addFile(secondDataId, FileBrokerArea.CACHE, secondInput, -1, null);
+        jobMessage.addPayload("asequence", firstDataId);
+        jobMessage.addPayload("bsequence", secondDataId);
         
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
