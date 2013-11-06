@@ -122,6 +122,10 @@ public class AnnotationManager {
 		public Genome getGenome() {
 			return new Genome(species, version);
 		}
+		
+		public String toString() {
+			return getClass().getSimpleName() + " " + getGenome() + " " + getUrl();
+		}
 	}
 
 	public class Genome implements Comparable<Genome> {
@@ -349,13 +353,13 @@ public class AnnotationManager {
 				} else if (fileName.endsWith(".gtf")) {
 					annotationType = AnnotationType.GTF;
 					
-				} else if (fileName.endsWith(".cytoband-chr.txt")) {
+				} else if (fileName.endsWith("cytoband-chr.txt")) {
 					annotationType = AnnotationType.CYTOBANDS;
 					
-				} else if (fileName.endsWith(".repeat-tabix.bed.gz")) {
+				} else if (fileName.endsWith("repeat-tabix.bed.gz")) {
 					annotationType = AnnotationType.REPEAT;
 					
-				} else if (fileName.endsWith(".repeat-tabix.bed.gz.tbi")) {
+				} else if (fileName.endsWith("repeat-tabix.bed.gz.tbi")) {
 					annotationType = AnnotationType.REPEAT_INDEX;
 					
 				} else if (fileName.endsWith(".fa")) {
@@ -723,10 +727,10 @@ public class AnnotationManager {
 
 			addAnnotation(new GenomeAnnotation(species, version, splitted[2], chr, url, contentLength));
 						
-			//Generate sortId string which preserves the order of contents file and is "larger" than other sortIds
+			//Generate sortId string which preserves the order of contents file and is "smaller" than other sortIds
 			Genome genome = new Genome(species, version);
 			if (!genomes.contains(genome)) {
-				genome.sortId =  "\uFFFF" + String.format("%03d", lineIndex);
+				genome.sortId =  "" + String.format("%03d", lineIndex);
 				genomes.add(genome);
 			}
 			lineIndex++;

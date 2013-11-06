@@ -44,8 +44,7 @@ public class GeneIndexActions implements DataResultListener {
 		this.gtfDataSource = gtfDataSource;
 		this.geneDataSource = geneDataSource;
 
-		queueManager.addDataResultListener(gtfDataSource, this);
-		queueManager.addDataResultListener(geneDataSource, this);
+		initializeDataResultListeners();
 	}
 
 	/**
@@ -101,5 +100,10 @@ public class GeneIndexActions implements DataResultListener {
 				requestLocation(geneResult.getSearchString(), geneResult.getGeneLocation().start.chr);
 			}
 		}
+	}
+
+	public void initializeDataResultListeners() {
+		queueManager.addDataResultListener(gtfDataSource, this);
+		queueManager.addDataResultListener(geneDataSource, this);
 	}
 }

@@ -113,10 +113,6 @@ function info_before_260()
 }
 
 
-
-
-
-
 # Make sure user has sudo rights
 echo ""
 echo "Some parts of the update may need root privileges. These parts are run using sudo."
@@ -905,8 +901,6 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
               
 fi
 
-
-
 # 2.7.0
 compare_to_current_and_latest "2.7.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
@@ -923,7 +917,6 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
                                                                                                                                                                                                                                                                                                         
 fi
-
 
 # 2.7.2
 compare_to_current_and_latest "2.7.2"
@@ -990,7 +983,19 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.8.2
+compare_to_current_and_latest "2.8.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+ 
+  echo "** Installing genome bundle tool dependencies"
+  sudo apt-get -y install python3-yaml
+  touch installed.yaml
 
+  # bundle tool will replace these with newer versions
+  mv -b ${TOOLS_PATH}/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70* ${BACKUPDIR_PATH}/
+  mv -b ${TOOLS_PATH}/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa ${BACKUPDIR_PATH}/
+
+fi
   
 
 #####################################
@@ -1021,6 +1026,10 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   # Copy away tool scripts in case there were important local changes
     cp -r comp/modules ${BACKUPDIR_PATH}/
 
+  # Unpack bundle tool
+    echo "** Updating Chipster genome bundle tool"
+    tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/bundle.py
+
   # Unpack tool scripts
     echo "** Updating Chipster tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
@@ -1042,8 +1051,34 @@ fi
 # Remove temp dir
 rm -rf ${TMPDIR_PATH}/
 
+# Bundle
+function update_bundles()
+{
+  echo "** Updating genome bundles"
+  wget -q http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bundle/bundles.yaml -O bundles.yaml
+  python3 bundle.py update installed -q
+}
+
+function install_bundle()
+{
+  echo "** Installing $1 genome"
+  python3 bundle.py install $1.bowtie
+  python3 bundle.py install $1.bowtie2
+  python3 bundle.py install $1.bwa
+  python3 bundle.py install $1.gb
+  python3 bundle.py install $1
+}
+
+# Version specific bundle tool commands
+compare_to_current_and_latest "2.8.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
+  update_bundles
+  install_bundle "Drosophila_melanogaster.BDGP5"
+fi
+
 # Check backup dir
 SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
+echo ""
 echo "Total of $SIZE old data has been backed up to ${BACKUPDIR_PATH}"
 echo "It is recommended to inspect the directory and then to remove it"
    

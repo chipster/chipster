@@ -12,6 +12,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.event.dd.acceptcriteria.Not;
 import com.vaadin.event.dd.acceptcriteria.Or;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -116,6 +117,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 	            moveNode(sourceItemId, targetItemId, location);
 			}
 		});
+
 	}
 	
 	/**
@@ -177,7 +179,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 		if(needAddButton) {
 			Button btAdd = new Button();
 			hLayout.addComponent(btAdd);
-			btAdd.setIcon(Icon.getResource(Icon.getAddButtonIconPath()));
+			btAdd.setIcon(new ThemeResource("images/edit-add-2.png"));
 			btAdd.setStyleName(BaseTheme.BUTTON_LINK);
 			btAdd.setDescription("Add " + (itemId.equals(INPUTS) ? "Input" : (itemId.equals(OUTPUTS) ? "Output" : "Parameter")));
 			
@@ -196,7 +198,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 		}
 		if(needDeleteButton) {
 			Button btDelete = new Button();
-			btDelete.setIcon(Icon.getResource(Icon.getDeleteButtonIconPath()));
+			btDelete.setIcon(new ThemeResource("images/close.png"));
 			btDelete.setStyleName(BaseTheme.BUTTON_LINK);
 			String description = "Delete ";
 			description += (itemId instanceof Input ? "Input" : (itemId instanceof Output ? "Output" : "Parameter"));
@@ -222,6 +224,7 @@ public class TreeToolEditor extends TreeTable implements ItemClickListener{
 				}
 			});
 		}
+
 		return hLayout;
 	}
 	

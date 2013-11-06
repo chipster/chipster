@@ -11,11 +11,9 @@ if [[ "$1" == "" ]]
    exit
 fi
 
-
 seqtype=("dna")
 mode=("single")
 outputmode=("single")
-
 
 while [[ $# -ge 1 ]]
 do
@@ -32,10 +30,11 @@ do
                    mkdir tmp_$$
                    cd tmp_$$
                    echo ftp://ftp.ensembl.org/pub/current_fasta/ > ensembl_list
-                   for ((number=1; number<=27; number++))
-                   do
-                     echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
-                   done
+                   # bakteerit poitettu väliaikaisesti sillä niille ei ole MySQL tiedostoja
+                   #for ((number=1; number<=27; number++))
+                   #do
+                   #  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+                   #done
                    echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/ >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/fasta/  >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
@@ -45,7 +44,7 @@ do
                    then
                      rm -rf $TMPDIR/ensembl_urls
                    fi
-                   grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensembl.org:21/pub/current_fasta/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls    
+                   grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls    
                    cd ..
                    cat $TMPDIR/ensembl_urls |\
                      sed s/"bacillus_collection\/b_"/"bacillus_"/g | \
@@ -131,6 +130,9 @@ case "$seqtype" in
     "gtf")
        echo "Retrieving grf file for $spec"
      ;;
+    "mysql")
+       echo "Retrieving mysql files for $spec"
+     ;;
      *)
          echo "Unknown data type"
          echo "Please use one of the following types:"
@@ -141,6 +143,7 @@ case "$seqtype" in
          echo "  pep"
          echo "  pep_abinitio"
          echo "  gtf"
+         echo "  mysql"
          exit
      ;;
 esac
@@ -163,7 +166,7 @@ then
 
   echo "Getting the name list"
   wget -S -o log -i ensembl_list >> /dev/null
-  grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls
+  grep Directory index.html* | grep -v "ensembl.org:21/pub/current_fasta/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_fasta/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/fasta/drosophila_melanogaster" | awk -F \" '{print $2}' > $TMPDIR/ensembl_urls
 fi
 
 
@@ -202,16 +205,24 @@ then
    awk '{print $1"*gtf.gz"}' $TMPDIR/ensembl_urls | sed s/"fasta"/"gtf"/g > ensembl_species.txt
 fi
 
+if [[ $seqtype == "mysql" ]]
+then
+   echo ftp://ftp.ensembl.org/pub/current_mysql/ > ensembl_list
+  for ((number=1; number<=27; number++))
+  do
+    echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+  done
+  echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/mysql/ >> ensembl_list
+  echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/mysql/  >> ensembl_list
+  echo ftp://ftp.ensemblgenomes.org/pub/plants/current/mysql/ >> ensembl_list
+  echo ftp://ftp.ensemblgenomes.org/pub/protists/current/mysql/  >> ensembl_list
 
-echo $seqtype
+  echo "Getting the name list" 
+  wget -S -o log -i ensembl_list >> /dev/null
+  grep Directory index.html* | grep "_core_"  | grep -v "ensembl.org:21/pub/current_mysql/caenorhabditis_elegans" | grep -v "ensembl.org:21/pub/current_mysql/saccharomyces_cerevisiae" | grep -v "ensemblgenomes.org:21/pub/metazoa/current/mysql/drosophila_melanogaster" | awk -F \" '{print $2}' > ensembl_species.txt   
 
-##Korjaus listaan koska metazoalle ei ole dna, cdna ja pep kansioita
-#grep metazoa ensembl_species.txt | sed s/"\/dna\/"/"\/"/g | sed s/"\/cdna\/"/"\/"/g | sed s/"\/pep\/"/"\/"/g > ensembl_species.txt_korj
-#grep -v metazoa ensembl_species.txt >> ensembl_species.txt_korj
-#rm -f ensembl_species.txt
-#mv ensembl_species.txt_korj ensembl_species.txt
-
-
+fi
+ 
 cd ..
 
 if [[ $mode == "single" ]]
@@ -223,20 +234,12 @@ fi
 
 for species in $(cat tmp_$$/namelist)
 do
-  #bakteerien nimet vaativat korjauksen:
-  #species=$(echo $species | \
-  #                   sed s/"bacillus_"/"b_"/g | \
-  #                   sed s/"borrelia_"/"b_"/g | \
-  #                   sed s/"buchnera_"/"b_"/g | \
-  #                   sed s/"escherichia_"/"e_"/g | \
-  #                   sed s/"shigella_"/"s_"/g | \
-  #                   sed s/"mycobacterium_"/"m_"/g | \
-  #                   sed s/"neisseria_"/"n_"/g | \
-  #                   sed s/"pyrococcus_"/"p_"/g |\
-  #                   sed s/"streptococcus_"/"s_"/g |\
-  #                   sed s/"staphylococcus_"/"s_"/g )
-  numhits=$(grep -i "/$species/" tmp_$$/ensembl_species.txt| wc -l)
-
+  if [[ $seqtype == "mysql" ]]
+  then
+     numhits=$(grep -i "/"$species"_core" tmp_$$/ensembl_species.txt| wc -l)
+  else
+     numhits=$(grep -i "/$species/" tmp_$$/ensembl_species.txt| wc -l)
+  fi
   if [[ $numhits -eq 0 ]]
   then
     echo "--------------------------------------------------------------------------------"
@@ -247,23 +250,40 @@ do
 
   if [[ $numhits -eq 1 ]]
   then
-    url=$(grep -i "/$species/" tmp_$$/ensembl_species.txt)
-    name=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-2)}' )
-    filename=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF)}' )
-    echo
-    echo "Downloading the genomic sequece of $name"
-    echo 
-    wget -o log "$url" >> /dev/null
-    gzipfile=$(ls $filename | grep -i $species)
-    echo "Unzipping $gzipfile"
-    if [[ $outputmode == "single" ]]
+    if [[ $seqtype == "mysql" ]]
     then
-      gunzip $gzipfile
+      url=$(grep -i "/$species""_core" tmp_$$/ensembl_species.txt)
+      filename=$(grep -i "/$species""_core" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-1)}' )
+      mkdir "$filename"_mysql
+      cd "$filename"_mysql
+      wget -o log "$url""coord_system.txt.gz" >> /dev/null
+      wget -o log "$url""seq_region.txt.gz" >> /dev/null
+      wget -o log "$url""karyotype.txt.gz" >> /dev/null
+      wget -o log "$url""repeat_feature.txt.gz" >> /dev/null
+      cd ..
+      tar cvf "$filename"_mysql.tar "$filename"_mysql
+      rm -rf "$filename"_mysql
       echo "The results have been wirtten to a file:"
-      echo $gzipfile | sed s/".gz"/""/g
+      echo "$filename"_mysql.tar
     else
-      gunzip < $gzipfile >>! $outfile
-      rm -f $gzipfile
+      url=$(grep -i "/$species/" tmp_$$/ensembl_species.txt)
+      name=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-2)}' )
+      filename=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF)}' )
+      echo
+      echo "Downloading the genomic sequece of $name"
+      echo 
+      wget -o log "$url" >> /dev/null
+      gzipfile=$(ls $filename | grep -i $species)
+      echo "Unzipping $gzipfile"
+      if [[ $outputmode == "single" ]]
+      then
+      gunzip $gzipfile
+        echo "The results have been wirtten to a file:"
+        echo $gzipfile | sed s/".gz"/""/g
+      else
+        gunzip < $gzipfile >>! $outfile
+        rm -f $gzipfile
+      fi
     fi
   fi
 
@@ -275,7 +295,7 @@ do
     echo "Please select a uniqe species name "
     echo ""
     echo "The list of matching species names:"
-    grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF-2)}'
+    grep -i "/$species/" tmp_$$/ensembl_species.txt 
 
   fi
 done

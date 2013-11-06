@@ -50,7 +50,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SampleTrack
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.VcfTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RegionTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 import fi.csc.microarray.util.BrowserLauncher;
 
@@ -207,8 +207,16 @@ public class GBrowser {
 
 			case VCF:
 				DataThread vcf = interpretation.getVcfDataThread(this);
-				TrackGroup vcfTrackGroup = new VcfTrackGroup(dataView, vcf, title);
+				TrackGroup vcfTrackGroup = new RegionTrackGroup(dataView, vcf, title);
 				analyses.addTrackGroup(vcfTrackGroup);
+				break;
+			case TSV:
+				DataThread tsv = interpretation.getTsvDataThread(this);
+				analyses.addTrackGroup(new RegionTrackGroup(dataView, tsv, title));
+				break;				
+			case TSV_WITH_ROW_ID:
+				tsv = interpretation.getTsvDataThread(this);
+				analyses.addTrackGroup(new RegionTrackGroup(dataView, tsv, title));
 				break;
 			case GTF:
 
@@ -706,5 +714,13 @@ public class GBrowser {
 
 	public SelectionManager getSelectionManager() {
 		return selectionManager;
+	}
+
+	public void initializeDataResultListeners() {
+		plot.initializeDataResultListeners();
+		//This happens in initialization		
+		if (gia != null) {
+			gia.initializeDataResultListeners();
+		}
 	}
 }

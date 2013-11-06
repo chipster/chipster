@@ -66,7 +66,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	private static final String PHENODATA_GROUP_COLUMN = "group";
 	
 	public static boolean isEditablePhenodataColumn(String columnName) {
-		return !PHENODATA_SAMPLE_COLUMN.equals(columnName) && !PHENODATA_NAME_COLUMN.equals(columnName)  && !PHENODATA_CHIPTYPE_COLUMN.equals(columnName);
+		return !PHENODATA_SAMPLE_COLUMN.equals(columnName) && !PHENODATA_NAME_COLUMN.equals(columnName);
 	}
 	
 	public static boolean isGroupPhenodataColumn(String columnName) {

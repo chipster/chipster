@@ -1,5 +1,8 @@
 package fi.csc.microarray.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.StringTokenizer;
 
 public class Strings {
@@ -149,4 +152,49 @@ public class Strings {
 		return result;
 	}
 
+	
+	/**
+	 * Skip lines from beginning if the line is empty after .trim()
+	 * 
+	 * Returned string will use "\n" as line break.
+	 * @param s
+	 * @return
+	 * @throws IOException
+	 */
+	public static String removeEmptyLinesFromBeginning(String s) throws IOException {
+		BufferedReader reader = new BufferedReader(new StringReader(s));
+		StringBuilder builder = new StringBuilder("");
+
+		try {
+			main: for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+				
+				// if empty line, skip
+				if (line.trim().isEmpty()) {
+					continue;
+				} 
+				
+				// non-empty line found, get rest of the lines and return
+				else {
+					builder.append(line + "\n");
+					for (String l = reader.readLine(); l != null; l = reader.readLine()) {
+						builder.append(l + "\n");
+					}
+					break main;
+				}
+			}
+		} finally {
+			IOUtils.closeIfPossible(reader);
+		}
+
+		// remove last line break if original didn't have it
+		String result = builder.toString();
+		if (result.length() > 0) {
+			if (!(s.endsWith("\n") || s.endsWith("\r") || s.endsWith("\r") || s.endsWith("\r\n"))) {
+				result = result.substring(0, result.length()-1);
+			}
+		}
+		return result;
+	}
+
+	
 }

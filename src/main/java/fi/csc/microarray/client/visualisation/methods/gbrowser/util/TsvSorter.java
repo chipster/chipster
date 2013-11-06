@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.AbstractTsvLineParser;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
@@ -23,13 +23,22 @@ public class TsvSorter {
 	private int chrCol;
 	private int bpCol;
 	private ChromosomeNormaliser chromosomeNormaliser = new ChromosomeNormaliser() {
-		@Override
+
 		public String normaliseChromosome(String chromosomeName) {
-			// Do default chromosome name normalisation
-			return chromosomeName.replace("chr", "").replace(".fa", "");
+
+			// Leave prefix as it is
+			
+			// Remove postfix, if present
+			String SEPARATOR = ".";
+			if (chromosomeName.contains(SEPARATOR)) {
+				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
+			}
+			
+			return chromosomeName;
 		}
 	};
-	private TsvLineParser parser;
+	
+	private AbstractTsvLineParser parser;
 	
 	public void sort(File in, File out, int chrColumn, int startColumn) throws Exception {
 		this.chrCol = chrColumn;
@@ -37,14 +46,9 @@ public class TsvSorter {
 		externalSort(in, out);
 	}
 	
-	public void sort(File in, File out, int chrColumn, int startColumn, TsvLineParser parser) throws Exception {
+	public void sort(File in, File out, int chrColumn, int startColumn, AbstractTsvLineParser parser) throws Exception {
 		this.parser = parser;
 		sort(in, out, chrColumn, startColumn);
-	}
-	
-	public void sort(File in, File out, ChromosomeNormaliser chromosomeNormaliser, int chrColumn, int startColumn, TsvLineParser parser) throws Exception {
-		this.chromosomeNormaliser = chromosomeNormaliser;
-		sort(in, out, chrColumn, startColumn, parser);
 	}	
 
 	private class Row extends BpCoord {

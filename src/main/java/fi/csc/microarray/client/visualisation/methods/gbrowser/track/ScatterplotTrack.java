@@ -188,7 +188,9 @@ public class ScatterplotTrack extends Track {
 				}
 				
 				ScatterplotPoint point = new ScatterplotPoint(feature.region, key, value, itemColor, text);
-				data.put(key, point);
+				if (value != null) {
+					data.put(key, point);
+				}
 			}
 		}
 	}

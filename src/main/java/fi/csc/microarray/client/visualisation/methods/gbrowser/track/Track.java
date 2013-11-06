@@ -11,13 +11,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
@@ -485,37 +486,56 @@ public abstract class Track implements DataResultListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		Point point = e.getPoint();
+		final Point point = e.getPoint();
 		point.y = convertGraphicsCoordinateToTrack(point.y);
-		boolean isControlDown = e.isControlDown();
 		
-		TreeMap<Double, Selectable> closestSelectables = new TreeMap<>();
+		//Collect all selectables inside the selection range
+		LinkedList<Selectable> closestSelectables = new LinkedList<>();
 		
 		for (Selectable selectable : getSelectables()) {
 
 			double distance = selectable.getDistance(point);
 			if (distance < MAX_SELECTION_DISTANCE) {
-				closestSelectables.put(distance, selectable);
+				closestSelectables.add(selectable);
 			}
-		}		
+		}
+		
+		//Sort closest first
+		Collections.sort(closestSelectables, new Comparator<Selectable>() {
+			@Override
+			public int compare(Selectable s1, Selectable s2) {
+				double d1 = s1.getDistance(point);
+				double d2 = s2.getDistance(point);
+				
+				if (d1 < d2) {
+					return -1;					
+				} else if (d1 > d2) {
+					return 1;				
+				} else {
+					return 0;
+				}				
+			}
+		});
+		
 		
 		SelectionManager selectionManager = getSelectionManager();
-
-		Selectable closestSelectable = null;
-		if (closestSelectables.size() > 0) {
-			closestSelectable = closestSelectables.firstEntry().getValue();
-		}
 		
-		if (isControlDown) {
-			if (closestSelectable != null) {
-				//Add one more item to selection
-				selectionManager.toggle(getDataUrl(), closestSelectable);
-			}
-		} else {
-			//Remove old selection and add a new one
+		//Clear selection
+		if (!e.isControlDown()) {			
 			//If the click did not hit anything, just set selection to null 
-			selectionManager.set(getDataUrl(), closestSelectable);			
-		}
+			selectionManager.set(getDataUrl(), null);
+		}		
+				
+		//There may be one or more selectables with equal distance. Select them all			
+		for (Selectable selectable : closestSelectables) {				
+			if (selectable.getDistance(point) > closestSelectables.getFirst().getDistance(point)) {
+				//Rest of the selectables are further away
+				break;
+			}
+
+			//Add one more item to selection
+			selectionManager.toggle(getDataUrl(), selectable);				
+		}		
 		
 		updateSelections(selectionManager);	
 		getView().redraw();
