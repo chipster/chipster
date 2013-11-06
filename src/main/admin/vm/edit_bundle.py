@@ -170,7 +170,7 @@ def process_file(file, args):
         logging.debug("Set name")
         rename_bundle(selected_bundles, args.bundle, args.name, file)                         
         
-    if (args.version or args.name or args.chipster):
+    if (args.version or args.name or args.chipster_version):
         save = True        
         if (len(files_to_rename) > 2):
             save = False
@@ -214,7 +214,8 @@ def parse_commandline():
     parser.add_argument("-c", "--set_chipster", type=str, dest="chipster_version", help="set required Chipster version")
     parser.add_argument("-b", "--bundle", type=str, help="restrict the operation to single bundle")    
     
-    #args = parser.parse_args(["--list", "/home/klemela/tmp/yaml-tool/bundles.yaml"]) # for testing            
+    #args = parser.parse_args(["--list", "/home/klemela/tmp/yaml-tool/bundles.yaml"]) # for testing
+    #args = parser.parse_args(["/home/klemela/tmp/Arabidopsis_lyrata.v.1.0-20.0.yaml", "--set_chipster", "2.7"]) # for testing            
     #args = parser.parse_args(["/home/klemela/tmp/yaml-tool/bundles.yaml", "--bundle", "Canis_familiaris.BROADD2","--set_version", "0.2", "-o", "/home/klemela/tmp/yaml-tool/out.yaml"]) # for testing
     #args = parser.parse_args(["/home/klemela/tmp/yaml-tool/Canis_familiaris.BROADD2-0.1.yaml", "--set_name", "Canis_familiaris.NEW_VERSION", "-o", "/home/klemela/tmp/yaml-tool/out.yaml"]) # for testing
     #args = parser.parse_args(["-h"]) # for testing
