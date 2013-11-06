@@ -1,0 +1,46 @@
+<module name="seq-comp">
+
+	<category name="Only category" color="#d5c796">
+		<tool runtime="R-2.15">
+			<resource>seq-comp-test.R</resource>
+		</tool>
+	</category>
+
+<!-- 
+	
+	<category name="Filtering" color="#e7df70">
+	</category>
+
+	<category name="Utilities" color="#d59f45">
+	</category>
+
+	<category name="Matching sets of genomic regions" color="#e7881c">
+	</category>
+
+	<category name="Alignment" color="#d53833">
+	</category>
+	
+	<category name="Variants" color="#80a3b7">
+	</category>
+	
+	<category name="RNA-seq" color="#0177b7">
+	</category>
+
+	<category name="miRNA-seq" color="#629a9b">
+	</category>
+
+	<category name="ChIP-seq and FAIRE-seq" color="#c0d2de">
+	</category>
+
+	<category name="CNA-seq" color="#a49900">
+	</category>
+
+	<category name="Methyl-seq" color="#83010b">
+	</category>
+	
+	<category name="Metagenomics" color="#83010b">
+	</category>
+
+-->	
+	
+</module>
