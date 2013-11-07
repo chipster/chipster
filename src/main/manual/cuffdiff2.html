@@ -20,7 +20,7 @@ This tool performs differential expression analysis using the Cufflinks package 
 <li>Allowed false discovery rate (0-1) [1]</li>
 <!--  <li>Upper-quartile normalization (yes, no) [yes]</li>-->
 <li>Enable multi-mapped read correction (yes,no) [no]</li>
-<li>Bias correction for stranded data (yes, no) [yes]</li>
+<li>Correct for sequence-specific bias (yes, no) [no]</li>
 <li>Genome used for bias correction (Human (hg19), Mouse (mm10), Mouse (mm9), Rat (rn4)) [Human (hg19)]</li>
 </ul>
 
@@ -33,7 +33,6 @@ all samples belonging to the same experiment group into a single BAM file.
 </p>
 <p>
 Cufflinks can detect sequence-specific bias and correct for it in abundance estimation. 
-Note that bias correction works only if your data was produced with a strand specific protocol. 
 </p>
 <p>
 By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. 

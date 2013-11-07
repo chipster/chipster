@@ -5,7 +5,7 @@ import logging
 import shutil
 import sys
 import yaml
-
+import os
 
 def load_yaml(filename):
     """
@@ -41,6 +41,51 @@ def print_bundle(all_bundles, bundle):
 def list(all_bundles):
     for bundle in all_bundles:            
         print_bundle(all_bundles, bundle)
+        
+def list_files(all_bundles, file):
+    '''Make it easier to update files in bundle.
+    
+    Given an existing bundle, this functions saves a file list of that bundle 
+    and prints a command for running to_bundle.py script.  
+    '''
+    if not os.getcwd().endswith('/tools'):
+        print('** Warning: to_bundle.py should be executed in directory \'tools\'')
+            
+    files_path = file.replace('.yaml', '.files')
+    files_basename = os.path.basename(files_path)
+    
+    for bundle in all_bundles:
+        version_list_of_dicts = all_bundles[bundle]  
+
+        if len(all_bundles) > 1:
+            raise Exception('** Warning: It is possible to process only one bundle at a time, but the number of bundles is ' + len(all_bundles))                        
+    
+        for version in version_list_of_dicts:       
+            packages = version['packages']
+            
+            if len(packages) > 1:
+                raise Exception('** Warning: Only bundles with one package are supported, but the number of packages is ' + len(packages))
+                
+            with open(files_basename, 'w') as output:
+                for package in packages:
+                    package_values = packages[package]
+                    if 'files' in package_values:
+                        for f in package_values['files']:
+                            output.write(f['destination'] + '\n')
+                        
+                    if 'symlinks' in package_values:                    
+                        for f in package_values['symlinks']:
+                            output.write(f['destination'] + '\n')
+            
+            print('** to_bundle.py command')
+            prefix = os.path.dirname(package) + "/"
+            tools = os.getcwd()
+            print('cat ' + files_basename + \
+                  ' | python3 to_bundle.py -n ' + bundle + \
+                  ' -v ' + version['version'] + \
+                  ' -p ' + version['chipster'] + \
+                  ' --prefix ' + prefix + \
+                  ' --tools ' + tools)    
         
 def rename_file_later(old_name, new_name):
     if old_name in files_to_rename:
@@ -155,11 +200,14 @@ def process_file(file, args):
             
          
     if args.split:
-        logging.debug("Split something")
+        logging.debug("Split")
         split(selected_bundles)
     elif args.list:
-        logging.debug("List something")
+        logging.debug("List bundles")
         list(selected_bundles)
+    elif args.list_files:
+        logging.debug("List files")
+        list_files(selected_bundles, file)
     elif args.version:
         logging.debug("Set version")
         set_version(selected_bundles, args.bundle, args.version, file)
@@ -170,7 +218,7 @@ def process_file(file, args):
         logging.debug("Set name")
         rename_bundle(selected_bundles, args.bundle, args.name, file)                         
         
-    if (args.version or args.name or args.chipster):
+    if (args.version or args.name or args.chipster_version):
         save = True        
         if (len(files_to_rename) > 2):
             save = False
@@ -207,6 +255,7 @@ def parse_commandline():
     parser.add_argument("input", type=str, nargs="+", help="Yaml file(s) to process")
     
     parser.add_argument("-l", "--list", action="store_true", help="print bundles and versions")
+    parser.add_argument("-f", "--list_files", action="store_true", help="prepare bundle to be recreated by to_bundle.py")
     parser.add_argument("-s", "--split", action="store_true", help="create a separate yaml file for every bundle")
     parser.add_argument("-j", "--join", type=str, dest="output", help="join all input files to single yaml file")    
     parser.add_argument("-v", "--set_version", type=str, dest="version", help="set the provided version number")    
@@ -214,7 +263,9 @@ def parse_commandline():
     parser.add_argument("-c", "--set_chipster", type=str, dest="chipster_version", help="set required Chipster version")
     parser.add_argument("-b", "--bundle", type=str, help="restrict the operation to single bundle")    
     
-    #args = parser.parse_args(["--list", "/home/klemela/tmp/yaml-tool/bundles.yaml"]) # for testing            
+    #args = parser.parse_args(["--list", "/home/klemela/tmp/yaml-tool/bundles.yaml"]) # for testing
+    #args = parser.parse_args(["/home/klemela/tmp/Arabidopsis_lyrata.v.1.0.bowtie-20.0.yaml", "--list_files"]) # for testing
+    #args = parser.parse_args(["/home/klemela/tmp/Arabidopsis_lyrata.v.1.0-20.0.yaml", "--set_chipster", "2.7"]) # for testing            
     #args = parser.parse_args(["/home/klemela/tmp/yaml-tool/bundles.yaml", "--bundle", "Canis_familiaris.BROADD2","--set_version", "0.2", "-o", "/home/klemela/tmp/yaml-tool/out.yaml"]) # for testing
     #args = parser.parse_args(["/home/klemela/tmp/yaml-tool/Canis_familiaris.BROADD2-0.1.yaml", "--set_name", "Canis_familiaris.NEW_VERSION", "-o", "/home/klemela/tmp/yaml-tool/out.yaml"]) # for testing
     #args = parser.parse_args(["-h"]) # for testing
