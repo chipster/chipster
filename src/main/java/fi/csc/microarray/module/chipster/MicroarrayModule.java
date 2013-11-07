@@ -181,8 +181,8 @@ public class MicroarrayModule implements Module {
 			return "Microarrays";
 		} else if ("ngs".equals(moduleName)) {
 			return "NGS";
-		} else if ("seq-comp".equals(moduleName)) {
-			return "Sequence Comparison";
+		} else if ("misc".equals(moduleName)) {
+			return "Misc";
 		} else {
 			return moduleName;
 		}

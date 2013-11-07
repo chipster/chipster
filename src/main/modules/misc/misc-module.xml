@@ -1,4 +1,4 @@
-<module name="seq-comp">
+<module name="misc">
 
 	<category name="Only category" color="#d5c796">
 		<tool runtime="R-2.15">
