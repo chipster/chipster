@@ -31,21 +31,24 @@ public class StatusAnimation extends JComponent implements DataResultListener {
 	private long hideTime = 0;
 	private QueueManager queueManager;
 	private LinkedList<DataThread> dataThreads = new LinkedList<>();
+	private TrackGroup trackGroup;
 	
 	private static final int SIZE = 16;
 	private static final int THICKNESS = 5;
 	
-	public StatusAnimation(QueueManager queueManager) {
+	public StatusAnimation(QueueManager queueManager, TrackGroup trackGroup) {
 		this.queueManager = queueManager;
+		this.trackGroup = trackGroup;
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
 				
 		long queueLength = getMaxQueueLength();
+		boolean isVisible = !trackGroup.isMinimized();
 		
 		//Show animation
-		if (queueLength > 0) {
+		if (isVisible && queueLength > 0) {
 		
 			if (System.currentTimeMillis() - hideTime > VISIBLE_AFTER) {
 				for (double d = 0; d < 1; d += 0.1) {
