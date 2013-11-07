@@ -3,14 +3,15 @@
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml
 # OUTPUT OPTIONAL blast_results.tsv
-# OUTPUT OPTIONAL blast_results.fa
+# OUTPUT OPTIONAL blast_results.fasta
 # OUTPUT OPTIONAL blast_results.csv
 # OUTPUT OPTIONAL blast_results.asn1
 # OUTPUT OPTIONAL blast_results.html
 # OUTPUT OPTIONAL blast.log
-# PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleoties: nt", refseq_rna: "Reference RNA sequences: refseq_rna",  refseq_genomic: "Reference genomic sequences: refseq_genomic", pdb: "PDB sequences"] DEFAULT swissprot (Choose a database)
+# PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleoties: nt", refseq_rna: "Reference RNA sequences: refseq_rna",  refseq_genomic: "Reference genomic sequences: refseq_genomic", pdb: "PDB sequences"] DEFAULT nt (Choose a database)
 # PARAMETER evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL DEFAULT 1 (Expectation value)
 # PARAMETER num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for. Default 100)
+# PARAMETER outfmt: "Output format type" TYPE [0: "Normal BLAST report with pairwise alignments", 1: "Query-anchored alignments showing identities", 2: "Query-anchored alignments with no identities", 3: "Flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "Tabular", 10: "Comma-separated values", 11: "BLAST archive format", 14: "Hit regions in fasta format"] DEFAULT 0 (Output format type)
 # PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "blastn", blastn-short: "blastn-short",  dc-megablast: "dc-megablast",  megablast: "megablast", rmblastn: "rmblastn"] DEFAULT megablast (Task to execute)
 # PARAMETER OPTIONAL entrez_query: "Restrict search with the given Entrez query" TYPE STRING DEFAULT "None" (You can use Entrez query syntax to search a subset of the selected BLAST database. This can be helpful to limit searches to molecule types, sequence lengths or to exclude organisms.)
 # PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING DEFAULT "full length" (Location of the search region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
@@ -18,10 +19,8 @@
 # PARAMETER OPTIONAL penalty: "Penaltyfor a nucleotide mismatch" TYPE STRING DEFAULT "Default" (Penaly for a nucleotide mismatch)
 # PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE STRING DEFAULT "Default" (Cost to open a gap. Integer value from 6 to 25. The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
 # PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING DEFAULT "Default" (Gap extension penalty  Integer value from 1 to 3.The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap opening penalty )
-# PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE INTEGER FROM 2 TO 10 DEFAULT 3 (Word size for wordfinder algorithm)
+# PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE STRING DEFAULT "Default" (Word size for wordfinder algorithm)
 # PARAMETER OPTIONAL dust: "Filter query sequence with DUST" TYPE [yes: Yes, no: No] DEFAULT yes (Use SEG filtering to ignore low cmoplexity regions in the query sequence) 
-# PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "Normal BLAST report with pairwise alignments", 1: "Query-anchored alignments showing identities", 2: "Query-anchored alignments with no identities", 3: "Flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "Tabular", 10: "Comma-separated values", 11: "BLAST archive format", 14: "Hit regions in fasta format"] DEFAULT 0 (Output format type)
-# PARAMETER OPTIONAL num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for. Default 100)
 # PARAMETER OPTIONAL save_log: "Collect a log file about the BLAST run" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the BLAST run.)
 
 # KM 31.10.2013
@@ -33,7 +32,7 @@
 
 # pb settings
 pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.28+", "bin", "pb_for_chipster")
-command.start <- paste(pb.binary, "blastp")
+command.start <- paste(pb.binary, "blastn")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
@@ -58,7 +57,10 @@ if (outfmt == 6)  {
 }
 #These parameters have allways some value
 general.parameters <- paste("-chipster_path /opt/chipster -remote -no_slurm -query query.fa -out blast_results -db", db )
-general.parameters <- paste( general.parameters, "-task", task, "-evalue ", evalue, "-matrix", matrix, "-word_size" , word_size , "-dust" , dust , "-outfmt" , outfmt )
+general.parameters <- paste( general.parameters, "-task", task)
+general.parameters <- paste( general.parameters, "-evalue ", evalue)
+general.parameters <- paste( general.parameters, "-dust" , dust)
+general.parameters <- paste( general.parameters, "-outfmt" , outfmt )
 
 optional.parameters <- paste(" ")
 
@@ -92,6 +94,10 @@ if ( gapopen !=  "Default"){
 	if ( gapextend != "Default" ){
 		optional.parameters <- paste(optional.parameters, " -gapopen ", gapopen, "-gapextend" , gapextend )	
 	}
+}
+
+if ( word_size !=  "Default"){
+	optional.parameters <- paste(optional.parameters, "-word_size", word_size )
 }
 
 if ( query_loc != "full length"){
@@ -152,11 +158,11 @@ if (outfmt == 12) {
 }
 
 if (outfmt == 13) {
-	system ("mv blast_results blast_results.fa")	
+	system ("mv blast_results blast_results.fasta")	
 }
 
 if (outfmt == 14) {
-	system ("mv blast_results blast_results.fa")	
+	system ("mv blast_results blast_results.fasta")	
 }
 
 if ( save_log == "no") {

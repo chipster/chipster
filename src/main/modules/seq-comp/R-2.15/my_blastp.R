@@ -1,10 +1,10 @@
-# TOOL my_blastp.R: my_blastp (Heuristic tool to search hits for a protein sequence from users own protein sequence set.)
+# TOOL my_blastp.R: "BLASTP search against users own protein sequence set" (Heuristic tool to search hits for a protein sequence from users own protein sequence set.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # INPUT dbprot.fa: "Database sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml
 # OUTPUT OPTIONAL blast_results.tsv
-# OUTPUT OPTIONAL blast_results.fa
+# OUTPUT OPTIONAL blast_results.fasta
 # OUTPUT OPTIONAL blast_results.csv
 # OUTPUT OPTIONAL blast_results.asn1
 # OUTPUT OPTIONAL blast_results.html
@@ -134,11 +134,11 @@ if (outfmt == 12) {
 }
 
 if (outfmt == 13) {
-	system ("mv blast_results blast_results.fa")	
+	system ("mv blast_results blast_results.fasta")	
 }
 
 if (outfmt == 14) {
-	system ("mv blast_results blast_results.fa")	
+	system ("mv blast_results blast_results.fasta")	
 }
 
 
