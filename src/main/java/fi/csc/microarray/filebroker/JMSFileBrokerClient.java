@@ -444,7 +444,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
-			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm()); 
+			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_URL, sessionURL.toExternalForm()); 
 			filebrokerTopic.sendReplyableMessage(removeRequestMessage, replyListener);
 			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 			

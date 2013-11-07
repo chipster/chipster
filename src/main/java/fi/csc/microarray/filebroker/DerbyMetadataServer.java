@@ -100,7 +100,7 @@ public class DerbyMetadataServer {
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM chipster.special_users WHERE username = ?";
 	
 	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
-	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
+	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, chipster.sessions.uuid, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
 	private static String SQL_GET_TOTAL_DISK_USAGE = "SELECT SUM(chipster.files.size) AS size FROM chipster.files";
 
 	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
@@ -530,6 +530,8 @@ public class DerbyMetadataServer {
 		LinkedList<String> sessions = new LinkedList<String>();
 		LinkedList<String> sizes = new LinkedList<String>();
 		LinkedList<String> dates = new LinkedList<String>();
+		LinkedList<String> ids = new LinkedList<String>();
+
 		
 		DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 		
@@ -537,14 +539,16 @@ public class DerbyMetadataServer {
 			String user = rs.getString("username");
 			String session = rs.getString("name");
 			String size = rs.getString("size");
+			String id = rs.getString("uuid");
 			DateTime date = new DateTime(rs.getTimestamp("date"));
 			usernames.add(user);
 			sessions.add(session);
 			sizes.add(size);
+			ids.add(id);
 			dates.add(dateTimeFormatter.print(date));
 		}
 
-		return new List[] { usernames, sessions, sizes, dates };
+		return new List[] { usernames, sessions, sizes, dates, ids };
 	}
 	
 	public String getStorageUsageTotals() throws SQLException {

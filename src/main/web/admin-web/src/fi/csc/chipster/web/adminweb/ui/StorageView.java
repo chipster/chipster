@@ -36,6 +36,7 @@ import fi.csc.chipster.web.adminweb.util.StringUtils;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
 
+@SuppressWarnings("serial")
 public class StorageView extends VerticalLayout implements ClickListener, ValueChangeListener {
 	
 	private static final Logger logger = Logger.getLogger(StorageView.class);
@@ -295,7 +296,13 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	public void delete(Object itemId) {
 		//TODO are you sure?
-		//TODO remove from the server
+		try {
+			adminEndpoint.deleteRemoteSession(entryDataSource.getItem(itemId).getBean().getID());
+		} catch (JMSException e) {
+			logger.warn("could not delete session", e);
+			return;
+		}
+		
 		entryDataSource.removeItem(itemId);
 		
 		aggregateDataSource.update(this);

@@ -20,6 +20,7 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
+import fi.csc.microarray.messaging.ReplyMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
@@ -73,6 +74,32 @@ public class StorageAdminAPI {
 		return listener.query();
 	}
 	
+	public void deleteRemoteSession(String sessionID) throws JMSException {
+		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		
+		try {
+			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
+			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionID); 
+			filebrokerAdminTopic.sendReplyableMessage(removeRequestMessage, replyListener);
+			System.out.println("starting to wait");
+			ParameterMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
+			System.out.println("done waiting");
+
+			
+			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+				System.out.println("failas se");
+				throw new JMSException("failed to remove session");
+			}
+			
+		} finally {
+			replyListener.cleanUp();
+		}
+	}
+
+	
+	
+	
+	
 	private class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
 
 		private List<StorageEntry> entries;
@@ -98,12 +125,14 @@ public class StorageAdminAPI {
 			String namesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
 			String sizesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST);
 			String datesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_DATE_LIST);
+			String idsString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
 
+			
 			String[] usernames = usernamesString.split("\t");
 			String[] names = namesString.split("\t");
 			String[] sizes = sizesString.split("\t");
 			String[] dates = datesString.split("\t");
-
+			String[] ids = idsString.split("\t");
 			
 			DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
 			entries = new LinkedList<StorageEntry>();
@@ -114,6 +143,7 @@ public class StorageAdminAPI {
 				entry.setUsername(usernames[i]);
 				entry.setSize(Long.parseLong(sizes[i]));
 				entry.setName(names[i]);
+				entry.setID(ids[i]);
 				entries.add(entry);
 			}
 

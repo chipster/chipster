@@ -483,10 +483,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException, SQLException {
 
-		// parse request
-		URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID));
-		String uuid = IOUtils.getFilenameWithoutPath(url);
-
+		// parse request, if no uuid, try to get url, which was the old way
+		String uuid = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+		if (uuid == null) {
+			URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
+			uuid = IOUtils.getFilenameWithoutPath(url);
+		}
+		
 		// remove from database (including related data)
 		List<String> removedFiles = metadataServer.removeSession(uuid);
 		
@@ -608,74 +611,64 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		@Override
 		public void onChipsterMessage(ChipsterMessage msg) {
 
-			// get totals
-			if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS.equals(((CommandMessage)msg).getCommand())) {
-				
-				CommandMessage requestMessage = (CommandMessage) msg;
-				CommandMessage reply;
-				
-				List<String>[] users;
-				try {
+			try {
+
+				// get totals
+				if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS.equals(((CommandMessage)msg).getCommand())) {
+
+					CommandMessage requestMessage = (CommandMessage) msg;
+					CommandMessage reply;
+
+					List<String>[] users;
 					users = metadataServer.getListStorageusageOfUsers();
-					
+
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(users[0], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(users[1], "\t"));				
 
 					endpoint.replyToMessage(requestMessage, reply);
-				
-				} catch (SQLException | JMSException e) {
-					logger.error(e);
 				}
-			}
-			
-			// get sessions for user
-			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
-				String username = ((ParameterMessage)msg).getNamedParameter("username");
-				CommandMessage requestMessage = (CommandMessage) msg;
-				CommandMessage reply;
-				
-				List<String>[] sessions;
-				try {
+
+				// get sessions for user
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
+					String username = ((ParameterMessage)msg).getNamedParameter("username");
+					CommandMessage requestMessage = (CommandMessage) msg;
+					CommandMessage reply;
+
+					List<String>[] sessions;
 					sessions = metadataServer.listStorageUsageOfSessions(username);
-					
+
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(sessions[0], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[1], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(sessions[2], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_DATE_LIST, Strings.delimit(sessions[3], "\t"));
-
+					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(sessions[4], "\t"));
 					endpoint.replyToMessage(requestMessage, reply);
-				
-				} catch (JMSException | SQLException e) {
-					logger.error(e);
 				}
-			}
-			
-			
-			// get sessions for session name
-			else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS.equals(((CommandMessage)msg).getCommand())) {
-				CommandMessage requestMessage = (CommandMessage) msg;
-				CommandMessage reply;
-				
-				try {
+
+
+				// get sessions for session name
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS.equals(((CommandMessage)msg).getCommand())) {
+					CommandMessage requestMessage = (CommandMessage) msg;
+					CommandMessage reply;
+
 					LinkedList<String> totals = new LinkedList<String>();
-					
+
 					totals.add(metadataServer.getStorageUsageTotals());										
-					
+
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(totals, "\t"));				
 
 					endpoint.replyToMessage(requestMessage, reply);
-				
-				} catch (JMSException | SQLException e) {
-					logger.error(e);
 				}
+
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
+					handleRemoveSessionRequest((CommandMessage)msg);
+				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
-					
 		}
 	}
-
-
-
 }
