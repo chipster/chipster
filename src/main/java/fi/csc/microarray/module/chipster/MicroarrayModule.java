@@ -171,6 +171,8 @@ public class MicroarrayModule implements Module {
 	@Override
 	public String[] getServerModuleNames() {
 		return new String[] { "microarray", "ngs" };
+//		return new String[] { "microarray", "ngs", "seq-comp" };
+
 	}
 
 	@Override
@@ -179,8 +181,10 @@ public class MicroarrayModule implements Module {
 			return "Microarrays";
 		} else if ("ngs".equals(moduleName)) {
 			return "NGS";
+		} else if ("misc".equals(moduleName)) {
+			return "Misc";
 		} else {
-			throw new IllegalArgumentException("not recognised: " + moduleName);
+			return moduleName;
 		}
 	}
 
@@ -214,6 +218,7 @@ public class MicroarrayModule implements Module {
 		return importFromGEOMenuItem;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 
@@ -433,6 +438,7 @@ public class MicroarrayModule implements Module {
 	 * Generates nice context link panel for quickly using genome browser. If not in standalone
 	 * mode, null is returned. 
 	 */
+	@SuppressWarnings("serial")
 	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 
