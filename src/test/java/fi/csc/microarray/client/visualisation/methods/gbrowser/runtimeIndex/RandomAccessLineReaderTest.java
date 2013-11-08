@@ -12,6 +12,9 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
@@ -25,13 +28,14 @@ public class RandomAccessLineReaderTest {
 	
 	private static final int TEST_FILE_ROWS = 1000;
 		
-	public static void main (String[] args) throws IOException, URISyntaxException, GBrowserException {
+	@Test
+	public void run() throws IOException, URISyntaxException, GBrowserException {
 		
 		//Test empty file
 		File emptyFile = File.createTempFile("RandomAccesLineReaderTest", ".txt");
 		DataUrl dataUrl = new DataUrl(emptyFile);
 		RandomAccessLineReader lineReader = new RandomAccessLineReader(dataUrl);
-		System.out.println(lineReader.setPosition(0) == false);		
+		Assert.assertFalse(lineReader.setPosition(0));		
 		emptyFile.delete();
 		
 		//Create some artificial content
@@ -53,24 +57,21 @@ public class RandomAccessLineReaderTest {
 		lineReader = new RandomAccessLineReader(dataUrl);
 		
 		//Check that lineReader reports correct file length
-		System.out.println(lineReader.length() == testFile.length());		
+		Assert.assertEquals(lineReader.length(), testFile.length());		
 		
 		//Check that incorrect positions are recognized 
-		System.out.println(lineReader.setPosition(-1) == false);	
-		System.out.println(lineReader.setPosition(testFile.length()) == false);
+		Assert.assertFalse(lineReader.setPosition(-1));	
+		Assert.assertFalse(lineReader.setPosition(testFile.length()));
 		
-		boolean readLineException = false;
 		try {
 			//This should produce exception, because last setPostion was incorrect
 			lineReader.readLine();
+			Assert.fail("Exception expected when last setPosition was incorrect");
 		} catch (IOException e) {
-			readLineException = true;
 		}
 		
-		System.out.println(readLineException);				
-
 		//This is valid position
-		System.out.println(lineReader.setPosition(0) == true);
+		Assert.assertTrue(lineReader.setPosition(0));
 
 		
 		// Read through the whole file and check that every line is correct
@@ -100,8 +101,6 @@ public class RandomAccessLineReaderTest {
 				//Fill buffer by reading little bit before the actual place
 				lineReader.setPosition(j - 1024);
 				lineReader.readLine();
-
-				//This should give the last characters of line number 499
 
 				//Read from buffer
 				lineReader.setPosition(j);			
@@ -135,16 +134,12 @@ public class RandomAccessLineReaderTest {
 				lineReader.setPosition(j - RandomAccessLineReader.HTTP_BUFFER_SIZE + BUFFER_BYTES_LEFT);			
 				lineReader.readLine();			
 
-				if (lineReader.setPosition(j)) {
+				Assert.assertTrue(lineReader.setPosition(j));
 
-					//Check the buffer refill works
-					String line = lineReader.readLine();			
-					//System.out.println(line);
-					testLineComparison(line500[i], line);
-
-				} else {
-					System.err.println("setPosition failed");
-				}
+				//Check the buffer refill works
+				String line = lineReader.readLine();			
+				//System.out.println(line);
+				testLineComparison(line500[i], line);
 			}
 
 			//Now some testing at the end of file
@@ -160,7 +155,7 @@ public class RandomAccessLineReaderTest {
 				testLineComparison(endOfFile[i], line);
 			}
 
-			System.out.println(lineReader.readLine() == null);
+			Assert.assertNull(lineReader.readLine());
 		}
 		
 		testFile.delete();
@@ -168,7 +163,7 @@ public class RandomAccessLineReaderTest {
 
 	private static void testLineComparison(String refernceLine, String line) {
 		if (!refernceLine.equals(line)) {
-			System.err.println("Unequal lines, \n\tRef:  \t" + refernceLine + "\n\tTest: \t" + line);
+			Assert.fail("Unequal lines, \n\tRef:  \t" + refernceLine + "\n\tTest: \t" + line);
 		}
 	}
 
