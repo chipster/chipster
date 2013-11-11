@@ -13,12 +13,14 @@
 # AMS 21.11.2012
 # AMS 2.07.2013 Added chr1/1 option
 # EK 3.11.2013 Renamed bias correction parameter, removed quartile normalization parameter
+# AMS 11.11.2013 Added thread support
 
 # binary
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
 
 # options
 cufflinks.options <- ""
+cufflinks.options <- paste(cufflinks.options, "-p", chipster.threads.max)
 # if (normalize == "yes") {
 # 	cufflinks.options <- paste(cufflinks.options, "-N")
 # }
