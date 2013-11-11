@@ -22,6 +22,7 @@ public class RandomAccessLineDataSourceHttpTest {
 
 		URL httpUrl = getRemoteGtfUrl();
 		URL fileUrl = getLocalGtfUrl();
+		URL bigHttpUrl = getBigRemoteGtfUrl();
 		
 		DataUrl fileDataUrl = new DataUrl(fileUrl, "file");
 		RandomAccessLineReader fileReader = new RandomAccessLineReader(fileDataUrl);		
@@ -32,16 +33,26 @@ public class RandomAccessLineDataSourceHttpTest {
 		iterativeTest(fileReader, httpReader);
 		
 		removeLocalGtfFile(fileUrl);
+		
+		DataUrl bigHttpDataUrl = new DataUrl(bigHttpUrl, "http");	
+		//testSeekOnBigFile(big
 	}
-	
+
 	public static URL getRemoteGtfUrl() throws MalformedURLException {
-		/* If this files gets lost by accident, download a new one from ftp://ftp.ensembl.org/pub/current_gtf/homo_sapiens/
-		 * and pick every 1000th line of it to make it smaller:
+		/* If this files gets lost by accident, download a new one from ftp://ftp.ensembl.org/pub/current_gtf/homo_sapiens/,
+		 * sort it in Chipster and pick every 1000th line of it to make it smaller:
 		 * cat Homo_sapiens.GRCh37.70-sort.gtf | sed -n '0~1000p' > Homo_sapiens.GRCh37.70-500k.gtf
 		 */
 
-		return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-500k.gtf");
-		//return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-sort.gtf");		
+		return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-500k.gtf");		
+	}
+	
+	public static URL getBigRemoteGtfUrl() throws MalformedURLException {
+		/* If this files gets lost by accident, download a new one from ftp://ftp.ensembl.org/pub/current_gtf/homo_sapiens/,
+		 * sort it in Chipster.
+		 */
+
+		return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-sort.gtf");		
 	}
 	
 	public static URL getLocalGtfUrl() throws MalformedURLException, IOException {
