@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -18,12 +19,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserExce
 public class RandomAccessLineDataSourceHttpTest {
 	@Test
 	public void run () throws URISyntaxException, IOException, GBrowserException {
-				
-		URL httpUrl = new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-500k.gtf");
-		//URL httpUrl = new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-sort.gtf");
-		
-		File file = download(httpUrl);
-		URL fileUrl = file.toURI().toURL();
+
+		URL httpUrl = getRemoteGtfUrl();
+		URL fileUrl = getLocalGtfUrl();
 		
 		DataUrl fileDataUrl = new DataUrl(fileUrl, "file");
 		RandomAccessLineReader fileReader = new RandomAccessLineReader(fileDataUrl);		
@@ -33,7 +31,26 @@ public class RandomAccessLineDataSourceHttpTest {
 		
 		iterativeTest(fileReader, httpReader);
 		
-		file.delete();
+		removeLocalGtfFile(fileUrl);
+	}
+	
+	public static URL getRemoteGtfUrl() throws MalformedURLException {
+		/* If this files gets lost by accident, download a new one from ftp://ftp.ensembl.org/pub/current_gtf/homo_sapiens/
+		 * and pick every 1000th line of it to make it smaller:
+		 * cat Homo_sapiens.GRCh37.70-sort.gtf | sed -n '0~1000p' > Homo_sapiens.GRCh37.70-500k.gtf
+		 */
+
+		return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-500k.gtf");
+		//return new URL("http://nic.funet.fi/pub/sci/molbio/chipster/devel/junit-test-data/Homo_sapiens.GRCh37.70-sort.gtf");		
+	}
+	
+	public static URL getLocalGtfUrl() throws MalformedURLException, IOException {
+		File file = download(getRemoteGtfUrl());
+		return file.toURI().toURL();
+	}
+	
+	public static void removeLocalGtfFile(URL url) throws URISyntaxException {
+		new File(url.toURI()).delete();
 	}
 
 	private static File download(URL httpUrl) throws IOException {
@@ -60,5 +77,43 @@ public class RandomAccessLineDataSourceHttpTest {
 				Assert.assertEquals(fileLine, httpLine);
 			}
 		}				
+	}
+	
+	private static void manualTest(RandomAccessLineDataSource file)
+			throws IOException, GBrowserException {
+		long t = System.currentTimeMillis();
+		
+		System.out.println("First 10000 lines: ");
+		file.setLineReaderPosition(0);
+		System.out.println("\t1: " + file.getNextLine());
+		
+		for (int i = 0; i < 10000; i++) {
+			file.getNextLine();
+		}
+		System.out.println("\t10000: " + file.getNextLine());
+		
+		System.out.println(System.currentTimeMillis() - t + " ms ");
+		t = System.currentTimeMillis();
+		
+		System.out.println("Seek to 100MB: ");
+		file.setLineReaderPosition(100*1024*1024);
+		System.out.println("\t1: " + file.getNextLine());
+		
+
+		System.out.println(System.currentTimeMillis() - t + " ms ");
+		t = System.currentTimeMillis();
+		
+		System.out.println("Seek to 300MB: ");
+		file.setLineReaderPosition(300*1024*1024);
+		System.out.println("\t1: " + file.getNextLine());
+
+		System.out.println(System.currentTimeMillis() - t + " ms ");
+		t = System.currentTimeMillis();
+		
+		System.out.println("Last line: ");
+		System.out.println("\t1: " + file.getLastLine());
+		
+		System.out.println(System.currentTimeMillis() - t + " ms ");
+		t = System.currentTimeMillis();
 	}
 }
