@@ -1,11 +1,35 @@
-<module name="seq-comp">
+<module name="misc">
 
 	<category name="Only category" color="#d5c796">
 		<tool runtime="R-2.15">
 			<resource>seq-comp-test.R</resource>
 		</tool>
 	</category>
-
+    <category name="BLAST" color="#e7df70">
+    <tool runtime="R-2.15">
+			<resource>ncbi_blastn.R</resource>
+	</tool>
+    <tool runtime="R-2.15">
+			<resource>ncbi_blastp.R</resource>
+	</tool>
+	<tool runtime="R-2.15">
+			<resource>my_blastp.R</resource>
+	</tool>
+	<tool runtime="R-2.15">
+			<resource>ensembl_blastp.R</resource>
+	</tool>
+	</category>
+	<category name="Utilities" color="#d59f45">
+	<tool runtime="R-2.15">
+		<resource>infoseq_summary.R</resource>
+	</tool>
+	<tool runtime="R-2.15">
+		<resource>ensemblfetch.R</resource>
+	</tool>
+	<tool runtime="R-2.15">
+		<resource>textsearch_fasta.R</resource>
+	</tool>
+	</category>
 <!-- 
 	
 	<category name="Filtering" color="#e7df70">
