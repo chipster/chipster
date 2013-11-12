@@ -92,6 +92,14 @@ public class RandomAccessLineDataSourceHttpTest {
 		}				
 	}
 	
+	/**
+	 * There should be no difference between random access reading in the beginning of the file
+	 * and in the end of the file.
+	 * 
+	 * @param reader
+	 * @throws IOException
+	 * @throws GBrowserException
+	 */
 	private static void testRemoteRandomAccess(RandomAccessLineReader reader) throws IOException, GBrowserException {
 						
 		Random rand = new Random();
