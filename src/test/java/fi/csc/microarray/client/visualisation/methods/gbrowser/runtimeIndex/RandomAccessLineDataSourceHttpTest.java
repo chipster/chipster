@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,8 +35,9 @@ public class RandomAccessLineDataSourceHttpTest {
 		
 		removeLocalGtfFile(fileUrl);
 		
-		DataUrl bigHttpDataUrl = new DataUrl(bigHttpUrl, "http");	
-		//testSeekOnBigFile(big
+		DataUrl bigHttpDataUrl = new DataUrl(bigHttpUrl, "http");
+		RandomAccessLineReader bigHttpReader = new RandomAccessLineReader(bigHttpDataUrl);
+		testRemoteRandomAccess(bigHttpReader);
 	}
 
 	public static URL getRemoteGtfUrl() throws MalformedURLException {
@@ -81,7 +83,7 @@ public class RandomAccessLineDataSourceHttpTest {
 			file.setPosition(j*100);
 			http.setPosition(j*100);
 			
-			for (int i = 0; i < 1000; i++) {
+			for (int i = 0; i < 500; i++) {
 				String fileLine = file.readLine();
 				String httpLine = http.readLine();
 
@@ -90,41 +92,31 @@ public class RandomAccessLineDataSourceHttpTest {
 		}				
 	}
 	
-	private static void manualTest(RandomAccessLineDataSource file)
-			throws IOException, GBrowserException {
-		long t = System.currentTimeMillis();
+	private static void testRemoteRandomAccess(RandomAccessLineReader reader) throws IOException, GBrowserException {
+						
+		Random rand = new Random();
 		
-		System.out.println("First 10000 lines: ");
-		file.setLineReaderPosition(0);
-		System.out.println("\t1: " + file.getNextLine());
+		long size = reader.length();	
+		final int MB = 1024*1024;
+		final long SAMPLES = 10;
 		
-		for (int i = 0; i < 10000; i++) {
-			file.getNextLine();
-		}
-		System.out.println("\t10000: " + file.getNextLine());
+		long t = System.currentTimeMillis();		
+		for (int i = 0; i < SAMPLES; i++) {
+			reader.setPosition(rand.nextInt(MB));
+			reader.readLine();
+		}		
+		long headSeek = (System.currentTimeMillis() - t) / SAMPLES;
 		
-		System.out.println(System.currentTimeMillis() - t + " ms ");
 		t = System.currentTimeMillis();
 		
-		System.out.println("Seek to 100MB: ");
-		file.setLineReaderPosition(100*1024*1024);
-		System.out.println("\t1: " + file.getNextLine());
+		for (int i = 0; i < SAMPLES; i++) {
+			reader.setPosition(size - rand.nextInt(MB));
+			reader.readLine();
+		}		
+		long tailSeek = (System.currentTimeMillis() - t) / SAMPLES;					
 		
-
-		System.out.println(System.currentTimeMillis() - t + " ms ");
-		t = System.currentTimeMillis();
-		
-		System.out.println("Seek to 300MB: ");
-		file.setLineReaderPosition(300*1024*1024);
-		System.out.println("\t1: " + file.getNextLine());
-
-		System.out.println(System.currentTimeMillis() - t + " ms ");
-		t = System.currentTimeMillis();
-		
-		System.out.println("Last line: ");
-		System.out.println("\t1: " + file.getLastLine());
-		
-		System.out.println(System.currentTimeMillis() - t + " ms ");
-		t = System.currentTimeMillis();
+		Assert.assertFalse("Random access read in the end of the file is too slow (" + tailSeek + "ms) " +
+				"in comparison to reading in the beginning of the file (" + headSeek + "ms)", 
+				tailSeek > headSeek * 2);
 	}
 }

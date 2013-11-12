@@ -62,10 +62,10 @@ public class IndexPerformanceTest {
 		 * memIndex throughput is here maybe ~5 Mb/s,
 		 * while with larger files it can reach for example 400 Mb/s 
 		 */
-		troughputTest("memIndex:    ", memIndex, chr1);
+		troughputTest(memIndex, chr1);
 		checkLimits(3000, 12); //X220: 300ms, 6Mb
 				
-		troughputTest("searchIndex: ", searchIndex, chr1);
+		troughputTest(searchIndex, chr1);
 		checkLimits(100, 10); //X220: 11ms, 1Mb
 		
 		//The second run is faster only because of the JVM optimizations
@@ -78,31 +78,31 @@ public class IndexPerformanceTest {
 		randomSeeks(searchIndex);
 		checkLimits(10000, 600); //X220: 1100ms, 265Mb
 		randomSeeks(searchIndex); 
-		checkLimits(5000, 10); //X220: 450ms, 0Mb
+		checkLimits(5000, 600); //X220: 450ms, 278Mb
 		
 		agreementTest(memIndex, searchIndex);
 		
 	}
 	
-	private static void checkLimits(Integer i, Integer j) {
+	private static void checkLimits(Integer timeLimit, Integer memLimit) {
 
 		long dTime = System.currentTimeMillis() - time;
 		long dMemory = getMemoryUsage() - memoryUsage;
 		
 		//System.out.println(dTime + "ms, " + dMemory + "Mb");
 		
-		if (i != null) {
-			Assert.assertTrue(dTime < i);
+		if (timeLimit != null) {
+			Assert.assertTrue("Task duration " + dTime + " ms exceeds the given limit " + timeLimit + " ms", dTime < timeLimit);		
 		}
-		if (j != null) {
-			Assert.assertTrue(dMemory < j);
+		if (memLimit != null) {
+			Assert.assertTrue("Memory usage " + dMemory + " Mb exceeds the given limit " + memLimit + " Mb", dMemory < memLimit);
 		}
 		
 		memoryUsage = getMemoryUsage();		
 		time = System.currentTimeMillis();
 	}
 
-	private static void troughputTest(String description, Index index, Region chr1) throws IOException, GBrowserException {
+	private static String troughputTest(Index index, Region chr1) throws IOException, GBrowserException {
 		long t = System.currentTimeMillis();
 		long bytes = 0;
 		
@@ -110,9 +110,9 @@ public class IndexPerformanceTest {
 			bytes += line.length() + 1;
 		}
 		
-		long dt = (System.currentTimeMillis() - t); 
-		
-		//System.out.println(description + " \tBytes: " + bytes/1024/1024 + " MB \tTime: " + dt + " ms \tBandwidth: " + (bytes/1024.0/1024.0)/(dt/1000.0) + "MB/s");
+		long dt = (System.currentTimeMillis() - t);
+
+		return "Bytes: " + bytes/1024/1024 + " MB \tTime: " + dt + " ms \tBandwidth: " + (bytes/1024.0/1024.0)/(dt/1000.0) + "MB/s";
 	}
 
 	private static Random randomSeeks(Index index) throws IOException,
