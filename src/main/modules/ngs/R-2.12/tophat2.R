@@ -25,6 +25,7 @@
 # AMS 27.6.2012 added parameter mate.std.dev, allow negative values for mate.inner.distance
 # AMS 4.10.2012 added BED sorting
 # KM 10.7. 2012 Added RN5
+# AMS 11.11.2013 Added thread support
 
 
 # check out if the file is compressed and if so unzip it
@@ -47,7 +48,7 @@ command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
 #command.parameters <- paste("--bowtie1 -r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
-command.parameters <- paste("-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-p", chipster.threads.max, "-r", mate.inner.distance, "--mate-std-dev", mate.std.dev, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
 
 # optional GTF command, if a GTF file has been provided by user
 command.gtf <- ""

@@ -1,10 +1,10 @@
 # TOOL acgh-count-overlapping-cnvs.R: "Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT cnvs.tsv: cnvs.tsv 
-# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
+# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2013-08-08
 
 file <- 'normalized.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -24,28 +24,25 @@ if (first.data.col > 0) {
 }
 
 # load cnvs
-if (genome.build=='NCBI35') {
-  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg17.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
-  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg17.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
-} else if (genome.build=='NCBI36') {
-  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg18.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
-  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg18.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
+if (genome.build=='NCBI36') {
+  cnv <- read.table('http://dgv.tcag.ca/dgv/docs/NCBI36_hg18_variants_2013-07-23.txt', header=TRUE, sep='\t', as.is=TRUE)
+  # cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg18.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 } else {
-  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg19.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
-  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg19.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
+  cnv <- read.table('http://dgv.tcag.ca/dgv/docs/GRCh37_hg19_variants_2013-07-23.txt', header=TRUE, sep='\t', as.is=TRUE)
+  # cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg19.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 }
-cnv <- cnv[cnv$VariationType == 'CopyNumber',]
-cnv$Chr <- factor(substr(cnv$Chr, 4, 5), levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)
+cnv <- cnv[cnv$varianttype == 'CNV',]
+cnv$chr <- factor(cnv$chr, levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)
 
-cnv <- cnv[order(cnv$Chr, cnv$Start, cnv$End), c('Chr', 'Start', 'End')]
+cnv <- cnv[order(cnv$chr, cnv$start, cnv$end), c('chr', 'start', 'end')]
 joined <- data.frame()
 prev <- cnv[1,]
 for (i in 2:nrow(cnv)) {
-  if (cnv[i, 'Chr'] != prev$Chr || cnv[i, 'Start'] > (prev$End + 1)) {
+  if (cnv[i, 'chr'] != prev$chr || cnv[i, 'start'] > (prev$end + 1)) {
     joined <- rbind(joined, prev)
     prev <- cnv[i,]
   } else
-    prev$End <- max(prev$End, cnv[i, 'End'])
+    prev$end <- max(prev$end, cnv[i, 'end'])
 }
 joined <- rbind(joined, prev)
 
@@ -54,15 +51,15 @@ cnv.counter <- function(x) {
   start <- as.integer(x['start'])
   end <- as.integer(x['end'])
 
-  count <- nrow(cnv[cnv$Chr   == chr &
-                    cnv$Start <= end &
-                    cnv$End   >= start,])
-  overlaps <- joined[joined$Chr   == chr &
-                     joined$Start <= end &
-                     joined$End   >= start,]
+  count <- nrow(cnv[cnv$chr   == chr &
+                    cnv$start <= end &
+                    cnv$end   >= start,])
+  overlaps <- joined[joined$chr   == chr &
+                     joined$start <= end &
+                     joined$end   >= start,]
   bases <- 0
   for (j in rownames(overlaps))
-    bases <- bases + min(end, overlaps[j, 'End']) - max(start, overlaps[j, 'Start']) + 1
+    bases <- bases + min(end, overlaps[j, 'end']) - max(start, overlaps[j, 'start']) + 1
   c(count, round(bases / (end - start + 1), digits=3))
 }
 

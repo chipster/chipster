@@ -21,6 +21,7 @@
 
 # EK 20.6.2011
 # AMS 19.6.2012 Added unzipping
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -39,7 +40,7 @@ bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
 command.start <- paste("bash -c '", bowtie.binary)
 
 # common parameters
-common.parameters <- paste("-q --best -S --strata", "-m", multiread, "-k", alignment.no)
+common.parameters <- paste("-p", chipster.threads.max, "-q --best -S --strata", "-m", multiread, "-k", alignment.no)
 
 # mode specific parameters
 quality.parameter <- ifelse(quality.format == "solexa1_3", "--solexa1.3-quals", "")
