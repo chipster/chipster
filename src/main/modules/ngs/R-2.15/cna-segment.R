@@ -3,11 +3,12 @@
 # OUTPUT segmented.tsv: segmented.tsv 
 # PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
 # PARAMETER number.of.chromosomes: "number of chromosomes" TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
-# PARAMETER minimum.number.of.probes.per.segment: "minimum number of bins per segment" TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of bins per segment.)
+# PARAMETER minimum.number.of.probes.per.segment: "minimum number of features per segment" TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of features per segment.)
 # PARAMETER minimum.number.of.sds.between.segments: "minimum number of standard deviations between segments" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
+# PARAMETER significance.level: "significance level" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1E-10 (Significance level for the test to accept changepoints.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-23
+# 2013-10-19
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 
@@ -43,7 +44,7 @@ dat2 <- dat2[order(dat2$chromosome, dat2$start),]
 cgh.raw <- make_cghRaw(dat2)
 cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
-cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
+cgh.seg <- segmentData(cgh.nor, alpha=significance.level, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
 
 dat3 <- data.frame(cgh.seg@featureData@data)
 colnames(dat3) <- c('chromosome', 'start', 'end')
