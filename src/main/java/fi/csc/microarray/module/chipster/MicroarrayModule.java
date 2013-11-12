@@ -169,8 +169,8 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public String[] getServerModuleNames() {
-		return new String[] { "microarray", "ngs" };
-//		return new String[] { "microarray", "ngs", "seq-comp" };
+		return new String[] { "microarray", "ngs"};
+//		return new String[] { "microarray", "ngs", "misc" };
 
 	}
 
@@ -180,8 +180,8 @@ public class MicroarrayModule implements Module {
 			return "Microarrays";
 		} else if ("ngs".equals(moduleName)) {
 			return "NGS";
-		} else if ("seq-comp".equals(moduleName)) {
-			return "Sequence Comparison";
+		} else if ("misc".equals(moduleName)) {
+			return "Misc";
 		} else {
 			return moduleName;
 		}
