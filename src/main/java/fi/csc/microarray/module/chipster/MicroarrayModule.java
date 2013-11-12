@@ -170,8 +170,8 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public String[] getServerModuleNames() {
-		return new String[] { "microarray", "ngs" };
-//		return new String[] { "microarray", "ngs", "seq-comp" };
+		return new String[] { "microarray", "ngs"};
+//		return new String[] { "microarray", "ngs", "misc" };
 
 	}
 
