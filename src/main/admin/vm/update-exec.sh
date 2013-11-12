@@ -995,6 +995,10 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70* ${BACKUPDIR_PATH}/
   mv -b ${TOOLS_PATH}/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa ${BACKUPDIR_PATH}/
 
+  echo "** Removing FREEC_Linux64"
+  mv -b ${TOOLS_PATH}/FREEC_Linux64 ${BACKUPDIR_PATH}/
+  
+
 fi
   
 
