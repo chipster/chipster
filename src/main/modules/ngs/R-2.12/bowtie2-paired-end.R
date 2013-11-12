@@ -33,6 +33,7 @@
 
 # KM 10-01.2012
 # EK 8.5.2013 replaced samtools -q 1 with Bowtie --no-unal to remove unaligned reads from BAM
+# AMS 11.11.2013 Added thread support
 
 
 # check out if the file is compressed and if so unzip it
@@ -49,7 +50,7 @@ rfg.value <- paste (rfg.open ,rfg.ext , sep=",")
 # common parameters
 #common.parameters <- paste("-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
 
-parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, "--minins", minins, "--maxins", maxins, pair.order, quality.format, "--no-unal")
+parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, "--minins", minins, "--maxins", maxins, pair.order, quality.format, "--no-unal", "-p", chipster.threads.max)
 
 if ( alignment.no>0){
 	if ( alignment.no==6){
