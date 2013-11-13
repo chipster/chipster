@@ -1000,6 +1000,16 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   
 
 fi
+
+
+# 2.8.3
+compare_to_current_and_latest "2.8.3"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+    echo "** Installing R-3.0"
+    curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+fi
   
 
 #####################################
