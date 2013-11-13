@@ -1,17 +1,25 @@
-# TOOL norm-illumina-SNP.R: "Illumina SNP arrays" (Illumina SNP array preprocessing. Input should be a tab-delimited text file with genotype calls. Typically such a file is created using GenCall software from Illumina.)
+# TOOL norm-illumina-SNP.R: "Illumina SNP arrays" (Illumina SNP array preprocessing. Input should be a tab-delimited text file with genotype calls. Typically such a file is created using GenCall software from Illumina or downloaded from a GEO.)
 # INPUT chip.txt: chip.txt TYPE GENERIC 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER method: "Allel calling method" TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allel calling method. Choosing Illumina, allels calls given in the input are accepted. For CRLMM, columns X Raw and Y Raw should be available in the file)
-# PARAMETER cdfName: cdfName TYPE [default: default, human1mduov3b: human1mduov3b, human1mv1c: human1mv1c, human370quadv3c: human370quadv3c, human370v1c: human370v1c, human550v3b: human550v3b, human610quadv1b: human610quadv1b, human650v3a: human650v3a, human660quadv1a: human660quadv1a, humanomni1quadv1b: humanomni1quadv1b, humanomniexpress12v1b: humanomniexpress12v1b] DEFAULT default (Name of the description file to be used in normalization, by defualt obtained from data)
+# PARAMETER method: "Allel calling method" TYPE [illumina: illumina, crlmm: CRLMM] DEFAULT illumina (Allel calling method. Choosing Illumina, allels calls given in the input are accepted. For CRLMM, allell calls are computed from X-Raw and Y-Raw values)
+# PARAMETER input: "Input format" TYPE [illumina: illumina, xy: xy-matrix] DEFAULT illumina (Input format. Illumina method requires output file created using GenCall software from Illumina where samples are listed one below another, whereas CRLMM also accepts xy-matrix.)
+# PARAMETER cdfName: cdfName TYPE [default: default, human1mduov3b: human1mduov3b, human1mv1c: human1mv1c, human370quadv3c: human370quadv3c, human370v1c: human370v1c, human550v3b: human550v3b, human610quadv1b: human610quadv1b, human650v3a: human650v3a, human660quadv1a: human660quadv1a, humanomni1quadv1b: humanomni1quadv1b, humanomniexpress12v1b: humanomniexpress12v1b, humancytosnp12v2p1h: humancytosnp12v2p1h, humanomni25quadv1b: humanomni25quadv1b, humanomni5quadv1b: humanomni5quadv1b] DEFAULT default (Name of the description file to be used in normalization, by defualt obtained from data)
 # PARAMETER SNRMin: "Signal-to-noise ratio" TYPE DECIMAL FROM 0 TO 10000 DEFAULT 5 (Value defining the minimum signal-to-noise ratio used to filter out samples, higher values mean more strict filtering. Affects only the CRLMM-function)
 
-# Illumina SNP array normalization
-# JTT 22.10.2008
-# MK 21.05.2013 added crlmm normalization
+# JTT 22.10.2008: Illumina SNP array normalization
+# MK  21.05.2013: added crlmm normalization. Add xy-matrix support
+
+save.image("/tmp/matti/snp.Rdata")
+file <- paste(getwd(), "/", "chip.txt", sep="")
+system(paste("cp ", file, " /tmp/matti/.", sep=""))
 
 # Reading data
-if(method = "illumina") {
+if(method == "illumina") {
+ 	if(input == "xy") {
+ 		stop("CHIPSTER-NOTE: Illumina type of preprocessing cannot be applied to xy-matrices");
+ 	}
+
 	#allel calls
 	firstfield <- scan(dir(), what = "", sep = ",", flush = TRUE, quiet = TRUE, blank.lines.skip = FALSE, multi.line = FALSE)
 	skip <- grep("[Data]", firstfield, fixed = TRUE)
@@ -29,25 +37,41 @@ if(method = "illumina") {
 	colnames(dat2)<-paste("chip.", ids, sep="")
 } else {	
 	library(crlmm)
-	library(oligoClasses)
-	library(human1mduov3bCrlmm)          #Illumina
-	library(human1mv1cCrlmm)             #Illumina
-	library(human370quadv3cCrlmm)        #Illumina
-	library(human370v1cCrlmm)            #Illumina
-	library(human550v3bCrlmm)            #Illumina
-	library(human610quadv1bCrlmm)        #Illumina
-	library(human650v3aCrlmm)            #Illumina
-	library(human660quadv1aCrlmm)        #Illumina
-	library(humanomni1quadv1bCrlmm)      #Illumina
-	library(humanomniexpress12v1bCrlmm)  #Illumina
-	
+	library(Biobase)
+
 	if(cdfName == "default") {
-		XY = readGenCallOutput(file="chip.txt", colnames=list("SampleID"="Sample ID", "SNPID"="SNP Name", "XRaw"="X Raw", "YRaw"="Y Raw"), type=list("SampleID"="character", "SNPID"="character", "XRaw"="integer", "YRaw"="integer"))
-		crlmmOut <- try(crlmm::crlmmIllumina(XY=XY, verbose=FALSE, SNRMin=SNRMin))
+		stop("CHIPSTER-NOTE: please specify your chiptype");
+	}
+
+	if(input == "xy") {
+		xy_mat <- read.table(file="chip.txt", sep="\t", header=T, comment.char="")
+		snps <- xy_mat[,grep("Name", colnames(xy_mat), perl=T)]
+
+		X <- xy_mat[, grep(".X.Raw", colnames(xy_mat), perl=T)]
+		colnames(X) <- gsub(".X.Raw", "", colnames(X), perl=T)
+
+		Y <- xy_mat[, grep(".Y.Raw", colnames(xy_mat), perl=T)]
+		colnames(Y) <- gsub(".Y.Raw", "", colnames(Y), perl=T)
+		Y <- Y[,match(colnames(X), colnames(Y))]
+
+		if(min(table( c(colnames(X), colnames(Y)))) != 2) {
+			stop("CHIPSTER-NOTE: Different number of raw X and Y columns found in the record");
+		}
+
+		zeroes <- matrix(0, ncol=ncol(X), nrow=nrow(X))
+		zeroes = (X == "0" | Y == "0")
+    	colnames(zeroes) <- colnames(Y) <- colnames(X)
+    	rownames(X) <- rownames(Y) <- snps
+
+		XY = new("NChannelSet", X = initializeBigMatrix(name = "X", nr = nrow(X), nc = ncol(X), vmode = "integer", initdata = as.matrix(X)),
+								 Y = initializeBigMatrix(name = "Y", nr = nrow(Y), nc = ncol(Y), vmode = "integer", initdata = as.matrix(Y)),
+								 zero = initializeBigMatrix(name = "zero", nr = nrow(zeroes), nc = ncol(zeroes), vmode = "integer", initdata = as.matrix(zeroes)), 
+								 annotation = cdfName, storage.mode = "environment");
 	} else {
 		XY = readGenCallOutput(file="chip.txt", cdfName=cdfName, colnames=list("SampleID"="Sample ID", "SNPID"="SNP Name", "XRaw"="X Raw", "YRaw"="Y Raw"), type=list("SampleID"="character", "SNPID"="character", "XRaw"="integer", "YRaw"="integer"))
-		crlmmOut <- try(crlmm::crlmmIllumina(XY=XY, verbose=FALSE, cdfName=cdfName, SNRMin=SNRMin))
 	}
+ 
+	crlmmOut <- try(crlmm::crlmmIllumina(XY=XY, verbose=FALSE, SNRMin=SNRMin))
 	
 	#Below commands allow to run crlmm on idat (scanner output) data 
 	#samples <- read.csv("../idat/sampleSheet.csv", as.is=TRUE)			
@@ -64,14 +88,18 @@ if(method = "illumina") {
 	}
 	
 	genotypes<-calls(crlmmOut)
-	flags<-callProbability(crlmmOut)
-	flags2<-flags
-	flags2[flags<=quantile(flags, 0.95)]<-"P"
-	flags2[flags>quantile(flags, 0.95)]<-"M"
 	colnames(genotypes)<-paste("chip.", colnames(genotypes), sep="")
-	colnames(flags2)<-paste("flags.", colnames(flags), sep="")
-	
-	dat2 <- data.frame(genotypes, flags2)
+
+	if(length(grep("Probability", ls(assayData(crlmmOut)))) > 0) {
+		flags<-assayData(crlmmOut)[["callProbability"]] #callProbability(crlmmOut)
+		flags2<-flags
+		flags2[flags<=quantile(flags, 0.95)]<-"P"
+		flags2[flags>quantile(flags, 0.95)]<-"M"
+		colnames(flags2)<-paste("flags.", colnames(flags), sep="")
+		dat2 <- data.frame(genotypes, flags2)
+	} else {
+		dat2 <- genotypes
+	}
 }
 
 # Writes out a phenodata table
