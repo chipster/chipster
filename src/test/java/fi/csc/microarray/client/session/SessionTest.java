@@ -22,8 +22,12 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileServer;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.MockJettyFileServer;
+import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MockMessagingEndpoint;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -53,14 +57,20 @@ public class SessionTest {
 		// boot up file server so that it is connected to mock messaging fabric
 		MockMessagingEndpoint endpoint = new MockMessagingEndpoint();
 		new FileServer(null, endpoint, new MockJettyFileServer());
+
+		// test file broker using JMSFileBrokerClient
+		MessagingTopic urlTopic = endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE);
+		FileBrokerClient fbc = new JMSFileBrokerClient(urlTopic);
+		URL url = fbc.addSessionFile();
 		
-		// check everything
+		// check results
+		Assert.assertNotNull(url);
+		
+		// check all log files after execution
 		for (File logFile : logDir.listFiles()) {
 			ByteArrayOutputStream contents = new ByteArrayOutputStream();
 			IOUtils.copy(new FileInputStream(logFile), contents);
-			if (contents.toString().contains("Exception")) {
-				throw new Exception(logFile + " contains exception");
-			}
+			Assert.assertFalse(logFile + " should not contain exception", contents.toString().contains("Exception"));
 		}
 		
 
@@ -108,7 +118,7 @@ public class SessionTest {
 				"	\n" + 
 				"	    <!-- url of this file broker instance -->\n" + 
 				"		<entry entryKey=\"url\">\n" + 
-				"			<value>not defined</value>\n" + 
+				"			<value>http://mockhost</value>\n" + 
 				"		</entry>\n" + 
 				"		\n" + 
 				"		<!-- server port to use in this file broker instance -->\n" + 
