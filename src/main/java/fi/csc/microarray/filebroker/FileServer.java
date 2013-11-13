@@ -76,8 +76,12 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		DirectoryLayout.getInstance().getConfiguration();
 		new FileServer(null, null);
 	}
-	
+
     public FileServer(String configURL, MessagingEndpoint overriddenEndpoint) {
+    	this(configURL, overriddenEndpoint, null);
+    }
+
+    public FileServer(String configURL, MessagingEndpoint overriddenEndpoint, JettyFileServer externalFileServer) {
 
     	try {
     		// initialise dir and logging
@@ -114,9 +118,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     			logger.info("not starting metadata server web interface");        			
     		}
     		
-    		// boot up file server
-    		JettyFileServer fileServer = new JettyFileServer(urlRepository, metadataServer);
-    		fileServer.start(fileRepository.getPath(), port);
+    		// boot up file server    		
+    		JettyFileServer jettyFileServer;
+    		if (externalFileServer != null) {
+    			jettyFileServer = externalFileServer;
+    		} else {
+        		jettyFileServer = new JettyFileServer(urlRepository, metadataServer);    			
+    		}
+    		jettyFileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
     		cacheRoot = new File(fileRepository, cachePath);

@@ -41,6 +41,8 @@ public class AnnotationTrackGroup extends TrackGroup {
 		} else {
 			this.setName("Annotations");
 		}
+		
+		setSettingsEnabled(true);
 	}
 	
 	private void initTracks() {					

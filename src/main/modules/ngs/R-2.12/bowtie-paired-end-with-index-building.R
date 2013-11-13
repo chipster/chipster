@@ -28,6 +28,7 @@
 # EK 12.7.2011
 # AMS 19.6.2012 Added unzipping
 # EK 1.11.2012 fixed genome parameter and SAM output
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -46,7 +47,7 @@ bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
 command.start <- paste("bash -c '", bowtie.binary)
 
 # common parameters
-common.parameters <- paste("-S", "-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
+common.parameters <- paste("-p", chipster.threads.max, "-S", "-q", "-m", multiread, "-k", alignment.no, "-I", min.insert.size, "-X", max.insert.size)
 
 # mode specific parameters
 quality.parameter <- ifelse(quality.format == "solexa1_3", "--solexa1.3-quals", "")

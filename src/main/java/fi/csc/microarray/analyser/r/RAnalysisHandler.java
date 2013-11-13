@@ -131,11 +131,19 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setToolFile(toolFile);
 		ad.setModuleDir(moduleDir);
 		
-		// tool and script locations
+		// tool and script locations and other variables
+
+		int threadsMax = 2;
+		try {
+			threadsMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-threads-max");
+		} catch (Exception e) {
+			logger.warn("could not read job-threads-max from configuration", e);
+		}
 		File commonRScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath); 
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n" +
 						  "chipster.common.path = '" + commonRScriptDir.getAbsolutePath() + "'\n" + 
-						  "chipster.module.path = '" + moduleDir.getAbsolutePath() + "'\n");
+						  "chipster.module.path = '" + moduleDir.getAbsolutePath() + "'\n" +
+						  "chipster.threads.max = '" + threadsMax + "'\n");
 		return ad;
 	}
 

@@ -31,7 +31,8 @@ public class MessagingTopic {
 	public static enum Type {
 		NORMAL,
 		TEMPORARY,
-		NAMED_TEMPORARY;
+		NAMED_TEMPORARY,
+		MOCK;
 	}
 	
 	public static enum AccessMode {
@@ -55,6 +56,9 @@ public class MessagingTopic {
 			break;
 		case TEMPORARY:
 			this.topic = session.createTemporaryTopic();
+			break;
+		case MOCK:
+			// initialise nothing
 			break;
 		default:
 			throw new RuntimeException("unknown type " + type);

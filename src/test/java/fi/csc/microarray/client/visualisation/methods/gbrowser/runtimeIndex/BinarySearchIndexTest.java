@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -21,18 +24,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
 
 public class BinarySearchIndexTest {
 		
-	public static void main(String[] args) throws FileNotFoundException, MalformedURLException, IOException, URISyntaxException, GBrowserException {
-		
+	
+	@Test
+	public void run() throws IOException, UnsortedDataException, GBrowserException, URISyntaxException {
+				
 		//Test without header
 		File testFile = getTestFile(0);		
 		runTests(testFile);		
 		testFile.delete();
-		
+
 		//Test with a 1 line header
 		testFile = getTestFile(1);		
 		runTests(testFile);		
 		testFile.delete();
-		
+
 		//Test with a 20 line header
 		testFile = getTestFile(20);		
 		runTests(testFile);		
@@ -51,57 +56,53 @@ public class BinarySearchIndexTest {
 		//Empty region
 		Region region = new Region(1l, 1l, new Chromosome("chr1"));
 		Collection<String> lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 0);
+		Assert.assertTrue(lines.isEmpty());
 		
 		//Illegal region		
-		boolean illegalRegionException = false;
-		try {
-			region = new Region(2l, 1l, new Chromosome("chr1"));
-			index.getFileLines(region);
-		} catch (IllegalArgumentException e) {
-			illegalRegionException = true;
-		}
-		System.out.println(illegalRegionException);
+		region = new Region(2l, 1l, new Chromosome("chr1"));
+		lines = index.getFileLines(region).values();
+				
+		Assert.assertTrue(lines.isEmpty());
 				
 		//First line
 		region = new Region(0l, 1l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 1);
-		System.out.println("chr1\tsource\tfeature\t0\t0\tQuality0000\tStrand0000\tFrame0000\tMetadata0000\t".equals(lines.iterator().next()));
+		Assert.assertEquals(1, lines.size());
+		Assert.assertEquals("chr1\tsource\tfeature\t0\t0\tQuality0000\tStrand0000\tFrame0000\tMetadata0000\t", lines.iterator().next());
 		
 		//Second line
 		region = new Region(1l, 2l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 1);
-		System.out.println("chr1\tsource\tfeature\t1\t1\tQuality0001\tStrand0001\tFrame0001\tMetadata0001\t".equals(lines.iterator().next()));
+		Assert.assertEquals(1, lines.size());
+		Assert.assertEquals("chr1\tsource\tfeature\t1\t1\tQuality0001\tStrand0001\tFrame0001\tMetadata0001\t", lines.iterator().next());
 		
 		//Several lines
 		region = new Region(1000l, 2000l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 1000);
+		Assert.assertEquals(1000, lines.size());
 			
 		//Request equals index entry (there are 2000 lines with start position 4000
 		//Index entry is somewhere around line 5000, but this should still give also 1000 equal lines (in sort order) before it
 		region = new Region(4000l, 6000l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 2000);
+		Assert.assertEquals(2000, lines.size());
 				
 		//Last but one
 		region = new Region(9998l, 9999l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 1);
-		System.out.println("chr1\tsource\tfeature\t9998\t9998\tQuality9998\tStrand9998\tFrame9998\tMetadata9998\t".equals(lines.iterator().next()));
+		Assert.assertEquals(1, lines.size());
+		Assert.assertEquals("chr1\tsource\tfeature\t9998\t9998\tQuality9998\tStrand9998\tFrame9998\tMetadata9998\t", lines.iterator().next());
 				
 		//Last line
 		region = new Region(9999l, 10000l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 1);
-		System.out.println("chr1\tsource\tfeature\t9999\t9999\tQuality9999\tStrand9999\tFrame9999\tMetadata9999\t".equals(lines.iterator().next()));
+		Assert.assertEquals(1, lines.size());
+		Assert.assertEquals("chr1\tsource\tfeature\t9999\t9999\tQuality9999\tStrand9999\tFrame9999\tMetadata9999\t", lines.iterator().next());
 		
 		//Region greater than last line
 		region = new Region(10000l, 20000l, new Chromosome("chr1"));
 		lines = index.getFileLines(region).values();
-		System.out.println(lines.size() == 0);
+		Assert.assertTrue(lines.isEmpty());
 		
 		//Test line identifiers on the first line of the file, last line and in between.		
 		testLineIdentifiers(index, 0);
@@ -133,22 +134,9 @@ public class BinarySearchIndexTest {
 		SortedMap<IndexKey, String> subMap = lineMap.subMap(fromKey, toKey);		
 		IndexKey id3 = subMap.firstKey();
 		
-		System.out.println(id1.equals(id2) && id2.equals(id3));
+		Assert.assertEquals(id1, id2);
+		Assert.assertEquals(id2, id3);
 	}
-
-//	private static void print(List<String> lines) {
-//		System.out.println(lines.size() + " line(s):");
-//		if (lines.size() >= 1) {
-//			System.out.println(lines.get(0));
-//		}
-//		if (lines.size() >= 2) {
-//			System.out.println(lines.get(1));
-//		}
-//		if (lines.size() >= 3) {
-//			System.out.println("...");
-//			System.out.println(lines.get(lines.size() - 1));
-//		}
-//	}
 	
 	/**
 	 * Create a temp file with 10000 rows:

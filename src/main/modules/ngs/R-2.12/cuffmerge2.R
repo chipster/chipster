@@ -5,6 +5,7 @@
 # AMS 21.11.2012
 # AMS 11.01.2013 Removed unnecessary outputs
 # EK 21.1.2013
+# AMS 11.11.2013 Added thread support
 
 # binary
 cuffmerge.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffmerge"))
@@ -18,7 +19,7 @@ setpathcommand <- paste(setpathc1 , collapse = '')
 system("ls *.gtf > assemblies.txt")
 
 # command
-command <- paste(setpathcommand, cuffmerge.binary, "assemblies.txt")
+command <- paste(setpathcommand, cuffmerge.binary, "-p", chipster.threads.max, "assemblies.txt")
 
 # run
 #stop(paste('CHIPSTER-NOTE: ', command))
