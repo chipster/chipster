@@ -41,13 +41,14 @@
 # This parameter is not yet functional due to a bug in Cuffdiff itself: PARAMETER OPTIONAL normalize: "Upper-quartile normalization " TYPE [yes, no] DEFAULT yes (Upper quartile normalization can improve robustness of differential expression calls for less abundant genes and transcripts. It excludes very abundant genes when normalizing expression values for the number of reads in each sample by using the upper quartile of the number of fragments mapping to individual loci.)
 # AMS 02.07.2013 Added chr1/1 option, fixed handling of errors when no results are found.
 # EK 3.11.2013 Renamed bias correction parameter
+# AMS 11.11.2013 Added thread support
 
 # binary
 cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffdiff"))
 
 # options
 cuffdiff.options <- ""
-cuffdiff.options <- paste(cuffdiff.options, "-FDR", fdr)
+cuffdiff.options <- paste(cuffdiff.options, "-p", chipster.threads.max, "-FDR", fdr)
 # if (normalize == "yes") {
 #	cuffdiff.options <- paste(cuffdiff.options, "-N")
 # }

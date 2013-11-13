@@ -675,7 +675,8 @@ then
   # Data for CNA-seq tools (produced by Ilari Scheinin)
   cd ${TMPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  # FREEC not needed anymore 12.11.2013
 
   # prinseq
   cd ${TMPDIR_PATH}/
