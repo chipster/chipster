@@ -8,13 +8,17 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
 
 public class ChromosomeBinarySearchTest {
 	
-	public static void main(String[] args) throws IOException, GBrowserException, URISyntaxException {
+	@Test
+	public void run() throws IOException, GBrowserException, URISyntaxException {
 
 		File file = getTestFile();
 		
@@ -27,9 +31,8 @@ public class ChromosomeBinarySearchTest {
 		
 		for (int i = 0; i < 999; i++) {
 			Chromosome chr = chrIter.next();
-			if (!("" + i).equals(chr.toNormalisedString())) {
-				System.err.println("Missing chromosome: " + i);
-			}			
+			//Check that all chromosomes exist
+			Assert.assertEquals(("" + i), chr.toNormalisedString());
 		}
 		
 		file.delete();

@@ -283,7 +283,7 @@ public class TrackGroup implements ActionListener {
 
 	public StatusAnimation getStatusAnimation() {
 		if (statusAnimation == null) {
-			statusAnimation = new StatusAnimation(view.getQueueManager());
+			statusAnimation = new StatusAnimation(view.getQueueManager(), this);
 		}
 		return statusAnimation;
 	}

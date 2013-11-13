@@ -31,10 +31,11 @@ do
                    cd tmp_$$
                    echo ftp://ftp.ensembl.org/pub/current_fasta/ > ensembl_list
                    # bakteerit poitettu väliaikaisesti sillä niille ei ole MySQL tiedostoja
-                   #for ((number=1; number<=27; number++))
-                   #do
-                   #  echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
-                   #done
+                   for ((number=1; number<=27; number++))
+                   do
+                     echo ftp://ftp.ensemblgenomes.org/pub/bacteria/current/fasta/bacteria_"$number"_collection/ >> ensembl_list
+                   done
+                   ####
                    echo ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/ >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/metazoa/current/fasta/  >> ensembl_list
                    echo ftp://ftp.ensemblgenomes.org/pub/plants/current/fasta/ >> ensembl_list
@@ -281,7 +282,7 @@ do
         echo "The results have been wirtten to a file:"
         echo $gzipfile | sed s/".gz"/""/g
       else
-        gunzip < $gzipfile >>! $outfile
+        gunzip < $gzipfile >> $outfile
         rm -f $gzipfile
       fi
     fi
