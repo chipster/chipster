@@ -6,6 +6,7 @@
 # PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species needs to be specified in order to map genes to the genomic coordinates.)
 
 # MG 16.03.2012
+# IS  9.6.2013 Fixed sort order and changed output column name from 'chr' to 'chromosome' to be compatible with copy number scripts.
 # MK 10.06.2013, fixing biomaRt queries
 
 # Loads libraries into memory
@@ -80,16 +81,17 @@ annotated_genes <- annotated_genes [-grep( pattern="_", annotated_genes$chromoso
 chr_name <- character(length(probes_query))
 chr_start <- character(length(probes_query))
 chr_end <- character(length(probes_query))
-result_table <- data.frame(chr=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
 for (gene_count in 1:length(gene_symbols)) {
 	chr_name[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],2][1]
 	chr_start[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],3][1]
 	chr_end[gene_count] <- annotated_genes[annotated_genes$hgnc_symbol==gene_symbols[gene_count],4][1]
 }	
-result_table <- data.frame(chr=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
+result_table <- data.frame(chromosome=chr_name, start=chr_start, end=chr_end, dat, stringsAsFactors = FALSE)
 
 # Order the output based on chromosome and start position
-result_table <- result_table[order(result_table$chr, result_table$start),]
+result_table$chromosome <- factor(result_table$chromosome, levels=c(1:22, 'X', 'Y'), ordered=TRUE)
+result_table <- result_table[order(result_table$chromosome, result_table$start),]
+
 
 # Output the data table with added chromosome location info
 write.table(result_table, file="data-with-locations.tsv", sep="\t", row.names=T, col.names=T, quote=F)

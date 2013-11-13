@@ -19,6 +19,7 @@
 
 # KM 23.10.2012
 # EK 8.5.2013 replaced samtools -q 1 with Bowtie --no-unal to remove unaligned reads from BAM
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -40,7 +41,7 @@ command.start <- paste("bash -c '", bowtie.binary)
 rdg.value <- paste (rdg.open ,rdg.ext , sep=",")
 rfg.value <- paste (rfg.open ,rfg.ext , sep=",")
 
-parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, quality.format, "--no-unal")
+parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg", rfg.value, quality.format, "--no-unal", "-p", chipster.threads.max)
 
 if ( alignment.no>0){
 	if ( alignment.no==6){

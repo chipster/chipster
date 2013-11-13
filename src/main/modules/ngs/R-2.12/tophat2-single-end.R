@@ -20,6 +20,7 @@
 # AMS 19.6.2012 added unzipping
 # AMS 4.10.2012 added BED sorting
 # AMS 4.2.2013 added option to use no GTF
+# AMS 11.11.2013 Added thread support
 
 
 # check out if the file is compressed and if so unzip it
@@ -41,7 +42,7 @@ path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
 command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
-command.parameters <- paste("-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
+command.parameters <- paste("-p", chipster.threads.max, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-g", max.multihits, "--library-type fr-unstranded")
 
 # optional GTF command
 command.gtf <- ""
