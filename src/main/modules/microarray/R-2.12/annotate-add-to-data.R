@@ -44,8 +44,6 @@ annot$Gene.Ontology<-gsub("\'", "", annot$Gene.Ontology)
 datannot<-merge(dat, annot, by.x="row.names", by.y="row.names")
 rownames(datannot)<-datannot[,1]
 
-save.image(file="/tmp/matti/test2.Rdata")
-
 datannot<-datannot[,-1]
 
 # If Conditional mode run this

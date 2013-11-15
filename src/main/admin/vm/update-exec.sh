@@ -995,6 +995,20 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/genomebrowser/annotations/Drosophila_melanogaster.BDGP5.70* ${BACKUPDIR_PATH}/
   mv -b ${TOOLS_PATH}/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa ${BACKUPDIR_PATH}/
 
+  echo "** Removing FREEC_Linux64"
+  mv -b ${TOOLS_PATH}/FREEC_Linux64 ${BACKUPDIR_PATH}/
+  
+
+fi
+
+
+# 2.8.3
+compare_to_current_and_latest "2.8.3"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+    echo "** Installing R-3.0"
+    curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
 fi
   
 
@@ -1065,6 +1079,7 @@ function install_bundle()
   python3 bundle.py install $1.bowtie
   python3 bundle.py install $1.bowtie2
   python3 bundle.py install $1.bwa
+  python3 bundle.py install $1.gb
   python3 bundle.py install $1
 }
 

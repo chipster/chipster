@@ -27,6 +27,7 @@
 # KM 26.8.2011
 # AMS 19.6.2012 Added unzipping
 # KM 5.11.2012 Fixed a bug in reading mate pairs
+# AMS 11.11.2013 Added thread support
 
 
 # check out if the file is compressed and if so unzip it
@@ -62,7 +63,7 @@ if (total.edit >= 1) {
 }
 command.start <- paste("bash -c '", bwa.binary)
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
-mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
+mode.parameters <- paste("aln", "-t", chipster.threads.max, "-o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
 
 ###
 # run the first set

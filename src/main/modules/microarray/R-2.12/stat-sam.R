@@ -5,12 +5,9 @@
 # OUTPUT sam.png: sam.png 
 # OUTPUT sam-delta.pdf: sam-delta.pdf 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, BH: BH] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
 # PARAMETER random.number: random.number TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Random number)
 # PARAMETER number.of.delta: number.of.delta TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (How many different delta values are used)
-# PARAMETER delta.to.plot: delta.to.plot TYPE DECIMAL FROM 0.1 TO 100 DEFAULT 1 (Which delta value to plot or to use for reporting)
-
 
 # SAM analysis
 
@@ -46,25 +43,38 @@ if(column=="empty") {
 
 # Runs the test
 samout<-sam(dat2, groups, rand=random.number, control=samControl(n.delta=number.of.delta))
+delta_res <- findDelta(samout, fdr = p.value.threshold)
+if(is.null(delta_res)) {
+	write("No significant genes found *with this FDR cutoff*!", file="sam.tsv")
 
-# Plots the results
-bitmap(file="sam.png", width=600/72, height=600/72)
-plot(samout)
-dev.off()
+	bitmap(file="sam.png", width=600/72, height=600/72)
+	plot(samout)
+	dev.off()
 
-pdf(file="sam-delta.pdf", width=600/72, height=600/72)
-plot(samout, delta.to.plot)
-dev.off()
-
-# Generates report
-samsum<-summary(samout,delta.to.plot)
-if(nrow(samsum@mat.sig)>=1) {
-   dat3<-dat2[samsum@row.sig.genes,]
-   dat.sig<-samsum@mat.sig[,c(1,5,6)]
-   dat.sig<-dat.sig[order(dat.sig$Row),]
-   dat3<-data.frame(dat3, p.adjusted=dat.sig$q.value, FoldChange=dat.sig$R.fold)
-   write.table(dat3, file="sam.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	pdf(file="sam-delta.pdf", width=600/72, height=600/72)
+	plot(samout, samout@mat.fdr[1,1])
+	dev.off()
 } else {
-   write("No significant genes found *with this delta value*!", file="sam.tsv")
+	if(length(delta_res) == 3) {
+		delta_val <- delta_res[1]
+	} else {
+		delta_val <- delta_res[2,1]
+	}
+
+	# Plots the results
+	bitmap(file="sam.png", width=600/72, height=600/72)
+	plot(samout)
+	dev.off()
+
+	pdf(file="sam-delta.pdf", width=600/72, height=600/72)
+	plot(samout, delta_val)
+	dev.off()
+
+	samsum<-summary(samout,delta_val)
+	dat3<-dat2[samsum@row.sig.genes,]
+	dat.sig<-samsum@mat.sig[,c(1,5,6)]
+	dat.sig<-dat.sig[order(dat.sig$Row),]
+	dat3<-data.frame(dat3, p.adjusted=dat.sig$q.value, FoldChange=dat.sig$R.fold)
+	write.table(dat3, file="sam.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 

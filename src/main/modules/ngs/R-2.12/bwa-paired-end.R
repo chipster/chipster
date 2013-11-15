@@ -5,7 +5,7 @@
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa: "Rat genome (rn5\)", rn4.fa: "Rat genome (rn4\)", Canis_familiaris.CanFam3.1.71.dna.toplevel.fa: "Dog genome (Ensembl canFam3\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)",  ovis_aries_texel.fa: "Sheep (oar3.1\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (10.2\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel.fa: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10.fa: "A. thaliana genome (TAIR10\)", Arabidopsis_lyrata.v.1.0.16.fa: "A. Lyrata (1.0.16\)", Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa: "E. coli gemone (GCA_000303635.1.18\)"  ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa: "Rat genome (rn5\)", rn4.fa: "Rat genome (rn4\)", Canis_familiaris.CanFam3.1.71.dna.toplevel.fa: "Dog genome (Ensembl canFam3\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)",  ovis_aries_texel.fa: "Sheep (oar3.1\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (10.2\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel.fa: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10.fa: "A. thaliana genome (TAIR10\)", Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa: "E. coli genome (GCA_000303635.1.18\)"  ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 (Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled. Corresponds to the command line parameter -l) 
 # PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 (Maximum differences in the seed. Corresponds to the command line parameter -k )
 # PARAMETER total.edit: "Maximum edit distance for the whole read" TYPE DECIMAL DEFAULT 0.04 ( Maximum edit distance if the value is more than one. If the value is between 1 and 0 then it defines the fraction of missing alignments given 2% uniform base error rate. In the latter case, the maximum edit distance is automatically chosen for different read lengths. Corresponds to the command line parameter -n.)
@@ -26,6 +26,7 @@
 
 # KM 26.8.2011
 # AMS 19.6.2012 Added unzipping
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -46,7 +47,7 @@ if (total.edit >= 1) {
 	total.edit <- round(total.edit)
 }
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
-mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
+mode.parameters <- paste("aln", "-t", chipster.threads.max, "-o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
 
 
 ###

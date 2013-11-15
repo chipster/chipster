@@ -224,6 +224,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			c.gridy++;
 			c.insets.set(0,0,0,0);
 			coverageScaleBox = new JComboBox<ReadScale>(GBrowserPlot.ReadScale.values());
+			coverageScaleBox.setSelectedItem(GBrowserPlot.ReadScale.SMALL);
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);

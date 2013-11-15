@@ -127,7 +127,10 @@
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
-		</tool>		
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-fastafrombed.R</resource>
+		</tool>			
 	    <tool runtime="R-2.12">
 			<resource>test-data-in.R</resource>
 		</tool>	
@@ -298,7 +301,7 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		-->
-		<tool runtime="R-2.15">
+		<tool runtime="R-2.15_bioc-2.11">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.15_bioc-2.11">

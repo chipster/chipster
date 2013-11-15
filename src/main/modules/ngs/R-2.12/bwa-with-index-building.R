@@ -22,6 +22,7 @@
 
 # KM 24.8.2011
 # AMS 19.6.2012 Added unzipping
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -46,7 +47,7 @@ if (total.edit >= 1) {
 	total.edit <- round(total.edit)
 }
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
-mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length, "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
+mode.parameters <- paste("aln", "-t", chipster.threads.max, "-o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length, "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
 
 
 # command ending

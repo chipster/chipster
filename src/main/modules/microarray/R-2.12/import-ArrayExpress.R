@@ -2,12 +2,11 @@
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER accession: accession TYPE STRING DEFAULT E-MEXP-1422 (Accession number of the experiment.)
+# PARAMETER platform: platform TYPE STRING DEFAULT EMPTY (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 
-
-# 13.1.2010
-# JTT
-#
-# modified by MG, 30.4.2010 to add detection calls and remove offending characters
+# JTT: 13.1.2010
+# MG: 30.4.2010, add detection calls and remove offending characters
+# MK: 01.11.2013, add possibility to choose platform
 
 # Parameter settings (default) for testing purposes
 #accession<-"E-MEXP-1422"
@@ -17,6 +16,20 @@ library(ArrayExpress)
 
 # Loads the data
 dat<-ArrayExpress(accession)
+
+# if dataset contains multiple affy-sets, class is list
+if(class(dat)=="list") {
+   list_index <- NULL
+   for(i in 1:length(dat)) {
+      if(annotation(dat[[i]]) == platform) {
+            list_index <- i
+      }
+   }
+   if(is.null(list_index)) {
+      stop("CHIPSTER-NOTE: Platforms matching your query were not found from this dataset")
+   }
+   dat <- dat[[list_index]]
+}
 
 # Normalizes the raw data
 if(class(dat)=="AffyBatch") {

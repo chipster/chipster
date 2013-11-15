@@ -26,7 +26,7 @@ colnames (dat) [colnames(dat)=="Description"] <- "description"
 
 # Check whether there are symbols at all 
 symbols <- dat[,grep("symbol", names(dat))]
-descriptions <- dat[,grep("descriptions", names(dat))]
+descriptions <- dat[,grep("description", names(dat))]
 if (length(symbols)==0) {
 	stop("CHIPSTER-NOTE: You must provide gene symbols for this tool to work! Try first to add these using the \"Add annotations to data\" tool.")
 }
@@ -46,10 +46,7 @@ dat3<-matrix(ncol=ncol(dat2), nrow=nrow(test1), data=NA)
 # Combination
 for(i in 1:ncol(dat2)) {
 	m<-aggregate(dat2[,i], list(dat$symbol), mean)
-	# s<-aggregate(dat2[,i], list(dat$symbol), sd)
-	# s$x[is.na(s$x)]<-0
 	dat3[,i]<-m$x
-	# dat4[,i]<-s$x
 }
 
 # Second round of combination
@@ -87,8 +84,7 @@ if(produce.identifiers=="yes") {
 	
 	write.table(data.frame(dat6), file="combined.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	
-} else {
-	
+} else {	
 	# Putting a data file together
 	colnames(dat3)<-colnames(dat2)
 	# colnames(dat4)<-paste("sd.", colnames(dat2), sep="")
