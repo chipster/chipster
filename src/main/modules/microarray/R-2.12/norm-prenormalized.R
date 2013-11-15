@@ -17,8 +17,8 @@ library(limma)
 
 # Reading data
 columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
-annotation<-c("identifier")
-columns.other<-c("flag", "annotation")
+annotation<-c("identifier", "Identifier")
+columns.other<-c("flag", "annotation", "Flag", "Annotation")
 
 files<-dir()
 files<-files[files!="phenodata.tsv"]
@@ -28,6 +28,10 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 if (keep.annotations=="yes") {
 	annotation.info <- dat$other[[1]]
 	annotation.info <- as.character (annotation.info[,1])
+
+	if(length(annotation.info) == 0) {
+		keep.annotations="no"
+	}
 }
 
 # Mock normalization
@@ -71,8 +75,9 @@ if(chiptype!="cDNA") {
 }
 
 if(chiptype=="cDNA" & keep.annotations=="no") {
-	dat2 < data.frame(round(M2, digits=8))
+	dat2 <- data.frame(round(M2, digits=8))
 }
+
 if(chiptype=="cDNA" & keep.annotations=="yes") {
 	dat2 <- data.frame(annotations, round(M2, digits=8))
 }

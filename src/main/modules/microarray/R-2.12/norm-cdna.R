@@ -37,7 +37,11 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 dat2<-normalizeWithinArrays(dat, method=normwa, bc.method=bg, offset=as.numeric(background.offset))
 
 # Normalization across arrays
-dat3<-normalizeBetweenArrays(dat2, method=normba)
+if (normba=="vsn") {
+	dat3 <- normalizeVSN(dat)
+} else {
+	dat3<-normalizeBetweenArrays(dat2, method=normba)
+}
 
 # Modifies the phenodata table by writing one more row to it ((Affymetrix) chip type)
 sample<-paste(colnames(dat2$M), ".tsv", sep="")

@@ -28,16 +28,16 @@ if(chiptype=="empty") {
 	stop("You need to specify the chiptype. Please run the script again.")
 }
 if(chiptype=="human" & summary.feature=="exon") {
-	dat@cdfName<-"exon.pmcdf"
-	dat@annotation<-"exon.pmcdf"
+	dat@cdfName<-"huex10stv2hsensecdf"
+	dat@annotation<-"huex10stv2hsensecdf"
 }
 if(chiptype=="mouse" & summary.feature=="exon") {
-	dat@cdfName<-"mouseexonpmcdf"
-	dat@annotation<-"mouseexonpmcdf"
+	dat@cdfName<-"moex10stv1mmensecdf"
+	dat@annotation<-"moex10stv1mmensecdf"
 }
 if(chiptype=="rat" & summary.feature=="exon") {
-	dat@cdfName<-"ratexonpmcdf"
-	dat@annotation<-"ratexonpmcdf"
+	dat@cdfName<-"raex10stv1rnensecdf"
+	dat@annotation<-"raex10stv1rnensecdf"
 }
 
 if(chiptype=="human" & summary.feature=="gene") {

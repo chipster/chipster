@@ -7,9 +7,8 @@
 # PARAMETER missing.column.max: missing.column.max TYPE PERCENT DEFAULT 20 (Maximum number of missing values on a column)
 
 
-# Imputation of missing values by mean or median
-# JTT 22.6.2006
-# modified, IS, 12.10.2012, to cope with tables with gene descriptions (that typically contain 's)
+# JTT 22.06.2006: Imputation of missing values by mean or median
+# IS  12.10.2012: to cope with tables with gene descriptions (that typically contain 's)
 
 # Parameter settings (default) for testing purposes
 #imputation.method<-c("mean")
@@ -45,6 +44,12 @@ if(method=="mean" | method=="median") {
 }
 if(method=="knn") {
 	library(impute)
+
+	if(max(apply(dat2, 2, function(z) sum(is.na(z))) / nrow(dat2)) > cmax) {
+		namax <- max(apply(dat2, 2, function(z) sum(is.na(z))) / nrow(dat2))
+		stop(paste("CHIPSTER-NOTE: One of your columns has more NAs than anticipated. Please choose another imputation method or set missing.row.max to ", round(namax, 2)*100, "%", sep=""))
+	}
+
 	dat.impute<-impute.knn(as.matrix(dat2), k = K, rowmax = rmax, colmax = cmax, maxp = "p")
 	dat.impute<-data.frame(dat.impute$data, calls)
 }

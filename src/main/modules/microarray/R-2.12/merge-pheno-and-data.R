@@ -11,7 +11,7 @@ file<-c("phenodata.tsv")
 dat1<-read.table(file, sep="\t", header=T, row.names=1,  quote = "")
 
 file<-c("normalized.tsv")
-dat2<-read.table(file, sep="\t", header=T, row.names=1,  quote = "")
+dat2<-read.table(file, sep="\t", header=T, row.names=1,  quote = "", check.names = FALSE)
 
 #create an empty matrix
 temp <- data.frame(matrix(NA, ncol=ncol(dat2), nrow=ncol(dat1)+1))
@@ -29,7 +29,8 @@ for(i in 1:length(prefixes)) {
 	dat3[2:(ncol(dat1)+1), cols] <- t(temp)
 }
 
-rownames(dat3) <- make.names(c("sample", colnames(dat1), rownames(dat2)), unique=TRUE)
+#rownames(dat3) <- make.names(c("sample", colnames(dat1), rownames(dat2)), unique=TRUE)
+dat3 <- data.frame(dat3, row.names=c("sample", colnames(dat1), rownames(dat2)), check.names = FALSE)
 
 # Writes out the combined table
 if(excel.file == "no") {
@@ -37,3 +38,5 @@ if(excel.file == "no") {
 } else {
 	write.table(dat3, "merged.tsv", sep="\t", row.names=T, col.names=NA, quote=F)
 }
+
+
