@@ -141,7 +141,7 @@
 			</parameter>
 			<parameter>
 				<name>toolPath</name>
-				<value>/R-3.0</value>
+				<value>/R</value>
 			</parameter>
 			<parameter>
 				<name>externalToolPath</name>
