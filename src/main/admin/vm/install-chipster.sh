@@ -473,13 +473,16 @@ then
 
   # BEDTools, GNU GPL v2
   cd ${TMPDIR_PATH}/
-  curl -s http://bedtools.googlecode.com/files/BEDTools.v2.12.0.tar.gz | tar -xz
-  cd BEDTools-Version-2.12.0
+  curl -s http://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz | tar -xz
+  cd bedtools-2.17.0
   make clean
   make all
   cd ../
-  mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
-  ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
+  mv bedtools-2.17.0 ${TOOLS_PATH}/
+  ln -s bedtools-2.17.0 ${TOOLS_PATH}/bedtools
+
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bedtools-2.17.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
 
   # MACS, Artistic license
   # part 2
