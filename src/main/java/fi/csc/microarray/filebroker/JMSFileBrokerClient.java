@@ -26,10 +26,12 @@ import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.ReplyMessageListener;
+import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.UrlListMessageListener;
 import fi.csc.microarray.messaging.UrlMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.SuccessMessage;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
@@ -440,15 +442,15 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public void removeRemoteSession(URL sessionURL) throws JMSException {
-		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
 			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_URL, sessionURL.toExternalForm()); 
 			filebrokerTopic.sendReplyableMessage(removeRequestMessage, replyListener);
-			ParameterMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
+			SuccessMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 			
-			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
+			if (reply == null || !reply.success()) {
 				throw new JMSException("failed to remove session");
 			}
 			

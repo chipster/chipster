@@ -15,6 +15,7 @@ import fi.csc.chipster.web.adminweb.ui.ServicesView;
 import fi.csc.chipster.web.adminweb.ui.StatView;
 import fi.csc.chipster.web.adminweb.ui.StorageView;
 
+@SuppressWarnings("serial")
 @Theme("admin")
 public class ChipsterAdminUI extends UI implements DetachListener {
 

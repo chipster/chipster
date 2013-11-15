@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +33,7 @@ import fi.csc.microarray.messaging.message.BooleanMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.SuccessMessage;
 import fi.csc.microarray.messaging.message.UrlListMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -490,25 +490,33 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException, SQLException {
+	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException {
+		
+		SuccessMessage reply;
+		try {
 
-		// parse request, if no uuid, try to get url, which was the old way
-		String uuid = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
-		if (uuid == null) {
-			URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
-			uuid = IOUtils.getFilenameWithoutPath(url);
+			// parse request, if no uuid, try to get url, which was the old way
+			String uuid = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+			if (uuid == null) {
+				URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
+				uuid = IOUtils.getFilenameWithoutPath(url);
+			}
+
+			// remove from database (including related data)
+			List<String> removedFiles = metadataServer.removeSession(uuid);
+
+			// remove from filesystem
+			for (String removedFile : removedFiles) {
+				new File(storageRoot, removedFile).delete();
+			}
+
+			// reply
+			reply = new SuccessMessage(true);
+		} catch (Exception e) {
+			reply = new SuccessMessage(false, e);
 		}
-		
-		// remove from database (including related data)
-		List<String> removedFiles = metadataServer.removeSession(uuid);
-		
-		// remove from filesystem
-		for (String removedFile : removedFiles) {
-			new File(storageRoot, removedFile).delete();
-		}
-		
-		// reply
-		CommandMessage reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
+
+		// send
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 

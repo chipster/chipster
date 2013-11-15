@@ -20,12 +20,13 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
-import fi.csc.microarray.messaging.ReplyMessageListener;
+import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
+import fi.csc.microarray.messaging.message.SuccessMessage;
 
 /**
  * This class uses JMS messages to send data queries and converts result messages to
@@ -75,19 +76,18 @@ public class StorageAdminAPI {
 	}
 	
 	public void deleteRemoteSession(String sessionID) throws JMSException {
-		ReplyMessageListener replyListener = new ReplyMessageListener();  
+		SuccessMessageListener replyListener = new SuccessMessageListener();  
+		
 		
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
 			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionID); 
 			filebrokerAdminTopic.sendReplyableMessage(removeRequestMessage, replyListener);
-			System.out.println("starting to wait");
-			ParameterMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
-			System.out.println("done waiting");
 
+			SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
 			
-			if (reply == null || !(reply instanceof CommandMessage) || !CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL.equals((((CommandMessage)reply).getCommand()))) {
-				System.out.println("failas se");
+			if (reply == null || !reply.success()) {
+				// FIX ME, communicate properly
 				throw new JMSException("failed to remove session");
 			}
 			
@@ -95,9 +95,6 @@ public class StorageAdminAPI {
 			replyListener.cleanUp();
 		}
 	}
-
-	
-	
 	
 	
 	private class StorageEntryMessageListener extends TempTopicMessagingListenerBase {
