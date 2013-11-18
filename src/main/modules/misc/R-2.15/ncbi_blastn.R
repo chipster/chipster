@@ -79,25 +79,25 @@ if (outfmt > 5) {
 }
 
 
-if ( gapopen != "Default" ) {
-	if ( gapextend == "Default" ){
+if ( gapopen != "default" ) {
+	if ( gapextend == "default" ){
 		stop(paste("If you define gap opening penalty you must also define gap extension pelalty"))
 	}
 }
 
-if ( gapextend != "Default" ) {
-	if ( gapopen == "Default" ){
+if ( gapextend != "default" ) {
+	if ( gapopen == "default" ){
 		stop(paste("If you define gap opening penalty you must also define gap extension pelalty"))
 	}
 }
 
-if ( gapopen !=  "Default"){
-	if ( gapextend != "Default" ){
+if ( gapopen !=  "default"){
+	if ( gapextend != "default" ){
 		optional.parameters <- paste(optional.parameters, " -gapopen ", gapopen, "-gapextend" , gapextend )	
 	}
 }
 
-if ( word_size !=  "Default"){
+if ( word_size !=  "default"){
 	optional.parameters <- paste(optional.parameters, "-word_size", word_size )
 }
 
@@ -105,11 +105,11 @@ if ( query_loc != "full length"){
 	optional.parameters <- paste(optional.parameters, " -query_loc ", query_loc )
 }
 
-if ( reward != "Default"){
+if ( reward != "default"){
 	optional.parameters <- paste(optional.parameters, " -reward ", reward )
 }
 
-if ( penalty != "Default"){
+if ( penalty != "default"){
 	optional.parameters <- paste(optional.parameters, " -penalty ", penalty )
 }
 command.end <- (paste(" >>", "blast.log 2>&1"))
