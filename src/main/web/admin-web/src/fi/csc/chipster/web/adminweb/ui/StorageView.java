@@ -1,8 +1,17 @@
 package fi.csc.chipster.web.adminweb.ui;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -19,12 +28,18 @@ import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
+import fi.csc.chipster.web.adminweb.data.StorageAdminAPI;
 import fi.csc.chipster.web.adminweb.data.StorageAggregate;
 import fi.csc.chipster.web.adminweb.data.StorageAggregateContainer;
 import fi.csc.chipster.web.adminweb.data.StorageEntryContainer;
 import fi.csc.chipster.web.adminweb.util.StringUtils;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.exception.MicroarrayException;
 
+@SuppressWarnings("serial")
 public class StorageView extends VerticalLayout implements ClickListener, ValueChangeListener {
+	
+	private static final Logger logger = Logger.getLogger(StorageView.class);
 
 	private static final String DISK_USAGE_BAR_CAPTION = "Total disk usage";
 	private StorageEntryTable entryTable;
@@ -42,8 +57,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	private HorizontalLayout storagePanels;
 	
 	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
-	private boolean updateDone;
+
+	private StorageAdminAPI adminEndpoint;
 	private static final int POLLING_INTERVAL = 100;
+	
+	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	public StorageView(ChipsterAdminUI app) {
 
@@ -93,89 +111,89 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		this.setExpandRatio(storagePanels, 1);
 		
 		try {
-			entryDataSource = new StorageEntryContainer();
-			aggregateDataSource = new StorageAggregateContainer(entryDataSource);
+			
+			adminEndpoint = new StorageAdminAPI();
+			entryDataSource = new StorageEntryContainer(adminEndpoint);
+			aggregateDataSource = new StorageAggregateContainer(adminEndpoint);
 			
 			entryTable.setContainerDataSource(entryDataSource);
 			aggregateTable.setContainerDataSource(aggregateDataSource);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (JMSException | IOException | IllegalConfigurationException | MicroarrayException | InstantiationException | IllegalAccessException e) {
+			logger.error(e);
 		}		
 	}
 
 	public void update() {
 		
-		entryDataSource.update(this);
+		updateStorageAggregates();
+	}
+	
+	private void waitForUpdate(final Future<?> future) {				
+					
+		//This makes the browser start polling, but the browser will get it only if the following line is executed in this original thread.
+		setProgressIndicatorValue(0f);
 		
-		//Disable during data update avoid concurrent modification
-		refreshButton.setEnabled(false);
-		
-		updateDone = false;
-		
-		progressIndicator.setPollingInterval(POLLING_INTERVAL);
-		
-		ExecutorService execService = Executors.newCachedThreadPool();
-		execService.execute(new Runnable() {
-			public void run() {
-				
-				try {
+		executor.execute(new Runnable() {
+			public void run() {								
+				try {									
 					/* Separate delay from what happens in the Container, because communication between
 					 * threads is messy. Nevertheless, these delays should have approximately same duration
 					 * to prevent user from starting several background updates causing concurrent modifications.   
 					 */
 					final int DELAY = 300; 				
 					for (int i = 0; i <= DELAY; i++) {
-						
-						if (updateDone) {							
+
+						try {
+							future.get(POLLING_INTERVAL, TimeUnit.MILLISECONDS);
 							break;
-						}
-
-						//This happens in initialisation 
-						if (progressIndicator.getUI() != null ) {
-							
-							Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-							
-							//Component has to be locked before modification from background thread
-							indicatorLock.lock();					
-							try {
-								progressIndicator.setValue((float)i/DELAY);
-							} finally {
-								indicatorLock.unlock();
-							}
-						}
-
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							//Just continue
+						} catch (TimeoutException e) {
+							//No results yet, update progress bar							
+							setProgressIndicatorValue((float)i/DELAY);			
 						}
 					}
-					
-				} finally {
-					refreshButton.setEnabled(true);
-					
-					if (progressIndicator.getUI() != null) {
-						Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+					//Update was successful
+					entryUpdateDone();
 
-						indicatorLock.lock();					
-						try {
-							progressIndicator.setValue(1.0f);
-							progressIndicator.setPollingInterval(Integer.MAX_VALUE);
-						} finally {
-							indicatorLock.unlock();
-						}
-					}
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				} finally {				
+					setProgressIndicatorValue(1.0f);
 				}
 			}
 		});
 	}
+	
+	private void setProgressIndicatorValue(float value) {
+		//This happens in initialization 
+		if (progressIndicator.getUI() != null ) {
+			
+			Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
+			
+			//Component has to be locked before modification from background thread
+			indicatorLock.lock();					
+			try {
+				progressIndicator.setValue(value);
+				
+				if (value == 1.0f) {
+					refreshButton.setEnabled(true);
+					progressIndicator.setPollingInterval(Integer.MAX_VALUE);	
+				} else {
+					refreshButton.setEnabled(false);
+					progressIndicator.setPollingInterval(POLLING_INTERVAL);
+				}
+			} finally {
+				indicatorLock.unlock();
+			}
+		}
+	}
 
 	private void updateDiskUsageBar() {
 		
-		long used = aggregateDataSource.getDiskUsage();
-		long total = aggregateDataSource.getDiskAvailable() + used;
+//		long used = aggregateDataSource.getDiskUsage();
+//		long total = aggregateDataSource.getDiskAvailable() + used;
+		
+		long used = 250000000000l;
+		long total = 500000000000l;
 		
 		diskUsageBar.setValue(used / (float)total);
 		diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
@@ -227,8 +245,9 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		final Button source = event.getButton();
 
 		if (source == refreshButton) {
-			
+						
 			update();
+			updateStorageEntries(null);
 //			entryDataSource.update(this);
 //			aggregateDataSource.update(this);
 //			updateDiskUsageBar();
@@ -238,25 +257,37 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	public void valueChange(ValueChangeEvent event) {
 		Property<?> property = event.getProperty();
 		if (property == aggregateTable) {
-			updateEntryFilter();
-			StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
-
-			if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-				entryDataSource.showUser(null);
-			} else {
-			}
+						
+			Object tableValue = aggregateTable.getValue();
+			if (tableValue instanceof StorageAggregate) {
+				StorageAggregate storageUser = (StorageAggregate) tableValue;
+				updateStorageEntries(storageUser.getUsername());
+			}			
 		}
 	}
 	
-	public void updateEntryFilter() {
-		
-		StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
+	private void updateStorageEntries(final String username) {
+		Future<?> future = executor.submit(new Runnable() {
 
-		if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-			entryDataSource.showUser(null);
-		} else {
-			entryDataSource.showUser(selection.getUsername());
-		}
+			@Override
+			public void run() {				
+				entryDataSource.update(StorageView.this, username);
+			}			
+		});
+		
+		waitForUpdate(future);
+	}
+	
+	private void updateStorageAggregates() {
+		Future<?> future = executor.submit(new Runnable() {
+
+			@Override
+			public void run() {				
+				aggregateDataSource.update(StorageView.this);
+			}			
+		});
+		
+		waitForUpdate(future);
 	}
 	
 	public ChipsterAdminUI getApp() {
@@ -265,11 +296,16 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	public void delete(Object itemId) {
 		//TODO are you sure?
-		//TODO remove from the server
+		try {
+			adminEndpoint.deleteRemoteSession(entryDataSource.getItem(itemId).getBean().getID());
+		} catch (JMSException e) {
+			logger.warn("could not delete session", e);
+			return;
+		}
+		
 		entryDataSource.removeItem(itemId);
 		
 		aggregateDataSource.update(this);
-		updateEntryFilter();
 		updateDiskUsageBar();
 	}
 	
@@ -296,11 +332,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
 			aggregateTableLock.lock();
 			try {						
-				StorageAggregate totalItem = aggregateDataSource.update(this);
+				//StorageAggregate totalItem = aggregateDataSource.update(this);
 
-				aggregateTable.select(totalItem);
+				//aggregateTable.select(totalItem);
 				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);				
 
 			} finally {
 				aggregateTableLock.unlock();
@@ -316,11 +352,15 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 				proggressIndicatorLock.unlock();
 			}
 		}
-
-		this.updateDone = true;
 	}
 
 	public AbstractClientConnector getEntryTable() {
 		return entryTable;
+	}
+
+	public void clean() {
+		if (adminEndpoint != null) {
+			adminEndpoint.clean();
+		}
 	}
 }

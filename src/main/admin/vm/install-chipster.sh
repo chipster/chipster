@@ -409,6 +409,22 @@ then
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  ## R-3.0 (lite):
+  R_VER=3.0.2
+  cd ${TMPDIR_PATH}/
+  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
+  cd R-${R_VER}/
+  export MAKEFLAGS=-j
+  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
+  make
+  make install
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  cd ../
+  rm -rf R-${R_VER}/
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-3.0/install-libs-lite.R   
+
+  # could also use the package from nic
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
@@ -457,13 +473,16 @@ then
 
   # BEDTools, GNU GPL v2
   cd ${TMPDIR_PATH}/
-  curl -s http://bedtools.googlecode.com/files/BEDTools.v2.12.0.tar.gz | tar -xz
-  cd BEDTools-Version-2.12.0
+  curl -s http://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz | tar -xz
+  cd bedtools-2.17.0
   make clean
   make all
   cd ../
-  mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
-  ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
+  mv bedtools-2.17.0 ${TOOLS_PATH}/
+  ln -s bedtools-2.17.0 ${TOOLS_PATH}/bedtools
+
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bedtools-2.17.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
 
   # MACS, Artistic license
   # part 2

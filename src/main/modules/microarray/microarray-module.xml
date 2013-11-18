@@ -142,6 +142,8 @@
 		<tool runtime="R-2.12"><resource>plot-histogram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-corrgram.R</resource></tool>
 		<tool runtime="R-2.12"><resource>plot-heatmap.R</resource></tool>
+		<tool runtime="R-3.0"><resource>plot-annoheatmap.R</resource></tool>
+	
 	</category>
 
 	<category name="Utilities" color="#83010b">

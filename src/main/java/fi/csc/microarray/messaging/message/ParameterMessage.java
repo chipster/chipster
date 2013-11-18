@@ -44,10 +44,14 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_DISK_SPACE = "disk-space";
 	public static final String PARAMETER_URL = "url";
 	public static final String PARAMETER_SESSION_UUID = "session-uuid";
+	public static final String PARAMETER_SESSION_URL = "session-url"; // to be removed
 	public static final String PARAMETER_SESSION_NAME = "session-name";
 	public static final String PARAMETER_SESSION_NAME_LIST = "session-name-list";
 	public static final String PARAMETER_SESSION_UUID_LIST = "session-uuid-list";
-	public static final String PARAMETER_FILE_ID_LIST = "file-id-list";
+	public static final String PARAMETER_FILE_ID_LIST = "file-id-list";	
+	public static final String PARAMETER_USERNAME_LIST = "username-list";
+	public static final String PARAMETER_SIZE_LIST = "size-list";
+	public static final String PARAMETER_DATE_LIST = "date-list";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();

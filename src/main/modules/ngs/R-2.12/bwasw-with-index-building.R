@@ -19,6 +19,7 @@
 
 # KM 24.8.2011
 # AMS 19.6.2012 Added unzipping
+# AMS 11.11.2013 Added thread support
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -39,7 +40,7 @@ bwa.genome <- file.path( genome.dir , "genome.txt")
 
 
 # algorithm parameters
-mode.parameters <- paste("bwasw -t 2 -b", mismatch.penalty , "-q" , gap.opening , "-r" , gap.extension , "-a" , match.score , "-w" , band.width , "-T" , min.score , "-c" , threshold.coeff , "-z" , z.best , "-s" , sa.interval , "-N" , min.support)
+mode.parameters <- paste("bwasw", "-t", chipster.threads.max, "-b", mismatch.penalty , "-q" , gap.opening , "-r" , gap.extension , "-a" , match.score , "-w" , band.width , "-T" , min.score , "-c" , threshold.coeff , "-z" , z.best , "-s" , sa.interval , "-N" , min.support)
 
 # command ending
 command.end <- paste( bwa.genome , "reads.txt 1> alignment.sai 2>> bwa.log'")

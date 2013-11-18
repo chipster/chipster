@@ -3,12 +3,22 @@ package fi.csc.chipster.web.adminweb.data;
 import java.io.Serializable;
 import java.util.Date;
 
+@SuppressWarnings("serial")
 public class StorageEntry implements Serializable {
 	
+	private String id;
 	private String username;
 	private String name;
 	private Date date;
 	private long size;
+	
+	public String getID() {
+		return id;
+	}
+	
+	public void setID(String id) {
+		this.id = id;
+	}
 	
 	public String getUsername() {
 		return username;

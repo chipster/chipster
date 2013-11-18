@@ -1,14 +1,13 @@
 package fi.csc.chipster.web.adminweb.hbncontainer;
 
 
+import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.chipster.web.adminweb.data.AccountEntry;
@@ -22,7 +21,7 @@ import fi.csc.microarray.util.Exceptions;
 
 public class HibernateUtil {
 	
-	private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
+	private static final Logger logger = Logger.getLogger(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
 
     static {
