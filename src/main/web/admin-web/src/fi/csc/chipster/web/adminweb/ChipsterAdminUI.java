@@ -1,6 +1,7 @@
 package fi.csc.chipster.web.adminweb;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -14,8 +15,9 @@ import fi.csc.chipster.web.adminweb.ui.ServicesView;
 import fi.csc.chipster.web.adminweb.ui.StatView;
 import fi.csc.chipster.web.adminweb.ui.StorageView;
 
+@SuppressWarnings("serial")
 @Theme("admin")
-public class ChipsterAdminUI extends UI {
+public class ChipsterAdminUI extends UI implements DetachListener {
 
 	private HorizontalLayout horizontalSplit;
 
@@ -167,5 +169,14 @@ public class ChipsterAdminUI extends UI {
 	protected void init(VaadinRequest request) {
 		
 		buildMainLayout();
+		
+		addDetachListener(this);
+	}
+
+	@Override
+	public void detach(DetachEvent event) {
+		if (storageView != null) {
+			storageView.clean();
+		}
 	}
 }

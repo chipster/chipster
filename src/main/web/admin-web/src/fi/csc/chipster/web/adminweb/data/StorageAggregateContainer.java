@@ -1,15 +1,20 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.data.util.BeanItemContainer;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
 
-public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements
-Serializable {
+public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements Serializable {
+	
+	private static final Logger logger = Logger.getLogger(StorageAggregateContainer.class);
 	
 	public static final String USERNAME = "username";
 	public static final String SIZE = "size";
@@ -20,11 +25,6 @@ Serializable {
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Total size" };
 	
-	
-
-	public final String TOTAL_USERNAME = "TOTAL";
-
-	private StorageEntryContainer entryContainer;
 
 	public long getDiskUsage() {
 		return diskUsage;
@@ -36,53 +36,39 @@ Serializable {
 
 	private long diskUsage = 0;
 	private long diskAvailable = 0;
+	private StorageAdminAPI adminEndpoint;
 
-	public StorageAggregateContainer(StorageEntryContainer entryContainer) throws InstantiationException,
+	public StorageAggregateContainer(StorageAdminAPI adminEndpoint) throws InstantiationException,
 	IllegalAccessException {
 		super(StorageAggregate.class);
-		
-		this.entryContainer = entryContainer;
+		this.adminEndpoint = adminEndpoint;
 	}
+	
+	public void update(final StorageView view) {
+		
+		List<StorageAggregate> entries;
+		try {
+			entries = adminEndpoint.listStorageUsageOfUsers();		
 
-	public StorageAggregate update(final StorageView view) {
+			//Following is null if data loading in this thread
+			//was faster than UI initialisation in another thread
+			if (view.getEntryTable().getUI() != null) {
+				Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+				tableLock.lock();
+				try {
+					removeAllItems();
 
-		removeAllItems();
-		
-		long totalSize = 0;
+					for (StorageAggregate entry : entries) {
+						addBean(entry);
+					}
 
-		HashMap<String, Long> aggregateMap = new HashMap<String, Long>();
-		
-		entryContainer.removeAllContainerFilters();
-		
-		for (StorageEntry entry : entryContainer.getItemIds()) {
+				} finally {
+					tableLock.unlock();
+				}
+			}		
 			
-			String username = entry.getUsername();
-			if (!aggregateMap.containsKey(username)) {
-				aggregateMap.put(username, entry.getSize());
-			} else {
-				aggregateMap.put(username, aggregateMap.get(username) + entry.getSize());
-			}
-			
-			totalSize += entry.getSize();
-		}
-		
-		StorageAggregate totalBean = new StorageAggregate();
-		totalBean.setUsername(TOTAL_USERNAME);
-		totalBean.setSize(totalSize);
-		this.addBean(totalBean);
-		
-		for (Entry<String, Long> aggregate : aggregateMap.entrySet()) {
-			
-			StorageAggregate bean = new StorageAggregate();
-			bean.setUsername(aggregate.getKey());
-			bean.setSize(aggregate.getValue());
-			
-			this.addBean(bean);
-		}
-				
-		this.diskUsage = totalSize;
-		this.diskAvailable = 500000000000l;
-		
-		return totalBean;
+		} catch (JMSException | InterruptedException e) {
+			logger.error(e);
+		}			
 	}
 }
