@@ -12,6 +12,10 @@ import org.apache.log4j.Logger;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import com.vaadin.server.Page;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+
 import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -86,11 +90,11 @@ public class StorageAdminAPI {
 
 			SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
 			
-			if (reply == null || !reply.success()) {
-				// FIX ME, communicate properly
-				throw new JMSException("failed to remove session");
+			if (reply == null ) {
+				showFailNotification("Delete session failed", "No reply before timeout");
+			} else if (!reply.success()) {
+				showFailNotification("Delete session failed", reply);
 			}
-			
 		} finally {
 			replyListener.cleanUp();
 		}
@@ -204,4 +208,36 @@ public class StorageAdminAPI {
 			}
 		}
 	}
+	
+	
+	private void showFailNotification(String title, String description) {
+		Notification notification = new Notification(title + "\n", description, Type.WARNING_MESSAGE);
+		notification.setDelayMsec(-1);
+		notification.setHtmlContentAllowed(false);
+		notification.show(Page.getCurrent());
+
+		
+	}
+	
+	private void showFailNotification(String title, SuccessMessage message) {
+		String description = "";
+		String lineBreak = "\n\n";
+		if (message.getErrorMessage() != null && !message.getErrorMessage().isEmpty()) {
+			description += message.getErrorMessage() + lineBreak;
+		}
+		
+		if (message.getDetails() != null && !message.getDetails().isEmpty()) {
+			description += message.getDetails() + lineBreak;
+		}
+
+		if (message.getExceptionString() != null && !message.getExceptionString().isEmpty()) {
+			description += message.getExceptionString() + lineBreak;
+		}
+		
+		if (description.endsWith(lineBreak)) {
+			description = description.substring(0, description.length() - lineBreak.length());
+		}
+		showFailNotification(title, description);
+	}
+	
 }
