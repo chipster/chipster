@@ -12,9 +12,7 @@ public class SuccessMessageListener extends TempTopicMessagingListenerBase {
 	private CountDownLatch latch = new CountDownLatch(1);
 
 	public void onChipsterMessage(ChipsterMessage msg) {
-		System.out.println("tuli viesti");
 		if (msg instanceof SuccessMessage) {
-			System.out.println("on success");
 			this.message = (SuccessMessage) msg;
 			latch.countDown();
 		}
