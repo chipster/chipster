@@ -91,6 +91,9 @@ implements PropertyChangeListener, SelectionChangeListener {
 	private static final float END_COLOR_G = 0.0f;
 	private static final float END_COLOR_B = 0.0f;
 
+	/**
+	 * Calculates Color that corresponds to position in the gradient.
+	 */
 	private static Color getColor(float position) {
 		boolean beforeMiddle = position < 0.5f;
 		float gradientPosition = beforeMiddle ? position * 2.0f : (position-0.5f) * 2.0f;
@@ -107,8 +110,15 @@ implements PropertyChangeListener, SelectionChangeListener {
 			b = MIDDLE_COLOR_B * invGradientPosition + END_COLOR_B * gradientPosition;
 		}
 
-		return new Color(r, g, b);			
+		return new Color(limit(r), limit(g), limit(b));			
 	}		
+
+	/**
+	 * Safe guards float values between 0-1.
+	 */
+	private static float limit(float f) {
+		return Math.max(0.0f,  Math.min(1.0f, f));
+	}
 	
 	public static class ProfileRow implements Comparable<ProfileRow> {
 		int series;
