@@ -35,6 +35,11 @@ if(method == "illumina") {
 	dat2<-data.frame(dat2)
 	rownames(dat2)<-cursam$"SNP Name"
 	colnames(dat2)<-paste("chip.", ids, sep="")
+
+	chiptype<-"Illumina-SNP"
+	sample<-colnames(dat2)
+	group<-c(rep("", ncol(dat2)))
+	write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 } else {	
 	library(crlmm)
 	library(Biobase)
@@ -100,16 +105,12 @@ if(method == "illumina") {
 	} else {
 		dat2 <- genotypes
 	}
-}
 
-# Writes out a phenodata table
-chiptype<-"Illumina"
-sample<-colnames(dat2)
-group<-c(rep("", ncol(dat2)))
-training<-c(rep("", ncol(dat2)))
-time<-c(rep("", ncol(dat2)))
-random<-c(rep("", ncol(dat2)))
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	chiptype<-c(rep("Illumina-SNP", ncol(genotypes)))
+	sample<-colnames(genotypes)
+	group<-c(rep("", ncol(genotypes)))
+	write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
 
 # Writing data to disk
 write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)

@@ -5,18 +5,11 @@
 # PARAMETER test.for: test.for TYPE [Hardy-Weinberg: Hardy-Weinberg, association: association] DEFAULT association (What to test for)
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to compare)
 
-
-# Association analysis with normalized SNP data
-# 25.4.2008
-#
-# modified by MG, 14.10.2009
-
-# Parameter settings (default) for testing purposes
-#test.for<-c("association")
-#column<-c("group")
+# JTT: 25.4.2008: Association analysis with normalized SNP data
+# MG, 14.10.2009: modified 
 
 # Read in data
-dat<-read.table("normalized.tsv", header=T, sep="\t", row.names=1)
+dat<-read.table("normalized.tsv", header=T, sep="\t", row.names=1, comment.char = "")
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -66,17 +59,8 @@ if(test.for=="association") {
    # Testing for difference between two groups
    library(scrime)
    
-   
-############################
-# MG ADDED THESE TWO LINES #
-############################
-
    dat2<-dat[,grep("chip", names(dat))]
    dat2<-as.matrix(dat2)
-   
-############################
-   
-   
    
    p<-rowChisqStats(dat2, cl=groups, compPval = TRUE)
    p<-p$rawp

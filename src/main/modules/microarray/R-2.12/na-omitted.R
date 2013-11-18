@@ -3,8 +3,7 @@
 # OUTPUT na-omitted.tsv: na-omitted.tsv 
 
 
-# Removal of missing values
-# JTT 22.6.2006
+# JTT 22.6.2006: Removal of missing values 
 
 # Loads the file
 file<-c("normalized.tsv")

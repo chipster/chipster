@@ -14,9 +14,9 @@
 # PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
 
-# Illumina methylation array data preprocessing and normalization for FinalReport file
-# JTT 2.2.2011
-# Modified 25.9.2012 and 28.10.2012 by JTT
+# JTT: 02.02.2011: Illumina methylation array data preprocessing and normalization for FinalReport file
+# JTT: 25.09.2012: Modified
+# JTT: 28.10.2012: Modified
 
 # setwd("C://Users//Jarno Tuimala//Desktop//methylumi data")
 # color.balance.adjustment<-c("quantile")

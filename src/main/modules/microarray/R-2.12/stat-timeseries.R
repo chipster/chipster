@@ -1,51 +1,27 @@
-# TOOL stat-timeseries.R: "Time series" (Analyses of time series data. Finds periodically expressed genes. For the ICA method, a standard deviation threshold for significantly differentially expressed genes is needed. If there are more than one replicate per time point, this tool will not work. For maSigPro:phenodata:description must be unique,add column for time information,default column group is used as edesign.abiotic column replicate,add at least one column for each experimental condition as described in http://www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf for edesign.abiotic;all parameters are default except vars="all")
+# TOOL stat-timeseries.R: "Time series" (Analyses of time series data. The ICA and periodicity methods can handle only single time course microarray experiments, whereas maSigPro is suitable also for the analysis of multiseries time course microarray experiments.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT timeseries.tsv: timeseries.tsv 
 # OUTPUT profiles.pdf: profiles.pdf 
-# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the time to test)
-# PARAMETER analysis.type: analysis.type TYPE [periodicity: periodicity, ica: ica, maSigPro: maSigPro] DEFAULT periodicity (Analysis type)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [yes: yes, no: no] DEFAULT yes (Apply Benjamimi-Hochberg correction?)
-# PARAMETER SD.for.ICA: SD.for.ICA TYPE DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
-# PARAMETER k.for.maSigPro: k.for.maSigPro TYPE DECIMAL FROM 0 TO 1000 DEFAULT 9 (maSigPro see.genes k=9)
-# PARAMETER degree.for.maSigPro: degree.for.maSigPro TYPE DECIMAL FROM 0 TO 1000 DEFAULT 2 (maSigPro make.design.matrix degree=2)
-# PARAMETER rsq.for.maSigPro: rsq.for.maSigPro TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.7 (maSigPro get.siggenes rsq=0.7)
+# PARAMETER analysis.type: "analysis type" TYPE [periodicity: periodicity, ica: ica, maSigPro: maSigPro] DEFAULT periodicity (Analysis type)
+# PARAMETER column: "Time column" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the time to test)
+# PARAMETER rep.column: "Replicate column for maSigPro" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column indicating the replicate groups)
+# PARAMETER other.start: "First experimental column for maSigPro" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata should include columns that give the assignment of arrays to experimental groups. There should be as many columns as experimental groups and these columns should reside side by side. Set this parameter to the first such column)
+# PARAMETER other.end: "Last experimental column for maSigPro" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata should include columns that give the assignment of arrays to experimental groups. Set this column to the last experimental columns)
+# PARAMETER p.value.threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.adjustment.method: "p-value adjustment method" TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER SD.for.ICA: "SD for ICA" TYPE DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
+# PARAMETER k.for.maSigPro: "k for maSigPro" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 9 (maSigPro see.genes k=9)
+# PARAMETER degree.for.maSigPro: "degree for maSigPro" TYPE DECIMAL FROM 0 TO 1000 DEFAULT 2 (maSigPro make.design.matrix degree=2)
+# PARAMETER rsq.for.maSigPro: "rsq for maSigPro" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0.7 (maSigPro get.siggenes rsq=0.7)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
-# Analysis methods for timeseries
-# JTT 21.7.2006
-
-# OH 10.10.2012
-# added maSigPro as alternative time series analysis
-# parameter added: k.for.maSigPro
-# see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
-#
-
-# OH 17.01.2013
-# added maSigPro as alternative time series analysis
-# parameter added: degree.for.maSigPro
-# see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
-#
-
-# OH 17.01.2013
-# added maSigPro as alternative time series analysis
-# parameter added: rsq.for.maSigPro
-# see documentation of maSigPro www.bioconductor.org/packages/2.7/bioc/vignettes/maSigPro/inst/doc/maSigPro-tutorial.pdf
-#
-
-
-# Parameter settings (default) for testing purposes
-#column<-"time"
-#analysis.type<-"periodicity"
-#p.value.threshold<-0.05
-#p.value.adjustment.method<-"yes"
-#SD.for.ICA<-2.0
-#image.width<-600
-#image.height<-600
-
+# JTT 21.7.2006: Analysis methods for timeseries
+# OH 10.10.2012: added maSigPro as alternative time series analysis, parameter added: k.for.maSigPro
+# OH 17.01.2013: added maSigPro as alternative time series analysis, parameter added: degree.for.maSigPro
+# OH 17.01.2013: added maSigPro as alternative time series analysis, parameter added: rsq.for.maSigPro
+# MK 15.11.2013: bugs fixed in ICA and periodicity and maSigPro interface polished up. Manual upadated for maSigPro
 
 # Renaming variables
 analysis<-analysis.type
@@ -69,7 +45,7 @@ if( length(grep("description",colnames(dat)))>0 ) {
 
 # Reads phenodata
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-times<-phenodata[,grep(column, colnames(phenodata))]
+times<-phenodata[column][[1]]
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -84,20 +60,19 @@ if(analysis=="periodicity") {
 	library(GeneCycle)
 
 	# Making a longitudinal object
-	save.image("/tmp/matti/temp.Rdata")
 	dat3<-as.longitudinal(t(dat2), repeats=repl, time=unique(times))
 
 	# Replacing missing values
 	dat4<-t(na.omit(t(impute(dat3))))
 
 	f<-fisher.g.test(dat4)
-	if(multiple.correction=="yes") {
-    	# Estimates the proportion of null p-values, uses BH-method
-    	p.adj<-fdrtool(f)$lfdr
-    	dev.off()
+
+	if (p.value.adjustment.method %in% c("Bonferroni", "Holm", "Hochberg")) {
+		p.adj <- p.adjust(f, method=tolower(p.value.adjustment.method))
 	} else {
-    	p.adj<-f
+		p.adj <- p.adjust(f, method=p.value.adjustment.method)
 	}
+
 	dat5<-as.data.frame(t(dat4))
 	names(dat5)<-names(dat2)
 	write.table(data.frame(dat5[p.adj<=p.cut,], p.adjusted=round(p.adj[p.adj<=p.cut], digits=6)), file="timeseries.tsv", sep="\t", row.names=T, col.names=T, quote=F)
@@ -125,7 +100,7 @@ if(analysis=="ica") {
 	d<-c()
 	g<-c()
 	for(i in 1:ncol(o$S)) {
-    	<-o$S[,i]
+    	s<-o$S[,i]
     	l<-which(s>=(mean(s)+thresh*sd(s)))
     	d<-c(d, l)
     	g<-c(g, rep(i, length(l)))
@@ -143,36 +118,20 @@ if(analysis=="ica") {
 }
 
 if(analysis=="maSigPro") {
+	suppressPackageStartupMessages(suppressWarnings(library(tcltk)))
 	library(e1071)
 	library("maSigPro")
 
-	adjust="none"
-	if( multiple.correction=="yes" ) {
-		adjust="BH"
-	}
-
-	samplecount=length(colnames(dat2))
-	if( samplecount!=length(unique(phenodata["description"][[1]])) ) {
-		stop("Provide a unique description for each sample in column description of phenodata.")
-	}
+	adjust <- p.value.adjustment.method
 
 	orig.colnames=colnames(dat2)
-	colnames(dat2)=phenodata["description"][[1]]
+	colnames(dat2) <- make.names(phenodata["description"][[1]], unique=T)
 	dat4=na.omit(impute(dat2))
 
 	edesign=data.frame(Time=times)
-	rownames(edesign)=phenodata["description"][[1]]
-	edesign["Replicate"]=phenodata["group"][[1]]
-
-	conditions=colnames(phenodata)[grep("sample|original_name|chiptype|group|description",colnames(phenodata),invert=TRUE)]
-	conditions=conditions[grep(column,conditions,invert=TRUE)]
-	if( length(conditions)==0 ) {
-		stop("Provide at least one condition as a new column in phenodata.")
-	}
-
-	for( condition in conditions ) {
-		edesign[condition]=phenodata[condition][[1]]
-	}
+	edesign["Replicate"]=phenodata[rep.column][[1]]
+	edesign <- cbind(edesign, phenodata[grep(other.start, colnames(phenodata)):grep(other.end, colnames(phenodata))])
+	rownames(edesign)=colnames(dat2)
 
 	Q=p.cut
 	alfa=Q
@@ -199,7 +158,11 @@ if(analysis=="maSigPro") {
 	design <- make.design.matrix(edesign, degree = degree)
 	dis <- design$dis
 
-	fit <- p.vector(dat4,design,Q=Q,MT.adjust=adjust,min.obs=min.obs)
+	fit <- p.vector(dat4, design, Q=Q, MT.adjust=adjust, min.obs=min.obs)
+	if(min(fit$p.adjust) > Q) {
+			assign("last.warning", NULL, envir = baseenv())
+			stop("CHIPSTER-NOTE: No significant genes found.")	
+	}
 
 	tstep <- T.fit(fit,step.method=step.method,alfa=alfa)
 
