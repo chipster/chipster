@@ -2,7 +2,7 @@
  * Created on Jan 27, 2005
  *
  */
-package fi.csc.microarray.analyser.r;
+package fi.csc.microarray.analyser.python;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,36 +28,36 @@ import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 
 /**
- * Uses R to run actual analysis operations.
+ * Uses Python to run actual analysis operations.
  * 
- * @author hupponen, akallio
+ * @author Aleksi Kallio
  */
-public class RAnalysisJob extends OnDiskAnalysisJobBase {
+public class PythonAnalysisJob extends OnDiskAnalysisJobBase {
 
-	public static final String STRING_DELIMETER = "\"";
+	public static final String STRING_DELIMETER = "'";
 
 
 	/**
-	 * Checks that parameter values are safe to insert into R code.
+	 * Checks that parameter values are safe to insert into Python code.
 	 * Should closely match the code that is used to output the values in transformVariable(...).
 	 * 
-	 * @see RAnalysisJob#transformVariable(String, String, boolean)
+	 * @see PythonAnalysisJob#transformVariable(ParameterDescription, String)
 	 *
 	 */
-	public static class RParameterSecurityPolicy implements ParameterSecurityPolicy {
+	public static class PythonParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
 		
 		/**
 		 * This regular expression is very critical, because it checks code that is directly inserted
-		 * into R script. Hence it should be very conservative.
+		 * into Python script. Hence it should be very conservative.
 		 * 
 		 * Interpretation: Maybe minus, zero or more digits, maybe point, zero or more digits.
 		 */
 		public static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*";
 		
 		/**
-		 * This regular expression is not very critical, because text is inserted inside string constant in R code.
+		 * This regular expression is not very critical, because text is inserted inside string constant in Python code.
 		 * It should however always be combined with additional check that string terminator is not contained,
 		 * because that way the string constant can be escaped. However values can be used in later
 		 * points of the script in very different situations (filenames, etc.) and should be kept as simple as possible.
@@ -76,7 +76,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				return false;
 			}
 			
-			// Check parameter content (R injection protection)
+			// Check parameter content (Python injection protection)
 			if (parameterDescription.isNumeric()) {
 				
 				// Numeric value must match the strictly specified pattern
@@ -97,24 +97,25 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 
 	}
 	
-	public static RParameterSecurityPolicy R_PARAMETER_SECURITY_POLICY = new RParameterSecurityPolicy();
+	public static PythonParameterSecurityPolicy PARAMETER_SECURITY_POLICY = new PythonParameterSecurityPolicy();
 	
-	static final Logger logger = Logger.getLogger(RAnalysisJob.class);
-	
-	private CountDownLatch waitRLatch = new CountDownLatch(1);
+	static final Logger logger = Logger.getLogger(PythonAnalysisJob.class);
+		
+	private CountDownLatch waitPythonLatch = new CountDownLatch(1);
 	
 	// injected by handler at right after creation
 	private ProcessPool processPool;
 	private Process process;
 	
 	
-	private class RProcessMonitor implements Runnable {
+	private class PythonProcessMonitor implements Runnable {
 
+		
 		private ArrayList<String> outputLines;
 
 		public void run() {
 			
-			logger.debug("R process monitor started.");
+			logger.debug("Python process monitor started.");
 			outputLines = new ArrayList<String>();
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -125,13 +126,13 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					
 					// read end of stream --> error
 					if (line == null || line.contains(SCRIPT_FAILED_STRING)) {
-						updateState(JobState.FAILED, "R script failed");
+						updateState(JobState.FAILED, "Python script failed");
 						readMore = false;
 					} 
 					
 					// read script successful
 					else if (line.contains(SCRIPT_SUCCESSFUL_STRING)) {
-						updateState(JobState.COMPLETED, "R script finished successfully");
+						updateState(JobState.COMPLETED, "Python script finished successfully");
 						readMore = false;
 					}
 					
@@ -152,11 +153,11 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 						}
 					}
 				
-					// get lines starting from the error token, except for the last "Execution halted"
+					// get lines starting from the error token
 					if (errorLineNumber != -1) {
 						String errorMessage = "";
 						errorMessage += outputLines.get(errorLineNumber).substring(ERROR_MESSAGE_TOKEN.length()) + "\n";
-						for (int i = errorLineNumber + 1; i < outputLines.size() - 1; i++) {
+						for (int i = errorLineNumber + 1; i < outputLines.size(); i++) {
 							errorMessage += outputLines.get(i) + "\n";
 						}
 						errorMessage = errorMessage.substring(0, errorMessage.lastIndexOf("\n"));
@@ -175,11 +176,11 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				
 			} catch (IOException e) {
 				// also canceling the job leads here 
-				logger.debug("error in monitoring R process.");
-				updateState(JobState.ERROR, "reading R output failed.");
+				logger.debug("error in monitoring Python process.");
+				updateState(JobState.ERROR, "reading Python output failed.");
 			}
 
-			waitRLatch.countDown();
+			waitPythonLatch.countDown();
 		}
 
 		public String getOutput() {
@@ -193,7 +194,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	}
 	
 
-	protected RAnalysisJob() {
+	protected PythonAnalysisJob() {
 	}
 
 	
@@ -207,23 +208,22 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 */
 	protected void execute() throws JobCancelledException {
 		cancelCheck();
-		updateStateDetailToClient("initialising R");
+		updateStateDetailToClient("initialising Python");
 		
 		List<BufferedReader> inputReaders = new ArrayList<BufferedReader>();
 
 		// load handler initialiser
 		inputReaders.add(new BufferedReader(new StringReader(analysis.getInitialiser())));
-		
+
 		// load work dir initialiser
 		logger.debug("job work dir: " + jobWorkDir.getPath());
-		inputReaders.add(new BufferedReader(new StringReader("setwd(\"" + jobWorkDir.getName() + "\")\n")));
-		
-		
+		inputReaders.add(new BufferedReader(new StringReader("import os\nos.chdir('" + jobWorkDir.getName() + "')\n")));
+
 		// load input parameters		
 		int i = 0; 
 		List<String> parameterValues;
 		try {
-			parameterValues = inputMessage.getParameters(R_PARAMETER_SECURITY_POLICY, analysis);
+			parameterValues = inputMessage.getParameters(PARAMETER_SECURITY_POLICY, analysis);
 			
 		} catch (ParameterValidityException e) {
 			outputMessage.setErrorMessage(e.getMessage()); // always has a message
@@ -233,9 +233,9 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		}
 		for (ToolDescription.ParameterDescription param : analysis.getParameters()) {
 			String value = new String(parameterValues.get(i));
-			String rSnippet = transformVariable(param.getName(), value, param.isNumeric());
-			logger.debug("added parameter (" +  rSnippet + ")");
-			inputReaders.add(new BufferedReader(new StringReader(rSnippet)));
+			String pythonSnippet = transformVariable(param, value);
+			logger.debug("added parameter (" +  pythonSnippet + ")");
+			inputReaders.add(new BufferedReader(new StringReader(pythonSnippet)));
 			i++;
 		}
 
@@ -245,7 +245,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		inputReaders.add(new BufferedReader(new StringReader(script)));
 		
 		// load script finished trigger
-		inputReaders.add(new BufferedReader(new StringReader("print(\"" + SCRIPT_SUCCESSFUL_STRING + "\")\n")));
+		inputReaders.add(new BufferedReader(new StringReader("print '" + SCRIPT_SUCCESSFUL_STRING + "'\n")));
 		
 		
 		// get a process
@@ -254,7 +254,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		try {
 			this.process = processPool.getProcess();
 		} catch (Exception e) {
-			outputMessage.setErrorMessage("Starting R failed.");
+			outputMessage.setErrorMessage("Starting Python failed.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
@@ -266,7 +266,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			processAlive = true;
 		}
 		if (!processAlive) {
-			outputMessage.setErrorMessage("Starting R failed.");
+			outputMessage.setErrorMessage("Starting Python failed.");
 			String output = "";
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			try {
@@ -280,18 +280,18 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			} catch (IOException e) {
 				logger.warn("could not read output stream");
 			}
-			outputMessage.setOutputText("R already finished.\n\n" + output);
+			outputMessage.setOutputText("Python already finished.\n\n" + output);
 			updateState(JobState.ERROR, "");
 			return;
 		}
 		
-		updateStateDetailToClient("running R");
+		updateStateDetailToClient("running Python");
 
 		
 		// launch the process monitor
 		cancelCheck();
-		logger.debug("about to start the R process monitor.");
-		RProcessMonitor processMonitor = new RProcessMonitor();
+		logger.debug("about to start the Python process monitor.");
+		PythonProcessMonitor processMonitor = new PythonProcessMonitor();
 		new Thread(processMonitor).start();
 		
 		// combine the inputs into a single string and store it as the source code
@@ -303,13 +303,13 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				}
 			}
 		} catch (IOException ioe) {
-			logger.warn("creating R input failed");
+			logger.warn("creating Python input failed");
 		}
 	
 		outputMessage.setSourceCode(inputStringBuilder.toString());
 		
 		// write the input to process
-		logger.debug("writing the input to R.");
+		logger.debug("writing the input to Python.");
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -317,7 +317,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			writer.newLine();
 			writer.flush();
 		} catch (IOException ioe) {
-			// this happens if R has died before or dies while writing the input
+			// this happens if Python interpreter has died before or dies while writing the input
 			// process monitor will notice this and set state etc
 			logger.debug("writing input failed", ioe);
 		} finally {
@@ -328,9 +328,9 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		cancelCheck();
 		logger.debug("waiting for the script to finish.");
 		try {
-			waitRLatch.await();
+			waitPythonLatch.await();
 		} catch (InterruptedException e) {
-			outputMessage.setErrorMessage("Running R was interrupted.");
+			outputMessage.setErrorMessage("Running Python was interrupted.");
 			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
@@ -342,33 +342,31 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 
 		// add output to result message
 		String output = processMonitor.getOutput();
-		// remove the first line (setwd(...))
-		output = output.substring(output.indexOf(("\n")));
 		outputMessage.setOutputText(output);
 		
 		// deal with errors and timeout if needed
 		switch (getState()) {
 		
 		case RUNNING:
-			outputMessage.setErrorMessage("R did not finish before timeout.");
+			outputMessage.setErrorMessage("Python did not finish before timeout.");
 			updateState(JobState.TIMEOUT, "");
 			return;
 		case COMPLETED:
 			// set state back to running, notify client
-			updateState(JobState.RUNNING, "R script finished successfully");
-			updateStateDetailToClient("R script finished successfully");
+			updateState(JobState.RUNNING, "Python script finished successfully");
+			updateStateDetailToClient("Python script finished successfully");
 			return;
 		case FAILED:
 			// set error message if there is no specific message set already
 			if (outputMessage.getErrorMessage() == null || outputMessage.getErrorMessage().equals("")) {
-				outputMessage.setErrorMessage("Running R script failed.");
+				outputMessage.setErrorMessage("Running Python script failed.");
 			}
 			return;
 		case FAILED_USER_ERROR:
 			return;
 		case ERROR:
 			// ProcessMonitor error
-			outputMessage.setErrorMessage("Reading R output failed.");
+			outputMessage.setErrorMessage("Reading Python output failed.");
 			return;
 		default: 
 			throw new IllegalStateException("Illegal job state: " + getState());
@@ -387,10 +385,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	protected void cleanUp() {
 		try {
-			// only try to recycle the process if the script finished succesfully
-			// don't recycle at the moment
+			// release the process (don't recycle)
 			if (process != null) {
-				//this.resultHandler.getProcessPool().releaseProcess(process, getState().equals(JobState.SUCCESS));
 				processPool.releaseProcess(process, false);
 			}
 		} catch (Exception e) {
@@ -398,38 +394,38 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		} finally {
 			super.cleanUp();
 		}
-
 	}
 	
 	
 	
 	/**
-	 * Converts a name-value -pair into R variable definition.
+	 * Converts a name-value -pair into Python variable definition.
 	 */
-	public static String transformVariable(String name, String value, boolean isNumeric) {
+	public static String transformVariable(ToolDescription.ParameterDescription param, String value) {
 		
 		// Escape strings and such
-		if (!isNumeric) {
+		if (!param.isNumeric()) {
 			value = STRING_DELIMETER + value + STRING_DELIMETER; 
 		}
 		
 		// If numeric, check for empty value
-		if (isNumeric && value.trim().isEmpty()) {
-			value = "NA"; // R's constant for "not available" 
+		if (param.isNumeric() && value.trim().isEmpty()) {
+			value = "float('NaN')"; 
 		}
 		
 		// Sanitize parameter name (remove spaces)
+		String name = param.getName();
 		name = name.replaceAll(" ", "_"); 
 		
 		// Construct and return parameter assignment
-		return (name + " <- " + value);
+		return (name + " = " + value);
 	}
 
 
 
 	@Override
 	protected void cancelRequested() {
-		this.waitRLatch.countDown();
+		this.waitPythonLatch.countDown();
 		
 	}
 	

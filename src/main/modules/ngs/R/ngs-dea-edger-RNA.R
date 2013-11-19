@@ -18,7 +18,7 @@
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
 # PARAMETER OPTIONAL h: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
- 
+
 # MG 11.6.2011                                            
 # MG 23.8.2011, included library size from phenodata file                                           
 # MG 30.1.2012, allowed analysis without biological replicates                                    
@@ -135,7 +135,7 @@ if (dispersion_method == "tagwise") {
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
-
+	
 # Dispersion plot
 	pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
 	plotBCV(dge_list, main="Biological coefficient of variation")
@@ -146,10 +146,10 @@ if (dispersion_method == "tagwise") {
 number_tags <- dim (dge_list$counts) [1]
 results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
 results_table <- results_table$table
-	
+
 # Extract the significant tags based on adjusted p-value cutoff
 significant_results <- results_table[results_table$FDR<p_value_threshold,]
-	
+
 # Make an MA-plot displaying the significant reads
 pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
 significant_indices <- rownames (significant_results)

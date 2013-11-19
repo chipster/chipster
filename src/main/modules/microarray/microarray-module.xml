@@ -96,7 +96,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>stat-geneset.R</resource></tool>
 		<tool runtime="R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
-		<tool runtime="beanshell" module="common"><resource>annotate-cpdb.bsh</resource></tool>
+		<tool runtime="python" module="common"><resource>annotate_cpdb.py</resource></tool>
 	</category>
 
 	<category name="Promoter analysis" color="#629a9b">
@@ -140,7 +140,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>plot-histogram.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>plot-corrgram.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>plot-heatmap.R</resource></tool>
-		<tool runtime="R-3.0-R-2.12"><resource>plot-annoheatmap.R</resource></tool>
+		<tool runtime="R-3.0"><resource>plot-annoheatmap.R</resource></tool>
 	</category>
 
 	<category name="Utilities" color="#83010b">
@@ -180,6 +180,7 @@
 		<tool runtime="R-2.12"><resource>echo.R</resource></tool>
 		<tool runtime="R-2.12"><resource>fail.R</resource></tool>
 		<tool runtime="R-2.12"><resource>input-output.R</resource></tool>
+		<tool runtime="python" module="common"><resource>annotate_cpdb.py</resource></tool>
 		<tool runtime="R-2.12"><resource>simple-input-output.R</resource></tool>
 		<tool runtime="R-2.12"><resource>data-throughput.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sleep.R</resource></tool>

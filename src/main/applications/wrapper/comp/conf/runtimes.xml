@@ -165,22 +165,11 @@
 			</parameter>
 			<parameter>
 				<name>toolPath</name>
-				<value>/R-3.0</value>
+				<value>/R</value>
 			</parameter>
 			<parameter>
 				<name>externalToolPath</name>
 				<value>/opt/chipster/tools</value>
-			</parameter>
-		</handler>
-	</runtime>
-
-	<runtime>
-		<name>beanshell</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.bsh.BeanShellHandler</class> 
-			<parameter>
-				<name>toolPath</name>
-				<value>/bsh</value>
 			</parameter>
 		</handler>
 	</runtime>
@@ -224,6 +213,29 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/shell</value>
+			</parameter>
+		</handler>
+	</runtime>
+
+	<runtime>
+		<name>python</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.python.PythonAnalysisHandler</class>
+			<parameter>
+				<name>command</name>
+				<value>python</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value></value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/python</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>

@@ -1,11 +1,12 @@
 <module name="misc">
 
-	<category name="Only category" color="#d5c796">
+<!-- 	<category name="Only category" color="#d5c796">
 		<tool runtime="R-2.15">
 			<resource>seq-comp-test.R</resource>
 		</tool>
 	</category>
-    <category name="BLAST" color="#e7df70">
+	 -->
+    <category name="BLAST" color="#d5c796">
     <tool runtime="R-2.15">
 			<resource>ncbi_blastn.R</resource>
 	</tool>
@@ -19,7 +20,7 @@
 			<resource>ensembl_blastp.R</resource>
 	</tool>
 	</category>
-	<category name="Utilities" color="#d59f45">
+	<category name="Utilities" color="#e7df70">
 	<tool runtime="R-2.15">
 		<resource>infoseq_summary.R</resource>
 	</tool>
@@ -31,6 +32,8 @@
 	</tool>
 	</category>
 <!-- 
+	<category name="Something" color="#d59f45">
+	</category>	
 	
 	<category name="Filtering" color="#e7df70">
 	</category>

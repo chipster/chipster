@@ -70,24 +70,24 @@ if(number.of.groups > 1) {
 
 # Data scaling. Used only for visualization purposes
 if (hm.scale == "row") {
-		dat3 <- dat2
-        dat3 <- sweep(dat3, 1, rowMeans(dat3, na.rm = TRUE))
-        sd <- apply(dat3, 1, sd, na.rm = TRUE)
-        dat3 <-sweep(dat3, 1, sd, "/")
-		dat3[dat3 > 3] <- 3;
-		dat3[dat3 < -3] <- -3;
-		plot.range <- c(-3,3);
+	dat3 <- dat2
+	dat3 <- sweep(dat3, 1, rowMeans(dat3, na.rm = TRUE))
+	sd <- apply(dat3, 1, sd, na.rm = TRUE)
+	dat3 <-sweep(dat3, 1, sd, "/")
+	dat3[dat3 > 3] <- 3;
+	dat3[dat3 < -3] <- -3;
+	plot.range <- c(-3,3);
 } else if (hm.scale == "column") {
-		dat3 <- dat2
-        dat3 <- sweep(dat3, 2, colMeans(dat3, na.rm = TRUE))
-        sd <- apply(dat3, 2, sd, na.rm = TRUE)
-        dat3 = sweep(dat3, 2, sd, "/")
-		dat3[dat3 > 3] <- 3;
-		dat3[dat3 < -3] <- -3;
-		plot.range <- c(-3,3);
+	dat3 <- dat2
+	dat3 <- sweep(dat3, 2, colMeans(dat3, na.rm = TRUE))
+	sd <- apply(dat3, 2, sd, na.rm = TRUE)
+	dat3 = sweep(dat3, 2, sd, "/")
+	dat3[dat3 > 3] <- 3;
+	dat3[dat3 < -3] <- -3;
+	plot.range <- c(-3,3);
 } else {
-		dat3 <- dat2
-		plot.range <- c(min(dat2),max(dat2));
+	dat3 <- dat2
+	plot.range <- c(min(dat2),max(dat2));
 }
 
 # Color scheme
