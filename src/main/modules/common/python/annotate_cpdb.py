@@ -315,9 +315,10 @@ def write_html(filename, header, output_rows):
     """Write the header and output_rows to file as html table.
     """
     
+    # css inspired by example in http://coding.smashingmagazine.com/2008/08/13/top-10-css-table-designs/
     html_header = '''
 <html>
-\t<html_header>
+\t<head>
 \t\t<style type="text/css">
 
 h1 {
@@ -353,7 +354,7 @@ table td {
 }
 \t\t</style>
 \t\t<title>Over-representation analysis with ConsensusPathDB</title>
-\t</html_header>
+\t</head>
 \t<body>
 \t\t<h1>Over-representation analysis with ConsensusPathDB</h1>
 '''        
