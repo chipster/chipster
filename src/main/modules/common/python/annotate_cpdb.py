@@ -1,4 +1,4 @@
-# TOOL annotate-cpdb.py: "Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains functional molecular interactions obtained from 20 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human, mouse or yeast gene symbols or UniProt identifiers.)
+# TOOL annotate-cpdb.py: "Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains pathway information from over 20 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human, mouse or yeast gene symbols or UniProt identifiers.)
 # INPUT input.tsv: input.tsv TYPE GENELIST 
 # OUTPUT cpdb-pathways.html: cpdb-pathways.html 
 # OUTPUT cpdb-pathways.tsv: cpdb-pathways.tsv 
