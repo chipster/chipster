@@ -2,10 +2,11 @@
 # INPUT input.tsv: input.tsv TYPE GENELIST 
 # OUTPUT cpdb-pathways.html: cpdb-pathways.html 
 # OUTPUT cpdb-pathways.tsv: cpdb-pathways.tsv 
-# OUTPUT cpdb-genes.tsv: cpdb-genes.tsv 
-# PARAMETER p_value_threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER input_type: input.type TYPE [hgnc-symbol: "gene symbol", uniprot: uniprot] DEFAULT hgnc-symbol (What kind of identifiers input data contains)
-# PARAMETER species: species TYPE [human: human, mouse: mouse, yeast: yeast] DEFAULT human (Select the species of the data)
+# OUTPUT cpdb-genes.tsv: cpdb-genes.tsv
+# PARAMETER species: Organism TYPE [human: human, mouse: mouse, yeast: yeast] DEFAULT human (Select the species of the data) 
+# PARAMETER input_type: "Identifier type" TYPE [hgnc-symbol: "gene symbol", uniprot: UniProt] DEFAULT hgnc-symbol (What kind of identifiers input data contains)
+# PARAMETER OPTIONAL p_value_threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant pathways)
+
 
 import sys
 import csv
