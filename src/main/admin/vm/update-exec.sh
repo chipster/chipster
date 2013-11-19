@@ -1018,10 +1018,10 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   rm ${TOOLS_PATH}/bedtools
   ln -s bedtools-2.17.0 ${TOOLS_PATH}/bedtools
-  
-      
+   
+  echo "** Installing ConsensuPathDB tool dependency"
+  sudo apt-get -y install python-zsi
 fi
-
 
   
 

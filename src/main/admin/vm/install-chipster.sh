@@ -759,6 +759,9 @@ then
   python3 bundle.py install Drosophila_melanogaster.BDGP5.gb
   python3 bundle.py install Drosophila_melanogaster.BDGP5
 
+  # ConsensuPathDB
+  apt-get -y install python-zsi #sudo
+
   # DEXSeq
 	cd ${TMPDIR_PATH}/
 	#	curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.1.tar.gz | tar -xz

@@ -286,8 +286,8 @@
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
 		</tool>
-		<tool runtime="beanshell" module="common">
-			<resource>annotate-cpdb.bsh</resource>
+		<tool runtime="python" module="common">
+			<resource>annotate_cpdb.py</resource>
 		</tool>
 	</category>
 

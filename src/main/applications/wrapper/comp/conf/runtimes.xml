@@ -203,5 +203,28 @@
 			</parameter>
 		</handler>
 	</runtime>
+
+	<runtime>
+		<name>python</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.python.PythonAnalysisHandler</class>
+			<parameter>
+				<name>command</name>
+				<value>python</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value></value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/python</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
+		</handler>
+	</runtime>
 	
 </runtimes>
