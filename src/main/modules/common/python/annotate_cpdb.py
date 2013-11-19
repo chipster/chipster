@@ -1,16 +1,18 @@
 # TOOL annotate-cpdb.py: "Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains functional molecular interactions obtained from 20 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human, mouse or yeast gene symbols or UniProt identifiers.)
 # INPUT input.tsv: input.tsv TYPE GENELIST 
 # OUTPUT cpdb-pathways.html: cpdb-pathways.html 
-# OUTPUT cpdb-pathways.tsv: cpdb-pathways.tsv
+# OUTPUT cpdb-pathways.tsv: cpdb-pathways.tsv 
 # OUTPUT cpdb-genes.tsv: cpdb-genes.tsv 
 # PARAMETER p_value_threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER input_type: input.type TYPE [hgnc-symbol: "gene symbol", uniprot: uniprot] DEFAULT hgnc-symbol (What kind of identifiers input data contains)
-# PARAMETER species: species TYPE [human: "human", mouse: mouse, yeast: "yeast"] DEFAULT human (Select the species of the data)
+# PARAMETER species: species TYPE [human: human, mouse: mouse, yeast: yeast] DEFAULT human (Select the species of the data)
 
 import sys
 import csv
 
 def main():
+        
+    global input_type, p_value_threshold, species
         
     input = 'input.tsv'
     # only for debugging, usually these values are defined in SADL

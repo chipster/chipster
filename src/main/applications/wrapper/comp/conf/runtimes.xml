@@ -149,17 +149,6 @@
 			</parameter>
 		</handler>
 	</runtime>
-
-	<runtime>
-		<name>beanshell</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.bsh.BeanShellHandler</class> 
-			<parameter>
-				<name>toolPath</name>
-				<value>/bsh</value>
-			</parameter>
-		</handler>
-	</runtime>
 	
 	<runtime>
         <name>java</name>
