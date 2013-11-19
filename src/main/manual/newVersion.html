@@ -3,6 +3,65 @@
 
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 22.11.2013: What is new in Chipster 2.9</h2>
+
+<br>Chipster 2.9 contains many analysis tool updates and improvements to genome browser. It also contains some new analysis tools and a tutorial for CNA-seq data analysis kindly contributed by Ilari Scheinin (VU University Medical Center Amsterdam).
+
+<ol>
+<br>
+<li><b>Improvements to genome browser</b></li>
+<ul>
+<li>You can select features in visualized BED, VCF and CNA-seq tsv files by clicking on them. Information about the selected feature is shown in the side panel.</li>
+<li>BED score and color columns can be visualized.</li>
+<li>High resolution images can be exported.</li>
+<li>Show all reads -functionality is now track-specific.</li>
+</ul>
+<br>
+<li><b>Improvements to other visualizations</b></li>
+<ul>
+<li>The chiptype column can now be edited in the Phenodata editor.</li>
+</ul>
+<br>
+<li><b>New NGS analysis tools</b></li>
+<ul>
+<li><a href="bedtools-fastafrombed.html">Utilities / FASTA from BED</a>. Extracts sequences from a FASTA file for each of the intervals defined in a BED file.</li>
+</ul>
+<br>
+<li><b>Updates to NGS analysis tools</b></li>
+<ul>
+<li>BWA, Tophat2, Tophat, Bowtie2, Bowtie, Cufflinks, Cuffmerge and Cuffdiff tools: The number of threads has been increased so the tools run faster. If you running a local Chipster server BLA BLA</li>
+<li><a href="edgeR-multivariate.html">RNA-seq and miRNA-seq / Differential expression using edgeR for multivariate experiments</a>: Raw counts are added to the output, allowing visualization of expression profiles etc.</li>
+<li><a href="fastqc.html">Quality control / Read quality with FastQC</a>: BAM files accepted as input.</li>
+<li><a href="cna-segment.html">CNA-seq / Segment copy number data</a>. Significance threshold parameter for accepting change points has been added.</li>
+<li>BWA, Tophat2, Tophat, Bowtie2 and Bowtie tools: Drosophila melanogasted genome added.</li>
+<li>Tophat2 has been updated to version 2.0.9.</li>
+<li>BEDtools has been updated to version 2.17.0.</li>
+<li>SAMtools has been updated to version 0.1.19.</li>
+<li>VCFtools has been updated to version 0.1.11.</li>
+<li>edgeR-based tools have been updated to version 3.4.0.</li>
+</ul>
+<br>
+<li><b>New microarray analysis tools</b></li>
+<ul>
+<li><a href="plot-annoheatmap.html">Visualization / Annotated heatmap</a>. Advanced heatmap tool that can be used to generate heatmaps with annotation data (quality information, relationship with sample annotation).</li>
+<li><a href="merge-pheno-and-data.html">Utilities / Merge expression and phenodata</a>. Integrates expression and phenodata tables to a single output file that can be opened in Excel.</li>
+</ul>
+<br>
+<li><b>Updates to microarray data analysis tools</b></li>
+<ul>
+<li><a href="annotate-cpdb.html">Pathways / Hypergeometric test for ConsensusPathDB</a>: Also mouse and yeast data in addition to human are now supported. We thank Atanas Kamburov from the Max Planck Institute for Molecular Genetics for helping with the programmatic access to this tool.</li>
+<li><a href="merge-pheno-and-data.html">aCGH and CNA-seq / Count overlapping CNVs</a>. Updated to use the latest version of Database of Genomic Variants.</li>
+<li><a href="acgh-segment.html">aCGH / Segment copy number data</a>. Significance threshold parameter for accepting change points has been added.</li>
+</ul>
+<br>
+<li><b>Removed analysis tools</b></li>
+<ul>
+<li>Pathways / IntAct and Reactome tools have been removed as EBI has discontinued the programmatic access that these tools used.</li>
+</ul>
+<br>
+</ol>
+<hr>
+
 <h2>Version update 30.8.2013: What is new in Chipster 2.8</h2>
 
 <br>Chipster 2.8 contains many improvements to visualizations and some new analysis tools. It requires Java 1.7, and contains a fix to the file import problem that some Windows users experienced.
@@ -53,8 +112,6 @@
 <br>
 </ol>
 <hr>
-
-<html lang="en"><head><title>Chipster manual</title></head><body>
 
 <h2>Version update 28.6.2013: What is new in Chipster 2.7</h2>
 
