@@ -492,13 +492,13 @@ then
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download | tar -xj
-  #cd samtools-0.1.18/
+  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.19/samtools-0.1.19.tar.bz2/download | tar -xj
+  #cd samtools-0.1.19/
   #make
   #cd ../
-  #mv samtools-0.1.18/ ${TOOLS_PATH}
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
+  #mv samtools-0.1.19/ ${TOOLS_PATH}
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s samtools-0.1.19 ${TOOLS_PATH}/samtools
 
   # tabix
   # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
@@ -773,12 +773,14 @@ then
 
  	# vcftools, GPLv3
     cd ${TMPDIR_PATH}/
-    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
-    cd vcftools_0.1.9/
+    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download| tar -xz
+    cd vcftools_0.1.11/
     make
     cd ../
-    mv vcftools_0.1.9/ ${TOOLS_PATH}/
-    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+    mv vcftools_0.1.11/ ${TOOLS_PATH}/
+    #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11.tar.gz | tar -xz -C ${TOOLS_PATH}/
+    ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
+
 
   # GATK, MIT
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/

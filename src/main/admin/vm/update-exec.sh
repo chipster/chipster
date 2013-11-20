@@ -1003,9 +1003,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 
   echo "** Updating bedtools"
-  
   mv -b ${TOOLS_PATH}/BEDTools-Version-2.12.0 ${BACKUPDIR_PATH}/
-
   #cd ${TMPDIR_PATH}/
   #curl -s http://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz | tar -xz
   #cd bedtools-2.17.0
@@ -1013,12 +1011,34 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   #make all
   #cd ../
   #mv bedtools-2.17.0 ${TOOLS_PATH}/
-
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bedtools-2.17.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
-
   rm ${TOOLS_PATH}/bedtools
   ln -s bedtools-2.17.0 ${TOOLS_PATH}/bedtools
-   
+
+  echo "** Updating samtools"
+  mv -b ${TOOLS_PATH}/samtools-0.1.18 ${BACKUPDIR_PATH}/
+  cd ${TMPDIR_PATH}/
+  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.19/samtools-0.1.19.tar.bz2/download | tar -xj
+  #cd samtools-0.1.19/
+  #make
+  #cd ../
+  #mv samtools-0.1.19/ ${TOOLS_PATH}
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  rm ${TOOLS_PATH}/samtools
+  ln -s samtools-0.1.19 ${TOOLS_PATH}/samtools
+  
+  echo "** Updating vcftools"
+  mv -b ${TOOLS_PATH}/vcftools_0.1.9 ${BACKUPDIR_PATH}/
+  cd ${TMPDIR_PATH}/
+  #curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download| tar -xz
+  #cd vcftools_0.1.11/
+  #make
+  #cd ../
+  #mv vcftools_0.1.11/ ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  rm ${TOOLS_PATH}/vcftools
+  ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
+            
   echo "** Installing ConsensuPathDB tool dependency"
   sudo apt-get -y install python-zsi
 fi
