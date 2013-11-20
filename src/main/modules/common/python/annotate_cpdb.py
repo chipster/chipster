@@ -4,7 +4,7 @@
 # OUTPUT cpdb-pathways.tsv: cpdb-pathways.tsv 
 # OUTPUT cpdb-genes.tsv: cpdb-genes.tsv
 # PARAMETER species: Organism TYPE [human: human, mouse: mouse, yeast: yeast] DEFAULT human (Select the species of the data) 
-# PARAMETER input_type: "Identifier type" TYPE [hgnc-symbol: "gene symbol", uniprot: UniProt] DEFAULT hgnc-symbol (What kind of identifiers input data contains)
+# PARAMETER input_type: "Identifier type" TYPE [symbol: "gene symbol", uniprot: UniProt] DEFAULT hgnc-symbol (What kind of identifiers input data contains)
 # PARAMETER OPTIONAL p_value_threshold: "p-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant pathways)
 
 
@@ -20,7 +20,7 @@ def main():
     try:
         input_type, p_value_threshold, species
     except NameError:
-        input_type = 'hgnc-symbol'
+        input_type = 'symbol'
         p_value_threshold = 0.05
         species = 'human'
         print('Parameters are undefined, using default values: ' + input_type + ', ' + str(p_value_threshold) + ', ' + species)
@@ -37,14 +37,20 @@ def cpdb_tool(input, input_type, p_value_threshold, species):
     In addition, the original input file (with genes) is extended with the associated
     pathways.  
     """
-    
+            
     if species == 'human':
         ws = 'http://cpdb.molgen.mpg.de/ws2/'
+        symbol_type = 'hgnc-symbol'
     elif species == 'mouse':
         ws = 'http://cpdb.molgen.mpg.de/ws2mouse/'
+        symbol_type = 'mgi-symbol' 
     elif species == 'yeast':
-        ws = 'http://cpdb.molgen.mpg.de/ws2yeast/'    
-    
+        ws = 'http://cpdb.molgen.mpg.de/ws2yeast/'
+        symbol_type = 'sgd-symbol' 
+        
+    if input_type == 'symbol':    
+        input_type = symbol_type 
+        
     loc = cpdbLocator(ws)
     # Print soap messages to standard out
     # proxy = loc.getcpdb_portType(tracefile=sys.stdout)
