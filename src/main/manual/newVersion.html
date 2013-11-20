@@ -15,6 +15,7 @@
 <li>BED score and color columns can be visualized.</li>
 <li>High resolution images can be exported.</li>
 <li>Show all reads -functionality is now track-specific.</li>
+<li>Fix a bug that hid the genome browser visualization if a tsv file was selected.</li>
 </ul>
 <br>
 <li><b>Improvements to other visualizations</b></li>
@@ -29,7 +30,7 @@
 <br>
 <li><b>Updates to NGS analysis tools</b></li>
 <ul>
-<li>BWA, Tophat2, Tophat, Bowtie2, Bowtie, Cufflinks, Cuffmerge and Cuffdiff tools: The number of threads has been increased so the tools run faster. If you running a local Chipster server BLA BLA</li>
+<li>BWA, Tophat2, Tophat, Bowtie2, Bowtie, Cufflinks, Cuffmerge and Cuffdiff tools: The number of threads has been increased so the tools run faster.</li>
 <li><a href="edgeR-multivariate.html">RNA-seq and miRNA-seq / Differential expression using edgeR for multivariate experiments</a>: Raw counts are added to the output, allowing visualization of expression profiles etc.</li>
 <li><a href="fastqc.html">Quality control / Read quality with FastQC</a>: BAM files accepted as input.</li>
 <li><a href="cna-segment.html">CNA-seq / Segment copy number data</a>. Significance threshold parameter for accepting change points has been added.</li>
@@ -57,6 +58,12 @@
 <li><b>Removed analysis tools</b></li>
 <ul>
 <li>Pathways / IntAct and Reactome tools have been removed as EBI has discontinued the programmatic access that these tools used.</li>
+</ul>
+<li><b>Improvements to tool development</b></li>
+<ul>
+<li>R scripts have a variable chipster.threads.max, which defines the number of threads for parallel tools. This enables shorter run times for tools and a centralized configuration according to available CPU resources.   
+<li>Tool editor...</li>
+<li>This version adds support for writing tool scripts in Python programming language. Python is a convenient alternative to R scripts in Chipster tool development. Just like the R scripts, you can view the source code of the Python tools and updated scripts can be instantaneously run in the Chipster client.</li>
 </ul>
 <br>
 </ol>
