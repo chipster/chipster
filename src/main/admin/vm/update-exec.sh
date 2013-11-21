@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.8.1
+LATEST_VERSION=2.9.0
 
 # Exit immediately if some command fails
 set -e
@@ -983,8 +983,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.8.2
-compare_to_current_and_latest "2.8.2"
+# 2.9.0
+compare_to_current_and_latest "2.9.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
  
   echo "** Installing genome bundle tool dependencies"
@@ -999,7 +999,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/FREEC_Linux64 ${BACKUPDIR_PATH}/
 
   echo "** Installing R-3.0"
-  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-21.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 
   echo "** Updating bedtools"
@@ -1117,7 +1117,7 @@ function install_bundle()
 }
 
 # Version specific bundle tool commands
-compare_to_current_and_latest "2.8.2"
+compare_to_current_and_latest "2.9.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
   update_bundles
   install_bundle "Drosophila_melanogaster.BDGP5"

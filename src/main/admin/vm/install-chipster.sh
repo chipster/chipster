@@ -424,7 +424,7 @@ then
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-3.0/install-libs-lite.R   
 
   # could also use the package from nic
-  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-21.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
