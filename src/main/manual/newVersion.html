@@ -6,16 +6,24 @@
 <h2>Version update 22.11.2013: What is new in Chipster 2.9</h2>
 
 <br>Chipster 2.9 contains many analysis tool updates and improvements to the genome browser. It also contains some new analysis tools and a <a href="cn-tutorial.pdf"> tutorial</a> for CNA-seq data analysis kindly contributed by Ilari Scheinin (VU University Medical Center Amsterdam).
+Also integrating new analysis tools has been made easier by the new graphical tool editor environment and support for Python.
 
 <ol>
 <br>
+<li><b>Improvements to Chipster analysis tool development</b></li>
+<ul>
+<li>Tool editor TAAVI.</li>
+<li>Support for analysis tool scripts in Python has been added. Just like for R scripts, you can view the source code of the Python tools, and updated scripts can be instantaneously run in the Chipster client.</li>
+<li>R scripts have a new variable chipster.threads.max, which defines the number of threads for parallel tools. This centralized configuration according to available CPU resources provides shorter run times for analysis tools. 
+</ul>
+<br>
 <li><b>Improvements to genome browser</b></li>
 <ul>
-<li>You can select features in visualized BED, VCF and CNA-seq tsv files by clicking on them. Information about the selected feature is shown in the side panel.</li>
+<li>You can select features in visualized BED, VCF and tsv files by clicking on them. Information about the selected feature is shown in the side panel.</li>
 <li>BED score and color columns can be visualized.</li>
 <li>High resolution images can be exported.</li>
 <li>Show all reads -functionality is now track-specific.</li>
-<li>Fix a bug that hid the genome browser visualization if a tsv file was selected.</li>
+<li>Resolved the bug that prevented genome browser visualization with a tsv file.</li>
 </ul>
 <br>
 <li><b>Improvements to other visualizations</b></li>
@@ -34,7 +42,7 @@
 <li><a href="edgeR-multivariate.html">RNA-seq and miRNA-seq / Differential expression using edgeR for multivariate experiments</a>: Raw counts are added to the output, allowing visualization of expression profiles etc.</li>
 <li><a href="fastqc.html">Quality control / Read quality with FastQC</a>: BAM files accepted as input.</li>
 <li><a href="cna-segment.html">CNA-seq / Segment copy number data</a>. Significance threshold parameter for accepting change points has been added.</li>
-<li>BWA, Tophat2, Tophat, Bowtie2 and Bowtie tools: Drosophila melanogasted genome added.</li>
+<li>BWA, Tophat2, Tophat, Bowtie2 and Bowtie tools: Drosophila melanogaster genome added.</li>
 <li>Tophat2 has been updated to version 2.0.9.</li>
 <li>BEDtools has been updated to version 2.17.0.</li>
 <li>SAMtools has been updated to version 0.1.19.</li>
@@ -58,12 +66,6 @@
 <li><b>Removed analysis tools</b></li>
 <ul>
 <li>Pathways / IntAct and Reactome tools have been removed as EBI has discontinued the programmatic access that these tools used.</li>
-</ul>
-<li><b>Improvements to tool development</b></li>
-<ul>
-<li>R scripts have a variable chipster.threads.max, which defines the number of threads for parallel tools. This enables shorter run times for tools and a centralized configuration according to available CPU resources.   
-<li>Tool editor...</li>
-<li>This version adds support for writing tool scripts in Python programming language. Python is a convenient alternative to R scripts in Chipster tool development. Just like the R scripts, you can view the source code of the Python tools and updated scripts can be instantaneously run in the Chipster client.</li>
 </ul>
 <br>
 </ol>
