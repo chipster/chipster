@@ -497,7 +497,7 @@ then
   #make
   #cd ../
   #mv samtools-0.1.19/ ${TOOLS_PATH}
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.19-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s samtools-0.1.19 ${TOOLS_PATH}/samtools
 
   # tabix
@@ -778,7 +778,7 @@ then
     make
     cd ../
     mv vcftools_0.1.11/ ${TOOLS_PATH}/
-    #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11.tar.gz | tar -xz -C ${TOOLS_PATH}/
+    #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
     ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
 
 
