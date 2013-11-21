@@ -16,7 +16,7 @@ for(i in 1:rnd_num) {
 }
 
 for(i in 1:rnd_num) {
-  write.table(rnd_num, file=paste("my-output", i, ".tsv", sep=""))
+  write.table(rnd_num, file=paste("my-output", i, "blaah.tsv", sep=""))
 }
 
 # EOF

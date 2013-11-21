@@ -13,7 +13,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>norm-illumina-methylumi.R</resource></tool>
+		<tool runtime="R-3.0-R-2.15_bioc-2.11"><resource>norm-illumina-methylumi.R</resource></tool>
 		<tool runtime="R-3.0-R-2.15"><resource>norm-illumina-SNP.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-prenormalized.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-prenormalized-affy.R</resource></tool>
@@ -172,6 +172,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>import-soft2.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>import-ArrayExpress.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>intersect-lists.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>output_test.R</resource></tool>
 	</category>
 	
 	<category name="Hidden" hidden="true" color="#0">

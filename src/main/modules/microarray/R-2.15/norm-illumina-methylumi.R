@@ -6,6 +6,9 @@
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # OUTPUT OPTIONAL QC-plot.pdf: QC-plot.pdf
 # PARAMETER chiptype: Chiptype TYPE [HumanMethylation27: HumanMethylation27, HumanMethylation450: HumanMethylation450] DEFAULT HumanMethylation27 (Select the correct BeadChip type)
+# PARAMETER target: "Illumina ID" TYPE STRING DEFAULT TargetID (Name of the TargetID column)
+# PARAMETER signala: "Signal_A/Grn pattern" TYPE STRING DEFAULT Signal_A (Pattern identifying and common to all unmethylated data columns)
+# PARAMETER signalb: "Signal_B/Red pattern" TYPE STRING DEFAULT Signal_B (Pattern identifying and common to all methylated data columns)
 # PARAMETER OPTIONAL normalization: Normalization TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile ()
 # PARAMETER OPTIONAL color.balance.adjustment: "Color balance adjustment" TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile (Adjustment of color balance)
 # PARAMETER OPTIONAL background.correction: "Background correction" TYPE [none: none, bgAdjust2C: bgAdjust2C, forcePositive: forcePositive] DEFAULT none (Should background adjustment be applied)
@@ -13,10 +16,10 @@
 # PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
 # PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
-
 # JTT: 02.02.2011: Illumina methylation array data preprocessing and normalization for FinalReport file
 # JTT: 25.09.2012: Modified
 # JTT: 28.10.2012: Modified
+# MK: 20.11.2013: Added parameters to enalbe analysis of data having atypical columnames
 
 # setwd("C://Users//Jarno Tuimala//Desktop//methylumi data")
 # color.balance.adjustment<-c("quantile")
@@ -30,6 +33,10 @@
 # Renaming variables
 w<-image.width
 h<-image.height
+
+system(paste("perl -p -i -e \'s/", target, "/TargetID/g\' FinalReport_sample_methylation_profile.txt", sep=""))
+system(paste("perl -p -i -e \'s/", signala, "/Signal_A/g\' FinalReport_sample_methylation_profile.txt", sep=""))
+system(paste("perl -p -i -e \'s/", signalb, "/Signal_B/g\' FinalReport_sample_methylation_profile.txt", sep=""))
 
 # Loading libraries
 library(lumi)
@@ -45,8 +52,12 @@ if(chiptype=="HumanMethylation450") {
 }
 chiptype<-paste(chiptype, ".db", sep="")
 
-# Loading data files
-#dat<-lumiMethyR("chip.tsv", lib=chiptype)
+# Loading data files. 
+# Note that if the pattern given in target-variable, following wrong error is returned:
+# in .getFileSeparator(filename) : 
+#   Cannot determine separator used in the file, please manually set the "sep" parameter!
+# Calls: methylumiR -> .getFileSeparator
+
 dat<-methylumiR("FinalReport_sample_methylation_profile.txt", lib=chiptype)
 methyLumiM <- as(dat, "MethyLumiM")
 methyLumiM <- addAnnotationInfo(methyLumiM, lib = chiptype)
@@ -58,7 +69,7 @@ dat2<-lumiMethyC(methyLumiM, method=color.balance.adjustment)
 if(color.balance.adjustment!="none") {
    dat3<-lumiMethyB(dat2, method=background.correction, separateColor=FALSE)
 } else {
-   dat3<-lumiMethyB(dat, method=background.correction, separateColor=TRUE)
+   dat3<-lumiMethyB(dat2, method=background.correction, separateColor=TRUE)
 }
 
 # Normalization
