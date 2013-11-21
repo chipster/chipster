@@ -59,7 +59,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
-		<tool runtime="R-3.0-R-2.12"><resource>stat-timeseries.R</resource></tool>
+		<tool runtime="R-3.0"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>ordination-pca.R</resource></tool>
@@ -181,7 +181,7 @@
 		<tool runtime="R-2.12"><resource>echo.R</resource></tool>
 		<tool runtime="R-2.12"><resource>fail.R</resource></tool>
 		<tool runtime="R-2.12"><resource>input-output.R</resource></tool>
-		<tool runtime="python" module="common"><resource>annotate_cpdb.py</resource></tool>
+		<tool runtime="python"><resource>input-output.py</resource></tool>
 		<tool runtime="R-2.12"><resource>simple-input-output.R</resource></tool>
 		<tool runtime="R-2.12"><resource>data-throughput.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sleep.R</resource></tool>
