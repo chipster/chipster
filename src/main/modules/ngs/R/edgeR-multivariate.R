@@ -20,6 +20,7 @@
 # EK 28.4.2013 rounding added, main effect treated as factor by default
 # EK 2.5.2013 updated to BioC2.11
 # EK 4.5.2013 added dispersion plot and filtering
+# EK 19.11.2013 updated to edgeR 3.4.0 and added the counts to output
 
 
 # Loads the libraries
@@ -47,7 +48,7 @@ if (filter > 0) {
 
 # Calculate normalization factors
 if(normalization=="yes") {
-   dge<-calcNormFactors(dge)
+	dge<-calcNormFactors(dge)
 }
 # For later use: filter out genes which have less than 1 cpm in user-defined number of samples 
 # if (filter > 0) {
@@ -59,38 +60,38 @@ if(normalization=="yes") {
 # Form a model matrix
 formula<-"~"
 if(main.effect1!="EMPTY" & treat.main.effect1.as.factor=="no") {
-   formula<-paste(formula, main.effect1, sep="")
+	formula<-paste(formula, main.effect1, sep="")
 }
 if(main.effect1!="EMPTY" & treat.main.effect1.as.factor=="yes") {
-   formula<-paste(formula, "as.factor(", main.effect1, ")", sep="")
+	formula<-paste(formula, "as.factor(", main.effect1, ")", sep="")
 }
 
 if(interactions=="main" & main.effect2!="EMPTY") {
-   formula<-paste(formula, "+", sep="")
+	formula<-paste(formula, "+", sep="")
 } 
 if(interactions=="all" & main.effect2!="EMPTY") {
-   formula<-paste(formula, "*", sep="")
+	formula<-paste(formula, "*", sep="")
 } 
-  
+
 if(main.effect2!="EMPTY" & treat.main.effect2.as.factor=="no") {
-   formula<-paste(formula, main.effect2, sep="")
+	formula<-paste(formula, main.effect2, sep="")
 }
 if(main.effect2!="EMPTY" & treat.main.effect2.as.factor=="yes") {
-   formula<-paste(formula, "as.factor(", main.effect2, ")", sep="")
+	formula<-paste(formula, "as.factor(", main.effect2, ")", sep="")
 }
 
 if(interactions=="main" & main.effect3!="EMPTY") {
-   formula<-paste(formula, "+", sep="")
+	formula<-paste(formula, "+", sep="")
 } 
 if(interactions=="all" & main.effect3!="EMPTY") {
-   formula<-paste(formula, "*", sep="")
+	formula<-paste(formula, "*", sep="")
 } 
- 
+
 if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="no") {
-   formula<-paste(formula, main.effect3, sep="")
+	formula<-paste(formula, main.effect3, sep="")
 }
 if(main.effect3!="EMPTY" & treat.main.effect3.as.factor=="yes") {
-   formula<-paste(formula, "as.factor(", main.effect3, ")", sep="")
+	formula<-paste(formula, "as.factor(", main.effect3, ")", sep="")
 }
 
 design<-with(phenodata, model.matrix(as.formula(formula)))
@@ -116,16 +117,21 @@ colnames(tt)<-paste(colnames(tt), colnames(design)[1], sep="-")
 ttres<-tt[order(rownames(tt)),]
 
 for(i in 2:ncol(design)) {
-   lrt<-glmLRT(fit, coef=i)
-   tt<-topTags(lrt, n=nrow(dat2))
-   tt<-tt@.Data[[1]]
-   colnames(tt)<-paste(colnames(tt), colnames(design)[i], sep="-")
-   tt<-tt[order(rownames(tt)),]
-   ttres<-cbind(ttres, tt)
+	lrt<-glmLRT(fit, coef=i)
+	tt<-topTags(lrt, n=nrow(dat2))
+	tt<-tt@.Data[[1]]
+	colnames(tt)<-paste(colnames(tt), colnames(design)[i], sep="-")
+	tt<-tt[order(rownames(tt)),]
+	ttres<-cbind(ttres, tt)
 }
 
 # Rounding, etc.
 ttres2<-round(ttres,6)
+
+# add count columns to the result table
+ttres2<-cbind(ttres2, getCounts(dge))
+
+
 #ttres3<-merge(dat, ttres2, by.x=0, by.y=0)
 
 write.table(ttres2, file="edger-glm.tsv", sep="\t", row.names=T, col.names=T, quote=F)

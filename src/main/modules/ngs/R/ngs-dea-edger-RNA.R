@@ -1,4 +1,4 @@
-# TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential gene expression analysis using the exact statistical methods of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". Please note that this tool is suitable only for two group comparisons. For multifactor experiments please use the tool \"Differential expression using edgeR for multivariate experiments\".)
+# TOOL ngs-dea-edger-RNA.R: "Differential expression using edgeR" (Differential gene expression analysis using the exact test of the edgeR Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". You should set the filtering parameter to the number of samples in your smallest experimental group. Please note that this tool is suitable only for two group comparisons. For multifactor experiments please use the tool \"Differential expression using edgeR for multivariate experiments\".)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-edger.tsv
@@ -8,17 +8,17 @@
 # OUTPUT OPTIONAL edger-log.txt
 # OUTPUT OPTIONAL p-value-plot-edger.pdf
 # OUTPUT OPTIONAL dispersion-edger.pdf
-# PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
-# PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
-# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.) 
-# PARAMETER OPTIONAL filter: "Analyze only genes which have counts in at least this many samples" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (Analyze only genes which have at least 5 counts in at least this many samples)
+# PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
+# PARAMETER filter: "Filter out genes which don't have counts in at least this many samples" TYPE INTEGER FROM 1 TO 1000 DEFAULT 2 (Analyze only genes which have at least 5 counts in at least this many samples. You should set this to the number of samples in your smallest experimental group.)
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.) 
+# PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
 # PARAMETER OPTIONAL h: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
 
- 
+
 # MG 11.6.2011                                            
 # MG 23.8.2011, included library size from phenodata file                                           
 # MG 30.1.2012, allowed analysis without biological replicates                                    
@@ -28,6 +28,7 @@
 # EK 30.4.2013, changes to descriptions, made genomic location info optional so that external count tables can be used
 # EK 2.5.2013, added dispersion plot and filtering based on counts, disabled extra MA plots
 # EK 5.5.2013, modified filtering based on counts, removed fixed prior.n
+# EK 19.11.2013, updated to edgeR 3.4.0 and enabled trended dispersion. Filtering det by default to 1.
 
 # OUTPUT OPTIONAL ma-plot-raw-edger.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-edger.pdf
@@ -131,11 +132,11 @@ if (dispersion_method == "common") {
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	dge_list <- estimateCommonDisp(dge_list)
-	# dge_list <- estimateTrendedDisp(dge_list)
+	dge_list <- estimateTrendedDisp(dge_list)
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
-
+	
 # Dispersion plot
 	pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
 	plotBCV(dge_list, main="Biological coefficient of variation")
@@ -146,10 +147,10 @@ if (dispersion_method == "tagwise") {
 number_tags <- dim (dge_list$counts) [1]
 results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
 results_table <- results_table$table
-	
+
 # Extract the significant tags based on adjusted p-value cutoff
 significant_results <- results_table[results_table$FDR<p_value_threshold,]
-	
+
 # Make an MA-plot displaying the significant reads
 pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
 significant_indices <- rownames (significant_results)

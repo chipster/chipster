@@ -341,20 +341,6 @@ public class VisualConstants {
 				new float[] {9}, 
 				0
 		);
-	
-	public static final String HTML_TABLE_STYLE = "<style type=\"text/css\"><!--" + 
-	"table {border-color: Gray; border-collapse: collapse;}" + 
-	"td { border-color: Gray; font-family: sans-serif; font-size: 80%;}" + 
-	"th { border-color: Gray; font-family: sans-serif; font-size: 80%; background: #E0E0E0; text-align: center; }" + 
-	"--></style>";
-	
-	//CSS support of java is really limited (especially table {border-collapse: collapse})
-	//
-	public static final String HTML_TABLE_STYLE_INTERNAL = "<style type=\"text/css\"><!--" + 
-	"table {border-color: Gray; border-width: 1px; border-style: solid;}" + 
-	"td { border-color: Gray; font-family: sans-serif; border-width: 1px; border-style: solid; font-size: 8px}" + 
-	"th { border-color: Gray; font-family: sans-serif; background: #E0E0E0; text-align: center;  border-width: 1px; border-style: solid;}" + 
-	"--></style>";
 
 	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
 	

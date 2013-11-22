@@ -128,12 +128,24 @@
 	</runtime>
 
 	<runtime>
-		<name>beanshell</name>
+		<name>R-3.0</name>
 		<handler>
-			<class>fi.csc.microarray.analyser.bsh.BeanShellHandler</class> 
+			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<parameter>
+				<name>command</name>
+				<value>/opt/chipster/tools/R-3.0.2/bin/R</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
 			<parameter>
 				<name>toolPath</name>
-				<value>/bsh</value>
+				<value>/R</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>
@@ -177,6 +189,29 @@
 			<parameter>
 				<name>toolPath</name>
 				<value>/shell</value>
+			</parameter>
+		</handler>
+	</runtime>
+
+	<runtime>
+		<name>python</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.python.PythonAnalysisHandler</class>
+			<parameter>
+				<name>command</name>
+				<value>python</value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value></value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/python</value>
+			</parameter>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
 			</parameter>
 		</handler>
 	</runtime>
