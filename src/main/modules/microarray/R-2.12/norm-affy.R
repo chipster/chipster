@@ -38,9 +38,6 @@ if(custom.chiptype!="empty") {
    chiptype<-dat@annotation
 }
 
-save.image("/tmp/matti/temp.Rdata")
-system(paste("cp ", getwd(), "/* /tmp/matti/.", sep=""))
-
 # Since custom annotation packages are no longer supported for hgu133plu
 # and for mm74av1 the packages for hgu133plu2 and for mm74av2 are going to
 # be used instead
