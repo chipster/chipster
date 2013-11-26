@@ -73,5 +73,7 @@
 	<classpathentry kind="lib" path="ext/lib/picard-1.103.jar"/>
 	<classpathentry kind="lib" path="ext/lib/sam-1.103.jar"/>
 	<classpathentry kind="lib" path="ext/lib/tribble-1.103.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="ext/lib/miglayout-4.0-swing.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
