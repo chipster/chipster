@@ -7,7 +7,6 @@ import javax.swing.JTextPane;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -24,10 +23,7 @@ public class HtmlViewer extends Visualisation {
 		byte[] html = Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.EMPTY_ON_NA);
 		if (html != null) {
 			JTextPane htmlPane = BrowsableHtmlPanel.createHtmlPanel();			
-			String htmlStr = new String(html);
-			htmlStr = htmlStr.replace("<head>", "<head>" + VisualConstants.HTML_TABLE_STYLE_INTERNAL);
-			htmlStr = htmlStr.replace(" border=\"2\"", "");
-			htmlPane.setText(htmlStr);
+			htmlPane.setText(new String(html));
 			return new JScrollPane(htmlPane);
 		}
 		return this.getDefaultVisualisation();

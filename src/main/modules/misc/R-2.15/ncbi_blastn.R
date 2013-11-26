@@ -9,21 +9,22 @@
 # OUTPUT OPTIONAL blast_results.html
 # OUTPUT OPTIONAL blast.log
 # PARAMETER db: "Database" TYPE [nt: "NCBI nucleotide collection (nr/nt)", refseq_rna: "Reference RNA sequences (refseq_rna)",  refseq_genomic: "Reference genomic sequences (refseq_genomic)", pdb: "PDB sequences"] DEFAULT nt (Database to search.)
-# PARAMETER evalue: "Expectation threshold for saving hits" TYPE DECIMAL DEFAULT 10 (E-value specifies the statistical significance threshold for reporting matches against database sequences. The default value 10 means that 10 such matches are expected to be found merely by chance. Lower thresholds are more stringent, leading to fewer chance matches being reported.)
-# PARAMETER num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for.)
-# PARAMETER outfmt: "Output format type" TYPE [0: "Normal BLAST report with pairwise alignments", 1: "Query-anchored alignments showing identities", 2: "Query-anchored alignments with no identities", 3: "Flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "Tabular", 10: "Comma-separated values", 11: "BLAST archive format", 14: "Hit regions in fasta format"] DEFAULT 0 (Output format type)
-# PARAMETER OPTIONAL task: "BLAST program to use" TYPE [blastn: "blastn", blastn-short: "blastn-short",  dc-megablast: "discontiguous megablast",  megablast: "megablast", rmblastn: "rmblastn"] DEFAULT megablast (BLAST algorithm to use. Megablast is intended for comparing a query to closely related sequences and works best if the target percent identity is 95% or more but is very fast. Discontiguous megablast uses an initial seed that ignores some bases (allowing mismatches) and is intended for cross-species comparisons. BlastN is slow, but allows a word-size down to seven bases.)
-# PARAMETER OPTIONAL entrez_query: "Entrez query to limit search" TYPE STRING DEFAULT "None" (You can use Entrez query syntax to search a subset of the selected BLAST database. This can be helpful to limit searches to molecule types, sequence lengths or to exclude organisms.)
+# PARAMETER task: "BLAST program to use" TYPE [blastn: "blastn", blastn-short: "blastn-short",  dc-megablast: "discontiguous megablast",  megablast: "megablast", rmblastn: "rmblastn"] DEFAULT megablast (BLAST algorithm to use. Megablast is intended for comparing a query to closely related sequences and works best if the target percent identity is 95% or more but is very fast. Discontiguous megablast uses an initial seed that ignores some bases (allowing mismatches\) and is intended for cross-species comparisons. BlastN is slow, but allows a word-size down to seven bases.)
+# PARAMETER OPTIONAL evalue: "Expectation threshold for saving hits" TYPE DECIMAL DEFAULT 10 (E-value specifies the statistical significance threshold for reporting matches against database sequences. The default value 10 means that 10 such matches are expected to be found merely by chance. Lower thresholds are more stringent, leading to fewer chance matches being reported.)
+# PARAMETER OPTIONAL word_size: "Word size" TYPE INTEGER DEFAULT 28 (The length of the seed that initiates an alignment. BLAST works by finding word-matches between the query and database sequences. One may think of this process as finding hot-spots that BLAST can then use to initiate extensions that might eventually lead to full-blown alignments. For nucleotide-nucleotide searches an exact match of the entire word is required before an extension is initiated, so that one normally regulates the sensitivity and speed of the search by increasing or decreasing the word-size.)
+# PARAMETER OPTIONAL num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for.)
+# PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "normal BLAST report with pairwise alignments", 1: "query-anchored alignments showing identities", 2: "query-anchored alignments with no identities", 3: "flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "tabular", 10: "comma-separated values", 11: "BLAST archive format", 14: "hit regions in fasta format"] DEFAULT 0 (Output format type)
+# PARAMETER OPTIONAL dust: "Filter low complexity regions" TYPE [yes: yes, no: no] DEFAULT yes (Use the DUST program for filtering low complexity regions in the query sequence.)
+# PARAMETER OPTIONAL entrez_query: "Entrez query to limit search" TYPE STRING DEFAULT "none" (You can use Entrez query syntax to search a subset of the selected BLAST database. This can be helpful to limit searches to molecule types, sequence lengths or to exclude organisms.)
 # PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING DEFAULT "full length" (Location of the search region in the query sequence, for example: 23-66.) 
-# PARAMETER OPTIONAL reward: "Reward for a match" TYPE STRING DEFAULT "Default" (Reward for a nucleotide match. The scoring system consists of a reward for a match and a penalty for a mismatch. The absolute reward/penalty ratio should be increased as one looks at more divergent sequences. A ratio of 0.33 (1/-3\) is appropriate for sequences that are about 99% conserved; a ratio of 0.5 (1/-2-\) is best for sequences that are 95% conserved; a ratio of about one (1/-1\) is best for sequences that are 75% conserved.)
-# PARAMETER OPTIONAL penalty: "Penalty for a mismatch" TYPE STRING DEFAULT "Default" (Penalty for a nucleotide mismatch. The scoring system consists of a reward for a match and a penalty for a mismatch. The absolute reward/penalty ratio should be increased as one looks at more divergent sequences. A ratio of 0.33 (1/-3\) is appropriate for sequences that are about 99% conserved; a ratio of 0.5 (1/-2-\) is best for sequences that are 95% conserved; a ratio of about one (1/-1\) is best for sequences that are 75% conserved.)
-# PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE STRING FROM 6 to 25 DEFAULT "Default" (Cost to open a gap. The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty.)
-# PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING FROM 1 TO 3 DEFAULT "Default" (Gap extension penalty.The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap opening penalty.)
-# PARAMETER OPTIONAL word_size: "Word size" TYPE INTEGER DEFAULT 28 (The length of the seed that initiates an alignment. BLAST works by finding word-matches between the query and database sequences. One may think of this process as finding "hot-spots" that BLAST can then use to initiate extensions that might eventually lead to full-blown alignments. For nucleotide-nucleotide searches an exact match of the entire word is required before an extension is initiated, so that one normally regulates the sensitivity and speed of the search by increasing or decreasing the word-size.)
-# PARAMETER OPTIONAL dust: "Filter low complexity regions" TYPE [yes: yes, no: no] DEFAULT yes (Use the DUST program for filtering low complexity regions in the query sequence.) 
+# PARAMETER OPTIONAL reward: "Reward for a match" TYPE STRING DEFAULT "default" (Reward for a nucleotide match. The scoring system consists of a reward for a match and a penalty for a mismatch. The absolute reward/penalty ratio should be increased as one looks at more divergent sequences. A ratio of 0.33 (1/-3\) is appropriate for sequences that are about 99% conserved; a ratio of 0.5 (1/-2\) is best for sequences that are 95% conserved; a ratio of about one (1/-1\) is best for sequences that are 75% conserved.)
+# PARAMETER OPTIONAL penalty: "Penalty for a mismatch" TYPE STRING DEFAULT "default" (Penalty for a nucleotide mismatch. The scoring system consists of a reward for a match and a penalty for a mismatch. The absolute reward/penalty ratio should be increased as one looks at more divergent sequences. A ratio of 0.33 (1/-3\) is appropriate for sequences that are about 99% conserved; a ratio of 0.5 (1/-2\) is best for sequences that are 95% conserved; a ratio of about one (1/-1\) is best for sequences that are 75% conserved.)
+# PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE STRING DEFAULT "default" (Gap opening penalty ranging from 6 to 25. Note that if you assign this value, you must define also the gap extension penalty.)
+# PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING DEFAULT "default" (Gap extension penalty ranging from 1 to 3. Note that if you assign this value, you must define also the gap opening penalty.)
 # PARAMETER OPTIONAL save_log: "Output a log file" TYPE [yes: yes, no: no] DEFAULT no (Collect a log file for the BLAST run.)
 
 # KM 31.10.2013
+# EK 18.11.2013 changes to parameter names and descriptions
 
 # check out if the file is compressed and if so unzip it
 #source(file.path(chipster.common.path, "zip-utils.R"))
@@ -78,25 +79,25 @@ if (outfmt > 5) {
 }
 
 
-if ( gapopen != "Default" ) {
-	if ( gapextend == "Default" ){
+if ( gapopen != "default" ) {
+	if ( gapextend == "default" ){
 		stop(paste("If you define gap opening penalty you must also define gap extension pelalty"))
 	}
 }
 
-if ( gapextend != "Default" ) {
-	if ( gapopen == "Default" ){
+if ( gapextend != "default" ) {
+	if ( gapopen == "default" ){
 		stop(paste("If you define gap opening penalty you must also define gap extension pelalty"))
 	}
 }
 
-if ( gapopen !=  "Default"){
-	if ( gapextend != "Default" ){
+if ( gapopen !=  "default"){
+	if ( gapextend != "default" ){
 		optional.parameters <- paste(optional.parameters, " -gapopen ", gapopen, "-gapextend" , gapextend )	
 	}
 }
 
-if ( word_size !=  "Default"){
+if ( word_size !=  "default"){
 	optional.parameters <- paste(optional.parameters, "-word_size", word_size )
 }
 
@@ -104,11 +105,11 @@ if ( query_loc != "full length"){
 	optional.parameters <- paste(optional.parameters, " -query_loc ", query_loc )
 }
 
-if ( reward != "Default"){
+if ( reward != "default"){
 	optional.parameters <- paste(optional.parameters, " -reward ", reward )
 }
 
-if ( penalty != "Default"){
+if ( penalty != "default"){
 	optional.parameters <- paste(optional.parameters, " -penalty ", penalty )
 }
 command.end <- (paste(" >>", "blast.log 2>&1"))

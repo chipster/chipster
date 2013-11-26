@@ -40,6 +40,8 @@ smart.install.packages(package="doMC", mirror=repo.cran) # required by zinba
 smart.install.packages(package="foreach", mirror=repo.cran) # required by zinba
 smart.install.packages(package="quantreg", mirror=repo.cran) # required by zinba
 smart.install.packages(package="R.utils", mirror=repo.cran) # required by zinba
+smart.install.packages(package="tcltk", mirror=repo.cran)
+
 
 
 # Install packages, and their dependencies, from Bioconductor

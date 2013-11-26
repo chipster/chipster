@@ -18,6 +18,8 @@ find * -type f > all.txt
 #links
 find * -type l >> all.txt
 
+#FIXME remove version number from bowtie 1 and 2 paths: bowtie-0.12.7/indexes/hg19.fa -> bowtie/indexes/hg19.fa
+
 while read LINE; do
   SPECIES=$(echo $LINE | cut -d " " -f 1)
   VERSION=$(echo $LINE | cut -d " " -f 2)

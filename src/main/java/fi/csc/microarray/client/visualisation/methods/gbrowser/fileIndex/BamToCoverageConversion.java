@@ -12,8 +12,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadpartDataProvider;
@@ -60,10 +60,15 @@ public class BamToCoverageConversion extends DataThread {
 	}
 
 	private void calculateCoverage(DataRequest request, BpCoord from, BpCoord to) {	
-		
+				
 		//query data for full average bins, because merging them later would be difficult
-		long start = CoverageTool.getBin(from.bp);
+		long start = CoverageTool.getBin(from.bp);		
 		long end = CoverageTool.getBin(to.bp) + CoverageTool.BIN_SIZE - 1;
+
+		//if end coordinate is smaller than 1 Picard returns a full chromosome and we'll run out of memory
+		if (end < 1) {
+			end = 1;
+		}
 				
 		CloseableIterator<SAMRecord> iterator = dataSource.query(from.chr, (int)start, (int)end);
 		
@@ -76,6 +81,7 @@ public class BamToCoverageConversion extends DataThread {
 			LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
 
 			Region recordRegion = new Region((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
+			
 			Feature read = new Feature(recordRegion, values);
 
 			values.put(DataType.ID, record.getReadName());
@@ -88,7 +94,8 @@ public class BamToCoverageConversion extends DataThread {
 			String seq = record.getReadString();
 			values.put(DataType.SEQUENCE, seq);
 			
-			reads.add(read);
+			reads.add(read);			
+			
 		}				
 				
 		// We are done

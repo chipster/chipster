@@ -20,6 +20,7 @@
 # EK 28.4.2013 rounding added, main effect treated as factor by default
 # EK 2.5.2013 updated to BioC2.11
 # EK 4.5.2013 added dispersion plot and filtering
+# EK 19.11.2013 updated to edgeR 3.4.0 and added the counts to output
 
 
 # Loads the libraries

@@ -25,6 +25,13 @@ import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 public class JobMessage extends PayloadMessage {
 
 	public static interface ParameterSecurityPolicy {
+		/**
+		 * Checks that given value is valid from a security point of view. Analysis jobs
+		 * implement this to provide context dependent checking. Typically validity depends
+		 * on the type of value (numeric, text...), so ParameterDescription is also passed.
+		 * 
+		 * @return true iff is valid
+		 */
 		public boolean isValueValid(String value, ParameterDescription parameterDescription);
 	}
 	
