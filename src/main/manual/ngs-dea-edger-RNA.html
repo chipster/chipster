@@ -39,8 +39,9 @@ These genes have little chance of showing significant evidence for differential 
 Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA composition effect, 
 which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other.
 <br><br>
-Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). It can estimate a common dispersion for all the genomic features,
-or a separate (tagwise) dispersion for each individual feature using an empirical Bayes strategy.
+Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). Common dispersion assumes that all genes have the same dispersion, 
+while the tagwise approach calculates gene-wise dispersions. It uses an empirical Bayes strategy to "shrink" the gene-wise dispersions toward a common trend 
+(obtained by estimating a smooth function prior to the shrinkage using the estimateTrendedDisp function).
 
 <br><br>
 You should always have at least two biological replicates for each experiment condition.
