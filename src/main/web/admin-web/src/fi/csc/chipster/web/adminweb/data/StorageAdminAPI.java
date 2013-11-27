@@ -66,6 +66,12 @@ public class StorageAdminAPI {
 		messagingEndpoint = new JMSMessagingEndpoint(nodeSupport);
 		filebrokerAdminTopic = messagingEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
 	}
+	
+	public Long[] getStorageUsage() throws JMSException, InterruptedException {
+		
+		StorageTotalsMessageListener listener = new StorageTotalsMessageListener();
+		return listener.query();		
+	}
 
 	public List<StorageEntry> listStorageUsageOfSessions(String username) throws JMSException, InterruptedException {
 		
@@ -97,6 +103,48 @@ public class StorageAdminAPI {
 			}
 		} finally {
 			replyListener.cleanUp();
+		}
+	}
+	
+	private class StorageTotalsMessageListener extends TempTopicMessagingListenerBase {
+
+		private CountDownLatch latch;
+		private Long usedSpace = null;
+		private Long freeSpace = null;
+
+		public Long[] query() throws JMSException, InterruptedException {
+
+			latch = new CountDownLatch(1);
+
+			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS);
+
+			filebrokerAdminTopic.sendReplyableMessage(request, this);
+			latch.await(TIMEOUT, TIMEOUT_UNIT);
+
+			if (usedSpace != null && freeSpace != null) {
+				return new Long[] { usedSpace, freeSpace };
+			} else {
+				return null;
+			}
+		}
+
+
+		public void onChipsterMessage(ChipsterMessage msg) {
+			ParameterMessage resultMessage = (ParameterMessage) msg;
+
+			String sizesString = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST);
+
+			String[] sizes = sizesString.split("\t");
+
+			try {
+				usedSpace = Long.parseLong(sizes[0]);
+				freeSpace = Long.parseLong(sizes[1]);
+			} catch (Exception e) {
+				usedSpace = 0L;
+				freeSpace = Long.MAX_VALUE;
+			}
+			
+			latch.countDown();
 		}
 	}
 	
@@ -238,6 +286,5 @@ public class StorageAdminAPI {
 			description = description.substring(0, description.length() - lineBreak.length());
 		}
 		showFailNotification(title, description);
-	}
-	
+	}	
 }

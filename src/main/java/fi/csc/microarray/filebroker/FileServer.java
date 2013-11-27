@@ -672,7 +672,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 					LinkedList<String> totals = new LinkedList<String>();
 
-					totals.add(metadataServer.getStorageUsageTotals());										
+					totals.add(metadataServer.getStorageUsageTotal());										
+					totals.add("" + storageRoot.getUsableSpace());
 
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(totals, "\t"));				

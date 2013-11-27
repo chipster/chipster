@@ -551,11 +551,12 @@ public class DerbyMetadataServer {
 		return new List[] { usernames, sessions, sizes, dates, ids };
 	}
 	
-	public String getStorageUsageTotals() throws SQLException {
+	public String getStorageUsageTotal() throws SQLException {
 		
 		PreparedStatement ps = connection.prepareStatement(SQL_GET_TOTAL_DISK_USAGE);
 		ResultSet rs = ps.executeQuery();
 		
+		rs.next();
 		String size = rs.getString("size");		
 
 		return size;

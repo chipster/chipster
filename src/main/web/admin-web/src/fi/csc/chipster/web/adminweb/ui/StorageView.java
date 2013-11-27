@@ -21,8 +21,10 @@ import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 import com.vaadin.ui.VerticalLayout;
@@ -126,11 +128,12 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	public void update() {
 		
 		updateStorageAggregates();
+		updateStorageTotals();
 	}
 	
 	private void waitForUpdate(final Future<?> future) {				
 					
-		//This makes the browser start polling, but the browser will get it only if the following line is executed in this original thread.
+		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
 		setProgressIndicatorValue(0f);
 		
 		executor.execute(new Runnable() {
@@ -187,27 +190,40 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		}
 	}
 
-	private void updateDiskUsageBar() {
+	/**
+	 * Set disk usage. Calls from other threads are allowed.
+	 * 
+	 * @param usedSpace
+	 * @param freeSpace
+	 */
+	public void setDiskUsage(long usedSpace, long freeSpace) {
 		
-//		long used = aggregateDataSource.getDiskUsage();
-//		long total = aggregateDataSource.getDiskAvailable() + used;
-		
-		long used = 250000000000l;
-		long total = 500000000000l;
-		
-		diskUsageBar.setValue(used / (float)total);
-		diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
-				StringUtils.getHumanReadable(used) + " / " + StringUtils.getHumanReadable(total) + " )");
-		
-		if (used / (float)total > 0.7) {
-			diskUsageBar.removeStyleName("ok");
-			diskUsageBar.addStyleName("fail");
-		} else {
-			diskUsageBar.removeStyleName("fail");
-			diskUsageBar.addStyleName("ok");
+		//maybe null if the UI thread hasn't initialized this yet
+		if (diskUsageBar.getUI() != null) {
+			Lock barLock = diskUsageBar.getUI().getSession().getLockInstance();
+			barLock.lock();
+			try {
+				long used = usedSpace;
+				long total = usedSpace + freeSpace;
+				float division = used / (float)total;
+				
+				diskUsageBar.setValue(division);
+				diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
+						StringUtils.getHumanReadable(used) + " / " + StringUtils.getHumanReadable(total) + " )");
+				
+				if (division > 0.7) {
+					diskUsageBar.removeStyleName("ok");
+					diskUsageBar.addStyleName("fail");
+				} else {
+					diskUsageBar.removeStyleName("fail");
+					diskUsageBar.addStyleName("ok");
+				}
+				
+				diskUsageBar.markAsDirty();
+			} finally {
+				barLock.unlock();
+			}
 		}
-		
-		diskUsageBar.markAsDirty();
 	}
 
 	public HorizontalLayout getToolbar() {
@@ -248,9 +264,6 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 						
 			update();
 			updateStorageEntries(null);
-//			entryDataSource.update(this);
-//			aggregateDataSource.update(this);
-//			updateDiskUsageBar();
 		}
 	}
 
@@ -290,6 +303,30 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		waitForUpdate(future);
 	}
 	
+	private void updateStorageTotals() {
+		Future<?> future = executor.submit(new Runnable() {
+
+			@Override
+			public void run() {								
+				try {
+					Long[] totals = adminEndpoint.getStorageUsage();	
+					
+					if (totals != null) {
+						StorageView.this.setDiskUsage(totals[0], totals[1]);
+					} else {
+						Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
+						logger.error("timeout while waiting storage usage totals");
+					}
+
+				} catch (JMSException | InterruptedException e) {
+					logger.error(e);
+				}			
+			}			
+		});
+		
+		waitForUpdate(future);
+	}
+	
 	public ChipsterAdminUI getApp() {
 		return app;
 	}
@@ -306,7 +343,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		entryDataSource.removeItem(itemId);
 		
 		aggregateDataSource.update(this);
-		updateDiskUsageBar();
+		updateStorageTotals();
 	}
 	
 	/**
@@ -332,24 +369,11 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
 			aggregateTableLock.lock();
 			try {						
-				//StorageAggregate totalItem = aggregateDataSource.update(this);
-
-				//aggregateTable.select(totalItem);
 				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
 				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);				
 
 			} finally {
 				aggregateTableLock.unlock();
-			}
-		}
-		
-		if (progressIndicator.getUI() != null) {
-			Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-			proggressIndicatorLock.lock();
-			try {						
-				updateDiskUsageBar();
-			} finally {
-				proggressIndicatorLock.unlock();
 			}
 		}
 	}

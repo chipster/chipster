@@ -9,6 +9,8 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
 
@@ -24,7 +26,6 @@ public class StorageAggregateContainer extends BeanItemContainer<StorageAggregat
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Total size" };
-	
 
 	public long getDiskUsage() {
 		return diskUsage;
@@ -50,22 +51,27 @@ public class StorageAggregateContainer extends BeanItemContainer<StorageAggregat
 		try {
 			entries = adminEndpoint.listStorageUsageOfUsers();		
 
-			//Following is null if data loading in this thread
-			//was faster than UI initialisation in another thread
-			if (view.getEntryTable().getUI() != null) {
-				Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
-				tableLock.lock();
-				try {
-					removeAllItems();
+			if (entries != null) {
+				//Following is null if data loading in this thread
+				//was faster than UI initialisation in another thread
+				if (view.getEntryTable().getUI() != null) {
+					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+					tableLock.lock();
+					try {
+						removeAllItems();
 
-					for (StorageAggregate entry : entries) {
-						addBean(entry);
+						for (StorageAggregate entry : entries) {
+							addBean(entry);
+						}
+
+					} finally {
+						tableLock.unlock();
 					}
-
-				} finally {
-					tableLock.unlock();
-				}
-			}		
+				}		
+			} else {
+				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
+				logger.error("timeout while waiting storage usage of users");
+			}
 			
 		} catch (JMSException | InterruptedException e) {
 			logger.error(e);
