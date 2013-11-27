@@ -24,6 +24,7 @@ import org.eclipse.jetty.io.WriterOutputStream;
 import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -276,8 +277,13 @@ public class SessionLoaderImpl2 {
 			}
 
 			// update names, category from the current version of the tool
-			OperationDefinition currentTool;
-			currentTool = Session.getSession().getApplication().getOperationDefinitionBestMatch(operationRecord.getNameID().getID(), operationRecord.getModule(), operationRecord.getCategoryName());
+			ClientApplication application = Session.getSession().getApplication();
+			OperationDefinition currentTool = null;
+			
+			if (application != null) { //there is no client application when filebroker handles example sessions				
+				currentTool = application.getOperationDefinitionBestMatch(operationRecord.getNameID().getID(), operationRecord.getModule(), operationRecord.getCategoryName());
+			}
+				
 			if (currentTool != null) {
 				operationRecord.getNameID().setDisplayName(currentTool.getDisplayName());
 				operationRecord.getNameID().setDescription(currentTool.getDescription());
@@ -286,7 +292,7 @@ public class SessionLoaderImpl2 {
 				}
 				operationRecord.setCategoryName(currentTool.getCategoryName());
 				operationRecord.setCategoryColor(currentTool.getCategory().getColor());
-				
+
 				for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
 					Parameter currentParameter = currentTool.getParameter(parameterRecord.getNameID().getID());
 					if (currentParameter != null) {

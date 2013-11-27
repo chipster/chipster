@@ -2,6 +2,7 @@ package fi.csc.microarray.module.basic;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
@@ -133,8 +135,8 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
-		return null;
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws MalformedURLException {
+		return new ArrayList<DbSession>();
 	}
 
 	@Override

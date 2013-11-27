@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -70,6 +71,7 @@ import fi.csc.microarray.databeans.features.stat.SomClusterProvider;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.IOUtils;
@@ -77,10 +79,6 @@ import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
-
-	private static final String EXAMPLE_SESSION_FILE_MICROARRAY = "Example sessions/Microarray example session";
-	private static final String EXAMPLE_SESSION_FILE_NGS = "Example sessions/NGS example session";
-	private static final String EXAMPLE_SESSION_FILE_STANDALONE = "Example sessions/Standalone example session";
 	
 	public static class TypeTags {
 		public static final TypeTag PHENODATA  = new TypeTag("phenodata", "Chipster compatible phenodata");
@@ -291,13 +289,11 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws JMSException, Exception {
 		
-		if (isStandalone) {
-			return new String[] { EXAMPLE_SESSION_FILE_STANDALONE };
-		}
-		
-		return new String[] { EXAMPLE_SESSION_FILE_MICROARRAY, EXAMPLE_SESSION_FILE_NGS};
+		 List<DbSession> sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions();
+		 
+		return sessions;
 	}
 
 	@Override

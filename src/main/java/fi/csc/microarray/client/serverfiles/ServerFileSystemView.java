@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
+
+import fi.csc.microarray.filebroker.DbSession;
 
 /**
  * This class provides a view into a generic directory service.
@@ -18,13 +21,14 @@ public class ServerFileSystemView extends FileSystemView {
 		this.rootFile = rootFile;
 	}
 
-	public static ServerFileSystemView parseFromPaths(String prefix, String[] paths) throws MalformedURLException {
+	public static ServerFileSystemView parseFromPaths(String prefix, List<DbSession> sessions) throws MalformedURLException {
 		
 		HashMap<String, ServerFile> dirs = new HashMap<String, ServerFile>();
 		ServerFile root = new ServerFile(prefix + "/");
 		dirs.put(prefix + "/", root);
 		
-		for (String path : paths) {
+		for (DbSession session : sessions) {
+			String path = session.getName();
 			String fullPath = prefix + "/" + path;
 			ServerFile file = new ServerFile(fullPath);
 			ServerFile parent = dirs.get(fullPath.substring(0, fullPath.substring(0, fullPath.length() - 1).lastIndexOf("/") + 1));

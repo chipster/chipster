@@ -47,8 +47,8 @@ public class DerbyMetadataServer {
 	
 	private static final String METADATA_BACKUP_PREFIX="filebroker-metadata-db-backup-";
 
-	private static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
-	private static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
+	protected static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
+	protected static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
 
 	
 	private static String[][] SQL_CREATE_TABLES = new String[][] {
@@ -90,6 +90,7 @@ public class DerbyMetadataServer {
 	
 	private static String SQL_INSERT_FILE  = "INSERT INTO chipster.files (uuid, size, created, last_accessed) VALUES (?, ?, ?, ?)";
 	private static String SQL_UPDATE_FILE_ACCESSED  = "UPDATE chipster.files SET last_accessed = ? WHERE uuid = ?";
+	private static String SQL_SELECT_FILE_BY_UUID = "SELECT * FROM chipster.files WHERE uuid = ?";
 	private static String SQL_SELECT_FILES_TO_BE_ORPHANED  = "SELECT uuid from chipster.files WHERE uuid IN (SELECT file_uuid from chipster.belongs_to WHERE session_uuid = ?) AND uuid NOT IN (SELECT file_uuid from chipster.belongs_to WHERE NOT session_uuid = ?)";
 	private static String SQL_DELETE_FILE  = "DELETE FROM chipster.files WHERE uuid = ?";
 	
@@ -189,6 +190,16 @@ public class DerbyMetadataServer {
 			logger.info("Created " + tableCount + " missing tables to database");
 		}
 	}
+	
+	/**
+	 * List sessions that are available to all users, i.e. the example sessions.
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<DbSession> listPublicSessions() throws SQLException {
+		return listSessions(null);
+	}
 
 	/**
 	 * Lists all sessions that are available to the given user.
@@ -198,12 +209,12 @@ public class DerbyMetadataServer {
 	 * @throws SQLException
 	 */
 	@SuppressWarnings("unchecked")
-	public List<String>[] listSessions(String username) throws SQLException {
+	public List<DbSession> listSessions(String username) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_USERNAME);
 		ps.setString(1, username);
 		ResultSet rs = ps.executeQuery();
-		LinkedList<String> names = new LinkedList<String>();
-		LinkedList<String> uuids = new LinkedList<String>();
+		
+		LinkedList<DbSession> sessions = new LinkedList<>();
 		
 		// go through files and add them, creating folders when needed
 		HashSet<String> folders = new HashSet<>();
@@ -217,19 +228,33 @@ public class DerbyMetadataServer {
 				// folder not yet seen, make entry for it first
 				if (!folders.contains(folder)) {
 					folders.add(folder);
-					names.add(folder + "/");
-					uuids.add("");
+					DbSession session = new DbSession("", folder + "/", username);
+					sessions.add(session);
 				}
 				
 				// prefix file name with folder
 				name =  folder + "/" + name;
 			}
-			names.add(name);
-			uuids.add(rs.getString("uuid"));
+			DbSession session = new DbSession(rs.getString("uuid"), name, username);
+			sessions.add(session);
 		}
 
-		return new List[] { names, uuids };
+		return sessions;
 	}
+	
+	public DbFile fetchFile(String uuid) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_FILE_BY_UUID);
+		ps.setString(1, uuid);
+		ResultSet rs = ps.executeQuery();
+		
+		if (rs.next()) {
+			DbFile file = new DbFile(rs.getString(1), Long.parseLong(rs.getString(2)), rs.getString(3), rs.getString(4));
+			return file;
+		} else {
+			return null;
+		}
+	}
+
 
 	/**
 	 * 'Touches' file.

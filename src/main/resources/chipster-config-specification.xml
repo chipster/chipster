@@ -94,6 +94,10 @@
 		<entry entryKey="storage-path" type="string" description="path to user storage files'">
 			<value>storage</value>
 		</entry>
+		
+		<entry entryKey="example-session-path" type="string" description="path to example session files'">
+			<value>example-session</value>
+		</entry>
 
 		<entry entryKey="public-path" type="string" description="path to public data files">
 			<value>public</value>

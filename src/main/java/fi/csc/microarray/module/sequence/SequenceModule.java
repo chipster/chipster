@@ -3,6 +3,7 @@ package fi.csc.microarray.module.sequence;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.LinkUtil;
@@ -143,8 +145,12 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException {
-		return new String[] { EXAMPLE_SESSION_FILE };
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws MalformedURLException {
+		//FIXME uuid needed, see MicroarrayModule. Maybe this is not needed in modules at all, because example session names come directly from the sessions
+		DbSession session = new DbSession(null, EXAMPLE_SESSION_FILE, null);
+		List<DbSession> sessions = new ArrayList<>();
+		sessions.add(session);
+		return sessions;
 	}
 
 	@Override

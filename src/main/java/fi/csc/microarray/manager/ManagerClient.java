@@ -13,7 +13,9 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 public class ManagerClient {
 	
 	public ManagerClient(MessagingEndpoint endpoint) throws JMSException {
-		endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
+		if (endpoint != null) {
+			endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
+		}
 	}
 	
 	public void urlRequest(String username, URL url) {

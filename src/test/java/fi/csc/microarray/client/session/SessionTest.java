@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -20,6 +21,7 @@ import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
@@ -187,7 +189,7 @@ public class SessionTest {
 		manager.deleteAllDataItems();
 		
 		// load session
-		String[][] sessions = fileBrokerClient.listRemoteSessions();
+		List<DbSession> sessions = fileBrokerClient.listRemoteSessions();
 		URL sessionURL = findSession(sessionName, sessions);
 		manager.loadStorageSession(sessionURL);
 
@@ -198,21 +200,19 @@ public class SessionTest {
 		fileBrokerClient.removeRemoteSession(sessionURL);
 
 		// assert removal
-		String[][] sessions2 = fileBrokerClient.listRemoteSessions();
+		List<DbSession> sessions2 = fileBrokerClient.listRemoteSessions();
 		Assert.assertNull(findSession(sessionName, sessions2));
 
 	}
 
-	private URL findSession(String sessionName,	String[][] sessions) throws MalformedURLException {
+	private URL findSession(String sessionName,	List<DbSession> sessions) throws MalformedURLException {
 		URL sessionURL = null;
-		for (int i = 0; i < sessions[0].length; i++) {
-			if (sessionName.equals(sessions[0][i])) {
-				sessionURL = new URL(sessions[1][i]);
+		for (DbSession session : sessions) {
+			if (sessionName.equals(session.getName())) {
+				sessionURL = new URL(session.getUuid());
 				break;
 			}
 		}
 		return sessionURL;
 	}
-
-	
 }

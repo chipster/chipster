@@ -111,6 +111,7 @@ import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
@@ -1571,8 +1572,8 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
-		String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions[0]);
+		List<DbSession> sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
 		sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1745,20 +1746,18 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadExampleSession(String name) {
-		try {
-			String[][] sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
-			URL sessionURL = findMatchingSessionURL(sessions, name);
-			if (sessionURL == null) {
-				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
-				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
-				return;
-			}
-			loadSessionImpl(null, sessionURL, true, false);		
-
-		} catch (Exception e) {
-			reportException(e);
+	public void loadExampleSession(String uuid) {
+		
+		if (uuid == null) {
+			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
+			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
+			return;
 		}
+		try {
+			loadSessionImpl(null, new URL(uuid), true, false);
+		} catch (MalformedURLException e) {
+			reportException(e);
+		}		
 	}
 	
 	@Override
@@ -1791,7 +1790,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (remote) {
 				try {
-					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+					@SuppressWarnings("unchecked")
+					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 					sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 					if (sessionURL == null) {
 						throw new RuntimeException();
@@ -1922,12 +1922,13 @@ public class SwingClientApplication extends ClientApplication {
 					file = fileChooser.getSelectedFile();
 					exists = false;
 					
-					String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
-					for (int i = 0; i < sessions[0].length; i++) {
-						if (file.getName().equals(sessions[0][i])) {
+					@SuppressWarnings("unchecked")
+					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
+					for (DbSession session : sessions) {
+						if (file.getName().equals(session.getName())) {
 							exists = true;
 							break;
-						}
+						}						
 					}
 					
 				} else {
@@ -2072,13 +2073,14 @@ public class SwingClientApplication extends ClientApplication {
 			URL sessionURL = null;
 
 			try {
-				String[][] sessions = (String[][])fileChooser.getClientProperty("sessions");
+				@SuppressWarnings("unchecked")
+				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 				sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
 				if (sessionURL == null) {
 					throw new RuntimeException();
 				}
 
-				// remote the selected session
+				// remove the selected session
 				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionURL);		
 
 				// confirm to user
@@ -2094,11 +2096,11 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(String[][] sessions, String name) throws MalformedURLException {
+	private URL findMatchingSessionURL(List<DbSession> sessions, String name) throws MalformedURLException {
 		URL sessionURL = null;
-		for (int i = 0; i < sessions[0].length; i++) {
-			if (sessions[0][i] != null && sessions[0][i].equals(name)) {
-				sessionURL = new URL(sessions[1][i]);
+		for (DbSession session : sessions) {
+			if (session.getName() != null && session.getName().equals(name)) {
+				sessionURL = new URL(session.getUuid());
 				break;
 			}
 		}

@@ -64,6 +64,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
+	public static final long MAX_SESSION_FILE_SIZE = 1024*1024;  // assume 1 MB is enough for all session files
 	
 	
 	private MessagingTopic filebrokerTopic;	
@@ -91,7 +92,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// quota checks are not needed for session files (metadata xml file)
 		
 		// return new url
-		URL url = getNewURL(CryptoKey.generateRandom(), useCompression, FileBrokerArea.STORAGE, 1024*1024); // assume 1 MB is enough for all session files
+		URL url = getNewURL(CryptoKey.generateRandom(), useCompression, FileBrokerArea.STORAGE, MAX_SESSION_FILE_SIZE);
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
@@ -408,7 +409,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String[][] listRemoteSessions() throws JMSException {
+	public List<DbSession> listRemoteSessions() throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		
 		try {
@@ -421,23 +422,42 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			String[] names, uuids;
 			String namesString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
 			String uuidsString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
+			
+			List<DbSession> sessions = new LinkedList<>();
+			
 			if (namesString != null && !namesString.equals("") && uuidsString != null && !uuidsString.equals("")) {
+				
 				names = namesString.split("\t");
 				uuids = uuidsString.split("\t");
-				if (names.length != uuids.length) {
-					names = new String[0];
-					uuids = new String[0];
+				
+				for (int i = 0; i < names.length && i < uuids.length; i++) {
+					sessions.add(new DbSession(uuids[i], names[i], null));
 				}
-			} else {
-				names = new String[0];
-				uuids = new String[0];
+				
+				if (names.length != uuids.length) {
+					sessions.clear();
+				}
 			}
 			
-			return new String[][] {names, uuids};
+			return sessions;
 			
 		} finally {
 			replyListener.cleanUp();
 		}
+	}
+	
+
+	@Override
+	public List<DbSession> listPublicRemoteSessions() throws JMSException {
+		List<DbSession> allSessions = listRemoteSessions();
+		List<DbSession> publicSessions = new LinkedList<>();
+		
+		for (DbSession session : allSessions) {
+			if (session.getName().startsWith(DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_FOLDER)) {
+				publicSessions.add(session);
+			}
+		}		
+		return publicSessions;
 	}
 
 	@Override

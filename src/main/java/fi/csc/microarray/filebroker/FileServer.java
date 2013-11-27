@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipException;
 
 import javax.jms.JMSException;
 
@@ -49,7 +51,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	 */
 	private static Logger logger;
 
-	private MessagingEndpoint endpoint;	
+	private MessagingEndpoint jmsEndpoint;	
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 	private FileBrokerAreas filebrokerAreas;
@@ -70,6 +72,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private ExecutorService longRunningTaskExecutor = Executors.newCachedThreadPool();
 
 	private int metadataPort;
+	
+	private ExampleSessionUpdater exampleSessionUpdater;
+	private List<FileServerListener> listeners = new LinkedList<FileServerListener>();
 
 
 	public static void main(String[] args) {
@@ -89,12 +94,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		        Arrays.asList(new String[] {"frontend", "filebroker"}),
     		        configURL);
     		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+    		
     		logger = Logger.getLogger(FileServer.class);
 
     		// get configurations
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
     		String cachePath = configuration.getString("filebroker", "cache-path");
     		String storagePath = configuration.getString("filebroker", "storage-path");
+    		String exampleSessionPath = configuration.getString("filebroker", "example-session-path");
     		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
@@ -146,20 +153,35 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 //    		Timer t = new Timer("frontend-scheduled-tasks", true);
 //    		t.schedule(new FileCleanUpTimerTask(userDataRoot, cutoff), 0, cleanUpFrequency);
 //    		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
-
-    		// initialise messaging
+    		    	    		
+    		// initialise messaging, part 1
     		if (overriddenEndpoint != null) {
-    			this.endpoint = overriddenEndpoint;
+    			this.jmsEndpoint = overriddenEndpoint;
     		} else {
-        		this.endpoint = new JMSMessagingEndpoint(this);
+        		this.jmsEndpoint = new JMSMessagingEndpoint(this);
     		}
-    		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
-    		filebrokerTopic.setListener(this);
-    		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
-    		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
-
+    		this.managerClient = new ManagerClient(jmsEndpoint);
     		
-    		this.managerClient = new ManagerClient(endpoint); 
+    		// Load new zip example sessions and store as server sessions. 
+    		// ManagerClient is not really used, but must be initialized before this.
+    		File exampleSessionDir = new File(fileRepository, exampleSessionPath);
+    		this.exampleSessionUpdater = new ExampleSessionUpdater(this, metadataServer, exampleSessionDir);
+    		
+    		try {
+    			this.exampleSessionUpdater.importExampleSessions();
+    		} catch(ZipException e) {
+    			//import failed because of the broken zip file. Probably something interrupted the session export
+    			//and the situation needs to be resolved manually
+    			logger.error("example session import failed", e);
+    			throw e;
+    		}
+    		
+    		// initialise messaging, part 2
+    		MessagingTopic filebrokerTopic = jmsEndpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
+    		filebrokerTopic.setListener(this);
+    		MessagingTopic filebrokerAdminTopic = jmsEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
+    		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
+    		   		
 
     		// create keep-alive thread and register shutdown hook
     		KeepAliveShutdownHandler.init(this);
@@ -180,42 +202,49 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     	}
     }
 
-
 	public String getName() {
 		return "filebroker";
 	}
 
 
 	public void onChipsterMessage(ChipsterMessage msg) {
+		
+		handleMessage(this.jmsEndpoint, msg);
+	}
+		
+	
+	protected void handleMessage(MessagingEndpoint endpoint, ChipsterMessage msg) {
+		
+		
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_NEW_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {				
-				handleNewURLRequest(msg);
+				handleNewURLRequest(endpoint, msg);
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_URL.equals(((CommandMessage)msg).getCommand())) {				
-				handleGetURL(msg);
+				handleGetURL(endpoint, msg);
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_IS_AVAILABLE.equals(((CommandMessage)msg).getCommand())) {				
-				handleIsAvailable(msg);
+				handleIsAvailable(endpoint, msg);
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handlePublicUrlRequest(msg);
+				handlePublicUrlRequest(endpoint, msg);
 				
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_FILES_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handlePublicFilesRequest(msg);
+				handlePublicFilesRequest(endpoint, msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_DISK_SPACE_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				handleSpaceRequest((CommandMessage)msg);
+				handleSpaceRequest(endpoint, (CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_MOVE_FROM_CACHE_TO_STORAGE.equals(((CommandMessage)msg).getCommand())) {
-				handleMoveFromCacheToStorageRequest((CommandMessage)msg);
+				handleMoveFromCacheToStorageRequest(endpoint, (CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STORE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-				handleStoreSessionRequest((CommandMessage)msg);
+				handleStoreSessionRequest(endpoint, (CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-				handleRemoveSessionRequest((CommandMessage)msg);
+				handleRemoveSessionRequest(endpoint, (CommandMessage)msg);
 
 			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_SESSIONS.equals(((CommandMessage)msg).getCommand())) {
-				handleListSessionsRequest((CommandMessage)msg);
+				handleListSessionsRequest(endpoint, (CommandMessage)msg);
 
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
@@ -227,7 +256,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	@Deprecated
-	private void handlePublicUrlRequest(ChipsterMessage msg)
+	private void handlePublicUrlRequest(MessagingEndpoint endpoint, ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
 		URL url = getPublicUrl();
 		UrlMessage reply = new UrlMessage(url);
@@ -235,7 +264,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		managerClient.publicUrlRequest(msg.getUsername(), url);
 	}
 	
-	private void handlePublicFilesRequest(ChipsterMessage msg)
+	private void handlePublicFilesRequest(MessagingEndpoint endpoint, ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
 		List<URL> files = null;
 		ChipsterMessage reply;
@@ -249,7 +278,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		managerClient.publicFilesRequest(msg.getUsername(), files);
 	}
 
-	private void handleNewURLRequest(ChipsterMessage msg)
+	private void handleNewURLRequest(MessagingEndpoint endpoint, ChipsterMessage msg)
 			throws MalformedURLException, JMSException {
 		
 		// parse request
@@ -267,6 +296,8 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(msg, reply);
 	}
 	
+	
+	
 	private ChipsterMessage createNewURLReply(String fileId, String username, long space, boolean useCompression, FileBrokerArea area) throws MalformedURLException {
 		ChipsterMessage reply;
 		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId) || (area == FileBrokerArea.STORAGE && !checkQuota(username, space))) {
@@ -280,7 +311,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 	
-	private void handleGetURL(ChipsterMessage msg) throws MalformedURLException, JMSException {
+	private void handleGetURL(MessagingEndpoint endpoint, ChipsterMessage msg) throws MalformedURLException, JMSException {
 		
 		// parse request
 		CommandMessage requestMessage = (CommandMessage) msg;
@@ -305,7 +336,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(msg, reply);
 	}
 
-	private void handleIsAvailable(ChipsterMessage msg) throws JMSException {
+	private void handleIsAvailable(MessagingEndpoint endpoint, ChipsterMessage msg) throws JMSException {
 		
 		// parse request
 		CommandMessage requestMessage = (CommandMessage) msg;
@@ -333,7 +364,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 	
 	
-	private void handleSpaceRequest(CommandMessage requestMessage) throws JMSException {
+	private void handleSpaceRequest(MessagingEndpoint endpoint, CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
 		logger.debug("usable space is: " + cacheRoot.getUsableSpace());
@@ -426,18 +457,23 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 
-	private void handleListSessionsRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+	private void handleListSessionsRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 		String username = requestMessage.getUsername();
 		CommandMessage reply;
 		
 		try {
-			List<String>[] sessions = metadataServer.listSessions(username);
+			List<DbSession> sessions = metadataServer.listSessions(username);
 			reply = new CommandMessage();
-			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(sessions[0], "\t"));
-			LinkedList<String> fullURLs = new LinkedList<String>();
-			for (String uuid : sessions[1]) {
-				fullURLs.add(urlRepository.constructStorageURL(uuid, "").toExternalForm());
+			
+			LinkedList<String> fullURLs = new LinkedList<>();
+			LinkedList<String> names = new LinkedList<>();
+			
+			for (DbSession session : sessions) {
+				names.add(session.getName());
+				fullURLs.add(uuidToURL(session.getUuid()).toExternalForm());
 			}
+						
+			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST, Strings.delimit(names, "\t"));
 			reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(fullURLs, "\t"));
 			
 		} catch (Exception e) {
@@ -446,9 +482,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		
 		endpoint.replyToMessage(requestMessage, reply);
 	}
+	
+	public URL uuidToURL(String uuid) throws MalformedURLException {
+		return urlRepository.constructStorageURL(uuid, "");
+	}
 
-	private void handleStoreSessionRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
-
+	private void handleStoreSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+		
 		String username = requestMessage.getUsername();
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
 		String sessionUuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID))));
@@ -456,29 +496,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		ChipsterMessage reply; 
 		try {
 			
-			// check if we are overwriting previous session
-			String previousSessionUuid = metadataServer.fetchSession(username, name);
-			if (previousSessionUuid != null) {				
-				// move it aside
-				metadataServer.renameSession("_" + name, previousSessionUuid);
-			}
+			List<String> fileIds = Arrays.asList(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t"));
 			
-			// store session
-			metadataServer.addSession(username, name, sessionUuid);
-			
-			// link files (they have been added when uploaded)
-			String[] fileIds = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t");
-			for (String fileId : fileIds) {
-				// check if the file is stored in this file broker
-				if (filebrokerAreas.fileExists(fileId, FileBrokerArea.STORAGE)) {
-					metadataServer.linkFileToSession(fileId, sessionUuid);
-				}
-			}
-
-			// remove previous
-			if (previousSessionUuid != null) {				
-				metadataServer.removeSession(previousSessionUuid);
-			}
+			dispatch(new FileServerListener.BeforeStoreSession(username, name, sessionUuid, fileIds, endpoint));			
+			storeSession(username, name, sessionUuid, fileIds);			
+			dispatch(new FileServerListener.AfterStoreSession(username, name, sessionUuid, fileIds, endpoint));
 			
 			// everything went fine
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
@@ -490,7 +512,33 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleRemoveSessionRequest(final CommandMessage requestMessage) throws JMSException {
+	private void storeSession(String username, String name, String sessionUuid, List<String> fileIds) throws SQLException {
+				
+		// check if we are overwriting previous session
+		String previousSessionUuid = metadataServer.fetchSession(username, name);
+		if (previousSessionUuid != null) {				
+			// move it aside
+			metadataServer.renameSession("_" + name, previousSessionUuid);
+		}
+		
+		// store session
+		metadataServer.addSession(username, name, sessionUuid);
+		
+		// link files (they have been added when uploaded)
+		for (String fileId : fileIds) {
+			// check if the file is stored in this file broker
+			if (filebrokerAreas.fileExists(fileId, FileBrokerArea.STORAGE)) {
+				metadataServer.linkFileToSession(fileId, sessionUuid);
+			}
+		}
+
+		// remove previous
+		if (previousSessionUuid != null) {				
+			metadataServer.removeSession(previousSessionUuid);
+		}					
+	}
+
+	private void handleRemoveSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException {
 		
 		SuccessMessage reply;
 		try {
@@ -501,15 +549,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
 				uuid = IOUtils.getFilenameWithoutPath(url);
 			}
-
-			// remove from database (including related data)
-			List<String> removedFiles = metadataServer.removeSession(uuid);
-
-			// remove from filesystem
-			for (String removedFile : removedFiles) {
-				new File(storageRoot, removedFile).delete();
-			}
-
+			
+			dispatch(new FileServerListener.BeforeRemoveSession(uuid, requestMessage.getUsername(), endpoint));			
+			removeSession(uuid);			
+			dispatch(new FileServerListener.AfterRemoveSession(uuid, requestMessage.getUsername(), endpoint));
+			
 			// reply
 			reply = new SuccessMessage(true);
 		} catch (Exception e) {
@@ -520,7 +564,18 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		endpoint.replyToMessage(requestMessage, reply);
 	}
 
-	private void handleMoveFromCacheToStorageRequest(final CommandMessage requestMessage) throws JMSException, MalformedURLException {
+	protected void removeSession(String uuid) throws SQLException {
+		
+		// remove from database (including related data)
+		List<String> removedFiles = metadataServer.removeSession(uuid);
+
+		// remove from filesystem
+		for (String removedFile : removedFiles) {
+			new File(storageRoot, removedFile).delete();
+		}		
+	}
+
+	private void handleMoveFromCacheToStorageRequest(final MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		final String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
 		logger.info("move request for: " + fileId);
@@ -579,7 +634,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
 		// close messaging endpoint
 		try {
-			this.endpoint.close();
+			this.jmsEndpoint.close();
 		} catch (JMSException e) {
 			logger.error("closing messaging endpoint failed", e);
 		}
@@ -643,7 +698,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(users[0], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(users[1], "\t"));				
 
-					endpoint.replyToMessage(requestMessage, reply);
+					jmsEndpoint.replyToMessage(requestMessage, reply);
 				}
 
 				// get sessions for user
@@ -661,7 +716,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(sessions[2], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_DATE_LIST, Strings.delimit(sessions[3], "\t"));
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST, Strings.delimit(sessions[4], "\t"));
-					endpoint.replyToMessage(requestMessage, reply);
+					jmsEndpoint.replyToMessage(requestMessage, reply);
 				}
 
 
@@ -678,15 +733,36 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(totals, "\t"));				
 
-					endpoint.replyToMessage(requestMessage, reply);
+					jmsEndpoint.replyToMessage(requestMessage, reply);
 				}
 
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
-					handleRemoveSessionRequest((CommandMessage)msg);
+					handleRemoveSessionRequest(jmsEndpoint, (CommandMessage)msg);
 				}
 			} catch (Exception e) {
 				logger.error(e);
 			}
+		}
+	}
+	
+	/**
+	 * Add a local listener for FileServer events.
+	 * 
+	 * @param listener
+	 */
+	public void addListener(FileServerListener listener) {
+		listeners.add(listener);
+	}
+	
+	/**
+	 * Send a FileServer event to all registered listeners.
+	 * 
+	 * @param event
+	 */
+	private void dispatch(FileServerListener.Event event) {
+
+		for (FileServerListener listener : listeners) {
+			listener.listen(event);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
@@ -84,6 +85,10 @@ public class AuthorisedUrlRepository {
 	
 	public URL constructStorageURL(String filename, String compressionSuffix) throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
+	}
+	
+	public File constructStorageFile(String filename, String compressionSuffix) {
+		return new File(storagePath + "/" + filename + compressionSuffix);
 	}
 
 	public URL constructCacheURL(String filename, String compressionSuffix) throws MalformedURLException {

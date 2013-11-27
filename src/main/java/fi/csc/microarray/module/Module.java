@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 
 /**
  * Client side module. Encapsulates all application area specific logic, e.g., DNA microarray module
@@ -124,8 +126,10 @@ public interface Module {
 	 * @param isStandalone true iff client is running in standalone mode
 	 * @return url or null
 	 * @throws MalformedURLException
+	 * @throws Exception 
+	 * @throws JMSException 
 	 */
-	public String[] getExampleSessionNames(boolean isStandalone) throws MalformedURLException;
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws JMSException, Exception;
 
 	/**
 	 * If module is bundled with a repository of workflows, returns them.

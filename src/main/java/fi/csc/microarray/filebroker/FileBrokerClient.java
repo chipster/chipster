@@ -128,7 +128,8 @@ public interface FileBrokerClient {
 	 * 
 	 * @return array of names and URL's
 	 */
-	public abstract String[][] listRemoteSessions() throws JMSException;
+	public abstract List<DbSession> listRemoteSessions() throws JMSException;
+	public abstract List<DbSession> listPublicRemoteSessions() throws JMSException;
 	public void removeRemoteSession(URL sessionURL) throws JMSException;
 
 

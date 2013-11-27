@@ -37,6 +37,10 @@ public class UrlMessage extends ChipsterMessage {
 
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
-		mapMessage.setString(KEY_URL, this.url.toString());
+		String urlString = null;
+		if (this.url != null) {
+			urlString = this.url.toString();
+		}
+		mapMessage.setString(KEY_URL, urlString);
 	}
 }

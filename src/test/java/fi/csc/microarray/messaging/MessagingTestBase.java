@@ -83,5 +83,4 @@ public abstract class MessagingTestBase {
 			endpoint = null;
 		}
 	}
-
 }

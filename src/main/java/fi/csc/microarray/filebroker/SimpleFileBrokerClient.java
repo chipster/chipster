@@ -81,7 +81,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String[][] listRemoteSessions() throws JMSException {
+	public List<DbSession> listRemoteSessions() throws JMSException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -108,6 +108,11 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public boolean moveFromCacheToStorage(String dataId) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<DbSession> listPublicRemoteSessions() throws JMSException {
 		throw new UnsupportedOperationException();
 	}
 }

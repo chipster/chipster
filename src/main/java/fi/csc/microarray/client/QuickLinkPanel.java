@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,23 +15,26 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel {
+	
+	private static Logger logger = Logger.getLogger(QuickLinkPanel.class); 
 
 	private SwingClientApplication application;
 
 	private JXHyperlink sessionLink;
 	private JXHyperlink localSessionLink;
 	private JXHyperlink importLink;
-	private JXHyperlink exampleLink;
-	private JXHyperlink exampleLinkAlternative;
+	private List<JXHyperlink> exampleLinks = new ArrayList<>();
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
@@ -47,52 +50,28 @@ public class QuickLinkPanel extends JPanel {
 		//
 		
 		// Check if example session is available
-		exampleLink = null;
-		exampleLinkAlternative = null;
-
+		List<DbSession> sessions;
 		try {
-			final String[] names = Session.getSession().getPrimaryModule().getExampleSessionNames(application.isStandalone);
-			if (names != null) {
-
-				if (names.length == 1) {
-					exampleLink = LinkUtil.createLink("Example session", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadExampleSession(names[0]);
-							} catch (Exception exception) {
-								application.reportException(exception);
-							}
-						}
-					});
-				}
-				
-				if (names.length == 2) {
-					exampleLink = LinkUtil.createLink("microarray", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadExampleSession(names[0]);
-							} catch (Exception exception) {
-								application.reportException(exception);
-							}
-						}
-					});
+			sessions = Session.getSession().getPrimaryModule().getExampleSessions(application.isStandalone);
+			if (sessions != null) {				
+				for (final DbSession session : sessions) {
 					
-					exampleLinkAlternative = LinkUtil.createLink("NGS", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadExampleSession(names[1]);
-							} catch (Exception exception) {
-								application.reportException(exception);
+					String basename = session.getBasename();					
+					
+					if (basename != null) { //skip directories
+						JXHyperlink exampleLink = LinkUtil.createLink(basename, new AbstractAction() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								application.loadExampleSession(session.getUuid());							
 							}
-						}
-					});
+						});
+						exampleLinks.add(exampleLink);
+					}
 				}
-			}
-		} catch (MalformedURLException mue) {
-			// ignore and let exampleLink be null
+			}		
+		} catch (Exception e) {
+			logger.error("can't create quick links for example sessions", e);
+			//continue without example sessions
 		}
 		
 		importLink = LinkUtil.createLink("Import files", new AbstractAction() {
@@ -127,7 +106,7 @@ public class QuickLinkPanel extends JPanel {
 				application.loadSession(true);
 			}
 		});
-		localSessionLink = LinkUtil.createLink("open", new AbstractAction() {
+		localSessionLink = LinkUtil.createLink("open a local session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.loadSession(false);
@@ -144,34 +123,20 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(5, 10, 5, 10);
 		c.gridwidth = 2;
-		this.add(new JLabel("To start working with " + Session.getSession().getPrimaryModule().getDisplayName() + ", you need to load in data first:"), c);
+		this.add(new JLabel("To start working with " + Session.getSession().getPrimaryModule().getDisplayName() + ", you need to load in data first."), c);
 		c.gridwidth = 1;
 		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
-
-		if (exampleLink != null) {
-						
-			if (exampleLinkAlternative == null) {
-				
-				exampleLink.setText("Open example session ");
-				addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". " , exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
-
-			} else {
-
-				List<JXHyperlink> exampleLinks = new LinkedList<JXHyperlink>();
-				exampleLinks.add(exampleLink);
-				exampleLinks.add(exampleLinkAlternative);
-
-				addLinks("Open example session (*** or ***) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
-			}			
-		}
+					
+		String exampleLinkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
+		addLinks("Open example session to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + exampleLinkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 	
 		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
 		openLinks.add(sessionLink);
 		openLinks.add(localSessionLink);
 		
-		addLinks("*** to continue working on previous sessions. You can also *** a local session file.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		addLinks("*** to continue working on previous sessions. You can also *** file.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
 
 		
 		// common links
@@ -213,7 +178,7 @@ public class QuickLinkPanel extends JPanel {
 	}
 	
 	
-	private final static int MAX_ROW_CHARS = 42;
+	private final static int MAX_ROW_CHARS = 53;
 
 	public static void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c, JComponent component) {
 	
