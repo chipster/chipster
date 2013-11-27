@@ -6,9 +6,7 @@
 
 <p>
 Chipster genome browser enables you to view next generation sequencing data and results in their genomic context using Ensembl annotations. 
-This interactive visualization allows you to zoom in to nucleotide level, view coverage, highlight SNPs, and view spliced reads (RNA-seq).  
-The genome browser is available both as an integrated visualization in Chipster and as an individual application (shown in this tutorial). 
-The data used in this tutorial comes from the STAT1 ChIP-seq experiment by Rozowsky et al (Nat Biotechnology 2009, 27:66-75).
+You can zoom in to nucleotide level, highlight SNPs, view automatically calculated coverage and visualize BED scores and copy number aberrations. 
 </p>
 
  
@@ -16,6 +14,8 @@ The data used in this tutorial comes from the STAT1 ChIP-seq experiment by Rozow
 <li><a href="#import">Data import: file formats, preprocessing</a></li>
 <li><a href="#select">Selecting files and annotations to be visualized</a></li>
 <li><a href="#navigation">Navigating and viewing options</a></li>
+<li><a href="#levels">Viewing at different zoom levels</a></li>
+<li><a href="#cna">Viewing copy number data</a></li>
 <li><a href="#saving">Saving the session</a></li>
 </ul>
 
@@ -24,17 +24,19 @@ The data used in this tutorial comes from the STAT1 ChIP-seq experiment by Rozow
 <p>
 Chipster genome browser supports SAM, BAM, BED, GTF and VCF files as well as tsv, where the first three columns are chr, start and end. 
 SAM files need to be converted to BAM, BAM files need to be sorted and indexed, and BED, GTF and VCF files need to be sorted. 
-All this is accomplished during the data import step with Chipster preprocessor. 
+The files produced by Chipster's analysis tools are automatically in correct format. If you import external files, 
+sorting and indexing is accomplished during the data import step with Chipster preprocessor. 
 If your data is already in the right format and your BAM file has the matching index file (.bai), you can skip the preprocessing step and import your data directly.
 </p>
 <img src="imageGBpreprocessBAM.jpg">
 
 <a name="select"><h3>Selecting files and annotations to be visualized</h3></a>
 
-<p>When the files have been imported, they appear as filenames in the Datasets panel and as boxes in the Workflow panel. 
-In order to select files for viewing, click on them in either of these panels. 
-You can select several files by keeping the control key down. Note that if you want to view a BAM file, you also have to select its index file (.bai). 
-Click on the "Open genome browser" link or select "Genome browser" as the visualisation method from the pulldown menu.</p>
+<p>You can select files for viewing by clicking on them in the Datasets panel or in the Workflow panel (keep the control key down to select several files). 
+Note that if you want to view a BAM file, it needs to have an index file (.bai) with the same name. 
+If you select several BAM files, they should have different names so that Chipster can match them with the correct index files.
+Select <b>Genome browser</b> as the visualization method from the pulldown menu. 
+In order to have more space for genome browsing you can maximise the visualization panel by clicking on the <b>Maximise</b> button.</p>
 <img src="imageGBselectGenome.jpg">
 
 <p>Next you need to select the matching genome from the settings panel. If you are using the genome browser for the first time, you are asked to download annotations for the selected genome. 
@@ -51,44 +53,52 @@ There are several ways to move around:
 <li>Clicking on the chromosome image will move you to that location. </li>
 <li>In order to move sideways, you can pull with the mouse or use the arrow keys.</li>
 <li>In order to zoom in and out, you can use the mouse wheel or the arrow keys.</li>
-<li>You can use BED, GTF and VCF files to quickly view a list of features such as SNPs or ChIP-seq peaks: 
-First open the BED/VCF file as a spreadsheet, click the Detach button, and then select files for the genome browser visualization. 
-Clicking on the start position in the BED/VCF file now becomes a link, which automatically moves the genome browser to that position.</li>
+<li><b>Recommended:</b>You can use BED, GTF, VCF and tsv files as guides to quickly view a list of features such as SNPs, ChIP-seq peaks or differentially expressed genes: 
+First open the guide file as a spreadsheet, click the <b>Detach</b> button. Then select files for visualization and open the genome browser. 
+Clicking on the start coordinate in the guide file now becomes a link, which automatically moves the genome browser to that position.
+Note that in the spreadsheet view you can sort the data by clicking on a column name.</li>
 </ul>
 
-The grey bar indicates what part of the chromosome is shown below. Annotation track displays genes as blue boxes. 
+<a name="levels"><h3>Viewing at different zoom levels</h3></a>
+<p>
+At every zoom level the grey bar on the chromosome indicates what area is shown below. Annotation track displays genes as blue boxes. 
 Genes on the forward strand are shown on top of the ruler and genes on the reverse strand are shown below. 
-At this zoomed out level the alignment tracks show sampling summaries of the BAM files as grey bars. Tracks corresponding to BED, VCF or TSV files show genomic regions as blue boxes. 
-You can maximise the viewing area by clicking the Maximise button, and have several viewing panels open at the same time by clicking the Detach button. The side panel Datasets allows you to select which files to display.
+When zoomed out, the alignment tracks show rough coverage based on sampling summaries of the BAM files. You can turn off any track by unticking the corresponding box.
+Tracks corresponding to BED, VCF or TSV files show genomic regions as blue boxes. Clicking on a box displays details about the selected feature in the side panel.
+For BED files you can select to visualize the scores (and color if available).
+
 </p>
 <img src="imageGBzoomedOut.jpg">
 
-<p>
-When zoomed in, alignment tracks display the actual reads instead of sampling summaries. 
-Reads colored in yellow mean that the pile of reads is truncated at that point. 
-In order to view all the reads, please tick the box "Show all reads" in the side panel (in order to move around again, you have to switch off the full height mode). 
-At this level the automatically calculated coverage tracks are also shown. 
-You can use the side panel Options to change their scale, to switch them off, or to select total or strand-specific coverage. 
-You can also select to view coverage as a density graph instead of a profile. 
-This is a very compact way of viewing data and hence handy for a large number of samples. 
+<p> 
+When zoomed in, the annotation track displays transcripts instead of genes. Translated regions are colored in blue and untranslated in yellow (please see the legend tab).
+Alignment tracks display the actual reads and the automatically calculated coverage. 
+Reads colored in yellow mean that the pile of reads is truncated. In order to view all the reads, please tick the box <b>Show all</b>.
+Using the <b>Options</b> in the side panel allows you to 
 </p>
-<p>
-At this zoom level the annotation track displays transcripts instead of genes. 
-Translated regions are colored in blue and untranslated in yellow (please see the legend tab). Areas detected by the RepeatMasker program are shown as grey lines below the ruler in the annotation track. 
-</p>
+<ul>
+<li>turn the reads off.</li>
+<li>set the scale and type of coverage.</li>
+<li>view coverage as a density graph instead of a profile. 
+This is a very compact way of viewing data and hence handy for a large number of samples.</li>
+<li>mark low complexity regions in the annotations track.</li>
+</ul>
 <img src="imageGBzoomedIn.jpg"> 
 
 <p>
 When zoomed in to the nucleotide level, reads are colored according to their nucleotide content (please see the legend tab). 
-You can also choose to color only those bases which differ from the reference sequence by selecting the "Highlight SNPs" option. 
-When this option has been selected, colored bars will be added to the coverage track on those positions, where more than 20% of the bases differ from the reference.
+You can also choose to color only those bases which differ from the reference sequence by selecting the <b>Highlight SNPs</b> option. 
+When this option and total coverage has been selected, colored bars will be added to the coverage track on those positions, where more than 20% of the bases differ from the reference.
 </p>
 <img src="imageGBhighlightSNP.jpg"> 
-<p>
-If you would like to check the content of your BAM, BED, VCF or tsv files, you can select the visualization method "BAM viewer" or "Spreadsheet".
-Note that in the spreadsheet view you can sort the data by clicking on a column name. BED and VCF files can be also used for navigation as described earlier.
+
+<a name="cna"><h3>Viewing copy number data</h3></a>
+<p>Chipster has a lot of analysis tools for microarray and sequencing based copy number data. 
+In addition to pdf images, these tools produce tsv files with gain and loss frequencies, regions and log ratios, which can visualized in the genome browser. 
+For more information about the files, please see the <a href="cn-tutorial.pdf">copy number tutorial</a>.
 </p>
-<img src="imageGBspreadsheet.jpg">
+
+<img src="imageGBcopyNumber.jpg"> 
 
 <a name="saving"><h3>Saving the session</h3></a>
 <p>
@@ -99,8 +109,6 @@ If you would like to save an individual preprocessed file, please right-click on
 
 <h3>References</h3>
 
-<p>This visualization uses the Picard package.</p> 
-
-<p>Please see the <a href = "http://picard.sourceforge.net/">Picard homepage</A> for more details.</p>
+<p>This visualization uses the Picard package. Please see the <a href = "http://picard.sourceforge.net/">Picard homepage</A> for more details.</p>
 
 </body></html>
