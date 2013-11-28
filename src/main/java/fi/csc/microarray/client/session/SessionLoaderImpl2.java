@@ -72,6 +72,9 @@ public class SessionLoaderImpl2 {
 	private LinkedHashMap<String, OperationRecord> operationRecords = new LinkedHashMap<String, OperationRecord>();
 	private HashMap<OperationRecord, OperationType> operationTypes = new HashMap<OperationRecord, OperationType>();
 
+	private ZipFile zipFile;
+	private ZipInputStream zipStream;
+
 
 	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
@@ -87,42 +90,61 @@ public class SessionLoaderImpl2 {
 		this.isDatalessSession = isDatalessSession;
 	}
 
+	/**
+	 * 
+	 * The open file and/or stream is stored in field, remember to close them.
+	 * 
+	 * <pre>
+	 * try {
+	 * 
+	 * } finally {
+	 * 	IOUtils.closeIfPossible(zipFile);
+	 * 	IOUtils.closeIfPossible(zipStream);
+	 * }
+	 * </pre>
+	 * 
+	 * @param zipEntry
+	 * @return
+	 * @throws IOException
+	 */
+	private InputStream getStreamOfZipEntry(String zipEntry) throws IOException {
+
+		InputStream stream = null;
+		
+		if (sessionFile != null) {
+			
+			if (!sessionFile.exists()) {
+				throw new IOException("session file does not exist: " + sessionFile);
+			}
+			
+			// get the zip entry using TrueZip
+			zipFile = new ZipFile(sessionFile);
+			stream = zipFile.getInputStream(zipEntry);
+			
+		} else if (sessionURL != null) {
+			// get the session.xml zip entry using JDK, we don't need large ZIP support here because URL based sessions have no data
+			HttpURLConnection conn = (HttpURLConnection)sessionURL.openConnection();
+			if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
+				throw new IOException("session URL not found: " + conn.getResponseCode());
+			}
+			zipStream = new ZipInputStream(conn.getInputStream());
+			
+			ZipEntry entry;
+	        while ((entry = zipStream.getNextEntry()) != null) {
+	        	if (zipEntry.equals(entry.getName())) {
+	        		stream = zipStream; // zip stream is wound to right entry now, use it
+	        		break; 
+	        	}
+	        }
+		}		
+		return stream;
+	}
 
 	private void parseMetadata() throws ZipException, IOException, JAXBException, SAXException {
-		ZipFile zipFile = null;
-		ZipInputStream zipStream = null;
+
 		try {
-			
-			InputStream metadataStream = null;
-			if (sessionFile != null) {
-				
-				if (!sessionFile.exists()) {
-					throw new IOException("session file does not exist: " + sessionFile);
-				}
-				
-				// get the session.xml zip entry using TrueZip
-				zipFile = new ZipFile(sessionFile);
-				metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
-				
-			} else if (sessionURL != null) {
-				// get the session.xml zip entry using JDK, we don't need large ZIP support here because URL based sessions have no data
-				HttpURLConnection conn = (HttpURLConnection)sessionURL.openConnection();
-				if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
-					throw new IOException("session URL not found: " + conn.getResponseCode());
-				}
-				zipStream = new ZipInputStream(conn.getInputStream());
-				
-				ZipEntry entry;
-		        while ((entry = zipStream.getNextEntry()) != null) {
-		        	if (UserSession.SESSION_DATA_FILENAME.equals(entry.getName())) {
-		        		metadataStream = zipStream; // zip stream is wound to right entry now, use it
-		        		break; 
-		        	}
-		        }
-		        
-			} else {
-				throw new RuntimeException("internal error: session file or url not specified");
-			}
+
+			InputStream metadataStream = getStreamOfZipEntry(UserSession.SESSION_DATA_FILENAME);
 			
 			// validate
 			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
@@ -432,23 +454,19 @@ public class SessionLoaderImpl2 {
 	}
 
 	private String getSourceCode(String sourceCodeFileName) throws ZipException, IOException {
-		ZipFile zipFile = null;
 		InputStream sourceCodeInputStream = null;
 		StringWriter stringWriter = null;
-		try {
-			zipFile = new ZipFile(sessionFile);
-			sourceCodeInputStream = zipFile.getInputStream(zipFile.getEntry(sourceCodeFileName));
+		try {			
+			sourceCodeInputStream = getStreamOfZipEntry(sourceCodeFileName);
 
 			stringWriter = new StringWriter();
 			IOUtils.copy(sourceCodeInputStream, new WriterOutputStream(stringWriter));
 			stringWriter.flush();
 		}
 		finally {
-			IOUtils.closeIfPossible(sourceCodeInputStream);
+			IOUtils.closeIfPossible(zipFile);
+			IOUtils.closeIfPossible(zipStream);
 			IOUtils.closeIfPossible(stringWriter);
-			if (zipFile != null) {
-				zipFile.close();
-			}
 		}
 
 		return stringWriter.toString();
