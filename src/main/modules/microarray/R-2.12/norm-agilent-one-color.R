@@ -43,6 +43,10 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 
 # Remove control probes
 if(remove.control.probes=="yes") {
+   if(length(setdiff(names(table(dat$other$annotation)), -1:1)) > 0) {
+         stop("CHIPSTER-NOTE: Your annotation data has other than -1, 0 and 1 values")
+   }
+
 	if(is.null(dim(dat$other$annotation))==FALSE) {
 		dat <- dat[rowSums(dat$other$annotation)==0,]
 	}

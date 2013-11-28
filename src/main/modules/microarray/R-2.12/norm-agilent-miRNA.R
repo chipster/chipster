@@ -1,19 +1,15 @@
-# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA chip data preprocessing. Automatically averages all the rows,
-# i.e., miRNA:s that have the same name. YOU HAVE TO SPECIFY THE CHIPTYPE.
-# To be able to remove the control probes, the column labelled "ControlType" in the raw data file should be marked as
-# "Annotation" during importing.)
-# INPUT microarray{…}.tsv: "Raw data files" TYPE CDNA
+# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA one-dye chip data preprocessing. Automatically averages all the rows, i.e., miRNA:s that have the same identifier. To be able to remove the control probes, the column labelled "ControlType" in the raw data file should be marked as "Annotation" during importing.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: "Normalized data"
 # OUTPUT phenodata.tsv: "Experiment description"
 # PARAMETER background.treatment: "Background treatment" TYPE [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset: "Background offset" TYPE [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips: "Normalize chips" TYPE [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes, no] DEFAULT no (Remove control probes from the dataset)
+# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes, no] DEFAULT no (Remove control probes from the dataset. Please note that in order to remove the control probes, you have to mark the ControlType-column as Annotation in the Import tool.)
 # PARAMETER chiptype: "Chiptype" TYPE [empty, "Human", "Mouse", "Rat"]  DEFAULT empty (Chiptype)
 
-# Agilent miRNA chip normalization
-# MG 
-# 21.10.2010
+# MG: 21.10.2010: Agilent miRNA chip normalization
+# MK: 28.11.2013: Added annotation check. If something else than -1/0/1, will die
 
 
 # Loads the libraries
@@ -32,6 +28,18 @@ files<-dir()
 files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
+# Removes control probes
+rownames(dat3)<-dat$genes$identifier
+if(remove.control.probes=="yes") {
+   if(length(setdiff(names(table(dat$other$annotation)), -1:1)) > 0) {
+         stop("CHIPSTER-NOTE: Your annotation data has other than -1, 0 and 1 values")
+   }
+
+   if(is.null(dim(dat$other$annotation))==FALSE) {
+      dat3<-dat3[rowSums(dat$other$annotation)==0,]
+   }
+}
+
 # Background correction
 dat2<-backgroundCorrect(dat, bg, offset=as.numeric(background.offset))
 
@@ -42,12 +50,13 @@ if(normba=="scale-75") {
    for(i in 1:ncol(dat3)) {
       dat3[,i]<-dat3[,i]/normfact[i]
    }
+   dat3<-log2(dat3)
+} else if(normba=="vsn") {
+   dat3 <- normalizeVSN(dat2$R)
 } else {
-   dat3<-normalizeBetweenArrays(dat2$R, method=normba)
+   dat3 <- normalizeBetweenArrays(dat2$R, method=normba)
+   dat3<-log2(dat3)
 }
-
-# Log-transforming the data
-dat3<-log2(dat3)
 
 # Writes out a phenodata table
 sample<-paste(colnames(dat3), ".tsv", sep="")
@@ -70,14 +79,6 @@ if(chiptype=="Rat") {
 	chiptype<-c("miRNA")
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
-
-# Removes control probes
-rownames(dat3)<-dat$genes$identifier
-if(remove.control.probes=="yes") {
-   if(is.null(dim(dat$other$annotation))==FALSE) {
-      dat3<-dat3[rowSums(dat$other$annotation)==0,]
-   }
-}
 
 # Constructs and writes out a table
 M<-dat3
