@@ -38,6 +38,7 @@ public class SADLParser {
 	/**
 	 * Parse failure caused by illegal input data (bad SADL).
 	 */
+	@SuppressWarnings("serial")
 	public static class ParseException extends MicroarrayException {
 		public ParseException(String msg) {
 			super(msg);
