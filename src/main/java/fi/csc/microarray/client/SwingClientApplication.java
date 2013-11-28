@@ -1748,11 +1748,6 @@ public class SwingClientApplication extends ClientApplication {
 	@Override
 	public void loadExampleSession(String uuid) {
 		
-		if (uuid == null) {
-			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Example session not available", "This Chipster server does not have example session available.", "");
-			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);			
-			return;
-		}
 		try {
 			loadSessionImpl(null, new URL(uuid), true, false, true);
 		} catch (MalformedURLException e) {
