@@ -129,8 +129,10 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(0, 10, 0, 0);
 					
-		String exampleLinkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
-		addLinks("Open example session to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + exampleLinkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
+		if (!exampleLinks.isEmpty()) {
+			String exampleLinkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
+			addLinks("Open example session to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + exampleLinkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
+		}
 	
 		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
 		openLinks.add(sessionLink);

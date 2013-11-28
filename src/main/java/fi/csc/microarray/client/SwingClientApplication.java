@@ -1742,7 +1742,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, null, true, true);
+		loadSessionImpl(file, null, true, true, false);
 	}
 
 	@Override
@@ -1754,7 +1754,7 @@ public class SwingClientApplication extends ClientApplication {
 			return;
 		}
 		try {
-			loadSessionImpl(null, new URL(uuid), true, false);
+			loadSessionImpl(null, new URL(uuid), true, false, true);
 		} catch (MalformedURLException e) {
 			reportException(e);
 		}		
@@ -1827,13 +1827,13 @@ public class SwingClientApplication extends ClientApplication {
 			}		
 
 			// load the new session
-			loadSessionImpl(sessionFile, sessionURL, remote, false);		
+			loadSessionImpl(sessionFile, sessionURL, remote, false, false);		
 
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final URL sessionURL, final boolean isDataless, final boolean clearDeadTempDirs) {
+	private void loadSessionImpl(final File sessionFile, final URL sessionURL, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
 		
 		// check that it's a valid session file 
 		if (!isDataless) {
@@ -1862,7 +1862,11 @@ public class SwingClientApplication extends ClientApplication {
 					}
 					
 				} catch (Exception e) {
-					Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					if (isExampleSession) {
+						Session.getSession().getApplication().showDialog("Opening example session failed.", "Please restart " + Session.getSession().getPrimaryModule().getDisplayName() + " to update example session links or see the details for more information.", Exceptions.getStackTrace(e), Severity.INFO, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					} else {
+						Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					}
 					logger.error("loading session failed", e);
 				}
 				
