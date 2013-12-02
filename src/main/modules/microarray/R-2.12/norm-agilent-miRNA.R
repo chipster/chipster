@@ -1,8 +1,5 @@
-# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA chip data preprocessing. Automatically averages all the rows,
-# i.e., miRNA:s that have the same name. YOU HAVE TO SPECIFY THE CHIPTYPE.
-# To be able to remove the control probes, the column labelled "ControlType" in the raw data file should be marked as
-# "Annotation" during importing.)
-# INPUT microarray{…}.tsv: "Raw data files" TYPE CDNA
+# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA chip data preprocessing. Automatically averages all the rows, i.e. miRNA:s that have the same name. To be able to remove the control probes, you have to mark the column labelled "ControlType" as "Annotation" when importing the raw data.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA
 # OUTPUT normalized.tsv: "Normalized data"
 # OUTPUT phenodata.tsv: "Experiment description"
 # PARAMETER background.treatment: "Background treatment" TYPE [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
@@ -12,8 +9,8 @@
 # PARAMETER chiptype: "Chiptype" TYPE [empty, "Human", "Mouse", "Rat"]  DEFAULT empty (Chiptype)
 
 # Agilent miRNA chip normalization
-# MG 
-# 21.10.2010
+# MG 21.10.2010
+# EK 28.11.2013 fix bug in the input file description
 
 
 # Loads the libraries
