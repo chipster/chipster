@@ -1,16 +1,16 @@
-# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA one-dye chip data preprocessing. Automatically averages all the rows, i.e., miRNA:s that have the same identifier. To be able to remove the control probes, the column labelled "ControlType" in the raw data file should be marked as "Annotation" during importing.)
+# TOOL norm-agilent-miRNA.R: "Agilent miRNA" (Agilent miRNA one-dye chip data preprocessing. Automatically averages all the rows, i.e. miRNA:s that have the same name. To be able to remove the control probes, you have to mark the column labelled "ControlType" as "Annotation" when importing the raw data.)
 # INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
 # OUTPUT normalized.tsv: "Normalized data"
 # OUTPUT phenodata.tsv: "Experiment description"
 # PARAMETER background.treatment: "Background treatment" TYPE [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset: "Background offset" TYPE [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips: "Normalize chips" TYPE [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes, no] DEFAULT no (Remove control probes from the dataset. Please note that in order to remove the control probes, you have to mark the ControlType-column as Annotation in the Import tool.)
+# PARAMETER remove.control.probes: "Remove control probes" TYPE [yes, no] DEFAULT no (Remove control probes from the dataset. Please note that in order to remove the control probes, you have to mark the ControlType-column as Annotation when improting the raw data.)
 # PARAMETER chiptype: "Chiptype" TYPE [empty, "Human", "Mouse", "Rat"]  DEFAULT empty (Chiptype)
 
 # MG: 21.10.2010: Agilent miRNA chip normalization
 # MK: 28.11.2013: Added annotation check. If something else than -1/0/1, will die
-
+# EK 28.11.2013 fix bug in the input file description
 
 # Loads the libraries
 library(limma)
