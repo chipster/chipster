@@ -146,6 +146,7 @@ smart.install.packages(bioconductor.package="labdsv", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="sva", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="Mfuzz", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="WGCNA", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="Heatplus", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="RmiR.Hs.miRNA", mirror=repo.bioc)
 
 
