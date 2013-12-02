@@ -11,7 +11,7 @@ repo.bioc <- "http://www.bioconductor.org"
 
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
-source(file(chipster.path, "comp/modules/admin/R-3.0/smip.R"))
+source(file(chipster.path, "comp/modules/admin/R/smip.R"))
 
 # Install packages, and their dependencies, from CRAN
 smart.install.packages(package="amap", mirror=repo.cran)
