@@ -1,4 +1,4 @@
-# TOOL up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment, this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. It is recommended that the two data sets have been filtered to exclude low quality and or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups. NOTE you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
+# TOOL up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment, this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. Please note that the tool itself does not apply any statistical test to the datasets and we recommend to apply it on data sets from which low quality and invariable features have been filtered. NOTE that higher of the group identifiers in the chosen phenodata column is used for choosing the treatment group.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
 # INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
@@ -6,9 +6,9 @@
 # OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
 # OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
 # PARAMETER average.method: average.method TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
-# PARAMETER groups.column.mirna: groups.column.mirna TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
-# PARAMETER groups.column.gene: groups.column.gene TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
+# PARAMETER groups.column: groups.column.mirna TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the both dataset.)
 # PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
+# PARAMETER organism: organism TYPE [Hs: human] DEFAULT Hs (From which organism does the data come from)
 
 # Up-down analysis of miRNA targets
 # MG, 25.2.2010
@@ -43,8 +43,8 @@ mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get experiment groups from for the two datasets
-mirna.groups <- mirna.phenodata[,grep(groups.column.mirna, colnames(mirna.phenodata))]
-gene.groups <- gene.phenodata[,grep(groups.column.gene, colnames(gene.phenodata))]
+mirna.groups <- mirna.phenodata[,grep(groups.column, colnames(mirna.phenodata))]
+gene.groups <- gene.phenodata[,grep(groups.column, colnames(gene.phenodata))]
 
 # Sanity checks to make sure only two experiment groups exist in the two datasets
 if(length(unique(mirna.groups))==1 | length(unique(mirna.groups))>=3) {
@@ -53,18 +53,6 @@ if(length(unique(mirna.groups))==1 | length(unique(mirna.groups))>=3) {
 if(length(unique(gene.groups))==1 | length(unique(gene.groups))>=3) {
 	stop("You need to have exactly two groups in the gene expression dataset to run this analysis")
 }
-
-# Calculate the average expression for the different experiment groups
-#mirna.average.1 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
-#mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
-#mirna.average.2 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
-#mirna.average.2 <- apply(mirna.average.2, FUN=average.method, MARGIN=1)
-#mirna.ratio <- mirna.average.1-mirna.average.2
-#gene.average.1 <- gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
-#gene.average.1 <- apply(gene.average.1, FUN=average.method, MARGIN=1)
-#gene.average.2 <- gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
-#gene.average.2 <- apply(gene.average.2, FUN=average.method, MARGIN=1)
-#gene.ratio <- gene.average.1-gene.average.2
 
 mirna.average.1 <- 2^mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
 mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
@@ -77,14 +65,6 @@ gene.average.2 <- 2^gene.data.2[,gene.groups==sort(unique(gene.groups),decreasin
 gene.average.2 <- apply(gene.average.2, FUN=average.method, MARGIN=1)
 gene.ratio <- log2 (gene.average.1/gene.average.2)
 
-# Read the chiptype that was used for the gene expression data
-if (id.type=="probe_id") {
-	chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
-}
-if (id.type=="entrez_id") {
-	chip.type <- "org.Hs.eg.db"
-}
-
 # Construct datasets suitable for read.mir() function
 mirna.data.3 <- cbind(names(mirna.ratio),as.numeric(mirna.ratio))
 gene.data.3 <- cbind(names(gene.ratio),as.numeric(gene.ratio))
@@ -93,20 +73,30 @@ gene.data.4 <- as.data.frame(gene.data.3)
 mirna.data.4[,2] <- as.numeric(mirna.data.3[,2])
 gene.data.4[,2] <- as.numeric(gene.data.3[,2])
 
-# Check that the gene list actually contain at least one miRNA target
-try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-				annotation=chip.type), silent=FALSE)
-if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("There were no targets found in either TarBase or PicTar databases
-					for the supplied list of miRNA:s in the gene list selected.
-					Try again by selecting a longer list of genes!")
+# Read the chiptype that was used for the gene expression data
+if (id.type=="probe_id") {
+	chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
+	id_type <- "probes"
 }
-merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-		annotation=chip.type, verbose=TRUE)
+if (id.type=="entrez_id") {
+	rownames(gene.data.4) <- gsub("_at", "", rownames(gene.data.4))
+	gene.data.4[,1] <- gsub("_at", "", gene.data.4[,1])
+	chip.type <- "org.Hs.eg.db"
+	id_type <- "genes"
+}
+
+# Check that the gene list actually contain at least one miRNA target
+try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, org=organism, id=id_type), silent=FALSE)
+if (match("merged.table",ls(),nomatch=0)==0) {
+	stop("CHIPSTER-NOTE: There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
+}
+merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, , org=organism, id=id_type, verbose=TRUE)
 
 # Change the symbols that come from the read.mir() function into
 # the ones that come from the org.Hs.eg.db package
-all_genes <- org.Hs.egSYMBOL
+if(organism == "Hs") {
+	all_genes <- org.Hs.egSYMBOL
+}
 mapped_genes <- mappedkeys(all_genes)
 mapped_genes  <- as.list(all_genes[mapped_genes])
 symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])

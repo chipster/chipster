@@ -139,12 +139,9 @@ if(chiptype=="Zebrafish-1(2519f") {
 }
 
 # chiptype<-paste(chiptype, ".db", sep="")
-
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-# Removes control probes
 rownames(dat3)<-dat$genes$identifier
-
 
 # Constructs and writes out a table
 M<-dat3

@@ -9,7 +9,7 @@
 		<tool runtime="R-3.0-R-2.15"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent-one-color.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent.R</resource></tool>
-		<tool runtime="R-2.12"><resource>norm-agilent-miRNA.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>norm-agilent-miRNA.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-cdna.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>norm-illumina-lumi.R</resource></tool>
@@ -58,7 +58,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>stat-linear-modelling-designmat.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
-		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
+		<tool runtime="R-3.0-R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
 		<tool runtime="R-3.0"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
@@ -67,7 +67,7 @@
 		<tool runtime="R-3.0-R-2.12"><resource>ordination-nmds.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>estimate-samplesize.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>sample-size-with-bh.R</resource></tool>
-		<tool runtime="R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
+		<tool runtime="R-3.0-R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
 	</category>
 	
 	<category name="Clustering" color="#d53833">
@@ -84,8 +84,8 @@
 		<tool runtime="R-3.0-R-2.12"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>annotate-add-to-data.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>add-locations-to-data.R</resource></tool>
-		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
-		<tool runtime="R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
+		<tool runtime="R-3.0-R-2.12"><resource>annotate-agilent-miRNA.R</resource></tool> 
 	</category>
 	
 	<category name="Pathways" color="#0177b7">
@@ -94,8 +94,8 @@
 		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
 		<tool runtime="R-3.0-R-2.12"><resource>stat-geneset.R</resource></tool>
-		<tool runtime="R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
-		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
+		<tool runtime="R-3.0-R-2.12" module="common"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
+		<tool runtime="R-3.0-R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="python" module="common"><resource>annotate_cpdb.py</resource></tool>
 	</category>
 

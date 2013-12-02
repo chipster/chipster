@@ -5,12 +5,12 @@
 # INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-gene-positive-correlation.tsv: mirna-gene-positive-correlation.tsv 
 # OUTPUT mirna-gene-negative-correlation.tsv: mirna-gene-negative-correlation.tsv 
-# PARAMETER order.column.mirna: order.column.mirna TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. For time course experiments the actual time can be used, for multiple-condition type of experiments it is adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for an experiment where five different conditions have been assessed. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have been specified as identifier when importing the data into CHIPSTER.)
-# PARAMETER order.column.gene: order.column.gene TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. For time course experiments the actual time can be used, for multiple-condition type of experiments it is adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for an experiment where five different conditions have been assessed. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID have been specified as identifier when importing the data into CHIPSTER.)
-# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
+# PARAMETER order.column: order.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column present in both phenodata matrices and describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. The identifiers within a given phenodata matrix should be unique and the chip-pair having the same identifier in both matrices are considerd to form a pair.) 
+# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID have been specified as identifier when importing the data into CHIPSTER.)
 # PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (Method for calculating the correlation. Peasron's method is parametric, whereas Spearman's correlation is a non-parametric rank-based method that is less sensitive to outliers. Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent data points, rather than the magnitude.)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: Bonferroni, holm: Holm, hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER organism: organism TYPE [Hs: human] DEFAULT Hs (From which organism does the data come from)
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
@@ -46,20 +46,16 @@ if (phenodata_2$chiptype[1] == "miRNA") {
 mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
-# Get sample order for matching the datasets
-#mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
-#gene.order <- gene.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
-
 # check for unambiguity of sample identifiers
-if (nrow(mirna.phenodata)!=length(unique(mirna.phenodata[,order.column.mirna])))
-	stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(mirna.phenodata[,order.column.mirna], collapse=', ')) 
-if (nrow(gene.phenodata)!=length(unique(gene.phenodata[,order.column.gene])))
-	stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(gene.phenodata[,order.column.gene], collapse=', ')) 
+if (nrow(mirna.phenodata)!=length(unique(mirna.phenodata[,order.column])))
+	stop('CHIPSTER-NOTE: Unambigous sample identifiers in miRNA expression phenodata file: ', paste(mirna.phenodata[,order.column], collapse=', ')) 
+if (nrow(gene.phenodata)!=length(unique(gene.phenodata[,order.column])))
+	stop('CHIPSTER-NOTE: Unambigous sample identifiers in gene expression phenodata file: ', paste(gene.phenodata[,order.column], collapse=', ')) 
 
 # pick those samples that do have a matching pair
-common.samples <- intersect(mirna.phenodata[,order.column.mirna], gene.phenodata[,order.column.gene])
-rownames(mirna.phenodata) <- mirna.phenodata[,order.column.mirna]
-rownames(gene.phenodata) <- gene.phenodata[,order.column.gene]
+common.samples <- intersect(mirna.phenodata[,order.column], gene.phenodata[,order.column])
+rownames(mirna.phenodata) <- mirna.phenodata[,order.column]
+rownames(gene.phenodata) <- gene.phenodata[,order.column]
 mirna.phenodata$n <- 1:nrow(mirna.phenodata)
 gene.phenodata$n <- 1:nrow(gene.phenodata)
 mirna.order <- mirna.phenodata[common.samples, 'n']
@@ -71,20 +67,17 @@ if (id.type=="probe_id") {
 	if (length(grep(".db", chip.type)) == 0 & length(grep("pmcdf", chip.type)) == 0) {
 		chip.type <- paste(chip.type, ".db", sep="")
 	}
+	id_type <- "probes"
 }
 if (id.type=="entrez_id") {
+	rownames(gene.data.2) <- gsub("_at", "", rownames(gene.data.2))
 	chip.type <- "org.Hs.eg.db"
+	id_type <- "genes"
 }
 
 # Sanity checks to make sure the experiment have enough conditions
 if(length(unique(mirna.order))==1 | length(unique(gene.order))==1) {
 	stop("You need to have at least 2 conditions or time points to run this analysis!")
-}
-
-# Sanity checks to make sure that the mirna and gene expression data sets
-# have the same number of conditions
-if(length(unique(mirna.order))!=length(unique(gene.order))) {
-	stop("You need to have the same number of conditions, or time points, in the two data sets!")
 }
 
 # Define number of conditions
@@ -99,27 +92,26 @@ mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,1])
 gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,1])
 
 # check that the gene list actually contain at least one miRNA target
-try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-				annotation=chip.type), silent=TRUE)
+try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, org=organism, id=id_type), silent=TRUE)
 
 if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
+	stop("CHIPSTER-NOTE: There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
 }
-merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-		annotation=chip.type, verbose=TRUE)
 
+#read.mir does something funny. Difficult to puzzle out which rows are selected why the function is applied separately for each sample
+merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, verbose=TRUE, org=organism, id=id_type)
 for (count in 2:number.conditions) {
 	mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,count])
 	gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,count])
-	temp.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-			annotation=chip.type, verbose=TRUE)
-	temp.table
+	temp.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, verbose=TRUE, org=organism, id=id_type)
 	merged.table <- cbind (merged.table, temp.table)
 }
 
 # Change the symbols that come from the read.mir() function into
 # the ones that come from the org.Hs.eg.db package
-all_genes <- org.Hs.egSYMBOL
+if(organism == "Hs") {
+	all_genes <- org.Hs.egSYMBOL
+}
 mapped_genes <- mappedkeys(all_genes)
 mapped_genes  <- as.list(all_genes[mapped_genes])
 symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])

@@ -29,14 +29,13 @@ files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 # Removes control probes
-rownames(dat3)<-dat$genes$identifier
 if(remove.control.probes=="yes") {
    if(length(setdiff(names(table(dat$other$annotation)), -1:1)) > 0) {
          stop("CHIPSTER-NOTE: Your annotation data has other than -1, 0 and 1 values")
    }
 
    if(is.null(dim(dat$other$annotation))==FALSE) {
-      dat3<-dat3[rowSums(dat$other$annotation)==0,]
+      dat<-dat[rowSums(dat$other$annotation)==0,]
    }
 }
 
@@ -79,6 +78,8 @@ if(chiptype=="Rat") {
 	chiptype<-c("miRNA")
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+rownames(dat3)<-dat$genes$identifier
 
 # Constructs and writes out a table
 M<-dat3

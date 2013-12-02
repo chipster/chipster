@@ -16,7 +16,7 @@
 # IS, 1.10.2010, rewritten to use GOstats
 # MG, 7.3.2011, added the "database" parameter
 # EK and MK, 10.9.2013, miRNA names are forced to lower case so that they work with the local miRNA_mappings files (used for mouse and rat)
-# MK, remember to modify pathways-mirna-hyperg-kegg
+# MK, remember to modify pathways-mirna-hyperg-kegg. Mm uses now targetscan predictions
 
 # load packages
 library(GOstats)
@@ -38,15 +38,22 @@ if (conditional.testing == 'no') {
 }
 
 if (species == 'mouse') {
-	library(org.Mm.eg.db)
-	# targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.mus_musculus.zip")
-	targets <- read.table(file.path(chipster.tools.path, "miRNA_mappings", "mirna_mappings_mmusculus.txt"), sep="\t")
+	if (database == "PicTar" || database == "both") {
+		stop('CHIPSTER-NOTE: Only TargetScan database is available for mouse')
+	}
+
+	library(targetscan.Mm.eg.db)
 	
-	ensembl.to.entrez <- as.list(org.Mm.egENSEMBLTRANS2EG)
-	reference.genes <- unique(unlist(ensembl.to.entrez[unique(targets$tran)]))
-	selected.genes <- unique(unlist(ensembl.to.entrez[unique(targets[tolower(targets$mir) %in% mirna_ids, 'tran'])]))
-	
-	# check that it was indeed possible to identify targets for the input list of miRNA names
+	reference.genes <- unique(names(as.list(targetscan.Mm.egTARGETS)))
+	unique(names(unlist(as.list(targetscan.Mm.egTARGETS))))
+	for(i in 1:length(mirna_ids)) {
+		a <- try(mget(mirna_ids[i], revmap(targetscan.Mm.egTARGETS)), silent=T)
+		if(class(a) != "try-error") {
+			selected.genes <- c(selected.genes, unlist(a))
+		}
+	}
+	selected.genes <- unique(selected.genes)
+
 	if (length (selected.genes) == 0) {
 		stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
 	}  
@@ -71,35 +78,23 @@ if (species == 'mouse') {
 	library(RmiR.Hs.miRNA)
 	library(org.Hs.eg.db)
 	# load target predictions from pictar and targescan, intersect to build list of reference genes
-	pictar <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'pictar')[,1:2]
-	targetscan <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'targetscan')[,1:2]
-	
-	
-	if (database == "PicTar") {
-		reference.genes <- unique(pictar$gene_id)
+
+	reference.genes <- NULL
+	selected.genes <- NULL
+	if (database == "PicTar" || database == "both") {
+		pictar <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'pictar')[,1:2]
+		reference.genes <- c(reference.genes, unique(pictar$gene_id))
+
+		pictar <- pictar[tolower(pictar[,1]) %in% mirna_ids,]
+		selected.genes <- c(selected.genes, unique(pictar$gene_id))
 	}
-	if (database == "TargetScan") {
-		reference.genes <- unique(targetscan$gene_id)
+	if (database == "TargetScan" || database == "both") {
+		targetscan <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'targetscan')[,1:2]
+		reference.genes <- c(reference.genes, unique(targetscan$gene_id))
+
+		targetscan <- targetscan[tolower(targetscan[,1]) %in% mirna_ids,]
+		selected.genes <- c(selected.genes, unique(targetscan$gene_id))
 	}
-	if (database == "both") {
-		reference.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
-	}
-	
-	#pictar <- pictar[pictar[,1] %in% mirna_ids,]
-	#targetscan <- targetscan[targetscan[,1] %in% mirna_ids,]
-	
-	pictar <- pictar[tolower(pictar[,1]) %in% mirna_ids,]
-	targetscan <- targetscan[tolower(targetscan[,1]) %in% mirna_ids,]
-	
-	if (database == "PicTar") {
-		selected.genes <- unique(pictar$gene_id)
-	}
-	if (database == "TargetScan") {
-		selected.genes <- unique(targetscan$gene_id)
-	}
-	if (database == "both") {
-		selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
-	}  
 	
 	# check that it was indeed possible to identify targets for the input list of miRNA names
 	if (length (selected.genes) == 0) {
@@ -110,6 +105,7 @@ if (species == 'mouse') {
 
 # define the output variable
 output <- data.frame(total=integer(0), expected=numeric(0), observed=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
+
 if (ontology == 'biological_process' || ontology == 'all') {
 	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=annotpkg, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
 	go <- hyperGTest(params)

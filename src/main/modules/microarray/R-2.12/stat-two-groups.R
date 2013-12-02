@@ -7,7 +7,7 @@
 # PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE, RankProd: RankProd] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off \\(0.05\)for significant results)
-# PARAMETER show.na: show.na TYPE [yes: yes, no:no] DEFAULT yes (include results where p-value is NA)
+# PARAMETER show.na: show.na TYPE [yes: yes, no:no] DEFAULT no (include results where p-value is NA)
 
 # Two-group parametric and non-parametric tests
 # JTT 4.7.2006
