@@ -5,13 +5,12 @@
 # and only missing packages are installed.
 
 # Configure paths and repos (change if you need)
-chipster.path <- "/opt/chipster/"
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
 repo.bioc <- "http://www.bioconductor.org"
 
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
-source(file(chipster.path, "comp/modules/admin/R/smip.R"))
+source("smip.R")
 
 # Install packages, and their dependencies, from CRAN
 smart.install.packages(package="amap", mirror=repo.cran)
