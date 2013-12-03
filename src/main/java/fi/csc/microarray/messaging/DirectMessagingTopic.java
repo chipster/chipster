@@ -4,25 +4,41 @@ import java.util.LinkedList;
 
 import javax.jms.JMSException;
 
-public class MockMessagingTopic extends MessagingTopic {
+import fi.csc.microarray.messaging.message.ChipsterMessage;
+
+public class DirectMessagingTopic extends MessagingTopic {
 
 	private LinkedList<MessagingListener> listeners = new LinkedList<MessagingListener>();
-	private MockMessagingEndpoint mockEndpoint;
+	private DirectMessagingEndpoint endpoint;
 	
-	public MockMessagingTopic(String topicName, AccessMode accessMode, MockMessagingEndpoint endpoint)
+	public DirectMessagingTopic(String topicName, AccessMode accessMode, DirectMessagingEndpoint endpoint)
 			throws JMSException {
 		super(null, topicName, Type.MOCK, AccessMode.WRITE, endpoint);
-		this.mockEndpoint = endpoint;
+		this.endpoint = endpoint;
 	}
 	
 	@Override
 	public void sendMessage(fi.csc.microarray.messaging.message.ChipsterMessage message) throws JMSException {
-		// MockMessagingEndpoint guarantees that everyone has the same MockMessagingTopic instance
+		
+		setUsername(message);
+		
+		// DirectMessagingEndpoint guarantees that everyone has the same DirectMessagingTopic instance
 		for (MessagingListener listener : listeners) {
-			listener.onChipsterMessage(message);
+			if (listener instanceof DirectMessagingListener) {
+				DirectMessagingListener directListener = (DirectMessagingListener) listener;
+				directListener.onChipsterMessage(message, endpoint);
+			} else {
+				listener.onChipsterMessage(message);
+			}
 		}
 	}
 	
+	private void setUsername(ChipsterMessage message) {
+		if (endpoint.getUsername() != null) {
+			message.setUsername(endpoint.getUsername());
+		}
+	}
+
 	@Override
 	protected void sendReplyableMessage(fi.csc.microarray.messaging.message.ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
 		sendReplyableMessage(message, replyListener); // ignore authentication
@@ -35,17 +51,16 @@ public class MockMessagingTopic extends MessagingTopic {
 	
 	@Override	
 	public void sendReplyableMessage(fi.csc.microarray.messaging.message.ChipsterMessage message, TempTopicMessagingListener replyListener) throws JMSException {
-		MockMessagingTopic replyTopic = new MockMessagingTopic("temp topic", AccessMode.READ_WRITE, mockEndpoint);
+		DirectMessagingTopic replyTopic = new DirectMessagingTopic("temp topic", AccessMode.READ_WRITE, endpoint);
 		replyTopic.setListener(replyListener);
-		this.mockEndpoint.mapReplyTopic(message, replyTopic);
+		this.endpoint.mapReplyTopic(message, replyTopic);
+		setUsername(message);
 		sendMessage(message);
 		
 	}
 	
 	@Override		
 	public void removeListener() throws JMSException {
-		// ignore
+		throw new UnsupportedOperationException("not supported by DirectMessagingTopic");
 	}
-
-
 }

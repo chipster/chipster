@@ -14,6 +14,7 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import de.schlichtherle.truezip.file.TFile;
+import fi.csc.microarray.messaging.DirectMessagingEndpoint;
 
 /**
  * Synchronize example sessions in zip format and example sessions stored as server sessions.
@@ -56,7 +57,9 @@ public class ExampleSessionUpdater extends FileServerListener {
 		this.exampleSessionDir = exampleSessionDir;
 		
 		//set up JMS replacement
-		DirectFileBrokerEndpoint directEndpoint = new DirectFileBrokerEndpoint(fileServer, DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER);
+		DirectMessagingEndpoint directEndpoint = new DirectMessagingEndpoint(DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER);
+		fileServer.addEndpoint(directEndpoint);
+		
 		importExportTool = new ServerSessionImportExportTool(directEndpoint);
 		
 		if (!this.exampleSessionDir.exists()) {
@@ -264,7 +267,7 @@ public class ExampleSessionUpdater extends FileServerListener {
 	public void listen(Event e) {
 		
 		//don't care about events originated in file broker (for example when we import a zip file, don't export it again here)
-		if (!(e.getEndpoint() instanceof DirectFileBrokerEndpoint)) {
+		if (!(e.getEndpoint() instanceof DirectMessagingEndpoint)) {
 			
 			if (e instanceof BeforeStoreSession) {
 				BeforeStoreSession event = (BeforeStoreSession) e;

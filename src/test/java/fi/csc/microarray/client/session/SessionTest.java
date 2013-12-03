@@ -27,7 +27,7 @@ import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.MockJettyFileServer;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.messaging.MockMessagingEndpoint;
+import fi.csc.microarray.messaging.DirectMessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.module.ModuleManager;
@@ -56,7 +56,7 @@ public class SessionTest {
 		IOUtils.copy(new ByteArrayInputStream(getMockConfig().getBytes()), configFile);
 
 		// boot up file server so that it is connected to mock messaging fabric
-		MockMessagingEndpoint endpoint = new MockMessagingEndpoint();
+		DirectMessagingEndpoint endpoint = new DirectMessagingEndpoint();
 		new FileServer(null, endpoint, new MockJettyFileServer());
 
 		// test file broker using JMSFileBrokerClient

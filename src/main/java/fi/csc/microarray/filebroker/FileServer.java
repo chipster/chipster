@@ -24,6 +24,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.manager.ManagerClient;
+import fi.csc.microarray.messaging.DirectMessagingListener;
 import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -45,7 +46,7 @@ import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.MemUtil;
 import fi.csc.microarray.util.Strings;
 
-public class FileServer extends NodeBase implements MessagingListener, ShutdownCallback {
+public class FileServer extends NodeBase implements MessagingListener, DirectMessagingListener, ShutdownCallback {
 	/**
 	 * Logger for this class
 	 */
@@ -162,6 +163,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		}
     		this.managerClient = new ManagerClient(jmsEndpoint);
     		
+    		addEndpoint(jmsEndpoint);
+
+    		MessagingTopic filebrokerAdminTopic = jmsEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
+    		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
+    		
     		// Load new zip example sessions and store as server sessions. 
     		// ManagerClient is not really needed in this, but must be initialized to avoid NullPointerException.
     		File exampleSessionDir = new File(fileRepository, exampleSessionPath);
@@ -176,13 +182,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     			throw e;
     		}
     		
-    		// initialise messaging, part 2
-    		MessagingTopic filebrokerTopic = jmsEndpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
-    		filebrokerTopic.setListener(this);
-    		MessagingTopic filebrokerAdminTopic = jmsEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.READ);
-    		filebrokerAdminTopic.setListener(new FilebrokerAdminMessageListener());
-    		   		
-
     		// create keep-alive thread and register shutdown hook
     		KeepAliveShutdownHandler.init(this);
 
@@ -202,20 +201,23 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     	}
     }
 
+	protected void addEndpoint(MessagingEndpoint endpoint) throws JMSException {
+		MessagingTopic filebrokerTopic = endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.READ);
+		filebrokerTopic.setListener(this);
+	}
+
 	public String getName() {
 		return "filebroker";
 	}
 
 
 	public void onChipsterMessage(ChipsterMessage msg) {
-		
-		handleMessage(this.jmsEndpoint, msg);
+		onChipsterMessage(msg, this.jmsEndpoint);
 	}
 		
 	
-	protected void handleMessage(MessagingEndpoint endpoint, ChipsterMessage msg) {
-		
-		
+	public void onChipsterMessage(ChipsterMessage msg, MessagingEndpoint endpoint) {
+				
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_NEW_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {				

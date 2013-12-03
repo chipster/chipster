@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.module.ModuleManager;
 
 /**
@@ -26,7 +27,7 @@ public class ServerSessionImportExportTool {
 	//A whitelist of allowed characters in file names 
 	private static Pattern nameCheck = Pattern.compile("[a-zA-Z0-9_\\-\\.\\ \\(\\)]*");
 
-	public ServerSessionImportExportTool(DirectFileBrokerEndpoint endpoint) throws Exception {
+	public ServerSessionImportExportTool(MessagingEndpoint endpoint) throws Exception {
 			
 		//set up some client parts
 		this.dataManager = new DataManager();
