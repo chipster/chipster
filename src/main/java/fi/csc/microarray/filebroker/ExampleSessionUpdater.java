@@ -40,8 +40,6 @@ public class ExampleSessionUpdater extends FileServerListener {
 	 * - 2000ms for tar.gz 
 	 */
 	private static final String EXAMPLE_SESSION_ARCHIVE = "all-example-sessions.tar";
-
-	private int ZIP_TIMESTAMP_PENALTY = 2000; //ms
 	
 	private static Logger logger = Logger.getLogger(ExampleSessionUpdater.class);
 
@@ -127,20 +125,9 @@ public class ExampleSessionUpdater extends FileServerListener {
 				logger.debug("found a zip session '" + zipSessionBasename + "', but there is no server session with that name");
 				store = true;
 			} else {
-				//there is a server session with same name, check timestamps		
-				DbFile dbSessionFile = metadataServer.fetchFile(dbSession.getDataId());
-				Timestamp dbSessionCreated = Timestamp.valueOf(dbSessionFile.getCreated());
-				//logger.debug("server session created " + dbSessionCreated);
-
-				/* When a session is saved, its files are first upload and only after that the session is inserted into database.
-				 * The session file gets its timestamp when the session file is uploaded, but we can export the session to a zip
-				 * file only afterwards. 
-				 * 
-				 * As a consequence, it looks like the zip file is newer and needs to again imported, although there is no need for that.
-				 * We have to make zip file to look little bit older than it really is in this comparison to avoid this extra import.
-				 */
-				Timestamp zipSessionModified = new Timestamp(zipSessionFile.lastModified() - ZIP_TIMESTAMP_PENALTY);
-				//logger.debug("zip session modified: " + zipSessionModified);								
+				//there is a server session with same name, check timestamps
+				Timestamp dbSessionCreated = getTimestamp(dbSession.getDataId());				
+				Timestamp zipSessionModified = getTimestamp(zipSessionFile);				
 				
 				store = zipSessionModified.after(dbSessionCreated);
 			}
@@ -156,6 +143,15 @@ public class ExampleSessionUpdater extends FileServerListener {
 		}
 	}
 
+	private Timestamp getTimestamp(File file) {
+		return new Timestamp(file.lastModified());
+	}
+
+	private Timestamp getTimestamp(String dataId) throws SQLException {
+		DbFile dbSessionFile = metadataServer.fetchFile(dataId);
+		return Timestamp.valueOf(dbSessionFile.getCreated());
+	}
+
 	/**
 	 * Export server session to zip session. Possible existing files are overwritten.
 	 * 
@@ -169,6 +165,8 @@ public class ExampleSessionUpdater extends FileServerListener {
 			
 			importExportTool.exportSession(sessionUuid, zipFile);
 			
+			fixZipTimestamp(sessionUuid, zipFile);
+			
 			updateExampleSessionArchive();
 			
 		} catch (Exception e) {
@@ -176,6 +174,44 @@ public class ExampleSessionUpdater extends FileServerListener {
 		}
 	}
 	
+	/**
+	 * 
+	 * When a session is saved, its files are first upload and only after that the session is inserted into database.
+	 * The session file gets its timestamp when the session file is uploaded, but we can export the session to a zip
+	 * file only afterwards. 
+	 *  
+	 *  As a consequence, it looks like the zip file is newer and needs to again imported, although there is no need for that.
+	 *  We have to make zip file to look little bit older than it really is in this comparison to avoid this extra import.
+	 *  
+	 * @param sessionUuid
+	 * @param zipFile
+	 * @throws SQLException 
+	 */
+	private void fixZipTimestamp(String sessionUuid, File zipFile) throws SQLException {
+		Timestamp dbSessionCreated = getTimestamp(sessionUuid);				
+		Timestamp zipSessionModified = getTimestamp(zipFile);	
+		
+		long dTime = zipSessionModified.getTime() - dbSessionCreated.getTime();
+		
+		if (dTime < 0) {
+			//this shouldn't be possible
+			logger.error("server session is newer than a zip session exported from it");
+			return;
+		}
+		
+		long MAX_TIME_FIX = 60000; //ms
+		
+		if (dTime > MAX_TIME_FIX) {
+			logger.error("exported zip session was " + dTime / 1000 + " seconds older than its server session");
+			//the exported zip session was much older than its server session. This shouldn't happen unless the server
+			//is really slow
+			return;
+		}
+		
+		logger.debug("zip session was made " + dTime + " ms older");
+		zipFile.setLastModified(zipFile.lastModified() - dTime);
+	}
+
 	/**
 	 * Store all session files to a tarball which is easy to copy when the example sessions of this 
 	 * installation are needed elsewhere.
