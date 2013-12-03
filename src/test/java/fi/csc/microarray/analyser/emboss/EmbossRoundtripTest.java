@@ -9,13 +9,11 @@ import java.util.Random;
 import javax.jms.JMSException;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.ToolDescription;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
@@ -30,12 +28,6 @@ public class EmbossRoundtripTest {
     private static String path = "src/test/resources/";
     
     private boolean isResultOK = false; 
-
-    @Before
-    protected void setUp() throws Exception {
-    	DirectoryLayout.uninitialise();
-        DirectoryLayout.initialiseSimpleLayout();
-    }
 
     /**
      * Test EMBOSS analysis processing roundtrip: generate description on the compute service
@@ -154,7 +146,6 @@ public class EmbossRoundtripTest {
 
     public static void main(String[] args) throws Exception {
         EmbossRoundtripTest test = new EmbossRoundtripTest();
-        test.setUp();
         test.testRoundtripValidation();
         test.testRoundtripExecution();
         System.exit(0);

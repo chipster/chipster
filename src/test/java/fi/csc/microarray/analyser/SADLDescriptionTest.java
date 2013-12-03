@@ -29,7 +29,7 @@ public class SADLDescriptionTest {
 	}
 
 	@Test
-	private void testSADLTool() throws IOException {
+	public void testSADLTool() throws IOException {
 		
 		String rScript = 
 			"# TOOL \"BLAST\" / blastn.sadl: blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotode sequence database.)" + "\n" +

@@ -12,7 +12,6 @@ import org.junit.Test;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
@@ -25,9 +24,7 @@ public class VisualiserTest {
 
 	private DataManager manager;
 	
-	public VisualiserTest() throws Exception {
-		DirectoryLayout.uninitialise();
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
+	public VisualiserTest() throws Exception {			
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}

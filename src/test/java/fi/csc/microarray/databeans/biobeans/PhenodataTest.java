@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
@@ -21,9 +20,7 @@ public class PhenodataTest {
 	private DataManager manager; 
 	
 	@Before
-	public void init() throws Exception {
-		DirectoryLayout.uninitialise();
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
+	public void init() throws Exception {			
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}

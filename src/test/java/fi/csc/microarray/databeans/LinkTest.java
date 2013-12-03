@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -15,9 +14,7 @@ public class LinkTest {
 	private DataManager manager; 
 	
 	@Before
-	public void init() throws Exception {
-		DirectoryLayout.uninitialise();
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
+	public void init() throws Exception {			
 		this.manager = new DataManager();
 	}
 	

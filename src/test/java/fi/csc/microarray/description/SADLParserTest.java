@@ -3,11 +3,9 @@ package fi.csc.microarray.description;
 import java.io.IOException;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -18,12 +16,6 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class SADLParserTest {
-
-	@Before
-	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.uninitialise();
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
-	}
 
 	@Test
 	public void testVVSADLCompatibility() throws MicroarrayException, IOException {

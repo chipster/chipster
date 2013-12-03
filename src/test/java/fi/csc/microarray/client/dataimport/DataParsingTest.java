@@ -6,8 +6,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.MemUtil;
 
 public class DataParsingTest {
@@ -58,11 +56,6 @@ public class DataParsingTest {
 		}
 	}
 	
-	public DataParsingTest() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.uninitialise();
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
-	}
-	
 	@Test
 	public void testSmallSizedRealData() throws IOException{
 		System.out.println("\n");
@@ -71,8 +64,9 @@ public class DataParsingTest {
 		System.out.println("===============================");
 		long start = System.currentTimeMillis();
 		ConversionModel model = new ConversionModel(null);
-		model.setInputFile(new File("examples/affy_example.cel"));
-		model.chopData(false, new TestInformator(8*MB));
+		model.setInputFile(new File("src/test/resources/affy_example.cel"));
+		//originally the limit was 8 MB so probably it has been enough at some point, but now we need more
+		model.chopData(false, new TestInformator(30*MB));
 		System.out.println("Best suitable delimiter was: " + model.getDelim().getName());
 		System.out.println("===============================");
 		System.out.println("Parsing done. Total time: " + (System.currentTimeMillis() - start));

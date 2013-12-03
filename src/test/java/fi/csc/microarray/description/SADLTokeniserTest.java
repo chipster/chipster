@@ -3,7 +3,6 @@ package fi.csc.microarray.description;
 import java.io.IOException;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
@@ -11,11 +10,6 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class SADLTokeniserTest {
-
-	@Before
-	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
-	}
 
 	@Test
 	public void testTokenising() throws MicroarrayException, IOException {
