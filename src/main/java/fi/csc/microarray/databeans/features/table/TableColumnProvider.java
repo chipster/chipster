@@ -338,7 +338,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 					//put them back
 					String[] fullResult = new String[result.length + eatenColumns];
 					System.arraycopy(result, 0, fullResult, 0, result.length);
-					Arrays.fill(fullResult, result.length, fullResult.length, "\t");
+					Arrays.fill(fullResult, result.length, fullResult.length, "");
 					result = fullResult;
 				}
 				

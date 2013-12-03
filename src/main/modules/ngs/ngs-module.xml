@@ -444,4 +444,22 @@
 			<resource>mothur-analyses.R</resource>
 		</tool>
 	</category>
+
+	<!-- 
+	<category name="Motif discovery" color="#aaff00">
+		<tool runtime="R">
+			<resource>dimont-extract-data.R</resource>
+		</tool>
+		<tool runtime="R">
+			<resource>dimont-extract-data_custom.R</resource>
+		</tool>
+		<tool runtime="R">
+			<resource>dimont.R</resource>
+		</tool>
+		<tool runtime="R">
+			<resource>dimont-predictor.R</resource>
+		</tool>
+	</category>
+	-->
+
 </module>
