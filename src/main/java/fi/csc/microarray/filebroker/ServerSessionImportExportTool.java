@@ -22,23 +22,17 @@ import fi.csc.microarray.module.ModuleManager;
 public class ServerSessionImportExportTool {
 	
 	public DataManager dataManager;
-	public FileServer fileServer;
 	
 	//A whitelist of allowed characters in file names 
 	private static Pattern nameCheck = Pattern.compile("[a-zA-Z0-9_\\-\\.\\ \\(\\)]*");
 
-	public ServerSessionImportExportTool(FileServer fileServer) throws Exception {
-		this.fileServer = fileServer;
+	public ServerSessionImportExportTool(DirectFileBrokerEndpoint endpoint) throws Exception {
 			
-		//set up JMS replacement
-		DirectFileBrokerEndpoint directEndpoint = new DirectFileBrokerEndpoint(fileServer, DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER);
-
 		//set up some client parts
-
 		this.dataManager = new DataManager();
 		//setup service accessor manually to customize messaging endpoint
 		RemoteServiceAccessor serviceAccessor = new RemoteServiceAccessor();
-		serviceAccessor.initialise(directEndpoint, dataManager, null);		
+		serviceAccessor.initialise(endpoint, dataManager, null);		
 		//module manager is needed when session loading checks if a file is phenodata
 		ModuleManager moduleManager = new ModuleManager();		
 		moduleManager.plugAll(dataManager, null);
@@ -72,7 +66,7 @@ public class ServerSessionImportExportTool {
 	 */
 	public void exportSession(String uuid, File zipFile) throws MalformedURLException, Exception {
 
-		this.dataManager.loadStorageSession(fileServer.uuidToURL(uuid));
+		this.dataManager.loadStorageSession(uuid);
 		this.dataManager.saveSession(zipFile);		
 		this.dataManager.deleteAllDataItems();			
 	}

@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,9 +26,9 @@ import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.MockJettyFileServer;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MockMessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -63,19 +62,19 @@ public class SessionTest {
 		// test file broker using JMSFileBrokerClient
 		MessagingTopic urlTopic = endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE);
 		FileBrokerClient fbc = new JMSFileBrokerClient(urlTopic);
-		URL url = fbc.addSessionFile();
+
+		// Test just basic messaging. This used to request for new url, but it's not possible anymore in FileBrokerClient 
+		boolean diskSpace = fbc.requestDiskSpace(0);
 		
 		// check results
-		Assert.assertNotNull(url);
+		Assert.assertTrue(diskSpace);
 		
 		// check all log files after execution
 		for (File logFile : logDir.listFiles()) {
 			ByteArrayOutputStream contents = new ByteArrayOutputStream();
 			IOUtils.copy(new FileInputStream(logFile), contents);
 			Assert.assertFalse(logFile + " should not contain exception", contents.toString().contains("Exception"));
-		}
-		
-
+		}		
 	}
 
 
@@ -190,14 +189,14 @@ public class SessionTest {
 		
 		// load session
 		List<DbSession> sessions = fileBrokerClient.listRemoteSessions();
-		URL sessionURL = findSession(sessionName, sessions);
-		manager.loadStorageSession(sessionURL);
+		String sessionId = findSession(sessionName, sessions);
+		manager.loadStorageSession(sessionId);
 
 		// assert loaded data is ok
 		Assert.assertEquals(manager.databeans().size(), dbCountOrig);
 		
 		// remove remote session
-		fileBrokerClient.removeRemoteSession(sessionURL);
+		fileBrokerClient.removeRemoteSession(sessionId);
 
 		// assert removal
 		List<DbSession> sessions2 = fileBrokerClient.listRemoteSessions();
@@ -205,14 +204,14 @@ public class SessionTest {
 
 	}
 
-	private URL findSession(String sessionName,	List<DbSession> sessions) throws MalformedURLException {
-		URL sessionURL = null;
+	private String findSession(String sessionName,	List<DbSession> sessions) throws MalformedURLException {
+		String sessionId = null;
 		for (DbSession session : sessions) {
 			if (sessionName.equals(session.getName())) {
-				sessionURL = new URL(session.getUuid());
+				sessionId = session.getDataId();
 				break;
 			}
 		}
-		return sessionURL;
+		return sessionId;
 	}
 }

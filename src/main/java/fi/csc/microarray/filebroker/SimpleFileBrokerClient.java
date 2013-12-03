@@ -33,11 +33,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public boolean checkFile(URL url, long contentLength) {
-		throw new UnsupportedOperationException();	}
-
-	@Override
-	public InputStream getFile(String dataId) throws IOException {
+	public InputStream getInputStream(String dataId) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -86,18 +82,13 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void removeRemoteSession(URL sessionURL) throws JMSException {
+	public void removeRemoteSession(String dataId) throws JMSException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void saveRemoteSession(String name, URL sessionURL, LinkedList<String> dataIds)
+	public void saveRemoteSession(String name, String dataId, LinkedList<String> dataIds)
 			throws JMSException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public URL addSessionFile() throws JMSException, FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -113,6 +104,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public List<DbSession> listPublicRemoteSessions() throws JMSException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String addMetadata(String sessionId, InputStream metadataInputStream)
+			throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 }

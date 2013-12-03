@@ -76,8 +76,21 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws JMSException 
 	 */
-	public abstract InputStream getFile(String dataId) throws IOException, JMSException;
+	public abstract InputStream getInputStream(String dataId) throws IOException, JMSException;
 
+	/**
+	 * Save metadata from InputStream to file broker.
+	 * 
+	 * @param dataId dataId of the session metadata file
+	 * @param metadataInputStream
+	 * @return
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 */
+	public String addMetadata(String dataId, InputStream metadataInputStream) throws FileBrokerException, JMSException, IOException;
+
+	
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
 	 * of downloading.
@@ -88,26 +101,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws JMSException 
 	 */
-	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException;
-
-	/**
-	 * Check if a file exists at the file broker.
-	 * 
-	 * This method should only be used to check if a cached file has been
-	 * removed on the server side.
-	 * 
-	 * This method should not be used to figuring out if a cached file should
-	 * be updated or not. 
-	 * 
-	 * TODO Check contentLength against connection.getContentLength()
-	 * 
-	 * @param url
-	 * @param contentLength
-	 * @return true if file exists and contentLength matches
-	 * @throws IOException 
-	 */
-	public abstract boolean checkFile(URL url, long contentLength);
-	
+	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -120,7 +114,13 @@ public interface FileBrokerClient {
 	 */
 	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
 
-	public abstract void saveRemoteSession(String name, URL sessionURL, LinkedList<String> dataIds) throws JMSException;
+	/**
+	 * @param name
+	 * @param sessionId dataId of the session metadata file
+	 * @param dataIds dataIds of other files in session
+	 * @throws JMSException
+	 */
+	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws JMSException;
 	
 	/**
 	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.
@@ -130,20 +130,11 @@ public interface FileBrokerClient {
 	 */
 	public abstract List<DbSession> listRemoteSessions() throws JMSException;
 	public abstract List<DbSession> listPublicRemoteSessions() throws JMSException;
-	public void removeRemoteSession(URL sessionURL) throws JMSException;
-
-
 	/**
-	 * Retrieves new URL to upload session metadata file into. File size is not needed, but
-	 * assumes 'a big enough' file size when requesting the URL (metadata files are small text files).
-	 * 
-	 * @return url to upload to
-	 * 
+	 * @param dataId dataId of the session metadata file
 	 * @throws JMSException
-	 * @throws FileBrokerException
 	 */
-	public URL addSessionFile() throws JMSException, FileBrokerException;
-
+	public void removeRemoteSession(String dataId) throws JMSException;
 
 	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException;
 

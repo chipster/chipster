@@ -1746,13 +1746,9 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadExampleSession(String uuid) {
+	public void loadExampleSession(String sessionId) {
 		
-		try {
-			loadSessionImpl(null, new URL(uuid), true, false, true);
-		} catch (MalformedURLException e) {
-			reportException(e);
-		}		
+		loadSessionImpl(null, sessionId, true, false, true);			
 	}
 	
 	@Override
@@ -1781,14 +1777,14 @@ public class SwingClientApplication extends ClientApplication {
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			File sessionFile = null;
-			URL sessionURL = null;
+			String sessionId = null;
 
 			if (remote) {
 				try {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-					sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
-					if (sessionURL == null) {
+					sessionId = findMatchingSessionUuid(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
+					if (sessionId == null) {
 						throw new RuntimeException();
 					}
 					
@@ -1822,13 +1818,13 @@ public class SwingClientApplication extends ClientApplication {
 			}		
 
 			// load the new session
-			loadSessionImpl(sessionFile, sessionURL, remote, false, false);		
+			loadSessionImpl(sessionFile, sessionId, remote, false, false);		
 
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile, final URL sessionURL, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
+	private void loadSessionImpl(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
 		
 		// check that it's a valid session file 
 		if (!isDataless) {
@@ -1853,9 +1849,9 @@ public class SwingClientApplication extends ClientApplication {
 					if (sessionFile != null) {
 						manager.loadSession(sessionFile, isDataless);
 					} else {
-						manager.loadStorageSession(sessionURL);
-					}
-					
+						manager.loadStorageSession(sessionId);
+					}				
+
 				} catch (Exception e) {
 					if (isExampleSession) {
 						Session.getSession().getApplication().showDialog("Opening example session failed.", "Please restart " + Session.getSession().getPrimaryModule().getDisplayName() + " to update example session links or see the details for more information.", Exceptions.getStackTrace(e), Severity.INFO, true, DetailsVisibility.DETAILS_HIDDEN, null);
@@ -1864,7 +1860,7 @@ public class SwingClientApplication extends ClientApplication {
 					}
 					logger.error("loading session failed", e);
 				}
-				
+
 				unsavedChanges = somethingToSave;
 				
 				// If this was restored session, clear dead temp directories in the end.
@@ -2069,18 +2065,18 @@ public class SwingClientApplication extends ClientApplication {
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			URL sessionURL = null;
+			String sessionUuid = null;
 
 			try {
 				@SuppressWarnings("unchecked")
 				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionURL = findMatchingSessionURL(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
-				if (sessionURL == null) {
+				sessionUuid = findMatchingSessionUuid(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
+				if (sessionUuid == null) {
 					throw new RuntimeException();
 				}
 
 				// remove the selected session
-				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionURL);		
+				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionUuid);		
 
 				// confirm to user
 				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
@@ -2095,15 +2091,15 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private URL findMatchingSessionURL(List<DbSession> sessions, String name) throws MalformedURLException {
-		URL sessionURL = null;
+	private String findMatchingSessionUuid(List<DbSession> sessions, String name) throws MalformedURLException {
+		String sessionUuid = null;
 		for (DbSession session : sessions) {
 			if (session.getName() != null && session.getName().equals(name)) {
-				sessionURL = new URL(session.getUuid());
+				sessionUuid = session.getDataId();
 				break;
 			}
 		}
-		return sessionURL;
+		return sessionUuid;
 	}
 
 	private void enableKeyboardShortcuts() {

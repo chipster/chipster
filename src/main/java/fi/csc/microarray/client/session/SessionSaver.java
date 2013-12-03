@@ -2,12 +2,12 @@ package fi.csc.microarray.client.session;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -41,16 +41,16 @@ import fi.csc.microarray.client.session.schema2.OperationType;
 import fi.csc.microarray.client.session.schema2.ParameterType;
 import fi.csc.microarray.client.session.schema2.SessionType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
-import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * @author hupponen
@@ -64,7 +64,7 @@ public class SessionSaver {
 	private final int DATA_BLOCK_SIZE = 2048;
 	
 	private File sessionFile;
-	private URL sessionUrl;
+	private String sessionId;
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
 	private int entryCounter = 0;
@@ -95,7 +95,7 @@ public class SessionSaver {
 	 */
 	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
-		this.sessionUrl = null;
+		this.sessionId = null;
 		this.dataManager = dataManager;
 
 	}
@@ -105,9 +105,9 @@ public class SessionSaver {
 	 * 
 	 * @param sessionUrl url to write out metadata
 	 */
-	public SessionSaver(URL sessionUrl, DataManager dataManager) {
+	public SessionSaver(String sessionId, DataManager dataManager) {
 		this.sessionFile = null;
-		this.sessionUrl = sessionUrl;
+		this.sessionId = sessionId;
 		this.dataManager = dataManager;
 
 	}
@@ -148,7 +148,7 @@ public class SessionSaver {
 		
 		// save metadata
 		gatherMetadata(false, true);
-		writeSessionToUrl(false);
+		writeRemoteSession();
 		
 		return dataIds;
 	}
@@ -201,32 +201,18 @@ public class SessionSaver {
 	}
 
 	/**
-	 * Write metadata over URL. 
-	 * 
-	 * @param saveData if true, also actual contents of databeans are saved 
+	 * Write metadata over URL. Doesn't save actual content of the databeans.
 	 * 
 	 */
-	private void writeSessionToUrl(boolean saveData) throws Exception {
-
-		HttpURLConnection conn = UrlTransferUtil.prepareForUpload(sessionUrl);
+	private void writeRemoteSession() throws Exception {
 		
-		try {
-			OutputStream out = conn.getOutputStream();
-			try {
-				writeSessionContents(saveData, out); 
-			} finally {
-				IOUtils.closeIfPossible(out);
-			}
-			
-			// need to check this to guarantee upload
-			if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
-    			throw new IOException("PUT was not successful: " + conn.getResponseCode() + " " + conn.getResponseMessage());
-    		}
-			
-		} finally {
-			IOUtils.disconnectIfPossible(conn); 
-		}
+		//write metedata to byte array
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		writeSessionContents(false, buffer);
+				
+		FileBrokerClient fileBrokerClient = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		
+		fileBrokerClient.addMetadata(this.sessionId, new ByteArrayInputStream(buffer.toByteArray()));
 	}
 
 	/**
@@ -391,19 +377,19 @@ public class SessionSaver {
 
 				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = null;
+				URL zipEntryUrl = null;
 				
 				if (saveData) {
 
 					// data is saved to zip, change URL to point there 
-					newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
+					zipEntryUrl = new URL(sessionFile.toURI().toURL(), "#" + entryName);
 
 					// store the new URL temporarily
-					newURLs.put(bean, newURL);
+					newURLs.put(bean, zipEntryUrl);
 				}
 				
 				// store metadata
-				saveDataBeanMetadata(bean, newURL, folderId, skipLocalLocations);
+				saveDataBeanMetadata(bean, zipEntryUrl, folderId, skipLocalLocations);
 
 			}
 		}
@@ -443,7 +429,7 @@ public class SessionSaver {
 	}	
 	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, boolean skipLocalLocations) {
+	private void saveDataBeanMetadata(DataBean bean, URL zipEntryUrl, String folderId, boolean skipLocalLocations) {
 		String beanId = reversedItemIdMap.get(bean);
 		DataType dataType = factory.createDataType();
 	
@@ -488,10 +474,10 @@ public class SessionSaver {
 		}
 		
 		// write newly created URL inside session files, if exists
-		if (newURL != null) {
+		if (zipEntryUrl != null) {
 			LocationType locationType = new LocationType();
 			locationType.setMethod(StorageMethod.LOCAL_SESSION_ZIP.name());
-			locationType.setUrl("file:#" + newURL.getRef());
+			locationType.setUrl("file:#" + zipEntryUrl.getRef());
 			dataType.getLocation().add(locationType);
 		}
 		

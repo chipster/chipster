@@ -1,16 +1,9 @@
 package fi.csc.microarray.client.session;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.zip.ZipException;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.databeans.DataManager;
@@ -22,25 +15,25 @@ public class SessionLoader {
 	
 	private DataManager dataManager;
 	private File sessionFile;
-	private URL sessionURL;
+	private String sessionId;
 	private boolean isDatalessSession;
 
 	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
 		this.sessionFile = sessionFile;
-		this.sessionURL = null;
+		this.sessionId = null;
 		this.dataManager = dataManager; 
 		this.isDatalessSession = isDatalessSession;
 	}
 
-	public SessionLoader(URL sessionURL, DataManager dataManager) throws MicroarrayException {
+	public SessionLoader(String sessionId, DataManager dataManager) throws MicroarrayException {
 		this.sessionFile = null;
-		this.sessionURL = sessionURL;
+		this.sessionId = sessionId;
 		this.dataManager = dataManager; 
 		this.isDatalessSession = true;
 	}
 
 	
-	public void loadSession() throws ZipException, IOException, JAXBException, SAXException, ParserConfigurationException {
+	public void loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
 		InputStreamReader metadataReader = null;
@@ -70,7 +63,7 @@ public class SessionLoader {
 			if (sessionFile != null) {
 				impl = new SessionLoaderImpl2(sessionFile, dataManager, isDatalessSession);
 			} else {
-				impl = new SessionLoaderImpl2(sessionURL, dataManager, isDatalessSession);
+				impl = new SessionLoaderImpl2(sessionId, dataManager, isDatalessSession);
 			}
 			impl.loadSession();
 		}

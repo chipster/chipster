@@ -47,7 +47,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 		
 		System.out.println("Getting file");
 		long outputContentLength = 0;
-		BufferedInputStream input = new BufferedInputStream(fbc.getFile(dataId));
+		BufferedInputStream input = new BufferedInputStream(fbc.getInputStream(dataId));
 		while (input.read() != -1) {
 			outputContentLength++;
 		}

@@ -654,8 +654,8 @@ public class DataManager {
 	 * 
 	 * @see #saveStorageSession(String) 
 	 */
-	public void loadStorageSession(URL sessionURL) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionURL, this);
+	public void loadStorageSession(String sessionId) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionId, this);
 		sessionLoader.loadSession();
 	}
 
@@ -707,16 +707,14 @@ public class DataManager {
 	}
 
 	public void saveStorageSession(String name) throws Exception {
-		
-		// get url for the metadata file
-		URL sessionUrl = Session.getSession().getServiceAccessor().getFileBrokerClient().addSessionFile();				
-		
+						
+		String sessionId = CryptoKey.generateRandom();
+		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
 		// upload/move data files and upload metadata files, if needed
-		SessionSaver sessionSaver = new SessionSaver(sessionUrl, this);
 		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
 		
 		// add metadata to file broker database (make session visible)
-		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionUrl, dataIds);
+		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionId, dataIds);
 	}
 
 	
@@ -845,7 +843,7 @@ public class DataManager {
 		// try from filebroker
 		Exception remoteException;
 		try {
-			return Session.getSession().getServiceAccessor().getFileBrokerClient().getFile(bean.getId());
+			return Session.getSession().getServiceAccessor().getFileBrokerClient().getInputStream(bean.getId());
 		} catch (Exception e) {
 			remoteException = e;
 		}
@@ -1202,7 +1200,13 @@ public class DataManager {
 		// try to upload
 		ContentLocation closestLocation = getClosestContentLocation(dataBean);
 		try {
-			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(dataBean.getId(), FileBrokerArea.STORAGE, closestLocation.getHandler().getInputStream(closestLocation), getContentLength(dataBean), null);
+			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
+					dataBean.getId(), 
+					FileBrokerArea.STORAGE, 
+					closestLocation.getHandler().getInputStream(closestLocation), 
+					getContentLength(dataBean), 
+					null);
+			
 		} catch (Exception e) {
 			logger.warn("could not upload data: " + dataBean.getName(), e);
 			return false;

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.io.WriterOutputStream;
-import org.xml.sax.SAXException;
 
 import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.ClientApplication;
@@ -46,8 +44,8 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.UrlTransferUtil;
 
 public class SessionLoaderImpl2 {
 	/**
@@ -59,7 +57,7 @@ public class SessionLoaderImpl2 {
 	private DataManager dataManager;
 
 	private File sessionFile;
-	private URL sessionURL;
+	private String sessionId;
 	private SessionType sessionType;
 	private boolean isDatalessSession;
 
@@ -78,14 +76,14 @@ public class SessionLoaderImpl2 {
 
 	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
-		this.sessionURL = null;
+		this.sessionId = null;
 		this.dataManager = dataManager;
 		this.isDatalessSession = isDatalessSession;
 	}
 
-	public SessionLoaderImpl2(URL sessionURL, DataManager dataManager, boolean isDatalessSession) {
+	public SessionLoaderImpl2(String sessionId, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = null;
-		this.sessionURL = sessionURL;
+		this.sessionId = sessionId;
 		this.dataManager = dataManager;
 		this.isDatalessSession = isDatalessSession;
 	}
@@ -105,9 +103,9 @@ public class SessionLoaderImpl2 {
 	 * 
 	 * @param zipEntry
 	 * @return
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	private InputStream getStreamOfZipEntry(String zipEntry) throws IOException {
+	private InputStream getStreamOfZipEntry(String zipEntry) throws Exception {
 
 		InputStream stream = null;
 		
@@ -121,13 +119,11 @@ public class SessionLoaderImpl2 {
 			zipFile = new ZipFile(sessionFile);
 			stream = zipFile.getInputStream(zipEntry);
 			
-		} else if (sessionURL != null) {
+		} else if (sessionId != null) {
+			FileBrokerClient fileBrokerClient = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			InputStream inputStream = fileBrokerClient.getInputStream(sessionId);
 			// get the session.xml zip entry using JDK, we don't need large ZIP support here because URL based sessions have no data
-			HttpURLConnection conn = (HttpURLConnection)sessionURL.openConnection();
-			if (!UrlTransferUtil.isSuccessfulCode(conn.getResponseCode())) {
-				throw new IOException("session URL not found: " + conn.getResponseCode());
-			}
-			zipStream = new ZipInputStream(conn.getInputStream());
+			zipStream = new ZipInputStream(inputStream);
 			
 			ZipEntry entry;
 	        while ((entry = zipStream.getNextEntry()) != null) {
@@ -140,7 +136,7 @@ public class SessionLoaderImpl2 {
 		return stream;
 	}
 
-	private void parseMetadata() throws ZipException, IOException, JAXBException, SAXException {
+	private void parseMetadata() throws Exception {
 
 		try {
 
@@ -453,7 +449,7 @@ public class SessionLoaderImpl2 {
 		return new NameID(name.getId(), name.getDisplayName(), name.getDescription());
 	}
 
-	private String getSourceCode(String sourceCodeFileName) throws ZipException, IOException {
+	private String getSourceCode(String sourceCodeFileName) throws Exception {
 		InputStream sourceCodeInputStream = null;
 		StringWriter stringWriter = null;
 		try {			
@@ -472,7 +468,7 @@ public class SessionLoaderImpl2 {
 		return stringWriter.toString();
 	}
 
-	public void loadSession() throws ZipException, IOException, JAXBException, SAXException {
+	public void loadSession() throws Exception {
 		
 		// parse metadata to jaxb classes
 		parseMetadata();

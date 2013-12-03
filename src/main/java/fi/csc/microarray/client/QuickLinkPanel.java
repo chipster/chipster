@@ -62,7 +62,7 @@ public class QuickLinkPanel extends JPanel {
 						JXHyperlink exampleLink = LinkUtil.createLink(basename, new AbstractAction() {
 							@Override
 							public void actionPerformed(ActionEvent e) {
-								application.loadExampleSession(session.getUuid());							
+								application.loadExampleSession(session.getDataId());							
 							}
 						});
 						exampleLinks.add(exampleLink);

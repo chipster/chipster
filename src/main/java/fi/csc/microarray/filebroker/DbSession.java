@@ -7,20 +7,20 @@ package fi.csc.microarray.filebroker;
  */
 public class DbSession {
 	
-	private String uuid;
+	private String dataId;
 	private String name;
 	private String username;
 	
-	public DbSession(String uuid, String name, String username) {
-		this.uuid = uuid;
+	public DbSession(String sessionId, String name, String username) {
+		this.dataId = sessionId;
 		this.name = name;
 		this.username = username;
 	}
-	public String getUuid() {
-		return uuid;
+	public String getDataId() {
+		return dataId;
 	}
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setDataId(String uuid) {
+		this.dataId = uuid;
 	}
 	public String getName() {
 		return name;

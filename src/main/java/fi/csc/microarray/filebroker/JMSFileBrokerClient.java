@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,9 +19,6 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.FileBrokerException;
-import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.BooleanMessageListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.ReplyMessageListener;
@@ -32,7 +28,6 @@ import fi.csc.microarray.messaging.UrlMessageListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.SuccessMessage;
-import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -85,19 +80,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
 		this(urlTopic, null);
-	}
-
-	@Override
-	public URL addSessionFile() throws JMSException, FileBrokerException {
-		// quota checks are not needed for session files (metadata xml file)
-		
-		// return new url
-		URL url = getNewURL(CryptoKey.generateRandom(), useCompression, FileBrokerArea.STORAGE, MAX_SESSION_FILE_SIZE);
-		if (url == null) {
-			throw new FileBrokerException("filebroker is not responding");
-		}
-		
-		return url;
 	}
 
 	/**
@@ -177,10 +159,20 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		logger.debug("successfully uploaded: " + url);
 	}
 
-	
+	@Override
+	public String addMetadata(String dataId, InputStream metadataInputStream) throws FileBrokerException, JMSException, IOException {
+		
+		/* retrieves new URL to upload session metadata file into. File size is not needed, but
+		 * assumes 'a big enough' file size when requesting the URL (metadata files are small text files).
+		 */		
+		
+		addFile(dataId, FileBrokerArea.STORAGE, metadataInputStream, MAX_SESSION_FILE_SIZE, null);
+		
+		return dataId;			
+	}
 	
 	@Override
-	public InputStream getFile(String dataId) throws IOException, JMSException {
+	public InputStream getInputStream(String dataId) throws IOException, JMSException {
 		URL url = getURL(dataId);
 		
 		if (url == null) {
@@ -246,7 +238,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			BufferedOutputStream fileStream = null;
 			try {
 				// Download to file
-				inputStream = new BufferedInputStream(getFile(dataId));
+				inputStream = new BufferedInputStream(getInputStream(dataId));
 				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
 				IOUtils.copy(inputStream, fileStream);
 				
@@ -313,32 +305,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			replyListener.cleanUp();
 		}
 	}
-
-	/**
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#checkFile(java.net.URL, long)
-	 * FIXME use dataId instead of url
-	 */
-	@Override
-	public boolean checkFile(URL url, long contentLength) {
-
-		HttpURLConnection connection = null;
-		try {
-
-			connection = (HttpURLConnection) url.openConnection();
-		
-			// check file existence
-			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				// should check content length and checksum
-				return true;
-			}
-		} catch (IOException ioe) {
-			return false;	
-		} finally {
-			IOUtils.disconnectIfPossible(connection);
-		}
-		return false;
-	}
-
 	
 	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicFiles()
@@ -387,12 +353,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void saveRemoteSession(String sessionName, URL sessionURL, LinkedList<String> dataIds) throws JMSException {
+	public void saveRemoteSession(String sessionName, String sessionId, LinkedList<String> dataIds) throws JMSException {
 		ReplyMessageListener replyListener = new ReplyMessageListener();  
 		try {
 			CommandMessage storeRequestMessage = new CommandMessage(CommandMessage.COMMAND_STORE_SESSION);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME, sessionName);
-			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionURL.toExternalForm());
+			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionId);
 			storeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST, Strings.delimit(dataIds, "\t"));
 			
 			filebrokerTopic.sendReplyableMessage(storeRequestMessage, replyListener);
@@ -419,22 +385,22 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			if (reply == null) {
 				throw new RuntimeException("server failed to list sessions");
 			}
-			String[] names, uuids;
+			String[] names, sessionIds;
 			String namesString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME_LIST);
-			String uuidsString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
+			String sessionIdsString = reply.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID_LIST);
 			
 			List<DbSession> sessions = new LinkedList<>();
 			
-			if (namesString != null && !namesString.equals("") && uuidsString != null && !uuidsString.equals("")) {
+			if (namesString != null && !namesString.equals("") && sessionIdsString != null && !sessionIdsString.equals("")) {
 				
 				names = namesString.split("\t");
-				uuids = uuidsString.split("\t");
+				sessionIds = sessionIdsString.split("\t");
 				
-				for (int i = 0; i < names.length && i < uuids.length; i++) {
-					sessions.add(new DbSession(uuids[i], names[i], null));
+				for (int i = 0; i < names.length && i < sessionIds.length; i++) {
+					sessions.add(new DbSession(sessionIds[i], names[i], null));
 				}
 				
-				if (names.length != uuids.length) {
+				if (names.length != sessionIds.length) {
 					sessions.clear();
 				}
 			}
@@ -461,12 +427,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public void removeRemoteSession(URL sessionURL) throws JMSException {
+	public void removeRemoteSession(String dataId) throws JMSException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
-			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_URL, sessionURL.toExternalForm()); 
+			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, dataId); 
 			filebrokerTopic.sendReplyableMessage(removeRequestMessage, replyListener);
 			SuccessMessage reply = replyListener.waitForReply(QUICK_POLL_OPERATION_TIMEOUT, TimeUnit.SECONDS);
 			
@@ -519,6 +485,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	private URL getURL(String dataId) throws JMSException {
 		
+		logger.debug("getting url for dataId " + dataId);
+		
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
 		try {
@@ -530,6 +498,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} finally {
 			replyListener.cleanUp();
 		}
+		
+		logger.debug("url is: " + url);
 	
 		return url;
 	}

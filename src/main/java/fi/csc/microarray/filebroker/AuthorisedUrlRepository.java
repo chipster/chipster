@@ -1,6 +1,5 @@
 package fi.csc.microarray.filebroker;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
@@ -52,7 +51,7 @@ public class AuthorisedUrlRepository {
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area) throws MalformedURLException {
+	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area) throws Exception {
 
 		URL newUrl;
 
@@ -63,15 +62,17 @@ public class AuthorisedUrlRepository {
 
 		repositoryLock.lock();
 		try {
-			// create url that does not exist in the repository
-			do {
-				if (area == FileBrokerArea.STORAGE) {
-					newUrl = constructStorageURL(fileId, compressionSuffix);
-				} else {
-					newUrl = constructCacheURL(fileId, compressionSuffix);
-				}
+			// create url
+			if (area == FileBrokerArea.STORAGE) {
+				newUrl = constructStorageURL(fileId, compressionSuffix);
+			} else {
+				newUrl = constructCacheURL(fileId, compressionSuffix);
+			}
 				
-			} while (repository.containsKey(newUrl));
+			if (repository.containsKey(newUrl)) {
+				//probability for this is so small that we don't care about it elsewhere in the code, but let's check it just for fun
+				throw new Exception("can't create authorised url, because it existed already!");
+			}
 
 			// store it
 			repository.put(newUrl, new Date());
@@ -85,10 +86,6 @@ public class AuthorisedUrlRepository {
 	
 	public URL constructStorageURL(String filename, String compressionSuffix) throws MalformedURLException {
 		return new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
-	}
-	
-	public File constructStorageFile(String filename, String compressionSuffix) {
-		return new File(storagePath + "/" + filename + compressionSuffix);
 	}
 
 	public URL constructCacheURL(String filename, String compressionSuffix) throws MalformedURLException {

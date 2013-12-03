@@ -16,11 +16,11 @@ import org.apache.log4j.Logger;
 import de.schlichtherle.truezip.file.TFile;
 
 /**
- * Synchronize example sessions in zip format and stored as server sessions.
+ * Synchronize example sessions in zip format and example sessions stored as server sessions.
  * 
  * Storing example session as server sessions enables many handy features, like deduplication 
  * of the derived datasets and easy modification of these session in the client. On the contrary, example
- * sessions stored as zip files are easy to handle in update scripts. This class tries to take 
+ * sessions stored as zip files are easy to handle in server update scripts. This class tries to take 
  * advantages of both storage methods by keeping example session stored both as server sessions 
  * and zip files.
  * 
@@ -33,7 +33,7 @@ import de.schlichtherle.truezip.file.TFile;
  */
 public class ExampleSessionUpdater extends FileServerListener {
 	
-	/* tar is fast and the content is compressed already (for example saving 40MB takes:
+	/* tar is fast and the content is compressed already anyway (for example saving 40MB takes:
 	 * - 300ms for tar
 	 * - 700ms for zip
 	 * - 2000ms for tar.gz 
@@ -54,7 +54,10 @@ public class ExampleSessionUpdater extends FileServerListener {
 		this.fileServer = fileServer;
 		this.metadataServer = metadataServer;
 		this.exampleSessionDir = exampleSessionDir;
-		importExportTool = new ServerSessionImportExportTool(fileServer);
+		
+		//set up JMS replacement
+		DirectFileBrokerEndpoint directEndpoint = new DirectFileBrokerEndpoint(fileServer, DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER);
+		importExportTool = new ServerSessionImportExportTool(directEndpoint);
 		
 		if (!this.exampleSessionDir.exists()) {
 			if (!this.exampleSessionDir.mkdir()) {
@@ -105,7 +108,7 @@ public class ExampleSessionUpdater extends FileServerListener {
 			String dbSessionBasename = dbSessionIter.next();
 			if (!zipSessions.containsKey(dbSessionBasename)) {
 				logger.info("found a server session  '" + dbSessionBasename + "', but no zip session with that name. Going to remove the server session");
-				fileServer.removeSession(dbSessions.get(dbSessionBasename).getUuid());
+				fileServer.removeSession(dbSessions.get(dbSessionBasename).getDataId());
 				dbSessionIter.remove();
 			}
 		}				
@@ -122,7 +125,7 @@ public class ExampleSessionUpdater extends FileServerListener {
 				store = true;
 			} else {
 				//there is a server session with same name, check timestamps		
-				DbFile dbSessionFile = metadataServer.fetchFile(dbSession.getUuid());
+				DbFile dbSessionFile = metadataServer.fetchFile(dbSession.getDataId());
 				Timestamp dbSessionCreated = Timestamp.valueOf(dbSessionFile.getCreated());
 				//logger.debug("server session created " + dbSessionCreated);
 
@@ -215,7 +218,7 @@ public class ExampleSessionUpdater extends FileServerListener {
 	 */
 	private String uuidToBasename(String uuid) throws SQLException {
 		for (DbSession session : metadataServer.listPublicSessions()) {
-			if (uuid.equals(session.getUuid())) {
+			if (uuid.equals(session.getDataId())) {
 				return session.getBasename();
 			}
 		}
