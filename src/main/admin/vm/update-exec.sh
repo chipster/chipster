@@ -996,7 +996,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa ${BACKUPDIR_PATH}/
 
   echo "** Removing FREEC_Linux64"
-  mv -b ${TOOLS_PATH}/FREEC_Linux64 ${BACKUPDIR_PATH}/
+  mv -rf ${TOOLS_PATH}/FREEC_Linux64
 
   echo "** Installing R-3.0"
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-22.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -1059,15 +1059,15 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -f chipster-$LATEST_VERSION.tar.gz
     wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/$LATEST_VERSION/chipster-$LATEST_VERSION.tar.gz
 
-  # Move away old libs to avoid conflicts when lib names change
-    mv shared ${BACKUPDIR_PATH}/
-    mv webstart/web-root/lib ${BACKUPDIR_PATH}/
-
   # Unpack libs
     echo "** Updating Chipster libs: shared/libs"
+    mv shared ${BACKUPDIR_PATH}/
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/shared
-    echo "** Updating Chipster libs: webstart/web-root/lib"
-    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/lib
+
+  # Unpack webstat web-root including client jar
+    echo "** Updating Chipster web: webstart/web-root"
+    mv webstart/web-root ${BACKUPDIR_PATH}/
+    tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root
 
   # Copy away tool scripts in case there were important local changes
     cp -r comp/modules ${BACKUPDIR_PATH}/
@@ -1080,14 +1080,9 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
     echo "** Updating Chipster tool scripts: comp/modules"
     tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/modules
 
-  # Update manuals
-  echo "** Updating Chipster manuals: webstart/web-root/manual"
-  mv webstart/web-root/manual ${BACKUPDIR_PATH}/
-  tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root/manual
-
   # Update runtimes.xml
   echo "** Updating Chipster runtimes: comp/conf/runtimes.xml"
-    cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
+  cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
   tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
   # Clean up
