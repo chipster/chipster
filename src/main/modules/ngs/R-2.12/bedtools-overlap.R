@@ -9,7 +9,7 @@
 
 # binary
 # Note: overlap binary for now from from version 2.12.0 as it is not present in 2.17.0
-binary <- c(file.path(chipster.tools.path, "BEDTools-Version-2.12.0", "bin", "overlap"))
+binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "getOverlap"))
 
 # optional options
 options <- paste("")
