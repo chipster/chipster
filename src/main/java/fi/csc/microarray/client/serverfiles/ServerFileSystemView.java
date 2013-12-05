@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.filechooser.FileSystemView;
 
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.DerbyMetadataServer;
 
 /**
  * This class provides a view into a generic directory service.
@@ -89,5 +90,17 @@ public class ServerFileSystemView extends FileSystemView {
 	@Override
 	public boolean isDrive(File dir) {
 		return rootFile.equals(dir);
+	}
+
+	public File getExampleSessionDir() {
+		for (File file : rootFile.listFiles()) {
+			if (file instanceof ServerFile) {
+				ServerFile serverFile = (ServerFile) file;
+				if (serverFile.getName().equals(DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_FOLDER)) {
+					return serverFile;
+				}
+			}
+		}
+		return null;
 	}
 }

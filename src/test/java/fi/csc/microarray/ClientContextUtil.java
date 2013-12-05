@@ -164,11 +164,6 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void loadExampleSession(String url) {
-			// do nothing
-		}
-
-		@Override
 		public void restoreSessionFrom(File file) {
 			// do nothing
 		}
