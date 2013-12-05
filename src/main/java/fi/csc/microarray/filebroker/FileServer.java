@@ -583,45 +583,46 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		// check id and if in cache
 		if (!(AuthorisedUrlRepository.checkFilenameSyntax(fileId) && filebrokerAreas.fileExists(fileId, FileBrokerArea.CACHE))) {
 			endpoint.replyToMessage(requestMessage, new BooleanMessage(false));
-		}
-		
-		// move
-		longRunningTaskExecutor.execute(new Runnable() {
+		} else {
 
-			@Override
-			public void run() {
+			// move
+			longRunningTaskExecutor.execute(new Runnable() {
 
-				ChipsterMessage reply = null;
-				try {
+				@Override
+				public void run() {
 
-					// check quota here also 
-					
-					// FIXME send quota exceeded message
-//					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
-//						throw new IOException("quota exceeded");
-//					}
+					ChipsterMessage reply = null;
+					try {
 
-					// move the file
-					if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
-						reply = new BooleanMessage(true);
-					} else {
+						// check quota here also 
+
+						// FIXME send quota exceeded message
+						//					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
+						//						throw new IOException("quota exceeded");
+						//					}
+
+						// move the file
+						if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
+							reply = new BooleanMessage(true);
+						} else {
+							reply = new BooleanMessage(false);
+							logger.warn("could not move from cache to storage: " + fileId);
+						}
+
+					} catch (Exception e) {
 						reply = new BooleanMessage(false);
-						logger.warn("could not move from cache to storage: " + fileId);
 					}
 
-				} catch (Exception e) {
-					reply = new BooleanMessage(false);
-				}
+					// send reply
+					try {
+						endpoint.replyToMessage(requestMessage, reply);
 
-				// send reply
-				try {
-					endpoint.replyToMessage(requestMessage, reply);
-					
-				} catch (JMSException e) {
-					logger.error("could not send reply message", e);
+					} catch (JMSException e) {
+						logger.error("could not send reply message", e);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	
