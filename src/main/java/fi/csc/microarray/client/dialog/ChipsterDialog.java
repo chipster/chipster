@@ -78,8 +78,8 @@ public class ChipsterDialog extends JDialog {
 		this.getContentPane().add(mainPanel);
 		
 		// locate and pack
-		this.setLocationByPlatform(true);
 		this.pack();
+		this.setLocationRelativeTo(app.getMainFrame());
 	}
 
 	private JPanel getMainPanel(DialogInfo dialogInfo) {
