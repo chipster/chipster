@@ -48,7 +48,7 @@ public class DerbyMetadataServer {
 	private static final String METADATA_BACKUP_PREFIX="filebroker-metadata-db-backup-";
 
 	protected static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
-	protected static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
+	public static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
 
 	
 	private static String[][] SQL_CREATE_TABLES = new String[][] {
@@ -208,7 +208,6 @@ public class DerbyMetadataServer {
 	 * @return
 	 * @throws SQLException
 	 */
-	@SuppressWarnings("unchecked")
 	public List<DbSession> listSessions(String username) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_USERNAME);
 		ps.setString(1, username);

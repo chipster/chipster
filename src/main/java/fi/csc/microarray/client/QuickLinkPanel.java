@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.LinkUtil;
 import fi.csc.microarray.util.Strings;
@@ -34,7 +32,7 @@ public class QuickLinkPanel extends JPanel {
 	private JXHyperlink sessionLink;
 	private JXHyperlink localSessionLink;
 	private JXHyperlink importLink;
-	private List<JXHyperlink> exampleLinks = new ArrayList<>();
+	private JXHyperlink exampleLink;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
@@ -49,30 +47,12 @@ public class QuickLinkPanel extends JPanel {
 		// Prepare all available links
 		//
 		
-		// Check if example session is available
-		List<DbSession> sessions;
-		try {
-			sessions = Session.getSession().getPrimaryModule().getExampleSessions(application.isStandalone);
-			if (sessions != null) {				
-				for (final DbSession session : sessions) {
-					
-					String basename = session.getBasename();					
-					
-					if (basename != null) { //skip directories
-						JXHyperlink exampleLink = LinkUtil.createLink(basename, new AbstractAction() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								application.loadExampleSession(session.getDataId());							
-							}
-						});
-						exampleLinks.add(exampleLink);
-					}
-				}
-			}		
-		} catch (Exception e) {
-			logger.error("can't create quick links for example sessions", e);
-			//continue without example sessions
-		}
+		exampleLink = LinkUtil.createLink("Open example session", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.loadSession(true, true);							
+			}
+		});
 		
 		importLink = LinkUtil.createLink("Import files", new AbstractAction() {
 			@Override
@@ -128,10 +108,18 @@ public class QuickLinkPanel extends JPanel {
 		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
-					
-		if (!exampleLinks.isEmpty()) {
-			String exampleLinkTemplate = Strings.repeat("\n      *** ", exampleLinks.size());
-			addLinks("Open example session to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + exampleLinkTemplate, exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
+		
+		boolean showExamples = false;
+		
+		try {
+			showExamples = !Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty();
+		} catch (Exception e) {
+			logger.error("error in listing of public remote sessions" + e);
+			//continue without example sessions
+		}
+		
+		if (showExamples) {
+			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 		}
 	
 		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();

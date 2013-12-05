@@ -1581,7 +1581,7 @@ public class SwingClientApplication extends ClientApplication {
 		return sessionFileChooser;
 	}
 
-	private JFileChooser getSessionFileChooser(JComponent accessory, boolean remote, boolean preselectFile) throws RuntimeException {
+	private JFileChooser getSessionFileChooser(JComponent accessory, boolean remote, boolean preselectFile, boolean openExampleDir) throws RuntimeException {
 		
 		
 		JFileChooser sessionFileChooser = null;
@@ -1592,7 +1592,11 @@ public class SwingClientApplication extends ClientApplication {
 				if (preselectFile) {
 					sessionFileChooser.setSelectedFile(new File("Session name"));
 				}
-
+				
+				if(openExampleDir) {					
+					ServerFileSystemView view = (ServerFileSystemView) sessionFileChooser.getFileSystemView();
+					sessionFileChooser.setCurrentDirectory(view.getExampleSessionDir());
+				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -1744,21 +1748,19 @@ public class SwingClientApplication extends ClientApplication {
 	public void restoreSessionFrom(File file) {
 		loadSessionImpl(file, null, true, true, false);
 	}
-
-	@Override
-	public void loadExampleSession(String sessionId) {
-		
-		loadSessionImpl(null, sessionId, true, false, true);			
+	
+	@Override	
+	public void loadSession(boolean remote) {
+		loadSession(remote, false);		
 	}
 	
-	@Override
-	public void loadSession(boolean remote) {
+	public void loadSession(boolean remote, boolean openExampleDir) {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
 		// create filechooser dialog
 		final JFileChooser fileChooser;
 		try {
-			fileChooser = getSessionFileChooser(null,  remote, true);
+			fileChooser = getSessionFileChooser(null,  remote, true, openExampleDir);
 			
 		} catch (RuntimeException e) {
 			if (remote) {
@@ -1808,7 +1810,7 @@ public class SwingClientApplication extends ClientApplication {
 				}
 				
 				sessionFile = selectedFile;
-			}
+			} 
 
 			// clear previous session 
 			if (accessory.clearSession()) {
@@ -1893,7 +1895,7 @@ public class SwingClientApplication extends ClientApplication {
 		// create filechooser dialog
 		JFileChooser fileChooser;
 		try {
-			fileChooser = getSessionFileChooser(null,  remote, true);
+			fileChooser = getSessionFileChooser(null,  remote, true, false);
 			
 		} catch (RuntimeException e) {
 			if (remote) {
