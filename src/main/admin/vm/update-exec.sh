@@ -1085,6 +1085,13 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   cp -r comp/conf/runtimes.xml ${BACKUPDIR_PATH}/
   tar -C .. --overwrite -xzf chipster-$LATEST_VERSION.tar.gz chipster/comp/conf/runtimes.xml
 
+  # Update webapps
+  rm -rf webstart/webapps
+  tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/webapps/tool-editor.war
+  rm -rf manager/webapps
+  tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/manager/webapps/admin-web.war
+
+
   # Clean up
     rm chipster-$LATEST_VERSION.tar.gz
 fi
