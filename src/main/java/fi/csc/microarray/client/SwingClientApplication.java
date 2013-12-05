@@ -1558,7 +1558,6 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			// fetch current sessions to show in the dialog and create it
 			sessionFileChooser = populateFileChooserFromServer();
-			sessionFileChooser.setApproveButtonText("Remove");
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1566,6 +1565,10 @@ public class SwingClientApplication extends ClientApplication {
 
 		// hide buttons that we don't need
 		ServerFileUtils.hideJFileChooserButtons(sessionFileChooser);
+
+		// tune GUI
+		sessionFileChooser.setDialogTitle("Manage");
+		sessionFileChooser.setApproveButtonText("Remove");
 
 		return sessionFileChooser;
 	}
