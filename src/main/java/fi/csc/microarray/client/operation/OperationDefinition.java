@@ -249,6 +249,8 @@ public class OperationDefinition implements ExecutionItem {
 
 	private boolean hasSourceCode;
 
+	private boolean isLocal = false;
+
 	/**
 	 * Creates a new operation definition with the given initial values.
 	 * 
@@ -274,6 +276,24 @@ public class OperationDefinition implements ExecutionItem {
 		}
 
 		this.description = description;
+	}
+	
+	/**
+	 * Like the constructor above, but makes it possible to define operation definition as local.
+	 * 
+	 * @param id
+	 * @param displayName
+	 * @param category
+	 * @param description
+	 * @param hasSourceCode
+	 * @param helpURL
+	 * @param isLocal
+	 */
+	public OperationDefinition(String id, String displayName, ToolCategory category,
+            String description, boolean hasSourceCode,
+            String helpURL, boolean isLocal) {
+		this(id, displayName, category, description, hasSourceCode, helpURL);
+		this.isLocal = isLocal;
 	}
 
 	/**
@@ -643,6 +663,13 @@ public class OperationDefinition implements ExecutionItem {
 		s += "\n-------------- operation definition --------------\n";
 		
 		return s;
+	}
+
+	/**
+	 * @return true if this operation should be run in LocalTaskExecutor instead of server
+	 */
+	public boolean isLocal() {
+		return isLocal;
 	}
 	
 }
