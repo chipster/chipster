@@ -4,9 +4,9 @@
 # PARAMETER species: species TYPE [human: human] DEFAULT human (The species for which the miRNA:s have been analyzed. Mouse and rat will be supported as soon as the RmiR package from Bioconductor supports this.)
 # PARAMETER database: database TYPE [miranda: miranda, mirbase: mirbase, mirtarget2: mirtarget2, pictar: pictar, tarbase: tarbase, targetscan: targetscan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
 
-# miRNA hypergeometric test for GO
-# MG, 22.2.2010
+# MG, 22.02.2010
 # IS, 13.10.2010, added rownames of miRNA-target-pairs to allow intersecting through Venn diagrams
+# MK, 09.12.2013, performance of the script improved. Because of this, information associated with the first matching row is used instead of the last matching row 
 
 # Load the required libraries
 library(RmiR.Hs.miRNA)
@@ -38,27 +38,30 @@ ensembl <- useMart("ensembl", dataset=dataset)
 annotated_genes <- getBM(mart=ensembl, attributes=c("entrezgene","hgnc_symbol","description"), filters="entrezgene", values=gene_id)
 
 # Match the list of transcripts with the annotations
-gene_entrezid <- character(length(gene_id))
-gene_symbol <- character(length(gene_id))
-gene_description <- character(length(gene_id))
-result_table <- data.frame(mirna_id_2, gene_id, gene_symbol, gene_description, stringsAsFactors = FALSE)
-for (gene_count in 1:length(annotated_genes [,1])) {
-	gene_entrezid <- annotated_genes[gene_count,1]
-	gene_symbol <- annotated_genes[gene_count,2]
-	gene_description <- annotated_genes[gene_count,3] 
-	result_table [gene_id==gene_entrezid,3] <- gene_symbol
-	result_table [gene_id==gene_entrezid,4] <- gene_description
-}	
+result_table <- data.frame(cbind(mirna_id_2, gene_id, matrix("", nrow=length(gene_id), ncol=2)), stringsAsFactors = FALSE)
 names(result_table) <- c("miRNA","entrez_id","symbol","description")
+# match function reports the first match in annotated genes, not the last as done previously 
+result_table[, c(3,4)] <- annotated_genes[match(gene_id, annotated_genes[,1]), 2:3]
+
+if(length(which(is.na(result_table[,3]))) > 0) {
+	result_table[which(is.na(result_table[,3])),3] <- ""
+	result_table[which(is.na(result_table[,4])),4] <- ""
+}
 
 # add rownames to allow use of Venn diagrams
 concatenate.if.not.equal <- function(x) {
   x <- unique(x)
   paste(x, collapse=';')
 }
+
 result_table$pair <- paste(result_table$miRNA, result_table$entrez_id, sep=';')
 result_table2 <- aggregate(result_table[,-5], list(result_table[,5]), concatenate.if.not.equal)
-result_table2$count <- aggregate(result_table[,5], list(result_table[,5]), length)$x
+
+result_counts <- table(result_table[,5]);
+result_table2$count <- rep(0, nrow(result_table2))
+result_table2$count <- as.vector(result_counts[match(result_table2[,1], names(result_counts))])
+
+#result_table2$count <- aggregate(result_table[,5], list(result_table[,5]), length)$x
 rownames(result_table2) <- result_table2[,1]
 result_table2[,1] <- NULL
 
