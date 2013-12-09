@@ -14,7 +14,6 @@ import java.io.FileOutputStream;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +33,7 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * 
@@ -51,7 +51,6 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
     private JTextArea textArea;
     private JButton okButton;
     private JButton cancelButton;
-    private JComboBox folderNameCombo;
     private JCheckBox importCheckBox;
     
     public CreateFromTextDialog(ClientApplication clientApplication) {
@@ -80,18 +79,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         c.insets.set(0,10,10,10);       
         c.gridy++;
         this.add(nameField, c);
-        
-        // Folder to store the file
-        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
-        folderNameCombo.setPreferredSize(new Dimension(150, 20));
-        folderNameCombo.setEditable(true);
-        c.insets.set(10,10,5,10);
-        c.gridy++;
-        this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0,10,10,10);
-        c.gridy++;
-        this.add(folderNameCombo,c);
-        
+                
         // Text label
         textLabel = new JLabel("Text");
         c.anchor = GridBagConstraints.WEST;
@@ -159,7 +147,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         if(e.getSource() == okButton){
             String fileName = this.nameField.getText();
             String fileContent = this.textArea.getText();
-            String folderName = (String) (this.folderNameCombo.getSelectedItem());
+
             try {
                 // Checkbox decides if we have to open import window
                 if (importCheckBox.isSelected()) {
@@ -172,15 +160,19 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
                     data.setOperationRecord(new OperationRecord(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data })));
                     
                     // Make it visible
-                    DataFolder folder = application.initializeFolderForImport(folderName);
+                    DataFolder folder = application.getDataManager().getRootFolder();
                     manager.connectChild(data, folder);
                     application.getSelectionManager().selectSingle(data, this);
                 } else {
                     // Open import dialog
                     File file = ImportUtils.createTempFile(fileName, ImportUtils.getExtension(fileName));
                     FileOutputStream fileStream = new FileOutputStream(file);
-                    fileStream.write(fileContent.getBytes());
-                    ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file }, folderNameCombo.getSelectedItem().toString(), true);
+                    try {
+                    	fileStream.write(fileContent.getBytes());
+                    } finally {
+                    	IOUtils.closeIfPossible(fileStream);
+                    }
+                    ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file });
                     ImportUtils.executeImport(importSession);
                 }
             } catch (Exception exc) {

@@ -104,13 +104,11 @@ public abstract class ClientApplication {
 	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
-	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
-	public abstract DataFolder initializeFolderForImport(String folderName);
+	public abstract void importGroup(Collection<ImportItem> datas);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
     public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
-    public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
-    public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
+    public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);	
     public abstract void visualiseWithBestMethod(FrameType target);
     public abstract void reportInitialisationThreadSafely(String report, boolean newline);
     public abstract Icon getIconFor(DataItem data);
@@ -612,7 +610,7 @@ public abstract class ClientApplication {
 			}
 		}
 		
-		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, onlyFiles, root.getName(), true);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, onlyFiles);
 		ImportUtils.executeImport(importSession);
 	}
 

@@ -67,7 +67,6 @@ import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
-import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
@@ -664,51 +663,8 @@ public class SwingClientApplication extends ClientApplication {
 		return mainFrame;
 	}
 
-
-
-
-	/**
-	 * Sets the folder with given name selected or creates a new folder if it
-	 * doesn't exist yet. Selected folder is used as a place for imported files.
-	 * If folder name is null, root folder is returned
-	 * 
-	 * @param folderName
-	 *            folder name
-	 * @return just created or previously existing folder. If given folder name
-	 *         is <code>null</code>, root folder is returned
-	 */
-	public DataFolder initializeFolderForImport(String folderName) {
-
-		DataFolder root = manager.getRootFolder();
-
-		if (folderName == null || folderName.isEmpty()) {
-			logger.debug("initializing for import " + folderName + ": is null => using root");
-			return root;
-
-		} else if (ImportUtils.getFolderNames(false).contains(folderName)) {
-
-			logger.debug("initializing for import " + folderName + ": exists already");
-			DataFolder folderToSelect;
-			if (folderName.equals(root.getName())) {
-				folderToSelect = root;
-			} else {
-				folderToSelect = root.getChildFolder(folderName);
-			}
-
-			getSelectionManager().selectSingle(folderToSelect, this);
-			return folderToSelect;
-
-		} else {
-
-			logger.debug("initializing for import " + folderName + ": creating new ");
-			DataFolder folder = getDataManager().createFolder(root, folderName);
-			getSelectionManager().selectSingle(folder, this);
-			return folder;
-		}
-	}
-
 	@Override
-	public void importGroup(final Collection<ImportItem> datas, final String folderName) {
+	public void importGroup(final Collection<ImportItem> datas) {
 
 		runBlockingTask("importing files", new Runnable() {
 
@@ -726,7 +682,7 @@ public class SwingClientApplication extends ClientApplication {
 
 						// Selects folder where data is imported to, or creates a
 						// new one
-						DataFolder folder = initializeFolderForImport(folderName);
+						DataFolder folder = manager.getRootFolder();
 
 						// create the DataBean
 						DataBean data;
@@ -1190,8 +1146,6 @@ public class SwingClientApplication extends ClientApplication {
 		JFileChooser fc = getImportExportFileChooser();
 		fc.setMultiSelectionEnabled(true);
 
-		ImportSettingsAccessory access = (ImportSettingsAccessory) importExportFileChooser.getAccessory();
-		access.setDefaults();
 		int ret = fc.showOpenDialog(getMainFrame());
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			List<Object> files = new LinkedList<Object>();
@@ -1200,7 +1154,7 @@ public class SwingClientApplication extends ClientApplication {
 				files.add(file);
 			}
 
-			ImportSession importSession = new ImportSession(ImportSession.Source.FILE, files, access.getImportFolder(), access.skipActionChooser());
+			ImportSession importSession = new ImportSession(ImportSession.Source.FILE, files);
 			ImportUtils.executeImport(importSession);
 		}
 	}
@@ -1218,9 +1172,8 @@ public class SwingClientApplication extends ClientApplication {
 	public void openURLImport() throws MicroarrayException, IOException {
 		URLImportDialog urlImportDlg = new URLImportDialog(this);
 		URL selectedURL = urlImportDlg.getSelectedURL();
-		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
-			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new URL[] { selectedURL }, importFolder, urlImportDlg.isSkipSelected()));
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new URL[] { selectedURL }));
 		}
 	}
 	
@@ -1542,9 +1495,6 @@ public class SwingClientApplication extends ClientApplication {
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 
-		ImportSettingsAccessory access = new ImportSettingsAccessory(importExportFileChooser);
-		importExportFileChooser.setAccessory(access);
-
 		fixFileChooserFontSize(importExportFileChooser);
 
 		return importExportFileChooser;
@@ -1738,12 +1688,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void removeLink(DataBean source, DataBean target, Link type) {
 		source.removeLink(type, target);
-	}
-
-	@Override
-	public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, new File[] { file }, destinationFolder, skipActionChooser);
-		openImportTool(importSession);
 	}
 
 	@Override

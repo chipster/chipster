@@ -143,8 +143,7 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 
 				} while (hasNext && importSession.getUseSameDescriptions());
 
-				application.importGroup(dataItems,
-						importSession.getDestinationFolder());
+				application.importGroup(dataItems);
 			}
 
 			// Catch exceptions

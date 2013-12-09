@@ -58,7 +58,6 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
@@ -1036,7 +1035,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void importGroup(Collection<ImportItem> datas, String folderName) {
+		public void importGroup(Collection<ImportItem> datas) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1044,12 +1043,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		protected void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
-
-		@Override
-		public DataFolder initializeFolderForImport(String folderName) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
+		
 		@Override
 		public void loadSession(boolean remote) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
@@ -1127,11 +1121,6 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void showHistoryScreenFor(DataBean data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 

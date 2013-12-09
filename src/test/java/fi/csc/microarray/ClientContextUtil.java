@@ -59,13 +59,8 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void importGroup(Collection<ImportItem> datas, String folderName) {
+		public void importGroup(Collection<ImportItem> datas) {
 			// do nothing
-		}
-
-		@Override
-		public DataFolder initializeFolderForImport(String folderName) {
-			return null;
 		}
 
 		@Override
@@ -85,11 +80,6 @@ public class ClientContextUtil {
 
 		@Override
 		public void showPopupMenuFor(MouseEvent e, List<DataItem> datas) {
-			// do nothing
-		}
-
-		@Override
-		public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
 			// do nothing
 		}
 

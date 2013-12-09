@@ -106,11 +106,11 @@ public class ImportUtils {
 
 	public static class URLFileLoader {
 
-		public File loadFileFromURL(URL url, File outputFile, String importFolder, boolean skipActionChooser) {
+		public File loadFileFromURL(URL url, File outputFile) {
 			logger.debug("Method loadFileFromURL started");
 			InformationDialog info = new InformationDialog("Loading file", "Loading file from the specified URL", null);
 			logger.debug("Next the download process will start");
-			new FileLoaderImportProcess(outputFile, url, importFolder, info, skipActionChooser).runProcess();
+			new FileLoaderImportProcess(outputFile, url, info).runProcess();
 			logger.debug("Download process started");
 			return outputFile;
 		}
@@ -189,18 +189,13 @@ public class ImportUtils {
 	
 	public static class FileLoaderImportProcess extends FileLoaderProcess {
 
-		protected String importFolder;
-		protected boolean skipActionChooser;
-
-		public FileLoaderImportProcess(File outputFile, URL url, String importFolder, InformationDialog info, boolean skipActionChooser) {
+		public FileLoaderImportProcess(File outputFile, URL url, InformationDialog info) {
 			super(outputFile, url, info);
-			this.importFolder = importFolder;
-			this.skipActionChooser = skipActionChooser;
 		}
 		
 		@Override
 		protected void postProcess() {
-			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new Object[] { outputFile }, importFolder, skipActionChooser));
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new Object[] { outputFile }));
 		}
 	}
 
@@ -303,29 +298,15 @@ public class ImportUtils {
 				boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
 
 				// import directly
-				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files))) {
+				if (!importToolSupported && !ImportUtils.containsUnsupportedTypes(files)) {
 					// skip requested and all of the files are supported => import directly and don't show action chooser			
-					application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+					application.importGroup(importSession.getImportItems());
 				} 
 
 				// action chooser or preprocess
 				else {
 					new ActionChooserScreen(importSession);
 				}
-			}
-		}
-
-		// standalone
-		else {
-
-			// import directly
-			if (importSession.isSkipActionChooser()) {
-				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
-			}
-
-			// go to preprocessing
-			else {
-				openPreprocessDialog(importSession);
 			}
 		}
 	}

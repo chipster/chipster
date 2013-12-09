@@ -32,24 +32,18 @@ public class ImportSession {
 
 	private Source source;
 	private List<ImportItem> items;
-	private String destinationFolder;
 	private boolean useSameDescriptions;
-	private boolean skipActionChooser;
 
-	public ImportSession(Source source, Object[] inputs,
-			String destinationFolder, boolean skipActionChooser) {
+	public ImportSession(Source source, Object[] inputs) {
 		
-		this(source, Arrays.asList(inputs), destinationFolder, skipActionChooser);
+		this(source, Arrays.asList(inputs));
 	}
 
 		
-	public ImportSession(Source source, List<Object> inputs,
-			String destinationFolder, boolean skipActionChooser) {
+	public ImportSession(Source source, List<Object> inputs) {
 		this.source = source;
 		this.items = toImportItems(inputs);
-		this.destinationFolder = destinationFolder;
 		this.useSameDescriptions = false;
-		this.skipActionChooser = skipActionChooser;
 	}
 
 	private List<ImportItem> toImportItems(List<Object> inputs) {
@@ -73,7 +67,7 @@ public class ImportSession {
 					if (input instanceof URL) {
 						URL url = (URL)input;
 						File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
-						ImportUtils.getURLFileLoader().loadFileFromURL(url, file, destinationFolder, skipActionChooser);
+						ImportUtils.getURLFileLoader().loadFileFromURL(url, file);
 						item.setInput(file);
 						
 					} else {
@@ -91,10 +85,6 @@ public class ImportSession {
 
 	public Source getSource() {
 		return source;
-	}
-
-	public String getDestinationFolder() {
-		return this.destinationFolder;
 	}
 
 	public void setUseSameDescriptions(boolean useSameDescriptions) {
@@ -138,9 +128,5 @@ public class ImportSession {
 			}
 		}
 		return files;
-	}
-
-	public boolean isSkipActionChooser() {
-		return skipActionChooser;
 	}
 }
