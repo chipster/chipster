@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,12 +22,12 @@ import javax.swing.event.SwingPropertyChangeSupport;
 import org.apache.log4j.Logger;
 
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
@@ -418,9 +417,11 @@ public class TaskExecutor {
 	public void startExecuting(final Task task, int timeout) throws TaskException {
 		logger.debug("Starting task " + task.getName());
 
-		if (task.isLocal()) {
+		if (task.isLocal()) {			
+			
 			Runnable taskRunnable = new LocalNGSPreprocess(task);
-			Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			ClientApplication app = Session.getSession().getApplication();
+			app.runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
 			return;
 		}
 		

@@ -106,7 +106,6 @@ import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
@@ -730,13 +729,12 @@ public class SwingClientApplication extends ClientApplication {
 						DataFolder folder = initializeFolderForImport(folderName);
 
 						// create the DataBean
-						DataBean data = manager.createDataBean(dataSetName);
-
+						DataBean data;
 						if (dataSource instanceof File) {
-							manager.addContentLocationForDataBean(data, StorageMethod.LOCAL_ORIGINAL, ((File) dataSource).toURI().toURL());
+							data = manager.createDataBean(dataSetName, (File) dataSource);
 							
 						} else if (dataSource instanceof URL) {
-							manager.addContentLocationForDataBean(data, StorageMethod.REMOTE_ORIGINAL, (URL)dataSource);
+							data = manager.createDataBean(dataSetName, ((URL) dataSource));
 							
 						} else {
 							throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
@@ -1191,6 +1189,7 @@ public class SwingClientApplication extends ClientApplication {
 	public void openFileImport() throws MicroarrayException, IOException {
 		JFileChooser fc = getImportExportFileChooser();
 		fc.setMultiSelectionEnabled(true);
+
 		ImportSettingsAccessory access = (ImportSettingsAccessory) importExportFileChooser.getAccessory();
 		access.setDefaults();
 		int ret = fc.showOpenDialog(getMainFrame());

@@ -177,7 +177,6 @@ public class DataBean extends DataItemBase {
 		this.date = new Date();
 	}
 
-
 	public String getId() {
 		return this.id;
 	}

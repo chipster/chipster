@@ -588,7 +588,6 @@ public class DataManager {
 		DataBean data = new DataBean(name, guessContentType(name), this, dataId);
 		return data;
 	}
-
 	
 	/**
 	 * Convenience method for creating a local file DataBean. Initialises the DataBean with local file
@@ -604,6 +603,17 @@ public class DataManager {
 		} catch (IOException e) {
 			throw new MicroarrayException(e);
 		}
+	}
+	
+	/**
+	 * Convenience method for creating a remote url DataBean. Initialises the DataBean with the url
+	 * location. The url is used directly, the contents are not copied anywhere.
+	 * 
+	 */
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
+		DataBean bean = createDataBean(name);
+		addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		return bean;
 	}
 	
 	/**
@@ -636,6 +646,8 @@ public class DataManager {
 		}
 		return bean;
 	}
+	
+	
 	
 
 	/**
@@ -1300,7 +1312,4 @@ public class DataManager {
 	private boolean isAccessible(ContentLocation location) {
 		return location.getHandler().isAccessible(location);
 	}
-
-	
-	
 }

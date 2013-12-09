@@ -333,14 +333,26 @@ public class ImportUtils {
 	private static void openPreprocessDialog(ImportSession importSession) {
 		
 		try {
-			// make sure that we are only importing from files
-			importSession.makeLocal();
-
 			// convert input files to input DataBeans
 			List<DataBean> inputBeans = new LinkedList<DataBean>();
 			int i = 0;
+			
 			for (ImportItem inputFile: importSession.getInputFiles()) {
-				inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, (File)inputFile.getInput()));
+				
+				String name = IOUtils.getFilename(inputFile.getInput());
+				
+				if (name == null) {
+					name = "preprocessInput-" + i;
+					i++;
+				}
+				
+				if (inputFile.getInput() instanceof File) {
+					inputBeans.add(Session.getSession().getDataManager().createDataBean(name, (File)inputFile.getInput()));
+				} else if (inputFile.getInput() instanceof URL) {					
+					inputBeans.add(Session.getSession().getDataManager().createDataBean(name, (URL)inputFile.getInput()));
+				} else {
+					throw new MicroarrayException("unrecognized input type " + inputFile.getClass().getSimpleName());
+				}
 				i++;
 			}
 
