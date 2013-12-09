@@ -35,6 +35,8 @@ import fi.csc.microarray.util.IOUtils;
 */
 public class RestServlet extends DefaultServlet {
 
+	private static final String UPLOAD_FILE_EXTENSION = ".upload";
+
 	private Logger logger = Log.getLogger((String)null); // use Jetty default logger
 	
 	private String cachePath;
@@ -186,44 +188,57 @@ public class RestServlet extends DefaultServlet {
 			return;			
 		}
 		
-		// replace file if it exists
-		File file = locateFile(request);
-		if (file.exists()) {			
-			boolean success = file.delete(); 
-			if (!success) {
-				response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // file existed and could not be deleted
-				return;
-			}
+		File targetFile = locateFile(request);
+		
+		// create temp file for the upload 
+		File tmpFile = getUploadTempFile(targetFile);
+		if (tmpFile == null) {
+			logger.info("PUT denied for " + constructUrl(request) + ": too many upload temp files for same uuid");
+			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR);
+			return;
 		}
 
 		// get file contents
-		FileOutputStream out = new FileOutputStream(file);
+		FileOutputStream out = new FileOutputStream(tmpFile);
 		InputStream in = request.getInputStream();
 		try {
 			IO.copy(in, out);
 			
 		} catch (IOException e) {
 			logger.warn(Log.EXCEPTION, e);
-			file.delete();
+			tmpFile.delete();
 			throw(e);
 			
 		} finally {
 			IOUtils.closeIfPossible(in);
-			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(out);
 		}
+
+		// make file visible		
+		if (targetFile.exists()) {
+			// someone else was faster to upload the same file, keep it 
+			logger.debug("uploaded file exists already, keeping the old one");
+		} else {
+			logger.debug("rename uploaded file to make it visible");
+			boolean success = tmpFile.renameTo(targetFile);		
+			if (!success) {
+				// if the rename failed and the file exists, someone else added the file after the exists() call above.
+				// in this case the end result is what the client requested, end there is no need to send error
+				if (!targetFile.exists()) {
+					logger.debug("rename failed");
+					response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // file could not be renamed
+					return;
+				}
+			}
+		}
+		
+		String uuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
+		long size = targetFile.length();
 		
 		// add file to metadata database, if needed
 		if (isStorageRequest(request)) {
-			String uuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
-			long size = file.length();
-			try {
-				metadataServer.addFile(uuid, size);
-				
-			} catch (SQLException e) {
-				throw new ServletException(e);
-			}
+			addFileToDb(uuid, size);
 		}
-
 		
 		// make sure there's enough usable space left after the transfer
 		new Thread(new Runnable() {
@@ -249,6 +264,36 @@ public class RestServlet extends DefaultServlet {
 
 		// we return no content
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); 
+	}
+
+	private void addFileToDb(String uuid, long size) throws ServletException {
+		try {
+			metadataServer.addFile(uuid, size);				
+		} catch (SQLException e) {
+			// don't care about the exception if the entry exists already
+			try {
+				DbFile file = metadataServer.fetchFile(uuid);
+				if (file == null) {						
+					throw new ServletException(e);
+				} 
+				logger.debug("addFile failed, but the entry exist alreadỵ. Consider this as succesful");
+			} catch (SQLException e2) {
+				logger.debug("addFile failed and consequent fetchFile failed also. " +
+						"The exception of the addFile is thrown and the exception of the fetchFile is logged here", e2);
+				throw new ServletException(e);
+			}
+		}
+	}
+
+	private File getUploadTempFile(File targetFile) {
+		File tmpFile = null;
+		for (int i = 1; i < 100; i++) {
+			tmpFile = new File(targetFile.getAbsolutePath() + "." + i + UPLOAD_FILE_EXTENSION);
+			if (!tmpFile.exists()) {
+				break;
+			}
+		}
+		return tmpFile;
 	}
 	
 	@Override

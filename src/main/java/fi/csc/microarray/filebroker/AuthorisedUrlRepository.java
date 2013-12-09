@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.security.CryptoKey;
 
@@ -21,6 +23,8 @@ import fi.csc.microarray.security.CryptoKey;
  *
  */
 public class AuthorisedUrlRepository {
+	
+	private static Logger logger = Logger.getLogger(AuthorisedUrlRepository.class);
 
 	/**
 	 * The time after which URL is removed from the repository, 
@@ -70,8 +74,9 @@ public class AuthorisedUrlRepository {
 			}
 				
 			if (repository.containsKey(newUrl)) {
-				//probability for this is so small that we don't care about it elsewhere in the code, but let's check it just for fun
-				throw new Exception("can't create authorised url, because it existed already!");
+				//two clients tried to upload the same file at the same time
+				//allow and handle collision in RestServlet
+				logger.debug("repository contains the url already, timestamp is renewed");
 			}
 
 			// store it
