@@ -1066,8 +1066,12 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
 
   # Unpack webstat web-root including client jar
     echo "** Updating Chipster web: webstart/web-root"
+    cp webstart/web-root/chipster.jnlp ${BACKUPDIR_PATH}/
+    cp webstart/web-root/chipster-config.xml ${BACKUPDIR_PATH}/
     mv webstart/web-root ${BACKUPDIR_PATH}/
     tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/webstart/web-root
+    cp ${BACKUPDIR_PATH}/chipster.jnlp webstart/web-root/ 
+    cp ${BACKUPDIR_PATH}/chipster-config.xml webstart/web-root/ 
 
   # Copy away tool scripts in case there were important local changes
     cp -r comp/modules ${BACKUPDIR_PATH}/
