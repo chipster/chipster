@@ -996,7 +996,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/genomes/fasta/nochr/Drosophila_melanogaster.BDGP5.70.dna.toplevel.fa ${BACKUPDIR_PATH}/
 
   echo "** Removing FREEC_Linux64"
-  mv -rf ${TOOLS_PATH}/FREEC_Linux64
+  rm -rf ${TOOLS_PATH}/FREEC_Linux64
 
   echo "** Installing R-3.0"
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-22.tar.gz | tar -xz -C ${TOOLS_PATH}/

@@ -395,7 +395,10 @@ public abstract class ClientApplication {
 	public void executeOperation(final Operation operation) {
 
 		// check if guest user
-		if (Session.getSession().getUsername() != null && Session.getSession().getUsername().equals(configuration.getString("security", "guest-username"))) {
+		if (!operation.getDefinition().isLocal() 
+				&& Session.getSession().getUsername() != null 
+				&& Session.getSession().getUsername().equals(configuration.getString("security", "guest-username"))) {
+			
 			showDialog("Running tools is disabled for guest users.", "",
 					null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			return;
