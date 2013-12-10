@@ -176,7 +176,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		
 		// Skip import
 		else if (e.getSource() == skipButton) {
-			application.importGroup(importSession.getImportItems());
+			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			this.dispose();
 		}
 

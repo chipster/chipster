@@ -16,6 +16,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,6 +30,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Dialog for importing data from clipboard
@@ -38,10 +41,14 @@ import fi.csc.microarray.client.dataimport.ImportUtils;
 public class ClipboardImportDialog extends JDialog implements ActionListener, CaretListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
+
+	private JCheckBox skipCheckBox;
+
 	private JLabel label;
 	private JButton okButton;
 	private JButton cancelButton;
 	private JTextField nameField;
+	private JComboBox folderNameCombo;
 	private ClientApplication client;
 
 	public ClipboardImportDialog(ClientApplication client) {
@@ -55,6 +62,15 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 		nameField = new JTextField(30);
 		nameField.setText("clipboard.txt");
 		nameField.addCaretListener(this);
+		skipCheckBox = new JCheckBox(VisualConstants.getImportDirectlyText());
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
+
+		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+		folderNameCombo.setEditable(true);
 
 		okButton = new JButton("OK");
 		okButton.setPreferredSize(BUTTON_SIZE);
@@ -79,6 +95,19 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 		c.gridy++;
 		this.add(nameField, c);
 
+		c.insets.set(10, 10, 5, 10);
+		c.gridy++;
+		this.add(new JLabel("Insert in folder"), c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets.set(0, 10, 10, 10);
+		c.gridy++;
+		this.add(folderNameCombo, c);
+
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.EAST;
+		c.gridy++;
+		this.add(skipCheckBox, c);
 		c.fill = GridBagConstraints.NONE;
 		// Buttons
 		c.insets.set(10, 10, 10, 10);
@@ -112,7 +141,7 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 				file = ImportUtils.createTempFile(this.getFileName(), ImportUtils.getExtension(this.getFileName()));
 
 				if (pasteToFile(file, this)) { // Only if success
-					ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file });
+					ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file }, folderNameCombo.getSelectedItem().toString(), true);
 					ImportUtils.executeImport(importSession);
 					this.dispose();
 				}
@@ -124,6 +153,10 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 		} else if (e.getSource() == cancelButton) {
 			this.dispose();
 		}
+	}
+
+	public String getSelectedFolderName() {
+		return folderNameCombo.getSelectedItem().toString();
 	}
 
 	public String getFileName() {

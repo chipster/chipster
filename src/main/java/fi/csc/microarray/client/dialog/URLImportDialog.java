@@ -12,13 +12,17 @@ import java.net.URL;
 import java.util.LinkedList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Dialog for asking URL from user. It has an drop down menu which shows the 
@@ -37,10 +41,13 @@ public class URLImportDialog extends JDialog implements ActionListener{
 	
 	private final int RECENT_URL_COUNT = 10;
 	
+	private JCheckBox skipCheckBox;
+	
 	private JLabel label;
 	private JButton okButton;
 	private JButton cancelButton;
 	private JComboBox URLComboBox;
+	private JComboBox folderNameCombo;
 	private static LinkedList<String> recentURLs;
 	private SwingClientApplication client;
 	private URL selectedURL;
@@ -58,7 +65,17 @@ public class URLImportDialog extends JDialog implements ActionListener{
 		label = new JLabel("Insert URL");
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
 		label.setPreferredSize(LABEL_SIZE);
-			
+		
+		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+		folderNameCombo.setEditable(true);
+		
+		skipCheckBox = new JCheckBox(VisualConstants.getImportDirectlyText());
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
+		
 		okButton = new JButton("OK");
 		okButton.setPreferredSize(BUTTON_SIZE);
 		okButton.addActionListener(this);
@@ -92,6 +109,20 @@ public class URLImportDialog extends JDialog implements ActionListener{
 		c.gridy++;
 		this.add(URLComboBox, c);
 		
+		c.insets.set(10,10,5,10);
+		c.gridy++;
+		this.add(new JLabel("Insert in folder"),c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets.set(0,10,10,10);
+		c.gridy++;
+		this.add(folderNameCombo,c);
+		
+
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.EAST;
+		c.gridy++;
+		this.add(skipCheckBox,c);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridy++;
 		JPanel keepButtonsRightPanel = new JPanel();
@@ -123,6 +154,14 @@ public class URLImportDialog extends JDialog implements ActionListener{
 	 */
 	public URL getSelectedURL(){
 		return selectedURL;
+	}
+	
+	public String getSelectedFolderName(){
+		return folderNameCombo.getSelectedItem().toString();
+	}
+	
+	public boolean isSkipSelected(){
+		return skipCheckBox.isSelected();
 	}
 
 	/**
