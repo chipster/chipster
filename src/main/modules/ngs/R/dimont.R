@@ -1,5 +1,5 @@
 # TOOL dimont.R: Dimont (Dimont is a universal tool for de-novo motif discovery. Dimont has successfully been applied to ChIP-seq, ChIP-exo and protein-binding microarray (PBM\) data.)
-# INPUT seqdata.fa: "Input sequences" TYPE FASTA (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
+# INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
 # OUTPUT dimont-log.txt: Logfile (Logfile of the Dimont run.)
 # OUTPUT dimont-predictions-{...}.txt: Predictions (Binding sites predicted by Dimont.)
 # OUTPUT dimont-logo-rc-{...}.png: "Sequence logo (rc\)" (The sequence logo of the reverse complement of the motif discovered by Dimont.)
@@ -16,9 +16,20 @@
 # PARAMETER ess: "Equivalent sample size" TYPE DECIMAL FROM 1.0 DEFAULT 4.0 (Reflects the strength of the prior on the model parameters. Default value is fine for most applications.)
 # PARAMETER delete: "Delete BSs from profile" TYPE [yes: yes, no: no] DEFAULT yes (A switch for deleting binding site positions of discovered motifs from the profile before searching for futher motifs.)
 
+system("perl -n -i -e \'if(/^>/) { print \"\\n$_\"; } else { s/\\n//g && print }\' seqdata.fa")
+
+fasta_file <- scan("seqdata.fa", what="list", sep="\n", blank.lines.skip=F)
+fasta_len  <- sapply(fasta_file, nchar)
+if(min(fasta_len) == 0) {
+	remove_lines <- c(which(fasta_len==0) -1, which(fasta_len==0))
+	remove_lines <- remove_lines[remove_lines>0]
+	fasta_file <- fasta_file[-c(remove_lines)]
+}
+cat(fasta_file, file="seqdata.fa", sep="\n")
+
 tool<-file.path(chipster.tools.path,"dimont","Dimont.jar");
 
-command<-paste("java -Xms512M -Xmx3G -jar ",tool,
+command<-paste("java -Xms512M -Xmx3G -Djava.awt.headless=true -jar ",tool,
 			   " data=seqdata.fa",
 			   " infix=dimont",
 			   " position=",postag,
