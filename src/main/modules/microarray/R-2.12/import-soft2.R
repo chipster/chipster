@@ -4,9 +4,11 @@
 # PARAMETER GDS.name: accession TYPE STRING DEFAULT GSE (GDS or GSE number of the experiment.)
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (In case the series contains multiple platforms, specify the accession of the platform to import. If there is just one, this platform is ignored.)
 # PARAMETER chiptype: "Affymetrix/Illumina chiptype" TYPE STRING DEFAULT other (If the microarray platform used is an Affymetrix one, the name of the Bioconductor annotation package. For Illumina arrays, fill in Illumina. For everything else, either cDNA or other.)
+# PARAMETER matrix: "matrix number" TYPE INTEGER FROM 1 TO 100 DEFAULT 1 (The rank number of softmatrix to retrieve. Please note that most GEO-entries include only one softmatrix)
 
-# JTT: 9.8.2007
-# IS: 2013-03-18
+# JTT 09.08.2007
+# IS: 03.18.2013: Ilari Scheinin <firstname.lastname@gmail.com>
+# MK: 11.12.2013: Added selector for specifying which dataset to load, if the entry has multiple one with the same GPL identifier
 
 # check for valid accession
 GDS.name <- toupper(GDS.name)
@@ -26,9 +28,11 @@ if (class(gds) == 'GDS') {
   eset <- gds[[1]]
 } else {
   w <- grep(platform, names(gds))
-  if (length(w) != 1)
-    stop('CHIPSTER-NOTE: Please use the platform argument (currently set to "', platform, '") to specify which data set to load. Available data sets:\n', paste(names(gds), collapse='\n')) 
-  eset <- gds[[w]]
+  if (length(w) != 1) {
+    eset <- gds[[w[matrix]]]
+  } else {
+    eset <- gds[[w]]
+  }
 }
 
 # clean up phenodata
