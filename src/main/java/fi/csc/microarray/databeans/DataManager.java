@@ -1206,11 +1206,12 @@ public class DataManager {
 
 		// check if content is still available
 		if (dataBean.getContentLocations().size() == 0) {
-			return false; // no content, nothing to put to storage
+			return false;
 		}
 		
 		// try to upload
 		ContentLocation closestLocation = getClosestContentLocation(dataBean);
+
 		try {
 			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
 					dataBean.getId(), 
@@ -1218,10 +1219,10 @@ public class DataManager {
 					closestLocation.getHandler().getInputStream(closestLocation), 
 					getContentLength(dataBean), 
 					null);
-			
+
 		} catch (Exception e) {
 			logger.warn("could not upload data: " + dataBean.getName(), e);
-			return false;
+			throw e;
 		}
 		
 		return true;		

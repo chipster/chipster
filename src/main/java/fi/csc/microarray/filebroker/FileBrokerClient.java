@@ -88,7 +88,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 * @throws IOException
 	 */
-	public String addMetadata(String dataId, InputStream metadataInputStream) throws FileBrokerException, JMSException, IOException;
+	public String addMetadata(String dataId, InputStream metadataInputStream, long contentLength) throws FileBrokerException, JMSException, IOException;
 
 	
 	/**
@@ -139,5 +139,5 @@ public interface FileBrokerClient {
 	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException;
 
 
-	public boolean moveFromCacheToStorage(String dataId) throws JMSException;
+	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException;
 }

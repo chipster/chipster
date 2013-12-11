@@ -24,6 +24,39 @@ import fi.csc.microarray.security.CryptoKey;
  */
 public class AuthorisedUrlRepository {
 	
+	public static class Authorisation {
+		private Date created;
+		private long fileSize;
+		
+		public Authorisation(Date created, long fileSize) {
+			this.created = created;
+			this.fileSize = fileSize;
+		}
+		
+		public Authorisation(long fileSize) {
+			this(new Date(), fileSize);
+		}
+		
+		public Authorisation(Authorisation o) {
+			this(o.created, o.fileSize);
+		}
+
+		public Date getCreated() {
+			return created;
+		}
+		public void setCreated(Date created) {
+			this.created = created;
+		}
+
+		public long getFileSize() {
+			return fileSize;
+		}
+
+		public void setFileSize(long fileSize) {
+			this.fileSize = fileSize;
+		}
+	}
+	
 	private static Logger logger = Logger.getLogger(AuthorisedUrlRepository.class);
 
 	/**
@@ -33,7 +66,7 @@ public class AuthorisedUrlRepository {
 	private static final int URL_LIFETIME_MINUTES = 10;
 	private static final String COMPRESSION_SUFFIX = ".compressed";
 
-	private HashMap<URL, Date> repository = new HashMap<URL, Date>();  
+	private HashMap<URL, Authorisation> repository = new HashMap<>();  
 	private Lock repositoryLock = new ReentrantLock();
 
 	private String host;
@@ -52,10 +85,11 @@ public class AuthorisedUrlRepository {
 	 * Creates new URL and adds it to repository, where it has a 
 	 * limited lifetime.
 	 * @param area 
+	 * @param bytes 
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area) throws Exception {
+	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area, long bytes) throws Exception {
 
 		URL newUrl;
 
@@ -80,7 +114,7 @@ public class AuthorisedUrlRepository {
 			}
 
 			// store it
-			repository.put(newUrl, new Date());
+			repository.put(newUrl, new Authorisation(bytes));
 			
 		} finally {
 			repositoryLock.unlock();
@@ -98,11 +132,13 @@ public class AuthorisedUrlRepository {
 	}
 
 	/**
-	 * Checks if repository contains valid (not outdated) copy of the URL. 
+	 * Checks if repository contains valid (not outdated) copy of the URL.
+	 * @param url
+	 * @return Authorisation object the URL is valid, otherwise null
 	 */
-	public boolean isAuthorised(URL url) {
+	public Authorisation getAuthorisation(URL url) {
 	
-		boolean contains = false;
+		Authorisation authorisation = null;
 
 		repositoryLock.lock();
 		try {
@@ -110,19 +146,24 @@ public class AuthorisedUrlRepository {
 			Iterator<URL> keyIterator = repository.keySet().iterator(); // use iterator because we are removing
 			while (keyIterator.hasNext()) {
 				URL key = keyIterator.next();
-				if (!isDateValid(repository.get(key))) {
+				if (!isDateValid(repository.get(key).getCreated())) {
 					keyIterator.remove();
 				}
 			}
 
 			// check if url exists in up-to-date repository
-			contains = repository.containsKey(url);
+			authorisation = repository.get(url);
 
 		} finally {
 			repositoryLock.unlock();
 		}
 
-		return contains;
+		if (authorisation != null) {
+			//clone
+			return new Authorisation(authorisation);
+		} else {
+			return null;
+		}
 	}
 	
 	

@@ -51,6 +51,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	 * Logger for this class
 	 */
 	private static Logger logger;
+	
+	public static final String ERROR_QUOTA_EXCEEDED = "quota-exceeded";
 
 	private MessagingEndpoint jmsEndpoint;	
 	private ManagerClient managerClient;
@@ -76,6 +78,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	
 	private ExampleSessionUpdater exampleSessionUpdater;
 	private List<FileServerListener> listeners = new LinkedList<FileServerListener>();
+
+	private int defaultUserQuota;
 
 
 	public static void main(String[] args) {
@@ -106,7 +110,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
-
+    		this.defaultUserQuota = configuration.getInt("filebroker", "default-user-quota");
     		// initialise filebroker areas
     		this.filebrokerAreas = new FileBrokerAreas(fileRepository, cachePath, storagePath);
     		
@@ -304,10 +308,12 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	
 	private ChipsterMessage createNewURLReply(String fileId, String username, long space, boolean useCompression, FileBrokerArea area) throws Exception {
 		ChipsterMessage reply;
-		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId) || (area == FileBrokerArea.STORAGE && !checkQuota(username, space))) {
+		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId)) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
+		} else if (area == FileBrokerArea.STORAGE && !checkQuota(username, space)) {
+			reply = new SuccessMessage(false, ERROR_QUOTA_EXCEEDED);
 		} else {
-			URL url = urlRepository.createAuthorisedUrl(fileId, useCompression, area);
+			URL url = urlRepository.createAuthorisedUrl(fileId, useCompression, area, space);
 			reply = new UrlMessage(url);
 			managerClient.urlRequest(username, url);
 		}
@@ -582,7 +588,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		
 		// check id and if in cache
 		if (!(AuthorisedUrlRepository.checkFilenameSyntax(fileId) && filebrokerAreas.fileExists(fileId, FileBrokerArea.CACHE))) {
-			endpoint.replyToMessage(requestMessage, new BooleanMessage(false));
+			endpoint.replyToMessage(requestMessage, new SuccessMessage(false));
 		} else {
 
 			// move
@@ -595,22 +601,21 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					try {
 
 						// check quota here also 
-
-						// FIXME send quota exceeded message
-						//					if (!checkQuota(requestMessage.getUsername(), cacheFile.length())) {
-						//						throw new IOException("quota exceeded");
-						//					}
-
-						// move the file
-						if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
-							reply = new BooleanMessage(true);
+						if (!checkQuota(requestMessage.getUsername(), filebrokerAreas.getSize(fileId, FileBrokerArea.CACHE))) {
+							reply = new SuccessMessage(false, ERROR_QUOTA_EXCEEDED);
 						} else {
-							reply = new BooleanMessage(false);
-							logger.warn("could not move from cache to storage: " + fileId);
+
+							// move the file
+							if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
+								reply = new SuccessMessage(true);
+							} else {
+								reply = new SuccessMessage(false);
+								logger.warn("could not move from cache to storage: " + fileId);
+							}
 						}
 
 					} catch (Exception e) {
-						reply = new BooleanMessage(false);
+						reply = new SuccessMessage(false);
 					}
 
 					// send reply
@@ -626,8 +631,16 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	}
 	
 	
-	private boolean checkQuota(String username, long additionalBytes) {
-		return true; // always allow
+	private boolean checkQuota(String username, long additionalBytes) throws SQLException {
+		if (defaultUserQuota == -1) {
+			logger.debug("quota limit disabled");
+			return true;			
+		} else { 
+			Long usage = metadataServer.getStorageusageOfUser(username);
+			boolean isAllowed = usage + additionalBytes <= defaultUserQuota*1024*1024;
+			logger.debug("quota check passed: " + isAllowed);
+			return isAllowed;
+		}
 	}
 
 	public void shutdown() {
@@ -693,7 +706,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					CommandMessage reply;
 
 					List<String>[] users;
-					users = metadataServer.getListStorageusageOfUsers();
+					users = metadataServer.getStorageusageOfUsers();
 
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(users[0], "\t"));
@@ -709,7 +722,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					CommandMessage reply;
 
 					List<String>[] sessions;
-					sessions = metadataServer.listStorageUsageOfSessions(username);
+					sessions = metadataServer.getStorageUsageOfSessions(username);
 
 					reply = new CommandMessage();
 					reply.addNamedParameter(ParameterMessage.PARAMETER_USERNAME_LIST, Strings.delimit(sessions[0], "\t"));

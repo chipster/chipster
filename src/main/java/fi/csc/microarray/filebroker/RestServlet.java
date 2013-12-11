@@ -23,6 +23,7 @@ import org.eclipse.jetty.util.log.Logger;
 import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.filebroker.AuthorisedUrlRepository.Authorisation;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 
@@ -177,8 +178,9 @@ public class RestServlet extends DefaultServlet {
 			logger.debug("RESTful file access: PUT request for " + request.getRequestURI());
 		}
 		
-		// check that URL is authorised (authorised URL also implies that quota has been checked)
-		if (!urlRepository.isAuthorised(constructUrl(request))) {
+		// check that URL is authorised (authorised URL also implies that quota has been checked)		
+		Authorisation authorisation = urlRepository.getAuthorisation(constructUrl(request));
+		if (authorisation == null) {
 			// deny request
 			if (logger.isDebugEnabled()) {
 				logger.debug("PUT denied for " + constructUrl(request));
@@ -197,12 +199,15 @@ public class RestServlet extends DefaultServlet {
 			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR);
 			return;
 		}
+		
+		//enable one extra byte to recognize misbehaving clients 
+		long maxBytes = authorisation.getFileSize() + 1;
 
 		// get file contents
 		FileOutputStream out = new FileOutputStream(tmpFile);
 		InputStream in = request.getInputStream();
 		try {
-			IO.copy(in, out);
+			IO.copy(in, out, maxBytes);
 			
 		} catch (IOException e) {
 			logger.warn(Log.EXCEPTION, e);
@@ -212,6 +217,19 @@ public class RestServlet extends DefaultServlet {
 		} finally {
 			IOUtils.closeIfPossible(in);
 			IOUtils.closeIfPossible(out);
+		}
+		
+		// check that file size matches
+		if (tmpFile.length() < authorisation.getFileSize()) {
+			logger.info("PUT denied for " + constructUrl(request) + ": stream was shorter than authorised file size");
+			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR);
+			return;
+		}
+		
+		if (tmpFile.length() > authorisation.getFileSize()) {
+			logger.info("PUT denied for " + constructUrl(request) + ": stream was longer than authorised file size");
+			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR);
+			return;
 		}
 
 		// make file visible		

@@ -100,6 +100,7 @@ public class DerbyMetadataServer {
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO chipster.special_users (username, show_as_folder) VALUES (?, ?)";
 	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM chipster.special_users WHERE username = ?";
 	
+	private static String SQL_LIST_STORAGE_USAGE_OF_USER = "SELECT SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ?";
 	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
 	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, chipster.sessions.uuid, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
 	private static String SQL_GET_TOTAL_DISK_USAGE = "SELECT SUM(chipster.files.size) AS size FROM chipster.files";
@@ -524,9 +525,26 @@ public class DerbyMetadataServer {
 		}
 	}
 
+	public Long getStorageusageOfUser(String username) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_LIST_STORAGE_USAGE_OF_USER);
+		ps.setString(1, username);
+		ResultSet rs = ps.executeQuery();
+
+		Long size = null;
+		if (rs.next()) {
+			String sizeString = rs.getString("size");
+			if (sizeString != null) {
+				size = Long.parseLong(sizeString);
+			} else {
+				size = 0l; //user doesn't have any sessions
+			}
+		}
+	
+		return size;
+	}
 
 	@SuppressWarnings("unchecked")
-	public List<String>[] getListStorageusageOfUsers() throws SQLException {
+	public List<String>[] getStorageusageOfUsers() throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_LIST_STORAGE_USAGE_OF_USERS);
 
 		ResultSet rs = ps.executeQuery();
@@ -544,7 +562,7 @@ public class DerbyMetadataServer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String>[] listStorageUsageOfSessions(String username) throws SQLException {
+	public List<String>[] getStorageUsageOfSessions(String username) throws SQLException {
 		
 		PreparedStatement ps = connection.prepareStatement(SQL_LIST_STORAGE_USAGE_OF_SESSIONS);
 		ps.setString(1, username);

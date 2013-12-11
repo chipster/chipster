@@ -118,7 +118,10 @@
 		<entry entryKey="clean-up-target-percentage" type="int" description="when cleaning up drop disk usage to this percentage">
 			<value>70</value>
 		</entry>
-
+		
+		<entry entryKey="default-user-quota" type="int" description="maximum disk space that single user is allowed to consume, megabytes. set to -1 for unlimited quota">
+			<value>-1</value>
+		</entry>
 
 		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
 			<value>259200</value>

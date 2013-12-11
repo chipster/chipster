@@ -111,6 +111,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.QuotaExceededException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
@@ -1963,14 +1964,42 @@ public class SwingClientApplication extends ClientApplication {
 								getDataManager().saveStorageSession(file.getName());
 							} else {
 								getDataManager().saveSession(file);
-							}
+							}														
 							
 						} catch (ValidationException e) {
-							Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							Session.getSession().getApplication().showDialog(
+									"Problem with saving the session", 
+									"All the datasets were saved successfully, but there were troubles with saving " +
+									"the session information about them. This means that there may be problems when " +
+									"trying to open the saved session file later on.\n" +
+									"\n" +
+									"If you have important unsaved " +
+									"datasets in this session, it might be a good idea to export such datasets using the " +
+									"File -> Export functionality.", 
+									e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							
+							saveFailed = true;
+							
+						} catch (QuotaExceededException e) {
+							Session.getSession().getApplication().showDialog(
+									"Quota exceeded", 
+									"Saving session failed, because your disk space quota was exceeded.\n" +
+									"\n" +
+									"Please contact server maintainers to apply for more quota, remove some old sessions " +
+									"to free more disk space or save the session on your computer using the " +
+									"File -> Save local session functionality. ", 
+									e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 							saveFailed = true;
 
 						} catch (Exception e) {
-							Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+							Session.getSession().getApplication().showDialog(
+									"Saving session failed", 
+									"Unfortunately your session could not be saved. Please see the details for more " +
+									"information.\n" +
+									"\n" +
+									"If you have important unsaved datasets in this session, it might be " +
+									"a good idea to export such datasets using the File -> Export functionality.", 
+									Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 							saveFailed = true;
 						}
 						

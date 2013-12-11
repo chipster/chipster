@@ -40,15 +40,6 @@ import fi.csc.microarray.util.UrlTransferUtil;
  * 
  * Mostly used along the PayloadMessages which carry the URLs for the files.
  * 
- * The checkFile(URL url) method is only meant to be used to check if the cached
- * copy of a file is still available at the file broker. This method should not 
- * be used to make decisions of whether a file should be updated at the file broker.
- * In other words, the user of this class should first figure out if a file has been
- * locally modified and needs to be updated. If so, the addFile should be used 
- * directly. The checkFile() should be used if the local file has not been modified,
- * to figure out if a copy of the unmodified file still exists at the broker or should
- * a new copy of an unmodified file be added with addFile(). 
- * 
  * @author hupponen
  *
  */
@@ -59,8 +50,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private static final int MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT = 24; // hours 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
-	public static final long MAX_SESSION_FILE_SIZE = 1024*1024;  // assume 1 MB is enough for all session files
-	
 	
 	private MessagingTopic filebrokerTopic;	
 	private boolean useChunked;
@@ -99,7 +88,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		// get new url
-		URL url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, file.length());
+		URL url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, file.length()/2);
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
@@ -160,20 +149,25 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String addMetadata(String dataId, InputStream metadataInputStream) throws FileBrokerException, JMSException, IOException {
+	public String addMetadata(String dataId, InputStream metadataInputStream, long contentLength) throws FileBrokerException, JMSException, IOException {
 		
 		/* retrieves new URL to upload session metadata file into. File size is not needed, but
 		 * assumes 'a big enough' file size when requesting the URL (metadata files are small text files).
 		 */		
 		
-		addFile(dataId, FileBrokerArea.STORAGE, metadataInputStream, MAX_SESSION_FILE_SIZE, null);
+		addFile(dataId, FileBrokerArea.STORAGE, metadataInputStream, contentLength, null);
 		
 		return dataId;			
 	}
 	
 	@Override
 	public InputStream getInputStream(String dataId) throws IOException, JMSException {
-		URL url = getURL(dataId);
+		URL url = null;
+		try {
+			url = getURL(dataId);
+		} catch (FileBrokerException e) {
+			logger.error(e);
+		}
 		
 		if (url == null) {
 			throw new FileNotFoundException("file not found: " + dataId);
@@ -278,10 +272,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	
 	@Override
-	public boolean moveFromCacheToStorage(String dataId) throws JMSException {
+	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException {
 		logger.debug("moving from cache to storage: " + dataId);
 	
-		BooleanMessageListener replyListener = new BooleanMessageListener();  
+		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		try {
 			
 			// ask file broker to move it
@@ -290,15 +284,17 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			filebrokerTopic.sendReplyableMessage(moveRequestMessage, replyListener);
 			
 			// wait
-			Boolean success = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS); 
+			SuccessMessage successMessage = replyListener.waitForReply(MOVE_FROM_CACHE_TO_STORAGE_TIMEOUT, TimeUnit.HOURS); 
 			
 			// check how it went
 			
 			// timeout
-			if (success == null) {
+			if (successMessage == null) {
 				throw new RuntimeException("timeout while waiting for the filebroker");
+			} else if (FileServer.ERROR_QUOTA_EXCEEDED.equals(successMessage.getErrorMessage())) {
+				throw new QuotaExceededException();
 			} else {
-				return success;
+				return successMessage.success();
 			}
 			
 		} finally {
@@ -458,8 +454,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * if reply is not received before timeout
 	 * 
 	 * @throws JMSException
+	 * @throws FileBrokerException 
 	 */
-	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException {
+	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException {
 		logger.debug("getting new url");
 	
 		UrlMessageListener replyListener = new UrlMessageListener();  
@@ -483,7 +480,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		return url;
 	}
 
-	private URL getURL(String dataId) throws JMSException {
+	private URL getURL(String dataId) throws JMSException, FileBrokerException {
 		
 		logger.debug("getting url for dataId " + dataId);
 		

@@ -212,7 +212,9 @@ public class SessionSaver {
 				
 		FileBrokerClient fileBrokerClient = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		
-		fileBrokerClient.addMetadata(this.sessionId, new ByteArrayInputStream(buffer.toByteArray()));
+		byte[] bytes = buffer.toByteArray();
+		
+		fileBrokerClient.addMetadata(this.sessionId, new ByteArrayInputStream(bytes), bytes.length);
 	}
 
 	/**

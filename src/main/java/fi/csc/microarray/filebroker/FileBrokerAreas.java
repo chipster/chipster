@@ -14,8 +14,16 @@ public class FileBrokerAreas {
 		this.cacheRoot = new File(repositoryRoot, cachePath);
 		this.storageRoot = new File(repositoryRoot, storagePath);
 	}
+	
+	public long getSize(String fileId, FileBrokerArea area) {
+		return getFile(fileId, area).length();
+	}
 
 	public boolean fileExists(String fileId, FileBrokerArea area) {
+		return getFile(fileId, area).exists();
+	}
+	
+	private File getFile(String fileId, FileBrokerArea area) {
 
 		// check id
 		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId)) {
@@ -26,18 +34,10 @@ public class FileBrokerAreas {
 
 		case CACHE:
 			File cacheFile = new File(cacheRoot, fileId);
-			if (cacheFile.exists()) {
-				return true; 
-			} else {
-				return false;
-			}
+			return cacheFile;
 		case STORAGE:
 			File storageFile = new File(storageRoot, fileId);
-			if (storageFile.exists()) {
-				return true; 
-			} else {
-				return false;
-			}
+			return storageFile;
 		default:
 			throw new IllegalArgumentException("illegal filebroker area: " + area);
 		}
