@@ -1,4 +1,4 @@
-# TOOL ncbi_blastn.R: "Nucleotide BLAST" (NCBI BLAST for searching a nucleotide database using a nucleotide query.)
+# TOOL ncbi_blastn.R: "Nucleotide BLAST" (NCBI BLAST for searching a nucleotide database using a nucleotide query. Your query sequence set can contain 10 sequeces in maximum.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml
@@ -13,7 +13,7 @@
 # PARAMETER OPTIONAL evalue: "Expectation threshold for saving hits" TYPE DECIMAL DEFAULT 10 (E-value specifies the statistical significance threshold for reporting matches against database sequences. The default value 10 means that 10 such matches are expected to be found merely by chance. Lower thresholds are more stringent, leading to fewer chance matches being reported.)
 # PARAMETER OPTIONAL word_size: "Word size" TYPE INTEGER DEFAULT 28 (The length of the seed that initiates an alignment. BLAST works by finding word-matches between the query and database sequences. One may think of this process as finding hot-spots that BLAST can then use to initiate extensions that might eventually lead to full-blown alignments. For nucleotide-nucleotide searches an exact match of the entire word is required before an extension is initiated, so that one normally regulates the sensitivity and speed of the search by increasing or decreasing the word-size.)
 # PARAMETER OPTIONAL num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for.)
-# PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "normal BLAST report with pairwise alignments", 1: "query-anchored alignments showing identities", 2: "query-anchored alignments with no identities", 3: "flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "tabular", 10: "comma-separated values", 11: "BLAST archive format", 14: "hit regions in fasta format"] DEFAULT 0 (Output format type)
+# PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "normal BLAST report with pairwise alignments", 1: "query-anchored alignments showing identities", 2: "query-anchored alignments with no identities", 3: "flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "tabular", 10: "comma-separated values", 11: "BLAST archive format", 12: "list of uniq hit sequece identifiers", 14: "hit regions in fasta format"] DEFAULT 0 (Output format type)
 # PARAMETER OPTIONAL dust: "Filter low complexity regions" TYPE [yes: yes, no: no] DEFAULT yes (Use the DUST program for filtering low complexity regions in the query sequence.)
 # PARAMETER OPTIONAL entrez_query: "Entrez query to limit search" TYPE STRING DEFAULT "none" (You can use Entrez query syntax to search a subset of the selected BLAST database. This can be helpful to limit searches to molecule types, sequence lengths or to exclude organisms.)
 # PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING DEFAULT "full length" (Location of the search region in the query sequence, for example: 23-66.) 
@@ -37,6 +37,19 @@ command.start <- paste(pb.binary, "blastn")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
+
+
+#check sequece file type
+inputfile.to.check <- ("query.fa")
+sfcheck.binary <- file.path(chipster.module.path ,"/shell/sfcheck.sh")
+sfcheck.command <- paste(sfcheck.binary, emboss.path, inputfile.to.check )
+str.filetype <- system(sfcheck.command, intern = TRUE )
+
+if ( str.filetype == "Not an EMBOSS compatible sequence file"){
+	stop("CHIPSTER-NOTE: Your input file is not a sequence file that is compatible with the tool you try to use")
+}
+
+
 #count the query sequeces
 seqcount.exe <- file.path(emboss.path, "seqcount -filter query.fa")
 str.queryseq <- system(seqcount.exe, intern = TRUE )
@@ -46,7 +59,7 @@ outfmt <- as.integer(outfmt)
 #round(num.queryseq)
 
 if (num.queryseq > 10){
-	stop(paste('Too many query sequences. Maximun is 10 but your file contains ', num.queryseq ))
+	stop(paste('CHIPSTER-NOTE: Too many query sequences. Maximun is 10 but your file contains ', num.queryseq ))
 }
 
 #Modify table format
@@ -56,7 +69,7 @@ if (outfmt == 6)  {
    outfmt <- paste('"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore stitle"')	
    outfmt.is.table <- paste("yes")
 }
-#These parameters have allways some value
+#Theseï¿½parameters have allways some value
 general.parameters <- paste("-chipster_path /opt/chipster -remote -no_slurm -query query.fa -out blast_results -db", db )
 general.parameters <- paste( general.parameters, "-task", task)
 general.parameters <- paste( general.parameters, "-evalue ", evalue)

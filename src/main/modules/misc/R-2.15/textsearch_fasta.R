@@ -11,7 +11,22 @@
 
 #settings
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
-command.path <- file.path(emboss.path, "textsearch_fasta.sh")
+
+
+#check sequece file type
+inputfile.to.check <- ("sequence")
+sfcheck.binary <- file.path(chipster.module.path ,"/shell/sfcheck.sh")
+sfcheck.command <- paste(sfcheck.binary, emboss.path, inputfile.to.check )
+str.filetype <- system(sfcheck.command, intern = TRUE )
+
+if ( str.filetype == "Not an EMBOSS compatible sequence file"){
+	stop("CHIPSTER-NOTE: Your input file is not a sequence file that is compatible with the tool you try to use")
+}
+
+
+
+
+command.path <- file.path(chipster.module.path ,"/shell/textsearch_fasta.sh")
 command.full <- paste(command.path, "-emboss_path ", emboss.path, " -sequence sequence -outfile matching.fasta -casesensitive" ,casesensitive, " -pattern ", pattern , " >> textsearch_log.txt  2>&1")
 echo.command <- paste("echo", command.full )
 system(echo.command)
