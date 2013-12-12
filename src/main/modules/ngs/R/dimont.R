@@ -1,6 +1,6 @@
 # TOOL dimont.R: Dimont (Dimont is a universal tool for de-novo motif discovery. Dimont has successfully been applied to ChIP-seq, ChIP-exo and protein-binding microarray (PBM\) data.)
 # INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
-# OUTPUT dimont-log.txt: Logfile (Logfile of the Dimont run.)
+# OUTPUT dimont.log: Logfile (Logfile of the Dimont run.)
 # OUTPUT dimont-predictions-{...}.txt: Predictions (Binding sites predicted by Dimont.)
 # OUTPUT dimont-logo-rc-{...}.png: "Sequence logo (rc\)" (The sequence logo of the reverse complement of the motif discovered by Dimont.)
 # OUTPUT dimont-logo-{...}.png: "Sequence logo" (The sequence logo of the motif discovered by Dimont.)
@@ -42,6 +42,6 @@ command<-paste("java -Xms512M -Xmx3G -Djava.awt.headless=true -jar ",tool,
 			   " bgOrder=",bgOrder,
 			   " ess=",ess,
 			   " delete=",delete,
-			   " threads=1 > dimont-log.txt",sep="",collapse="");
+			   " threads=1 > dimont.log",sep="",collapse="");
 
 system(command);

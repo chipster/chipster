@@ -1,6 +1,6 @@
 # TOOL dimontdata.R: "Dimont sequence extractor" (Extracts genomic regions specified in a BED-like file format in the annotated FastA format as required by Dimont.)
 # INPUT regions.bed: "Genomic regions" TYPE GENERIC (The genomic regions to be extracted in a BED-like file format, e.g., BED, GTF, narrowPeak.)
-# OUTPUT extracted.fa: "Extracted sequences" (The sequences extracted from the given genome using the supplied region specifications.)
+# OUTPUT extracted.fasta: "Extracted sequences" (The sequences extracted from the given genome using the supplied region specifications.)
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)",  athaliana.TAIR10: "A. thaliana (TAIR10\)", ovis_aries_texel: "Sheep (oar3.1\)"] DEFAULT hg19 (Genome that the regions refer to.)
 # PARAMETER has.row.names: "Regions file has row names" TYPE [yes, no] DEFAULT no (BED file has row names in its first column.)
 # PARAMETER chr: "Chromosome names in my Regions file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the Regions file and in the genome. Check your Regions file and choose accordingly.)
@@ -17,15 +17,19 @@ genome.fa<-file.path(chipster.tools.path, "genomes", "fasta", paste(genome,".fa"
 
 tool<-file.path(chipster.tools.path,"dimont","extract_data_single_chipster.pl");
 
-if(has.row.names=="no") {
+if(chr=="no") {	
 	system(paste("awk '{ gsub(\"^\",\"chr\",$",chromcol,"); print }' regions.bed > regions.temp", sep=""))
 	system("mv regions.temp regions.bed")
 }
 
+koe <- read.table("regions.bed")
+print(koe)
+
+
 if(has.row.names=="yes") {
-	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+1),(startcol+1),seccol,(seccoord+1),width,(statcol+1),"extracted.fa");	
+	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+1),(startcol+1),seccol,(seccoord+1),width,(statcol+1),"extracted.fasta");	
 } else {
-	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+0),(startcol+0),seccol,(seccoord+0),width,(statcol+0),"extracted.fa");	
+	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+0),(startcol+0),seccol,(seccoord+0),width,(statcol+0),"extracted.fasta");	
 }
 
 system(command)
