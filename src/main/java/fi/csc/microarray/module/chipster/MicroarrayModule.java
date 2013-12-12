@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -760,7 +759,21 @@ public class MicroarrayModule implements Module {
 		if (data.isContentTypeCompatitible("application/bam")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.BAM_FILE);
 		}
-
+		
+		if (data.isContentTypeCompatitible("chemical/x-fasta")) {
+            data.addTypeTag(MicroarrayModule.TypeTags.FASTA_FILE);
+		}
+		
+        // mothur
+        if (data.isContentTypeCompatitible("text/mothur-oligos")) {
+                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_OLIGOS);
+        }
+        if (data.isContentTypeCompatitible("text/mothur-names")) {
+                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_NAMES);
+        }
+        if (data.isContentTypeCompatitible("text/mothur-groups")) {
+                data.addTypeTag(MicroarrayModule.TypeTags.MOTHUR_GROUPS);
+        }
 
 		// Rest of the tags are set only when this module is primary
 		
