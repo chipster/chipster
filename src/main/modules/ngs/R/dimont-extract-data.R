@@ -18,13 +18,9 @@ genome.fa<-file.path(chipster.tools.path, "genomes", "fasta", paste(genome,".fa"
 tool<-file.path(chipster.tools.path,"dimont","extract_data_single_chipster.pl");
 
 if(chr=="no") {	
-	system(paste("awk '{ gsub(\"^\",\"chr\",$",chromcol,"); print }' regions.bed > regions.temp", sep=""))
+	system(paste("awk '{BEGIN {FS=OFS=\"\t\"} gsub(\"^\",\"chr\",$",chromcol,"); print }' regions.bed > regions.temp", sep=""))
 	system("mv regions.temp regions.bed")
 }
-
-koe <- read.table("regions.bed")
-print(koe)
-
 
 if(has.row.names=="yes") {
 	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+1),(startcol+1),seccol,(seccoord+1),width,(statcol+1),"extracted.fasta");	
