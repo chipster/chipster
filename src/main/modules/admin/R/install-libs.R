@@ -8,6 +8,11 @@
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
 repo.bioc <- "http://www.bioconductor.org"
 
+#check where this script resides
+#relative.script.dir <- dirname(sys.frame(1)$ofile)
+#absolute.script.dir <- normalizePath(relative.script.dir)
+#source(paste(absolute.script.dir, "/smip.R", sep=""))
+
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
 source("smip.R")

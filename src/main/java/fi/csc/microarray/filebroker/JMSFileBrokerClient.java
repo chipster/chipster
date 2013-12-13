@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -174,21 +175,31 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		InputStream payload = null;
-		
-		// open stream
-		payload = url.openStream();
 
-		// wait for payload to become available
-		long waitStartTime = System.currentTimeMillis();
-		int waitTime = 10;
-		while (payload.available() < 1 && (waitStartTime + QUICK_POLL_OPERATION_TIMEOUT*1000 > System.currentTimeMillis())) {
-			// sleep
-			try {
-				Thread.sleep(waitTime);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+		URLConnection connection = null;
+		try {
+			// make sure http cache is disabled
+			connection = url.openConnection();
+			connection.setUseCaches(false);
+			connection.connect();
+
+			// open stream
+			payload = connection.getInputStream();
+
+			// wait for payload to become available
+			long waitStartTime = System.currentTimeMillis();
+			int waitTime = 10;
+			while (payload.available() < 1 && (waitStartTime + QUICK_POLL_OPERATION_TIMEOUT*1000 > System.currentTimeMillis())) {
+				// sleep
+				try {
+					Thread.sleep(waitTime);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
-			waitTime = waitTime*2;
+		} catch (Exception e) {
+			IOUtils.closeIfPossible(payload);
+			throw e;
 		}
 
 		// detect compression

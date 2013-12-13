@@ -276,4 +276,19 @@ public class IOUtils {
 		}
 	}
 
+	/**
+	 * Disable cache for the URLConnection class.
+	 * 
+	 * When using web start, http caching is enabled. This is a problem with big data files.
+	 * 
+	 */
+	public static void disableHttpCache() {
+		try {
+			// no static way to do this, see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4851466
+			// openConnection does not really open the connection
+			new URL("http://chipster.csc.fi").openConnection().setDefaultUseCaches(false);
+		} catch (Exception e) {
+			
+		}
+	}
 }
