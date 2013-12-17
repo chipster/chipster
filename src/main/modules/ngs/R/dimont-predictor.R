@@ -1,7 +1,7 @@
 # TOOL dimont-predictor.R: DimontPredictor (DimontPredictor lets you predict binding sites for a motif discovered by Dimont on supplied input data.)
 # INPUT model.xml: "Dimont model" TYPE GENERIC (The XML representation of a motif model created using Dimont. Models are available from the Dimont output, one for each motif discovered.)
 # INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
-# OUTPUT dimont-predictor-log.txt: Logfile (Logfile of the DimontPredictor run.)
+# OUTPUT dimont-predictor.log: Logfile (Logfile of the DimontPredictor run.)
 # OUTPUT dimont-predictor-predictions.txt: Predictions (Binding sites predicted by DimontPredictor.)
 # OUTPUT dimont-predictor-logo-rc.png: "Sequence logo (rc\)" (The sequence logo of the reverse complement of the predictions.)
 # OUTPUT dimont-predictor-logo.png: "Sequence logo" (The sequence logo of the predictions.)
@@ -29,6 +29,6 @@ command<-paste("java -Xms512M -Xmx2G -Djava.awt.headless=true -jar ",tool,
 			   " value=",valtag,
 			   " weightingFactor=",wf,
 			   " p-value=",pval,
-			   " > dimont-predictor-log.txt",sep="",collapse="");
+			   " > dimont-predictor.log",sep="",collapse="");
 
 system(command);

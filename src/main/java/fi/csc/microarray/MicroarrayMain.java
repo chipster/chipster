@@ -22,6 +22,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
 
@@ -70,6 +71,10 @@ public class MicroarrayMain {
 			}
 
 			// start application
+			
+			// disable http cache
+			IOUtils.disableHttpCache();
+			
 			if (cmdParser.hasValue("authenticator")) {
 				new Authenticator(configURL);
 				
