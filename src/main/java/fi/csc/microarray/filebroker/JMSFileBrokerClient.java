@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -183,22 +184,34 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	public InputStream getFile(URL url) throws IOException {
 		InputStream payload = null;
 		
-		// open stream
-		payload = url.openStream();
+		URLConnection connection = null;
+		try {
+			// make sure http cache is disabled
+			connection = url.openConnection();
+			connection.setUseCaches(false);
+			connection.connect();
 
-		// wait for payload to become available
-		long waitStartTime = System.currentTimeMillis();
-		int waitTime = 10;
-		while (payload.available() < 1 && (waitStartTime + FILE_AVAILABLE_TIMEOUT*1000 > System.currentTimeMillis())) {
-			// sleep
-			try {
-				Thread.sleep(waitTime);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+			// open stream
+			payload = connection.getInputStream();
+
+			// wait for payload to become available
+			long waitStartTime = System.currentTimeMillis();
+			int waitTime = 10;
+			while (payload.available() < 1 && (waitStartTime + FILE_AVAILABLE_TIMEOUT*1000 > System.currentTimeMillis())) {
+				// sleep
+				try {
+					Thread.sleep(waitTime);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+				waitTime = waitTime*2;
 			}
-			waitTime = waitTime*2;
-		}
 
+		} catch (Exception e) {
+			IOUtils.closeIfPossible(payload);
+			throw e;
+		}
+		
 		// detect compression
 		if (url.toString().endsWith(".compressed")) {
 			return new InflaterInputStream(payload);
