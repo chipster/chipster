@@ -367,8 +367,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		        "username: " + feedback.getUsername() + "\n" +
 		        "email: " + replyEmail + "\n" +
 		        "session id: " + sessionId + "\n" +
-		        "session file: " + sessionUrl + "\n\n" +
-		        "Open session id using using magic shortcut SHIFT-CTRL-ALT-O or download and open the session file\n\n";		    
+		        "Open session id in client using magic shortcut SHIFT-CTRL-ALT-O\n\n";		    
 		    for (String[] log : feedback.getLogs()) {
                 emailBody += log[0] + ": " + log[1] + "\n";
             }
