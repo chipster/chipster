@@ -1,43 +1,43 @@
 <module name="ngs">
 
 	<category name="Quality control" color="#d5c796">
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>fastqc.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>fastx-statistics.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-statistics.R</resource>
 		</tool>			
 	</category>
 	
 	<category name="Filtering" color="#e7df70">
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>fastx-quality-filter.R</resource>
 		</tool>	
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-length-filter.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-N-filter.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-complexity-filter.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-duplicate-filter.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>prinseq-filter.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>fastx-clipper.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-filter-annotations.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-filter-results-column.R</resource>
 		</tool>
 	</category>
@@ -185,55 +185,55 @@
 	</category>
 
 	<category name="Alignment" color="#d53833">
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie2.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie2-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie2-with-index-building.R</resource>
 		</tool>
-	    <tool runtime="R-3.0-R-2.12">
+	    <tool runtime="R-3.0">
 			<resource>bowtie2-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>tophat2.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>tophat2-single-end.R</resource>
 		</tool>
-	    <tool runtime="R-3.0-R-2.12">
+	    <tool runtime="R-3.0">
 			<resource>bwa.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bwa-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bwa-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bwa-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bwasw-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie-paired-end.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>bowtie-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>tophat.R</resource>
 		</tool>
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>tophat-single-end.R</resource>
 		</tool>
 	</category>
@@ -251,7 +251,7 @@
 	</category>
 	
 	<category name="RNA-seq" color="#0177b7">
-		<tool runtime="R-3.0-R-2.12">
+		<tool runtime="R-3.0">
 			<resource>htseq-count.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
