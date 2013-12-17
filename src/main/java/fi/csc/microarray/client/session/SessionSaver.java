@@ -49,6 +49,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
 
@@ -135,20 +136,41 @@ public class SessionSaver {
 		gatherMetadata(false, false);
 		writeSessionToFile(false);
 	}
+	
+	public LinkedList<String> saveFeedbackSession() throws Exception {
+		return saveRemoteSession(FileBrokerArea.CACHE);
+	}
 
 	public LinkedList<String> saveStorageSession() throws Exception {
+		return saveRemoteSession(FileBrokerArea.STORAGE);
+	}
 
-		// move data bean contents to storage
+	public LinkedList<String> saveRemoteSession(FileBrokerArea area) throws Exception {
+		// move data bean contents to filebroker
 		LinkedList<String> dataIds = new LinkedList<String>();
+		
 		for (DataBean dataBean : dataManager.databeans()) {
-			if (dataManager.putToStorage(dataBean)) {
+			
+			boolean success;
+			switch(area) {
+			case STORAGE:
+				success = dataManager.putToStorage(dataBean);
+				break;
+			case CACHE:
+				success = dataManager.putToCacheOrStorage(dataBean);
+				break;
+			default:
+				throw new IllegalArgumentException("unknown filebroker area");
+			}
+				
+			if (success) {
 				dataIds.add(dataBean.getId());				
 			}
 		}
 		
 		// save metadata
-		gatherMetadata(false, true);
-		writeRemoteSession();
+		gatherMetadata(false, true);		
+		writeRemoteSession(area);
 		
 		return dataIds;
 	}
@@ -204,7 +226,7 @@ public class SessionSaver {
 	 * Write metadata over URL. Doesn't save actual content of the databeans.
 	 * 
 	 */
-	private void writeRemoteSession() throws Exception {
+	private void writeRemoteSession(FileBrokerArea area) throws Exception {
 		
 		//write metedata to byte array
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -214,7 +236,7 @@ public class SessionSaver {
 		
 		byte[] bytes = buffer.toByteArray();
 		
-		fileBrokerClient.addMetadata(this.sessionId, new ByteArrayInputStream(bytes), bytes.length);
+		fileBrokerClient.addFile(this.sessionId, area, new ByteArrayInputStream(bytes), bytes.length, null);
 	}
 
 	/**

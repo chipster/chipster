@@ -77,19 +77,6 @@ public interface FileBrokerClient {
 	 * @throws JMSException 
 	 */
 	public abstract InputStream getInputStream(String dataId) throws IOException, JMSException;
-
-	/**
-	 * Save metadata from InputStream to file broker.
-	 * 
-	 * @param dataId dataId of the session metadata file
-	 * @param metadataInputStream
-	 * @return
-	 * @throws FileBrokerException
-	 * @throws JMSException
-	 * @throws IOException
-	 */
-	public String addMetadata(String dataId, InputStream metadataInputStream, long contentLength) throws FileBrokerException, JMSException, IOException;
-
 	
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
@@ -140,4 +127,17 @@ public interface FileBrokerClient {
 
 
 	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException;
+
+
+	/**
+	 * Internally client should use only dataIds instead of full URL and access data through 
+	 * FileBrokerClient.getInputStream(). Use this method to only to generate links that are 
+	 * needed outside Chipster and therefore don't have access to FileBrokerClient. 
+	 * 
+	 * @param dataId
+	 * @return
+	 * @throws JMSException
+	 * @throws FileBrokerException
+	 */
+	public String getExternalURL(String dataId) throws JMSException, FileBrokerException;
 }

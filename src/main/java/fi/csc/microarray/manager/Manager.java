@@ -4,6 +4,8 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -30,7 +32,6 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -53,6 +54,7 @@ import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Emails;
 import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * Monitoring database and tool for Chipster server system.
@@ -348,14 +350,25 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		    // formulate an email
 		    String replyEmail = !feedback.getEmail().equals("") ?
 		            feedback.getEmail() : "[not available]";
-		    String sessURL = !feedback.getSessionURL().equals("") ? 
-		            feedback.getSessionURL() : "[not available]";
+		        
+		    String sessionUrl = "[not available]";
+		    String sessionId = "[not available]";
+		    if (!feedback.getSessionURL().equals("")) {
+		    	sessionUrl = feedback.getSessionURL();
+		    	try {
+					sessionId = UrlTransferUtil.parseFilename(new URL(sessionUrl));
+				} catch (MalformedURLException e) {
+					logger.error(e);
+				}
+		    }
+
 		    String emailBody =
 		        feedback.getDetails() + "\n\n" +
 		        "username: " + feedback.getUsername() + "\n" +
 		        "email: " + replyEmail + "\n" +
-		        "session file: " + sessURL + "\n\n" +
-		        "Download the session file as .zip and open it in Chipster using magic shortcut SHIFT-CTRL-ALT-O\n\n";		    
+		        "session id: " + sessionId + "\n" +
+		        "session file: " + sessionUrl + "\n\n" +
+		        "Open session id using using magic shortcut SHIFT-CTRL-ALT-O or download and open the session file\n\n";		    
 		    for (String[] log : feedback.getLogs()) {
                 emailBody += log[0] + ": " + log[1] + "\n";
             }

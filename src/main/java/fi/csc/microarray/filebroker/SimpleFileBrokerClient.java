@@ -108,8 +108,8 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public String addMetadata(String sessionId, InputStream metadataInputStream, long contentLength)
-			throws FileBrokerException, JMSException, IOException {
+	public String getExternalURL(String dataId) throws JMSException,
+			FileBrokerException {
 		throw new UnsupportedOperationException();
 	}
 }

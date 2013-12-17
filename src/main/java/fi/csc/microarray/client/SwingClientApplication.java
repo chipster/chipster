@@ -212,7 +212,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 		t.start();
 	}
-	
+
 	private void reportInitalisationErrorThreadSafely(final Exception e) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -289,35 +289,6 @@ public class SwingClientApplication extends ClientApplication {
 		childScreens = new ChildScreenPool(mainFrame);
 		Frames frames = new Frames(mainFrame);
 		Session.getSession().setFrames(frames);
-		
-		// add application wide keyboard shortcuts
-		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();
-		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), 
-				new AbstractAction("DEBUG_PRINT_SESSION") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showDebugDialog(1);
-			}
-		});
-		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-		kfm.addKeyEventDispatcher(new KeyEventDispatcher() {
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent e) {
-				KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
-				if (shortcutActionMap.containsKey(keyStroke) ) {
-					final Action a = shortcutActionMap.get(keyStroke);
-					final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), null );
-					SwingUtilities.invokeLater( new Runnable() {
-						@Override
-						public void run() {
-							a.actionPerformed(ae);
-						}
-					}); 
-					return true;
-				}
-				return false;
-			}
-		});
 
 		// set look'n'feel
 		setPlastic3DLookAndFeel(mainFrame);
@@ -1346,7 +1317,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {						
-			new SwingClientApplication(shutdownListener, null, module, false);
+			new SwingClientApplication(shutdownListener, null, module, false);			
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1828,6 +1799,13 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		menuBar.updateMenuStatus();
 	}
+	
+	public void loadSession(String sessionId) {
+		//don't load new session, if user canceled the clearing of the old one  
+		if (clearSession()) {
+			loadSessionImpl(null, sessionId, true, false, false);
+		}
+	}
 
 	private void loadSessionImpl(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
 		
@@ -2137,15 +2115,33 @@ public class SwingClientApplication extends ClientApplication {
 
 	private void enableKeyboardShortcuts() {
 		// add application wide keyboard shortcuts
-		final HashMap<KeyStroke, Action> shortcutActionMap = new 
-				HashMap<KeyStroke, Action>();
+		
+		// add application wide keyboard shortcuts
+		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();
+		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), 
+				new AbstractAction("DEBUG_PRINT_SESSION") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showDebugDialog(1);
+			}
+		});
+		
 		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 
 				KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | 
 				KeyEvent.SHIFT_DOWN_MASK),
 				new AbstractAction("OPEN_LIGHTWEIGHT_SESSION") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadSession(true);
+				
+			    String sessionId = JOptionPane.showInputDialog(
+			    		mainFrame,
+			    		"sessionId",
+		                "Open feedback session",
+		                JOptionPane.PLAIN_MESSAGE);		    
+				
+			    if (sessionId != null) {
+			    	loadSession(sessionId);
+			    }
 			}
 		});
 		KeyboardFocusManager kfm = 
