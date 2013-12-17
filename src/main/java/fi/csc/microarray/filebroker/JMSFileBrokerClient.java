@@ -469,7 +469,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException {
 		logger.debug("getting new url");
-		System.out.println("client content length " + dataId + " " + contentLength);
 	
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
