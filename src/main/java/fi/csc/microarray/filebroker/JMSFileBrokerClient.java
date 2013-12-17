@@ -89,7 +89,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 		
 		// get new url
-		URL url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, file.length()/2);
+		URL url = getNewURL(dataId, useCompression, FileBrokerArea.CACHE, file.length());
 		if (url == null) {
 			throw new FileBrokerException("filebroker is not responding");
 		}
@@ -469,6 +469,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException {
 		logger.debug("getting new url");
+		System.out.println("client content length " + dataId + " " + contentLength);
 	
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
