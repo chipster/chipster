@@ -69,11 +69,12 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/hamcrest-core-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/junit-4.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/joda-time-2.3.jar" sourcepath="ext/lib-src/joda-time-2.3-sources.jar"/>
-	<classpathentry kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
-	<classpathentry kind="lib" path="ext/lib/picard-1.103.jar"/>
-	<classpathentry kind="lib" path="ext/lib/sam-1.103.jar"/>
-	<classpathentry kind="lib" path="ext/lib/tribble-1.103.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/bsh-2.0b4.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/picard-1.103.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/sam-1.103.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/tribble-1.103.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="ext/lib/miglayout-4.0-swing.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/miglayout-4.0-swing.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

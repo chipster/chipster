@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -14,11 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import sun.net.www.protocol.http.HttpURLConnection;
 import fi.csc.microarray.config.Configuration;
@@ -34,6 +38,7 @@ import fi.csc.microarray.util.IOUtils;
 * @author Aleksi Kallio
 *
 */
+@SuppressWarnings("serial")
 public class RestServlet extends DefaultServlet {
 
 	private static final String UPLOAD_FILE_EXTENSION = ".upload";
@@ -124,7 +129,7 @@ public class RestServlet extends DefaultServlet {
 			return false;
 		}
 
-		if (urlRepository.checkFilenameSyntax(path.substring(("/" + prefix + "/").length()))) {
+		if (AuthorisedUrlRepository.checkFilenameSyntax(path.substring(("/" + prefix + "/").length()))) {
 			return true;
 		}
 		
@@ -149,22 +154,35 @@ public class RestServlet extends DefaultServlet {
 			
 		} else {			
 			
+
 			// touch the file
 			File file = locateFile(request);
 			file.setLastModified(System.currentTimeMillis());
 			
 			// touch metadata database
 			if (isStorageRequest(request)) {
-				String uuid = urlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
+				String uuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
 				try {
 					metadataServer.markFileAccessed(uuid);
 				} catch (SQLException e) {
 					throw new ServletException(e);
 				}
 			}
-
+			
 			// delegate to super class
+			DateTime before = new DateTime();
 			super.doGet(request, response);	
+			DateTime after = new DateTime();
+
+			// log performance
+			Duration duration = new Duration(before, after);
+			double rate = getTransferRate(file.length(), duration);
+			logger.info("GET " + file.getName()  + " " + 
+					"from " + request.getRemoteHost() + " | " +
+					FileUtils.byteCountToDisplaySize(file.length()) + " | " + 
+					DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
+					new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
+					new DecimalFormat("###.##").format(rate) + " MB/s");
 		}
 		
 	}
@@ -207,7 +225,18 @@ public class RestServlet extends DefaultServlet {
 		FileOutputStream out = new FileOutputStream(tmpFile);
 		InputStream in = request.getInputStream();
 		try {
+			DateTime before = new DateTime();
 			IO.copy(in, out, maxBytes);
+			DateTime after = new DateTime();
+			Duration duration = new Duration(before, after);
+
+			double rate = getTransferRate(authorisation.getFileSize(), duration);
+			logger.info("PUT " + targetFile.getName()  + " " + 
+					"from " + request.getRemoteHost() + " | " +
+					FileUtils.byteCountToDisplaySize(authorisation.getFileSize()) + " | " + 
+					DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
+					new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
+					new DecimalFormat("###.##").format(rate) + " MB/s");
 			
 		} catch (IOException e) {
 			logger.warn(Log.EXCEPTION, e);
@@ -284,6 +313,19 @@ public class RestServlet extends DefaultServlet {
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); 
 	}
 
+	
+	private double getTransferRate(long fileSize, Duration duration) {
+		double rate;
+		if (duration.getMillis() != 0 ) {
+			rate = ((double)fileSize) / duration.getMillis()*1000/1024/1024;
+		} else {
+			rate = 0;
+		}
+
+		return rate;
+	}
+
+
 	private void addFileToDb(String uuid, long size) throws ServletException {
 		try {
 			metadataServer.addFile(uuid, size);				
@@ -346,6 +388,6 @@ public class RestServlet extends DefaultServlet {
 	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {
 		return new URL(rootUrl + request.getPathInfo());
 	}
-
+	
 }
 
