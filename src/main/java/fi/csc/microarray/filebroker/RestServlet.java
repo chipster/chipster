@@ -56,7 +56,10 @@ public class RestServlet extends DefaultServlet {
 	private AuthorisedUrlRepository urlRepository;
 	private DerbyMetadataServer metadataServer;
 	
-	
+	// set from configs
+	// specify whether get and put requests are logged
+	// using jetty debug logging is not very useful as it is so verbose
+	private boolean logRest = false;
 
 	public RestServlet(String rootUrl, AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
 		this.rootUrl = rootUrl;
@@ -70,6 +73,11 @@ public class RestServlet extends DefaultServlet {
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
 		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
+
+		if (configuration.getBoolean("filebroker", "log-rest")) {
+			logRest = true;
+		}
+		logger.info("logging rest requests: " + logRest);
 	}
 	
 	@Override
@@ -177,14 +185,16 @@ public class RestServlet extends DefaultServlet {
 			// log performance
 			Duration duration = new Duration(before, after);
 			double rate = getTransferRate(file.length(), duration);
-			logger.info("GET " + file.getName()  + " " + 
-					"from " + request.getRemoteHost() + " | " +
-					FileUtils.byteCountToDisplaySize(file.length()) + " | " + 
-					DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
-					new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
-					new DecimalFormat("###.##").format(rate) + " MB/s");
+			if (logRest) {
+				logger.info("GET " + file.getName()  + " " + 
+						"from " + request.getRemoteHost() + " | " +
+						FileUtils.byteCountToDisplaySize(file.length()) + " | " + 
+						DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
+						new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
+						new DecimalFormat("###.##").format(rate) + " MB/s");
+			}
 		}
-		
+
 	}
 
 	
@@ -231,12 +241,14 @@ public class RestServlet extends DefaultServlet {
 			Duration duration = new Duration(before, after);
 
 			double rate = getTransferRate(authorisation.getFileSize(), duration);
-			logger.info("PUT " + targetFile.getName()  + " " + 
-					"from " + request.getRemoteHost() + " | " +
-					FileUtils.byteCountToDisplaySize(authorisation.getFileSize()) + " | " + 
-					DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
-					new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
-					new DecimalFormat("###.##").format(rate) + " MB/s");
+			if (logRest) {
+				logger.info("PUT " + targetFile.getName()  + " " + 
+						"from " + request.getRemoteHost() + " | " +
+						FileUtils.byteCountToDisplaySize(authorisation.getFileSize()) + " | " + 
+						DurationFormatUtils.formatDurationHMS(duration.getMillis()) + " | " +
+						new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
+						new DecimalFormat("###.##").format(rate) + " MB/s");
+			}
 			
 		} catch (IOException e) {
 			logger.warn(Log.EXCEPTION, e);

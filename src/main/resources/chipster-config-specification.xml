@@ -144,6 +144,11 @@
 		<entry entryKey="jetty-debug" type="boolean" description="should Jetty web server run in debug mode (logs/wrapper.log)">
 			<value>false</value>
 		</entry>
+
+		<entry entryKey="log-rest" type="boolean" description="should get and put requests be logged (logs/wrapper.log)">
+			<value>false</value>
+		</entry>
+
         
         <entry entryKey="enable-metadata-backups" type="boolean" description="true to enable filebroker metadata db backups">
 			<value>true</value>

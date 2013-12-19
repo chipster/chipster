@@ -23,7 +23,7 @@ public class JettyFileServer {
 	public void start(String resourceBase, int port) throws Exception {
 		
 		if (DirectoryLayout.getInstance().getConfiguration().getBoolean("filebroker", "jetty-debug")) {
-			System.setProperty("DEBUG", "true");
+			System.setProperty("org.eclipse.jetty.LEVEL", "DEBUG");
 		}
 		
 		jettyInstance = new Server();
