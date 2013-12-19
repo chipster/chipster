@@ -62,6 +62,9 @@ public class WebstartJettyServer implements ShutdownCallback {
 			ServletContextHandler wsRoot = new ServletContextHandler(jettyInstance, "/", false, false);
 			wsRoot.setResourceBase(DirectoryLayout.WEB_ROOT + "/");
 			wsRoot.addServlet(new ServletHolder(new DefaultServlet()), "/*");
+			
+			// dynamic jnlp servlet
+			wsRoot.addServlet(new ServletHolder(new JnlpServlet()), "/servlet.jnlp");
 
 			// tooleditor web app
 			WebAppContext context = new WebAppContext();
