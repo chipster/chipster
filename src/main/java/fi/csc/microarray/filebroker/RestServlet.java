@@ -265,6 +265,7 @@ public class RestServlet extends DefaultServlet {
 		if (targetFile.exists()) {
 			// someone else was faster to upload the same file, keep it 
 			logger.debug("uploaded file exists already, keeping the old one");
+			tmpFile.delete();
 		} else {
 			logger.debug("rename uploaded file to make it visible");
 			boolean success = tmpFile.renameTo(targetFile);		

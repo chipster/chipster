@@ -733,19 +733,22 @@ public class DataManager {
 	
 	
 	/**
-	 * The same as saveLightweightSession(), but before saving the session, makes sure
-	 * that all data bean contents have been uploaded to cache. Uploads in necessary.
+	 * Like saveStorageSession, but upload necessary files to cache instead of storage and returns sessionId
+	 * instead of writing it to metadata database.
 	 * 
-	 * @return true if the session was saved perfectly
+	 * @return 
+	 * 
+	 * @return sessionId
 	 * @throws Exception 
 	 */
-	public void saveFeedbackSession(File sessionFile) throws Exception {
+	public String saveFeedbackSession() throws Exception {
 	
-		// upload beans to cache if necessary
-
-		// save lightweight session
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		sessionSaver.saveLightweightSession();
+		String sessionId = CryptoKey.generateRandom();
+		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
+		// upload/move data files and upload metadata files, if needed
+		sessionSaver.saveFeedbackSession();
+		
+		return sessionId;
 	}
 
 	
@@ -1200,10 +1203,28 @@ public class DataManager {
 		if (Session.getSession().getServiceAccessor().getFileBrokerClient().moveFromCacheToStorage(dataBean.getId())) {
 			return true;
 		}
+				
+		// upload
+		return upload(dataBean, FileBrokerArea.STORAGE);		
+	}
+	
+	public boolean putToCacheOrStorage(DataBean dataBean) throws Exception {
+
+		// check if already in storage
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataBean.getId(), FileBrokerArea.STORAGE)) {
+			return true;
+		}
 		
+		// check if already in cache
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataBean.getId(), FileBrokerArea.CACHE)) {
+			return true;
+		}		
 		
 		// upload
+		return upload(dataBean, FileBrokerArea.CACHE);		
+	}
 
+	private boolean upload(DataBean dataBean, FileBrokerArea area) throws Exception {
 		// check if content is still available
 		if (dataBean.getContentLocations().size() == 0) {
 			return false;
@@ -1215,7 +1236,7 @@ public class DataManager {
 		try {
 			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
 					dataBean.getId(), 
-					FileBrokerArea.STORAGE, 
+					area, 
 					closestLocation.getHandler().getInputStream(closestLocation), 
 					getContentLength(dataBean), 
 					null);
@@ -1224,8 +1245,7 @@ public class DataManager {
 			logger.warn("could not upload data: " + dataBean.getName(), e);
 			throw e;
 		}
-		
-		return true;		
+		return true;
 	}
 
 	

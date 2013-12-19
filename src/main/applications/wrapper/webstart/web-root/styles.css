@@ -93,7 +93,7 @@ div#news {
 }
 
 div#launch{
-	margin-top: 4em;
+	margin-top: 2em;
 	background-color: #E8EDF1;
 	padding: 1em;
 }
@@ -107,10 +107,20 @@ div#launch a{
 	text-decoration: none;
 }
 
+div#launch a:hover{
+	color: black;
+}
+
 span#launch-text{
 	vertical-align: middle;
 	display: inline-block;
 	font-size: 140%;
+}
+
+em#small-launch-note {
+    font-size: 60%;
+    line-height: 0;
+    margin-left: 2em;    
 }
 
 ul#navigation-links{

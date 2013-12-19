@@ -148,18 +148,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, progressListener);
 		logger.debug("successfully uploaded: " + url);
 	}
-
-	@Override
-	public String addMetadata(String dataId, InputStream metadataInputStream, long contentLength) throws FileBrokerException, JMSException, IOException {
-		
-		/* retrieves new URL to upload session metadata file into. File size is not needed, but
-		 * assumes 'a big enough' file size when requesting the URL (metadata files are small text files).
-		 */		
-		
-		addFile(dataId, FileBrokerArea.STORAGE, metadataInputStream, contentLength, null);
-		
-		return dataId;			
-	}
 	
 	@Override
 	public InputStream getInputStream(String dataId) throws IOException, JMSException {
@@ -510,5 +498,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		logger.debug("url is: " + url);
 	
 		return url;
+	}
+
+	@Override
+	public String getExternalURL(String dataId) throws JMSException, FileBrokerException {
+		return getURL(dataId).toExternalForm();
 	}
 }

@@ -186,7 +186,7 @@ public class MicroarrayMain {
 			} else {
 
 				final String module = cmdParser.getValue("-module");
-				final String config = configURL;				
+				final String config = configURL;								
 				
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
