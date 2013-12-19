@@ -59,36 +59,40 @@ if (is_gtf) {
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
 genome_available <- FALSE
-if (genome == "hg19" ||	genome == "mm9" || genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel" || genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") genome_available <- TRUE
+if (genome == "hg19" ||	genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel" || genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") genome_available <- TRUE
 if (!is_gtf && genome_available) {
-   # annotation file setup
-   if (genome == "hg19") {
-      annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
-   }
-   if (genome == "mm10") {
-	  annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
-   }
-   if (genome == "mm9") {
-      annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
-   }
-   if (genome == "rn4") {
-	  annotation.file <- "Rattus_norvegicus.RGSC3.4.62.chr.gtf"
-   }
-   if (genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel") {
-	   annotation.file <- "Rattus_norvegicus.Rnor_5.0.70.gtf"
-   }   
-   if (genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") {
-				   annotation.file <- "Canis_familiaris.CanFam3.1.71.gtf"
-   }
-   if (genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") {
-		annotation.file <- "Drosophila_melanogaster.BDGP5.73.gtf"
-   }
-   annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
-	
-	if (no.novel.juncs == "yes") {
-		command.gtf <- paste("-G", annotation.file, "--no-novel-juncs")
+
+	# annotation file setup
+	if (genome == "hg19") {
+		annotation.file <- c(file.path(path.bowtie, "indexes", "hg19.ti"))
+		ti.command <- c("--transcriptome-index=", annotation.file)
+		annotation.command <- paste(ti.command, collapse = '')
+	}
+	if (genome == "mm10") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Mus_musculus.GRCm38.68.chr.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}
+	if (genome == "rn4") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.RGSC3.4.62.chr.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}
+	if (genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.Rnor_5.0.70.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}
+	if (genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Canis_familiaris.CanFam3.1.71.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}	
+	if (genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Drosophila_melanogaster.BDGP5.73.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}
+   
+   	if (no.novel.juncs == "yes") {
+		command.gtf <- paste(annotation.command, "--no-novel-juncs")
 	} else {
-		command.gtf <- paste("-G", annotation.file)
+		command.gtf <- paste(annotation.command)
 	}
 }
 
@@ -101,6 +105,7 @@ if (use.gtf == "yes"){
 }else{
 	command <- paste(command.start, command.parameters, command.end)
 }
+#stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
 
 # samtools binary
