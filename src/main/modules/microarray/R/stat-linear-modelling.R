@@ -428,7 +428,7 @@ if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & techn
 m<-matrix(nrow=nrow(dat2), ncol=ncol(design))
 mm<-matrix(nrow=nrow(dat2), ncol=ncol(design))
 for(i in 1:ncol(design)) {
-   pp<-toptable(fit, coef=i, number=nrow(dat2), adjust.method=p.value.adjustment.method, sort.by="p")
+   pp<-toptable(fit, coef=i, number=nrow(dat2), adjust.method=p.value.adjustment.method, sort.by="none")
    if(adjust.p.values=="yes") {
       pp2<-pp$adj.P.Val
    }
@@ -436,11 +436,9 @@ for(i in 1:ncol(design)) {
       pp2<-pp$P.Value
    }
    pp3<-pp$logFC
-   pp2<-pp2[order(as.numeric(rownames(pp)))]
-   pp3<-pp3[order(as.numeric(rownames(pp)))]
    m[,(i)]<-pp2
    mm[,(i)]<-pp3
-   rownames(pp)<-rownames(dat2[as.numeric(rownames(pp)),])
+   rownames(pp)<-rownames(dat2)
 }
 
 

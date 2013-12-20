@@ -51,12 +51,15 @@ if(meth=="empiricalBayes") {
   	design<-model.matrix(~groups)
    	fit<-lmFit(dat2, design)
    	fit<-eBayes(fit)
-   	tab<-toptable(fit, coef=2, number=nrow(fit), adjust.method=adj.method)
-   	rows<-as.numeric(row.names(tab))
-   	rows<-rows[tab$adj.P.Val<=p.cut]
-   	p<-tab$adj.P.Val[tab$adj.P.Val<=p.cut]
-   	dat<-dat[rows,]
-   	write.table(data.frame(dat, p.adjusted=round(p, digits=6)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+      tab <- toptable(fit, coef=2, number=nrow(fit), adjust.method=adj.method, sort.by="none")
+      rows <- which(tab$adj.P.Val<=p.cut)
+      p <- tab$adj.P.Val[rows]
+      M <- tab$logFC[rows]
+      dat <- data.frame(dat[rows,], p.adjusted=round(p, digits=6), FC=M);
+      dat <- dat[order(dat$p.adjusted, decreasing=F),]
+
+   	write.table(dat, file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # ANOVA test
