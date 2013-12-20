@@ -10,10 +10,6 @@
 # JTT 22.10.2008: Illumina SNP array normalization
 # MK  21.05.2013: added crlmm normalization. Add xy-matrix support
 
-save.image("/tmp/matti/snp.Rdata")
-file <- paste(getwd(), "/", "chip.txt", sep="")
-system(paste("cp ", file, " /tmp/matti/.", sep=""))
-
 # Reading data
 if(method == "illumina") {
  	if(input == "xy") {

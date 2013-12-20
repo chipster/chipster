@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, oligo: oligo, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype)
 # PARAMETER biomart: "biomaRt annotation" TYPE [yes: annotate, no: skip] DEFAULT no (In the case where no annotation has been attached to CDF-files, attach symbol and description information to probesets using bioMart)
 
 # Affymetrix normalization
@@ -11,11 +11,11 @@
 # MK 15.05.2014 added new arrays
 
 # Initializes analyses
+library(oligo)
 library(affy)
 library(biomaRt)
 
 # Reads in data
-dat<-ReadAffy()
 if(chiptype=="empty") {
 	stop("CHIPSTER-NOTE: You need to specify the chiptype. Please run the tool again.")
 }
@@ -24,108 +24,125 @@ filt <- "entrezgene"
 usemart <- "ensembl"
 
 if(chiptype=="human-1.0-ST") {
-	dat@cdfName<-"hugene10sthsentrezgcdf"
-	dat@annotation<-"hugene10sthsentrezgcdf"
+	custom_cdf = "hugene10sthsentrezgcdf"
+	#dat@cdfName<-"hugene10sthsentrezgcdf"
+	#dat@annotation<-"hugene10sthsentrezgcdf"
 	chiptype<-"hugene10sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="human-1.1-ST") {
-	dat@cdfName<-"hugene11sthsentrezgcdf"
-	dat@annotation<-"hugene11sthsentrezgcdf"
+	custom_cdf = "hugene11sthsentrezgcdf"
+	#dat@cdfName<-"hugene11sthsentrezgcdf"
+	#dat@annotation<-"hugene11sthsentrezgcdf"
 	chiptype<-"hugene11sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="human-2.0-ST") {
-	dat@cdfName<-"hugene20sthsentrezgcdf"
-	dat@annotation<-"hugene20sthsentrezgcdf"
+	custom_cdf = "hugene20sthsentrezgcdf"
+	#dat@cdfName<-"hugene20sthsentrezgcdf"
+	#dat@annotation<-"hugene20sthsentrezgcdf"
 	chiptype<-"hugene20sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="human-2.1-ST") {
-	dat@cdfName<-"hugene21sthsentrezgcdf"
-	dat@annotation<-"hugene21sthsentrezgcdf"
+	custom_cdf = "hugene21sthsentrezgcdf"
+	#dat@cdfName<-"hugene21sthsentrezgcdf"
+	#dat@annotation<-"hugene21sthsentrezgcdf"
 	chiptype<-"hugene21sthsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="mouse-1.0-ST") {
-	dat@cdfName<-"mogene10stmmentrezgcdf"
-	dat@annotation<-"mogene10stmmentrezgcdf"
+	custom_cdf = "mogene10stmmentrezgcdf"
+	#dat@cdfName<-"mogene10stmmentrezgcdf"
+	#dat@annotation<-"mogene10stmmentrezgcdf"
 	chiptype<-"mogene10stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="mouse-1.1-ST") {
-	dat@cdfName<-"mogene11stmmentrezgcdf"
-	dat@annotation<-"mogene11stmmentrezgcdf"
+	custom_cdf = "mogene11stmmentrezgcdf"
+	#dat@cdfName<-"mogene11stmmentrezgcdf"
+	#dat@annotation<-"mogene11stmmentrezgcdf"
 	chiptype<-"mogene11stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="mouse-2.0-ST") {
-	dat@cdfName<-"mogene20stmmentrezgcdf"
-	dat@annotation<-"mogene20stmmentrezgcdf"
+	custom_cdf = "mogene20stmmentrezgcdf"
+	#dat@cdfName<-"mogene20stmmentrezgcdf"
+	#dat@annotation<-"mogene20stmmentrezgcdf"
 	chiptype<-"mogene20stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="mouse-2.1-ST") {
-	dat@cdfName<-"mogene21stmmentrezgcdf"
-	dat@annotation<-"mogene21stmmentrezgcdf"
+	custom_cdf = "mogene21stmmentrezgcdf"
+	#dat@cdfName<-"mogene21stmmentrezgcdf"
+	#dat@annotation<-"mogene21stmmentrezgcdf"
 	chiptype<-"mogene21stmmentrezg.db"
 	dataset <- "mmusculus_gene_ensembl"
 }
 if(chiptype=="rat-1.0-ST") {
-	dat@cdfName<-"ragene10strnentrezgcdf"
-	dat@annotation<-"ragene10strnentrezgcdf"
+	custom_cdf = "ragene10strnentrezgcdf"
+	#dat@cdfName<-"ragene10strnentrezgcdf"
+	#dat@annotation<-"ragene10strnentrezgcdf"
 	chiptype<-"ragene10strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="rat-1.1-ST") {
-	dat@cdfName<-"ragene11strnentrezgcdf"
-	dat@annotation<-"ragene11strnentrezgcdf"
+	custom_cdf = "ragene11strnentrezgcdf"
+	#dat@cdfName<-"ragene11strnentrezgcdf"
+	#dat@annotation<-"ragene11strnentrezgcdf"
 	chiptype<-"ragene11strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="rat-2.0-ST") {
-	dat@cdfName<-"ragene20strnentrezgcdf"
-	dat@annotation<-"ragene20strnentrezgcdf"
+	custom_cdf = "ragene20strnentrezgcdf"
+	#dat@cdfName<-"ragene20strnentrezgcdf"
+	#dat@annotation<-"ragene20strnentrezgcdf"
 	chiptype<-"ragene20strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="rat-2.1-ST") {
-	dat@cdfName<-"ragene21strnentrezgcdf"
-	dat@annotation<-"ragene21strnentrezgcdf"
+	custom_cdf = "ragene21strnentrezgcdf"
+	#dat@cdfName<-"ragene21strnentrezgcdf"
+	#dat@annotation<-"ragene21strnentrezgcdf"
 	chiptype<-"ragene21strnentrezg.db"
 	dataset <- "rnorvegicus_gene_ensembl"
 }
 if(chiptype=="zebra_fish-1.0-ST") {
-	dat@cdfName<-"zebgene10stdrentrezgcdf"
-	dat@annotation<-"zebgene10stdrentrezgcdf"
+	custom_cdf = "zebgene10stdrentrezgcdf"
+	#dat@cdfName<-"zebgene10stdrentrezgcdf"
+	#dat@annotation<-"zebgene10stdrentrezgcdf"
 	chiptype<-"zebgene10stdrentrezg.db"
 	dataset <- "drerio_gene_ensembl"
 }
 if(chiptype=="zebra_fish-1.1-ST") {
-	dat@cdfName<-"zebgene11stdrentrezgcdf"
-	dat@annotation<-"zebgene11stdrentrezgcdf"
+	custom_cdf = "zebgene11stdrentrezgcdf"
+	#dat@cdfName<-"zebgene11stdrentrezgcdf"
+	#dat@annotation<-"zebgene11stdrentrezgcdf"
 	chiptype<-"zebgene11stdrentrezg.db"
 	dataset <- "drerio_gene_ensembl"
 }
 if(chiptype=="arabidopsis-1.0-ST-entrez") {
-	dat@cdfName<-"aragene10statentrezgcdf"
-	dat@annotation<-"aragene10statentrezgcdf"
+	custom_cdf = "aragene10statentrezgcdf"
+	#dat@cdfName<-"aragene10statentrezgcdf"
+	#dat@annotation<-"aragene10statentrezgcdf"
 	chiptype<-"aragene10statentrezg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 }
 if(chiptype=="arabidopsis-1.1-ST-entrez") {
-	dat@cdfName<-"aragene11statentrezgcdf"
-	dat@annotation<-"aragene11statentrezgcdf"
+	custom_cdf = "aragene11statentrezgcdf"
+	#dat@cdfName<-"aragene11statentrezgcdf"
+	#dat@annotation<-"aragene11statentrezgcdf"
 	chiptype<-"aragene11statentrezg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
 	dataset <- "athaliana_eg_gene"
 }
 if(chiptype=="arabidopsis-1.0-ST-tair") {
-	dat@cdfName<-"aragene10stattairgcdf"
-	dat@annotation<-"aragene10stattairgcdf"
+	custom_cdf = "aragene10stattairgcdf"
+	#dat@cdfName<-"aragene10stattairgcdf"
+	#dat@annotation<-"aragene10stattairgcdf"
 	chiptype<-"aragene10stattairg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
@@ -133,8 +150,9 @@ if(chiptype=="arabidopsis-1.0-ST-tair") {
 	filt <- "ensembl_gene_id"
 }
 if(chiptype=="arabidopsis-1.1-ST-tair") {
-	dat@cdfName<-"aragene11stattairgcdf"
-	dat@annotation<-"aragene11stattairgcdf"
+	custom_cdf = "aragene11stattairgcdf"
+	#dat@cdfName<-"aragene11stattairgcdf"
+	#dat@annotation<-"aragene11stattairgcdf"
 	chiptype<-"aragene11stattairg.db"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	#usemart <- as.character(listMarts()[grep("GRAMENE.*GENES", listMarts()[,2]),1])
@@ -143,16 +161,22 @@ if(chiptype=="arabidopsis-1.1-ST-tair") {
 }
 
 # Normalizations
-dat2<-exprs(rma(dat))
-dat2<-as.data.frame(round(dat2, digits=2))
+if(chiptype != "oligo") {
+	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
+} else {
+	data.raw <- read.celfiles(filenames=list.celfiles())
+	dat2 <- rma(data.raw)
+}
+
+dat2<-as.data.frame(round(exprs(dat2), digits=2))
 names(dat2)<-paste("chip.", names(dat2), sep="")
 
 # Writes out a phenodata
-sample<-rownames(pData(dat))
-group<-c(rep("", nrow(pData(dat))))
-training<-c(rep("", nrow(pData(dat))))
-time<-c(rep("", nrow(pData(dat))))
-random<-c(rep("", nrow(pData(dat))))
+sample<-colnames(dat2)
+group<-c(rep("", ncol(dat2)))
+training<-c(rep("", ncol(dat2)))
+time<-c(rep("", ncol(dat2)))
+random<-c(rep("", ncol(dat2)))
 chiptype<-chiptype
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
