@@ -77,8 +77,7 @@ if(meth=="empiricalBayes") {
 	rows <- which(tab$adj.P.Val<=p.cut)
 	p <- tab$adj.P.Val[rows]
 	M <- tab$logFC[rows]
-	dat <- dat[rows,]
-	dat <- data.frame(dat, p.adjusted=round(p, digits=6), FC=M);
+    dat <- data.frame(dat[rows,], p.adjusted=round(p, digits=6), FC=M);
 	dat <- dat[order(dat$p.adjusted, decreasing=F),]
 
 	write.table(dat, file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)

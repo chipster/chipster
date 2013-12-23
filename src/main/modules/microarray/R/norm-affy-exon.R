@@ -20,52 +20,71 @@
 # support this
 
 # Initializes analyses
+library(oligo)
 library(affy)
+library(biomaRt)
 
 # Reads in data
-dat<-ReadAffy()
 if(chiptype=="empty") {
 	stop("You need to specify the chiptype. Please run the script again.")
 }
 if(chiptype=="human" & summary.feature=="exon") {
-	dat@cdfName<-"huex10stv2hsensecdf"
-	dat@annotation<-"huex10stv2hsensecdf"
+	custom_cdf = "huex10stv2hsensecdf"
+	chiptype <- "huex10stv2hsensecdf.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
 }
 if(chiptype=="mouse" & summary.feature=="exon") {
-	dat@cdfName<-"moex10stv1mmensecdf"
-	dat@annotation<-"moex10stv1mmensecdf"
+	custom_cdf <- "moex10stv1mmensecdf"
+	chiptype <- "moex10stv1mmensecdf.db"	
+	#dat@cdfName<-"moex10stv1mmensecdf"
+	#dat@annotation<-"moex10stv1mmensecdf.db"
 }
 if(chiptype=="rat" & summary.feature=="exon") {
-	dat@cdfName<-"raex10stv1rnensecdf"
-	dat@annotation<-"raex10stv1rnensecdf"
+	custom_cdf <- "raex10stv1rnensecdf"
+	chiptype <- "raex10stv1rnensecdf.db"	
+	#dat@cdfName<-"raex10stv1rnensecdf"
+	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
 
 if(chiptype=="human" & summary.feature=="gene") {
-	dat@cdfName<-"huex10stv2hsentrezgcdf"
-	dat@annotation<-"huex10stv2hsentrezg.db"
+	custom_cdf <- "huex10stv2hsentrezgcdf"
+	chiptype <- "huex10stv2hsentrezg.db"	
+	#dat@cdfName<-"huex10stv2hsentrezgcdf"
+	#dat@annotation<-"huex10stv2hsentrezg.db"
 }
 if(chiptype=="mouse" & summary.feature=="gene") {
-	dat@cdfName<-"moex10stv1mmentrezgcdf"
-	dat@annotation<-"moex10stv1mmentrezg.db"
+	custom_cdf <- "moex10stv1mmentrezgcdf"
+	chiptype <- "moex10stv1mmentrezg.db"
+	#dat@cdfName<-"moex10stv1mmentrezgcdf"
+	#dat@annotation<-"moex10stv1mmentrezg.db"
 }
 if(chiptype=="rat" & summary.feature=="gene") {
-	dat@cdfName<-"raex10stv1rnentrezgcdf"
-	dat@annotation<-"raex10stv1rnentrezg.db"
+	custom_cdf <- "raex10stv1rnentrezgcdf"
+	chiptype <- "raex10stv1rnentrezg.db"
+	#dat@cdfName<-"raex10stv1rnentrezgcdf"
+	#dat@annotation<-"raex10stv1rnentrezg.db"
 }
-chiptype<-dat@annotation
+#chiptype<-dat@annotation
 
 # Normalizations
-dat2<-exprs(rma(dat))
-dat2<-as.data.frame(round(dat2, digits=2))
+if(chiptype != "oligo") {
+	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
+} else {
+	data.raw <- read.celfiles(filenames=list.celfiles())
+	dat2 <- rma(data.raw)
+}
+
+dat2<-as.data.frame(round(exprs(dat2), digits=2))
 names(dat2)<-paste("chip.", names(dat2), sep="")
 
 # Writes out a phenodata
-sample<-rownames(pData(dat))
-group<-c(rep("", nrow(pData(dat))))
-training<-c(rep("", nrow(pData(dat))))
-time<-c(rep("", nrow(pData(dat))))
-random<-c(rep("", nrow(pData(dat))))
-chiptype<-dat@annotation
+sample<-colnames(dat2)
+group<-c(rep("", ncol(dat2)))
+training<-c(rep("", ncol(dat2)))
+time<-c(rep("", ncol(dat2)))
+random<-c(rep("", ncol(dat2)))
+chiptype<-chiptype
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Writing out data
@@ -90,5 +109,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 		# Writes the results into a file
 		write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	}
-} 
+} else {
+		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)	
+}
 

@@ -69,6 +69,9 @@ if(method == "illumina") {
 								 zero = initializeBigMatrix(name = "zero", nr = nrow(zeroes), nc = ncol(zeroes), vmode = "integer", initdata = as.matrix(zeroes)), 
 								 annotation = cdfName, storage.mode = "environment");
 	} else {
+		source(file.path(chipster.common.path, "crlmm-utils.R"))
+		assignInNamespace("getNumberOfSNPs", getNumberOfSNPs.chip, "crlmm")
+
 		XY = readGenCallOutput(file="chip.txt", cdfName=cdfName, colnames=list("SampleID"="Sample ID", "SNPID"="SNP Name", "XRaw"="X Raw", "YRaw"="Y Raw"), type=list("SampleID"="character", "SNPID"="character", "XRaw"="integer", "YRaw"="integer"))
 	}
  

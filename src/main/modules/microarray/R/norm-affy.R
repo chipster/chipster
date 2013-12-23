@@ -61,16 +61,13 @@ if(norm=="mas5") {
 }
 
 # PLIER normalization
-if(norm=="plier" & custom.chiptype=="empty") {
+if(norm=="plier") {
    library(plier)
    if(length(which(is.na(rownames(mm(dat))))) / length(rownames(mm(dat))) == 0) {
       dat2<-exprs(justPlier(eset=dat,replicate=1:length(dat),get.affinities=FALSE,normalize=FALSE,norm.type=c("together"),augmentation=0.1,defaultaffinity=1.0,defaultconcentration=1.0,attenuation=0.005,seaconvergence=0.000001,seaiteration=3000,gmcutoff=0.15,probepenalty=0.001,concpenalty=0.000001,usemm=TRUE,usemodel=FALSE,fitaffinity=T,plierconvergence=0.000001,plieriteration=3000,dropmax=3.0,lambdalimit=0.01,optimization=0))
    } else {
       dat2<-exprs(justPlier(eset=dat,replicate=1:length(dat),get.affinities=FALSE,normalize=FALSE,norm.type=c("together"),augmentation=0.1,defaultaffinity=1.0,defaultconcentration=1.0,attenuation=0.005,seaconvergence=0.000001,seaiteration=3000,gmcutoff=0.15,probepenalty=0.001,concpenalty=0.000001,usemm=FALSE,usemodel=FALSE,fitaffinity=T,plierconvergence=0.000001,plieriteration=3000,dropmax=3.0,lambdalimit=0.01,optimization=0))
    }
-}
-if(norm=="plier" & custom.chiptype!="empty") {
-   stop("CHIPSTER-NOTE: Custom chipstypes can't be used with Plier! Use some other preprocessing method.")
 }
 
 # RMA normalization
