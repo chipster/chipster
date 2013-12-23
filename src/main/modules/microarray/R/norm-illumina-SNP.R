@@ -69,6 +69,7 @@ if(method == "illumina") {
 								 zero = initializeBigMatrix(name = "zero", nr = nrow(zeroes), nc = ncol(zeroes), vmode = "integer", initdata = as.matrix(zeroes)), 
 								 annotation = cdfName, storage.mode = "environment");
 	} else {
+		#overwrite the original function
 		source(file.path(chipster.common.path, "crlmm-utils.R"))
 		assignInNamespace("getNumberOfSNPs", getNumberOfSNPs.chip, "crlmm")
 
