@@ -4,13 +4,13 @@
 # OUTPUT heatmap.pdf: heatmap.pdf
 # PARAMETER column: "Annotation column" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column to be used for the annotation)
 # PARAMETER number.of.groups: "Number of groups" TYPE INTEGER FROM 0 TO 20 DEFAULT 2 (How many groups to color to the tree)
-# PARAMETER coloring.scheme: "coloring scheme" TYPE [Green-Red: Green-Red, Green-Black-Red: Green-Black-Red, Blue-White-Red: Blue-White-Red, Black-White: Black-White, None: None] DEFAULT Green-Red (Coloring scheme for the heatmap. Set to None to remove the heatmap entirely from the plot.)
-# PARAMETER cluster.samples.only: "cluster samples only" TYPE [yes: yes, no: no] DEFAULT yes (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
-# PARAMETER hm.scale: "scale data" TYPE [none: none, row: row, column: column] DEFAULT row (Indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Affects only data visualistion, not the actual clustering.)
-# PARAMETER distance: "distance" TYPE [euclidean: euclidean,  manhattan: manhattan, binary: binary, pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (The correlation distance measure to be used for clustering.)
-# PARAMETER clu.method: "clustering method" TYPE [ward: ward, single: single, complete: complete, average: average, median: median] DEFAULT average (The agglomeration to be used for clustering.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER OPTIONAL coloring.scheme: "Coloring scheme" TYPE [Green-Red: Green-Red, Green-Black-Red: Green-Black-Red, Blue-White-Red: Blue-White-Red, Black-White: Black-White, None: None] DEFAULT Green-Red (Coloring scheme for the heatmap. Set to None to remove the heatmap entirely from the plot.)
+# PARAMETER OPTIONAL cluster.samples.only: "Cluster samples only" TYPE [yes: yes, no: no] DEFAULT yes (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes.)
+# PARAMETER OPTIONAL hm.scale: "Scale data" TYPE [none: none, row: row, column: column] DEFAULT row (Indicates if the values should be centered and scaled in either the row direction or the column direction, or none. Affects only data visualistion, not the actual clustering.)
+# PARAMETER OPTIONAL distance: "Distance" TYPE [euclidean: euclidean,  manhattan: manhattan, binary: binary, pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (The correlation distance measure to be used for clustering.)
+# PARAMETER OPTIONAL clu.method: "Clustering method" TYPE [ward: ward, single: single, complete: complete, average: average, median: median] DEFAULT average (The agglomeration to be used for clustering.)
+# PARAMETER OPTIONAL image.width: "Image width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the image.)
+# PARAMETER OPTIONAL image.height: "Image height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the image.)
 
 # MK 17.10.2013 Annotated Heatmap
 library("Heatplus")
@@ -36,9 +36,12 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 colnames(dat2)<-gsub(" ", "", phenodata$description)
 if(column != "EMPTY") {
 	groups<-phenodata[,pmatch(column,colnames(phenodata))]
-	mean.dat <- apply(dat2, 2, mean)
+	mean.dat <- round(apply(dat2, 2, mean),2)
 	feat <- setNames(data.frame(data1=groups, data2=mean.dat), c(column, "mean"))
-	feat <- list(Col = list(data=feat, fun=picketPlot))
+	feat <- convAnnData(feat, nval.fac=ncol(dat2)-1)
+	feat <- list(asIs=TRUE, Col=list(data=feat))
+
+	#feat <- list(Col = list(data=feat, fun=picketPlot))
 } else {
 	feat <- NULL
 }
@@ -111,7 +114,10 @@ temp.width <- floor(strwidth(longest.name, unit="in", cex=(0.2 + 1/log10(ncol(da
 # Pseudo-plot to find par("csi") value
 pdf(file="heatmap.pdf", width=image.width/72, height=image.height/72)
 ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, annotation=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1)), legend=T)
-plot(ann1)
+try_plot <- try(plot(ann1), silent=T)
+if(class(try_plot) == "try-error") {
+	stop("CHIPSTER-NOTE: Your plot area is too small. Please consider increasing the width and height of the plot")
+}
 longest.name <- colnames(dat2)[which.max(unlist(lapply(colnames(dat2), nchar)))];
 temp.width <- floor(strwidth(longest.name, unit="in", cex=(0.2 + 1/log10(ncol(dat2)))) / par("csi") + 1)
 dev.off()
@@ -119,7 +125,7 @@ dev.off()
 # Create plot
 if(coloring.scheme != "None") {
 	pdf(file="heatmap.pdf", width=image.width/72, height=image.height/72)
-	ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, annotation=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1)), legend=T)
+	ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, ann=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1)), legend=T)
 	#done like this, as no idea how to otherwise visualise values beyond plot.range
 	ann1$data$x2 <- dat3[match(rownames(ann1$data$x2), rownames(dat3)), match(colnames(ann1$data$x2), colnames(dat3))]
 	plot(ann1)
@@ -127,7 +133,9 @@ if(coloring.scheme != "None") {
 } else {
 	#values above and below plot.range are white
 	pdf(file="heatmap.pdf", width=image.width/72, height=image.height/72)
-	ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, annotation=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1), Row=list(labels=rep(" ", nrow(dat2)))), legend=F)
+	#ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, annotation=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1), Row=list(labels=rep(" ", nrow(dat2)))), legend=F)
+	ann1 = annHeatmap2(as.matrix(dat2), col = colmap, breaks = niceBreaks(plot.range, num.breaks), scale="none", dendrogram=dend.met, ann=feat, cluster=cuth.info, labels=list(Col=list(nrow=temp.width + 1), Row=list(labels=rep(" ", nrow(dat2)))), legend=F)
+
 	ann1$data$x2[ann1$data$x2 < max(plot.range)] <- max(plot.range) + 1
 	plot(ann1, widths=c(2,5,1), heights=c(2,0.75,1))
 	dev.off()

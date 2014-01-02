@@ -55,8 +55,12 @@ import fi.csc.microarray.util.Exceptions;
  */
 public abstract class AnalysisJob implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(AnalysisJob.class);
+	public static String SCRIPT_SUCCESSFUL_STRING = "script-finished-succesfully";
+	public static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";
+	public final String ERROR_MESSAGE_TOKEN = "Error";
+	public final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
 
+	private static final Logger logger = Logger.getLogger(AnalysisJob.class);
 	
 	protected JobMessage inputMessage;
 	protected ResultCallback resultHandler;
@@ -66,9 +70,7 @@ public abstract class AnalysisJob implements Runnable {
 	private Date scheduleTime;
 	private Date executionStartTime;
 	private Date executionEndTime;
-	
-	
-	
+
 	private boolean constructed = false;
 
 	private JobState state;

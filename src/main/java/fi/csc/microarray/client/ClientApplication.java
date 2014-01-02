@@ -69,6 +69,7 @@ import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -194,6 +195,9 @@ public abstract class ClientApplication {
 		this.serviceAccessor = isStandalone ? new LocalServiceAccessor() : new RemoteServiceAccessor();
 		this.isStandalone = isStandalone;
 		this.overridingARL = overridingARL;
+		
+		// disable http cache
+		IOUtils.disableHttpCache();
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
@@ -385,7 +389,10 @@ public abstract class ClientApplication {
 	public void executeOperation(final Operation operation) {
 
 		// check if guest user
-		if (Session.getSession().getUsername() != null && Session.getSession().getUsername().equals(configuration.getString("security", "guest-username"))) {
+		if (!operation.getDefinition().isLocal() 
+				&& Session.getSession().getUsername() != null 
+				&& Session.getSession().getUsername().equals(configuration.getString("security", "guest-username"))) {
+			
 			showDialog("Running tools is disabled for guest users.", "",
 					null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			return;

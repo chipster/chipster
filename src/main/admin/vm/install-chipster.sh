@@ -424,7 +424,7 @@ then
   ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-3.0/install-libs-lite.R   
 
   # could also use the package from nic
-  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-13.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-22.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
@@ -492,13 +492,13 @@ then
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.18/samtools-0.1.18.tar.bz2/download | tar -xj
-  #cd samtools-0.1.18/
+  #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.19/samtools-0.1.19.tar.bz2/download | tar -xj
+  #cd samtools-0.1.19/
   #make
   #cd ../
-  #mv samtools-0.1.18/ ${TOOLS_PATH}
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.18.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s samtools-0.1.18 ${TOOLS_PATH}/samtools
+  #mv samtools-0.1.19/ ${TOOLS_PATH}
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/samtools-0.1.19-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s samtools-0.1.19 ${TOOLS_PATH}/samtools
 
   # tabix
   # curl -sL http://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2/download | tar xj -C ${TOOLS_PATH}/
@@ -759,6 +759,9 @@ then
   python3 bundle.py install Drosophila_melanogaster.BDGP5.gb
   python3 bundle.py install Drosophila_melanogaster.BDGP5
 
+  # ConsensuPathDB
+  apt-get -y install python-zsi #sudo
+
   # DEXSeq
 	cd ${TMPDIR_PATH}/
 	#	curl -sL http://www.bioconductor.org/packages/release/bioc/src/contrib/DEXSeq_1.2.1.tar.gz | tar -xz
@@ -770,12 +773,14 @@ then
 
  	# vcftools, GPLv3
     cd ${TMPDIR_PATH}/
-    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.9.tar.gz/download| tar -xz
-    cd vcftools_0.1.9/
+    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download| tar -xz
+    cd vcftools_0.1.11/
     make
     cd ../
-    mv vcftools_0.1.9/ ${TOOLS_PATH}/
-    ln -s vcftools_0.1.9 ${TOOLS_PATH}/vcftools
+    mv vcftools_0.1.11/ ${TOOLS_PATH}/
+    #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+    ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
+
 
   # GATK, MIT
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/GenomeAnalysisTKLite-latest.tar.bz2 | tar -xj -C ${TOOLS_PATH}/
@@ -808,6 +813,24 @@ then
   mv mothur ${TOOLS_PATH}/mothur-1.28
   ln -s mothur-1.28 ${TOOLS_PATH}/mothur
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  # Picard tools, Apache License V2.0, MIT
+  cd ${TMPDIR_PATH}/
+  wget -nv -O picard-tools-1.105.zip http://sourceforge.net/projects/picard/files/picard-tools/1.105/picard-tools-1.105.zip/download
+  unzip -q picard-tools-1.105.zip
+  rm picard-tools-1.105.zip
+  # remove this optional jar because it's in the root of the zip
+  rm snappy-java-1.0.3-rc3.jar
+  mv picard-tools-1.105/ ${TOOLS_PATH}
+  cd ${TOOLS_PATH}
+  ln -s picard-tools-1.105 picard-tools
+
+  # RSeQC, GPLv3
+  cd ${TOOLS_PATH}
+  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 RSeQC
+  cd RSeQC
+  python setup.py install #sudo
 
   ## Create checksums
   cd ${TOOLS_PATH}/
