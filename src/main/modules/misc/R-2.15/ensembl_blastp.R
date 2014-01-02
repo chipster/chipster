@@ -1,4 +1,4 @@
-# TOOL ensembl_blastp.R: "BLASTP against the proteome of given species in Ensembl" (Heuristic tool to search hits for a protein sequence from the Ensembl proteins set of a given species.)
+# TOOL ensembl_blastp.R: "Protein BLAST against the proteome of a given species in Ensembl" (Heuristic tool to search hits for a protein sequence from the Ensembl proteins set of a given species.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml

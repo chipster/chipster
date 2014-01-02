@@ -7,30 +7,48 @@
 	</category>
 	 -->
     <category name="BLAST" color="#d5c796">
-    <tool runtime="R-2.15">
-			<resource>ncbi_blastn.R</resource>
-	</tool>
-    <tool runtime="R-2.15">
-			<resource>ncbi_blastp.R</resource>
-	</tool>
-	<tool runtime="R-2.15">
-			<resource>my_blastp.R</resource>
-	</tool>
-	<tool runtime="R-2.15">
-			<resource>ensembl_blastp.R</resource>
-	</tool>
+       <tool runtime="R-2.15"><resource>ncbi_blastn.R</resource></tool>
+       <tool runtime="R-2.15"><resource>my_blastn.R</resource></tool>
+       <tool runtime="R-2.15"><resource>ensembl_blastn.R</resource></tool>
+
+       <tool runtime="R-2.15"><resource>ncbi_blastp.R</resource></tool>
+       <tool runtime="R-2.15"><resource>my_blastp.R</resource></tool>
+       <tool runtime="R-2.15"><resource>ensembl_blastp.R</resource></tool>
+
+	   <tool runtime="R-2.15"><resource>ncbi_blastx.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>my_blastx.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>ensembl_blastx.R</resource></tool>
+	   	    
+	   <tool runtime="R-2.15"><resource>ncbi_tblastn.R</resource></tool>
+       <tool runtime="R-2.15"><resource>my_tblastn.R</resource></tool>
+       <tool runtime="R-2.15"><resource>ensembl_tblastn.R</resource></tool>
+
 	</category>
+	
+	<category name="Data retrieval" color="#d59f45">
+	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>dbfetch.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>dbfetch_list.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>entret_list.R</resource></tool>
+	</category>
+	
+	<category name="Sequence alignment" color="#e7881c">
+	   <tool runtime="R-2.15"><resource>stretcher.R</resource></tool>	
+  	   <tool runtime="R-2.15"><resource>matcher.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>mafft.R</resource></tool>	
+	</category>
+	
 	<category name="Utilities" color="#e7df70">
-	<tool runtime="R-2.15">
-		<resource>infoseq_summary.R</resource>
-	</tool>
-	<tool runtime="R-2.15">
-		<resource>ensemblfetch.R</resource>
-	</tool>
-	<tool runtime="R-2.15">
-		<resource>textsearch_fasta.R</resource>
-	</tool>
+	   <tool runtime="R-2.15"><resource>infoseq_summary.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>infoseq.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>textsearch_fasta.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>seqret.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>transeq.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>emboss.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>select_columns.R</resource></tool>
 	</category>
+
 <!-- 
 	<category name="Something" color="#d59f45">
 	</category>	
