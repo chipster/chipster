@@ -5,13 +5,17 @@
 # and only missing packages are installed.
 
 # Configure paths and repos (change if you need)
-chipster.path <- "/opt/chipster/"
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
 repo.bioc <- "http://www.bioconductor.org"
 
+#check where this script resides
+#relative.script.dir <- dirname(sys.frame(1)$ofile)
+#absolute.script.dir <- normalizePath(relative.script.dir)
+#source(paste(absolute.script.dir, "/smip.R", sep=""))
+
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
-source(file(chipster.path, "comp/modules/admin/R-3.0/smip.R"))
+source("smip.R")
 
 # Install packages, and their dependencies, from CRAN
 smart.install.packages(package="amap", mirror=repo.cran)
@@ -147,6 +151,7 @@ smart.install.packages(bioconductor.package="labdsv", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="sva", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="Mfuzz", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="WGCNA", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="Heatplus", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="RmiR.Hs.miRNA", mirror=repo.bioc)
 
 

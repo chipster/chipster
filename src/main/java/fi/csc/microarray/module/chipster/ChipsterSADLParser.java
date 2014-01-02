@@ -41,8 +41,9 @@ public class ChipsterSADLParser extends SADLParser {
 		}
 		
 		private void checkParsedContent(SADLDescription description) {
-						
 			for (Parameter parameter : description.parameters()) {
+				
+				// ENUM
 				if (parameter.getType() == ParameterType.ENUM) {
 					// check that enum is not empty
 					if (parameter.getSelectionOptions() == null || parameter.getSelectionOptions().length == 0) {
@@ -62,10 +63,20 @@ public class ChipsterSADLParser extends SADLParser {
 						}
 					}
 					
-				} else {
+				} 
+				
+				// not ENUM
+				else {
 					// check that non-enum values do not have multiple default values
 					if (parameter.getDefaultValues().length > 1) {
 						throw new RuntimeException("non-enum parameter " + parameter.getName() + " has multiple default values");
+					}
+				}
+				
+				if (parameter.getType() == ParameterType.INTEGER) {
+					System.out.println("INTTI");
+					if (parameter.getDefaultValue().equals("3")) {
+						throw new RuntimeException("3 is illegal");
 					}
 				}
 			}

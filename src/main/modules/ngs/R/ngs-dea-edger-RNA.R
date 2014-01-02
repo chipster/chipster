@@ -28,7 +28,7 @@
 # EK 30.4.2013, changes to descriptions, made genomic location info optional so that external count tables can be used
 # EK 2.5.2013, added dispersion plot and filtering based on counts, disabled extra MA plots
 # EK 5.5.2013, modified filtering based on counts, removed fixed prior.n
-# EK 19.11.2013, updated to edgeR 3.4.0 and enabled trended dispersion. Filtering det by default to 1.
+# EK 19.11.2013, updated to edgeR 3.4.0 and enabled trended dispersion. Filtering set to 2 by default.
 
 # OUTPUT OPTIONAL ma-plot-raw-edger.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-edger.pdf

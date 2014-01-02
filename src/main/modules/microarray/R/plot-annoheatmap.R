@@ -122,8 +122,6 @@ longest.name <- colnames(dat2)[which.max(unlist(lapply(colnames(dat2), nchar)))]
 temp.width <- floor(strwidth(longest.name, unit="in", cex=(0.2 + 1/log10(ncol(dat2)))) / par("csi") + 1)
 dev.off()
 
-save.image("/tmp/matti/temp.Rdata")
-
 # Create plot
 if(coloring.scheme != "None") {
 	pdf(file="heatmap.pdf", width=image.width/72, height=image.height/72)

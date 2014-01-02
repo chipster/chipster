@@ -415,11 +415,14 @@ public class ToolPanel extends JPanel
 		c.weighty = 0;
 		this.add(bottomPanel, c);		
 
-		// select last visible module
+		// if ngs module is present, select it, otherwise select last visible module
 		ToolModule selected = toolModules.getLast();
 		for (ToolModule module : toolModules) {
 			if (module.isVisible()) {
 				selected = module;
+				if ("ngs".equals(module.getModuleName())) {
+					break;
+				}
 			}
 		}
         selectModule(selected.getModuleName());

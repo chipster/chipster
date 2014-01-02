@@ -1,9 +1,11 @@
 package fi.csc.chipster.web.listener;
 
+import java.io.IOException;
+
 import com.vaadin.server.Page;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.model.Tool;
@@ -28,25 +30,49 @@ public class CSCToolToTextClickListener implements ClickListener{
 	@Override
 	public void buttonClick(ClickEvent event) {
 		Tool tool = root.getToolEditor().getTool();
-		if(tool == null) {
-			new Notification("Tool is missing, please insert Tool", Type.WARNING_MESSAGE).show(Page.getCurrent());
+		if (tool == null) {
+			new Notification("Tool is missing, please insert Tool",
+					Type.WARNING_MESSAGE).show(Page.getCurrent());
 			return;
 		}
 		SADLDescription sadlDescription = tool.createSadlDescription();
-		if(sadlDescription == null) {
-			new Notification("Tool's elements are empty, please fill it up", Type.WARNING_MESSAGE).show(Page.getCurrent());
+		
+		if (sadlDescription == null) {
+			new Notification("Tool's elements are empty, please fill it up",
+					Type.WARNING_MESSAGE).show(Page.getCurrent());
 			return;
 		}
+
 		try {
 			sadlDescription.addInputs(root.getToolEditor().getSADLInputs());
 			sadlDescription.addOutputs(root.getToolEditor().getSADLOutputs());
 			root.getToolEditor().addParameters(sadlDescription);
-			root.getToolEditor().setHeaderToTextEditor(sadlDescription.toString());
-		} catch(Exception e) {
-			Notification.show("All elements must be filled up correctly\n" + e.getMessage(), Type.WARNING_MESSAGE);
+		} catch (Exception e) {
+			Notification.show(
+					"All elements must be filled up correctly\n"
+							+ e.getMessage(), Type.WARNING_MESSAGE);
 			e.printStackTrace();
 			return;
 		}
+
+		// FIXME validate sadl
+//		ChipsterSADLParser.Validator validator = new Validator();
+//		try {
+//			validator.validate(tool.getId(), sadlDescription.toString());
+//		} catch (Exception e) {
+//			new Notification("Virheitä on!",
+//					Type.WARNING_MESSAGE).show(Page.getCurrent());
+//			return;
+//		}
+
+		try {
+			root.getToolEditor().setHeaderToTextEditor(sadlDescription.toString());
+		} catch (IOException e) {
+			new Notification("Could not create header text",
+					Type.WARNING_MESSAGE).show(Page.getCurrent());
+			return;
+		}
+
 		
 		
 	}
