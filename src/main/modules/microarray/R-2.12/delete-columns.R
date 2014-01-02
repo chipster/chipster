@@ -35,7 +35,7 @@ if(deletion.type=="to-right") {
 	column.min <- min(which(names(dat)==column1), which(names(dat)==column2))
 	column.max <- max(which(names(dat)==column1), which(names(dat)==column2))
 	if(column.min==1 & column.max == ncol(dat)) {
-		dat2 <- as.data.frame(matrix(NA, ncol=0, nrow=nrow(dat)))
+		dat2 <- as.data.frame(matrix(NA, ncol=1, nrow=nrow(dat)))		
 		rownames(dat2) <- rownames(dat)
 		dat2 <- dat2[,0:0]
 	} else {
