@@ -814,6 +814,24 @@ then
   ln -s mothur-1.28 ${TOOLS_PATH}/mothur
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/mothur/mothur-data.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  # Picard tools, Apache License V2.0, MIT
+  cd ${TMPDIR_PATH}/
+  wget -nv -O picard-tools-1.105.zip http://sourceforge.net/projects/picard/files/picard-tools/1.105/picard-tools-1.105.zip/download
+  unzip -q picard-tools-1.105.zip
+  rm picard-tools-1.105.zip
+  # remove this optional jar because it's in the root of the zip
+  rm snappy-java-1.0.3-rc3.jar
+  mv picard-tools-1.105/ ${TOOLS_PATH}
+  cd ${TOOLS_PATH}
+  ln -s picard-tools-1.105 picard-tools
+
+  # RSeQC, GPLv3
+  cd ${TOOLS_PATH}
+  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 RSeQC
+  cd RSeQC
+  python setup.py install #sudo
+
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum

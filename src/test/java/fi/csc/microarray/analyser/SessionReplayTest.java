@@ -76,7 +76,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final String DEFAULT_WEB_DIR = "web";
 	private static final String SCREEN_OUTPUTS_DIR = "screen-outputs";
 	
-	private static final long TOOL_TEST_TIMEOUT = 1;
+	private static final long TOOL_TEST_TIMEOUT = 3;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
 	private static final boolean FAIL_ON_OUTPUT_SIZE_MISMATCH = false;
