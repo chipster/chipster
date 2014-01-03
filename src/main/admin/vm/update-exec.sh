@@ -1042,6 +1042,29 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   sudo apt-get -y install python-zsi
 fi
 
+# 2.10.0
+compare_to_current_and_latest "2.10.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  
+  echo "** Installing Picard tools"
+  cd ${TOOLS_PATH}
+  wget -nv -O picard-tools-1.105.zip http://sourceforge.net/projects/picard/files/picard-tools/1.105/picard-tools-1.105.zip/download
+  unzip -q picard-tools-1.105.zip
+  ln -s picard-tools-1.105 picard-tools
+  # remove this optional package because it's in the root of the tools
+  rm snappy-java-1.0.3-rc3.jar
+  rm picard-tools-1.105.zip
+
+  echo "** Installing RSeQC"
+  cd ${TOOLS_PATH}
+  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 RSeQC
+  cd RSeQC
+  sudo python setup.py install
+
+fi
+
+
   
 
 #####################################
