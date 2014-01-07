@@ -18,7 +18,7 @@ Differential expression analysis for multifactor experiments using the generaliz
 <li>Treat main effect 2 as factor (yes, no) [yes] </li>
 <li>Treat main effect 3 as factor (yes, no) [yes] </li>
 <li>Interaction (main, all) [main] </li>
-<li> Analyze only genes which have counts in at least this many samples (0-10000) [0]</li>
+<li>Analyze only genes which have counts in at least this many samples (0-10000) [1]</li>
 </ul>
 <br>
 <h3>Details</h3>
@@ -29,7 +29,7 @@ You can choose to ignore in statistical testing those genes which are not expres
 These genes have little chance of showing significant evidence for differential expression, and removing them reduces the severity of multiple testing adjustment of p-values.
 </p>
 <p>
-Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA compositon effect, 
+Trimmed mean of M-values (TMM) normalization is used to calculate normalization factors in order to reduce RNA composition effect, 
 which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other.</p>
 
 <p>

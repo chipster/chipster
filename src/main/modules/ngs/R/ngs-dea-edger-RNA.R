@@ -9,7 +9,7 @@
 # OUTPUT OPTIONAL p-value-plot-edger.pdf
 # OUTPUT OPTIONAL dispersion-edger.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
-# PARAMETER filter: "Filter out genes which don't have counts in at least this many samples" TYPE INTEGER FROM 1 TO 1000 DEFAULT 2 (Analyze only genes which have at least 5 counts in at least this many samples. You should set this to the number of samples in your smallest experimental group.)
+# PARAMETER filter: "Filter out genes which don't have counts in at least this many samples" TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Analyze only genes which have at least 5 counts in at least this many samples. You should set this to the number of samples in your smallest experimental group.)
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
@@ -132,7 +132,7 @@ if (dispersion_method == "common") {
 if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	dge_list <- estimateCommonDisp(dge_list)
-	dge_list <- estimateTrendedDisp(dge_list)
+	# dge_list <- estimateTrendedDisp(dge_list)
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)

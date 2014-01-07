@@ -21,8 +21,7 @@ Given a BAM file, this tool counts how many alignments it contains, taking the m
 
 <p> 
 By default all alignments are counted, but users can choose to count only alignments which have the specified
-mapping quality or higher
-(note that unlike BWA, Bowtie doesn't calculate mapping quality, it just inserts 255 to the field 5 of BAM file if the read aligns, and 0 if it doesn't align).
+mapping quality or higher. Note that a read can have several alignments, so this tool doesn't give you the number of reads mapped.
 </p>
 
 
