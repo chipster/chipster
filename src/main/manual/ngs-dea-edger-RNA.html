@@ -17,7 +17,7 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 
 <ul>
 <li> Column describing groups [group]</li>
-<li> Filter out genes which don't have counts in at least this many samples (1-10000) [2]</li>
+<li> Filter out genes which don't have counts in at least this many samples (1-10000) [1]</li>
 <li> P-value cutoff (0-1) [0.05]</li>
 <li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
 <li> Dispersion method (common, tagwise) [tagwise]</li>
@@ -40,8 +40,7 @@ Trimmed mean of M-values (TMM) normalization is used to calculate normalization 
 which can arise for example when a small number of genes are very highly expressed in one experiment condition but not in the other.
 <br><br>
 Dispersion is estimated using the quantile-adjusted conditional maximum likelyhood method (qCML). Common dispersion assumes that all genes have the same dispersion, 
-while the tagwise approach calculates gene-wise dispersions. It uses an empirical Bayes strategy to "shrink" the gene-wise dispersions toward a common trend 
-(obtained by estimating a smooth function prior to the shrinkage using the estimateTrendedDisp function).
+while the tagwise approach calculates gene-wise dispersions. It uses an empirical Bayes strategy to "shrink" the gene-wise dispersions towards the common dispersion.
 
 <br><br>
 You should always have at least two biological replicates for each experiment condition.

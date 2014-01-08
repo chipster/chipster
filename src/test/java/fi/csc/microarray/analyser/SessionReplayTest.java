@@ -278,6 +278,8 @@ public class SessionReplayTest extends MessagingTestBase {
 				continue;
 			}
 
+			System.out.println("setting up " + operationRecord.getFullName());
+
 			// Get inputs
 			LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
 			for (InputRecord inputRecord : operationRecord.getInputs()) {
@@ -303,8 +305,9 @@ public class SessionReplayTest extends MessagingTestBase {
 			// Parameters, copy paste from workflows
 			for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
 				if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
-					Parameter parameter = (Parameter)operation.getDefinition().getParameter(parameterRecord.getNameID().getID()).clone();
-					if (parameter != null) {
+					Parameter definitionParameter = operation.getDefinition().getParameter(parameterRecord.getNameID().getID()); 
+					if (definitionParameter != null) {
+						Parameter parameter = (Parameter)definitionParameter.clone();
 						if (parameter instanceof DataSelectionParameter) {
 							((DataSelectionParameter)parameter).parseValueAndSetWithoutChecks(parameterRecord.getValue());
 						} else {

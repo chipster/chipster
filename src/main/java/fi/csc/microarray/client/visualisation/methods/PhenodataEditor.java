@@ -224,7 +224,9 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 						return;
 					}
 					try {
-						tableModel.addColumn(columnNameField.getText());
+						//replace whitespace characters: space, tab and new line
+						String sanitizedName = columnNameField.getText().replaceAll("\\s", "_");   
+						tableModel.addColumn(sanitizedName);
 					} catch (Exception e1) {
 						application.reportException(e1);
 					}
