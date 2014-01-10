@@ -2,13 +2,13 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT segmented.tsv: segmented.tsv 
 # PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
-# PARAMETER number.of.chromosomes: "number of chromosomes" TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
+# PARAMETER number.of.chromosomes: "number of chromosomes" TYPE INTEGER DEFAULT 22 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER minimum.number.of.probes.per.segment: "minimum number of features per segment" TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of features per segment.)
-# PARAMETER minimum.number.of.sds.between.segments: "minimum number of standard deviations between segments" TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
+# PARAMETER minimum.number.of.sds.between.segments: "minimum number of standard deviations between segments" TYPE DECIMAL FROM 0 TO 10 DEFAULT 1.0 (Minimum number of standard deviations required between segments.)
 # PARAMETER significance.level: "significance level" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1E-10 (Significance level for the test to accept changepoints.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-10-19
+# 2013-11-12
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 

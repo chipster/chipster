@@ -11,14 +11,14 @@
 # MG 17.6.2011, ability to handle 2-color array data when extracting single sample. 
 # IS 18.3.2013, modified to be able to handle any matrices (chip, flag, ...) and annotation columns present in the data.
 # MK 30.4.2013, added the ability to deal with NGS count tables
-
+# IS 6.1.2014, making less sensitive about phenodata columnn names
 
 # Loads the data file
 file <- c('normalized.tsv')
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
 
 # Loads phenodata
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
+phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE, check.names=FALSE)
 
 # Extract the data from the phenodata column
 extract <- as.vector(phenodata[,column.extract])
