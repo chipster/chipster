@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <jnlp
   spec="1.0"
@@ -8,8 +8,8 @@
     <title>Chipster </title>
     <vendor>The Finnish IT Center for Science CSC</vendor>
     <homepage href="http://chipster.csc.fi"/>
-    <description>Software for life science data analysis</description>
-    <description kind="short">Software for life science data analysis</description>
+    <description>Software for high-throughput data analysis</description>
+    <description kind="short">Software for data analysis</description>
     <shortcut>
       <desktop/>
       <menu submenu="Chipster"/>
@@ -25,7 +25,7 @@
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
   	<argument>client</argument>
   	<argument>-module</argument>
-  	<argument>fi.csc.microarray.module.chipster.MicroarrayModule</argument> <!-- alternative value: fi.csc.microarray.module.sequence.SequenceModule -->
+  	<argument>fi.csc.microarray.module.chipster.MicroarrayModule</argument> 
   	<argument>-config</argument>
   	<argument></argument>
   </application-desc>
