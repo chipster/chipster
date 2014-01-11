@@ -8,7 +8,7 @@
 annotationColumns <- function(columns) {
   suffix <- sub("^chip\\.", "", columns[grep("^chip\\.", columns)[1]])
   suffix <- paste0(suffix, "$")
-  matrices <- sub(suffix, "", columns[grep(suffix), columns)])
+  matrices <- sub(suffix, "", columns[grep(suffix, columns)])
   annotations <- seq_along(columns)
   for (m in matrices)
     annotations <- setdiff(annotations, grep(m, columns))
