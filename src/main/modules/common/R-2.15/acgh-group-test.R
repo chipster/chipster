@@ -9,7 +9,7 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-04-04
+# 2014-01-08
 
 file <- 'regions.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -77,9 +77,15 @@ FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
   points(-b.freq, type='h', col=cols[which])
   abline(h=0)
   abline(v=0, lty='dashed')
-  for(i in cumsum(table(chromosomes)))
+  chr.num <- chromosomes
+  chr.num[chr.num == 'X'] <- 23
+  chr.num[chr.num == 'Y'] <- 24
+  chr.num[chr.num == 'MT'] <- 25
+  chr.num <- as.integer(chr.num)
+  chr.ends <- cumsum(table(chr.num))
+  for(i in chr.ends)
     abline(v=i, lty='dashed')
-  ax <- (cumsum(table(chromosomes)) + c(0,cumsum(table(chromosomes))[-length(cumsum(table(chromosomes)))])) / 2
+  ax <- (chr.ends + c(0, chr.ends[-length(chr.ends)])) / 2
   axis(side=1, at=ax, labels=unique(chromosomes))
   axis(side=2, at=c(-1, -0.5, 0, 0.5, 1), labels=c('100 %', ' 50 %', '0 %', '50 %', '100 %'), las=1)
   logfdr <- -log10(fdr)

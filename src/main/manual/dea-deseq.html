@@ -18,7 +18,7 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 <ul>
 <li> Column describing groups [group]</li>
 <li> Apply normalization (yes, no) [yes]</li>
-<li> Dispersion estimation method (parametric, local) [local] </li>
+<li> Dispersion estimation method (parametric, local) [parametric] </li>
 <li> Use fitted dispersion values (when higher than original values, always) [when higher than original values]</li>
 <li> Multiple testing correction (none, Bonferroni, Holm, Hochberg, BH, BY) [BH]</li>
 <li> P-value cutoff (0-1) [0.05]</li>
@@ -32,12 +32,13 @@ which uses generalized linear models -based statistical methods ("glm edgeR").
 <br>This tool takes as input a table of raw counts from the different samples. The count file has to be associated with a phenodata file describing the experimental groups. 
 These files are best created by the tool "Utilities / Define NGS experiment", which combines count files for different samples to one table, and creates a phenodata file for it.
 <br><br>
-When normalization is enabled, size factors are calculated by summing the counts for each sample, or 
-using the library size given by the user in the phenodata.tsv. The former allows to correct for RNA composition bias
- (which can arise for example when only a small number of genes are very highly expressed in one experiment condition but not in the other). 
+When normalization is enabled, size factors for each sample are calculated the following way: Geometric mean is calculated for each gene across all samples. 
+The counts for a gene in each sample is then divided by this mean. The median of these ratios in a sample is the size factor for that sample. This procedure
+ corrects for RNA composition bias (which can arise for example when only a small number of genes are very highly expressed in one experiment condition but not in the other). 
+ 
 <br><br>
 A dispersion value is estimated for each gene through a model fit procedure, which can be performed in a "local" or "parametric" mode.
-The former is more robust, but users are encouraged to experiment with the setting to optimize results.
+The local mode is more robust and should be used when there are no replicates.
 Users can select to replace the original dispersion values by the fitted ones always, or only when the fitted value is higher than the original one 
 (more conservative option).
 <br><br>
