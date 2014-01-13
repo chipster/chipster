@@ -48,7 +48,7 @@ if(scaling=="no" & centering=="no") {
 	pc<-prcomp(dat2, scale=F, center=F)
 }
 
-# How many PCs to save?
+# How many PCs to save? If too low, three will be printed at minimum
 no<-as.vector(head(which(summary(pc)$importance[3,]>=(expvar/100)), n=1)[1])
 if(no<3) {
 	no<-c(3)
