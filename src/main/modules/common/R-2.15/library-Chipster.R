@@ -24,10 +24,14 @@ writePhenodata <- function(x, file, quote=FALSE, sep="\t", na="", row.names=FALS
 
 ### Miscallenous helper functions.
 
-# This function identifies matrices (chip, flag, segmented, ...) present in the
-# data and returns the names of annotation columns, i.e. the ones that are not
-# part of any matrix.
-annotationColumns <- function(columns) {
+addAnnotationColumns <- function(input, output) {
+  inputAnnotationColumns <- annotationColumns(input)
+  outputAnnotationColumns <- annotationColumns(output)
+  data.frame(output[, outputAnnotationColumns], input[rownames(output), setdiff(inputAnnotationColumns, outputAnnotationColumns)], output[, setdiff(colnames(output), outputAnnotationColumns)])
+}
+
+annotationColumns <- function(df) {
+  columns <- colnames(df)
   suffix <- sub("^chip\\.", "", columns[grep("^chip\\.", columns)[1]])
   suffix <- paste0(suffix, "$")
   matrices <- sub(suffix, "", columns[grep(suffix, columns)])
