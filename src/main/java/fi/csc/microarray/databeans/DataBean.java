@@ -161,12 +161,11 @@ public class DataBean extends DataItemBase {
 	private ContentType contentType;
 	private LinkedList<ContentLocation> contentLocations = new LinkedList<ContentLocation>();
 	
+	private Long size;
+	private String checksum;
+	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
-		this.name = name;
-		this.contentType = contentType;
-		this.dataManager = manager;
-		this.id = CryptoKey.generateRandom();
-		this.date = new Date();
+		this(name, contentType, manager, CryptoKey.generateRandom());
 	}
 
 	public DataBean(String name, ContentType contentType, DataManager manager, String dataId) {
@@ -662,5 +661,20 @@ public class DataBean extends DataItemBase {
 		}
 		return targets;
 	}
-	
+
+	public Long getSize() {
+		return size;
+	}
+
+	public void setSize(Long size) {
+		this.size = size;
+	}
+
+	public String getChecksum() {
+		return checksum;
+	}
+
+	public void setChecksum(String checksum) {
+		this.checksum = checksum;
+	}
 }

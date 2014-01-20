@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
-import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 public class RemoteContentHandler implements ContentHandler {
@@ -60,13 +59,7 @@ public class RemoteContentHandler implements ContentHandler {
 	public long getContentLength(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		
-		HttpURLConnection connection = null;
-		try {
-			connection = (HttpURLConnection)location.getUrl().openConnection();
-			return Long.parseLong(connection.getHeaderField("content-length"));
-		} finally {
-			IOUtils.disconnectIfPossible(connection);
-		}
+		return UrlTransferUtil.getContentLength(location.getUrl());
 	}
 
 	/**

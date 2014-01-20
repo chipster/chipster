@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -104,6 +105,19 @@ public class DerbyMetadataServer {
 	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
 	private static String SQL_LIST_STORAGE_USAGE_OF_SESSIONS = "SELECT chipster.sessions.username, chipster.sessions.name, chipster.sessions.uuid, SUM(chipster.files.size) AS size , MAX(chipster.files.last_accessed) AS date FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid  JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ? GROUP BY chipster.sessions.uuid, chipster.sessions.name, chipster.sessions.username";
 	private static String SQL_GET_TOTAL_DISK_USAGE = "SELECT SUM(chipster.files.size) AS size FROM chipster.files";
+		
+	private static String SQL_LIST_ALL_FILES = "SELECT * FROM chipster.files";
+
+	// some statistics	
+	private static String SQL_FILES_COUNT = "SELECT COUNT(*) FROM chipster.files";
+	private static String SQL_SESSIONS_COUNT = "SELECT COUNT(*) FROM chipster.sessions";
+	private static String SQL_MAPPINGS_COUNT = "SELECT COUNT(*) FROM chipster.belongs_to";
+	private static String SQL_SPECIAL_USERS_COUNT = "SELECT COUNT(*) FROM chipster.special_users";
+	// these result always 0 unless the database is corrupted 
+	private static String SQL_ORPHAN_FILES = "SELECT COUNT(*) FROM chipster.files WHERE uuid NOT IN (SELECT session_uuid FROM chipster.belongs_to) AND uuid NOT IN (SELECT file_uuid FROM chipster.belongs_to)";
+	private static String SQL_MISSING_FILES = "SELECT COUNT(*) FROM chipster.belongs_to WHERE file_UUID NOT IN (SELECT uuid FROM chipster.files)";
+	private static String SQL_ORPHAN_SESSIONS = "SELECT COUNT(*) FROM chipster.sessions WHERE uuid NOT IN (SELECT session_uuid FROM chipster.belongs_to)";
+	private static String SQL_MISSING_SESSIONS = "SELECT COUNT(*) FROM chipster.belongs_to WHERE session_UUID NOT IN (SELECT uuid FROM chipster.sessions)";
 
 	private static String SQL_BACKUP = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 	
@@ -156,9 +170,7 @@ public class DerbyMetadataServer {
 			logger.info("metadata backups enabled at: " + backupTime);
 		} else {
 			logger.info("metadata backups disabled");
-		}
-
-		
+		}	
 	}
 	
 	private void initialise() throws SQLException {
@@ -182,8 +194,7 @@ public class DerbyMetadataServer {
 				if (table.equals("special_users")) {
 					addSpecialUser(DEFAULT_EXAMPLE_SESSION_OWNER, DEFAULT_EXAMPLE_SESSION_FOLDER);
 				}
-			}
-			
+			}			
 		}
 		
 		// report what was done
@@ -268,9 +279,11 @@ public class DerbyMetadataServer {
 		ps.setString(2, uuid);
 		ps.execute();
 	}
-
+	
 	/**
 	 * Adds metadata of a data file to the database.
+	 * Doesn't throw an exception if the add fails because of the
+	 * identical existing entry.
 	 * 
 	 * @param uuid unique identifier (filename) of the file
 	 * @param size file size in bytes
@@ -278,6 +291,30 @@ public class DerbyMetadataServer {
 	 * @throws SQLException
 	 */
 	public void addFile(String uuid, long size) throws SQLException {
+	
+		try {
+			addFileImpl(uuid, size);				
+		} catch (SQLException e) {
+			// don't care about the exception if the entry exists already
+			try {			
+				DbFile file = fetchFile(uuid);			
+				if (file == null) {						
+					throw e;
+				} else {
+					if (uuid.equals(file.getUuid()) && size == file.getSize()) {
+						logger.debug("addFile failed, but the entry exist alreadỵ. Consider this as succesful");
+						return;
+					}
+				}
+			} catch (SQLException e2) {
+				logger.debug("addFile failed and consequent fetchFile failed also. " +
+						"The exception of the addFile is thrown and the exception of the fetchFile is logged here", e2);
+				throw e;
+			}
+		}
+	}
+
+	private void addFileImpl(String uuid, long size) throws SQLException {
 		PreparedStatement ps = connection.prepareStatement(SQL_INSERT_FILE);
 		ps.setString(1, uuid);
 		ps.setLong(2, size);
@@ -599,8 +636,68 @@ public class DerbyMetadataServer {
 		ResultSet rs = ps.executeQuery();
 		
 		rs.next();
-		String size = rs.getString("size");		
+		String size = rs.getString("size");
+		
+		if (size == null) {
+			// when db is empty
+			size = "0";
+		}
 
 		return size;
+	}
+
+	public List<DbFile> listAllFiles() throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_LIST_ALL_FILES);
+		ResultSet rs = ps.executeQuery();
+		
+		List<DbFile> files = new ArrayList<DbFile>();
+		
+		while (rs.next()) {
+			DbFile file = new DbFile(rs.getString(1), Long.parseLong(rs.getString(2)), rs.getString(3), rs.getString(4));
+			files.add(file);
+		}
+		
+		return files;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String>[] getStatistics() throws SQLException {
+		
+		String[] queries = { 
+				SQL_FILES_COUNT, 
+				SQL_SESSIONS_COUNT, 
+				SQL_MAPPINGS_COUNT, 
+				SQL_SPECIAL_USERS_COUNT, 
+				SQL_ORPHAN_FILES, 
+				SQL_MISSING_FILES, 
+				SQL_ORPHAN_SESSIONS, 
+				SQL_MISSING_SESSIONS 
+		};
+		
+		String[] names = { 
+				"rows in files table                ", 
+				"rows in session table              ", 
+				"mappings between files and sessions", 
+				"number of special users            ", 
+				"orphan files                       ", 
+				"missing files                      ", 
+				"orphan sessions                    ", 
+				"missing sessions                   " };
+	
+		List<String> resultNames = new ArrayList<String>();
+		List<String> resultvalues = new ArrayList<String>();
+		
+		for (int i = 0; i < queries.length && i < names.length; i++) {
+		
+			PreparedStatement ps = connection.prepareStatement(queries[i]);
+			ResultSet rs = ps.executeQuery();
+
+			rs.next();
+			
+			resultNames.add(names[i]);
+			resultvalues.add(rs.getString(1));
+		}
+		
+		return new List[] { resultNames, resultvalues };
 	}
 }

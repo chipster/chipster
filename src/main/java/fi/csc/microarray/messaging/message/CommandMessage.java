@@ -35,6 +35,7 @@ public class CommandMessage extends ParameterMessage {
 	public static final String COMMAND_STORE_SESSION = "store-session";
 	public static final String COMMAND_REMOVE_SESSION = "remove-session";
 	public static final String COMMAND_LIST_SESSIONS = "list-sessions";
+	public static final String COMMAND_GET_STATUS_REPORT = "get-status-report";
 
 	public static final String COMMAND_FILE_OPERATION_SUCCESSFUL = "file-operation-successful";
 	public static final String COMMAND_FILE_OPERATION_FAILED = "file-operation-failed";

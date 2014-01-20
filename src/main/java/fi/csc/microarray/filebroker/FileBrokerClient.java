@@ -36,12 +36,13 @@ public interface FileBrokerClient {
 	 * @param file
 	 * @param contentLength -1 if unknown
 	 * @param progressListener may be null
+	 * @return 
 	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
 	 * @throws JMSException
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract void addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
 	 * Add file to file broker. Might use local transfer instead of uploading.
@@ -76,7 +77,7 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws JMSException 
 	 */
-	public abstract InputStream getInputStream(String dataId) throws IOException, JMSException;
+	public abstract ChecksumInputStream getInputStream(String dataId) throws IOException, JMSException;
 	
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
@@ -87,8 +88,9 @@ public interface FileBrokerClient {
 	 * 
 	 * @throws IOException
 	 * @throws JMSException 
+	 * @throws ChecksumException 
 	 */
-	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException;	
+	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -123,7 +125,15 @@ public interface FileBrokerClient {
 	 */
 	public void removeRemoteSession(String dataId) throws JMSException;
 
-	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException;
+	/**
+	 * @param dataId
+	 * @param contentLength null if not available
+	 * @param checksum null if not available
+	 * @param area
+	 * @return
+	 * @throws JMSException
+	 */
+	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException;
 
 
 	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException;
@@ -140,4 +150,7 @@ public interface FileBrokerClient {
 	 * @throws FileBrokerException
 	 */
 	public String getExternalURL(String dataId) throws JMSException, FileBrokerException;
+
+
+	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException;
 }

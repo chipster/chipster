@@ -48,6 +48,9 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.filebroker.ContentLengthException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.util.IOUtils;
@@ -154,10 +157,10 @@ public class SessionSaver {
 			boolean success;
 			switch(area) {
 			case STORAGE:
-				success = dataManager.putToStorage(dataBean);
+				success = dataManager.uploadToStorageIfNeeded(dataBean);
 				break;
 			case CACHE:
-				success = dataManager.putToCacheOrStorage(dataBean);
+				success = dataManager.uploadToCacheIfNeeded(dataBean, null);
 				break;
 			default:
 				throw new IllegalArgumentException("unknown filebroker area");
@@ -228,7 +231,7 @@ public class SessionSaver {
 	 */
 	private void writeRemoteSession(FileBrokerArea area) throws Exception {
 		
-		//write metedata to byte array
+		//write metadata to byte array
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		writeSessionContents(false, buffer);
 				
@@ -317,7 +320,7 @@ public class SessionSaver {
 			// TODO disable validation
 			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
-			zipOutputStream.closeEntry() ;							
+			zipOutputStream.closeEntry();							
 
 			// save data bean contents
 			if (saveData) {
@@ -341,9 +344,10 @@ public class SessionSaver {
 	/**
 	 * After the session file has been saved, update the urls and handlers in the client
 	 * to point to the data inside the session file.
+	 * @throws ContentLengthException when content length information conflicts
 	 *
 	 */
-	private void updateDataBeanURLsAndHandlers() {
+	private void updateDataBeanURLsAndHandlers() throws ContentLengthException {
 		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
 			dataManager.addContentLocationForDataBean(bean, StorageMethod.LOCAL_SESSION_ZIP, newURLs.get(bean));
@@ -461,6 +465,8 @@ public class SessionSaver {
 		dataType.setId(beanId);
 		dataType.setName(bean.getName());
 		dataType.setDataId(bean.getId());
+		dataType.setSize(bean.getSize()); //may be null
+		dataType.setChecksum(bean.getChecksum()); //may be null
 
 		// parent
 		if (bean.getParent() != null) {
@@ -613,13 +619,22 @@ public class SessionSaver {
 	
 	private void writeDataBeanContentsToZipFile(ZipOutputStream zipOutputStream) throws IOException {
 		for (Entry<DataBean, URL> entry : this.newURLs.entrySet()) {
-			String entryName = entry.getValue().getRef();
+			DataBean bean = entry.getKey();
+			URL url = entry.getValue();
+			
+			String entryName = url.getRef();
 
 			// write bean contents to zip
 			try {
-				writeFile(zipOutputStream, entryName, Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA));
+				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
+				writeFile(zipOutputStream, entryName, in);				
+				in.verifyContentLength(bean.getSize());
+				dataManager.setOrVerifyChecksum(bean, in.verifyChecksums());
+				
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
+			} catch (ChecksumException | ContentLengthException e) {
+				throw new IOException(e);
 			}
 		}
 	}

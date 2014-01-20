@@ -79,15 +79,14 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private ExampleSessionUpdater exampleSessionUpdater;
 	private List<FileServerListener> listeners = new LinkedList<FileServerListener>();
 
-	private int defaultUserQuota;
+	private long defaultUserQuota;
 
 
 	public static void main(String[] args) {
-		DirectoryLayout.getInstance().getConfiguration();
-		new FileServer(null, null);
+		FileServer server = new FileServer(null, null);
 	}
 
-    public FileServer(String configURL, MessagingEndpoint overriddenEndpoint) {
+	public FileServer(String configURL, MessagingEndpoint overriddenEndpoint) {
     	this(configURL, overriddenEndpoint, null);
     }
 
@@ -346,11 +345,13 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		endpoint.replyToMessage(msg, reply);
 	}
 
-	private void handleIsAvailable(MessagingEndpoint endpoint, ChipsterMessage msg) throws JMSException {
+	private void handleIsAvailable(MessagingEndpoint endpoint, ChipsterMessage msg) throws JMSException, SQLException, IOException {
 		
 		// parse request
 		CommandMessage requestMessage = (CommandMessage) msg;
 		String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
+		Long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SIZE));
+		String checksum = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_CHECKSUM);
 		FileBrokerArea area = FileBrokerArea.valueOf(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_AREA));
 
 		
@@ -359,21 +360,53 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		// check fileId
 		if (!AuthorisedUrlRepository.checkFilenameSyntax(fileId)) {
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_DENIED);
-		}
-
-		// find file
-		if (filebrokerAreas.fileExists(fileId, area)) {
-			reply = new BooleanMessage(true);
 		} else {
-			reply = new BooleanMessage(false);
+			try {
+				if (isAvailable(fileId, size, checksum, area)) {
+					reply = new BooleanMessage(true);
+				} else {
+					reply = new BooleanMessage(false);
+				}
+			} catch ( ContentLengthException | ChecksumException e) {
+				logger.info("corrupted data or data id collision (" + fileId + ", " + size + ", " + checksum + ")", e);
+				reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_FAILED);
+			} catch (ChecksumParseException e) {
+				throw new IOException(e);
+			} catch (IOException e) {
+				throw e;
+			}
 		}
 
 		// send reply
 		endpoint.replyToMessage(msg, reply);
 	}
 
-	
-	
+	private boolean isAvailable(String fileId, Long size, String checksum, FileBrokerArea area) throws SQLException, ChecksumParseException, IOException, ContentLengthException, ChecksumException {
+				
+		if (!filebrokerAreas.fileExists(fileId, area)) {
+			return false;
+		}
+		
+		Long sizeOnDisk = filebrokerAreas.getSize(fileId, area);
+		Long sizeInDb = null;
+		if (area == FileBrokerArea.STORAGE) {
+			DbFile dbFile = metadataServer.fetchFile(fileId);
+			if (dbFile == null) {
+				return false;
+			}
+			sizeInDb = dbFile.getSize();
+		}
+		
+		Md5FileUtils.verify(size, sizeOnDisk, sizeInDb);
+		
+		String checksumOnDisk = filebrokerAreas.getChecksum(fileId, area);
+		
+		Md5FileUtils.verify(checksum, checksumOnDisk);
+		
+		return true;
+		
+	}
+
 	private void handleSpaceRequest(MessagingEndpoint endpoint, CommandMessage requestMessage) throws JMSException {
 		long size = Long.parseLong(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_DISK_SPACE));
 		logger.debug("disk space request for " + size + " bytes");
@@ -539,8 +572,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}
 
 		// remove previous
-		if (previousSessionUuid != null) {				
-			metadataServer.removeSession(previousSessionUuid);
+		if (previousSessionUuid != null) {
+			removeSession(previousSessionUuid);
 		}					
 	}
 
@@ -577,14 +610,16 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		// remove from filesystem
 		for (String removedFile : removedFiles) {
-			new File(storageRoot, removedFile).delete();
+			File dataFile = new File(storageRoot, removedFile);
+			dataFile.delete();
+			Md5FileUtils.removeMd5(dataFile);
 		}		
 	}
 
 	private void handleMoveFromCacheToStorageRequest(final MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException, MalformedURLException {
 
 		final String fileId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID);
-		logger.info("move request for: " + fileId);
+		logger.debug("move request for: " + fileId);
 		
 		// check id and if in cache
 		if (!(AuthorisedUrlRepository.checkFilenameSyntax(fileId) && filebrokerAreas.fileExists(fileId, FileBrokerArea.CACHE))) {
@@ -606,7 +641,13 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 						} else {
 
 							// move the file
-							if (filebrokerAreas.moveFromCacheToStorage(fileId)) {
+							boolean moveSuccess = filebrokerAreas.moveFromCacheToStorage(fileId);
+							
+							// add to db
+							long size = filebrokerAreas.getSize(fileId, FileBrokerArea.STORAGE);
+							metadataServer.addFile(fileId, size);
+								
+							if (moveSuccess) {
 								reply = new SuccessMessage(true);
 							} else {
 								reply = new SuccessMessage(false);
@@ -744,7 +785,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 					totals.add(metadataServer.getStorageUsageTotal());										
 					totals.add("" + storageRoot.getUsableSpace());
 
-					reply = new CommandMessage();
+					reply = new CommandMessage();					
 					reply.addNamedParameter(ParameterMessage.PARAMETER_SIZE_LIST, Strings.delimit(totals, "\t"));				
 
 					jmsEndpoint.replyToMessage(requestMessage, reply);
@@ -753,9 +794,29 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_REMOVE_SESSION.equals(((CommandMessage)msg).getCommand())) {
 					handleRemoveSessionRequest(jmsEndpoint, (CommandMessage)msg);
 				}
+				
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_STATUS_REPORT.equals(((CommandMessage)msg).getCommand())) {
+					
+					CommandMessage requestMessage = (CommandMessage) msg;
+					CommandMessage reply = new CommandMessage();
+					
+					FileServerAdminTools admin = getAdminTools();
+					
+					String report = "";
+					report += admin.getDataBaseStatusReport() + "\n";
+					report += admin.getStorageStatusReport(false) + "\n";
+
+					reply.addNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT, report);
+					
+					jmsEndpoint.replyToMessage(requestMessage, reply);
+				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e, e);
 			}
+		}
+
+		private FileServerAdminTools getAdminTools() {
+			return new FileServerAdminTools(metadataServer, cacheRoot, storageRoot, false);
 		}
 	}
 	

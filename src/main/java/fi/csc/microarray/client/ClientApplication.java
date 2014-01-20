@@ -64,6 +64,8 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
@@ -712,15 +714,17 @@ public abstract class ClientApplication {
 
 					newFile.createNewFile();		
 					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA), out);
+					ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA);
+					IO.copy(in, out);
 					out.close();
+					manager.setOrVerifyChecksum(data, in.verifyChecksums());
+				} catch (ChecksumException e) {
+					reportExceptionThreadSafely(new ChecksumException("checksum validation of the exported file failed", e));
 				} catch (Exception e) {
-					throw new RuntimeException(e);
+					reportExceptionThreadSafely(e);
 				}
-			}
-			
-		});
-		
+			}			
+		});		
 	}
 
 	public TaskExecutor getTaskExecutor() {

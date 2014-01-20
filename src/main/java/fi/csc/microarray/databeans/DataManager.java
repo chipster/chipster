@@ -36,6 +36,9 @@ import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
 import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.filebroker.ContentLengthException;
 import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
@@ -561,7 +564,7 @@ public class DataManager {
 			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
 			return bean;
 
-		} catch (IOException e) {
+		} catch (IOException | ContentLengthException e) {
 			throw new MicroarrayException(e);
 		}
 	}
@@ -579,13 +582,18 @@ public class DataManager {
 	}
 
 	/**
-	 * Creates new DataBean. Infers content type of the created DataBean from the name.
+	 * Convenience method for creating a filebroker DataBean. Infers content type of the created DataBean from the name and
+	 * tries to get the content length of the file from filebroker.
 	 * 
 	 * @param name name of the DataBean
 	 * @return new DataBean that is not connected to a DataFolder
 	 */
 	public DataBean createDataBean(String name, String dataId) throws MicroarrayException {
 		DataBean data = new DataBean(name, guessContentType(name), this, dataId);
+		/* Update content length. Usually it is updated when content location 
+		 * is added, but filebroker is not a content location.  
+		 */
+		getContentLength(data); 
 		return data;
 	}
 	
@@ -600,7 +608,7 @@ public class DataManager {
 			addContentLocationForDataBean(bean, StorageMethod.LOCAL_ORIGINAL, contentFile.toURI().toURL());
 			return bean;
 			
-		} catch (IOException e) {
+		} catch (IOException | ContentLengthException e) {
 			throw new MicroarrayException(e);
 		}
 	}
@@ -612,7 +620,12 @@ public class DataManager {
 	 */
 	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
 		DataBean bean = createDataBean(name);
-		addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		try {
+			addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		} catch (ContentLengthException e) {
+			// shouldn't happen, because newly created bean doesn't have size set
+			logger.error(e,e);
+		}
 		return bean;
 	}
 	
@@ -639,16 +652,16 @@ public class DataManager {
 
 		// create and return the bean
 		DataBean bean = createDataBean(name);
-		try {
-			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+		try {			
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());			
 		} catch (MalformedURLException e) {
 			throw new MicroarrayException(e);
+		} catch (ContentLengthException e) {
+			// shouldn't happen, because newly created bean doesn't have size set
+			logger.error(e,e);
 		}
 		return bean;
 	}
-	
-	
-	
 
 	/**
 	 * Load session from a file.
@@ -843,7 +856,28 @@ public class DataManager {
 		return folders;
 	}
 
-	public InputStream getContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
+	public ChecksumInputStream getContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
+		/* It's convenient to return a ChecksumInputStream, because it transparently handles situation of disabled 
+		 * checksum calculation. Method getContentStreamImpl creates many types of streams, so wrap a ChecksumInputStream
+		 * around the returned stream if necessary. 
+		 */
+		InputStream baseStream  = getBaseContentStream(bean, naHandling);
+		
+		if (baseStream instanceof ChecksumInputStream) {
+			// JMSFileBrokerClient enables checksum calculation by default 			
+			return (ChecksumInputStream) baseStream;
+		} else if (baseStream == null) {
+			return null;
+		} else {
+			/* Disable checksum calculation for other streams (local copies etc.), 
+			 * because of supposed performance implications. Nevertheless, enabling
+			 * might work as well and would provide more thorough data integrity check.
+			 */
+			return new ChecksumInputStream(baseStream, false);
+		}
+	}
+		
+	private InputStream getBaseContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
 
 		// try local content locations first
 		ContentLocation location = getClosestContentLocation(bean);
@@ -912,7 +946,7 @@ public class DataManager {
 		try {
 			in = getContentStream(bean, naHandling);
 			if (in != null) {
-				return Files.inputStreamToBytes(in, maxLength);	
+				return Files.inputStreamToBytes(in, maxLength);
 				
 			} else {
 				return null;
@@ -929,7 +963,7 @@ public class DataManager {
 		// only local temp beans support output, so convert to local temp bean if needed
 		ContentLocation tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
 		if (tempLocalLocation == null) {
-			this.convertToLocalTempDataBean(bean);
+			this.convertToLocalTempDataBean(bean);			
 			tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
 		}
 
@@ -1003,39 +1037,62 @@ public class DataManager {
 
 	
 	/**
-	 * Returns content size in bytes. Returns -1 if 
-	 * none of the content locations are available. 
+	 * <p>Returns content size in bytes. Returns -1 if 
+	 * data is not available.</p>
+	 * 
+	 * <p>Size reported by content location is stored in DataBean in
+	 * read from there when possible.</p>
 	 */
-	public long getContentLength(DataBean bean) {
-		try {
-			ContentLocation location = getClosestContentLocation(bean);
-			if (location != null) {
-				return location.getHandler().getContentLength(location);
-			} else {
-				return -1;
+	public Long getContentLength(DataBean bean) {
+		if (bean.getSize() == null) {
+			try {
+				ContentLocation location = getClosestContentLocation(bean);
+				if (location != null) {
+					bean.setSize(getContentLength(location));
+				} else {
+					Long size = Session.getSession().getServiceAccessor().getFileBrokerClient().getContentLength(bean.getId());
+					if (size != null) {
+						bean.setSize(size);
+					} else {
+						return -1l;
+					}
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
+		return bean.getSize();
+	}
+	
+	private long getContentLength(ContentLocation location) throws IOException {
+		return location.getHandler().getContentLength(location);
 	}
 	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
-
-		// copy contents to new file
-		File newFile = this.createNewRepositoryFile(bean.getName());
-		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-		BufferedInputStream in = new BufferedInputStream(getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA));
+		
 		try {
-			IOUtils.copy(in, out);
-		} finally {
-			IOUtils.closeIfPossible(in);
-			IOUtils.closeIfPossible(out);
-		}
+			// copy contents to new file
+			File newFile = this.createNewRepositoryFile(bean.getName());
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+			ChecksumInputStream inputStream = getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+			BufferedInputStream in = new BufferedInputStream(inputStream);
+			try {
+				IOUtils.copy(in, out);
 
-		// update url, type and handler in the bean
-		URL newURL = newFile.toURI().toURL();
-		addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, newURL);
+				setOrVerifyChecksum(bean, inputStream.verifyChecksums());
+			} finally {
+				IOUtils.closeIfPossible(in);
+				IOUtils.closeIfPossible(out);
+			}
+
+			// update url, type and handler in the bean
+			URL newURL = newFile.toURI().toURL();
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, newURL);
+		} catch (ChecksumException | ContentLengthException e) {
+			// corrupted data  
+			throw new IOException();
+		}
 	}
 	
 	
@@ -1167,7 +1224,7 @@ public class DataManager {
 		case LOCAL_TEMP:
 		case LOCAL_ORIGINAL:
 			return localFileContentHandler;
-			
+					
 		case REMOTE_ORIGINAL:
 			return remoteContentHandler;
 			
@@ -1176,13 +1233,18 @@ public class DataManager {
 		
 		}
 	}
-
 	
-	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) {
-		bean.addContentLocation(new ContentLocation(method, getHandlerFor(method), url));
+	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException {
+		ContentLocation location = new ContentLocation(method, getHandlerFor(method), url);
+		try {
+			setOrVerifyContentLength(bean, getContentLength(location));
+		} catch (IOException e) {
+			logger.error("content length not available: " + e);
+		}
+		bean.addContentLocation(location);
+		
 	}
 
-	
 	/**
 	 * Get ContentLocations for DataBean. Only needed when saving a session.
 	 * @param bean
@@ -1192,54 +1254,68 @@ public class DataManager {
 	}
 
 	
-	public boolean putToStorage(DataBean dataBean) throws Exception {
+	public boolean uploadToStorageIfNeeded(DataBean bean) throws Exception {
 
 		// check if already in storage
-		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataBean.getId(), FileBrokerArea.STORAGE)) {
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.STORAGE)) {
 			return true;
 		}
 		
 		// move from cache if possible
-		if (Session.getSession().getServiceAccessor().getFileBrokerClient().moveFromCacheToStorage(dataBean.getId())) {
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().moveFromCacheToStorage(bean.getId())) {
 			return true;
 		}
 				
 		// upload
-		return upload(dataBean, FileBrokerArea.STORAGE);		
+		return upload(bean, FileBrokerArea.STORAGE, null);		
 	}
 	
-	public boolean putToCacheOrStorage(DataBean dataBean) throws Exception {
+	/**
+	 * 
+	 * @param bean
+	 * @param progressListener
+	 * @return 
+	 * @throws NotEnoughDiskSpaceException
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public boolean uploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception {
+		
+		try {
+			bean.getLock().readLock().lock();
 
-		// check if already in storage
-		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataBean.getId(), FileBrokerArea.STORAGE)) {
-			return true;
+			// upload only if not already available in cache or storage
+			if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.CACHE) ||
+				Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.STORAGE)) {
+				return false;
+			}
+			
+			// need to upload
+			return upload(bean, FileBrokerArea.CACHE, progressListener);
+
+		} finally {
+			bean.getLock().readLock().unlock();
 		}
-		
-		// check if already in cache
-		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(dataBean.getId(), FileBrokerArea.CACHE)) {
-			return true;
-		}		
-		
-		// upload
-		return upload(dataBean, FileBrokerArea.CACHE);		
 	}
 
-	private boolean upload(DataBean dataBean, FileBrokerArea area) throws Exception {
+	private boolean upload(DataBean dataBean, FileBrokerArea area, CopyProgressListener progressListener) throws Exception {
 		// check if content is still available
 		if (dataBean.getContentLocations().size() == 0) {
 			return false;
 		}
 		
 		// try to upload
-		ContentLocation closestLocation = getClosestContentLocation(dataBean);
-
 		try {
-			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
+			String checksum = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
 					dataBean.getId(), 
 					area, 
-					closestLocation.getHandler().getInputStream(closestLocation), 
+					getContentStream(dataBean, DataNotAvailableHandling.EXCEPTION_ON_NA), 
 					getContentLength(dataBean), 
-					null);
+					progressListener);
+			
+			setOrVerifyChecksum(dataBean, checksum);
 
 		} catch (Exception e) {
 			logger.warn("could not upload data: " + dataBean.getName(), e);
@@ -1248,33 +1324,47 @@ public class DataManager {
 		return true;
 	}
 
+	/**
+	 * Do the appropriate operation with checksum regardless of dataBean's state. When dataBean
+	 * doesn't yet have checksum we can only set it. If checksum exists already, it must equal with 
+	 * the given checksum or CheckusmException is thrown.
+	 * 
+	 * @param dataBean
+	 * @param checksum
+	 * @throws ChecksumException
+	 */
+	public void setOrVerifyChecksum(DataBean dataBean, String checksum)
+			throws ChecksumException {
+		if (checksum != null) {
+			if (dataBean.getChecksum() == null) {
+				dataBean.setChecksum(checksum);
+			} else {
+				if (!checksum.equals(dataBean.getChecksum())) {
+					throw new ChecksumException();
+				}
+			}
+		}
+	}
 	
 	/**
+	 * Do the appropriate operation with content length regardless of dataBean's state. When dataBean
+	 * doesn't yet have content length we can only set it. If content length exists already, it must equal with 
+	 * the given content length or ContentLengthException is thrown.
 	 * 
-	 * @param bean
-	 * @param progressListener
-	 * @throws NotEnoughDiskSpaceException
-	 * @throws FileBrokerException
-	 * @throws JMSException
-	 * @throws IOException
-	 * @throws Exception
+	 * @param dataBean
+	 * @param checksum
+	 * @throws ContentLengthException
 	 */
-	public void uploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception { 
-
-		try {
-			bean.getLock().readLock().lock();
-
-			// upload only if not already available in cache or storage
-			if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), FileBrokerArea.CACHE) ||
-				Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), FileBrokerArea.STORAGE)) {
-				return;
+	public void setOrVerifyContentLength(DataBean dataBean, Long contentLength)
+			throws ContentLengthException {
+		if (contentLength != null) {
+			if (dataBean.getSize() == null) {
+				dataBean.setSize(contentLength);
+			} else {
+				if (!contentLength.equals(dataBean.getSize())) {
+					throw new ContentLengthException();
+				}
 			}
-			
-			// need to upload
-			Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(bean.getId(), FileBrokerArea.CACHE, getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA), getContentLength(bean), progressListener);
-
-		} finally {
-			bean.getLock().readLock().unlock();
 		}
 	}
 

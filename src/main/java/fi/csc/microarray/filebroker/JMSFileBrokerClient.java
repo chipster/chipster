@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
@@ -56,6 +57,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChunked;
 	private boolean useCompression;
 	private String localFilebrokerPath;
+	private boolean useChecksums;
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
 
@@ -65,6 +67,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		// Read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
+		this.useChecksums = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-checksums");
 		
 	}
 	
@@ -106,21 +109,23 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} else {
 			InputStream stream = new FileInputStream(file);
 			try {
-				UrlTransferUtil.uploadStream(url, stream, useChunked, useCompression, progressListener);
+				String md5 = UrlTransferUtil.uploadStream(url, stream, useChunked, useCompression, useChecksums, progressListener);
+				logger.debug("successfully uploaded: " + url + "\tlength: " + file.length() + "\tmd5: " + md5);
+			} catch (ChecksumException e) {
+				// corrupted data or data id collision
+				throw new IOException(e);
 			} finally {
 				IOUtils.closeIfPossible(stream);
 			}
 		}
 	}
-
-
-
 	
 	/**
+	 * @return md5 String of the uploaded data, if enabled in configuration
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
 		URL url;
 		if (area == FileBrokerArea.CACHE) {
@@ -145,12 +150,19 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		// Upload the stream into a file at filebroker
 		logger.debug("uploading new file: " + url);
-		UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, progressListener);
-		logger.debug("successfully uploaded: " + url);
+		String md5;
+		try {
+			md5 = UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, useChecksums, progressListener);
+		} catch (ChecksumException e) {
+			// corrupted data or data id collision
+			throw new IOException(e);
+		}
+		logger.debug("successfully uploaded: " + url + "\tlength: " + contentLength + "\tmd5: " + md5);
+		return md5;		
 	}
 	
 	@Override
-	public InputStream getInputStream(String dataId) throws IOException, JMSException {
+	public ChecksumInputStream getInputStream(String dataId) throws IOException, JMSException {
 		URL url = null;
 		try {
 			url = getURL(dataId);
@@ -191,12 +203,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		// detect compression
+		
+		InputStream stream = payload;
 		if (url.toString().endsWith(".compressed")) {
-			return new InflaterInputStream(payload);
-		} else {
-			return payload;
+			stream = new InflaterInputStream(payload);
 		}
 		
+		return new ChecksumInputStream(stream, useChecksums, connection);			
 	}
 
 	
@@ -205,11 +218,12 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * local filebroker paths (given in constructor of this class), then it is symlinked or copied locally.
 	 * Otherwise the file pointed by the dataId is downloaded.
 	 * @throws JMSException 
+	 * @throws ChecksumException 
 	 * 
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
 	 */
 	@Override
-	public void getFile(String dataId, File destFile) throws IOException, JMSException {
+	public void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException {
 		
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerPath != null) {
@@ -227,13 +241,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			
 		} else {
 			// Not available locally, need to download
-			BufferedInputStream inputStream = null;
-			BufferedOutputStream fileStream = null;
+			ChecksumInputStream inputStream = null;
+			OutputStream fileStream = null;
 			try {
 				// Download to file
-				inputStream = new BufferedInputStream(getInputStream(dataId));
-				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
-				IOUtils.copy(inputStream, fileStream);
+				inputStream = getInputStream(dataId);				
+				fileStream = new FileOutputStream(destFile);
+				
+				IOUtils.copy(new BufferedInputStream(inputStream), new BufferedOutputStream(fileStream));
+				
+				inputStream.verifyChecksums();
 				
 			} finally {
 				IOUtils.closeIfPossible(inputStream);
@@ -243,12 +260,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public boolean isAvailable(String dataId, FileBrokerArea area) throws JMSException {
+	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException {
 		BooleanMessageListener replyListener = new BooleanMessageListener();  
 		try {
 			
 			CommandMessage requestMessage = new CommandMessage(CommandMessage.COMMAND_IS_AVAILABLE);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_FILE_ID, dataId);
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_SIZE, contentLength.toString());
+			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_CHECKSUM, checksum);
 			requestMessage.addNamedParameter(ParameterMessage.PARAMETER_AREA, area.toString());
 			filebrokerTopic.sendReplyableMessage(requestMessage, replyListener);
 			
@@ -503,5 +522,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	@Override
 	public String getExternalURL(String dataId) throws JMSException, FileBrokerException {
 		return getURL(dataId).toExternalForm();
+	}
+
+	@Override
+	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException {
+		URL url = getURL(dataId);
+		if (url == null) {
+			return null;
+		}
+		return UrlTransferUtil.getContentLength(url);
 	}
 }

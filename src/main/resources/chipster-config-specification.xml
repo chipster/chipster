@@ -20,6 +20,10 @@
 		<entry entryKey="use-compression" type="boolean" description="should we compress data when sending it to filebroker">
 			<value>false</value>
 		</entry>
+		
+		<entry entryKey="use-checksums" type="boolean" description="should we calculate checksums when data is moved over the network">
+			<value>true</value>
+		</entry>
 
 		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
 			<value>http://chipster-filebroker.csc.fi:8080/public</value>

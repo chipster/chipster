@@ -192,7 +192,7 @@ public class SessionLoaderImpl2 {
 		for (DataType dataType : this.sessionType.getData()) {
 			String name = dataType.getName();
 			String id = dataType.getId();
-			
+						
 			// check for unique session id
 			if (getDataItem(id) != null) {
 				logger.warn("duplicate data bean id: " + id + " , ignoring data bean: " + name);
@@ -205,12 +205,11 @@ public class SessionLoaderImpl2 {
 				logger.warn("could not load data bean: " + name + " due to missing data id");
 				throw new RuntimeException("trying to load data without data id");
 			} 
-			
-			
+									
 			DataBean dataBean;
 			try {
-				dataBean = dataManager.createDataBean(name, dataId);
-
+				dataBean = dataManager.createDataBean(name, dataId);				
+				
 				for (LocationType location : dataType.getLocation()) {
 					
 					String urlString = location.getUrl();
@@ -229,8 +228,16 @@ public class SessionLoaderImpl2 {
 
 					dataManager.addContentLocationForDataBean(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
 				}
+				
+				// check that metadata has same size what createDataBean() or 
+				// addContentLocationForDataBean() got earlier from the real file
+				dataManager.setOrVerifyContentLength(dataBean, dataType.getSize());
+				// set checksum from the metadata, but the checksum of the real file is calculated only 
+				// later during possible network transfers
+				dataManager.setOrVerifyChecksum(dataBean, dataType.getChecksum());
 			
 			} catch (Exception e) {
+				Session.getSession().getApplication().reportExceptionThreadSafely(new Exception("error while opening file " + name, e));
 				logger.warn("could not create data bean: " + name);
 				continue;
 			}

@@ -3,7 +3,6 @@ package fi.csc.microarray.filebroker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -38,7 +37,6 @@ import fi.csc.microarray.util.IOUtils;
 * @author Aleksi Kallio
 *
 */
-@SuppressWarnings("serial")
 public class RestServlet extends DefaultServlet {
 
 	private static final String UPLOAD_FILE_EXTENSION = ".upload";
@@ -55,7 +53,10 @@ public class RestServlet extends DefaultServlet {
 	private String rootUrl;
 	private AuthorisedUrlRepository urlRepository;
 	private DerbyMetadataServer metadataServer;
+
+	private boolean useChecksums;
 	
+
 	// set from configs
 	// specify whether get and put requests are logged
 	// using jetty debug logging is not very useful as it is so verbose
@@ -73,11 +74,11 @@ public class RestServlet extends DefaultServlet {
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
 		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
-
+		useChecksums = configuration.getBoolean("messaging", "use-checksums");
 		if (configuration.getBoolean("filebroker", "log-rest")) {
 			logRest = true;
 		}
-		logger.info("logging rest requests: " + logRest);
+		logger.info("logging rest requests: " + logRest);				
 	}
 	
 	@Override
@@ -162,24 +163,37 @@ public class RestServlet extends DefaultServlet {
 			
 		} else {			
 			
-
 			// touch the file
 			File file = locateFile(request);
 			file.setLastModified(System.currentTimeMillis());
 			
-			// touch metadata database
+			String checksum;
+			try {
+				checksum = Md5FileUtils.readMd5(file);
+				
+				if (checksum != null) {
+					response.setHeader(ChecksumInputStream.HTTP_CHECKSUM_KEY, checksum);
+				}
+			} catch (ChecksumParseException e) {
+				logger.info("reading checksum file failed", e);
+				// continue without checksum
+			}
+			
+			
+			// touch metadata database and get checksum
 			if (isStorageRequest(request)) {
 				String uuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
 				try {
 					metadataServer.markFileAccessed(uuid);
+					
 				} catch (SQLException e) {
 					throw new ServletException(e);
 				}
 			}
-			
+						
 			// delegate to super class
 			DateTime before = new DateTime();
-			super.doGet(request, response);	
+			super.doGet(request, response);
 			DateTime after = new DateTime();
 
 			// log performance
@@ -193,8 +207,7 @@ public class RestServlet extends DefaultServlet {
 						new DecimalFormat("###.##").format(rate*8) + " Mbit/s" + " | " +
 						new DecimalFormat("###.##").format(rate) + " MB/s");
 			}
-		}
-
+		}		
 	}
 
 	
@@ -232,8 +245,9 @@ public class RestServlet extends DefaultServlet {
 		long maxBytes = authorisation.getFileSize() + 1;
 
 		// get file contents
-		FileOutputStream out = new FileOutputStream(tmpFile);
-		InputStream in = request.getInputStream();
+		FileOutputStream out = new FileOutputStream(tmpFile);				
+		ChecksumInputStream in = new ChecksumInputStream(request.getInputStream(), useChecksums);				
+		
 		try {
 			DateTime before = new DateTime();
 			IO.copy(in, out, maxBytes);
@@ -272,6 +286,14 @@ public class RestServlet extends DefaultServlet {
 			response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR);
 			return;
 		}
+		
+		String uuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
+		long size = tmpFile.length();
+		String checksum = in.getChecksum();
+		
+		if (useChecksums) {
+			Md5FileUtils.writeMd5(checksum, targetFile);
+		}
 
 		// make file visible		
 		if (targetFile.exists()) {
@@ -282,9 +304,11 @@ public class RestServlet extends DefaultServlet {
 			logger.debug("rename uploaded file to make it visible");
 			boolean success = tmpFile.renameTo(targetFile);		
 			if (!success) {
-				// if the rename failed and the file exists, someone else added the file after the exists() call above.
-				// in this case the end result is what the client requested, end there is no need to send error
-				if (!targetFile.exists()) {
+				if (targetFile.exists()) {
+					// if the rename failed and the file exists, someone else added the file after the exists() call above.
+					// in this case the end result is what the client requested, end there is no need to send error
+					tmpFile.delete();
+				} else {
 					logger.debug("rename failed");
 					response.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR); // file could not be renamed
 					return;
@@ -292,12 +316,14 @@ public class RestServlet extends DefaultServlet {
 			}
 		}
 		
-		String uuid = AuthorisedUrlRepository.stripCompressionSuffix(IOUtils.getFilenameWithoutPath(request));
-		long size = targetFile.length();
 		
 		// add file to metadata database, if needed
 		if (isStorageRequest(request)) {
-			addFileToDb(uuid, size);
+			try {
+				metadataServer.addFile(uuid, size);
+			} catch (SQLException e) {
+				throw new ServletException(e);
+			}
 		}
 		
 		// make sure there's enough usable space left after the transfer
@@ -322,6 +348,9 @@ public class RestServlet extends DefaultServlet {
 			}
 		}, "chipster-fileserver-cache-cleanup").start();
 
+		if (useChecksums) { 
+			response.setHeader(ChecksumInputStream.HTTP_CHECKSUM_KEY, checksum);
+		}
 		// we return no content
 		response.setStatus(HttpURLConnection.HTTP_NO_CONTENT); 
 	}
@@ -338,25 +367,6 @@ public class RestServlet extends DefaultServlet {
 		return rate;
 	}
 
-
-	private void addFileToDb(String uuid, long size) throws ServletException {
-		try {
-			metadataServer.addFile(uuid, size);				
-		} catch (SQLException e) {
-			// don't care about the exception if the entry exists already
-			try {
-				DbFile file = metadataServer.fetchFile(uuid);
-				if (file == null) {						
-					throw new ServletException(e);
-				} 
-				logger.debug("addFile failed, but the entry exist alreadỵ. Consider this as succesful");
-			} catch (SQLException e2) {
-				logger.debug("addFile failed and consequent fetchFile failed also. " +
-						"The exception of the addFile is thrown and the exception of the fetchFile is logged here", e2);
-				throw new ServletException(e);
-			}
-		}
-	}
 
 	private File getUploadTempFile(File targetFile) {
 		File tmpFile = null;
@@ -401,6 +411,6 @@ public class RestServlet extends DefaultServlet {
 	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {
 		return new URL(rootUrl + request.getPathInfo());
 	}
-	
+
 }
 

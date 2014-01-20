@@ -16,6 +16,9 @@ import java.util.zip.DeflaterOutputStream;
 
 import javax.jms.JMSException;
 
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+
 public class UrlTransferUtil {
 
 	public static int HTTP_TIMEOUT_MILLISECONDS = 2000;
@@ -45,10 +48,13 @@ public class UrlTransferUtil {
 	 * @return
 	 * @throws JMSException
 	 * @throws IOException
+	 * @throws ChecksumException 
 	 */
-    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, IOUtils.CopyProgressListener progressListener) throws IOException {
+    public static String uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, boolean useChecksums, IOUtils.CopyProgressListener progressListener) throws IOException, ChecksumException {
 
     	HttpURLConnection connection = null;
+    	String checksum = null;
+
     	try {
     		connection = prepareForUpload(url);
 
@@ -57,36 +63,44 @@ public class UrlTransferUtil {
     			// (chunked mode not supported before JRE 1.5)
     			connection.setChunkedStreamingMode(CHUNK_SIZE);
     		}
-
+    		
+    		ChecksumInputStream is = null;
     		OutputStream os = null;
+    		
     		try {
+    			is = new ChecksumInputStream(fis, useChecksums, connection);    					    			
+    			
     			if (compress) {
         			Deflater deflater = new Deflater(Deflater.BEST_SPEED);
         			os = new DeflaterOutputStream(connection.getOutputStream(), deflater);
     			} else {
     				os = connection.getOutputStream();	
     			}
-    			IOUtils.copy(fis, os, progressListener);
-
+    			
+    			IOUtils.copy(is, os, progressListener);
+    			
     		} catch (IOException e) {
     			e.printStackTrace();
     			throw e;
 
     		} finally {
+    			IOUtils.closeIfPossible(is);
     			IOUtils.closeIfPossible(os);
-    			IOUtils.closeIfPossible(fis);
     		}
-
+    		
     		if (!isSuccessfulCode(connection.getResponseCode())) {
     			throw new IOException("PUT was not successful: "
     					+ connection.getResponseCode() + " " + connection.getResponseMessage());
     		}
     		
-    	} finally {
+    		checksum = is.verifyChecksums();
+    		
+		} finally {
     		IOUtils.disconnectIfPossible(connection);
     	}
 
-        return url;
+    	//may be null
+    	return checksum;
     }
     
     public static boolean isSuccessfulCode(int responseCode) {
@@ -122,7 +136,6 @@ public class UrlTransferUtil {
 	    });
 	}
 
-
 	public static HttpURLConnection prepareForUpload(URL url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
 		connection.setRequestMethod("PUT");
@@ -130,12 +143,22 @@ public class UrlTransferUtil {
 		return connection;
 	}
 
-
 	public static boolean isAccessible(URL url) throws IOException {
 		// check the URL
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
 		connection.connect() ; 
 		return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+	}
+
+
+	public static long getContentLength(URL url) throws IOException {
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection)url.openConnection();
+			return Long.parseLong(connection.getHeaderField("content-length"));
+		} finally {
+			IOUtils.disconnectIfPossible(connection);
+		}
 	}
 }

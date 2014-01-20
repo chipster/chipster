@@ -83,7 +83,7 @@ public class StorageAdminAPI {
 		
 		StorageAggregateMessageListener listener = new StorageAggregateMessageListener();
 		return listener.query();
-	}
+	}		
 	
 	public void deleteRemoteSession(String sessionID) throws JMSException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
@@ -104,6 +104,11 @@ public class StorageAdminAPI {
 		} finally {
 			replyListener.cleanUp();
 		}
+	}
+	
+	public String getStatusReport() throws JMSException, InterruptedException {
+		StatusReportMessageListener listener = new StatusReportMessageListener();
+		return listener.query();
 	}
 	
 	private class StorageTotalsMessageListener extends TempTopicMessagingListenerBase {
@@ -239,6 +244,31 @@ public class StorageAdminAPI {
 			latch.countDown();
 		}
 	}
+	
+	private class StatusReportMessageListener extends TempTopicMessagingListenerBase {
+
+		private CountDownLatch latch;
+		private String report;
+
+		public String query() throws JMSException, InterruptedException {
+
+			latch = new CountDownLatch(1);
+
+			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
+
+			filebrokerAdminTopic.sendReplyableMessage(request, this);
+			latch.await(TIMEOUT, TIMEOUT_UNIT);
+
+			return report;
+		}
+
+
+		public void onChipsterMessage(ChipsterMessage msg) {
+			ParameterMessage resultMessage = (ParameterMessage) msg;
+			report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
+			latch.countDown();
+		}
+	}
 
 	public void clean() {
 		if (filebrokerAdminTopic != null) {
@@ -263,8 +293,6 @@ public class StorageAdminAPI {
 		notification.setDelayMsec(-1);
 		notification.setHtmlContentAllowed(false);
 		notification.show(Page.getCurrent());
-
-		
 	}
 	
 	private void showFailNotification(String title, SuccessMessage message) {
@@ -286,5 +314,5 @@ public class StorageAdminAPI {
 			description = description.substring(0, description.length() - lineBreak.length());
 		}
 		showFailNotification(title, description);
-	}	
+	}
 }

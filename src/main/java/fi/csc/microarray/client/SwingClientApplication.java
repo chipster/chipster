@@ -958,8 +958,16 @@ public class SwingClientApplication extends ClientApplication {
 			dialogInfo.setDetails(details);
 
 		} else {
+			String details = "";
+			
 			// use stack trace as details
-			dialogInfo.setDetails(Exceptions.getStackTrace(e));
+			details += Exceptions.getStackTrace(e);
+			
+			if (e.getCause() != null) {
+				details += "Caused by: ";
+				details += Exceptions.getStackTrace(e.getCause());				
+			}
+			dialogInfo.setDetails(details);
 		}
 
 		// show dialog

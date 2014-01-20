@@ -41,6 +41,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ContentLengthException;
 import fi.csc.microarray.util.IOUtils;
 
 public class SessionLoaderImpl1 {
@@ -160,6 +161,9 @@ public class SessionLoaderImpl1 {
 				} catch (MalformedURLException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
+				} catch (ContentLengthException e) {
+					// shouldn't happen, because newly created bean doesn't have size set
+					logger.error(e,e);
 				}
 				
 			} else {
@@ -187,6 +191,9 @@ public class SessionLoaderImpl1 {
 				} catch (MicroarrayException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
+				} catch (ContentLengthException e) {
+					// shouldn't happen, because newly created bean doesn't have size set
+					logger.error(e,e);
 				}
 			}
 

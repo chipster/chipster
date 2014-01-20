@@ -28,12 +28,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	private static final String PUBLIC_FILES = "public-files.txt";
 
 	@Override
-	public void addFile(String dataId, FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public String addFile(String dataId, FileBrokerArea area, InputStream content, long contentLength, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public InputStream getInputStream(String dataId) throws IOException {
+	public ChecksumInputStream getInputStream(String dataId) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -93,7 +93,7 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	}
 
 	@Override
-	public boolean isAvailable(String dataId, FileBrokerArea area) {
+	public boolean isAvailable(String dataId, Long size, String checksum, FileBrokerArea area) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -111,5 +111,12 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	public String getExternalURL(String dataId) throws JMSException,
 			FileBrokerException {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Long getContentLength(String dataId) throws IOException,
+			JMSException, FileBrokerException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

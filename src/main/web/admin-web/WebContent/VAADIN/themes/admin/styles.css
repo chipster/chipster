@@ -171,3 +171,7 @@
 .v-table-cell-content-client {
 	background-image: url("crystal/log.png");
 }
+
+.report-text {
+	margin: 18px;
+}

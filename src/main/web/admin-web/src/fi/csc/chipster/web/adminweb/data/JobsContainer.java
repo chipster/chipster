@@ -1,11 +1,9 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
-import java.util.Random;
+import java.util.Date;
 
 import com.vaadin.data.util.BeanItemContainer;
-
-import fi.csc.chipster.web.adminweb.util.RandomUtil;
 
 public class JobsContainer extends BeanItemContainer<JobsEntry> implements
 Serializable {
@@ -29,29 +27,40 @@ Serializable {
 		super(JobsEntry.class);
 	}
 	
-	private static final String[] status = new String[] { "RUNNING", "WAITING", "TRANSFERRING FILES" }; 
+//	private static final String[] status = new String[] { "RUNNING", "WAITING", "TRANSFERRING FILES" }; 
 
 	public void update() {
 		
-		Random rnd = new Random();
+      JobsEntry entry = new JobsEntry();
+      
+      entry.setUsername("Not implemented yet");
+      entry.setOperation("");
+      entry.setStatus("");
+      entry.setCompHost("");
+      entry.setStartTime(new Date());
+      
+      this.addBean(entry);
 		
-		int count = rnd.nextInt(10);
-		
-		removeAllItems();
-		
-    	
-		JobsEntry entry;
-
-        for (int i = 0; i < count; i++) {
-            entry = new JobsEntry();
-            
-            entry.setUsername(RandomUtil.getRandomUserName(rnd));
-            entry.setOperation(RandomUtil.getRandomOperation(rnd));
-            entry.setStatus(status[rnd.nextInt(status.length)]);
-            entry.setCompHost(RandomUtil.getRandomComp(rnd));
-            entry.setStartTime(RandomUtil.getRandomDateToday(rnd));
-            
-            this.addBean(entry);
-        }
+//		Random rnd = new Random();
+//		
+//		int count = rnd.nextInt(10);
+//		
+//		
+//		removeAllItems();
+//		
+//    	
+//		JobsEntry entry;
+//
+//        for (int i = 0; i < count; i++) {
+//            entry = new JobsEntry();
+//            
+//            entry.setUsername(RandomUtil.getRandomUserName(rnd));
+//            entry.setOperation(RandomUtil.getRandomOperation(rnd));
+//            entry.setStatus(status[rnd.nextInt(status.length)]);
+//            entry.setCompHost(RandomUtil.getRandomComp(rnd));
+//            entry.setStartTime(RandomUtil.getRandomDateToday(rnd));
+//            
+//            this.addBean(entry);
+//        }
     }
 }
