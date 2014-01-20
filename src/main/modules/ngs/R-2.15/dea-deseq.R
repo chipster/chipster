@@ -99,7 +99,7 @@ results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
 
 # Merge with original data table
 
-output_table <- cbind (dat, round(results_table[,2:6], 2) print(results_table[, 7:8], digits=3))
+output_table <- cbind(dat, round(results_table[, 2:6], 2), format(results_table[, 7:8], digits=3))
 #output_table <- cbind (dat, results_table[,-1])
 
 # Adjust p-values
