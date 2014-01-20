@@ -95,7 +95,7 @@ plotDispEsts(counts_data)
 dev.off()
 
 # Calculate statistic for differential expression
-results_table <- nbinomTest(counts_data, group_levels[2], group_levels[1] )
+results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
 
 # Merge with original data table
 
