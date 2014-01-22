@@ -176,16 +176,16 @@
 	</category>
 	
 	<category name="Hidden" hidden="true" color="#0">
-		<tool runtime="R-2.12"><resource>test.R</resource></tool>
-		<tool runtime="R-2.12"><resource>no-operation.R</resource></tool>
-		<tool runtime="R-2.12"><resource>echo.R</resource></tool>
-		<tool runtime="R-2.12"><resource>fail.R</resource></tool>
-		<tool runtime="R-2.12"><resource>input-output.R</resource></tool>
+		<tool runtime="R-3.0"><resource>test.R</resource></tool>
+		<tool runtime="R-3.0"><resource>no-operation.R</resource></tool>
+		<tool runtime="R-3.0"><resource>echo.R</resource></tool>
+		<tool runtime="R-3.0"><resource>fail.R</resource></tool>
+		<tool runtime="R-3.0"><resource>input-output.R</resource></tool>
 		<tool runtime="python"><resource>input-output.py</resource></tool>
-		<tool runtime="R-2.12"><resource>simple-input-output.R</resource></tool>
-		<tool runtime="R-2.12"><resource>data-throughput.R</resource></tool>
-		<tool runtime="R-2.12"><resource>sleep.R</resource></tool>
-		<tool runtime="R-2.12"><resource>input-sleep-output.R</resource></tool>
+		<tool runtime="R-3.0"><resource>simple-input-output.R</resource></tool>
+		<tool runtime="R-3.0"><resource>data-throughput.R</resource></tool>
+		<tool runtime="R-3.0"><resource>sleep.R</resource></tool>
+		<tool runtime="R-3.0"><resource>input-sleep-output.R</resource></tool>
 	</category>
 </module>
 
