@@ -1,4 +1,4 @@
-# TOOL ensemblfetch.R: ensemblfetch (Tool to retrieve the genomic, cDNA or protein dataset of the given species form the Ensembl data bases.)
+# TOOL ensemblfetch.R: ensemblfetch (Tool to retrieve the genomic, cDNA or protein dataset of the given species from the Ensembl data bases.)
 # OUTPUT OPTIONAL ensemblfetch.fasta
 # OUTPUT OPTIONAL ensemblfetch_species.txt
 # OUTPUT OPTIONAL ensemblfetch.log

@@ -69,12 +69,13 @@ if (outfmt == 6)  {
    outfmt <- paste('"6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore stitle"')	
    outfmt.is.table <- paste("yes")
 }
-#These�parameters have allways some value
+#These parameters have allways some value
 general.parameters <- paste("-chipster_path /opt/chipster -remote -no_slurm -query query.fa -out blast_results -db", db )
 general.parameters <- paste( general.parameters, "-task", task)
 general.parameters <- paste( general.parameters, "-evalue ", evalue)
 general.parameters <- paste( general.parameters, "-dust" , dust)
 general.parameters <- paste( general.parameters, "-outfmt" , outfmt )
+general.parameters <- paste( general.parameters, "-num_threads" , chipster.threads.max )
 
 optional.parameters <- paste(" ")
 
@@ -91,6 +92,42 @@ if (outfmt > 5) {
 	optional.parameters <- paste(optional.parameters, " -max_target_seqs ", num_hits )
 }
 
+#Check text formatted parameters
+if (nchar(gapopen) > 2 ) {
+	gapopen <- paste("default")
+}
+if (nchar(gapopen) < 1 ) {
+	gapopen <- paste("default")
+}
+
+if (nchar(gapextend) > 2 ) {
+	gapextend <- paste("default")
+}
+if (nchar(gapextend) < 1 ) {
+	gapextend <- paste("default")
+}
+
+if (nchar(reward) < 1 ) {
+	reward <- paste("default")
+}
+
+if (nchar(reward) > 2 ) {
+	reward <- paste("default")
+}
+
+if (nchar(penalty) < 1 ) {
+	penalty <- paste("default")
+}
+
+if (nchar(penalty) > 2 ) {
+	penalty <- paste("default")
+}
+
+if (nchar(query_loc) < 3 ) {
+	penalty <- paste("full length")
+}
+
+#set up more parameters if applied
 
 if ( gapopen != "default" ) {
 	if ( gapextend == "default" ){
@@ -110,9 +147,6 @@ if ( gapopen !=  "default"){
 	}
 }
 
-if ( word_size !=  "default"){
-	optional.parameters <- paste(optional.parameters, "-word_size", word_size )
-}
 
 if ( query_loc != "full length"){
 	optional.parameters <- paste(optional.parameters, " -query_loc ", query_loc )

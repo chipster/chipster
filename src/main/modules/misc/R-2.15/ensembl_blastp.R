@@ -18,7 +18,7 @@
 # PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE STRING DEFAULT "Default" (Cost to open a gap. Integer value from 6 to 25. The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
 # PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING DEFAULT "Default" (Gap extension penalty  Integer value from 1 to 3.The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap opening penalty )
 # PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE INTEGER FROM 2 TO 10 DEFAULT 3 (Word size for wordfinder algorithm)
-# PARAMETER OPTIONAL seg: "Filter query sequence with SEG" TYPE [yes: Yes, no: No] DEFAULT yes (Use SEG filtering to ignore low cmoplexity regions in the query sequence) 
+# PARAMETER OPTIONAL seg: "Filter query sequence with SEG" TYPE [yes: Yes, no: No] DEFAULT yes (Use SEG filtering to ignore low complexity regions in the query sequence) 
 # PARAMETER OPTIONAL save_log: "Collect a log file about the BLAST run" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the BLAST run.)
 
 # KM 24.10.2013
@@ -65,6 +65,25 @@ if (outfmt < 5) {
 
 if (outfmt > 5) {
 	optional.parameters <- paste(" -max_target_seqs ", num_hits )
+}
+
+#Check text formatted parameters
+if (nchar(gapopen) > 2 ) {
+	gapopen <- paste("default")
+}
+if (nchar(gapopen) < 1 ) {
+	gapopen <- paste("default")
+}
+
+if (nchar(gapextend) > 2 ) {
+	gapextend <- paste("default")
+}
+if (nchar(gapextend) < 1 ) {
+	gapextend <- paste("default")
+}
+
+if (nchar(query_loc) < 3 ) {
+	penalty <- paste("full length")
 }
 
 if ( gapopen != "Default" ) {
