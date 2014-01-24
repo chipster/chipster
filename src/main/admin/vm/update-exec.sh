@@ -1062,6 +1062,11 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   cd RSeQC
   sudo python setup.py install
 
+  echo "** Installing EMBOSS"
+  # dependency for png images
+  sudo apt-get -y install libgd2-noxpm-dev
+  # TODO install EMBOSS
+
 fi
 
 
