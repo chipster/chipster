@@ -14,10 +14,10 @@
 # PARAMETER OPTIONAL word_size: "Word size" TYPE INTEGER FROM 2 TO 10 DEFAULT 3 (The length of the seed that initiates an alignment. BLAST works by finding word-matches between the query and database sequences. One may think of this process as finding hot-spots that BLAST can then use to initiate extensions that might eventually lead to full-blown alignments. For BLASTP searches non-exact word matches are taken into account based upon the similarity between words. The amount of similarity can be varied so one normally uses just the word-sizes 2 and 3 for these searches.)
 # PARAMETER OPTIONAL num_hits: "Maximun number of hits to collect per sequence" TYPE INTEGER DEFAULT 100 (Number of database sequences to show one-line descriptions for.)
 # PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "normal BLAST report with pairwise alignments", 1: "query-anchored alignments showing identities", 2: "query-anchored alignments with no identities", 3: "flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "tabular", 10: "comma-separated values", 11: "BLAST archive format", 13: "Hit sequences in fasta format", 14: "hit regions in fasta format"] DEFAULT 0 (Output format type)
-# PARAMETER OPTIONAL seg: "Filter low complexity regions" TYPE [yes: Yes, no: No] DEFAULT yes (Use SEG program for filtering low cmoplexity regions in the query sequence) 
+# PARAMETER OPTIONAL seg: "Filter low complexity regions" TYPE [yes: Yes, no: No] DEFAULT yes (Use SEG program for filtering low complexity regions in the query sequence) 
 # PARAMETER OPTIONAL entrez_query: "Entrez query to limit search" TYPE STRING DEFAULT "none" (You can use Entrez query syntax to search a subset of the selected BLAST database. This can be helpful to limit searches to molecule types, sequence lengths or to exclude organisms.)
 # PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING DEFAULT "full length" (Location of the search region in the query sequence, for example: 23-66.) 
-# PARAMETER OPTIONAL matrix: "Matrix" TYPE [BLOSUM45: "BLOSUM45", BLOSUM50: "BLOSUM50", BLOSUM62: "BLOSUM62", BLOSUM80: "BLOSUM80", BLOSUM90: "BLOSUM90"] DEFAULT BLOSUM62 (Weight matrix assigns a score for aligning pairs of residues, and determines overall alignment score. Experimentation has shown that the BLOSUM62 matrix is among the best for detecting most weak protein similarities. For particularly long and weak alignments, the BLOSUM45 matrix may prove superior. For proteins, shorter than 85 resdues, the BLOSUM80 matrix may provide better hits"  )
+# PARAMETER OPTIONAL matrix: "Matrix" TYPE [BLOSUM45: "BLOSUM45", BLOSUM50: "BLOSUM50", BLOSUM62: "BLOSUM62", BLOSUM80: "BLOSUM80", BLOSUM90: "BLOSUM90"] DEFAULT BLOSUM62 (Weight matrix assigns a score for aligning pairs of residues, and determines overall alignment score. Experimentation has shown that the BLOSUM62 matrix is among the best for detecting most weak protein similarities. For particularly long and weak alignments, the BLOSUM45 matrix may prove superior. For proteins, shorter than 85 residues, the BLOSUM80 matrix may provide better hits"  )
 # PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE STRING DEFAULT "default" (Cost to open a gap. Integer value from 6 to 25. The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
 # PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING DEFAULT "default" (Gap extension penalty  Integer value from 1 to 3.The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap opening penalty )
 # PARAMETER OPTIONAL save_log: "Output a log file" TYPE [yes: yes, no: no] DEFAULT no (Collect a log file for the BLAST run.)
@@ -68,7 +68,7 @@ if (outfmt == 6)  {
 }
 #These parameters have allways some value
 general.parameters <- paste("-chipster_path /opt/chipster -no_slurm -query query.fa -out blast_results -dbprot dbprot.fa -task", task, "-evalue ", evalue, "-matrix", matrix, "-word_size" , word_size , "-seg" , seg , "-outfmt" , outfmt )
-
+general.parameters <- paste( general.parameters, "-num_threads" , chipster.threads.max )
 optional.parameters <- paste(" ")
 
 
@@ -80,6 +80,24 @@ if (outfmt > 5) {
 	optional.parameters <- paste(optional.parameters, " -max_target_seqs ", num_hits )
 }
 
+#Check text formatted parameters
+if (nchar(gapopen) > 2 ) {
+	gapopen <- paste("default")
+}
+if (nchar(gapopen) < 1 ) {
+	gapopen <- paste("default")
+}
+
+if (nchar(gapextend) > 2 ) {
+	gapextend <- paste("default")
+}
+if (nchar(gapextend) < 1 ) {
+	gapextend <- paste("default")
+}
+
+if (nchar(query_loc) < 3 ) {
+	penalty <- paste("full length")
+}
 
 if ( gapopen != "default" ) {
 	if ( gapextend == "default" ){

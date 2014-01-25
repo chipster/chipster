@@ -24,6 +24,7 @@
        <tool runtime="R-2.15"><resource>ensembl_tblastn.R</resource></tool>
 
 	</category>
+
 	
 	<category name="Data retrieval" color="#d59f45">
 	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
@@ -37,14 +38,21 @@
   	   <tool runtime="R-2.15"><resource>matcher.R</resource></tool>
   	   <tool runtime="R-2.15"><resource>mafft.R</resource></tool>	
 	</category>
-	
+    <category name="Nucleic sequence analysis" color="#80a3b7">     
+        <tool runtime="R-2.15"><resource>eprimer.R</resource></tool>
+        <tool runtime="R-2.15"><resource>getorf.R</resource></tool>
+    	<tool runtime="R-2.15"><resource>plotorf.R</resource></tool>
+     	<tool runtime="R-2.15"><resource>restrict.R</resource></tool>	
+     	<tool runtime="R-2.15"><resource>remap.R</resource></tool>	
+        <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
+	    <tool runtime="R-2.15"><resource>transeq.R</resource></tool>
+	   	
+	</category>
 	<category name="Utilities" color="#e7df70">
 	   <tool runtime="R-2.15"><resource>infoseq_summary.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>infoseq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>textsearch_fasta.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>seqret.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>transeq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>emboss.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>select_columns.R</resource></tool>
 	</category>

@@ -9,7 +9,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public class RestrictModifier implements Modifier {
 
-	public static final int RESTRICT_TO_ROWS = 2000;
+	public static final int RESTRICT_TO_ROWS = 10000;
 	
 	/**
 	 * Delegates to original table, but restricts row iteration.
