@@ -24,6 +24,10 @@ if (has.rownames == "no") {
 #f <- dat[,grep(column, colnames(dat))]
 f <- dat[,colnames(dat) %in% column]
 
+if(length(which(colnames(dat) %in% column == TRUE)) > 1) {
+	stop("CHIPSTER-NOTE: Please choose a column that occurs only once in the table")
+}
+
 # Filters the data
 if(smaller.or.larger=="equal-to") {
 	dat2<-dat[which(f==cutoff),]
