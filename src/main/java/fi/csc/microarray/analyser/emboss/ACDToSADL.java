@@ -1,12 +1,17 @@
 package fi.csc.microarray.analyser.emboss;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.apache.commons.io.IOUtils;
+
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
@@ -271,5 +276,41 @@ public class ACDToSADL {
            
            return null;
 	    }
+	}
+	
+	public static void main(String[] args) throws IOException {
+		
+		File input = null;
+		File output;
+		
+		if (args.length >= 1) {
+			input = new File(args[0]);
+		}
+		
+		if (input == null || !input.exists()) {
+			System.out.println("ACD to SADL converter");
+			System.out.println("Usage: ACDToSADL <input.acd> [<output.R>]");
+			System.out.println("Arguments:");
+			System.out.println("    <input.acd>     acd file to convert");
+			System.out.println("Optional arguments:");
+			System.out.println("    <output.R>      save conversion output to this file");
+			return;
+		}
+		
+		if (args.length >= 2) {
+			output = new File(args[1]);
+		} else {
+			if (input.getName().endsWith(".acd")) {
+				output = new File(input.getName().replace(".acd", ".R"));
+			} else {
+				output = new File(input.getName() + ".R");
+			}
+		}
+			
+		ACDDescription acdDescription = new ACDDescription(input);
+        SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, output.getName());
+        IOUtils.write(sadlDescription.toString(), new FileWriter(output));
+        
+        System.out.println("SADL saved to " + output);
 	}
 }
