@@ -3,14 +3,10 @@
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
 # PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat"] DEFAULT Human (The genome to use for fetching annotations.)
 
-#######################################################
-#                                                     
 # MG, 13.7.2011                                       
 # EK, 17.5.2012 fixed parameters
 # EK, 22.5.2012 fixed parameters
 # Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
-#                                                     
-#######################################################
 
 # Set up testing parameters
 # species <- "Human"
@@ -40,14 +36,14 @@ if (species == "Rat") {
 }
 
 # Read in data and extract the identifiers
-ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T)
+ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T, row.names=1, quote="")
 if("ensembl_id" %in% colnames(ensembl_list)) {
 	ensembl_id_list <- as.character(unique(ensembl_list$ensembl_id))
 } else {
 	ensembl_id_list <- rownames(ensembl_list)
 }
-
 print(ensembl_id_list[1:10])
+
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
