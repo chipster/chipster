@@ -22,7 +22,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/testng-5.9-jdk15.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/Jemboss.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
@@ -72,5 +71,6 @@
 	<classpathentry kind="lib" path="ext/lib/picard-1.103.jar"/>
 	<classpathentry kind="lib" path="ext/lib/sam-1.103.jar"/>
 	<classpathentry kind="lib" path="ext/lib/tribble-1.103.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jemboss.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

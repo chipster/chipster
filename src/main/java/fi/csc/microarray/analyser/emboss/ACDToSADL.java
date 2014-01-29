@@ -1,12 +1,11 @@
 package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
@@ -309,7 +308,7 @@ public class ACDToSADL {
 			
 		ACDDescription acdDescription = new ACDDescription(input);
         SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, output.getName());
-        IOUtils.write(sadlDescription.toString(), new FileWriter(output));
+        FileUtils.writeStringToFile(output, sadlDescription.toString());
         
         System.out.println("SADL saved to " + output);
 	}
