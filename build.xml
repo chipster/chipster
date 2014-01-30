@@ -138,7 +138,7 @@
 			<fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/spring.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/miglayout-4.0-swing.jar" relpath=""/>
-			<fatjar.jarsource file="${lib}/jemboss.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jemboss-new.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/jakarta-regexp-1.5.jar" relpath=""/>
 		</fatjar.build>
 
