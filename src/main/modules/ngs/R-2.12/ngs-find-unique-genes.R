@@ -41,7 +41,11 @@ if (species == "Rat") {
 
 # Read in data and extract the identifiers
 #ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T)
-ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T, row.names=1, quote="")
+#ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T, row.names=1, quote="")
+ensembl_list <- read.table (file="ensembl-list.tsv", sep="\t", header=T, row.names=NULL, quote="")
+rownames(ensembl_list) <- make.names(ensembl_list[,1], unique=T)
+ensembl_list <- ensembl_list[,-1]
+
 if("ensembl_id" %in% colnames(ensembl_list)) {
 	ensembl_id_list <- as.character(unique(ensembl_list$ensembl_id))
 } else {
