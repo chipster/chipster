@@ -790,7 +790,8 @@ then
   curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
  	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
  	
- 	# EMBOSS, GPL
+  # EMBOSS, GPL
+  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
   curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
   cd ${TMPDIR_PATH}/EMBOSS-6.5.7
   ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7

@@ -2,9 +2,9 @@
 # INPUT sequence: sequence TYPE GENERIC
 # OUTPUT OPTIONAL matching.fasta
 # OUTPUT OPTIONAL textsearch_log.txt
-# PARAMETER pattern: "Enter a pattern to search for" TYPE STRING (The search pattern is a regular expression. Use a | to indicate OR. \ For example: \ human|mouse \ will find text with either 'human' OR 'mouse' in the text)
+# PARAMETER pattern: "Enter a pattern to search for" TYPE STRING (The search pattern is a regular expression.)
 # PARAMETER OPTIONAL casesensitive: "Do a case-sensitive search" TYPE [Y: Yes, N: No] DEFAULT N (Do a case-sensitive search)
-# PARAMETER OPTIONAL save_log: "Collect a log file about the text search run" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the BLAST run.)
+# PARAMETER OPTIONAL save_log: "Collect a log file about the text search run" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the run.)
 
 # K.M 29.10.2013
 

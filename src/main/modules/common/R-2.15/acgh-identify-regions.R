@@ -5,7 +5,7 @@
 # PARAMETER max.info.loss: "maximum loss of information" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-04-12
+# 2014-01-11
 
 source(file.path(chipster.common.path, 'CGHcallPlus.R'))
 library(CGHregions)
@@ -102,6 +102,8 @@ dat2$chromosome <- as.character(dat2$chromosome)
 dat2$chromosome[dat2$chromosome=='23'] <- 'X'
 dat2$chromosome[dat2$chromosome=='24'] <- 'Y'
 dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
+
+rownames(dat2) <- sprintf('%s:%i-%i', dat2$chromosome, dat2$start, dat2$end)
 
 options(scipen=10)
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
