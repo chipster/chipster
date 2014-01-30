@@ -24,6 +24,7 @@
        <tool runtime="R-2.15"><resource>ensembl_tblastn.R</resource></tool>
 
 	</category>
+
 	
 	<category name="Data retrieval" color="#d59f45">
 	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
@@ -36,17 +37,42 @@
 	   <tool runtime="R-2.15"><resource>stretcher.R</resource></tool>	
   	   <tool runtime="R-2.15"><resource>matcher.R</resource></tool>
   	   <tool runtime="R-2.15"><resource>mafft.R</resource></tool>	
+  	   <tool runtime="R-2.15"><resource>dotmatcher.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>polydot.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>cons.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>plotcon.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>infoalign.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>showalign.R</resource></tool>
+  	   <tool runtime="R-2.15"><resource>prettyplot.R</resource></tool>
 	</category>
-	
-	<category name="Utilities" color="#e7df70">
+    <category name="Nucleic sequence analysis" color="#80a3b7">     
+        <tool runtime="R-2.15"><resource>eprimer.R</resource></tool>
+        <tool runtime="R-2.15"><resource>getorf.R</resource></tool>
+    	<tool runtime="R-2.15"><resource>plotorf.R</resource></tool>
+     	<tool runtime="R-2.15"><resource>restrict.R</resource></tool>	
+     	<tool runtime="R-2.15"><resource>remap.R</resource></tool>	
+        <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
+	    <tool runtime="R-2.15"><resource>transeq.R</resource></tool>	   	
+	</category>
+    <category name="Protein sequence analysis" color="#83010b">    
+       <tool runtime="R-2.15"><resource>protfilter.R</resource></tool>
+   	</category>  
+   	<category name="phylogeny" color="#80a3b7">
+   	    <tool runtime="R-2.15"><resource>fdnapars.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fprotpars.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fdrawtree.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fdrawgram.R</resource></tool>
+	</category>
+	<category name="Sequence utilities" color="#e7df70">
 	   <tool runtime="R-2.15"><resource>infoseq_summary.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>infoseq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>textsearch_fasta.R</resource></tool>
+       <tool runtime="R-2.15"><resource>seqor.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>seqret.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>transeq.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>skipredundant.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>emboss.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>select_columns.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>select_columns.R</resource></tool> 
+	   <tool runtime="R-2.15"><resource>extractseq.R</resource></tool>
 	</category>
 
 <!-- 

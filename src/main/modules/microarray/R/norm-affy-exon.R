@@ -1,0 +1,115 @@
+# TOOL norm-affy-exon.R: "Affymetrix exon arrays" (Affymetrix RMA preprocessing for CEL-files. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
+
+# Affymetrix normalization
+# JTT 8.6.2006
+# Changes to column naming on 29.6.2006
+# Changes to phenodata table writing on 29.1.2007
+#
+# modified 11.11.2009, MG
+# Changes to CDF package names to match BRainArray version 12
+# 
+# modified 25.11.2009, MG
+# Gene symbols and gene names are now incorporated to the table
+# of normalized values when using "gene" as summary feature
+# but not for "exon", since the annotation packages do not
+# support this
+
+# Initializes analyses
+library(oligo)
+library(affy)
+library(biomaRt)
+
+# Reads in data
+if(chiptype=="empty") {
+	stop("You need to specify the chiptype. Please run the script again.")
+}
+if(chiptype=="human" & summary.feature=="exon") {
+	custom_cdf = "huex10stv2hsensecdf"
+	chiptype <- "huex10stv2hsensecdf.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
+if(chiptype=="mouse" & summary.feature=="exon") {
+	custom_cdf <- "moex10stv1mmensecdf"
+	chiptype <- "moex10stv1mmensecdf.db"	
+	#dat@cdfName<-"moex10stv1mmensecdf"
+	#dat@annotation<-"moex10stv1mmensecdf.db"
+}
+if(chiptype=="rat" & summary.feature=="exon") {
+	custom_cdf <- "raex10stv1rnensecdf"
+	chiptype <- "raex10stv1rnensecdf.db"	
+	#dat@cdfName<-"raex10stv1rnensecdf"
+	#dat@annotation<-"raex10stv1rnensecdf.db"
+}
+
+if(chiptype=="human" & summary.feature=="gene") {
+	custom_cdf <- "huex10stv2hsentrezgcdf"
+	chiptype <- "huex10stv2hsentrezg.db"	
+	#dat@cdfName<-"huex10stv2hsentrezgcdf"
+	#dat@annotation<-"huex10stv2hsentrezg.db"
+}
+if(chiptype=="mouse" & summary.feature=="gene") {
+	custom_cdf <- "moex10stv1mmentrezgcdf"
+	chiptype <- "moex10stv1mmentrezg.db"
+	#dat@cdfName<-"moex10stv1mmentrezgcdf"
+	#dat@annotation<-"moex10stv1mmentrezg.db"
+}
+if(chiptype=="rat" & summary.feature=="gene") {
+	custom_cdf <- "raex10stv1rnentrezgcdf"
+	chiptype <- "raex10stv1rnentrezg.db"
+	#dat@cdfName<-"raex10stv1rnentrezgcdf"
+	#dat@annotation<-"raex10stv1rnentrezg.db"
+}
+#chiptype<-dat@annotation
+
+# Normalizations
+if(chiptype != "oligo") {
+	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
+} else {
+	data.raw <- read.celfiles(filenames=list.celfiles())
+	dat2 <- rma(data.raw)
+}
+
+dat2<-as.data.frame(round(exprs(dat2), digits=2))
+names(dat2)<-paste("chip.", names(dat2), sep="")
+
+# Writes out a phenodata
+sample<-colnames(dat2)
+group<-c(rep("", ncol(dat2)))
+training<-c(rep("", ncol(dat2)))
+time<-c(rep("", ncol(dat2)))
+random<-c(rep("", ncol(dat2)))
+chiptype<-chiptype
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+# Writing out data
+a<-try(library(chiptype, character.only=T))
+if(chiptype!="empty" & class(a)!="try-error") {
+	if (summary.feature=="exon") {
+		# Writes the results into a file
+		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	}
+	if (summary.feature=="gene") {
+		
+		# Including gene names to data
+		lib2<-sub('.db','',chiptype)
+		symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
+		genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
+		
+		# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
+		genename <- gsub("#", "", genename)
+		symbol <- gsub("'", "", symbol)
+		genename <- gsub("'", "", genename)
+		
+		# Writes the results into a file
+		write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	}
+} else {
+		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)	
+}
+

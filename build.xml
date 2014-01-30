@@ -139,6 +139,8 @@
 			<fatjar.jarsource file="${lib}/miglayout-4.0-swing.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/joda-time-2.3.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/commons-lang3-3.1.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jemboss-new.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jakarta-regexp-1.5.jar" relpath=""/>
 		    </fatjar.build>
 
 		<!-- sign it -->

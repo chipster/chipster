@@ -154,6 +154,7 @@ fasta=0
 gtf=0
 text=0
 length=0
+karyotype=0
 version="0.0"
 location=$(pwd)
 INDEX_BWA=1
@@ -205,6 +206,10 @@ do
                 shift
                 shift
               ;;
+              '-karyotype')
+                karyotype=1
+                shift
+              ;;
               '-only_bwa')
                 INDEX_BOWTIE=0
                 INDEX_BOWTIE2=0
@@ -244,7 +249,7 @@ export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$too
 #Retrieve the fasta file
 ##
 
-#Check if  taxid is used in stead of name (commented out to avoid Embos dependency)
+#Check if  taxid is used in stead of name (commented out to avoid Emboss dependency)
 
 #taxid=$(echo $species | tr -d "[a-z,A-Z]" )
 species=$(echo $species | sed s/" "/"_"/g )
@@ -278,6 +283,24 @@ then
     echo Species $species was not found from the Ensembl database.
     exit 1
   fi
+
+  #If karyotype option is used, pick only chromosomes
+  if [[ $karyotype -eq 1 ]]
+  then
+    curl -s "http://beta.rest.ensembl.org/assembly/info/$species?content-type=text/xml" | grep "<karyotype>" | sed "s/<karyotype>//g" | sed "s/<\/karyotype>//g" | sed "s/ *//g" > karyotype.tmp
+    num_chrs=$(cat karyotype.tmp | wc -l )
+    if [[ $num_chrs > 0 ]]
+    then
+       mv $genome_fasta toplevel.fasta
+       awk '{print "toplevel.fasta:"$1}' karyotype.tmp  >  karyotype.list
+       seqret @karyotype.list $genome_fasta
+       rm -f toplevel.fasta karyotype.list
+    fi
+    rm -f karyotype.tmp
+  fi
+  echo "$genome_fasta Downloaded"
+  echo "Content:"
+  infoseq $genome_fasta -auto
 
   #genome_release=$(echo $genome_fasta | awk -F "." '{print $2}')
   genome_release=$(echo $genome_fasta | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')

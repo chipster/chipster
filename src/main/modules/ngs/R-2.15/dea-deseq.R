@@ -21,7 +21,7 @@
 # EK 12.5.2012, fixed the fitting method parameter
 # EK 30.4.2013, added BED sorting, made genomic location info optional so that external count tables can be used
 # EK 6.5.2013, removed replicates parameter
-
+# MK 29.01.2013, fixed bug why FoldChange column was duplicated in results
 
 # Loads the libraries
 library(DESeq)
@@ -98,6 +98,7 @@ dev.off()
 results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
 
 # Merge with original data table
+
 output_table <- cbind (dat, results_table[,-1])
 
 # Adjust p-values
@@ -140,7 +141,11 @@ significant_table <- significant_table[ order(significant_table$pval), ]
 
 # Output the table
 if (dim(significant_table)[1] > 0) {
-	write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	ndat <- ncol(dat)
+	nmax <- ncol(significant_table)
+	write.table(cbind(significant_table[,1:ndat], round(significant_table[, (ndat+1):(nmax-2)], digits=2), format(significant_table[, (nmax-1):nmax], digits=4, scientific=T)), file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+	#write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
