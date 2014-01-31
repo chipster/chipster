@@ -137,6 +137,8 @@ smart.install.packages(bioconductor.package="rtracklayer", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="maSigPro", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="qvalue", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="DESeq", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="DESeq2", mirror=repo.bioc)
+smart.install.packages(bioconductor.package="DEXSeq", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="RPA", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="methylumi", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="IlluminaHumanMethylation450k.db", mirror=repo.bioc) # annotation package, not needed if all annotation packages from the repository are installed
