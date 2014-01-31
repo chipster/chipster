@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.9.0
+LATEST_VERSION=2.10.0
 
 # Exit immediately if some command fails
 set -e
@@ -1066,6 +1066,10 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   # dependency for png images
   sudo apt-get -y install libgd2-noxpm-dev
   # TODO install EMBOSS
+
+  echo "** Updating R-3.0.2"
+  mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-01-31.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 fi
 
