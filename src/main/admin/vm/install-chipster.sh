@@ -421,7 +421,9 @@ then
   echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
   cd ../
   rm -rf R-${R_VER}/
-  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-3.0/install-libs-lite.R   
+  
+  # needs to have smip.R in current dir
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R   
 
   # could also use the package from nic
   #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-01-31.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -832,6 +834,89 @@ then
   ln -s RSeQC-2.3.7 RSeQC
   cd RSeQC
   python setup.py install #sudo
+
+  # EMBOSS
+  EMBOSS_VERSION=6.5.7
+  EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+	cd ${TMPDIR_PATH}/
+  # note version in path                                                                                                                                                              
+	wget ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0/EMBOSS-${EMBOSS_VERSION}.tar.gz
+	tar zxf EMBOSS-${EMBOSS_VERSION}.tar.gz
+	cd EMBOSS-${EMBOSS_VERSION}
+	
+  #wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
+  #gunzip patch-1-11.gz                                                                                                                                                               
+  #patch -p1 < patch-1-11                                                                                                                                                             
+	
+	EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+	./configure ${EMBOSS_OPTIONS}
+	make clean
+	make
+	make install
+
+  # EMBOSS extras
+
+  mkdir embassy
+  cd embassy/
+
+	wget ftp://emboss.open-bio.org/pub/EMBOSS/MEME-4.7.650.tar.gz
+	gunzip MEME-4.7.650.tar.gz
+	tar xvf MEME-4.7.650.tar
+	cd MEME-4.7.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+
+  # phylipnew                                                                                                                                                                         
+	wget ftp://emboss.open-bio.org/pub/EMBOSS/PHYLIPNEW-3.69.650.tar.gz
+	gunzip PHYLIPNEW-3.69.650.tar.gz
+	tar xvf PHYLIPNEW-3.69.650.tar
+	cd PHYLIPNEW-3.69.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+	
+  # vienna                                                                                                                                                                            
+	wget ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz
+	gunzip VIENNA-1.7.2.650.tar.gz
+	tar xvf VIENNA-1.7.2.650.tar
+	cd VIENNA-1.7.2.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+	cd ..
+	
+	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
+	wget ftp://ftp.neb.com/pub/rebase/withrefm.txt
+	wget ftp://ftp.neb.com/pub/rebase/proto.txt
+	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt
+	
+  # primer3, BSD                                                                                                                                                                      
+	cd ${TOOLS_PATH}
+	mkdir primer3
+	cd primer3
+	wget http://sourceforge.net/projects/primer3/files/primer3/1.1.4/primer3-1.1.4.tar.gz
+	star zxf primer3-1.1.4.tar.gz
+	cd src/
+	make clean
+	make
+	cp primer3_core ${EMBOSS_PATH}/bin
+
+  # meme, quite free, see documentation                                                                                                                                               
+	cd ${TMPDIR_PATH}
+	wget http://ebi.edu.au/ftp/software/MEME/4.2.0/meme_4.2.0.tar.gz
+	tar xzvf meme_4.2.0.tar.gz
+	cd meme_4.2.0/
+	./configure --prefix=${TOOLS_PATH}/meme_4.2.0 --with-url="http://meme.nbcr.net/meme"
+	make
+	make install
+	ln -s meme_4.2.0 ${TOOLS_PATH}/meme
+	cd ..
+	rm -rf ${TMPDIR_PATH}/meme_4.2.0
+
 
   ## Create checksums
   cd ${TOOLS_PATH}/
