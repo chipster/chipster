@@ -1065,11 +1065,19 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo "** Installing EMBOSS"
   # dependency for png images
   sudo apt-get -y install libgd2-noxpm-dev
-  # TODO install EMBOSS
+  # update EMBOSS
+  mv -b ${TOOLS_PATH}/EMBOSS-6.5.7 ${BACKUPDIR_PATH}/
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-with-extras-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing primer3"
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/primer3-vmbin.tar.gz| tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing meme"
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/meme_4.2.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
-  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-01-31.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 fi
 
