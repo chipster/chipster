@@ -271,14 +271,23 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 
 # Install Illumina annotation packages. 
 
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev2BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1p1BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaRatv1BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv1BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv2BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv3BeadID.db_1.8.0.tar.gz");
-smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv4BeadID.db_1.8.0.tar.gz");
+
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev2BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1p1BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaRatv1BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv1BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv2BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv3BeadID.db_1.8.0.tar.gz");
+#smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaHumanv4BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaMousev1BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaMousev1BeadIDilluminaMousev2BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaMousev1p1BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaRatv1BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv1BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv2BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv3BeadID.db_1.8.0.tar.gz");
+smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv4BeadID.db_1.8.0.tar.gz");
 
 
 # Install the whole annotation repository from Bioconductor
