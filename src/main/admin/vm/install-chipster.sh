@@ -902,6 +902,14 @@ then
   # dimont, GPLv3?
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/dimont.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  # Trimmomatic, GPL
+  cd ${TMPDIR_PATH}/
+  wget -nv http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.32.zip
+  unzip Trimmomatic-0.32.zip
+  mv Trimmomatic-0.32 ${TOOLS_PATH}/
+  ln -s Trimmomatic-0.32 ${TOOLS_PATH}/trimmomatic
+  rm Trimmomatic-0.32.zip
+
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum

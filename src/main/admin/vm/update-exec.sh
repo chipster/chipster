@@ -1079,9 +1079,16 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo "** Installing human tophat index"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C /opt/chipster/tools/bowtie2/indexes/
 
-  echo "** Install dimont"
+  echo "** Installing dimont"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/dimont.tar.gz | tar -xz -C ${TOOLS_PATH}/
-      
+
+  echo "** Installing Trimmomatic"
+  cd ${TMPDIR_PATH}/
+  wget -nv http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.32.zip
+  unzip Trimmomatic-0.32.zip
+  mv Trimmomatic-0.32 ${TOOLS_PATH}/
+  ln -s Trimmomatic-0.32 ${TOOLS_PATH}/trimmomatic
+                                    
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
