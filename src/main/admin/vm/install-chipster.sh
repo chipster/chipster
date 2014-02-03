@@ -792,16 +792,6 @@ then
   curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
  	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
  	
-  # EMBOSS, GPL
-  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
-  curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
-  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
-  ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
-  make
-  make install
-  # curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
-  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
-  
   # fseq, GPLv3
   curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
   mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
@@ -835,14 +825,15 @@ then
   cd RSeQC
   python setup.py install #sudo
 
-  # EMBOSS
+   # EMBOSS, GPL
+  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
+  # also vmbin from nic
+
   EMBOSS_VERSION=6.5.7
   EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
-	cd ${TMPDIR_PATH}/
   # note version in path                                                                                                                                                              
-	wget ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0/EMBOSS-${EMBOSS_VERSION}.tar.gz
-	tar zxf EMBOSS-${EMBOSS_VERSION}.tar.gz
-	cd EMBOSS-${EMBOSS_VERSION}
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
 	
   #wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
   #gunzip patch-1-11.gz                                                                                                                                                               
@@ -850,28 +841,22 @@ then
 	
 	EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
 	./configure ${EMBOSS_OPTIONS}
-	make clean
 	make
 	make install
+  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
+
 
   # EMBOSS extras
 
-  mkdir embassy
-  cd embassy/
-
-	wget ftp://emboss.open-bio.org/pub/EMBOSS/MEME-4.7.650.tar.gz
-	gunzip MEME-4.7.650.tar.gz
-	tar xvf MEME-4.7.650.tar
-	cd MEME-4.7.650
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/MEME-4.7.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd ${TMPDIR_PATH}/MEME-4.7.650
 	./configure ${EMBOSS_OPTIONS}
 	make
 	make install
 	cd ..
 
   # phylipnew                                                                                                                                                                         
-	wget ftp://emboss.open-bio.org/pub/EMBOSS/PHYLIPNEW-3.69.650.tar.gz
-	gunzip PHYLIPNEW-3.69.650.tar.gz
-	tar xvf PHYLIPNEW-3.69.650.tar
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/PHYLIPNEW-3.69.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
 	cd PHYLIPNEW-3.69.650
 	./configure ${EMBOSS_OPTIONS}
 	make
@@ -879,36 +864,29 @@ then
 	cd ..
 	
   # vienna                                                                                                                                                                            
-	wget ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz
-	gunzip VIENNA-1.7.2.650.tar.gz
-	tar xvf VIENNA-1.7.2.650.tar
-	cd VIENNA-1.7.2.650
+	curl wget ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd  ${TMPDIR_PATH}/VIENNA-1.7.2.650
 	./configure ${EMBOSS_OPTIONS}
 	make
 	make install
 	cd ..
-	cd ..
-	
+
+	# REBASE reference data and indeces	
 	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
 	wget ftp://ftp.neb.com/pub/rebase/withrefm.txt
 	wget ftp://ftp.neb.com/pub/rebase/proto.txt
 	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt
 	
   # primer3, BSD                                                                                                                                                                      
-	cd ${TOOLS_PATH}
-	mkdir primer3
-	cd primer3
-	wget http://sourceforge.net/projects/primer3/files/primer3/1.1.4/primer3-1.1.4.tar.gz
-	star zxf primer3-1.1.4.tar.gz
-	cd src/
-	make clean
+	mkdir ${TOOLS_PATH}/primer3
+	curl -L http://sourceforge.net/projects/primer3/files/primer3/1.1.4/primer3-1.1.4.tar.gz | tar -xz -C ${TOOLS_PATH}/primer3
+	cd ${TOOLS_PATH}/primer3/src/
 	make
-	cp primer3_core ${EMBOSS_PATH}/bin
+	
 
   # meme, quite free, see documentation                                                                                                                                               
 	cd ${TMPDIR_PATH}
-	wget http://ebi.edu.au/ftp/software/MEME/4.2.0/meme_4.2.0.tar.gz
-	tar xzvf meme_4.2.0.tar.gz
+	curl http://ebi.edu.au/ftp/software/MEME/4.2.0/meme_4.2.0.tar.gz | tar -xz -C ${TMPDIR_PATH}
 	cd meme_4.2.0/
 	./configure --prefix=${TOOLS_PATH}/meme_4.2.0 --with-url="http://meme.nbcr.net/meme"
 	make
