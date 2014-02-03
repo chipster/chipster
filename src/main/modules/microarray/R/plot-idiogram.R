@@ -40,6 +40,8 @@ dat2<-dat[,grep("chip", names(dat))]
 # Scaling the data to the same mean
 scaled.dat<-genescale(dat2)
 
+#save.images("/tmp/matti/temp.Rdata")
+
 # Creating locations of genes
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
