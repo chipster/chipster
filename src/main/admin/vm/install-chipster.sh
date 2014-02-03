@@ -888,7 +888,6 @@ then
 	cd ${TOOLS_PATH}/primer3/src/
 	make
 	
-
   # meme, quite free, see documentation                                                                                                                                               
 	cd ${TMPDIR_PATH}
 	curl http://ebi.edu.au/ftp/software/MEME/4.2.0/meme_4.2.0.tar.gz | tar -xz -C ${TMPDIR_PATH}
@@ -900,6 +899,8 @@ then
 	cd ..
 	rm -rf ${TMPDIR_PATH}/meme_4.2.0
 
+  # dimont, GPLv3?
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/dimont.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   ## Create checksums
   cd ${TOOLS_PATH}/
