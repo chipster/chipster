@@ -1074,6 +1074,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing meme"
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/meme_4.2.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s meme_4.2.0 ${TOOLS_PATH}/meme
 
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
