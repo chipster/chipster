@@ -6,10 +6,9 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
-# Plotting the idiogram of expressed genes
 # DG 16.10.2006
-# Modified by JTT 22.11.2006
+# JTT 22.11.2006
+# MK: 01.10.2013, fixing bugs related to Affymetrix data
 
 # Loads the libraries
 library(idiogram)
@@ -59,6 +58,9 @@ if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
 chromloc<-buildChromLocation(lib)
 
 # Fold changes are stored in a named vector
+if(chip > ncol(scaled.dat)) {
+        stop("CHIPSTER-NOTE: You have selected a chip that does not exists")
+}
 fc<-scaled.dat[,chip]
 names(fc)<-rownames(scaled.dat)
 
