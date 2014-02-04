@@ -42,16 +42,16 @@ scaled.dat<-genescale(dat2)
 # Creating locations of genes
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
-   # Saves the chiptype into object lib
-   lib<-phenodata$chiptype[1]
-   lib<-as.character(lib)
+	# Saves the chiptype into object lib
+	lib<-phenodata$chiptype[1]
+	lib<-as.character(lib)
 }
 
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
 # from Chipster 1.3 and earlier. 
 if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
-        lib <- paste(lib, ".db", sep="")
+	lib <- paste(lib, ".db", sep="")
 }
 
 # Needs a parameter lib that defines the Affymetrix chip type
