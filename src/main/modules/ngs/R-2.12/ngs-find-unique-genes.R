@@ -3,14 +3,10 @@
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
 # PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat"] DEFAULT Human (The genome to use for fetching annotations.)
 
-#######################################################
-#                                                     
 # MG, 13.7.2011                                       
 # EK, 17.5.2012 fixed parameters
 # EK, 22.5.2012 fixed parameters
 # Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
-#                                                     
-#######################################################
 
 # Set up testing parameters
 # species <- "Human"
