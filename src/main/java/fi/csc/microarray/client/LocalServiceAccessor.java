@@ -65,7 +65,8 @@ public class LocalServiceAccessor implements ServiceAccessor {
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
                                                                     sadl.getName().getDisplayName(), category,
                                                                     sadl.getComment(), true,
-                                                                    null);
+                                                                    null, true);        
+        
         for (Input input : sadl.inputs()) {
             if (input.getName().isNameSet()) {
                 od.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType(), input.isOptional());

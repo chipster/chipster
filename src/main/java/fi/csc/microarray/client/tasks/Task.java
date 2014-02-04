@@ -104,11 +104,13 @@ public class Task {
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
-	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();	
+	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
+	private boolean isLocal;	
 	
 	public Task(Operation operation) {
 		this.operation = operation;
 		this.id = generateId();
+		this.isLocal = operation.getDefinition().isLocal();
 	}
 	
 	/**
@@ -323,6 +325,10 @@ public class Task {
 
 	public String getSourceCode() {
 		return this.sourceCode;
+	}
+
+	public boolean isLocal() {
+		return isLocal;
 	}
 
 }

@@ -4,7 +4,7 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-08-08
+# 2014-01-08
 
 file <- 'normalized.tsv'
 dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
@@ -33,6 +33,7 @@ if (genome.build=='NCBI36') {
 }
 cnv <- cnv[cnv$varianttype == 'CNV',]
 cnv$chr <- factor(cnv$chr, levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)
+cnv <- cnv[!is.na(cnv$chr),]
 
 cnv <- cnv[order(cnv$chr, cnv$start, cnv$end), c('chr', 'start', 'end')]
 joined <- data.frame()

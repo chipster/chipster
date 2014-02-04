@@ -35,10 +35,10 @@ if [[ $fformat == "gzip" ]]
 then
   format=$(infoseq -nowarning -noerror -nodie -only -usa -nohead -filter $2 | awk -F "::" '{print $1}' | uniq | head -1)
 else
-  format=$(head -800 $2 | infoseq -nowarning -noerror -nodie -only -usa -nohead -filter | awk -F "::" '{print $1}' | uniq | head -1)
+  format=$(head -8000 $2 | infoseq -nowarning -noerror -nodie -only -usa -nohead -filter | awk -F "::" '{print $1}' | uniq | head -1)
   if [[ $format == "" ]]
   then
-      format=$(head -99999 $2 | infoseq -nowarning -noerror -nodie -only -usa -nohead -filter | awk -F "::" '{print $1}' | uniq | head -1)
+      format=$(head -999999 $2 | infoseq -nowarning -noerror -nodie -only -usa -nohead -filter | awk -F "::" '{print $1}' | uniq | head -1)
   fi
 fi
 

@@ -8,7 +8,7 @@
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
-# PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT local (Dispersion can be estimated using a local fit or a two-coefficient parametric model. Local fit is suitable in most cases, including when there are no biological replicates. The parametric model may be preferable under certain circumstances.)
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (Dispersion can be estimated using a local fit or a two-coefficient parametric model. You should use local fit if there are no biological replicates.)
 # PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives.)
 # PARAMETER OPTIONAL p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-value.)
@@ -21,7 +21,7 @@
 # EK 12.5.2012, fixed the fitting method parameter
 # EK 30.4.2013, added BED sorting, made genomic location info optional so that external count tables can be used
 # EK 6.5.2013, removed replicates parameter
-
+# MK 29.01.2013, fixed bug why FoldChange column was duplicated in results
 
 # Loads the libraries
 library(DESeq)
@@ -95,9 +95,10 @@ plotDispEsts(counts_data)
 dev.off()
 
 # Calculate statistic for differential expression
-results_table <- nbinomTest(counts_data, group_levels[2], group_levels[1] )
+results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
 
 # Merge with original data table
+
 output_table <- cbind (dat, results_table[,-1])
 
 # Adjust p-values
@@ -140,7 +141,11 @@ significant_table <- significant_table[ order(significant_table$pval), ]
 
 # Output the table
 if (dim(significant_table)[1] > 0) {
-	write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	ndat <- ncol(dat)
+	nmax <- ncol(significant_table)
+	write.table(cbind(significant_table[,1:ndat], round(significant_table[, (ndat+1):(nmax-2)], digits=2), format(significant_table[, (nmax-1):nmax], digits=4, scientific=T)), file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+	#write.table(significant_table, file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools

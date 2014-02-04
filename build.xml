@@ -40,7 +40,7 @@
 
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.9.0" />
+	<property name="release-version" value="2.10.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -138,6 +138,8 @@
 			<fatjar.jarsource file="${lib}/jetty-xml-8.1.5.v20120716.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/spring.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/miglayout-4.0-swing.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jemboss-new.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/jakarta-regexp-1.5.jar" relpath=""/>
 		</fatjar.build>
 
 		<!-- sign it -->

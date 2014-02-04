@@ -153,10 +153,21 @@ def get_compatible_bundle_versions(name):
     :type name: str
     """
     retval = [elem["version"] for elem in get_bundle(name)
-              if "chipster" in elem and float(elem["chipster"]) <= chipster_version]
+              if "chipster" in elem and less_than_or_equal_to(elem["chipster"], chipster_version)]
     logging.debug("get_compatible_bundle_versions: %s" % retval)
     return retval
 
+def less_than_or_equal_to(bundle_version, platform_version):
+    """
+    Compare version numbers presented with three integers separated by period
+    """
+    for bundle, platform in zip(bundle_version.split("."), platform_version.split(".")):
+        if (int(bundle) > int(platform)):
+            return False
+    return True
+
+def less_than(bundle_version, platform_version):
+    return less_than_or_equal_to(bundle_version, platform_version) and bundle_version != platform_version 
 
 def get_bundle_version(name, version):
     """
@@ -181,7 +192,8 @@ def is_bundle_deprecated(name, version):
     :rtype: bool
     """
     retval = [elem["version"] for elem in get_bundle(name)
-              if "deprecated" in elem and float(elem["deprecated"]) < chipster_version]
+              if "deprecated" in elem and less_than(elem["deprecated"], chipster_version)]
+              
     logging.debug("is_bundle_deprecated: %s" % retval)
     if retval and retval[0] >= version:
         return True
@@ -756,7 +768,7 @@ def handle_file_error(e):
 
 if __name__ == '__main__':
     prog_path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/"
-    chipster_version = 2.9
+    chipster_version = "2.10.0"
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
     installation_path = "/opt/chipster/"
