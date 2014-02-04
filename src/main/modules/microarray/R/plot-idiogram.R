@@ -48,8 +48,6 @@ if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
    lib<-as.character(lib)
 }
 
-save.image("/tmp/matti/temp.Rdata")
-
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
 # from Chipster 1.3 and earlier. 
