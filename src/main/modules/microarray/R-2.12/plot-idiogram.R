@@ -78,6 +78,8 @@ chr<-chr[-which(chr=="Un")]
 chromloc@chromLocs<-chromloc@chromLocs[names(chromloc@chromLocs) %in% chr]
 chromloc@chromInfo<-chromloc@chromInfo[names(chromloc@chromInfo) %in% chr]
 
+save.image("/tmp/matti/xxx.Rdata")
+
 # Plots the idiogram
 pdf(file="idiogram.pdf", width=w/72, height=h/72)
 midiogram(fc, chromloc, col=cols, pch=20) 
