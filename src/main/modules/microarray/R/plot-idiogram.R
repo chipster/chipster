@@ -40,8 +40,6 @@ dat2<-dat[,grep("chip", names(dat))]
 # Scaling the data to the same mean
 scaled.dat<-genescale(dat2)
 
-#save.images("/tmp/matti/temp.Rdata")
-
 # Creating locations of genes
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
@@ -49,6 +47,8 @@ if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
 }
+
+save.image("/tmp/matti/temp.Rdata")
 
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
