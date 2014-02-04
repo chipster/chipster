@@ -72,13 +72,12 @@ x<-get(paste(gsub(".db", "", lib), "CHR", sep=""))
 mapped_probes <- mappedkeys(x)
 xx <- as.list(x[mapped_probes])
 chr<-unique(unlist(xx))
-chr<-chr[-which(chr=="Un")]
+#chr<-chr[-which(chr=="Un")]
+chr<-chr[!(chr=="Un")]
 
 # Fixing the chromosome locations object
 chromloc@chromLocs<-chromloc@chromLocs[names(chromloc@chromLocs) %in% chr]
 chromloc@chromInfo<-chromloc@chromInfo[names(chromloc@chromInfo) %in% chr]
-
-save.image("/tmp/matti/xxx.Rdata")
 
 # Plots the idiogram
 pdf(file="idiogram.pdf", width=w/72, height=h/72)
