@@ -592,7 +592,7 @@ then
   ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie2/indexes
 
   # Tophat indexes
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C /opt/chipster/tools/bowtie2/indexes/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
 								
 																
 																																
@@ -909,6 +909,11 @@ then
   mv Trimmomatic-0.32 ${TOOLS_PATH}/
   ln -s Trimmomatic-0.32 ${TOOLS_PATH}/trimmomatic
   rm Trimmomatic-0.32.zip
+  
+  # Express, Artistic license 2.0
+  curl http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz | tar -xz -C ${TOOLS_PATH}/
+  ln -s express-1.5.1-linux_x86_64 ${TOOLS_PATH}/express
+  
 
   ## Create checksums
   cd ${TOOLS_PATH}/
