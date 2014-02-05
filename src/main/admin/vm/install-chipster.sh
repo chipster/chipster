@@ -914,6 +914,10 @@ then
   curl http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz | tar -xz -C ${TOOLS_PATH}/
   ln -s express-1.5.1-linux_x86_64 ${TOOLS_PATH}/express
   
+  # BLAST, public domain
+  curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s ncbi-blast-2.2.29+-x64-linux ${TOOLS_PATH}/blast                                  
+
 
   ## Create checksums
   cd ${TOOLS_PATH}/
