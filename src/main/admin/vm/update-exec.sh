@@ -1095,7 +1095,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
  
   echo "** Installing blast"       
   curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s ncbi-blast-2.2.29+-x64-linux ${TOOLS_PATH}/blast                                  
+  ln -s ncbi-blast-2.2.29+ ${TOOLS_PATH}/blast                                  
 
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/

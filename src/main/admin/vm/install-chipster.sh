@@ -916,7 +916,7 @@ then
   
   # BLAST, public domain
   curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s ncbi-blast-2.2.29+-x64-linux ${TOOLS_PATH}/blast                                  
+  ln -s ncbi-blast-2.2.29+ ${TOOLS_PATH}/blast                                  
 
 
   ## Create checksums
