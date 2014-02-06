@@ -1,4 +1,4 @@
-# TOOL my_blastp.R: "Protein BLAST against users own protein sequence set" (Heuristic tool to search hits for a protein sequenceses from users own protein sequence set. Your query sequence set can contain 10 sequeces in maximum.)
+# TOOL my_blastp.R: "Protein BLAST against users own protein sequence set" (Heuristic tool to search hits for a protein sequenceses from users own protein sequence set. Your query sequence set can contain 100000 sequeces in maximum.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # INPUT dbprot.fa: "Database sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
