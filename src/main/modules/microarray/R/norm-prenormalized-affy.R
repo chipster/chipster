@@ -26,7 +26,7 @@ files<-files[files!="phenodata.tsv"]
 #seems to check columns from the first file only. If the column is not there, attribute is ignored. If the column is there, but not
 #in the others, function crashes
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
-	
+
 #dat <- read.table(file="normalized.tsvt", header=TRUE, sep="\t")
 
 # Extract annotations
@@ -70,11 +70,14 @@ if(class(a)=="try-error") { a<-try(library(paste(chiptype, ".db", sep=""), chara
 
 if(chiptype!="empty" & class(a)!="try-error") {
 	# Including gene names to data
-	lib2		<- sub('.db','',chiptype)
-	symbol		<- gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
-	genename	<- gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
+	lib2		<-sub('.db','',chiptype)
+	symbol		<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
+	genename	<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
+	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 	genename 	<- gsub("#", "", genename)
-
+	symbol 		<- gsub("'", "", symbol)
+	genename	<- gsub("'", "", genename)
+	
 	# Writes the results into a file
 	if (keep.flags=="yes" & keep.annotations=="yes") {
 		output_table <- data.frame(symbol=annotation.info, description=genename, dat2, flag.info);
@@ -91,7 +94,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 }
 
 if(chiptype=="empty" | class(a)=="try-error") {
-
+	
 	# Writes the results into a file
 	if (keep.flags=="yes" & keep.annotations=="yes") {
 		output_table <- data.frame(symbol=annotation.info, dat2, flag.info);
@@ -106,3 +109,4 @@ if(chiptype=="empty" | class(a)=="try-error") {
 	rownames (output_table) <- make.names(unlist(dat$genes), unique=T)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
+
