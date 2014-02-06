@@ -32,7 +32,8 @@
 #unzipIfGZipFile("dbprot.fa")
 
 # pb settings
-pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.28+", "bin", "pb_for_chipster")
+pb.binary <- file.path(chipster.module.path, "/shell/pb_for_chipster.sh")
+#pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.29+", "bin", "pb_for_chipster")
 command.start <- paste(pb.binary, "blastp")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
