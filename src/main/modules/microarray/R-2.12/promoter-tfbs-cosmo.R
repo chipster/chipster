@@ -4,16 +4,19 @@
 # OUTPUT cosmo-output.txt: cosmo-output.txt 
 # OUTPUT seqlogo.pdf: seqlogo.pdf 
 # OUTPUT probs.pdf: probs.pdf 
-# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
-# PARAMETER promoter.size: promoter.size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
-# PARAMETER strands: strands TYPE [single: single, both: both] DEFAULT single (Analyze both strands of DNA)
-# PARAMETER appears.more.than.once: appears.more.than.once TYPE [yes: yes, no: no] DEFAULT no (Could the motif appear more than once in every sequence)
-# PARAMETER percentage: percentage TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
+# PARAMETER species: Species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER promoter.size: "Promoter size" TYPE [1000: small, 2000: medium, 5000: large] DEFAULT 1000 (Length of upstream sequences. Small=1000 bp, medium=2000 bp and large=5000 bp)
+# PARAMETER multiple.promoters: "Retrieve multiple promoters per gene" TYPE [yes: yes, no: no] DEFAULT no (In the case where the gene has more than one transcription start site, print them all)
+# PARAMETER strands: Strands TYPE [single: single, both: both] DEFAULT single (Analyze both strands of DNA)
+# PARAMETER appears.more.than.once: "Appears more than once" TYPE [yes: yes, no: no] DEFAULT no (Could the motif appear more than once in every sequence)
+# PARAMETER percentage: Percentage TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
 # PARAMETER tfsize: tfsize TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
 
 
-# Promoter sequence analysis
-# JTT 21.5.2008
+# JTT 21.05.2008
+# MK 25.09.2013: promoter sequence retrieve modified
+# MK 01.10.2013: script removed from the tool category, since R.3.0.0 does not support cosmo anymore
+
 
 # Loads the libraries
 library(cosmo)
@@ -25,101 +28,14 @@ path.seq<-c(file.path(chipster.tools.path, "weeder", "seqs"))
 size<-promoter.size
 once<-appears.more.than.once
 
-# Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+# Retrieving the sequences. The function is available in common/R-2.12/promoter.utils.
+source(file.path(chipster.common.path, "promoter-utils.R"))
+seqs <- retreive_promoters(species, promoter.size, multiple.promoters, "normalized.tsv", "phenodata.tsv")
 
-# Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
-
-# Read phenodata and extracts chip information
-phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-chip<-phenodata$chiptype[1]
-
-# Creates a variable for environement
-if(species=="drosophila") {
-   env<-paste(chip, "ACCNUM", sep="")
-} else {
-   env<-paste(chip, "REFSEQ", sep="")
-}
-env <- sub( ".db", "", env) # if chip contained ".db", remove it
-
-# Creates a list of genes
-genes<-row.names(dat)
-
-# Loads the annotation library
-lib<-as.character(chip)
-
-# Account for the fact that annotation packages are from version 2.3 of Bioconductor
-# named with an ".db" suffix. Add the suffix when missing to support data files
-# from Chipster 1.3 and earlier. 
-if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
-        lib <- paste(lib, ".db", sep="")
-}
-
-library(package=lib, character.only=T)
-
-# Creating a list of RefSeq IDs for promoter retrieval
-refseq<-as.vector(unlist(mget(genes, envir=get(env))))
-refseq<-unique(refseq)
-
-# Retrieving promoters
-if(species=="human" & size=="small") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36.1_hg18_upstream1000.tsv"), header=T, sep="\t")
-}
-if(species=="human" & size=="medium") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36.1_hg18_upstream2000.tsv"), header=T, sep="\t")
-}
-if(species=="human" & size=="large") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36.1_hg18_upstream5000.tsv"), header=T, sep="\t")
-}
-if(species=="mouse" & size=="small") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36_mm8_upstream1000.tsv"), header=T, sep="\t")
-}
-if(species=="mouse" & size=="medium") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36_mm8_upstream2000.tsv"), header=T, sep="\t")
-}
-if(species=="mouse" & size=="large") {
-   upstream<-read.table(file.path(path.seq, "UCSC_Build_36_mm8_upstream5000.tsv"), header=T, sep="\t")
-}
-if(species=="rat" & size=="small") {
-   upstream<-read.table(file.path(path.seq, "UCSC_rn4_upstream1000.tsv"), header=T, sep="\t")
-}
-if(species=="rat" & size=="medium") {
-   upstream<-read.table(file.path(path.seq, "UCSC_rn4_upstream2000.tsv"), header=T, sep="\t")
-}
-if(species=="rat" & size=="large") {
-   upstream<-read.table(file.path(path.seq, "UCSC_rn4_upstream5000.tsv"), header=T, sep="\t")
-}
-if(species=="drosophila" & size=="small") {
-   upstream<-read.table(file.path(path.seq, "Drosophila_upstream1000.tsv"), header=T, sep="\t")
-}
-if(species=="drosophila" & size=="medium") {
-   upstream<-read.table(file.path(path.seq, "Drosophila_upstream2000.tsv"), header=T, sep="\t")
-}
-if(species=="drosophila" & size=="large") {
-   upstream<-read.table(file.path(path.seq, "Drosophila_upstream5000.tsv"), header=T, sep="\t")
-}
-if(species=="yeast" & size=="small") {
-   upstream<-read.table(file.path(path.seq, "NCBI_sc_upstream500.tsv"), header=T, sep="\t")
-}
-if(species=="yeast" & size=="medium") {
-   upstream<-read.table(file.path(path.seq, "NCBI_sc_upstream1000.tsv"), header=T, sep="\t")
-}
-if(species=="yeast" & size=="large") {
-   upstream<-read.table(file.path(path.seq, "NCBI_sc_upstream2500.tsv"), header=T, sep="\t")
-}
-
-# Retrieving the sequences
-w<-c()
-for(i in 1:length(refseq)) {
-   w<-c(w, which(upstream$RefSeq==refseq[i]))
-}
-unlink("seqs.txt")
-for(i in 1:length(w)) {
-   write(file="seqs.txt", paste(">", upstream[w[i],]$RefSeq, sep=""), append=T)
-   write(file="seqs.txt", paste(upstream[w[i],]$Sequence, sep=""), append=T)
+# Write sequences on disk
+for(i in 1:length(seqs$seq.names)) {
+      write(file="seqs.txt", seqs$seq.names[i], append=T)
+      write(file="seqs.txt", seqs$seq[i], append=T)
 }
 
 # Generating the function call

@@ -22,7 +22,7 @@
 #smart.install.packages(url.package="http://www.math.utu.fi/projects/software/bio/ROTS_1.1.1.tar.gz")
 #smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/16.0.0/entrezg.asp")
 
-smart.install.scavenge.web.packages <- function(url) {
+smart.install.scavenge.web.packages <- function(url, chiptype="all") {
 
 	# Parse URL
 	url.root <- substring(url, 1, gregexpr("/[^/]*$", url)[[1]][1])
@@ -38,7 +38,11 @@ smart.install.scavenge.web.packages <- function(url) {
 	# Convert relative URL's to absolute 
 	ind.relative.url <- grep("http://", links, invert=TRUE)
 	links[ind.relative.url] <- paste(url.root, links[ind.relative.url], sep="")
-	
+
+	if(chiptype != "all") {
+		links <- links[grep(chiptype, links)];
+	}
+
 	# Install each linked package
 	for (link in links) {
 		smart.install.packages(url.package=link)
@@ -47,15 +51,38 @@ smart.install.scavenge.web.packages <- function(url) {
 
 smart.install.bioconductor.repo <- function(repo.index, mirror=NA) {
 	
-	# Select the given repository
-	orig.repos <- setRepositories(ind=c(repo.index))
-	
-	for (package in available.packages()[,"Package"]) {
+	# check what version of Bionconductor is being used
+	bioc.intaller.loaded <- try(library(BiocInstaller))
+	if(class(bioc.intaller.loaded) == "try-error") {
+		smart.install.packages(bioconductor.package="BiocInstaller", mirror=mirror)
+	}
+	library(BiocInstaller)
+	current.bioc.version <- biocVersion()
+
+	# Install available annotation packages
+	current.bioc.url <- paste("http://www.bioconductor.org/packages/", current.bioc.version, "/data/annotation", sep="");
+	for (package in available.packages(contrib.url(current.bioc.url))[,"Package"]) {
 		smart.install.packages(bioconductor.package = package, mirror = mirror)
 	}
-	
+
+	# Select the given repository
+	#orig.repos <- setRepositories(ind=c(repo.index))
+	#
+	#for (package in available.packages()[,"Package"]) {
+	#	smart.install.packages(bioconductor.package = package, mirror = mirror)
+	#}
+	#
 	# Restore original repositories
-	setRepositories(orig.repos)		
+	#if(length(orig.repos) == 1) {
+	#	if(orig.repos$repos["CRAN"] == "@CRAN@") {
+	#		#orig.repos$repos["CRAN"] = "@CRAN@";
+	#		options(repos = orig.repos);
+	#	} else {
+	#		setRepositories(orig.repos)
+	#	}
+	#} else {
+	#	setRepositories(orig.repos)
+	#}
 }
 
 smart.install.packages <- function(package=NA, bioconductor.package=NA, url.package=NA, mirror=NA) {
@@ -72,7 +99,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 	} else {
 		package.name <- gsub(".*/(.*)_.*", "\\1", url.package)
 	}
-	
+
 	if (!is.installed(package.name)) {
 		cat(paste("Will now install", package.name, "\n"))
 	} else {
@@ -84,7 +111,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 		
 		repos = ifelse(is.na(mirror), getOption("repos"), mirror)
 		install.packages(pkgs=c(package), repos=repos)
-	
+
 	} else if (!is.na(bioconductor.package)) {
 		
 		source("http://www.bioconductor.org/biocLite.R")
@@ -92,7 +119,7 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 			options("BioC_mirror" = c("Mirror"=mirror))
 		}
 		biocLite(bioconductor.package, suppressUpdates=TRUE)
-		
+
 	} else if (!is.na(url.package)) {
 		
 		# Download URL to temp file, install and remove
@@ -112,8 +139,12 @@ smart.install.packages <- function(package=NA, bioconductor.package=NA, url.pack
 }
 
 is.installed <- function(package) {
-	sink("/dev/null") # the only way to get rid of all output (some packages don't behave)
-	is.installed <- suppressPackageStartupMessages(suppressWarnings(suppressMessages(require(package, character.only=TRUE, warn.conflicts=FALSE, quietly=TRUE))))
-	sink()
-	return(is.installed) 		
+	if(package %in% rownames(installed.packages()) == FALSE) {
+		sink("/dev/null") # the only way to get rid of all output (some packages don't behave)
+		is.installed <- suppressPackageStartupMessages(suppressWarnings(suppressMessages(require(package, character.only=TRUE, warn.conflicts=FALSE, quietly=TRUE))))
+		sink()
+		return(is.installed)
+	} else {
+		return(package %in% rownames(installed.packages()))
+	}
 }

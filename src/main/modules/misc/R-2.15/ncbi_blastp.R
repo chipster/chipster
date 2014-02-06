@@ -22,8 +22,6 @@
 # PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE STRING DEFAULT "default" (Gap extension penalty  Integer value from 1 to 3.The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap opening penalty )
 # PARAMETER OPTIONAL save_log: "Output a log file" TYPE [yes: yes, no: no] DEFAULT no (Collect a log file for the BLAST run.)
 
-
-
 # KM 24.10.2013
 
 # check out if the file is compressed and if so unzip it
@@ -32,7 +30,9 @@
 #unzipIfGZipFile("dbprot.fa")
 
 # pb settings
-pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.28+", "bin", "pb_for_chipster")
+
+pb.binary <- file.path(chipster.module.path, "/shell/pb_for_chipster.sh")
+#pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.29+", "bin", "pb_for_chipster")
 command.start <- paste(pb.binary, "blastp")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
@@ -46,6 +46,7 @@ str.filetype <- system(sfcheck.command, intern = TRUE )
 if ( str.filetype == "Not an EMBOSS compatible sequence file"){
 	stop("CHIPSTER-NOTE: Your input file is not a sequence file that is compatible with the tool you try to use")
 }
+
 
 #count the query sequeces
 seqcount.exe <- file.path(emboss.path, "seqcount -filter query.fa")

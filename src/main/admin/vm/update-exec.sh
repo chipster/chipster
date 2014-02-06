@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.9.0
+LATEST_VERSION=2.10.0
 
 # Exit immediately if some command fails
 set -e
@@ -1061,6 +1061,41 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   ln -s RSeQC-2.3.7 RSeQC
   cd RSeQC
   sudo python setup.py install
+
+  echo "** Installing EMBOSS"
+  # dependency for png images
+  sudo apt-get -y install libgd2-noxpm-dev
+  # update EMBOSS
+  mv -b ${TOOLS_PATH}/EMBOSS-6.5.7 ${BACKUPDIR_PATH}/
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-with-extras-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing primer3"
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/primer3-vmbin.tar.gz| tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing meme"
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/meme_4.2.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s meme_4.2.0 ${TOOLS_PATH}/meme
+
+  echo "** Installing human tophat index"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
+
+  echo "** Installing dimont"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/dimont.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing Trimmomatic"
+  cd ${TMPDIR_PATH}/
+  wget -nv http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.32.zip
+  unzip Trimmomatic-0.32.zip
+  mv Trimmomatic-0.32 ${TOOLS_PATH}/
+  ln -s Trimmomatic-0.32 ${TOOLS_PATH}/trimmomatic
+                                    
+  echo "** Updating R-3.0.2"
+  mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Installing express"
+  curl http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz | tar -xz -C ${TOOLS_PATH}/
+  ln -s express-1.5.1-linux_x86_64 ${TOOLS_PATH}/express
 
 fi
 
