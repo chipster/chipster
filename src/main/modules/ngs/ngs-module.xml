@@ -230,12 +230,12 @@
 		<tool runtime="R-3.0">
 			<resource>bowtie-paired-end-with-index-building.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
+<!--  		<tool runtime="R-3.0">
 			<resource>tophat.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>tophat-single-end.R</resource>
-		</tool>
+		</tool>-->
 	</category>
 	
 	<category name="Variants" color="#80a3b7">
@@ -341,10 +341,10 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-macs-two.R</resource>
-		</tool>		
-		<tool runtime="R-2.12">
-			<resource>ngs-find-motifs-jaspar.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-find-peaks-fseq.R</resource>
+		</tool>		
 		<tool runtime="R-2.12">
 			<resource>ngs-find-nearest-genes.R</resource>
 		</tool>
@@ -355,7 +355,19 @@
 			<resource>pathways-ngs-hyperg-go.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-find-peaks-fseq.R</resource>
+			<resource>ngs-find-motifs-jaspar.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dimont-extract-data.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dimont-extract-data-custom.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dimont.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dimont-predictor.R</resource>
 		</tool>
 	</category>
 
