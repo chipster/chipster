@@ -1,4 +1,4 @@
-# TOOL dimont.R: Find motifs with Dimont (Dimont is a universal tool for de-novo motif discovery. Dimont has successfully been applied to ChIP-seq, ChIP-exo and protein-binding microarray (PBM\) data.)
+# TOOL dimont.R: "Find motifs with Dimont" (Dimont is a universal tool for de-novo motif discovery. Dimont has successfully been applied to ChIP-seq, ChIP-exo and protein-binding microarray (PBM\) data.)
 # INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
 # OUTPUT dimont.log: Logfile (Logfile of the Dimont run.)
 # OUTPUT dimont-predictions-{...}.txt: Predictions (Binding sites predicted by Dimont.)
