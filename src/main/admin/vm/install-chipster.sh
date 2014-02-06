@@ -593,7 +593,10 @@ then
 
   # Tophat indexes
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
-								
+	
+  # GRCh37_74 ensembl transcripts   
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37_74_ensembl_transcripts.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
+															
 																
 																																
   # FastQC, GPL v3 or later
@@ -706,11 +709,11 @@ then
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
-  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
-  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.20.4.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.20.4/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.20.4/prinseq-graphs.pl
+  mv prinseq-lite-0.20.4 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.20.4 ${TOOLS_PATH}/prinseq
 
   # Fasta files for genome browser
 
