@@ -1,4 +1,4 @@
-# TOOL reseqc.R: "RNA-seq Quality Control" (RNA-seq Quality Control. This tool is based on the RSeQC package. It performs five diffrent analyses: geneBody_coverage, junction_saturation, junction_annotation, RPKM_saturation and BAM_stat.)
+# TOOL reseqc.R: "RNA-seq BAM quality metrics with RseQC" (Given an RNA-seq BAM file and gene and exon locations in a BED file, this tool reports several quality metrics such as coverage uniformity, gene and junction saturation, junction annotation and alignment statistics. This tool is based on the RSeQC package.)
 # INPUT alignment_file: "BAM file" TYPE GENERIC
 # INPUT reference_file: "BED file" TYPE GENERIC
 # OUTPUT OPTIONAL RSeQC.geneBodyCoverage.pdf

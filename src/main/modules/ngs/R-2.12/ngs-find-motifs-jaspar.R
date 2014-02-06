@@ -1,5 +1,4 @@
-# TOOL ngs-find-motifs-jaspar.R: "Find common motifs and match to JASPAR" (This tool scans a set of genomic regions for consensus sequence motifs,
-# calculates the alignment score against transcription factors in the JASPAR database, and reports the 10 highest ranking for each motif.)
+# TOOL ngs-find-motifs-jaspar.R: "Find motifs with GADEM and match to JASPAR" (Given a set of genomic regions, this tool performs a de novo motif discovery. It then matches the motifs against the known TFBS in the JASPAR database, and reports the 10 best matches.)
 # INPUT results.tsv: "Results data file" TYPE GENERIC 
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file" 
 # OUTPUT logo-plot-{...}.pdf: "Logo plots for each consensus motif" 
@@ -9,7 +8,8 @@
 # PARAMETER number.best.matches: "Number of matches" TYPE INTEGER FROM 1 TO 20 DEFAULT 10 (The number of best matching transcription factors for each consensus sequence found. This affects both the textual summary output and the LOGO plots.)
 
 # MG, 26.5.2010
-# MG, 6.10.2011, added parameter to control number of best matches per TF amd updated to changes in R-2.12.1 and a
+# MG, 6.10.2011, added parameter to control number of best matches per TF and updated to changes in R-2.12.1
+# EK, 6.2.2014, text changes
 
 # Load the required libraries
 library(MotIV)

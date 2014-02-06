@@ -1,4 +1,4 @@
-# TOOL my_blastp.R: "Protein BLAST against users own protein sequence set" (Heuristic tool to search hits for a protein sequenceses from users own protein sequence set. Your query sequence set can contain 10 sequeces in maximum.)
+# TOOL my_blastp.R: "Protein BLAST against users own protein sequence set" (Heuristic tool to search hits for a protein sequenceses from users own protein sequence set. Your query sequence set can contain 100000 sequeces in maximum.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # INPUT dbprot.fa: "Database sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
@@ -32,7 +32,8 @@
 #unzipIfGZipFile("dbprot.fa")
 
 # pb settings
-pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.28+", "bin", "pb_for_chipster")
+pb.binary <- file.path(chipster.module.path, "/shell/pb_for_chipster.sh")
+#pb.binary <- file.path(chipster.tools.path, "blast", "/ncbi-blast-2.2.29+", "bin", "pb_for_chipster")
 command.start <- paste(pb.binary, "blastp")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")

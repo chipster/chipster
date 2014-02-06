@@ -2,7 +2,6 @@
 # INPUT regions.bed: "Genomic regions" TYPE GENERIC (The genomic regions to be extracted in a BED-like file format, e.g., BED, GTF, narrowPeak.)
 # INPUT genome.fa: "Genome" TYPE GENERIC (The input genome to which the genomic regions refer.)
 # OUTPUT extracted.fasta: "Extracted sequences" (The sequences extracted from the given genome using the supplied region specifications.)
-# PARAMETER chr: "Chromosome names in my Regions file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the Regions file and in the genome. Check your Regions file and choose accordingly.)
 # PARAMETER chromcol: "Chromosome column" TYPE INTEGER FROM 1 DEFAULT 1 (The column of the Regions file, which contains the chromosome information.)
 # PARAMETER startcol: "Start column" TYPE INTEGER FROM 1 DEFAULT 2 (The column of the Regions file containing the start position of the genomic region.)
 # PARAMETER seccoord: "Second coordinate" TYPE INTEGER FROM 1 DEFAULT 3 (The second genomic coordinate with meaning specified by parameter \"Meaning of second coordinate\".)

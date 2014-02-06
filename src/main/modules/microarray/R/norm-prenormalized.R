@@ -95,3 +95,4 @@ if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
 # Write data out
 write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 
+

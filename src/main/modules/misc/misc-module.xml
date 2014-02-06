@@ -46,15 +46,17 @@
 	</category>
     <category name="Nucleic sequence analysis" color="#80a3b7">     
         <tool runtime="R-2.15"><resource>eprimer.R</resource></tool>
+        <tool runtime="R-2.15"><resource>fuzznuc.R</resource></tool>
         <tool runtime="R-2.15"><resource>getorf.R</resource></tool>
     	<tool runtime="R-2.15"><resource>plotorf.R</resource></tool>
-     	<tool runtime="R-2.15"><resource>restrict.R</resource></tool>	
+     	<tool runtime="R-2.15"><resource>restrict.R</resource></tool>
      	<tool runtime="R-2.15"><resource>remap.R</resource></tool>	
         <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
 	    <tool runtime="R-2.15"><resource>transeq.R</resource></tool>	   	
 	</category>
     <category name="Protein sequence analysis" color="#83010b">    
        <tool runtime="R-2.15"><resource>protfilter.R</resource></tool>
+       <tool runtime="R-2.15"><resource>fuzzpro.R</resource></tool>
    	</category>  
    	<category name="phylogeny" color="#80a3b7">
    	    <tool runtime="R-2.15"><resource>fdnapars.R</resource></tool>
