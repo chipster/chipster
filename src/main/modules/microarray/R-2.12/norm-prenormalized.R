@@ -92,7 +92,6 @@ if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
 	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
 }
 
-save.image("/tmp/matti/test.Rdata")
 # Write data out
 write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 
