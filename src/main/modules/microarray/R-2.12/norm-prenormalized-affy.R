@@ -89,7 +89,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 		output_table <- data.frame(symbol, description=genename, dat2);		
 	}
 	
-	rownames (output_table) <- unlist(dat$genes)
+	rownames (output_table) <- make.names(unlist(dat$genes), unique=T)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
@@ -106,7 +106,7 @@ if(chiptype=="empty" | class(a)=="try-error") {
 		output_table <- data.frame(dat2);		
 	}
 	
-	rownames (output_table) <- unlist(dat$genes)
+	rownames (output_table) <- make.names(unlist(dat$genes), unique=T)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
