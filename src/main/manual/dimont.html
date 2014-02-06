@@ -28,15 +28,15 @@
 			</ul>
 		<h3>Details</h3>
 
-		<p>Input sequences must be supplied in an annotated FastA format as generated using the &quot;Dimont data extractor&quot; tool. In the annotation of each sequence, you need to provide a value that reflects the confidence that this sequence is bound by the factor of interest. Such confidences may be peak statistics (e.g., number of fragments under a peak) for ChIP data or signal intensities for PBM data. In addition, you need to provide an anchor position within the sequence. In case of ChIP data, this anchor position could for instance be the peak summit. For instance, an annotated FastA file for ChIP-exo data comprising sequences of length 100 centered around the peak summit could look like:
+		<p>Input sequences must be supplied in an annotated FastA format as generated using the &quot;Dimont sequence extractor&quot; tool. In the annotation of each sequence, you need to provide a value that reflects the confidence that this sequence is bound by the factor of interest. Such confidences may be peak statistics (e.g., number of fragments under a peak) for ChIP data or signal intensities for PBM data. In addition, you need to provide an anchor position within the sequence. In case of ChIP data, this anchor position could for instance be the peak summit. For instance, an annotated FastA file for ChIP-seq data comprising sequences of length 1000 centered around the peak summit could look like:
 <br /><br /><code>
-> peak: 50; signal: 515<br />
+> peak: 500; signal: 515<br />
 ggccatgtgtatttttttaaatttccac...<br />
-> peak: 50; signal: 199<br />
+> peak: 500; signal: 199<br />
 GGTCCCCTGGGAGGATGGGGACGTGCTG...<br />
 ...<br />
 </code><br />
-where the anchor point is given as 50 for the first two sequences, and the confidence amounts to 515 and 199, respectively. The FastA comment may contain additional annotations of the format <code>key1 : value1; key2: value2;....</code>code></p>
+where the anchor point is given as 500 for the first two sequences, and the confidence amounts to 515 and 199, respectively. The FastA comment may contain additional annotations of the format <code>key1 : value1; key2: value2;....</code>code></p>
 
 <p>Accordingly, you would need to set the parameter &quot;Position tag&quot; to <code>peak</code> and the parameter &quot;Value tag&quot; to <code>signal</code> for the input file.</p>
 
@@ -58,7 +58,7 @@ where the anchor point is given as 50 for the first two sequences, and the confi
 <li><code>dimont-predictions-*.txt</code>: <b>Predictions</b>, binding sites predicted by Dimont.</li>
 <li><code>dimont-logo-rc-*.png</code>: <b>Sequence logo (rc)</b>, the sequence logo of the reverse complement of the motif discovered by Dimont.</li>
 <li><code>dimont-logo-*.png</code>: <b>Sequence logo</b>, the sequence logo of the motif discovered by Dimont.</li>
-<li><code>dimont-model-*.xml</code>: <b>Dimont model</b>, the model (as XML) of the motif discovered by Dimont. Can be used in &quot;Dimont Predictor&quot;.</li>
+<li><code>dimont-model-*.xml</code>: <b>Dimont model</b>, the model (as XML) of the motif discovered by Dimont. Can be used in &quot;DimontPredictor&quot;.</li>
 
 		</ul>
 		<h3>Reference</h3>
