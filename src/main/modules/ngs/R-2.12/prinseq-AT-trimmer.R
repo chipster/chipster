@@ -13,16 +13,9 @@
 source(file.path(chipster.common.path, "zip-utils.R"))
 unzipIfGZipFile("fastqfile")
 
-system("
-wget http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz
-tar zxf prinseq-lite-0.17.3.tar.gz
-")
 
 # binary
-#binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "bin", "prinseq-lite.pl"))
-binary.prinseq <- c("perl prinseq-lite-0.17.3/prinseq-lite.pl")
-
-
+binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "bin", "prinseq-lite.pl"))
 
 trim.params <- paste(" ")
 
