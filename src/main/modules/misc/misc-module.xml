@@ -1,7 +1,7 @@
 <module name="misc">
 
 <!-- 	<category name="Only category" color="#d5c796">
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>seq-comp-test.R</resource>
 		</tool>
 	</category>
@@ -9,75 +9,75 @@
 
 
 	<category name="Data retrieval" color="#e7df70">
-	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>dbfetch.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>dbfetch_list.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>entret_list.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>ensemblfetch.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>dbfetch.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>dbfetch_list.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>entret_list.R</resource></tool>
 	</category>
 	<category name="BLAST" color="#d59f45">
-       <tool runtime="R-2.15"><resource>ncbi_blastn.R</resource></tool>
-       <tool runtime="R-2.15"><resource>my_blastn.R</resource></tool>
-       <tool runtime="R-2.15"><resource>ensembl_blastn.R</resource></tool>
+       <tool runtime="R-3.0"><resource>ncbi_blastn.R</resource></tool>
+       <tool runtime="R-3.0"><resource>my_blastn.R</resource></tool>
+       <tool runtime="R-3.0"><resource>ensembl_blastn.R</resource></tool>
 
-       <tool runtime="R-2.15"><resource>ncbi_blastp.R</resource></tool>
-       <tool runtime="R-2.15"><resource>my_blastp.R</resource></tool>
-       <tool runtime="R-2.15"><resource>ensembl_blastp.R</resource></tool>
+       <tool runtime="R-3.0"><resource>ncbi_blastp.R</resource></tool>
+       <tool runtime="R-3.0"><resource>my_blastp.R</resource></tool>
+       <tool runtime="R-3.0"><resource>ensembl_blastp.R</resource></tool>
 
-	   <tool runtime="R-2.15"><resource>ncbi_blastx.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>my_blastx.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>ensembl_blastx.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>ncbi_blastx.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>my_blastx.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>ensembl_blastx.R</resource></tool>
 	   	    
-	   <tool runtime="R-2.15"><resource>ncbi_tblastn.R</resource></tool>
-       <tool runtime="R-2.15"><resource>my_tblastn.R</resource></tool>
-       <tool runtime="R-2.15"><resource>ensembl_tblastn.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>ncbi_tblastn.R</resource></tool>
+       <tool runtime="R-3.0"><resource>my_tblastn.R</resource></tool>
+       <tool runtime="R-3.0"><resource>ensembl_tblastn.R</resource></tool>
 	</category>
 	<category name="Sequence alignment" color="#d59f45">
-	   <tool runtime="R-2.15"><resource>stretcher.R</resource></tool>	
-  	   <tool runtime="R-2.15"><resource>matcher.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>mafft.R</resource></tool>	
-  	   <tool runtime="R-2.15"><resource>dotmatcher.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>polydot.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>cons.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>plotcon.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>infoalign.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>showalign.R</resource></tool>
-  	   <tool runtime="R-2.15"><resource>prettyplot.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>stretcher.R</resource></tool>	
+  	   <tool runtime="R-3.0"><resource>matcher.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>mafft.R</resource></tool>	
+  	   <tool runtime="R-3.0"><resource>dotmatcher.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>polydot.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>cons.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>plotcon.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>infoalign.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>showalign.R</resource></tool>
+  	   <tool runtime="R-3.0"><resource>prettyplot.R</resource></tool>
 	</category>
     <category name="Nucleic sequence analysis" color="#e7881c">     
-        <tool runtime="R-2.15"><resource>eprimer.R</resource></tool>
-        <tool runtime="R-2.15"><resource>fuzznuc.R</resource></tool>
-        <tool runtime="R-2.15"><resource>getorf.R</resource></tool>
-    	<tool runtime="R-2.15"><resource>plotorf.R</resource></tool>
-     	<tool runtime="R-2.15"><resource>restrict.R</resource></tool>
-     	<tool runtime="R-2.15"><resource>remap.R</resource></tool>	
-        <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
-	    <tool runtime="R-2.15"><resource>transeq.R</resource></tool>	   	
+        <tool runtime="R-3.0"><resource>eprimer.R</resource></tool>
+        <tool runtime="R-3.0"><resource>fuzznuc.R</resource></tool>
+        <tool runtime="R-3.0"><resource>getorf.R</resource></tool>
+    	<tool runtime="R-3.0"><resource>plotorf.R</resource></tool>
+     	<tool runtime="R-3.0"><resource>restrict.R</resource></tool>
+     	<tool runtime="R-3.0"><resource>remap.R</resource></tool>	
+        <tool runtime="R-3.0"><resource>revseq.R</resource></tool>
+	    <tool runtime="R-3.0"><resource>transeq.R</resource></tool>	   	
 	</category>
     <category name="Protein sequence analysis" color="#d53833">    
-       <tool runtime="R-2.15"><resource>protfilter.R</resource></tool>
-       <tool runtime="R-2.15"><resource>fuzzpro.R</resource></tool>
+       <tool runtime="R-3.0"><resource>protfilter.R</resource></tool>
+       <tool runtime="R-3.0"><resource>fuzzpro.R</resource></tool>
    	</category>
    	<category name="Sequence utilities" color="#80a3b7">
-	   <tool runtime="R-2.15"><resource>infoseq_summary.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>infoseq.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>textsearch_fasta.R</resource></tool>
-       <tool runtime="R-2.15"><resource>seqor.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>seqret.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>skipredundant.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>extractseq.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>descseq.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>emboss.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>infoseq_summary.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>infoseq.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>textsearch_fasta.R</resource></tool>
+       <tool runtime="R-3.0"><resource>seqor.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>seqret.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>skipredundant.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>extractseq.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>descseq.R</resource></tool>
+	   <tool runtime="R-3.0"><resource>emboss.R</resource></tool>
 	</category>  
    	<category name="Phylogeny" color="#0177b7">
-   	    <tool runtime="R-2.15"><resource>fdnapars.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fprotpars.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fdrawtree.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fdrawgram.R</resource></tool>
+   	    <tool runtime="R-3.0"><resource>fdnapars.R</resource></tool>
+   	    <tool runtime="R-3.0"><resource>fprotpars.R</resource></tool>
+   	    <tool runtime="R-3.0"><resource>fdrawtree.R</resource></tool>
+   	    <tool runtime="R-3.0"><resource>fdrawgram.R</resource></tool>
 	</category>
 	<category name="Other tools" color="#629a9b">
-    	<tool runtime="R-2.15"><resource>emboss_files.R</resource></tool>
-	    <tool runtime="R-2.15"><resource>select_columns.R</resource></tool> 
-	    <tool runtime="R-2.15"><resource>concatenate.R</resource></tool>
+    	<tool runtime="R-3.0"><resource>emboss_files.R</resource></tool>
+	    <tool runtime="R-3.0"><resource>select_columns.R</resource></tool> 
+	    <tool runtime="R-3.0"><resource>concatenate.R</resource></tool>
 	</category>
 
 <!-- 
