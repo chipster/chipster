@@ -1,4 +1,4 @@
-# TOOL textsearch_fasta.R: "Search sequence descriptions" (Select sequences based on the sequence descriptions)
+# TOOL textsearch_fasta.R: "Select sequences based on descriptions" (Select sequences based on the sequence descriptions)
 # INPUT sequence: sequence TYPE GENERIC
 # OUTPUT OPTIONAL matching.fasta
 # OUTPUT OPTIONAL textsearch_log.txt

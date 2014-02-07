@@ -6,7 +6,6 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
 # DG: 16.10.2006
 # JTT: 22.11.2006
 # MK: 01.10.2013, fixing bugs related to Affymetrix data
@@ -43,16 +42,16 @@ scaled.dat<-genescale(dat2)
 # Creating locations of genes
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
-   # Saves the chiptype into object lib
-   lib<-phenodata$chiptype[1]
-   lib<-as.character(lib)
+	# Saves the chiptype into object lib
+	lib<-phenodata$chiptype[1]
+	lib<-as.character(lib)
 }
 
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
 # from Chipster 1.3 and earlier. 
 if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
-        lib <- paste(lib, ".db", sep="")
+	lib <- paste(lib, ".db", sep="")
 }
 
 # Needs a parameter lib that defines the Affymetrix chip type

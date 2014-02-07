@@ -409,7 +409,7 @@ then
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-  ## R-3.0 (lite):
+  ## R-3.0 :
   R_VER=3.0.2
   cd ${TMPDIR_PATH}/
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
@@ -421,10 +421,12 @@ then
   echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
   cd ../
   rm -rf R-${R_VER}/
-  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-3.0/install-libs-lite.R   
+  
+  # needs to have smip.R in current dir
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R   
 
   # could also use the package from nic
-  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2013-11-22.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
@@ -588,7 +590,15 @@ then
 	ln -s -t ${TOOLS_PATH}/bowtie2/indexes ../../genomes/fasta/nochr
   rm -f ${TOOLS_PATH}/bowtie2/indexes/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa
   ln -s ../../genomes/fasta/nochr/Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa ${TOOLS_PATH}/bowtie2/indexes
-								
+
+  # Tophat indexes
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/hg19.ti.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
+	
+  # GRCh37_74 ensembl transcripts   
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37_74_ensembl_transcripts.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
+															
+																
+																																
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
   wget -nv http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/fastqc_v0.10.0.zip
@@ -699,11 +709,10 @@ then
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.19.3.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.19.3/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.19.3/prinseq-graphs.pl
-  mv prinseq-lite-0.19.3 ${TOOLS_PATH}/
-  ln -s prinseq-lite-0.19.3 ${TOOLS_PATH}/prinseq
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.20.4.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.20.4/*.pl
+  mv prinseq-lite-0.20.4 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.20.4 ${TOOLS_PATH}/prinseq
 
   # Fasta files for genome browser
 
@@ -790,16 +799,6 @@ then
   curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
  	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
  	
-  # EMBOSS, GPL
-  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
-  curl -s ftp://emboss.open-bio.org/pub/EMBOSS/EMBOSS-6.5.7.tar.gz | tar -xz -C ${TMPDIR_PATH}/
-  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
-  ./configure --prefix=${TOOLS_PATH}/EMBOSS-6.5.7
-  make
-  make install
-  # curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-vmbin.tar.gz | tar xz -C ${TOOLS_PATH}/
-  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
-  
   # fseq, GPLv3
   curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
   mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
@@ -832,6 +831,95 @@ then
   ln -s RSeQC-2.3.7 RSeQC
   cd RSeQC
   python setup.py install #sudo
+
+   # EMBOSS, GPL
+  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
+  # also vmbin from nic
+
+  EMBOSS_VERSION=6.5.7
+  EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+  # note version in path                                                                                                                                                              
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+  cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+	
+  #wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
+  #gunzip patch-1-11.gz                                                                                                                                                               
+  #patch -p1 < patch-1-11                                                                                                                                                             
+	
+	EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+  ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
+
+
+  # EMBOSS extras
+
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/MEME-4.7.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd ${TMPDIR_PATH}/MEME-4.7.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+
+  # phylipnew                                                                                                                                                                         
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/PHYLIPNEW-3.69.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd PHYLIPNEW-3.69.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+	
+  # vienna                                                                                                                                                                            
+	curl wget ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd  ${TMPDIR_PATH}/VIENNA-1.7.2.650
+	./configure ${EMBOSS_OPTIONS}
+	make
+	make install
+	cd ..
+
+	# REBASE reference data and indeces	
+	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
+	wget ftp://ftp.neb.com/pub/rebase/withrefm.txt
+	wget ftp://ftp.neb.com/pub/rebase/proto.txt
+	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt
+	
+  # primer3, BSD                                                                                                                                                                      
+	mkdir ${TOOLS_PATH}/primer3
+	curl -L http://sourceforge.net/projects/primer3/files/primer3/1.1.4/primer3-1.1.4.tar.gz | tar -xz -C ${TOOLS_PATH}/primer3
+	cd ${TOOLS_PATH}/primer3/src/
+	make
+	
+  # meme, quite free, see documentation                                                                                                                                               
+	cd ${TMPDIR_PATH}
+	curl http://ebi.edu.au/ftp/software/MEME/4.2.0/meme_4.2.0.tar.gz | tar -xz -C ${TMPDIR_PATH}
+	cd meme_4.2.0/
+	./configure --prefix=${TOOLS_PATH}/meme_4.2.0 --with-url="http://meme.nbcr.net/meme"
+	make
+	make install
+	ln -s meme_4.2.0 ${TOOLS_PATH}/meme
+	cd ..
+	rm -rf ${TMPDIR_PATH}/meme_4.2.0
+
+  # dimont, GPLv3?
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/dimont.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  # Trimmomatic, GPL
+  cd ${TMPDIR_PATH}/
+  wget -nv http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.32.zip
+  unzip Trimmomatic-0.32.zip
+  mv Trimmomatic-0.32 ${TOOLS_PATH}/
+  ln -s Trimmomatic-0.32 ${TOOLS_PATH}/trimmomatic
+  rm Trimmomatic-0.32.zip
+  
+  # Express, Artistic license 2.0
+  curl http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz | tar -xz -C ${TOOLS_PATH}/
+  ln -s express-1.5.1-linux_x86_64 ${TOOLS_PATH}/express
+  
+  # BLAST, public domain
+  curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.29+-x64-linux.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s ncbi-blast-2.2.29+ ${TOOLS_PATH}/blast                                  
+
 
   ## Create checksums
   cd ${TOOLS_PATH}/
