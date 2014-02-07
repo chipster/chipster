@@ -17,8 +17,8 @@ library(limma)
 
 # Reading data
 columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
-annotation<-c("identifier")
-columns.other<-c("flag", "annotation")
+annotation<-c("identifier", "Identifier")
+columns.other<-c("flag", "annotation", "Flag", "Annotation")
 
 files<-dir()
 files<-files[files!="phenodata.tsv"]
@@ -28,6 +28,10 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 if (keep.annotations=="yes") {
 	annotation.info <- dat$other[[1]]
 	annotation.info <- as.character (annotation.info[,1])
+
+	if(length(annotation.info) == 0) {
+		keep.annotations="no"
+	}
 }
 
 # Mock normalization
@@ -81,18 +85,12 @@ if(class(a) !="try-error") {
 }
 
 if(length(grep("description", tolower(colnames(dat2)))) > 0) {
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("description", tolower(colnames(dat2)))])
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("description", tolower(colnames(dat2)))])
-	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("description", tolower(colnames(dat2)))])
+	dat2[, grep("description", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("description", tolower(colnames(dat2)))], perl=T) 
 }
 
 if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\"+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
-	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\\#+", "", dat2[, grep("symbol", tolower(colnames(dat2)))])
+	dat2[, grep("symbol", tolower(colnames(dat2)))] <- gsub("\'|#|\"|\n|\t", "", dat2[, grep("symbol", tolower(colnames(dat2)))], perl=T) 
 }
 
 # Write data out
 write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-
-
