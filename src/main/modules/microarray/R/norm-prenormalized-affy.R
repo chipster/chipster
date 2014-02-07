@@ -70,13 +70,10 @@ if(class(a)=="try-error") { a<-try(library(paste(chiptype, ".db", sep=""), chara
 
 if(chiptype!="empty" & class(a)!="try-error") {
 	# Including gene names to data
-	lib2		<-sub('.db','',chiptype)
-	symbol		<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
-	genename	<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
-	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
+	lib2		<- sub('.db','',chiptype)
+	symbol		<- gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
+	genename	<- gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
 	genename 	<- gsub("#", "", genename)
-	symbol 		<- gsub("'", "", symbol)
-	genename	<- gsub("'", "", genename)
 	
 	# Writes the results into a file
 	if (keep.flags=="yes" & keep.annotations=="yes") {
