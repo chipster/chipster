@@ -1109,6 +1109,17 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   rm ${TOOLS_PATH}/prinseq
   ln -s prinseq-lite-0.20.4 ${TOOLS_PATH}/prinseq
   
+  echo "** Installing mafft"
+  #cd ${TMPDIR_PATH}/
+  #curl http://mafft.cbrc.jp/alignment/software/mafft-7.130-without-extensions-src.tgz | tar -xz
+  #cd mafft-7.130-without-extensions/core
+  #sed -i 's/PREFIX = \/usr\/local/PREFIX = \/opt\/chipster\/tools\/mafft-7.130-without-extensions/g' Makefile
+  #make clean
+  #make
+  #make install
+  curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/mafft-7.130-without-extensions-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s mafft-7.130-without-extensions ${TOOLS_PATH}/mafft
+  
 
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
