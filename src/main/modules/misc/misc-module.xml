@@ -6,7 +6,15 @@
 		</tool>
 	</category>
 	 -->
-    <category name="BLAST" color="#d5c796">
+
+
+	<category name="Data retrieval" color="#e7df70">
+	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>dbfetch.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>dbfetch_list.R</resource></tool>
+	   <tool runtime="R-2.15"><resource>entret_list.R</resource></tool>
+	</category>
+	<category name="BLAST" color="#d59f45">
        <tool runtime="R-2.15"><resource>ncbi_blastn.R</resource></tool>
        <tool runtime="R-2.15"><resource>my_blastn.R</resource></tool>
        <tool runtime="R-2.15"><resource>ensembl_blastn.R</resource></tool>
@@ -22,17 +30,8 @@
 	   <tool runtime="R-2.15"><resource>ncbi_tblastn.R</resource></tool>
        <tool runtime="R-2.15"><resource>my_tblastn.R</resource></tool>
        <tool runtime="R-2.15"><resource>ensembl_tblastn.R</resource></tool>
-
 	</category>
-
-	<category name="Data retrieval" color="#d59f45">
-	   <tool runtime="R-2.15"><resource>ensemblfetch.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>dbfetch.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>dbfetch_list.R</resource></tool>
-	   <tool runtime="R-2.15"><resource>entret_list.R</resource></tool>
-	</category>
-	
-	<category name="Sequence alignment" color="#e7881c">
+	<category name="Sequence alignment" color="#d59f45">
 	   <tool runtime="R-2.15"><resource>stretcher.R</resource></tool>	
   	   <tool runtime="R-2.15"><resource>matcher.R</resource></tool>
   	   <tool runtime="R-2.15"><resource>mafft.R</resource></tool>	
@@ -44,7 +43,7 @@
   	   <tool runtime="R-2.15"><resource>showalign.R</resource></tool>
   	   <tool runtime="R-2.15"><resource>prettyplot.R</resource></tool>
 	</category>
-    <category name="Nucleic sequence analysis" color="#80a3b7">     
+    <category name="Nucleic sequence analysis" color="#e7881c">     
         <tool runtime="R-2.15"><resource>eprimer.R</resource></tool>
         <tool runtime="R-2.15"><resource>fuzznuc.R</resource></tool>
         <tool runtime="R-2.15"><resource>getorf.R</resource></tool>
@@ -54,17 +53,11 @@
         <tool runtime="R-2.15"><resource>revseq.R</resource></tool>
 	    <tool runtime="R-2.15"><resource>transeq.R</resource></tool>	   	
 	</category>
-    <category name="Protein sequence analysis" color="#83010b">    
+    <category name="Protein sequence analysis" color="#d53833">    
        <tool runtime="R-2.15"><resource>protfilter.R</resource></tool>
        <tool runtime="R-2.15"><resource>fuzzpro.R</resource></tool>
-   	</category>  
-   	<category name="phylogeny" color="#80a3b7">
-   	    <tool runtime="R-2.15"><resource>fdnapars.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fprotpars.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fdrawtree.R</resource></tool>
-   	    <tool runtime="R-2.15"><resource>fdrawgram.R</resource></tool>
-	</category>
-	<category name="Sequence utilities" color="#e7df70">
+   	</category>
+   	<category name="Sequence utilities" color="#80a3b7">
 	   <tool runtime="R-2.15"><resource>infoseq_summary.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>infoseq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>textsearch_fasta.R</resource></tool>
@@ -74,8 +67,14 @@
 	   <tool runtime="R-2.15"><resource>extractseq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>descseq.R</resource></tool>
 	   <tool runtime="R-2.15"><resource>emboss.R</resource></tool>
+	</category>  
+   	<category name="Phylogeny" color="#0177b7">
+   	    <tool runtime="R-2.15"><resource>fdnapars.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fprotpars.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fdrawtree.R</resource></tool>
+   	    <tool runtime="R-2.15"><resource>fdrawgram.R</resource></tool>
 	</category>
-	<category name="Other tools" color="#80a3b7">
+	<category name="Other tools" color="#629a9b">
     	<tool runtime="R-2.15"><resource>emboss_files.R</resource></tool>
 	    <tool runtime="R-2.15"><resource>select_columns.R</resource></tool> 
 	    <tool runtime="R-2.15"><resource>concatenate.R</resource></tool>
