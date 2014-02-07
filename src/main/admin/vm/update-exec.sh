@@ -1103,9 +1103,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   echo "** Updating prinseq"
   cd ${TMPDIR_PATH}/
   curl -L http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.20.4.tar.gz/download | tar -xz
-  chmod a+x prinseq-lite-0.20.4/prinseq-lite.pl
-  chmod a+x prinseq-lite-0.20.4/prinseq-graphs.pl
-  mv -b ${TOOLS_PATH}/prinseq-0.19.3 ${BACKUPDIR_PATH}/
+  chmod a+x prinseq-lite-0.20.4/*.pl
+  mv -b ${TOOLS_PATH}/prinseq-lite-0.19.3 ${BACKUPDIR_PATH}/
   mv prinseq-lite-0.20.4 ${TOOLS_PATH}/
   rm ${TOOLS_PATH}/prinseq
   ln -s prinseq-lite-0.20.4 ${TOOLS_PATH}/prinseq
