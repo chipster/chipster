@@ -1,4 +1,4 @@
-# TOOL mafft.R: "Multiple sequence alignmnet with MAFFT" (Multiple sequence alignmnet with MAFFT software.)
+# TOOL mafft.R: "Multiple sequence alignment with MAFFT" (Multiple sequence alignmnet with MAFFT software.)
 # INPUT sequence: "Query sequences" TYPE GENERIC 
 # OUTPUT OPTIONAL alignment.aln.txt
 # OUTPUT OPTIONAL alignment.phylip 

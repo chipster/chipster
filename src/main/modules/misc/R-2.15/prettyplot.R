@@ -1,4 +1,4 @@
-# TOOL prettyplot.R: "Plot out sequence alignmnet" (Draw a sequence alignment with pretty formatting)
+# TOOL prettyplot.R: "Plot out sequence alignment" (Draw a sequence alignment with pretty formatting)
 # INPUT sequences: sequences TYPE GENERIC 
 # OUTPUT OPTIONAL prettyplot{...}.png 
 # OUTPUT OPTIONAL prettyplot.log

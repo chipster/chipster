@@ -1,4 +1,4 @@
-# TOOL infoalign.R: "Alingment statistics" (Display basic information about a multiple sequence alignment)
+# TOOL infoalign.R: "Alignment statistics" (Display basic information about a multiple sequence alignment)
 # INPUT OPTIONAL sequence: sequence TYPE GENERIC 
 # OUTPUT alignment_summary.html
 # OUTPUT OPTIONAL infoalign.log
