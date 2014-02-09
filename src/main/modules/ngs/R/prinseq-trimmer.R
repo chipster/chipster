@@ -2,8 +2,15 @@
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
 # OUTPUT OPTIONAL trimmed.fastq
-# OUTPUT OPTIONAL trimmed_matepair.fastq
+# OUTPUT OPTIONAL trimmed_1.fastq
+# OUTPUT OPTIONAL trimmed_2.fastq
+# OUTPUT OPTIONAL trimmed_1_singletons.fastq
+# OUTPUT OPTIONAL trimmed_2_singletons.fastq
 # OUTPUT OPTIONAL trimmed.fasta
+# OUTPUT OPTIONAL trimmed_1.fasta
+# OUTPUT OPTIONAL trimmed_2.fasta
+# OUTPUT OPTIONAL trimmed_1_singletons.fasta
+# OUTPUT OPTIONAL trimmed_2_singletons.fasta
 # OUTPUT OPTIONAL trim.log
 # PARAMETER input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
 # PARAMETER phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
@@ -25,6 +32,7 @@
 # KM 17.1.2012
 # EK 7.5.2013 Reorganized parameters
 # AMS 06.11.2013 Added support for paired-end reads
+# AMS 07.01.2014 Paired-end reads now handled by PRINSEQ
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -47,59 +55,14 @@ if (input.mode == "fq") {
 	}
 }
 
-# Check if two files were given as input, and if so run the python script
-# that interlaces the mate pairs into a single file
+# Check if two files were given as input
 input_files <- dir()
 is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
-if (is_paired_end) {
-	#check if the fastqfomat is hiseq or old
-	first_row_1 <- read.table(file="fastqfile", nrow=1, header=FALSE, sep=" ", check.names=FALSE, comment.char="")
-	first_row_2 <- read.table(file="matepair_fastqfile", nrow=1, header=FALSE, sep=" ", check.names=FALSE, comment.char="")
-	if ( ncol(first_row_1) == 2 ) { fq.hiseq <- "yes" } else { fq.hiseq <- "no" }
-	
-	
-	# check that the input files are truly matepairs by comparing
-	# sequence ID, discarding the last character
-	name_length <- nchar(as.character(first_row_1[1,1]))
-	id_1 <- substr(as.character(first_row_1[1,1]), start=1, stop=name_length-1)
-	id_2 <- substr(as.character(first_row_2[1,1]), start=1, stop=name_length-1)
-	if (id_1 != id_2) {
-		stop("CHIPSTER-NOTE: It appears that the two input files are not matepairs. Please check that the correct input files were selected.")
-	}
-	
-	# figure out which file is the first and second matepair, and issue
-	# the python script call accordingly
-	if ( fq.hiseq == "no"){		
-		mate_number <- substr(as.character(first_row_1[1,1]), start=name_length, stop=name_length)
-	} else {
-		mate_number <- substr(as.character(first_row_1[1,2]), start=1, stop=1)
-	}	
-	if (mate_number == "1") {
-		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "interleave-fastq.py")
-		system_command <- paste("python", binary_python_scripts, "fastqfile", "matepair_fastqfile", "interleaved_fastqfile")
-		system(system_command)	
-		system("echo Executed interleave python script with: > filter.log")
-		echo.command <- paste("echo '", system_command, "'>> filter.log")
-		system(echo.command)
-	} else {
-		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "interleave-fastq.py")
-		system_command <- paste("python", binary_python_scripts, "matepair_fastqfile", "fastqfile", "interleaved_fastqfile")
-		system(system_command)	
-		system("echo Executed interleave python script with: > filter.log")
-		echo.command <- paste("echo '", system_command, "'>> filter.log")
-		system(echo.command)
-	}	
-	
-	# remove input files to clear up disk space
-	system("rm -f fastqfile")
-	system("rm -f matepair_fastqfile")
-	system("mv interleaved_fastqfile fastqfile")
-	
-}
 
 # binary
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl"))
 
+# Parameters
 trim.params <- paste(" ")
 if (!is.na(trim.to.len)) {
 	trim.params <- paste(trim.params, "-trim_to_len", trim.to.len )
@@ -142,13 +105,19 @@ if ( phred64 == "y") {
 }
 
 if (input.mode == "fq") {
- trim.command <- paste(binary.prinseq, trim.params, "-fastq fastqfile -out_good trimmed")
+	trim.params <- paste(trim.params, "-fastq fastqfile")
+	if (is_paired_end) {
+		trim.params <- paste(trim.params, "-fastq2 matepair_fastqfile")
+	} 
 }
 
 if (input.mode == "fa") {
-	trim.command <- paste(binary.prinseq, trim.params, "-fasta fastqfile -out_good trimmed")
+	trim.params <- paste(trim.params, "-fasta fastqfile")
+	if (is_paired_end) {
+		trim.params <- paste(trim.params, "-fasta2 matepair_fastqfile")
+	}
 }
-
+trim.command <- paste(binary.prinseq, trim.params, "-out_good trimmed")
 
 if (log.file == "y") {
 	system("echo Running PRINSEQ filtering with command: > trim.log")
@@ -159,45 +128,4 @@ if (log.file == "y") {
 
 
 system(trim.command)
-#Make sure something is in the output
-if (input.mode == "fq") {
-	system("if [ ! -e  trimmed.fastq ] ; then echo 'Trimming produced an empty trimmed.fastq sequence set' >> trim.log ; echo '' > trimmed.fastq ; fi")
-}
-
-if (input.mode == "fa") {
-	system("if [ ! -e  trimmed.fasta ] ; then echo 'Trimming produced an empty trimmed.fasta sequence set' >> trim.log ; echo '' > trimmed.fasta ;fi")
-}
-
-# If filtering on paired-end data, perform matching of
-# mate pairs using python script and then de-interlace them to two files
-if (is_paired_end) {
-	if ( fq.hiseq == "no"){	
-		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs.py")
-	} else{
-		binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "match-pairs-hiseq.py")
-	}
-	
-	system_command <- paste("python", binary_python_scripts, "trimmed.fastq", "matched_fastqfile >> filter.log")
-	system(system_command)
-	
-	system("echo Executed match_pair python script with: >> filter.log")
-	echo.command <- paste("echo '", system_command, "'>> filter.log")
-	system(echo.command)
-	
-	# remove input files to clear up disk space
-	system("rm -f accepted.fastq")
-	
-	binary_python_scripts <- file.path(chipster.module.path, "shell", "match-mate-pairs", "deinterleave-fastq.py")
-	system_command <- paste("python", binary_python_scripts, "matched_fastqfile", "trimmed.fastq", "trimmed_matepair.fastq")
-	system(system_command)	
-	
-	system("echo Executed deinterleave python script with: >> filter.log")
-	echo.command <- paste("echo '", system_command, "'>> filter.log")
-	system(echo.command)
-	
-	# remove input files to clear up disk space
-	system("rm -f matched_fastqfile")
-}
-
-#stop(paste('CHIPSTER-NOTE: ', filter.command))
 
