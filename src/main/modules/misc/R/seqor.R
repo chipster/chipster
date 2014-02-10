@@ -60,8 +60,7 @@ command.full <- paste(emboss.binary, ' -firstsequences sequences1.txt -secondseq
 system(command.full)
 
 system("ls -l >> log.txt")
-
-str.queryseq <- system("cat resultlist.txt | wc -l" )
+str.queryseq <- system("cat resultlist.txt | wc -l", intern = TRUE )
 num.queryseq <- as.integer(str.queryseq)
 
 if (num.queryseq < 1){
@@ -71,6 +70,7 @@ if (num.queryseq < 1){
 emboss.binary <- file.path(emboss.path, "seqret")
 command.full <- paste(emboss.binary, ' @resultlist.txt results.fasta >> log.txt 2>&1' )
 system(command.full)
+
 
 if ( save_log == "no" ){
 	system("rm -f log.txt")

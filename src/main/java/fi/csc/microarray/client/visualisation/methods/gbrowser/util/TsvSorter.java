@@ -296,6 +296,7 @@ public class TsvSorter {
 	public static void main(String[] args) throws Exception {
 
 		try {
+		
 		File in = new File(args[0]);
 		File out = new File(args[1]);
 		int chr = Integer.parseInt(args[2]);
