@@ -1119,12 +1119,16 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   #make install
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/mafft-7.130-without-extensions-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s mafft-7.130-without-extensions ${TOOLS_PATH}/mafft
-  
 
   echo "** Updating R-3.0.2"
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
+  echo "** Update DEXSeq scripts"
+  cd ${TMPDIR_PATH}/
+  curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.8.0.tar.gz | tar -xz
+  cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
+  cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
 
 fi
 
