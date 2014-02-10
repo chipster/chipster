@@ -15,9 +15,7 @@ public class SortGtf extends JavaAnalysisJobBase {
 		return 	"TOOL SortGtf.java: \"Sort GTF\" (Sort a GTF file by chromosome and start position.)" + "\n" +
 				"INPUT unsorted.gtf: \"GTF file\" TYPE GENERIC" + "\n" +
 				"OUTPUT sorted.gtf: \"Sorted GTF file\"" + "\n"; 
-
 	}
-	
 	
 	@Override
 	protected void execute() { 
@@ -30,11 +28,8 @@ public class SortGtf extends JavaAnalysisJobBase {
 			File outputFile = new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID()); 
 
 			// run sort
-			new TsvSorter().sort(
-					inputFile, outputFile,
-					GtfLineParser.Column.SEQNAME.ordinal(), 
-					GtfLineParser.Column.START.ordinal(), new GtfLineParser());
-
+			sort(inputFile, outputFile);
+						
 		} catch (Exception e) {
 			getResultMessage().setErrorMessage(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED, "");
@@ -42,5 +37,32 @@ public class SortGtf extends JavaAnalysisJobBase {
 		}
 
 		updateStateToClient(JobState.RUNNING, "sorting finished");
+	}
+	
+	private static void sort(File inputFile, File outputFile) throws Exception {
+		new TsvSorter().sort(
+				inputFile, outputFile,
+				GtfLineParser.Column.SEQNAME.ordinal(), 
+				GtfLineParser.Column.START.ordinal(), new GtfLineParser());
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		try {
+		
+		File in = new File(args[0]);
+		File out = new File(args[1]);
+		
+		sort(in, out);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+						
+			System.out.println(
+					"usage: \n" +
+					"  SortGtf <file-in> <file-out>\n" +
+					"example:\n " +
+					"  java -cp chipster-2.9.10.jar fi.csc.chipster.tools.ngs.SortGtf Homo_sapiens.GRCh37.70.gtf Homo_sapiens.GRCh37.70-sort.gtf");
+		}				
 	}
 }
