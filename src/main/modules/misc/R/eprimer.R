@@ -63,6 +63,7 @@
 # KM 8.11. 2013
 options(scipen=999)
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
+primer3.path <- file.path(chipster.tools.path, "primer3" ,"src")
 
 #check sequece file type
 sfcheck.binary <- file.path(chipster.module.path ,"/shell/sfcheck.sh")
@@ -155,7 +156,7 @@ emboss.parameters <- paste(emboss.parameters, "-selfany", selfany)
 emboss.parameters <- paste(emboss.parameters, "-selfend", selfend)
 emboss.parameters <- paste(emboss.parameters, "-maxendstability", maxendstability)
 
-eprimer.setup <- paste("export EMBOSS_PRIMER3_CORE=", emboss.path, "/primer3_core ;" ,sep="")
+eprimer.setup <- paste("export EMBOSS_PRIMER3_CORE=", primer3.path, "/primer3_core ;" ,sep="")
 command.full <- paste(eprimer.setup, emboss.binary, emboss.parameters, ' >> eprimer3.log 2>&1' )
 echo.command <- paste('echo "',command.full, ' "> eprimer3.log' )
 system(echo.command)
