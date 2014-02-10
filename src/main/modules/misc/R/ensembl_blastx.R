@@ -1,4 +1,4 @@
-# TOOL ensembl_blastx.R: "Translated nucleotide BLAST against the proteome of a given species in Ensembl." (Heuristic tool to search hits from the a protein sequence set using a translated nucleotide query. Your query sequence set can contain 10 nucleotide sequences in maximum.)
+# TOOL ensembl_blastx.R: "Translated nucleotide BLAST against the proteome of a given species in Ensembl." (Heuristic tool to search hits from the proteome of the given species using a translated nucleotide query. Your query sequence set can contain 10000 nucleotide sequences in maximum.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml
@@ -54,8 +54,8 @@ num.queryseq <- as.integer(str.queryseq)
 outfmt <- as.integer(outfmt)
 #round(num.queryseq)
 
-if (num.queryseq > 10){
-	stop(paste('Too many query sequences. Maximun is 10 but your file contains ', num.queryseq ))
+if (num.queryseq > 10000){
+	stop(paste('Too many query sequences. Maximun is 10000 but your file contains ', num.queryseq ))
 }
 
 

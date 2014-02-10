@@ -1,4 +1,4 @@
-# TOOL ensembl_blastn.R: "Nucleotide BLAST against the genome or transcriptome of a given species in Ensembl" (NCBI BLAST for searching a nucleotide database using a nucleotide query. Your query sequence set can contain 10 sequeces in maximum.)
+# TOOL ensembl_blastn.R: "Nucleotide BLAST against the genome or transcriptome of a given species in Ensembl" (BLASTN for searching a genome or transcriptome of a given species in Ensembldatabase using a nucleotide query. Your query sequence set can contain 10000 sequeces in maximum.)
 # INPUT query.fa: "Query sequences" TYPE GENERIC
 # OUTPUT OPTIONAL blast_results.txt
 # OUTPUT OPTIONAL blast_results.xml
