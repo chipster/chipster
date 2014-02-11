@@ -1,6 +1,7 @@
 # TOOL stretcher.R: "Global pairwise sequence alignment" (Needleman-Wunsch rapid global alignment of two sequences with stretcher EMBOSS command)
 # INPUT asequence.fa TYPE GENERIC 
 # INPUT bsequence.fa TYPE GENERIC 
+# OUTPUT OPTIONAL alignment.pair.html
 # OUTPUT OPTIONAL alignment.pair.txt
 # OUTPUT OPTIONAL alignment.fasta
 # OUTPUT OPTIONAL alignment.clustal.txt
@@ -86,6 +87,17 @@ echo.command <- paste('echo "',command.full, ' "> stretcher.log' )
 system(echo.command)
 
 system(command.full)
+
+if ( aformat == "pair"){
+	system("echo '<html>' > alignment.pair.html")
+	system("echo '<body>' >> alignment.pair.html")
+	system("echo '<pre>' >> alignment.pair.html")
+	system("cat alignment.pair.txt >> alignment.pair.html ")
+	system("echo '</pre>' >> alignment.pair.html")
+	system("echo '</body>' >> alignment.pair.html")
+	system("echo '</html>' >> alignment.pair.html")
+	system("rm -f alignment.pair.txt")
+}
 
 system ("ls -l >>  stretcher.log")
 
