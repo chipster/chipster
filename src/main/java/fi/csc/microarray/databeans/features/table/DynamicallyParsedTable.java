@@ -70,7 +70,7 @@ public class DynamicallyParsedTable implements Table {
 			if (!headerParsed) {
 				
 				// parse away headers, if any
-				if (settings.headerTerminator != null) {
+				if (settings.headerBytes != 0) {
 					TableColumn.parseAwayHeader(source, settings);
 				}
 

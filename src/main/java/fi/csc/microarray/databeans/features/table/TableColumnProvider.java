@@ -135,7 +135,8 @@ public class TableColumnProvider extends FeatureProviderBase {
 		/**
 		 * Must include newline if it is part of the header!
 		 */
-		String headerTerminator = null; 
+//		String headerTerminator = null;
+		long headerBytes = 0;
 		String footerStarter = null;
 		boolean hasColumnNames = true;
 		LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
@@ -214,7 +215,8 @@ public class TableColumnProvider extends FeatureProviderBase {
 				// check what kind of matrix we are dealing with TODO remove this Affymetrix CEL specific functionality here and use type tags
 				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
 					logger.debug("parsing cel type");
-					settings.headerTerminator = "CellHeader=";
+					
+					searchHeaderTerminator(settings, "CellHeader=", source);
 					settings.footerStarter = "\n[MASKS]";
 					settings.hasColumnNames = true;
 
@@ -224,17 +226,17 @@ public class TableColumnProvider extends FeatureProviderBase {
 
 					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
-						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
+						settings.headerBytes = source.peekLine(1).length() + 1; // length of title row plus new line character
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
 						
-						readHeaderSettings(settings, "#", source);
+						searchHeaderRows(settings, "#", source);
 					}
 					
 					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
 						
-						readHeaderSettings(settings, "##", source);
+						searchHeaderRows(settings, "##", source);
 					}
 					
 					// note: it is safe to call tokeniseRow with null input				
@@ -243,7 +245,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 				}
 
 				// parse away headers, if any
-				if (settings.headerTerminator != null) {
+				if (settings.headerBytes != 0) {
 					parseAwayHeader(source, settings);
 				}
 
@@ -288,31 +290,59 @@ public class TableColumnProvider extends FeatureProviderBase {
 			}
 		}
 
-		private void readHeaderSettings(MatrixParseSettings settings,
+		private void searchHeaderTerminator(MatrixParseSettings settings,
+				String terminator, LookaheadLineReader source) throws IOException {
+			
+			long headerBytes = 0;
+			String line = "";			
+			
+			for (int i = 1; line != null; i++) {
+				String nextLine = source.peekLine(i);
+				if (nextLine.contains(terminator)) {
+					headerBytes += nextLine.indexOf(terminator) + terminator.length();
+					break;
+				} else {
+					line = nextLine;
+					headerBytes += line.length() + 1; // plus \n
+				}
+			}
+			
+			settings.headerBytes = headerBytes;
+		}
+		
+		private void searchHeaderRows(MatrixParseSettings settings,
 				String headerSymbol, LookaheadLineReader source) throws IOException {
-			String line = "";
+			
+			long headerBytes = 0;
+			String line = "";			
 			
 			for (int i = 1; line != null; i++) {
 				String nextLine = source.peekLine(i);
 				if (nextLine.startsWith(headerSymbol)) {
 					line = nextLine;
+					headerBytes += line.length() + 1; // plus \n
 				} else {
 					break;
 				}
 			}
 			
-			settings.headerTerminator = line;
+			settings.headerBytes = headerBytes;
 		}
 
 		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
-			while (!source.peekLine().contains(settings.headerTerminator)) {
-				source.readLine();
+			
+			long bytesRead = 0;
+			
+			while (bytesRead + source.peekLine().length() + 1 <= settings.headerBytes) {
+				bytesRead += source.readLine().length() + 1;				
 			}
+			
 			// we must split last line in case header ends in the middle
-			String separatingLine = source.peekLine();
-			String endOfHeader = separatingLine.substring(separatingLine.indexOf(settings.headerTerminator),
-					separatingLine.indexOf(settings.headerTerminator) + settings.headerTerminator.length());
-			source.read(endOfHeader.length());
+			long endOfHeaderBytes = settings.headerBytes - bytesRead;
+			if (endOfHeaderBytes > 0) {
+				//String separatingLine = source.peekLine();
+				source.read((int) endOfHeaderBytes);
+			}
 		}
 
 		public static String[] tokeniseRow(String row) {
