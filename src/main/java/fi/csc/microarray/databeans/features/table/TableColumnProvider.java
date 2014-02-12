@@ -135,7 +135,6 @@ public class TableColumnProvider extends FeatureProviderBase {
 		/**
 		 * Must include newline if it is part of the header!
 		 */
-//		String headerTerminator = null;
 		long headerBytes = 0;
 		String footerStarter = null;
 		boolean hasColumnNames = true;
