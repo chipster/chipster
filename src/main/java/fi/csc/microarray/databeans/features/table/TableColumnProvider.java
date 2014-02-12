@@ -327,6 +327,24 @@ public class TableColumnProvider extends FeatureProviderBase {
 			
 			settings.headerBytes = headerBytes;
 		}
+		
+		public static String getHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
+			
+			String header = "";
+			
+			while (header.length() + source.peekLine().length() + 1 <= settings.headerBytes) {
+				header += source.readLine() + "\n";				
+			}
+			
+			// we must split last line in case header ends in the middle
+			long endOfHeaderBytes = settings.headerBytes - header.length();
+			if (endOfHeaderBytes > 0) {
+				//String separatingLine = source.peekLine();
+				header += source.read((int) endOfHeaderBytes);
+			}
+			
+			return header;
+		}
 
 		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
 			
