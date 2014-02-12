@@ -10,15 +10,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 /**
  * Selection manager for the rows that are selected from the specific dataset.
@@ -69,12 +72,27 @@ public class IntegratedSelectionManager {
 		BufferedReader original = null;
 		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
 		String line;
+				
+		boolean hasColumnNames = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		boolean skipFirstRow = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW);
 
 		//For binary search
 		Arrays.sort(selectedRows);
 
 		for (int i = 0; (line = original.readLine()) != null; i++) {
-			if (i == 0 || Arrays.binarySearch(selectedRows, i - 1) >= 0) {
+			boolean addLine = false;
+						
+			if (hasColumnNames && i == 0) {
+				addLine = true;
+			} else {
+				if (skipFirstRow || hasColumnNames) {
+					addLine = Arrays.binarySearch(selectedRows, i - 1) >= 0;				
+				} else {
+					addLine = Arrays.binarySearch(selectedRows, i) >= 0;
+				}
+			}
+			
+			if (addLine) {
 				lines.add(line);
 			}
 		}
@@ -89,7 +107,15 @@ public class IntegratedSelectionManager {
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
 		DataManager dataManager = Session.getSession().getApplication().getDataManager();
 		
-		DataBean newData = dataManager.createDataBean("user_edited.tsv");
+		DataBean primarySource = sources[0]; // use the first source as the primary source
+		
+		String ext = FilenameUtils.getExtension(primarySource.getName());
+		
+		if (ext == null || ext == "") {
+			ext = "tsv";
+		}
+		
+		DataBean newData = dataManager.createDataBean("user_edited." + ext);
 		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
@@ -107,7 +133,7 @@ public class IntegratedSelectionManager {
 
 		
 		// set metadata
-		DataBean primarySource = sources[0]; // use the first source as the primary source		
+				
 		newData.setContentType(primarySource.getContentType());
 		for (DataBean data : sources) {
 			newData.addLink(Link.MODIFICATION, data);

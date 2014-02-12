@@ -225,7 +225,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 					logger.debug("parsing generic type");
 
 					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
+					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW)) {
 						settings.headerBytes = source.peekLine(1).length() + 1; // length of title row plus new line character
 					}
 					

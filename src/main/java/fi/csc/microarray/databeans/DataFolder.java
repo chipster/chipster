@@ -167,7 +167,7 @@ public class DataFolder extends DataItemBase {
 					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
 					String line = in.readLine();
 					if (line != null && line.startsWith("track")) {
-						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW);
 					}
 				} catch (IOException e) {
 					throw new RuntimeException(e);
