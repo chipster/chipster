@@ -46,6 +46,12 @@ if(chiptype=="rat" & summary.feature=="exon") {
 	#dat@cdfName<-"raex10stv1rnensecdf"
 	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
+if(chiptype=="human-hta" & summary.feature=="exon") {
+	custom_cdf = "hta20hsensecdf"
+	chiptype <- "hta20hsensecdf.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
 
 if(chiptype=="human" & summary.feature=="gene") {
 	custom_cdf <- "huex10stv2hsentrezgcdf"
@@ -65,6 +71,13 @@ if(chiptype=="rat" & summary.feature=="gene") {
 	#dat@cdfName<-"raex10stv1rnentrezgcdf"
 	#dat@annotation<-"raex10stv1rnentrezg.db"
 }
+if(chiptype=="human-hta" & summary.feature=="gene") {
+	custom_cdf = "hta20hsentrezgcdf"
+	chiptype <- "hta20hsentrezg.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
+
 #chiptype<-dat@annotation
 
 # Normalizations
