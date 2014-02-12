@@ -41,8 +41,8 @@ public class BasicModule implements Module {
 
 	public static class TypeTags {
 		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the first data row");
-		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the column name row");
-		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag("table-with-possible-title-row", "first row is title row");
+		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag("table-with-column-names", "first row is the column name row");
+		public static final TypeTag TABLE_WITH_HEADER_ROW = new TypeTag("table-with-header-row", "first row is header");
 		public static final TypeTag PHENODATA = new TypeTag("phenodata", "phenodata table");
 	}
 	
