@@ -630,8 +630,8 @@ then
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.9.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s tophat-2.0.9.Linux_x86_64 ${TOOLS_PATH}/tophat2
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.10.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
