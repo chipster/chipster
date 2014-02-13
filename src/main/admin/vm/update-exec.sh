@@ -1124,11 +1124,20 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
   curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
-  echo "** Update DEXSeq scripts"
+  echo "** Updating DEXSeq scripts"
   cd ${TMPDIR_PATH}/
   curl -sL http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/DEXSeq_1.8.0.tar.gz | tar -xz
   cp DEXSeq/inst/python_scripts/dexseq_count.py ${TOOLS_PATH}/dexseq-exoncounts  
   cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
+
+  # Update Tophat 2
+  echo "** Updating Tophat 2"
+  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.10.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  mv ${TOOLS_PATH}/tophat-2.0.9.Linux_x86_64 ${BACKUPDIR_PATH}/
+  rm ${TOOLS_PATH}/tophat2
+  ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
+
+
 
 fi
 

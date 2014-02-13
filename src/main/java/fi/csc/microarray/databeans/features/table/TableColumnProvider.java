@@ -56,6 +56,183 @@ public class TableColumnProvider extends FeatureProviderBase {
 			this.name = name;
 		}
 		String name;
+	}	
+	
+	public static MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
+		BufferedReader bufferedReader = null;
+		try {
+			bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
+			LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
+			MatrixParseSettings settings = new MatrixParseSettings();
+
+			// check what kind of matrix we are dealing with TODO remove this Affymetrix CEL specific functionality here and use type tags
+			if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
+				logger.debug("parsing cel type");
+				
+				searchHeaderTerminator(settings, "CellHeader=", source);
+				settings.footerStarter = "\n[MASKS]";
+				settings.hasColumnNames = true;
+
+			} else {
+				// Unknown/generic type, use defaults and infer stuff from type tags
+				logger.debug("parsing generic type");
+
+				settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+				if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW)) {
+					settings.headerBytes = source.peekLine(1).length() + 1; // length of title row plus new line character
+				}
+				
+				if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
+					
+					searchHeaderRows(settings, "#", source);
+				}
+				
+				if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
+					
+					searchHeaderRows(settings, "##", source);
+				}
+				
+				// note: it is safe to call tokeniseRow with null input				
+				logger.debug("first line has " + tokeniseRow(source.peekLine(1)).length + " tokens and is " + source.peekLine(1));
+				logger.debug("second line has " + tokeniseRow(source.peekLine(2)).length + " tokens and is " + source.peekLine(2));
+			}
+
+			// parse away headers, if any
+			if (settings.headerBytes != 0) {
+				parseAwayHeader(source, settings);
+			}
+
+			// parse column names
+			String [] columnNames;
+			if (settings.hasColumnNames) {
+				logger.debug("column name row " + source.peekLine());
+				columnNames = tokeniseRow(source.readLine());
+
+			} else {
+
+				logger.debug("no column names, we use numbering");
+				columnNames = new String[tokeniseRow(source.peekLine()).length];
+				for (int i = 0; i < columnNames.length; i++) {
+					columnNames[i] = "column"+i; // generate column names
+				}
+			}
+
+			// special treatment for extra row name column, if any
+			int dataColumnCount = tokeniseRow(source.peekLine(1)).length;
+			if (dataColumnCount == (columnNames.length+1)) {
+				logger.debug("we have one column for row names");
+				// we had an unnamed counter column, add it to index 0
+				String[] newColumnNames = new String[columnNames.length + 1];
+				System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
+				newColumnNames[0] = " "; // must be space, empty names are not allowed
+				columnNames = newColumnNames;
+			}
+
+			logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
+
+			// create columns
+			for (String columnName : columnNames) {
+				logger.debug("added column " + columnName);
+				settings.columns.put(columnName, new Column(columnName));
+			}
+
+			return settings;
+
+		} finally {
+			IOUtils.closeIfPossible(bufferedReader);
+		}
+	}
+
+	private static void searchHeaderTerminator(MatrixParseSettings settings,
+			String terminator, LookaheadLineReader source) throws IOException {
+		
+		long headerBytes = 0;
+		String line = "";			
+		
+		for (int i = 1; line != null; i++) {
+			String nextLine = source.peekLine(i);
+			if (nextLine.contains(terminator)) {
+				headerBytes += nextLine.indexOf(terminator) + terminator.length();
+				break;
+			} else {
+				line = nextLine;
+				headerBytes += line.length() + 1; // plus \n
+			}
+		}
+		
+		settings.headerBytes = headerBytes;
+	}
+	
+	private static void searchHeaderRows(MatrixParseSettings settings,
+			String headerSymbol, LookaheadLineReader source) throws IOException {
+		
+		long headerBytes = 0;
+		String line = "";			
+		
+		for (int i = 1; line != null; i++) {
+			String nextLine = source.peekLine(i);
+			if (nextLine.startsWith(headerSymbol)) {
+				line = nextLine;
+				headerBytes += line.length() + 1; // plus \n
+			} else {
+				break;
+			}
+		}
+		
+		settings.headerBytes = headerBytes;
+	}
+	
+	public static String getHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
+		
+		String header = "";
+		
+		while (header.length() + source.peekLine().length() + 1 <= settings.headerBytes) {
+			header += source.readLine() + "\n";				
+		}
+		
+		// we must split last line in case header ends in the middle
+		long endOfHeaderBytes = settings.headerBytes - header.length();
+		if (endOfHeaderBytes > 0) {
+			//String separatingLine = source.peekLine();
+			header += source.read((int) endOfHeaderBytes);
+		}
+		
+		return header;
+	}
+
+	public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {		
+		getHeader(source, settings);
+	}
+	
+	public static String[] tokeniseRow(String row) {
+		if (row == null) {
+			return new String[] {};
+		} else {				
+			String[] result = ROW_TOKENISER_REGEX.split(row);
+			
+			if (row.endsWith("\t")) {
+				
+				// split eats away trailing empty strings, which is bad
+				
+				//count missing columns
+				int eatenColumns = 0; 
+				for (int i = row.length() - 1; i >= 0; i--) {
+					if ('\t' == row.charAt(i)) {
+						eatenColumns++;
+					} else {
+						break;
+					}
+				}
+				
+				//put them back
+				String[] fullResult = new String[result.length + eatenColumns];
+				System.arraycopy(result, 0, fullResult, 0, result.length);
+				Arrays.fill(fullResult, result.length, fullResult.length, "");
+				result = fullResult;
+			}
+			
+			return result;
+		}
 	}
 
 	public static class TableColumnIterable<T> implements Iterable<T> {
@@ -137,7 +314,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		/**
 		 * Must include newline if it is part of the header!
 		 */
-		String headerTerminator = null; 
+		long headerBytes = 0;
 		String footerStarter = null;
 		boolean hasColumnNames = true;
 		LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
@@ -203,151 +380,6 @@ public class TableColumnProvider extends FeatureProviderBase {
 				
 			} else {
 				return new DynamicallyParsedTable(getDataBean(), settings, indexCollector);
-			}
-		}
-
-		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
-			BufferedReader bufferedReader = null;
-			try {
-				bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
-				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
-				MatrixParseSettings settings = new MatrixParseSettings();
-
-				// check what kind of matrix we are dealing with 
-				// TODO remove this Affymetrix CEL specific functionality here, (type tags would not help removing "CellHeader=" etc., 
-				// must create module.inferSettings(bean) or similar
-				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
-					logger.debug("parsing cel type");
-					settings.headerTerminator = "CellHeader=";
-					settings.footerStarter = "\n[MASKS]";
-					settings.hasColumnNames = true;
-
-				} else {
-					// Unknown/generic type, use defaults and infer stuff from type tags
-					logger.debug("parsing generic type");
-
-					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
-						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
-					}
-					
-					//TODO same as comment above about Affymetrix CEL specific functionality 
-					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_HASH_HEADER)) {
-						
-						readHeaderSettings(settings, "#", source);
-					}
-					
-					if (bean.hasTypeTag(MicroarrayModule.TypeTags.TABLE_WITH_DOUBLE_HASH_HEADER)) {
-						
-						readHeaderSettings(settings, "##", source);
-					}
-					
-					// note: it is safe to call tokeniseRow with null input				
-					logger.debug("first line has " + tokeniseRow(source.peekLine(1)).length + " tokens and is " + source.peekLine(1));
-					logger.debug("second line has " + tokeniseRow(source.peekLine(2)).length + " tokens and is " + source.peekLine(2));
-				}
-
-				// parse away headers, if any
-				if (settings.headerTerminator != null) {
-					parseAwayHeader(source, settings);
-				}
-
-				// parse column names
-				String [] columnNames;
-				if (settings.hasColumnNames) {
-					logger.debug("column name row " + source.peekLine());
-					columnNames = tokeniseRow(source.readLine());
-
-				} else {
-
-					logger.debug("no column names, we use numbering");
-					columnNames = new String[tokeniseRow(source.peekLine()).length];
-					for (int i = 0; i < columnNames.length; i++) {
-						columnNames[i] = "column"+i; // generate column names
-					}
-				}
-
-				// special treatment for extra row name column, if any
-				int dataColumnCount = tokeniseRow(source.peekLine(1)).length;
-				if (dataColumnCount == (columnNames.length+1)) {
-					logger.debug("we have one column for row names");
-					// we had an unnamed counter column, add it to index 0
-					String[] newColumnNames = new String[columnNames.length + 1];
-					System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
-					newColumnNames[0] = " "; // must be space, empty names are not allowed
-					columnNames = newColumnNames;
-				}
-
-				logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
-
-				// create columns
-				for (String columnName : columnNames) {
-					logger.debug("added column " + columnName);
-					settings.columns.put(columnName, new Column(columnName));
-				}
-
-				return settings;
-
-			} finally {
-				IOUtils.closeIfPossible(bufferedReader);
-			}
-		}
-
-		private void readHeaderSettings(MatrixParseSettings settings,
-				String headerSymbol, LookaheadLineReader source) throws IOException {
-			String line = "";
-			
-			for (int i = 1; line != null; i++) {
-				String nextLine = source.peekLine(i);
-				if (nextLine.startsWith(headerSymbol)) {
-					line = nextLine;
-				} else {
-					break;
-				}
-			}
-			
-			settings.headerTerminator = line;
-		}
-
-		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {
-			while (!source.peekLine().contains(settings.headerTerminator)) {
-				source.readLine();
-			}
-			// we must split last line in case header ends in the middle
-			String separatingLine = source.peekLine();
-			String endOfHeader = separatingLine.substring(separatingLine.indexOf(settings.headerTerminator),
-					separatingLine.indexOf(settings.headerTerminator) + settings.headerTerminator.length());
-			source.read(endOfHeader.length());
-		}
-
-		public static String[] tokeniseRow(String row) {
-			if (row == null) {
-				return new String[] {};
-			} else {				
-				String[] result = ROW_TOKENISER_REGEX.split(row);
-				
-				if (row.endsWith("\t")) {
-					
-					// split eats away trailing empty strings, which is bad
-					
-					//count missing columns
-					int eatenColumns = 0; 
-					for (int i = row.length() - 1; i >= 0; i--) {
-						if ('\t' == row.charAt(i)) {
-							eatenColumns++;
-						} else {
-							break;
-						}
-					}
-					
-					//put them back
-					String[] fullResult = new String[result.length + eatenColumns];
-					System.arraycopy(result, 0, fullResult, 0, result.length);
-					Arrays.fill(fullResult, result.length, fullResult.length, "");
-					result = fullResult;
-				}
-				
-				return result;
 			}
 		}
 	}

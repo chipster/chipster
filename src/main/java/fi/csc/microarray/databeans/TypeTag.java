@@ -22,4 +22,8 @@ public class TypeTag {
 		return tagName;
 	}
 	
+	public String toString() {
+		return getName();
+	}
+	
 }

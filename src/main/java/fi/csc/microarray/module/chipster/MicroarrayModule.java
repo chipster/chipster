@@ -752,7 +752,7 @@ public class MicroarrayModule implements Module {
 			data.addTypeTag(MicroarrayModule.TypeTags.END_POSITION_IN_THIRD_TABLE_COLUMN);
 
 			if (readFirstLine(data).startsWith("track")) {
-				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW);
 			}
 		}
 

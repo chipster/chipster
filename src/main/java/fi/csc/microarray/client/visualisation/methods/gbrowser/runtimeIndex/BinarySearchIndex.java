@@ -112,7 +112,7 @@ public class BinarySearchIndex extends Index {
 			if (previousRegion != null) {
 				if (previousRegion.start.compareTo(region.start) > 0) {
 					throw new UnsortedDataException("File " + getFile() + " isn't sorted correctly. " +
-							"Please sort the file first.");
+							"Please sort the file first.", getFile().toString());
 				}
 			}
 			previousRegion = region;

@@ -2,6 +2,8 @@ package fi.csc.microarray.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -31,7 +33,39 @@ public class FilesTest {
 	public void tearDown() {
 		testRoot.delete();
 	}
+
 	
+	@Test
+	public void testListFilesRecursivelySortByDateOldestFirst() throws IOException, InterruptedException {
+		File dir = new File("testdir");
+
+		try {
+			dir.mkdir();
+
+			File f1 = new File(dir, "f1");
+			f1.createNewFile();
+			File f2 = new File(dir, "f2");
+			f2.createNewFile();
+			File f3 = new File(dir, "f3");
+			f3.createNewFile();
+			Calendar c = Calendar.getInstance(); 
+			c.add(Calendar.DATE, 1);
+			f2.setLastModified(c.getTime().getTime()); // f2 is newer (created "tomorrow")
+			c.add(Calendar.DATE, -2);
+			f3.setLastModified(c.getTime().getTime()); // f3 is older (created "yesterday")
+
+			List<File> list = Files.listFilesRecursivelySortByDateOldestFirst(dir);
+			Assert.assertEquals(list.get(0), f3);
+			Assert.assertEquals(list.get(1), f1);
+			Assert.assertEquals(list.get(2), f2);
+			Assert.assertEquals(list.size(), 3);
+			
+		} finally {
+
+			Files.delTree(dir);
+		}
+	}
+
 	@Test
 	public void testDelTree() throws IOException {
 		
@@ -70,13 +104,14 @@ public class FilesTest {
 		return dir;
 	}
 	
-	public static void main(String[] args) throws IOException {
-		FilesTest t = new FilesTest();
-		try {
-			t.setUp();
-			t.testDelTree();
-		} finally {
-			t.tearDown();
-		}
+	public static void main(String[] args) throws IOException, InterruptedException {
+		new FilesTest().testListFilesRecursivelySortByDateOldestFirst();
+//		FilesTest t = new FilesTest();
+//		try {
+//			t.setUp();
+//			t.testDelTree();
+//		} finally {
+//			t.tearDown();
+//		}
 	}
 }
