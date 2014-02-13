@@ -72,14 +72,14 @@ if(chiptype != "oligo") {
 	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
 } else {
 	data.raw <- read.celfiles(filenames=list.celfiles())
-	dat2 <- rma(data.raw)
+	dat2 <- oligo::rma(data.raw)
 }
 
 dat2<-as.data.frame(round(exprs(dat2), digits=2))
 names(dat2)<-paste("chip.", names(dat2), sep="")
 
 # Writes out a phenodata
-sample<-colnames(dat2)
+sample<-gsub("chip.", "", colnames(dat2))
 group<-c(rep("", ncol(dat2)))
 training<-c(rep("", ncol(dat2)))
 time<-c(rep("", ncol(dat2)))
