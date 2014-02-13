@@ -26,10 +26,10 @@ public class VisualisationUtilities {
 	public static DataBean filterBySelection(List<DataBean> datas) {
 		try {
 
-			// Doing this with multiple datas isn't pretty, so here is simple solution
-			// for single datas
+			// Doing this with multiple datas isn't pretty, so here is a  simple solution
+			// for single data
 
-			if (datas.size() == 1) {
+			if (datas.size() == 1) {				
 				Collection<String> lines = application.getSelectionManager().getSelectionManager(datas.get(0)).getSelectedLines();
 				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			} else {

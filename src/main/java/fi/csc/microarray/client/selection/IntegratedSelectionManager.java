@@ -69,39 +69,39 @@ public class IntegratedSelectionManager {
 	public List<String> getSelectedLines() throws Exception {
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
-		BufferedReader original = null;
-		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-		String line;
-				
-		boolean hasColumnNames = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-		boolean skipFirstRow = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_HEADER_ROW);
+		
+		try (BufferedReader original = new BufferedReader(new InputStreamReader(data.getContentByteStream()))) {
+			String line;
 
-		//For binary search
-		Arrays.sort(selectedRows);
-
-		for (int i = 0; (line = original.readLine()) != null; i++) {
-			boolean addLine = false;
-						
-			if (hasColumnNames && i == 0) {
-				addLine = true;
-			} else {
-				if (skipFirstRow || hasColumnNames) {
-					addLine = Arrays.binarySearch(selectedRows, i - 1) >= 0;				
-				} else {
-					addLine = Arrays.binarySearch(selectedRows, i) >= 0;
-				}
-			}
+			// skip header
 			
-			if (addLine) {
-				lines.add(line);
+			String header = data.queryFeatures("/header").asString();
+			for (long l = 0; l < header.length(); l++) {
+				original.read();			
+			}						
+
+			// copy column names if available
+			
+			boolean hasColumnNames = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+			
+			if (hasColumnNames) {
+				lines.add(original.readLine());
 			}
-		}
 
-		if (original != null) {
-			original.close();
-		}
+			// copy selected rows
+			
+			// prepare for binary search
+			Arrays.sort(selectedRows);
 
-		return lines;
+			for (int i = 0; (line = original.readLine()) != null; i++) {
+
+				if (Arrays.binarySearch(selectedRows, i) >= 0) {				
+					lines.add(line);
+				}
+			}	
+
+			return lines;
+		}
 	}
 		
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
@@ -117,9 +117,13 @@ public class IntegratedSelectionManager {
 		
 		DataBean newData = dataManager.createDataBean("user_edited." + ext);
 		
+		String header = primarySource.queryFeatures("/header").asString();
+		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+		
+		writer.append(header);
 
 		for (String line : lines) {
 			writer.write(line);

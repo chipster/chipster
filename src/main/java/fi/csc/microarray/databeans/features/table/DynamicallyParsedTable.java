@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.MatrixParseSettings;
-import fi.csc.microarray.databeans.features.table.TableColumnProvider.TableColumn;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
@@ -71,7 +70,7 @@ public class DynamicallyParsedTable implements Table {
 				
 				// parse away headers, if any
 				if (settings.headerBytes != 0) {
-					TableColumn.parseAwayHeader(source, settings);
+					TableColumnProvider.parseAwayHeader(source, settings);
 				}
 
 				// skip column name row, if any
@@ -117,7 +116,7 @@ public class DynamicallyParsedTable implements Table {
 		ArrayList<String> result = new ArrayList<String>(settings.columns.size());
 		row = preprocessExternalData(row);
 
-		String[] cells = TableColumn.tokeniseRow(row);
+		String[] cells = TableColumnProvider.tokeniseRow(row);
 		for (int i = 0; i < settings.columns.values().size(); i++) {
 			String cell;
 			if (i < cells.length) {

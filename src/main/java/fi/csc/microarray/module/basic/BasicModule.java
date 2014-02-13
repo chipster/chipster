@@ -32,6 +32,7 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
+import fi.csc.microarray.databeans.features.table.HeaderProvider;
 import fi.csc.microarray.databeans.features.table.RowCountProvider;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -97,6 +98,7 @@ public class BasicModule implements Module {
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/phenodata", new PhenodataProvider()); // FIXME should be in microarray module, but phenodata checks must be fixed first
 		manager.plugFeatureFactory("/column", new TableColumnProvider());
+		manager.plugFeatureFactory("/header", new HeaderProvider());
 		manager.plugFeatureFactory("/rowcount", new RowCountProvider());
 	}
 
