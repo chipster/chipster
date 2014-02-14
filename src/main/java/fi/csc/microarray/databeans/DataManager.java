@@ -979,6 +979,8 @@ public class DataManager {
 		
 		// change data id
 		bean.setId(CryptoKey.generateRandom());
+		bean.setChecksum(null);
+		bean.setSize(null);
 		
 		return tempLocalLocation.getHandler().getOutputStream(tempLocalLocation); 
 	}

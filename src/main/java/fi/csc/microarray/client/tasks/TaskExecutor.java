@@ -495,7 +495,7 @@ public class TaskExecutor {
 				} catch (Exception e) {
 					// could not send job message --> task fails
 					logger.error("Could not send job message.", e);
-					updateTaskState(task, State.ERROR, "Sending message failed", -1);
+					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
 					removeFromRunningTasks(task);
 				}
 			}

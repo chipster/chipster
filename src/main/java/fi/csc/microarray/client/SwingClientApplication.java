@@ -898,6 +898,11 @@ public class SwingClientApplication extends ClientApplication {
 		if (task.getErrorMessage() != null) {
 			details += task.getErrorMessage() + "\n\n";
 		}
+		
+		if (task.getStateDetail() != null) {
+			details += task.getStateDetail() + "\n\n";
+		}
+		
 		details += "----------------------------------------------------------------------\n";
 		
 		if (task.getScreenOutput() != null) {
