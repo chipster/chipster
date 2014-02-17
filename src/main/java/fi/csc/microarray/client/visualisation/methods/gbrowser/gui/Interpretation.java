@@ -188,103 +188,76 @@ public class Interpretation {
 	}
 	
 
-	public BamToDetailsConversion getBamDetailsDataThread(GBrowser browser) {
+	public BamToDetailsConversion getBamDetailsDataThread(GBrowser browser) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 
 			BamDataSource dataSource;
-			try {
-				//Create always a new data source, because picard doesn't support concurrent access
-				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-				return new BamToDetailsConversion(dataSource, browser);
-				
-			} catch (URISyntaxException | IOException e) {
-				browser.reportException(e);
-			}
+
+			//Create always a new data source, because picard doesn't support concurrent access
+			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
+			return new BamToDetailsConversion(dataSource, browser);
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
-	public BamToCoverageConversion getBamCoverageDataThread(GBrowser browser) {
+	public BamToCoverageConversion getBamCoverageDataThread(GBrowser browser) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 
-			try {
-				//Create always a new data source, because picard doesn't support concurrent access
-				BamDataSource dataSource;
-				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-				return new BamToCoverageConversion(dataSource, browser);
-				
-			} catch (URISyntaxException | IOException e) {
-				browser.reportException(e);
-			}
+			//Create always a new data source, because picard doesn't support concurrent access
+			BamDataSource dataSource;
+			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
+			return new BamToCoverageConversion(dataSource, browser);				
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 
-	public BamToCoverageEstimateConversion getBamCoverageEstimateDataThread(GBrowser browser) {
+	public BamToCoverageEstimateConversion getBamCoverageEstimateDataThread(GBrowser browser) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.READS) {
 			
 			BamDataSource dataSource;
-			try {
-				//Create always a new data source, because picard doesn't support concurrent access
-				dataSource = new BamDataSource(getPrimaryData(), getIndexData());
-				return new BamToCoverageEstimateConversion(dataSource, browser);
-				
-			} catch (URISyntaxException | IOException e) {
-				browser.reportException(e);
-			}
+			
+			//Create always a new data source, because picard doesn't support concurrent access
+			dataSource = new BamDataSource(getPrimaryData(), getIndexData());
+			return new BamToCoverageEstimateConversion(dataSource, browser);		
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public ScatterplotFileLineConversion getBedLineDataThread(GBrowser browser) {
+	public ScatterplotFileLineConversion getBedLineDataThread(GBrowser browser) throws URISyntaxException, IOException, GBrowserException {
 
 		if (getType() == TrackType.REGIONS) {
 
 			if (bedLineDataThread == null) {
-				try {
-					bedLineDataThread = new ScatterplotFileLineConversion(getPrimaryData(), new BedLineParser(true), browser);
-
-				} catch (URISyntaxException | IOException e) {
-					browser.reportException(e);
-				} catch (GBrowserException e) {
-					e.printStackTrace();
-				}
+				
+				bedLineDataThread = new ScatterplotFileLineConversion(getPrimaryData(), new BedLineParser(true), browser);				
 			}
 			return bedLineDataThread;
 		}
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public FileLineConversion getTsvDataThread(GBrowser browser) {
+	public FileLineConversion getTsvDataThread(GBrowser browser) throws UnsortedDataException, URISyntaxException, IOException, GBrowserException {
 
 		if (getType() == TrackType.TSV || getType() == TrackType.TSV_WITH_ROW_ID) {
 
 			if (tsvDataThread == null) {
-				try {
-					tsvDataThread = new FileLineConversion(getPrimaryData(), new TsvLineParser(getPrimaryData(), getType()), browser);
-
-				} catch (URISyntaxException | IOException e) {
-					browser.reportException(e);
-				}
+				
+				tsvDataThread = new FileLineConversion(getPrimaryData(), new TsvLineParser(getPrimaryData(), getType()), browser);				
 			}
 		}
 		return tsvDataThread;
 	}
 	
-	public FileLineConversion getVcfDataThread(GBrowser browser) {
+	public FileLineConversion getVcfDataThread(GBrowser browser) throws UnsortedDataException, URISyntaxException, IOException, GBrowserException {
 
 		if (getType() == TrackType.VCF) {
 
 			if (vcfDataThread == null) {
-				try {
-					vcfDataThread = new FileLineConversion(getPrimaryData(), new VcfLineParser(), browser);
 
-				} catch (URISyntaxException | IOException e) {
-					browser.reportException(e);
-				}
+				vcfDataThread = new FileLineConversion(getPrimaryData(), new VcfLineParser(), browser);
 			}
 			return vcfDataThread;
 		}
@@ -304,18 +277,13 @@ public class Interpretation {
 		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
 	}
 	
-	public CnaConversion getCnaDataThread(GBrowser browser) {
+	public CnaConversion getCnaDataThread(GBrowser browser) throws URISyntaxException, IOException {
 
 		if (getType() == TrackType.CNA) {
 			
 			if (cnaDataThread == null) {
 
-				try {
-					cnaDataThread = new CnaConversion(new RandomAccessLineDataSource(getPrimaryData()), browser);
-					
-				} catch (URISyntaxException | IOException e) {
-					browser.reportException(e);
-				}									
+				cnaDataThread = new CnaConversion(new RandomAccessLineDataSource(getPrimaryData()), browser);
 			}
 			return cnaDataThread;
 		}

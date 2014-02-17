@@ -10,15 +10,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 /**
  * Selection manager for the rows that are selected from the specific dataset.
@@ -66,34 +69,61 @@ public class IntegratedSelectionManager {
 	public List<String> getSelectedLines() throws Exception {
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
-		BufferedReader original = null;
-		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
-		String line;
+		
+		try (BufferedReader original = new BufferedReader(new InputStreamReader(data.getContentByteStream()))) {
+			String line;
 
-		//For binary search
-		Arrays.sort(selectedRows);
+			// skip header
+			
+			String header = data.queryFeatures("/header").asString();
+			for (long l = 0; l < header.length(); l++) {
+				original.read();			
+			}						
 
-		for (int i = 0; (line = original.readLine()) != null; i++) {
-			if (i == 0 || Arrays.binarySearch(selectedRows, i - 1) >= 0) {
-				lines.add(line);
+			// copy column names if available
+			
+			boolean hasColumnNames = data.getTypeTags().contains(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+			
+			if (hasColumnNames) {
+				lines.add(original.readLine());
 			}
-		}
 
-		if (original != null) {
-			original.close();
-		}
+			// copy selected rows
+			
+			// prepare for binary search
+			Arrays.sort(selectedRows);
 
-		return lines;
+			for (int i = 0; (line = original.readLine()) != null; i++) {
+
+				if (Arrays.binarySearch(selectedRows, i) >= 0) {				
+					lines.add(line);
+				}
+			}	
+
+			return lines;
+		}
 	}
 		
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
 		DataManager dataManager = Session.getSession().getApplication().getDataManager();
 		
-		DataBean newData = dataManager.createDataBean("user_edited.tsv");
+		DataBean primarySource = sources[0]; // use the first source as the primary source
+		
+		String ext = FilenameUtils.getExtension(primarySource.getName());
+		
+		if (ext == null || ext == "") {
+			ext = "tsv";
+		}
+		
+		DataBean newData = dataManager.createDataBean("user_edited." + ext);
+		
+		String header = primarySource.queryFeatures("/header").asString();
 		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+		
+		writer.append(header);
 
 		for (String line : lines) {
 			writer.write(line);
@@ -107,7 +137,7 @@ public class IntegratedSelectionManager {
 
 		
 		// set metadata
-		DataBean primarySource = sources[0]; // use the first source as the primary source		
+				
 		newData.setContentType(primarySource.getContentType());
 		for (DataBean data : sources) {
 			newData.addLink(Link.MODIFICATION, data);

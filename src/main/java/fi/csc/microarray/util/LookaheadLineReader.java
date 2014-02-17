@@ -38,15 +38,17 @@ public class LookaheadLineReader {
 		
 	}
 
-	public void read(int chars) throws IOException {
+	public String read(int chars) throws IOException {
 		String line = peekLine();
 		line = line.substring(chars);
 		if (line.length() == 0) {
 			readLine(); // remove first line because it would become empty
+			return "";
 		} else {
 			// replace line with shortened version
 			buffer.remove(0);
-			buffer.add(0, line); 
+			buffer.add(0, line);
+			return line.substring(0, chars);
 		}
 	}
 

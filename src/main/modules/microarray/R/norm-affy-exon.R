@@ -5,19 +5,12 @@
 # PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
-# Affymetrix normalization
-# JTT 8.6.2006
-# Changes to column naming on 29.6.2006
-# Changes to phenodata table writing on 29.1.2007
-#
-# modified 11.11.2009, MG
-# Changes to CDF package names to match BRainArray version 12
-# 
-# modified 25.11.2009, MG
-# Gene symbols and gene names are now incorporated to the table
-# of normalized values when using "gene" as summary feature
-# but not for "exon", since the annotation packages do not
-# support this
+# JTT 08.06.2006: Created
+# JTT 29.06.2006: Changes to column naming on 
+# JTT 29.01.2007: Changes to phenodata table writing on 
+# MG 11.11.2009: modified 11.11.2009
+# MG 25.11.2009: modified 25.11.2009
+# MK 12.02.2014: added hta-20 chips to the body. Not yet added to SADL-descriptions
 
 # Initializes analyses
 library(oligo)
@@ -46,6 +39,12 @@ if(chiptype=="rat" & summary.feature=="exon") {
 	#dat@cdfName<-"raex10stv1rnensecdf"
 	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
+if(chiptype=="human-hta" & summary.feature=="exon") {
+	custom_cdf = "hta20hsensecdf"
+	chiptype <- "hta20hsensecdf.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
 
 if(chiptype=="human" & summary.feature=="gene") {
 	custom_cdf <- "huex10stv2hsentrezgcdf"
@@ -65,6 +64,13 @@ if(chiptype=="rat" & summary.feature=="gene") {
 	#dat@cdfName<-"raex10stv1rnentrezgcdf"
 	#dat@annotation<-"raex10stv1rnentrezg.db"
 }
+if(chiptype=="human-hta" & summary.feature=="gene") {
+	custom_cdf = "hta20hsentrezgcdf"
+	chiptype <- "hta20hsentrezg.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
+
 #chiptype<-dat@annotation
 
 # Normalizations

@@ -8,8 +8,9 @@
 # Affymetrix normalization
 # JTT, 3.2.2009
 # MG 18.10.2011, added version 1.1 ST arrays
-# MK 15.05.2014 added new arrays
-# MK 13.02.2014 annotation for oligo packages
+# MK 15.05.2014, added new arrays
+# MK 12.02.2014, added hta-20 chip
+# MK 13.02.2014, annotation for oligo packages
 
 # Initializes analyses
 library(oligo)
@@ -50,6 +51,13 @@ if(chiptype=="human-2.1-ST") {
 	#dat@cdfName<-"hugene21sthsentrezgcdf"
 	#dat@annotation<-"hugene21sthsentrezgcdf"
 	chiptype<-"hugene21sthsentrezg.db"
+	dataset <- "hsapiens_gene_ensembl"
+}
+if(chiptype=="human-hta20") {
+	custom_cdf = "hta20hsentrezgcdf"
+	#dat@cdfName<-"hugene21sthsentrezgcdf"
+	#dat@annotation<-"hugene21sthsentrezgcdf"
+	chiptype<-"hta20hsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="mouse-1.0-ST") {

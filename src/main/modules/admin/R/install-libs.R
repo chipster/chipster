@@ -295,8 +295,8 @@ smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0,
 
 
 # Install BrainArray custom CDF's
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/entrezg.asp")
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/tairg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/entrezg.asp")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/tairg.asp")
 # Install exon arrays from BrainArray. Parameter chiptype can be used to grep files with a certain substring
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/ense.asp", chiptype="ex")
-
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="ex")
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="hta")
