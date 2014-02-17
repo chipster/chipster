@@ -13,8 +13,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
@@ -57,8 +57,8 @@ public class BamToDetailsConversion extends DataThread {
 	protected void processDataRequest(DataRequest request) {
 
 		// Read the given region
-		CloseableIterator<SAMRecord> iterator = dataSource.query(request.start.chr, request.start.bp.intValue(), request.end.bp.intValue());		
-
+		CloseableIterator<SAMRecord> iterator = dataSource.query(request.start.chr, request.start.bp.intValue(), request.end.bp.intValue());
+		
 		// Produce results
 		while (iterator.hasNext()) {
 

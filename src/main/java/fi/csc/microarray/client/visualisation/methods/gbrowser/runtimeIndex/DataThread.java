@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -132,15 +133,19 @@ public abstract class DataThread {
 	 */
 	public void createDataResult(final DataResult dataResult) {
 
-		SwingUtilities.invokeLater(new Runnable() {
-						
-			public void run() {
-				
-				if (queueManager != null) {
-					queueManager.processDataResult(dataResult);
-				}
-			}						
-		});
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+							
+				public void run() {
+					
+					if (queueManager != null) {
+						queueManager.processDataResult(dataResult);
+					}
+				}						
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}	
 	
 	public void setQueue(Queue<DataRequest> queue) {
