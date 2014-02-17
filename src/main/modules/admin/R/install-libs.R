@@ -14,7 +14,7 @@ script.basename <- normalizePath(script.basename)
 
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
-source(paste(script.basename, "/smip.R", sep=""));
+#source(paste(script.basename, "/smip.R", sep=""));
 
 # Configure paths and repos (change if you need)
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
