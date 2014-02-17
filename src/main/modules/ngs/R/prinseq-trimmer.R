@@ -1,16 +1,16 @@
 # TOOL prinseq-trimmer.R: "Trim reads for several criteria" (Trims reads based on given criteria. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
-# OUTPUT OPTIONAL trimmed.fastq
-# OUTPUT OPTIONAL trimmed_1.fastq
-# OUTPUT OPTIONAL trimmed_2.fastq
-# OUTPUT OPTIONAL trimmed_1_singletons.fastq
-# OUTPUT OPTIONAL trimmed_2_singletons.fastq
-# OUTPUT OPTIONAL trimmed.fasta
-# OUTPUT OPTIONAL trimmed_1.fasta
-# OUTPUT OPTIONAL trimmed_2.fasta
-# OUTPUT OPTIONAL trimmed_1_singletons.fasta
-# OUTPUT OPTIONAL trimmed_2_singletons.fasta
+# OUTPUT OPTIONAL trimmed.fastq.gz
+# OUTPUT OPTIONAL trimmed_1.fastq.gz
+# OUTPUT OPTIONAL trimmed_2.fastq.gz
+# OUTPUT OPTIONAL trimmed_1_singletons.fastq.gz
+# OUTPUT OPTIONAL trimmed_2_singletons.fastq.gz
+# OUTPUT OPTIONAL trimmed.fasta.gz
+# OUTPUT OPTIONAL trimmed_1.fasta.gz
+# OUTPUT OPTIONAL trimmed_2.fasta.gz
+# OUTPUT OPTIONAL trimmed_1_singletons.fasta.gz
+# OUTPUT OPTIONAL trimmed_2_singletons.fasta.gz
 # OUTPUT OPTIONAL trim.log
 # PARAMETER input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
 # PARAMETER phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
@@ -33,6 +33,7 @@
 # EK 7.5.2013 Reorganized parameters
 # AMS 06.11.2013 Added support for paired-end reads
 # AMS 07.01.2014 Paired-end reads now handled by PRINSEQ
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -63,7 +64,7 @@ is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl"))
 
 # Parameters
-trim.params <- paste(" ")
+trim.params <- paste("")
 if (!is.na(trim.to.len)) {
 	trim.params <- paste(trim.params, "-trim_to_len", trim.to.len )
 }
@@ -105,7 +106,7 @@ if ( phred64 == "y") {
 }
 
 if (input.mode == "fq") {
-	trim.params <- paste(trim.params, "-fastq fastqfile")
+	trim.params <- paste(trim.params, "-no_qual_header -fastq fastqfile")
 	if (is_paired_end) {
 		trim.params <- paste(trim.params, "-fastq2 matepair_fastqfile")
 	} 
@@ -128,4 +129,8 @@ if (log.file == "y") {
 
 
 system(trim.command)
+
+system("gzip *.fastq")
+system("gzip *.fasta")
+
 

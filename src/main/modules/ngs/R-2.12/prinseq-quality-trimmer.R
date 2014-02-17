@@ -1,6 +1,6 @@
 # TOOL prinseq-quality-trimmer.R: "Trim reads by quality" (Trims reads based on the quality values. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
-# OUTPUT trimmed.fastq
+# OUTPUT trimmed.fastq.gz
 # OUTPUT OPTIONAL trim.log
 # PARAMETER OPTIONAL trim.qual.right: "Trim 3-prime end by quality" TYPE INTEGER (Trim reads from the 3-prime end using the given quality threshold score.)		
 # PARAMETER OPTIONAL trim.qual.left: "Trim 5-prime end by quality" TYPE INTEGER (Trim reads from the 5-prime end using the given quality threshold score.)
@@ -12,6 +12,7 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
 # KM 17.1.2012
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -36,7 +37,7 @@ if ( phred64 == "y") {
 }
 
 
-trim.command <- paste(binary.prinseq, trim.params, "-fastq fastqfile -out_good trimmed")
+trim.command <- paste(binary.prinseq, trim.params, "-fastq fastqfile -out_good trimmed -no_qual_header")
 
 
 if (log.file == "y") {
@@ -49,8 +50,6 @@ if (log.file == "y") {
 
 system(trim.command)
 
-#Make sure something is in the output
-system("if [ ! -e  trimmed.fastq ] ; then echo 'Trimming produced an empty trimmed.fastq sequence set' >> trim.log ; echo '' > trimmed.fastq ; fi")
+system("gzip *.fastq")
 
-#stop
 
