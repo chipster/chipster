@@ -1,9 +1,9 @@
 # TOOL prinseq-complexity-filter.R: "Filter reads for low complexity" (Filters out low complexity reads using either the DUST or ENTROPY method. The method is selected by defining a threshold value for one of the methods. This tool is based on the PRINSEQ package)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
-# OUTPUT OPTIONAL accepted.fastq
-# OUTPUT OPTIONAL accepted.fasta
-# OUTPUT OPTIONAL rejected.fastq
-# OUTPUT OPTIONAL rejected.fasta
+# OUTPUT OPTIONAL accepted.fastq.gz
+# OUTPUT OPTIONAL accepted.fasta.gz
+# OUTPUT OPTIONAL rejected.fastq.gz
+# OUTPUT OPTIONAL rejected.fasta.gz
 # OUTPUT OPTIONAL filter.log
 # PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST method with the given maximum allowed score, between 0 and 100. Reads with complexity scores above 7 can be considered low complexity.)
 # PARAMETER OPTIONAL lc.entropy: "ENTROPY filter threshold" TYPE INTEGER (Use ENTROPY method with the given minimum allowed entropy value, between 0 and 100. Reads with entropy value below 70 can be considered low complexity.)
@@ -12,6 +12,7 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file.)
 
 # KM 17.1.2012
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -21,7 +22,7 @@ unzipIfGZipFile("fastqfile")
 # binary
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 
-filter.params <- paste(" ")
+filter.params <- paste("")
 
 if (!is.na(lc.dust)) {
 	if (!is.na(lc.entropy)) {
@@ -42,7 +43,7 @@ if (output.mode == "both") {
 }
 
 if (input.mode == "fq") {
-	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted")
+	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted -no_qual_header")
 }
 
 if (input.mode == "fa") {
@@ -59,24 +60,6 @@ if (log.file == "y") {
 
 system(filter.command)
 
-#Make sure that something is given as an output
-if (input.mode == "fq") {
-	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
-}
-
-if (input.mode == "fa") {
-	system("if [ ! -e  accepted.fasta ] ; then echo 'Filtering produced an empty accepted.fasta sequence set.' >> filter.log  ; echo '' > accepted.fasta ; fi")
-}
-
-if (output.mode == "both") {
-	if (input.mode == "fq") {
-		system("if [ ! -e  rejected.fastq ] ; then echo 'Filtering produced an empty rejected.fastq sequence set.' >> filter.log ; echo '' > rejected.fastq ; fi")
-	}
-	
-	if (input.mode == "fa") {
-		system("if [ ! -e  rejected.fasta ] ; then echo 'Filtering produced an empty rejected.fasta sequence set.' >> filter.log  ; echo '' > rejected.fasta ; fi")
-	}
-}
-
-#stop
+system("gzip *.fastq")
+system("gzip *.fasta")
 

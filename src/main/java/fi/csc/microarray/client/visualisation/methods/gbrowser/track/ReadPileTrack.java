@@ -32,13 +32,14 @@ public class ReadPileTrack extends Track {
 	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 
+	private static final int MAX_FULL_HEIGHT = 1000;
+
 	private DataThread refData;
 	private Collection<Feature> referenceSequenceFeatures = new TreeSet<Feature>();
 
 	private boolean highlightSNP = false;
 
-	private Collection<Feature> reads = new TreeSet<Feature>();
-
+	private TreeSet<Feature> dividedReads = new TreeSet<Feature>();
 
 	public ReadPileTrack(DataThread refData, Color fontColor) {
 		super();
@@ -52,26 +53,6 @@ public class ReadPileTrack extends Track {
 
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(referenceSequenceFeatures, view, strand) : null;		
-
-		Iterator<Feature> readIter = reads.iterator();
-		Feature read = null;
-		
-		TreeSet<Feature> dividedReads = new TreeSet<Feature>();
-	
-		Collection<CigarItemType> splitters = new HashSet<CigarItemType>();
-		splitters.add(CigarItemType.N);
-
-		while (readIter.hasNext()) {
-			read = readIter.next();
-
-			// Skip elements that are not in this view
-			if (!getView().requestIntersects(read.region)) {
-				readIter.remove();
-				continue;
-			}
-			
-			dividedReads.addAll(Cigar.splitRead(read, splitters));
-		}	
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
 		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
@@ -121,21 +102,24 @@ public class ReadPileTrack extends Track {
 			readRect.y = getYCoord(layer, GBrowserConstants.READ_HEIGHT);
 			readRect.height = GBrowserConstants.READ_HEIGHT;
 
-			boolean lastBeforeMaxStackingDepthCut = false;
-			int maxHeight = getComponent().getHeight();
+			boolean lastBeforeMaxStackingDepthCut = false;						
+			int maxHeight;
 			
-			if (getLayoutMode() != LayoutMode.FULL) {
-				// Check if we are about to go over the edge of the drawing area
-				int nextLayerY = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT);
-				lastBeforeMaxStackingDepthCut = nextLayerY >= maxHeight;
-				
-				// Check if we are over the edge of the drawing area
-				if (readRect.y > maxHeight) {
-					
-					continue;
-				}				
+			if (getLayoutMode() == LayoutMode.FULL) {
+				maxHeight = getYCoord(MAX_FULL_HEIGHT, GBrowserConstants.READ_HEIGHT);				
+			} else {
+				maxHeight = getComponent().getHeight();				
 			}
 			
+			// Check if we are about to go over the edge of the drawing area
+			int nextLayerY = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT);
+			lastBeforeMaxStackingDepthCut = nextLayerY >= maxHeight;
+			
+			// Check if we are over the edge of the drawing area
+			if (readRect.y > maxHeight) {					
+				splittedReadIter.remove();
+				continue;
+			}				
 
 			for (ReadPart readPart : Cigar.splitElements(splittedRead)) {
 
@@ -261,7 +245,7 @@ public class ReadPileTrack extends Track {
 
 					}					
 				}
-			}
+			}			
 		}		
 
 		return drawables;
@@ -272,10 +256,19 @@ public class ReadPileTrack extends Track {
 	}
 
 	public void processDataResult(DataResult dataResult) {
+		
+		Collection<CigarItemType> splitters = new HashSet<CigarItemType>();
+		splitters.add(CigarItemType.N);
 
-		for (Feature regCont : dataResult.getFeatures()) {
-			if (regCont.values.get(DataType.STRAND) == this.getStrand() && regCont.values.containsKey(DataType.SEQUENCE)) {
-				this.reads.add(regCont);
+		for (Feature feature : dataResult.getFeatures()) {
+			if (feature.values.get(DataType.STRAND) == this.getStrand() && feature.values.containsKey(DataType.SEQUENCE)) {
+				
+				// Skip elements that are not in this view
+				if (!getView().requestIntersects(feature.region)) {
+					continue;
+				}
+
+				dividedReads.addAll(Cigar.splitRead(feature, splitters));
 			}
 		}
 
