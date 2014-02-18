@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
@@ -128,14 +126,9 @@ public class QueueManager {
 
 	public void poisonAll() {
 		
-		for (Entry<DataThread, QueueContext> entry : queues.entrySet()) {
+		for (DataThread thread : queues.keySet()) {		
 			
-			DataStatus status = new DataStatus();
-			status.poison = true;
-			DataRequest request = new DataRequest(new Region(), null, status);
-						
-			QueueContext context = entry.getValue();
-			context.queue.add(request);		
+			thread.poison();
 		}
 	}
 

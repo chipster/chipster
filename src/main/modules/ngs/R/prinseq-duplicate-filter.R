@@ -1,9 +1,9 @@
 # TOOL prinseq-duplicate-filter.R: "Filter reads for duplicates" (Removes duplicate reads. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
-# OUTPUT OPTIONAL accepted.fastq
-# OUTPUT OPTIONAL accepted.fasta
-# OUTPUT OPTIONAL rejected.fastq
-# OUTPUT OPTIONAL rejected.fasta
+# OUTPUT OPTIONAL accepted.fastq.gz
+# OUTPUT OPTIONAL accepted.fasta.gz
+# OUTPUT OPTIONAL rejected.fastq.gz
+# OUTPUT OPTIONAL rejected.fasta.gz
 # OUTPUT OPTIONAL filter.log
 # PARAMETER derep: "Type of duplicates to filter" TYPE [1: "exact duplicate", 2: "5-prime duplicate", 3: "3-prime duplicate", 4: "reverse complement exact duplicate", 5:"reverse complement 5-prime/3-prime duplicate"] DEFAULT 1 (Type of duplicates to filter.)
 # PARAMETER derep.min: "Number of allowed duplicates" TYPE INTEGER DEFAULT 2 (This option specifies the number of allowed duplicates. For example, to remove sequences that occur more than 5 times, you would specify value 6. Note that this option is used only for filtering exact duplicates or reverse complement exact duplicates.)
@@ -12,6 +12,7 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file.)
 
 # KM 17.1.2012
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -35,7 +36,7 @@ if (output.mode == "both") {
 }
 
 if (input.mode == "fq") {
-	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted")
+	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted -no_qual_header")
 }
 
 if (input.mode == "fa") {
@@ -52,23 +53,5 @@ if (log.file == "y") {
   
 system(filter.command)
 
-#Make sure that something is given as an output
-if (input.mode == "fq") {
-	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
-}
-
-if (input.mode == "fa") {
-	system("if [ ! -e  accepted.fasta ] ; then echo 'Filtering produced an empty accepted.fasta sequence set.' >> filter.log  ; echo '' > accepted.fasta ; fi")
-}
-
-if (output.mode == "both") {
-	if (input.mode == "fq") {
-		system("if [ ! -e  rejected.fastq ] ; then echo 'Filtering produced an empty rejected.fastq sequence set.' >> filter.log ; echo '' > rejected.fastq ; fi")
-	}
-	
-	if (input.mode == "fa") {
-		system("if [ ! -e  rejected.fasta ] ; then echo 'Filtering produced an empty rejected.fasta sequence set.' >> filter.log  ; echo '' > rejected.fasta ; fi")
-	}
-}
-#stop
-
+system("gzip *.fastq")
+system("gzip *.fasta")

@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
@@ -13,10 +14,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadpartDataProvider;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.BaseStorage.Base;
 
@@ -45,9 +46,9 @@ public class BamToCoverageConversion extends DataThread {
 
 
 	@Override
-	protected void processDataRequest(DataRequest request) {							
+	protected void processDataRequest(DataRequest request) throws InterruptedException {							
 		
-		long step = 1*10000;
+		long step = 10_000;
 		
 		// Divide visible region into subregions and iterate over them
 		for (long pos = request.start.bp; pos < request.end.bp; pos += step ) {
@@ -59,7 +60,7 @@ public class BamToCoverageConversion extends DataThread {
 		}
 	}
 
-	private void calculateCoverage(DataRequest request, BpCoord from, BpCoord to) {	
+	private void calculateCoverage(DataRequest request, BpCoord from, BpCoord to) throws InterruptedException {	
 				
 		//query data for full average bins, because merging them later would be difficult
 		long start = CoverageTool.getBin(from.bp);		
@@ -70,9 +71,10 @@ public class BamToCoverageConversion extends DataThread {
 			end = 1;
 		}
 				
-		CloseableIterator<SAMRecord> iterator = dataSource.query(from.chr, (int)start, (int)end);
+		CloseableIterator<SAMRecord> iterator = dataSource.query(from.chr, (int)start, (int)end);		
 		
-		LinkedList<Feature> reads = new LinkedList<Feature>();
+		BaseStorage forwardBaseStorage = new BaseStorage();
+		BaseStorage reverseBaseStorage = new BaseStorage();
 		
 		while (iterator.hasNext()) {
 			
@@ -94,21 +96,23 @@ public class BamToCoverageConversion extends DataThread {
 			String seq = record.getReadString();
 			values.put(DataType.SEQUENCE, seq);
 			
-			reads.add(read);			
 			
-		}				
+			// Split read into continuous blocks (elements) by using the cigar
+			List<ReadPart> parts = Cigar.splitElements(read);
+			
+			for (ReadPart part : parts) {				 
+				
+				if (read.values.get(DataType.STRAND) == Strand.FORWARD) {
+					forwardBaseStorage.addNucleotideCounts(part);
+				} else if (read.values.get(DataType.STRAND) == Strand.REVERSE) {
+					reverseBaseStorage.addNucleotideCounts(part);			
+				}
+			}						
+		}
 				
 		// We are done
 		iterator.close();
-		
-		ReadpartDataProvider readpartProvider = new ReadpartDataProvider();
-		readpartProvider.addReads(reads);		
-		BaseStorage forwardBaseStorage = new BaseStorage();
-		BaseStorage reverseBaseStorage = new BaseStorage();
-		
-		forwardBaseStorage.getNucleotideCounts(readpartProvider.getReadparts(Strand.FORWARD), null, null);
-		reverseBaseStorage.getNucleotideCounts(readpartProvider.getReadparts(Strand.REVERSE), null, null);
-		
+				
 		/* Reads that overlap query regions create nucleotide counts outside the query region.
 		 * Remove those extra nucleotide counts, because they don't contain all reads of those regions and would show
 		 * wrong information. 

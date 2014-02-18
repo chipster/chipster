@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -33,7 +34,7 @@ public abstract class DataThread {
 	protected Thread thread;
 
 
-	private boolean poison = false;
+	private volatile boolean poison = false;
 
 	private Region dataRegion;
 
@@ -73,27 +74,24 @@ public abstract class DataThread {
 								
 								processRequest = 
 										dataRegion == null || 
-										dataRequest.getStatus().poison || //poison requests would cause nullPointer on the next line
 										dataRequest instanceof GeneRequest || //searched gene may be in other chromosome
 										(dataRegion != null && dataRegion.intersects(dataRequest));
 							}
 							
 							if (processRequest) {
 								
-								if (!checkPoison(dataRequest)) {
-									try {
-										processDataRequest(dataRequest);
-									} catch (GBrowserException e) {
-										reportException(e);
-										poison = true;
-									}
+								try {
+									processDataRequest(dataRequest);
+								} catch (GBrowserException e) {
+									reportException(e);
+									poison = true;
 								}
 							} else {
 								//skip this request, because the data isn't needed anymore
 							}							
 						}
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						//thread poisoned
 					}
 				}
 				clean();
@@ -111,36 +109,38 @@ public abstract class DataThread {
 	 */
 	public void clean() {		
 	}
-	
-	private boolean checkPoison(DataRequest dataRequest) {
-		if (dataRequest.getStatus().poison) {
 
-			this.queueManager = null;
-			this.poison = true;
-			
-			clean();
-		}
-		
-		return dataRequest.getStatus().poison;
-	}
-
-	protected abstract void processDataRequest(DataRequest dataRequest) throws GBrowserException;
+	protected abstract void processDataRequest(DataRequest dataRequest) throws GBrowserException, InterruptedException;
 	/**
 	 * Pass the result to be visualised in GUI.
 	 * 
 	 * @param dataResult
+	 * @throws InterruptedException 
 	 */
-	public void createDataResult(final DataResult dataResult) {
+	public void createDataResult(final DataResult dataResult) throws InterruptedException {
+		
+		if (poison) {
+			throw new InterruptedException();
+		}
 
-		SwingUtilities.invokeLater(new Runnable() {
-						
-			public void run() {
-				
-				if (queueManager != null) {
+		try {
+			/* 
+			 * Use invokeAndWait() instead of invokeLater() to avoid congestion of EDT.
+			 * 
+			 * For example, ReadPileTrack removes extra data only during drawing. If invokeLater() was used,
+			 * the DataThread would stack up so many processDataResult() calls, that memory runs out before
+			 * the Track gets a chance to remove any data. Call of invokeAndWait() will wait drawing of the present frame to finish
+			 * first, in practice slowing down DataThread when it's producing more data than EDT can handle.
+			 */
+			SwingUtilities.invokeAndWait(new Runnable() {
+							
+				public void run() {					
 					queueManager.processDataResult(dataResult);
-				}
-			}						
-		});
+				}						
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}	
 	
 	public void setQueue(Queue<DataRequest> queue) {
@@ -176,10 +176,10 @@ public abstract class DataThread {
 	/**
 	 * @param increaseByOne set true to indicate that queue size should be increased by one to count the
 	 * request which is taken from the queue, but not processed yet
+	 * @throws InterruptedException 
 	 */
-	private void reportQueueSize(boolean increaseByOne) {
-		
-		
+	private void reportQueueSize(boolean increaseByOne) throws InterruptedException {
+				
 		DataStatus status = new DataStatus();
 		status.setDataThread(this);
 		status.setDataRequestCount(dataRequestQueue.size() + (increaseByOne ? 1 : 0));		
@@ -220,5 +220,9 @@ public abstract class DataThread {
 
 	public DataSource getDataSource() {
 		return dataSource;
+	}
+
+	public void poison() {
+		this.poison = true;
 	}
 }

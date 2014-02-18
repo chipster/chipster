@@ -1,22 +1,22 @@
 # TOOL prinseq-filter.R: "Filter reads for several criteria" (Filters reads based on several criteria. Different criterias are combined with AND operator. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
-# OUTPUT OPTIONAL accepted.fastq
-# OUTPUT OPTIONAL accepted_1.fastq
-# OUTPUT OPTIONAL accepted_1_singletons.fastq
-# OUTPUT OPTIONAL accepted_2.fastq
-# OUTPUT OPTIONAL accepted_2_singletons.fastq
-# OUTPUT OPTIONAL accepted.fasta
-# OUTPUT OPTIONAL accepted_1.fasta
-# OUTPUT OPTIONAL accepted_1_singletons.fasta
-# OUTPUT OPTIONAL accepted_2.fasta
-# OUTPUT OPTIONAL accepted_2_singletons.fasta
-# OUTPUT OPTIONAL rejected.fastq
-# OUTPUT OPTIONAL rejected_1.fastq
-# OUTPUT OPTIONAL rejected_2.fastq
-# OUTPUT OPTIONAL rejected.fasta
-# OUTPUT OPTIONAL rejected_1.fasta
-# OUTPUT OPTIONAL rejected_2.fasta
+# OUTPUT OPTIONAL accepted.fastq.gz
+# OUTPUT OPTIONAL accepted_1.fastq.gz
+# OUTPUT OPTIONAL accepted_1_singletons.fastq.gz
+# OUTPUT OPTIONAL accepted_2.fastq.gz
+# OUTPUT OPTIONAL accepted_2_singletons.fastq.gz
+# OUTPUT OPTIONAL accepted.fasta.gz
+# OUTPUT OPTIONAL accepted_1.fasta.gz
+# OUTPUT OPTIONAL accepted_1_singletons.fasta.gz
+# OUTPUT OPTIONAL accepted_2.fasta.gz
+# OUTPUT OPTIONAL accepted_2_singletons.fasta.gz
+# OUTPUT OPTIONAL rejected.fastq.gz
+# OUTPUT OPTIONAL rejected_1.fastq.gz
+# OUTPUT OPTIONAL rejected_2.fastq.gz
+# OUTPUT OPTIONAL rejected.fasta.gz
+# OUTPUT OPTIONAL rejected_1.fasta.gz
+# OUTPUT OPTIONAL rejected_2.fasta.gz
 # OUTPUT OPTIONAL filter.log
 # PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted sequences only", both: "accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
 # PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
@@ -44,6 +44,7 @@
 # MG, 18-04-2012, added matepair functionality
 # KM, 22-05-2012, fixed fastq checking
 # AMS 08.01.2014 Paired-end reads now handled by PRINSEQ
+# AMS 17.2.2014, gzip outputs
 
 # Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -75,7 +76,7 @@ is_paired_end <- (length(grep("matepair_fastqfile", input_files))>0)
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 
 # Parameters
-filter.params <- paste(" ")
+filter.params <- paste("")
 if (!is.na(max.len)) {
 	filter.params <- paste(filter.params, "-max_len",  max.len)
 }
@@ -147,7 +148,7 @@ if (phred64 == "y") {
 }
 
 if (input.mode == "fq") {
-	filter.params <- paste(filter.params, "-fastq fastqfile")
+	filter.params <- paste(filter.params, "-no_qual_header -fastq fastqfile")
 	if (is_paired_end) {
 		filter.params <- paste(filter.params, "-fastq2 matepair_fastqfile")
 	} 
@@ -176,4 +177,7 @@ if (log.file == "y") {
 }
 
 system(filter.command)
+
+system("gzip *.fastq")
+system("gzip *.fasta")
 

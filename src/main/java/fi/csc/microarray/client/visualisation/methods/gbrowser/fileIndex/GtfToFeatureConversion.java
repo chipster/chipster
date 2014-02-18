@@ -88,7 +88,7 @@ public class GtfToFeatureConversion extends DataThread {
 	}
 
 	@Override
-	protected void processDataRequest(DataRequest request) {				
+	protected void processDataRequest(DataRequest request) throws InterruptedException {				
 		
 		if (!isTabix && index == null) {
 			return;
@@ -129,7 +129,7 @@ public class GtfToFeatureConversion extends DataThread {
 		}
 	}
 	
-	protected void processDataRequestChunk(DataRequest request, Region chunkRegion) {
+	protected void processDataRequestChunk(DataRequest request, Region chunkRegion) throws InterruptedException {
 		
 		List<Feature> resultList = new LinkedList<Feature>();
 		List<Exon> exons = fetchExons(request, chunkRegion);						
