@@ -266,6 +266,7 @@ public class ReadPileTrack extends Track {
 
 			if (!getView().requestIntersects(splittedRead.region)) {
 				splittedReadIter.remove();
+				continue;
 			}
 
 			// Read parts are drawn in order and placed in layers
