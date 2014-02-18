@@ -13,15 +13,9 @@ public class DataStatus implements Cloneable {
 	}
 	
 	public DataStatus(DataStatus dataStatus) {
-		this.poison = dataStatus.poison;
 		this.dataRequestCount = dataStatus.dataRequestCount;
 		this.dataThread = dataStatus.dataThread;
 	}
-
-	/**
-	 * All threads should send this forward and end themselves
-	 */
-	public boolean poison;
 
 	private long dataRequestCount = -1;
 	private DataThread dataThread;
