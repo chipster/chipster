@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -201,14 +200,6 @@ public class QualityCoverageTrack extends Track {
 		addDataType(DataType.STRAND);
 		addDataType(DataType.QUALITY);
 		addDataType(DataType.CIGAR);
-	}
-
-	/**
-	 * @see GBrowserView#drawView
-	 */
-	@Override
-	public boolean canExpandDrawables() {
-		return true;
 	}
 
 	@Override

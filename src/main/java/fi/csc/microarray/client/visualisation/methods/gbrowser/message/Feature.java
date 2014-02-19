@@ -24,6 +24,11 @@ public class Feature implements Comparable<Feature> {
 		this.values = new LinkedHashMap<DataType, Object>(); 
 	}
 
+	public Feature(Feature other) {
+		this.region = new Region(other.region);
+		this.values = new LinkedHashMap<>(other.values);
+	}
+
 	public int compareTo(Feature other) {
 
 		int regionComparison = this.region.compareTo(other.region);
