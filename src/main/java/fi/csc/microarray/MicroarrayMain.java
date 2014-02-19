@@ -46,11 +46,10 @@ public class MicroarrayMain {
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
-			cmdParser.addParameter("nagios-check", false, false, null, "do nagios-compatitible system availability check");			
-			cmdParser.addParameter("system-status", false, false, null, "query and print system status");
+			cmdParser.addParameter("ping", false, false, null, "query and print system status");
+			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
-			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
             cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
 			
 			// parse commandline
@@ -87,24 +86,22 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
 
-			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
+			} else if (cmdParser.hasValue("ping") || cmdParser.hasValue("ping-nagios")) {
 				
 				// query status
-				int requiredAnalyserCount = Integer.parseInt(cmdParser.getValue("-required-analyser-count"));
 				boolean ok;
 				String error = "";				
 				String status = "";
 				try {
 					NodeBase nodeSupport = new NodeBase() {
 						public String getName() {
-							return "nagios-check";
+							return "ping";
 						}
 					};
 					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
-					api.setRequiredCountFor("analyser", requiredAnalyserCount);
-					boolean fastCheck = cmdParser.hasValue("nagios-check");
+					boolean fastCheck = cmdParser.hasValue("ping-nagios");
 					ok = api.areAllServicesUp(fastCheck);
 					error = api.getErrorStatus();
 					status = api.generateStatusReport();
@@ -116,7 +113,7 @@ public class MicroarrayMain {
 				}
 				
 				// print results
-				if (cmdParser.hasValue("nagios-check")) {
+				if (cmdParser.hasValue("ping-nagios")) {
 					if (ok) {
 						System.out.println("CHIPSTER OK");
 						System.exit(0);
