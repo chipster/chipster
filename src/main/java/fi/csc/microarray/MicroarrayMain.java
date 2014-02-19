@@ -46,10 +46,8 @@ public class MicroarrayMain {
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
-			cmdParser.addParameter("tests", false, false, null, "run tests");
 			cmdParser.addParameter("nagios-check", false, false, null, "do nagios-compatitible system availability check");			
 			cmdParser.addParameter("system-status", false, false, null, "query and print system status");
-			cmdParser.addParameter("broker-check", false, false, null, "check broker availability");
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
 			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
@@ -135,26 +133,6 @@ public class MicroarrayMain {
 					System.out.println(status);
 				}
 				
-			}  else if (cmdParser.hasValue("broker-check")) {
-				
-				String error = "";
-				
-				try {
-					NodeBase nodeSupport = new NodeBase() {
-						public String getName() {
-							return "nagios-check";
-						}
-					};
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
-					endpoint.close();
-					
-				} catch (Exception e) {
-					System.out.println("BROKER NOT AVAILABLE: " + error);
-					System.exit(1);
-				}
-				System.out.println("broker available");
-				System.exit(0);
-				
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
@@ -183,6 +161,8 @@ public class MicroarrayMain {
 				});
 				
 			} else {
+				
+				// assume client by default
 
 				final String module = cmdParser.getValue("-module");
 				final String config = configURL;				
