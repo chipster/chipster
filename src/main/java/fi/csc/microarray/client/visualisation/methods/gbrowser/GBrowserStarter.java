@@ -15,7 +15,6 @@ import javax.swing.WindowConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -41,11 +40,8 @@ public class GBrowserStarter {
 
 	public static void main(String[] args) throws Exception {
 		
-		//Get rid of Chipster logging errors
-		DirectoryLayout.initialiseSimpleLayout();
 		
-		//Define data
-		
+		//Define data		
 		String dataPath = System.getProperty("user.home") + "/example-data/";
 		DataUrl BAM_DATA_FILE = new DataUrl(new File(dataPath + "GM12878.bam").toURI().toURL(), "GM12878.bam");
 		DataUrl BAI_DATA_FILE = new DataUrl(new File(dataPath + "GM12878.bam.bai").toURI().toURL(), "GM12878.bam.bai");
