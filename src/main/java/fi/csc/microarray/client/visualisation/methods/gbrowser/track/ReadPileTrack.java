@@ -30,6 +30,32 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
  */
 public class ReadPileTrack extends Track {
 	
+	public static class Read extends Feature {
+		
+		private int layer;
+		private boolean warning;
+
+		public Read(Feature feature) {
+			super(feature);
+		}
+
+		public boolean isWarning() {
+			return warning;
+		}
+
+		public void setWarning(boolean warning) {
+			this.warning = warning;
+		}
+
+		public int getLayer() {
+			return layer;
+		}
+
+		public void setLayer(int layer) {
+			this.layer = layer;
+		}
+	}
+	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 
 	private static final int MAX_FULL_HEIGHT = 1000;
@@ -39,7 +65,7 @@ public class ReadPileTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	private TreeSet<Feature> dividedReads = new TreeSet<Feature>();
+	private TreeSet<Read> dividedReads = new TreeSet<>();
 
 	public ReadPileTrack(DataThread refData, Color fontColor) {
 		super();
@@ -56,8 +82,8 @@ public class ReadPileTrack extends Track {
 		char[] refSeq = highlightSNP ? getReferenceArray(referenceSequenceFeatures, view, strand) : null;		
 		
 
-		Iterator<Feature> splittedReadIter = dividedReads.iterator();
-		Feature splittedRead = null;
+		Iterator<Read> splittedReadIter = dividedReads.iterator();
+		Read splittedRead = null;
 		
 		while (splittedReadIter.hasNext()) {
 			splittedRead = splittedReadIter.next();
@@ -81,8 +107,8 @@ public class ReadPileTrack extends Track {
 			}
 
 			// Read parts are drawn in order and placed in layers
-			int layer = (Integer) splittedRead.values.get(DataType.VALUE);
-			boolean lastBeforeMaxStackingDepthCut = (Boolean) splittedRead.values.get(DataType.NOTE);
+			int layer = splittedRead.getLayer();
+			boolean lastBeforeMaxStackingDepthCut = splittedRead.isWarning();
 			
 			// Now we can decide the y coordinate
 			readRect.y = getYCoord(layer);
@@ -242,7 +268,12 @@ public class ReadPileTrack extends Track {
 
 				List<Feature> reads = Cigar.splitRead(feature, splitters);
 				
-				dividedReads.addAll(reads);
+				for (Feature featureRead : reads) {
+					
+					Read read = new Read(featureRead);
+					dividedReads.add(read);
+				}
+				
 			}
 		}
 		
@@ -256,8 +287,8 @@ public class ReadPileTrack extends Track {
 	
     private void doLayout() {
     	
-		Iterator<Feature> splittedReadIter = dividedReads.iterator();
-		Feature splittedRead = null;
+		Iterator<Read> splittedReadIter = dividedReads.iterator();
+		Read splittedRead = null;
 		
 		List<Long> occupiedSpace = new ArrayList<>();
 		
@@ -302,8 +333,8 @@ public class ReadPileTrack extends Track {
 				continue;
 			}
 			
-			splittedRead.values.put(DataType.VALUE, layer);
-			splittedRead.values.put(DataType.NOTE, lastBeforeMaxStackingDepthCut);	
+			splittedRead.setLayer(layer);
+			splittedRead.setWarning(lastBeforeMaxStackingDepthCut);	
 		}
 	}
 

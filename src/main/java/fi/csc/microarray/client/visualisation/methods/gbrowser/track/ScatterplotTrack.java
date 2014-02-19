@@ -6,48 +6,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ScatterplotValue;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SelectionText;
-import fi.csc.microarray.util.ScaleUtil;
 
-public class ScatterplotTrack extends Track {
-
-	private static final int TOP_MARGIN = 0;
-
+public class ScatterplotTrack extends ScaleTrack {
+	
 	private TreeMap<IndexKey, ScatterplotPoint> data = new TreeMap<>();
 
 	private Color defaultColor;
-	private int height;
-	private float minValue;
-	private float maxValue;
+		
 	private int minSize = 2; //in pixels
-	private boolean xAxisVisible = false;
 
 	private DataType column = null;
 	private int floatListIndex;
 
-	private float[] scale;
 	
 	private ScatterplotTrack(Color color, int height, float minValue, float maxValue) {
-		super();
+		super(height, minValue, maxValue);
 		this.defaultColor = color;
-		this.height = height;
-		
-		int stepCount = ScaleUtil.DEFAULT_STEP_COUNT;
-		if (height < 40) {
-			stepCount = 2;
-		}
-				
-		scale = ScaleUtil.generateScaleValues(minValue, maxValue, stepCount);
-		this.minValue = scale[0];
-		this.maxValue = scale[stepCount - 1];
 	}
 
 
@@ -65,10 +45,6 @@ public class ScatterplotTrack extends Track {
 	
 	public void setMinSize(int minSize) {
 		this.minSize = minSize;
-	}
-	
-	public void setXAxisVisible(boolean visible) {
-		xAxisVisible = visible;
 	}
 	
 	@Override
@@ -95,55 +71,6 @@ public class ScatterplotTrack extends Track {
 		}
 
 		return items;
-	}
-
-	private List<Drawable> getScaleDrawables() {
-		
-		List<Drawable> drawables = new LinkedList<>();
-		
-		if (getTrackHeight() > 20) {
-			
-			//Color scaleColor = new Color(220, 220, 220);
-			Color scaleColor = Color.black;
-			
-			final int CHAR_WIDTH = 6;
-			final int START_OFFSET = 3;
-			final int END_OFFSET = -13;
-			int textOffset = START_OFFSET;
-			int maxTextWidth = 0;
-			
-			for (float scaleValue : scale) {
-				
-				String text = "" + ScaleUtil.format(scaleValue);
-				maxTextWidth = Math.max(maxTextWidth, text.length() * CHAR_WIDTH);					 
-			}	
-			
-			int scaleX = super.getVisibleWidth() - maxTextWidth - 4;
-			
-			for (float scaleValue : scale) {
-				
-				int lineY = getY(scaleValue);
-				int textY = getY(scaleValue) + 6;
-				int lineX2 = scaleX - 6;
-				String text = "" + ScaleUtil.format(scaleValue);
-				
-				if (xAxisVisible && scaleValue == 0f) {
-					lineX2 = 0;
-				}
-				
-				drawables.add(new LineDrawable(scaleX, lineY, lineX2, lineY, scaleColor));
-				drawables.add(new TextDrawable(scaleX + 4, textY + textOffset, text, scaleColor));
-				
-				textOffset -= (START_OFFSET - END_OFFSET) / scale.length; 
-			}	
-			
-			drawables.add(new LineDrawable(scaleX, getY(minValue), scaleX, getY(maxValue), scaleColor));		
-		}
-		return drawables;
-	}
-	
-	public int getY(float value) {
-		return (int) ((value - minValue) / (maxValue - minValue) * (height - TOP_MARGIN - 2)  + 1);
 	}
 	
 	public void processDataResult(DataResult dataResult) {
@@ -204,9 +131,4 @@ public class ScatterplotTrack extends Track {
         	addDataType(column);	
     	}
 	}	    
-	
-	@Override
-	public int getTrackHeight() {
-		return height;
-	}
 }
