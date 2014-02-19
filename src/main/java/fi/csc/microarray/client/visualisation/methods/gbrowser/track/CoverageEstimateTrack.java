@@ -10,10 +10,10 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 
 /**
@@ -21,9 +21,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
  * The result is an approximation.
  *
  */
-public class CoverageEstimateTrack extends Track {
+public class CoverageEstimateTrack extends ScaleTrack {
 
-    final public static int SAMPLING_GRANULARITY = 4;
+    public CoverageEstimateTrack() {
+		super(100, 3);
+	}
+
+	final public static int SAMPLING_GRANULARITY = 4;
 
 	private static final int MAX_VALUE_COUNT = 1000;
 
@@ -34,6 +38,39 @@ public class CoverageEstimateTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
+		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			super.setMaxValue(getMaxTotalCoverage());
+		} else {
+			super.setMaxValue(view.parentPlot.getReadScale().numReads);
+		}
+		
+		// don't show scale because these are only estimates (but it is still used for scaling)
+		//drawables.addAll(getScaleDrawables());		
+		drawables.addAll(getEstimateDrawables());
+							
+		return drawables;
+	}
+		
+	private int getMaxTotalCoverage() {
+		float max = 0;
+		
+		for (Feature feature : values) {
+			
+			float forward = ((Integer) (feature.values.get(DataType.COVERAGE_ESTIMATE_FORWARD)) / (float)feature.region.getLength());
+			float reverse = ((Integer) (feature.values.get(DataType.COVERAGE_ESTIMATE_REVERSE)) / (float)feature.region.getLength());
+			
+			float estimate = forward + reverse;
+			
+			if (estimate > max){
+				max = estimate;
+			}
+		}
+		return (int) max;
+	}
+
+	public Collection<Drawable> getEstimateDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		
@@ -96,8 +133,8 @@ public class CoverageEstimateTrack extends Track {
 			
 		for (int i = 0; i < smoohtForward.length; i++) {
 			
-			int fValue = (int) smoohtForward[i];			
-			int rValue = (int) smoohtReverse[i];
+			int fValue = super.getScaledY(smoohtForward[i]);			
+			int rValue = super.getScaledY(smoohtReverse[i]);
 									
 			drawables.add(new RectDrawable(i, y, 1, fValue, forwardColor, null));
 			
@@ -198,19 +235,6 @@ public class CoverageEstimateTrack extends Track {
 			
 			addDataType(DataType.CANCEL);
 		}
-	}
-	
-	@Override
-	public int getTrackHeight() {
-	    return 100;
-	}
-	
-	/**
-	 * @see GBrowserView#drawView
-	 */
-	@Override
-	public boolean canExpandDrawables() {
-		return true;
 	}
 
 	public void setStrandSpecificCoverageType(boolean b) {

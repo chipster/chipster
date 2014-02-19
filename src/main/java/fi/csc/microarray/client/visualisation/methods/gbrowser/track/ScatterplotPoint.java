@@ -55,7 +55,7 @@ public class ScatterplotPoint extends Selectable {
 
 		width = Math.max(width, minSize);
 
-		int y = scatterplotTrack.getY(value);
+		int y = scatterplotTrack.getScaledY(value);
 
 		Rectangle rect = new Rectangle();
 
