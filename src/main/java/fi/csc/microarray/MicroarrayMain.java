@@ -40,7 +40,6 @@ public class MicroarrayMain {
 			// create args descriptions
 			CommandLineParser cmdParser = new CommandLineParser();
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
-			cmdParser.addParameter("standalone", false, false, null, "start standalone client");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
@@ -140,22 +139,6 @@ public class MicroarrayMain {
 					fails = true;
 				}
 				System.out.println("parse succeeded: " + !fails);
-
-			} else if (cmdParser.hasValue("standalone")) {
-				
-				final String module = cmdParser.getValue("-module");
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {						
-						try {
-							SwingClientApplication.startStandalone(module);
-						} catch (IOException e) {
-							e.printStackTrace();
-							System.exit(0);
-						}		
-					}
-				});
 				
 			} else {
 				
