@@ -39,7 +39,7 @@ public class IndexedFastaConversion extends DataThread {
 
 
 	@Override
-	protected void processDataRequest(DataRequest request) {
+	protected void processDataRequest(DataRequest request) throws InterruptedException {
 		
 		if (request.start.bp < 1) {
 			request.start.bp = 1l;

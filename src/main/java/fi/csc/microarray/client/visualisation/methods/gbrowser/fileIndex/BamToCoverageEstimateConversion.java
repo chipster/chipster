@@ -49,7 +49,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 
 
 	@Override
-	protected void processDataRequest(DataRequest request) throws GBrowserException {					
+	protected void processDataRequest(DataRequest request) throws GBrowserException, InterruptedException {					
 		
 		if (request.getRequestedContents().contains(DataType.CANCEL)) {
 			return;
@@ -68,7 +68,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		}
 	}
 	
-	private void createBetterEstimate(DataRequest request, int partCount) throws GBrowserException {
+	private void createBetterEstimate(DataRequest request, int partCount) throws GBrowserException, InterruptedException {
 		
 		long step = getDataRegion().getLength() / partCount;
 		
@@ -103,8 +103,9 @@ public class BamToCoverageEstimateConversion extends DataThread {
 	 * @param request
 	 * @return
 	 * @throws GBrowserException 
+	 * @throws InterruptedException 
 	 */
-	public void processCoverageEstimateRequest(DataRequest request) throws GBrowserException {
+	public void processCoverageEstimateRequest(DataRequest request) throws GBrowserException, InterruptedException {
 
 		// How many times file is read
 		int step = request.getLength().intValue() / CoverageEstimateTrack.SAMPLING_GRANULARITY;
@@ -134,7 +135,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		//System.out.println("Cache: " + countHits + "\tFile: " + countReads);
 	}
 
-	private void convertCacheHits(DataRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
+	private void convertCacheHits(DataRequest request, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) throws InterruptedException {
 
 		// Return one result pair for each region covered by one cache hit
 		LinkedList<Feature> responseList = new LinkedList<Feature>(); 
@@ -157,7 +158,7 @@ public class BamToCoverageEstimateConversion extends DataThread {
 		super.createDataResult(new DataResult(request.getStatus(), responseList));
 	}
 
-	private void sampleToGetEstimateRegion(DataRequest request, BpCoord from, BpCoord to) throws GBrowserException {	
+	private void sampleToGetEstimateRegion(DataRequest request, BpCoord from, BpCoord to) throws GBrowserException, InterruptedException {	
 		
 		long t = System.currentTimeMillis();
 		
