@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -124,12 +125,28 @@ public class TableColumnProvider extends FeatureProviderBase {
 				System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
 				newColumnNames[0] = " "; // must be space, empty names are not allowed
 				columnNames = newColumnNames;
-			}
+			}			
 
 			logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
-
-			// create columns
-			for (String columnName : columnNames) {
+			
+			HashSet<String> uniqueNames = new HashSet<>();
+			
+			for (int i = 0; i < columnNames.length; i++) {
+				String columnName = columnNames[i];
+				
+				// make all names unique by appending an index when necessary
+				String uniqueNameCandidate = columnName;				
+				if (uniqueNames.contains(uniqueNameCandidate)) {					
+					int j = 1;
+					do {
+						j++;
+						uniqueNameCandidate = columnName + "_" + i;
+					} while (uniqueNames.contains(uniqueNameCandidate));
+					columnName = uniqueNameCandidate;
+				}
+				uniqueNames.add(columnName);
+				
+				// create column
 				logger.debug("added column " + columnName);
 				settings.columns.put(columnName, new Column(columnName));
 			}
@@ -139,6 +156,16 @@ public class TableColumnProvider extends FeatureProviderBase {
 		} finally {
 			IOUtils.closeIfPossible(bufferedReader);
 		}
+	}
+
+	private static int countEqual(String[] list, String value) {
+		int count = 0;				
+		for (String name : list) {
+			if (value.equals(name)) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	private static void searchHeaderTerminator(MatrixParseSettings settings,
