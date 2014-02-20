@@ -37,7 +37,8 @@ colnames(dat2)<-gsub(" ", "", phenodata$description)
 if(column != "EMPTY") {
 	groups<-phenodata[,pmatch(column,colnames(phenodata))]
 	mean.dat <- round(apply(dat2, 2, mean),2)
-	feat <- setNames(data.frame(data1=groups, data2=mean.dat), c(column, "mean"))
+	#feat <- setNames(data.frame(data1=groups, data2=mean.dat), c(column, "mean"))
+	feat <- setNames(data.frame(data1=groups), column)
 	feat <- convAnnData(feat, nval.fac=ncol(dat2)-1)
 	feat <- list(asIs=TRUE, Col=list(data=feat))
 
