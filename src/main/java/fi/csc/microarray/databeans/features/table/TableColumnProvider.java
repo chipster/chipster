@@ -3,11 +3,12 @@ package fi.csc.microarray.databeans.features.table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -129,23 +130,9 @@ public class TableColumnProvider extends FeatureProviderBase {
 
 			logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
 			
-			HashSet<String> uniqueNames = new HashSet<>();
+			columnNames = makeUnique(Arrays.asList(columnNames)).toArray(new String[0]);			
 			
-			for (int i = 0; i < columnNames.length; i++) {
-				String columnName = columnNames[i];
-				
-				// make all names unique by appending an index when necessary
-				String uniqueNameCandidate = columnName;				
-				if (uniqueNames.contains(uniqueNameCandidate)) {					
-					int j = 1;
-					do {
-						j++;
-						uniqueNameCandidate = columnName + "_" + i;
-					} while (uniqueNames.contains(uniqueNameCandidate));
-					columnName = uniqueNameCandidate;
-				}
-				uniqueNames.add(columnName);
-				
+			for (String columnName : columnNames) {				
 				// create column
 				logger.debug("added column " + columnName);
 				settings.columns.put(columnName, new Column(columnName));
@@ -158,14 +145,32 @@ public class TableColumnProvider extends FeatureProviderBase {
 		}
 	}
 
-	private static int countEqual(String[] list, String value) {
-		int count = 0;				
-		for (String name : list) {
-			if (value.equals(name)) {
-				count++;
+	/**
+	 * Make Strings unique
+	 * 
+	 * Take a list of Strings and make them unique by appending an index when necessary.
+	 * Order of the Strings is preserved and a first occurrence of duplicate strings
+	 * will remain unaffected.
+	 * 
+	 * @param originalNames
+	 * @return
+	 */
+	private static List<String> makeUnique(List<String> originalNames) {
+		List<String> uniqueNames = new ArrayList<>();
+		
+		for (String name : originalNames) {
+			String candidate = name;				
+			
+			if (uniqueNames.contains(candidate)) {					
+				int i = 1;
+				do {
+					i++;
+					candidate = name + "_" + i;
+				} while (uniqueNames.contains(candidate));
 			}
+			uniqueNames.add(candidate);
 		}
-		return count;
+		return uniqueNames;
 	}
 
 	private static void searchHeaderTerminator(MatrixParseSettings settings,
