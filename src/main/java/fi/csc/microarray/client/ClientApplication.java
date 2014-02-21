@@ -181,6 +181,7 @@ public abstract class ClientApplication {
 
 	protected boolean unsavedChanges = false;
 	protected boolean unbackuppedChanges = false;
+	protected String currentRemoteSession = null;
 
 	protected File aliveSignalFile;
 	private LinkedList<File> deadDirectories = new LinkedList<File>();

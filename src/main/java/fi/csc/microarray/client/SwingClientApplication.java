@@ -811,7 +811,6 @@ public class SwingClientApplication extends ClientApplication {
 				File newFile = selected.getName().endsWith(WorkflowManager.SCRIPT_EXTENSION) ? selected : new File(selected.getCanonicalPath() + "." + WorkflowManager.SCRIPT_EXTENSION);
 
 				workflowManager.saveSelectedWorkflow(newFile);
-				unsavedChanges = false;
 				menuBar.addRecentWorkflow(newFile.getName(), Files.toUrl(newFile));
 				menuBar.updateMenuStatus();
 				return newFile;
@@ -1767,12 +1766,14 @@ public class SwingClientApplication extends ClientApplication {
 			File selectedFile = fileChooser.getSelectedFile();
 			File sessionFile = null;
 			String sessionId = null;
+			String remoteSessionName = null;
 
 			if (remote) {
 				try {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-					sessionId = findMatchingSessionUuid(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
+					remoteSessionName = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
+					sessionId = findMatchingSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
 						throw new RuntimeException();
 					}
@@ -1807,8 +1808,8 @@ public class SwingClientApplication extends ClientApplication {
 			}		
 
 			// load the new session
-			loadSessionImpl(sessionFile, sessionId, remote, false, false);		
-
+			loadSessionImpl(sessionFile, sessionId, remote, false, false);			
+			currentRemoteSession = remoteSessionName;
 		}
 		menuBar.updateMenuStatus();
 	}
@@ -2003,6 +2004,11 @@ public class SwingClientApplication extends ClientApplication {
 
 							menuBar.updateMenuStatus();
 							unsavedChanges = false;
+							if (remote) {
+								currentRemoteSession = file.getName();
+							} else {
+								currentRemoteSession = null;
+							}
 						}						
 					}
 				});
@@ -2089,12 +2095,21 @@ public class SwingClientApplication extends ClientApplication {
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
+			String filename = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
 			String sessionUuid = null;
+			
+			if (currentRemoteSession != null && currentRemoteSession.equals(filename) && !getDataManager().databeans().isEmpty()) {
+				showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
+						+ "Removal of this session is prevented, because it may be the only copy of your current "
+						+ "datasets. If you want to keep the datasets, please save them as a sessions first. If you want to remove "
+						+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true);
+				return;
+			}
 
 			try {
 				@SuppressWarnings("unchecked")
 				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionUuid = findMatchingSessionUuid(sessions, selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1));
+				sessionUuid = findMatchingSessionUuid(sessions, filename);
 				if (sessionUuid == null) {
 					throw new RuntimeException();
 				}
