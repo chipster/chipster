@@ -19,11 +19,9 @@
 
 # PARAMETER significance [main, interactions] DEFAULT main (Which p-values to return)
 
-
-# Linear Modelling using limma
-# 
-# JTT, 22.10.2007
-# MG, 28.3.2012, modified to handle NUID:s
+# JTT, 22.10.2007: Linear Modelling using limma
+# MG, 28.03.2012, modified to handle NUID:s
+# MK, 22.02.2014, modified so that does not report anymore coef or p-vals for pairing information
 
 #main.effect1<-"group"
 #main.effect2<-"gender"
@@ -466,6 +464,20 @@ fcrounded<-round(fc, digits=2)
 
 # Create data frames
 dat3<-cbind(dat, pvaluesrounded, fcrounded)
+
+# Remove patient interactions
+data_pairs <- grep("chip.factor(pair)", colnames(dat3))
+if(length(data_pairs) > 0) {
+	dat3 <- dat3[, -data_pairs]
+}
+data_pairs <- grep("chip.factor(pair)", colnames(fc2))
+if(length(data_pairs) > 0) {
+	fc2 <- fc2[, -data_pairs]
+}
+data_pairs <- grep("chip.factor(pair)", colnames(pvalues2))
+if(length(data_pairs) > 0) {
+	pvalues2 <- pvalues2[, -data_pairs]
+}
 
 # Write data to disk
 write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
