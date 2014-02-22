@@ -38,7 +38,7 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,pmatch(column,colnames(phenodata))]
+groups<-as.factor(phenodata[,pmatch(column,colnames(phenodata))])
 
 # Sanity checks
 if(ncol(dat2)<4) {
