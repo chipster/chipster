@@ -44,31 +44,35 @@ if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
 # Need a parameter lib that defines the Affymetrix chip type
 chromloc<-buildChromLocation(gsub(".db", "", lib))
 
-#scaled.dat <-dat[,grep(chip, colnames(dat))]
-if(length(grep("chip", chip)) > 0) {
-	chip.cols <- grep("chip", names(dat))
-	dat2 <- dat[,grep("chip", names(dat))]
-	# Scaling the data to the same mean
-	dat2 <- genescale(dat2)
-	dat[, chip.cols] <- dat2
-}
-
 # Separates expression values and flags
 #dat2<-dat[,grep("chip", names(dat))]
+#
 # Scaling the data to the same mean
 #scaled.dat<-genescale(dat2)
+#
 # Which genes are up- or down-regulated
 #if(chip > ncol(scaled.dat)) {
 #	stop("CHIPSTER-NOTE: You have selected a chip that does not exists")
 #}
+#up<-dat2[which(scaled.dat[,chip]>0),]
+#down<-dat2[which(scaled.dat[,chip]<0),]
 
-scaled.dat <- dat[, grep(chip, colnames(dat))]
-up <- dat[which(scaled.dat > 0), grep(chip, colnames(dat))]
-down <- dat[which(scaled.dat < 0), grep(chip, colnames(dat))]
+if(is.numeric(dat[, grep(chip, colnames(dat))]) == FALSE) {
+	stop("CHIPSTER-NOTE: You have selected a column that has no numeric entries")
+}
 
-print(up)
-print(down)
-koe <- koe +1
+#scaled.dat <-dat[,grep(chip, colnames(dat))]
+if(length(grep("chip", chip)) > 0) {
+	dat2 <- dat[,grep("chip", names(dat))]
+	chip <- grep(chip, colnames(dat2))
+	scaled.dat <- genescale(dat2)
+	up <- dat2[which(scaled.dat[, chip] > 0),]
+	down <- dat2[which(scaled.dat[, chip] < 0),]
+} else {
+	scaled.dat <- dat[, grep(chip, colnames(dat))]	
+	up <- dat[which(scaled.dat > 0), ]
+	down <- dat[which(scaled.dat < 0), ]
+}
 
 # What chromosomes are there for the species?
 x<-get(paste(gsub(".db", "", lib), "CHR", sep=""))
