@@ -286,6 +286,9 @@
 		<tool runtime="R-2.12">
 			<resource>cuffdiff2.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>cuffcompare2.R</resource>
+		</tool>
 <!-- 	<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
 		</tool> 	-->
