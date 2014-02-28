@@ -65,8 +65,8 @@
 		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-<!--			<resource>prinseq-quality-trimmer.R</resource>
+<!--		<tool runtime="R-2.12">
+			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>prinseq-AT-trimmer.R</resource>
