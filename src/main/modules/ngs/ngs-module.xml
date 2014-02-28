@@ -19,7 +19,7 @@
 		<tool runtime="R-3.0">
 			<resource>fastx-quality-filter.R</resource>
 		</tool>	
-		<tool runtime="R-3.0">
+<!-- 		<tool runtime="R-3.0">
 			<resource>prinseq-length-filter.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -30,7 +30,7 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>prinseq-duplicate-filter.R</resource>
-		</tool>
+		</tool>-->
 		<tool runtime="R-3.0">
 			<resource>prinseq-filter.R</resource>
 		</tool>
@@ -66,11 +66,11 @@
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>prinseq-quality-trimmer.R</resource>
+<!--			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>prinseq-AT-trimmer.R</resource>
-		</tool>
+		</tool>-->
 		<tool runtime="R-3.0">
 			<resource>prinseq-trimmer.R</resource>
 		</tool>
@@ -277,13 +277,13 @@
 		<tool runtime="R-2.15">
 			<resource>DEXseq.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>cufflinks2.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>cuffmerge2.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>cuffdiff2.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
