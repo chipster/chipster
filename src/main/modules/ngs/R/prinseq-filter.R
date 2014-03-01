@@ -18,26 +18,24 @@
 # OUTPUT OPTIONAL rejected_1.fasta.gz
 # OUTPUT OPTIONAL rejected_2.fasta.gz
 # OUTPUT OPTIONAL filter.log
-# PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted sequences only", both: "accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
-# PARAMETER OPTIONAL input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
-# PARAMETER OPTIONAL noniupac: "Remove reads with non-standard characters" TYPE [yes, no] DEFAULT no (Filter out reads with characters other than A, C, G, T or N.)
-# PARAMETER OPTIONAL max.len: "Maximum length" TYPE INTEGER (Select only reads that are shorter than the given value.)
+# PARAMETER phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
+# PARAMETER input.mode: "Input file format" TYPE [ fq: "FASTQ", fa: "FASTA"] DEFAULT fq (Define the file format of the reads file)
+# PARAMETER OPTIONAL min.qual.score: "Minimum quality score" TYPE INTEGER (Filter sequence with at least one quality score below the given value.)
+# PARAMETER OPTIONAL min.qual.mean: "Minimum mean quality" TYPE INTEGER (Filter reads with quality score mean below the given value.)
 # PARAMETER OPTIONAL min.len: "Minimum length" TYPE INTEGER (Select only reads that are longer than the given value.)
+# PARAMETER OPTIONAL max.len: "Maximum length" TYPE INTEGER (Select only reads that are shorter than the given value.)
 # PARAMETER OPTIONAL max.gc: "Maximum GC content" TYPE INTEGER (Select only reads that have GC content smaller than the given value.)
 # PARAMETER OPTIONAL min.gc: "Minimum GC content" TYPE INTEGER (Select only reads that have GC content larger than the given value.)
-# PARAMETER OPTIONAL min.qual.score: "Minimum quality score" TYPE INTEGER (Filter sequence with at least one quality score below the given value.)
-# PARAMETER OPTIONAL max.qual.score: "Maximum quality score" TYPE INTEGER (Filter sequence with at least one quality score above the given value.)
-# PARAMETER OPTIONAL min.qual.mean: "Minimum mean quality" TYPE INTEGER ( Filter reads with quality score mean below the given value.)
-# PARAMETER OPTIONAL max.qual.mean: "Maximum mean quality" TYPE INTEGER ( Filter reads with quality score mean above the given value.)
 # PARAMETER OPTIONAL ns.max.p: "Maximum percentage of Ns" TYPE INTEGER (Filter reads for which the percentage of Ns is higher than the given value.)
 # PARAMETER OPTIONAL ns.max.n: "Maximun count of Ns" TYPE INTEGER (Filter reads which have more Ns than the given value.)
-# PARAMETER OPTIONAL seq.num: "Maximum number of reads" TYPE INTEGER (Only keep the given number number of reads that pass all other filters.)
+# PARAMETER OPTIONAL noniupac: "Remove reads with non-standard characters" TYPE [yes, no] DEFAULT no (Filter out reads with characters other than A, C, G, T or N.)
 # PARAMETER OPTIONAL derep: "Type of duplicates to filter" TYPE [0: "none", 1: "exact duplicate", 2: "5-prime duplicate", 3: "3-prime duplicate", 4: "reverse complement exact duplicate", 5:"reverse complement 5-prime/3-prime duplicate"] DEFAULT 0 (Type of duplicates to filter.)
 # PARAMETER OPTIONAL derep.min: "Number of allowed duplicates" TYPE INTEGER (This option specifies the number of allowed duplicates. For example, to remove reads that occur more than 5 times, you would specify value 6.)
-# PARAMETER OPTIONAL lc.dust: "DUST filter threshold" TYPE INTEGER (Use DUST method with the given maximum allowed score, between 0 and 100.)
-# PARAMETER OPTIONAL lc.entropy: "ENTROPY filter threshold" TYPE INTEGER (Use ENTROPY method with the given minimum entropy value, between 0 and 100.)
-# PARAMETER OPTIONAL phred64: "Base quality encoding" TYPE [ n: "Sanger", y: "Illumina v1.3-1.5"] DEFAULT n (Select \"Sanger" for Illumina v1.8+, Sanger, Roche/454, Ion Torrent and PacBio data.)
+# PARAMETER OPTIONAL lc.dust: "DUST low complexity threshold" TYPE INTEGER (Use DUST method with the given maximum allowed score, between 0 and 100.)
+# PARAMETER OPTIONAL lc.entropy: "ENTROPY low complexity threshold" TYPE INTEGER (Use ENTROPY method with the given minimum entropy value, between 0 and 100.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
+# PARAMETER OPTIONAL output.mode: "Results to write out" TYPE [ filt: "accepted sequences only", both: "accepted and rejected sequences into separate files"] DEFAULT filt (With this section you can define if the sequences that get filtered out are collected to a separate file) 
+
 
 # Filter fastq and fasta files based on a number of criteria
 # KM, EK, 16-04-2012
@@ -45,6 +43,11 @@
 # KM, 22-05-2012, fixed fastq checking
 # AMS 08.01.2014 Paired-end reads now handled by PRINSEQ
 # AMS 17.2.2014, gzip outputs
+
+# for later use
+# PARAMETER OPTIONAL seq.num: "Maximum number of reads" TYPE INTEGER (Only keep the given number number of reads that pass all other filters.)
+# PARAMETER OPTIONAL max.qual.mean: "Maximum mean quality" TYPE INTEGER ( Filter reads with quality score mean above the given value.)
+# PARAMETER OPTIONAL max.qual.score: "Maximum quality score" TYPE INTEGER (Filter sequence with at least one quality score above the given value.)
 
 # Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
