@@ -1,4 +1,4 @@
-# TOOL prinseq-trimmer.R: "Trim reads for several criteria" (Trims reads based on given criteria. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-trimmer.R: "Trim reads for several criteria with PRINSEQ" (Trims reads based on given criteria. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
 # OUTPUT OPTIONAL trimmed.fastq.gz

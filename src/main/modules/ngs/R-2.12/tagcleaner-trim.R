@@ -1,4 +1,4 @@
-# TOOL tagcleaner-trim.R: "Trim primers/adaptors" (Trim tags (i.e. the primers/adapters\) from sequences. This tool is based on TagCleaner.)
+# TOOL tagcleaner-trim.R: "Trim primers/adaptors with TagCleaner" (Trim tags (i.e. the primers/adapters\) from sequences. This tool is based on TagCleaner.)
 # INPUT reads: "FASTQ/FASTA file" TYPE GENERIC
 # INPUT OPTIONAL qual: "QUAL file" TYPE GENERIC
 # OUTPUT trim.log.txt

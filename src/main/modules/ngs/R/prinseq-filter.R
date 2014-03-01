@@ -1,4 +1,4 @@
-# TOOL prinseq-filter.R: "Filter reads for several criteria" (Filters reads based on several criteria. Different criterias are combined with AND operator. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-filter.R: "Filter reads for several criteria with PRINSEQ" (Filters reads based on several criteria. Different criterias are combined with AND operator. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads file" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
 # OUTPUT OPTIONAL accepted.fastq.gz

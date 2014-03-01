@@ -29,11 +29,11 @@
 			<resource>prinseq-trimmer.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
-			<resource>tagcleaner-trim.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>tagcleaner-trim.R</resource>
+		</tool>	
 		<tool runtime="R-2.12">
 			<resource>tagcleaner-predict.R</resource>
 		</tool>	
