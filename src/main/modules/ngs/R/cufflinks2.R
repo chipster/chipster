@@ -1,4 +1,4 @@
-# TOOL cufflinks2.R: "Assemble reads into transcripts using Cufflinks" (Given aligned RNA-seq reads as a BAM file, Cufflinks assembles the alignments into a parsimonious set of transcripts. It then estimates the relative abundances of these transcripts based on how many reads support each one. It is recommended to create the input BAM files using the TopHat aligner. You can merge the resulting GTF files of several samples using the Cuffmerge tool, and use the merged GTF file in differential expression analysis using Cuffdiff.)
+# TOOL cufflinks2.R: "Assemble transcripts using Cufflinks" (Given aligned RNA-seq reads as a BAM file, Cufflinks assembles the alignments into a parsimonious set of transcripts. It then estimates the relative abundances of these transcripts based on how many reads support each one. It is recommended to create the input BAM files using the TopHat aligner. You can merge the resulting GTF files of several samples using the Cuffmerge tool, and use the merged GTF file in differential expression analysis using Cuffdiff.)
 # INPUT alignment.bam: "BAM file" TYPE BAM
 # INPUT OPTIONAL annotation.gtf: "GTF for reference annotation based transcript assembly" TYPE GTF
 # OUTPUT OPTIONAL genes.fpkm_tracking.tsv  
@@ -6,8 +6,8 @@
 # OUTPUT OPTIONAL skipped.gtf
 # OUTPUT OPTIONAL transcripts.gtf
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
-# PARAMETER OPTIONAL lg: "Estimate expression of known isoforms and do not assembl novel transcripts" TYPE [yes, no] DEFAULT no (Reference annotation (a GFF/GTF file\) is used to estimate isoform expression. Program will not assemble novel transcripts, and the it will ignore alignments not structurally compatible with any reference transcript. You can supply your own GTF file or use one of the provided annotations.)
-# PARAMETER OPTIONAL ug: "Do reference annotation based transcript assembly" TYPE [yes, no] DEFAULT no (Cufflinks will use the supplied reference annotation (a GFF/GTF file\) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled. You can supply your own GTF file or use one of the provided annotations.)
+# PARAMETER OPTIONAL ug: "Estimate expression of known isoforms, don't assemble novel transcripts" TYPE [yes, no] DEFAULT no (Reference annotation (a GFF/GTF file\) is used to estimate isoform expression. Program will not assemble novel transcripts, and the it will ignore alignments not structurally compatible with any reference transcript. You can supply your own GTF file or use one of the provided annotations.)
+# PARAMETER OPTIONAL lg: "Do reference annotation based transcript assembly" TYPE [yes, no] DEFAULT no (Cufflinks will use the supplied reference annotation (a GFF/GTF file\) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled. You can supply your own GTF file or use one of the provided annotations.)
 # PARAMETER OPTIONAL internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cufflinks can detect sequence-specific bias and correct for it in abundance estimation.)
@@ -17,7 +17,7 @@
 # AMS 2.07.2013 Added chr1/1 option
 # EK 3.11.2013 Renamed bias correction parameter, removed quartile normalization parameter
 # AMS 11.11.2013 Added thread support
-# AMS 24.2.2014 Add G option, change g option, add support for internal gtf:s for both
+# AMS 24.2.2014 Added G option, changed g option, added support for internal GTFs for both
 
 # binary
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
