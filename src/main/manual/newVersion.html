@@ -15,6 +15,93 @@ div.header-item {
 </head>
 <body>
 
+	<h2>Version update 4.3.2013: What is new in Chipster 2.11</h2>
+
+	<p>
+		This is a major update which combines v2.10 and v2.11. It provides 58 new analysis tools, the majority of which are in the brand new sequence analysis module. 
+		New tools have been added also in the NGS module, including the Dimont motif finding tools kindly contributed by Jan Grau (Martin Luther University Halle–Wittenberg).
+		Microarray analysis tools have been migrated to use R3.0.2 and the Brainarray custom CDFs version 18, 
+		and some NGS command line tools have been updated to new versions. Many existing tools and visualizations have been improved. 
+		The Chipster client can now be launched with more memory if needed for visualization.
+	</p>
+
+	<ul>
+		<li><div class=header-item>New sequence analysis module "Misc"</div>
+			<ul>This new module contains 54 analysis tools from the EMBOSS, BLAST, MAFFT and PHYLIP packages in the following categories:
+				<li><u>Data retrieval</u> contains tools for fetching sequences from databases.</li>
+				<li><u>BLAST</u></li> contains NCBI BLASTs and organism specific BLASTs using Ensembl.
+				<li><u>Sequence alignment</u> contains pairwise and multiple sequence alignment tools such as MAFFT.</li>
+				<li><u>Nucleotide sequence analysis</u> contains tools for primer design, restriction mapping, finding open reading frames, etc.</li>
+				<li><u>Protein sequence analysis</u> contains pattern finding tools.</li>
+				<li><u>Sequence utilities</u> contains various utility tools from the EMBOSS package.</li>
+				<li><u>Phylogeny</u> contains PHYLIP tools.</li>
+				<li><u>Other tools</u> contains for example a tool for retrieving specified columns from a table.</li>
+			</ul>
+		</li>
+
+
+		<li><div class=header-item>Improvements to visualizations</div>
+			<ul>
+				<li>You can create subsets of VCF, GTF and BED files in the spreadsheet view. As for TSV files, select the rows, right-click and select "Create dataset".</li>
+				<li>Spreadsheet view shows now the first 10,000 rows (instead of 2000).</li>
+				<li>Genome browser copes better with high read piles. The maximum read track height has been set to 1000 reads (note that if you set "Coverage scale = automatic", you can check the actual height in the coverage track). 
+				You can also launch the Chipster client with more memory (3 GB or 6 GB) to improve viewing.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>New NGS analysis tools</div>
+			<ul>
+				<li><a href="dimontdata.html">ChIP-seq / Dimont sequence extractor</a>: Extracts genomic regions in the annotated FastA format required by Dimont.</li>
+				<li><a href="dimont-extract-data-custom.html">ChIP-seq / Dimont sequence extractor using own genome</a>: Extracts genomic regions from user's own fasta files.</li>
+				<li><a href="dimont.html">ChIP-seq / Find motifs with Dimont</a>: De novo motif discovery with Dimont.</li>
+				<li><a href="dimont-predictor.html">ChIP-seq / DimontPredictor</a>: Search sequences for matches with a motif discovered by Dimont.</li>
+				<li><a href="rseqc.html">Quality control / RNA-seq BAM quality metrics with RseQC</a>: Provides splice junction annotation, 
+				statistics for genomic features, coverage uniformity plot, and saturation plots for genes and splice junctions.</li>
+				<li><a href="cuffcompare2.html">RNA-seq / Compare assembly to reference using Cuffcompare</a>: Compares assembly GTF to reference GTF.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>Updates to NGS analysis tools</div>		
+			<ul>
+				<li><b>The tool category Filtering has been renamed to Preprocessing</b> and it contains tools for trimming and filtering reads. Tool package names have added for clarity, as the next release will contain also Trimmomatic tools.
+				Tools for filtering data tables have been moved to the Utilities category.</li>
+				<li><a href="tophat2.html">Alignment / Align reads with TopHat2</a>: Human transcriptome index has been added in order to make the first alignment step faster.</li>
+				<li><a href="cufflinks2.html">RNA-seq / Assemble trancripts using Cufflinks</a>: GTF sorting and the possibility to perform RABT and have been added.</li>
+				<li>PRINSEQ tools for read filtering and trimming use PRINSEQ's own paired end support and, in order to make the output files smaller, they do not fill the quality header lines.</li>
+				<li>TopHat2 has been updated to version 2.0.10.</li>
+				<li>PRINSEQ has been updated to version 0.20.4.</li>
+				<li>DEXSeq read counting uses updated Python scripts.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>New microarray analysis tools</div>
+			<ul>
+				<li><a href="norm-affy-exon.html">Normalization / Affymetrix exon arrays</a>: <b>Support for Human Transcriptome Array (HTA 2.0) has been added</b>.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>Updates to microarray data analysis tools</div>
+			<ul>
+				<li><a href="norm-affy-exon.html">Normalization / Affymetrix exon arrays</a>: Normalization to genes uses now custom CDFs.</li>
+				<li><a href="norm-illumina-SNP.html">Normalization / Illumina SNP arrays</a>: Support has been added for many chiptypes and GEO format.</li>
+				<li><a href="norm-illumina-methylumi.html">Normalization / Illumina methylumi</a>: Three new parameters have been added to cope better with atypical columns, like those found in GEO.</li>
+				<li><a href="stats-two-groups.html">Statistics / Two group test</a>: The RankProd method has been added.</li>
+				<li><a href="stats-several-groups.html">Statistics / Several group test</a>: Phenodata groups are forced to be considered as factors.</li>
+				<li><a href="stats-timeseries.html">Statistics / Time series</a>: P-value correction has been added to the time series function.</li>
+				<li><a href="plot-chrom-pos.html">Visualization / Chromosomal position</a>: You can choose to visualize fold change values instead of expression values.</li>		
+				<li><a href="pathways-mirna-hyperg-go.html">Pathways / GO enrichment for miRNA targets</a>: miRNA targets for mouse miRNAs are retrieved from the TargetScan database.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>Removed analysis tools</div>
+			<ul>
+				<li>Several PRINSEQ tools have been combined to tools "Filter reads for several criteria with PRINSEQ" and "Trim reads for several criteria with PRINSEQ" for more efficient analysis.</li>
+			</ul>
+		</li>
+	</ul>
+	<hr />
+
+
 	<h2>Version update 4.12.2013: What is new in Chipster 2.9</h2>
 
 	<p>

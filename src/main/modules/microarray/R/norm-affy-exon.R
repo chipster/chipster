@@ -10,7 +10,7 @@
 # JTT 29.01.2007: Changes to phenodata table writing on 
 # MG 11.11.2009: modified 11.11.2009
 # MG 25.11.2009: modified 25.11.2009
-# MK 12.02.2014: added hta-20 chips to the body. Not yet added to SADL-descriptions
+# MK 12.02.2014: added hta-20 chips to the body.
 
 # Initializes analyses
 library(oligo)
