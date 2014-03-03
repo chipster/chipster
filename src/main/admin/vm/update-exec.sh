@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.10.0
+LATEST_VERSION=2.11.0
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1122,8 +1122,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   ln -s mafft-7.130-without-extensions ${TOOLS_PATH}/mafft
 
   echo "** Updating R-3.0.2"
-  mv -b ${TOOLS_PATH}/R-3.0.2 ${BACKUPDIR_PATH}/
-  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-02-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  rm -rf ${TOOLS_PATH}/R-3.0.2
+  curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-03-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
   echo "** Updating DEXSeq scripts"
   cd ${TMPDIR_PATH}/
