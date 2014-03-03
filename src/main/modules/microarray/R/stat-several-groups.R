@@ -41,7 +41,6 @@ dat2<-dat[,grep("chip", names(dat))]
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 groups<-as.factor(phenodata[,pmatch(column,colnames(phenodata))])
 
-
 # Sanity checks
 if(ncol(dat2)<4) {
    stop("You need to have at least four chips to run this analysis")

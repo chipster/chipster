@@ -4,12 +4,13 @@
 # OUTPUT nuse-plot.png: nuse-plot.png 
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty ()
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, human-hta20: human-hta20, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair, oligo: oligo] DEFAULT empty (The use of empty and oligo envokes the default behaviour of the AffyPLM and oligo packages, respectively. If default annotation packages are found, AffyPLM and oligo will use them)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type for Exon arrays)
 
 # Affymetrix quality control
 # MG 12.1.2010
 # MK: 12.06.2013 added possibility to analyse custom chips
+# MK: 20.02.2014 added support for oligo-package
 
 # Loading the libraries
 library(affy)
@@ -25,7 +26,11 @@ dat<-ReadAffy()
 # Set up proper cdf package information
 
 if(chiptype=="empty") {
-	stop("You need to specify the chiptype. Please run the script again.")
+	chiptype<-dat@annotation
+	a <- try(library(paste(chiptype,"cdf",sep=""), character.only=T))
+	if(class(a) == "try-error") {
+		stop("You need to specify the chiptype. Please run the script again.")
+	}
 }
 if(chiptype=="human-exon" & summary.feature=="exon") {
 	dat@cdfName<-"huex10stv2hsensecdf"
@@ -68,6 +73,10 @@ if(chiptype=="human-2.0-ST") {
 if(chiptype=="human-2.1-ST") {
 	dat@cdfName<-"hugene21sthsentrezgcdf"
 	dat@annotation<-"hugene21sthsentrezgcdf"
+}
+if(chiptype=="human-hta20") {
+	dat@cdfName<-"hta20hsentrezgcdf"
+	dat@annotation<-"hta20hsentrezgcdf"
 }
 if(chiptype=="mouse-1.0-ST") {
 	dat@cdfName<-"mogene10stmmentrezgcdf"
@@ -126,10 +135,15 @@ if(chiptype=="arabidopsis-1.1-ST-tair") {
 	dat@annotation<-"aragene11stattairgcdf"
 }
 
-chiptype<-dat@annotation
-
 # Calculating quality control values
-aqc<-fitPLM(dat)
+if(chiptype == "oligo") {
+	library(oligo)
+	data.raw <- read.celfiles(filenames=list.celfiles())
+	aqc <- fitProbeLevelModel(data.raw, target="core")
+} else {
+	chiptype<-dat@annotation	
+	aqc<-fitPLM(dat)
+}
 
 # Plotting the QC-values
 par(mar=c(7, 4, 4, 2) + 0.1)
