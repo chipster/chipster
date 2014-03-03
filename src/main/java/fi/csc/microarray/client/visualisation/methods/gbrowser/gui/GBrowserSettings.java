@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -38,6 +39,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.AnnotationT
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SampleTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.util.LinkUtil;
 
 /**
@@ -449,7 +452,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		return locationPanel;
 	}
 
-	protected void fillChromosomeBox() throws IOException {
+	protected void fillChromosomeBox() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
 
 		LinkedList<Chromosome> chromosomes = browser.getChromosomeNames();
 		
@@ -458,6 +461,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			chrBox.addItem(chromosome);
 		}
 	}
+	
+	volatile boolean failed = false;
 	
 	/**
 	 * A method defined by the ActionListener interface. Allows this panel to
@@ -494,6 +499,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 										browser.showVisualisation();
 									} catch (Exception e) {
 										browser.reportException(e);
+										failed = true;
 									}
 								}
 							});
@@ -501,21 +507,23 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 							// Update UI in Event Dispatch Thread, update location only after this block task 
 							// has quit to be able to show gene search blocking task. It isn't critical if the timing
 							// fails, search will still work, but the fancy white glass pane won't show.
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
+							if (!failed) {
+								SwingUtilities.invokeLater(new Runnable() {
+									@Override
+									public void run() {
 
-									try {
-										processLocationPanelInput();
-										setExternalLinksEnabled();
+										try {
+											processLocationPanelInput();
+											setExternalLinksEnabled();
 
-										initialised = true;
+											initialised = true;
 
-									} catch (Exception e) {
-										browser.reportException(e);
+										} catch (Exception e) {
+											browser.reportException(e);
+										}
 									}
-								}
-							});
+								});
+							}
 
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -718,7 +726,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
 	}
 
-	public void updateInterpretations() throws IOException {
+	public void updateInterpretations() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
 		fillChromosomeBox();		
 	}
 

@@ -40,19 +40,15 @@ public class MicroarrayMain {
 			// create args descriptions
 			CommandLineParser cmdParser = new CommandLineParser();
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
-			cmdParser.addParameter("standalone", false, false, null, "start standalone client");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
 			cmdParser.addParameter("webstart", false, false, null, "start webstart service");
 			cmdParser.addParameter("manager", false, false, null, "start manager service");
-			cmdParser.addParameter("tests", false, false, null, "run tests");
-			cmdParser.addParameter("nagios-check", false, false, null, "do nagios-compatitible system availability check");			
-			cmdParser.addParameter("system-status", false, false, null, "query and print system status");
-			cmdParser.addParameter("broker-check", false, false, null, "check broker availability");
+			cmdParser.addParameter("ping", false, false, null, "query and print system status");
+			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
-			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
             cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
 			
 			// parse commandline
@@ -89,24 +85,22 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
 
-			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
+			} else if (cmdParser.hasValue("ping") || cmdParser.hasValue("ping-nagios")) {
 				
 				// query status
-				int requiredAnalyserCount = Integer.parseInt(cmdParser.getValue("-required-analyser-count"));
 				boolean ok;
 				String error = "";				
 				String status = "";
 				try {
 					NodeBase nodeSupport = new NodeBase() {
 						public String getName() {
-							return "nagios-check";
+							return "ping";
 						}
 					};
 					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
-					api.setRequiredCountFor("analyser", requiredAnalyserCount);
-					boolean fastCheck = cmdParser.hasValue("nagios-check");
+					boolean fastCheck = cmdParser.hasValue("ping-nagios");
 					ok = api.areAllServicesUp(fastCheck);
 					error = api.getErrorStatus();
 					status = api.generateStatusReport();
@@ -118,7 +112,7 @@ public class MicroarrayMain {
 				}
 				
 				// print results
-				if (cmdParser.hasValue("nagios-check")) {
+				if (cmdParser.hasValue("ping-nagios")) {
 					if (ok) {
 						System.out.println("CHIPSTER OK");
 						System.exit(0);
@@ -135,26 +129,6 @@ public class MicroarrayMain {
 					System.out.println(status);
 				}
 				
-			}  else if (cmdParser.hasValue("broker-check")) {
-				
-				String error = "";
-				
-				try {
-					NodeBase nodeSupport = new NodeBase() {
-						public String getName() {
-							return "nagios-check";
-						}
-					};
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
-					endpoint.close();
-					
-				} catch (Exception e) {
-					System.out.println("BROKER NOT AVAILABLE: " + error);
-					System.exit(1);
-				}
-				System.out.println("broker available");
-				System.exit(0);
-				
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
@@ -165,24 +139,10 @@ public class MicroarrayMain {
 					fails = true;
 				}
 				System.out.println("parse succeeded: " + !fails);
-
-			} else if (cmdParser.hasValue("standalone")) {
-				
-				final String module = cmdParser.getValue("-module");
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {						
-						try {
-							SwingClientApplication.startStandalone(module);
-						} catch (IOException e) {
-							e.printStackTrace();
-							System.exit(0);
-						}		
-					}
-				});
 				
 			} else {
+				
+				// assume client by default
 
 				final String module = cmdParser.getValue("-module");
 				final String config = configURL;				

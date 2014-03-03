@@ -2,22 +2,15 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta: human-hta, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
-# Affymetrix normalization
-# JTT 8.6.2006
-# Changes to column naming on 29.6.2006
-# Changes to phenodata table writing on 29.1.2007
-#
-# modified 11.11.2009, MG
-# Changes to CDF package names to match BRainArray version 12
-# 
-# modified 25.11.2009, MG
-# Gene symbols and gene names are now incorporated to the table
-# of normalized values when using "gene" as summary feature
-# but not for "exon", since the annotation packages do not
-# support this
+# JTT 08.06.2006: Created
+# JTT 29.06.2006: Changes to column naming on 
+# JTT 29.01.2007: Changes to phenodata table writing on 
+# MG 11.11.2009: modified 11.11.2009
+# MG 25.11.2009: modified 25.11.2009
+# MK 12.02.2014: added hta-20 chips to the body.
 
 # Initializes analyses
 library(oligo)
@@ -29,42 +22,55 @@ if(chiptype=="empty") {
 	stop("You need to specify the chiptype. Please run the script again.")
 }
 if(chiptype=="human" & summary.feature=="exon") {
-	custom_cdf = "huex10stv2hsensecdf"
-	chiptype <- "huex10stv2hsensecdf.db"	
+	custom_cdf = "huex10sthsensecdf"
+	chiptype <- "huex10sthsensecdf.db"	
 	#dat@cdfName<-"huex10stv2hsensecdf"
 	#dat@annotation<-"huex10stv2hsensecdf.db"
 }
 if(chiptype=="mouse" & summary.feature=="exon") {
-	custom_cdf <- "moex10stv1mmensecdf"
-	chiptype <- "moex10stv1mmensecdf.db"	
+	custom_cdf <- "moex10stmmensecdf"
+	chiptype <- "moex10stmmensecdf.db"	
 	#dat@cdfName<-"moex10stv1mmensecdf"
 	#dat@annotation<-"moex10stv1mmensecdf.db"
 }
 if(chiptype=="rat" & summary.feature=="exon") {
-	custom_cdf <- "raex10stv1rnensecdf"
-	chiptype <- "raex10stv1rnensecdf.db"	
+	custom_cdf <- "raex10strnensecdf"
+	chiptype <- "raex10strnensecdf.db"	
 	#dat@cdfName<-"raex10stv1rnensecdf"
 	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
+if(chiptype=="human-hta" & summary.feature=="exon") {
+	custom_cdf = "hta20hsensecdf"
+	chiptype <- "hta20hsensecdf.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
 
 if(chiptype=="human" & summary.feature=="gene") {
-	custom_cdf <- "huex10stv2hsentrezgcdf"
-	chiptype <- "huex10stv2hsentrezg.db"	
+	custom_cdf <- "huex10sthsentrezgcdf"
+	chiptype <- "huex10sthsentrezg.db"	
 	#dat@cdfName<-"huex10stv2hsentrezgcdf"
 	#dat@annotation<-"huex10stv2hsentrezg.db"
 }
 if(chiptype=="mouse" & summary.feature=="gene") {
-	custom_cdf <- "moex10stv1mmentrezgcdf"
-	chiptype <- "moex10stv1mmentrezg.db"
+	custom_cdf <- "moex10stmmentrezgcdf"
+	chiptype <- "moex10stmmentrezg.db"
 	#dat@cdfName<-"moex10stv1mmentrezgcdf"
 	#dat@annotation<-"moex10stv1mmentrezg.db"
 }
 if(chiptype=="rat" & summary.feature=="gene") {
-	custom_cdf <- "raex10stv1rnentrezgcdf"
-	chiptype <- "raex10stv1rnentrezg.db"
+	custom_cdf <- "raex10strnentrezgcdf"
+	chiptype <- "raex10strnentrezg.db"
 	#dat@cdfName<-"raex10stv1rnentrezgcdf"
 	#dat@annotation<-"raex10stv1rnentrezg.db"
 }
+if(chiptype=="human-hta" & summary.feature=="gene") {
+	custom_cdf = "hta20hsentrezgcdf"
+	chiptype <- "hta20hsentrezg.db"	
+	#dat@cdfName<-"huex10stv2hsensecdf"
+	#dat@annotation<-"huex10stv2hsensecdf.db"
+}
+
 #chiptype<-dat@annotation
 
 # Normalizations
@@ -72,14 +78,14 @@ if(chiptype != "oligo") {
 	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
 } else {
 	data.raw <- read.celfiles(filenames=list.celfiles())
-	dat2 <- rma(data.raw)
+	dat2 <- oligo::rma(data.raw)
 }
 
 dat2<-as.data.frame(round(exprs(dat2), digits=2))
 names(dat2)<-paste("chip.", names(dat2), sep="")
 
 # Writes out a phenodata
-sample<-colnames(dat2)
+sample<-gsub("chip.", "", colnames(dat2))
 group<-c(rep("", ncol(dat2)))
 training<-c(rep("", ncol(dat2)))
 time<-c(rep("", ncol(dat2)))

@@ -16,12 +16,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -329,8 +328,14 @@ public class Files {
 	
 	public static List<File> listFilesRecursivelySortByDateOldestFirst(File dir) {
 		List<File> files = listFilesRecursively(dir);
-		Collections.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
-		return files;
+		// we cannot sort live File objects because they can change modification date
+		TreeMap<Long, File> fileMap = new TreeMap<Long, File>();
+		for (File file : files) {
+			fileMap.put(file.lastModified(), file);
+		}
+		List<File> sortedFiles = new LinkedList<File>();
+		sortedFiles.addAll(fileMap.values()); // values are returned in ascending order of key => smallest longs / oldest files first
+		return sortedFiles;
 	}
 
 	/**

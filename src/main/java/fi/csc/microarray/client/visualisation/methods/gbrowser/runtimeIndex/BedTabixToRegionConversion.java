@@ -43,7 +43,7 @@ public class BedTabixToRegionConversion extends DataThread {
 
 
 	@Override
-	protected void processDataRequest(DataRequest request) {
+	protected void processDataRequest(DataRequest request) throws InterruptedException {
 
 		// Read the given region
 		TabixReader.Iterator iterator = dataSource.getTabixIterator(request);

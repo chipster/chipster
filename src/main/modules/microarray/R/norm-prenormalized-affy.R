@@ -87,6 +87,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 	}
 	
 	rownames (output_table) <- make.names(unlist(dat$genes), unique=T)
+	rownames(output_table) <- gsub("^X", "", rownames(output_table))
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
@@ -104,6 +105,7 @@ if(chiptype=="empty" | class(a)=="try-error") {
 	}
 	
 	rownames (output_table) <- make.names(unlist(dat$genes), unique=T)
+	rownames(output_table) <- gsub("^X", "", rownames(output_table))
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 

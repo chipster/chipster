@@ -26,10 +26,10 @@ public class VisualisationUtilities {
 	public static DataBean filterBySelection(List<DataBean> datas) {
 		try {
 
-			// Doing this with multiple datas isn't pretty, so here is simple solution
-			// for single datas
+			// Doing this with multiple datas isn't pretty, so here is a  simple solution
+			// for single data
 
-			if (datas.size() == 1) {
+			if (datas.size() == 1) {				
 				Collection<String> lines = application.getSelectionManager().getSelectionManager(datas.get(0)).getSelectedLines();
 				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			} else {
@@ -75,9 +75,16 @@ public class VisualisationUtilities {
 				String newLine = "";
 
 				// Column header
-				for (String colName : columnOrder) {
+				for (int i = 0; i < columnOrder.size(); i++) {
+					String colName = columnOrder.get(i);
+					
+					if (i == 0 && " ".equals(colName)) {
+						//remove identifier column to make this R-compatible
+						continue;
+					}					
 					newLine += colName + "\t";
 				}
+
 
 				if (newLine.endsWith("\t")) {
 					newLine = newLine.substring(0, newLine.length() - 1);

@@ -2,13 +2,15 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, oligo: oligo, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, oligo: oligo, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, human-hta20: human-hta20, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype. The oligo class has platform design information for various Affymetrix chips, but at the moment corresponding annotation packages are available only for human, mouse and rat chips.)
 # PARAMETER biomart: "biomaRt annotation" TYPE [yes: annotate, no: skip] DEFAULT no (In the case where no annotation has been attached to CDF-files, attach symbol and description information to probesets using bioMart)
 
 # Affymetrix normalization
 # JTT, 3.2.2009
-# MG. 18.10.2011, added version 1.1 ST arrays
-# MK 15.05.2014 added new arrays
+# MG 18.10.2011, added version 1.1 ST arrays
+# MK 15.05.2014, added new arrays
+# MK 12.02.2014, added hta-20 chip
+# MK 13.02.2014, annotation for oligo packages
 
 # Initializes analyses
 library(oligo)
@@ -49,6 +51,13 @@ if(chiptype=="human-2.1-ST") {
 	#dat@cdfName<-"hugene21sthsentrezgcdf"
 	#dat@annotation<-"hugene21sthsentrezgcdf"
 	chiptype<-"hugene21sthsentrezg.db"
+	dataset <- "hsapiens_gene_ensembl"
+}
+if(chiptype=="human-hta20") {
+	custom_cdf = "hta20hsentrezgcdf"
+	#dat@cdfName<-"hugene21sthsentrezgcdf"
+	#dat@annotation<-"hugene21sthsentrezgcdf"
+	chiptype<-"hta20hsentrezg.db"
 	dataset <- "hsapiens_gene_ensembl"
 }
 if(chiptype=="mouse-1.0-ST") {
@@ -165,14 +174,22 @@ if(chiptype != "oligo") {
 	dat2 <- justRMA(filenames=list.celfiles(), cdfname=custom_cdf)
 } else {
 	data.raw <- read.celfiles(filenames=list.celfiles())
-	dat2 <- rma(data.raw)
+	dat2 <- oligo::rma(data.raw)
 }
 
 dat2<-as.data.frame(round(exprs(dat2), digits=2))
 names(dat2)<-paste("chip.", names(dat2), sep="")
 
+if(chiptype == "oligo") {
+	chiptype <- annotation(data.raw)
+	chiptype <- gsub("pd\\.", "", chiptype)
+	chiptype <- gsub("\\.st\\..*$", "", chiptype)
+	chiptype <- gsub("\\.", "", chiptype)
+	chiptype <- paste(chiptype, "sttranscriptcluster.db", sep="")
+}
+
 # Writes out a phenodata
-sample<-colnames(dat2)
+sample<-gsub("chip.", "", colnames(dat2))
 group<-c(rep("", ncol(dat2)))
 training<-c(rep("", ncol(dat2)))
 time<-c(rep("", ncol(dat2)))

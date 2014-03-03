@@ -25,7 +25,6 @@ import javax.swing.JScrollBar;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LayoutTool.LayoutMode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
@@ -77,29 +76,7 @@ public abstract class Track implements DataResultListener, MouseListener {
 			
 		}
 
-		private void drawDrawables(Graphics2D g2, int x,
-				Collection<Drawable> drawables) {		
-			
-			// decide if we will expand drawable for this track
-			boolean expandDrawables = canExpandDrawables();
-
-			TrackContext trackContext = null;
-			Track thisTrack = Track.this;
-			// create view context for this track only if we will use it
-			// currently only used for tracks that contain information
-			// about reads
-			if (expandDrawables && 
-					(thisTrack instanceof CoverageTrack ||
-							thisTrack instanceof CoverageAverageTrack ||
-							thisTrack instanceof CoverageEstimateTrack ||
-							thisTrack instanceof QualityCoverageTrack)) {
-
-				if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-					trackContext = new TrackContext(thisTrack, getMaxY(drawables));
-				} else {
-					trackContext = new TrackContext(thisTrack, view.parentPlot.getReadScale().numReads);
-				}
-			}
+		private void drawDrawables(Graphics2D g2, int x, Collection<Drawable> drawables) {				
 			
 			if (LayoutMode.FULL == getLayoutMode()) {
 				setFullHeight(drawables);
@@ -113,11 +90,6 @@ public abstract class Track implements DataResultListener, MouseListener {
 
 				if(drawable == null) {
 					continue;
-				}
-
-				// expand drawables to stretch across all height if necessary
-				if (expandDrawables) {
-					drawable.expand(trackContext);
 				}									
 
 				// recalculate position for reversed strands
@@ -207,18 +179,6 @@ public abstract class Track implements DataResultListener, MouseListener {
 			}
 		} 
 	}
-
-	private Integer getMaxY(Collection<Drawable> drawables) {
-
-		int maxY = 0;
-
-		for (Drawable drawable : drawables) {
-			maxY = Math.max(drawable.getMaxY() + 1, maxY);            
-		}
-
-		return maxY;
-	}
-
 
 	private long time = 0;
 
@@ -336,14 +296,6 @@ public abstract class Track implements DataResultListener, MouseListener {
 	 */
     public boolean isReversed() {
         return strand == Strand.REVERSE;
-    }
-    
-    /**
-     * Determine if drawable elements inside this track can be
-     * expanded to stretch across all available height. 
-     */
-    public boolean canExpandDrawables() {
-        return false;
     }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };

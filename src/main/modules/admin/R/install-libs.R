@@ -4,6 +4,18 @@
 # before installation, meaning that it can be rerun if needed
 # and only missing packages are installed.
 
+# Determine the path of the executing script
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+# Make path name absolute
+script.basename <- normalizePath(script.basename)
+
+# Use smart.* install utility functions
+# They skip all packages that already have been installed
+source(paste(script.basename, "/smip.R", sep=""));
+
 # Configure paths and repos (change if you need)
 repo.cran <- "http://ftp.sunet.se/pub/lang/CRAN"
 repo.bioc <- "http://www.bioconductor.org"
@@ -15,7 +27,7 @@ repo.bioc <- "http://www.bioconductor.org"
 
 # Use smart.* install utility functions
 # They skip all packages that already have been installed
-source("smip.R")
+#source("smip.R")
 
 # Install packages, and their dependencies, from CRAN
 smart.install.packages(package="amap", mirror=repo.cran)
@@ -50,6 +62,7 @@ smart.install.packages(package="prodlim", mirror=repo.cran)
 
 
 # Install packages, and their dependencies, from Bioconductor
+smart.install.packages(bioconductor.package="RankProd", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="Biobase", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="IRanges", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="AnnotationDbi", mirror=repo.bioc)
@@ -200,50 +213,7 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/zinba_2.02.03.tar.gz")
 
 
-# affy_20 for R-2.12"
-		
-		# TAIR annotations for Arabidosis 1.0 and 1.1
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgprobe_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgprobe_17.0.0.tar.gz'
-		
-		# Entrez annotations for human
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgprobe_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgprobe_17.0.0.tar.gz'
-		
-		# Entrez annotations for Arabidosis 1.0 and 1.1
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgprobe_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgprobe_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgcdf_17.0.0.tar.gz'
-		
-		# Entrez annotations for ragene_20 and ragene_21
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgprobe_17.0.0.tar.gz'
-		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezg.db_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgprobe_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgcdf_17.0.0.tar.gz'
-		
-		# Entrez annotations for mouse_20 and mouse_21
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgprobe_17.0.0.tar.gz'
-		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezg.db_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgprobe_17.0.0.tar.gz'
-		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezg.db_17.0.0.tar.gz'
-		
-		# Entrez annotations for Danio rerio 1.0 and 1.1
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
-		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezg.db_17.0.0.tar.gz'
-		
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
-		##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezg.db_17.0.0.tar.gz'
-		#wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
-		
+# affy_20 for R-2.12"		
 #smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgcdf_17.0.0.tar.gz")
 #smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgprobe_17.0.0.tar.gz")
 #smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgcdf_17.0.0.tar.gz")
@@ -270,8 +240,6 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 #smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgcdf_17.0.0.tar.gz")
 
 # Install Illumina annotation packages. 
-
-
 #smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1BeadID.db_1.8.0.tar.gz");
 #smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev2BeadID.db_1.8.0.tar.gz");
 #smart.install.packages(url.package="ftp://ftp.au.freebsd.org/pub/bioconductor/packages/2.8/data/annotation/src/contrib/illuminaMousev1p1BeadID.db_1.8.0.tar.gz");
@@ -289,14 +257,20 @@ smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/
 smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv3BeadID.db_1.8.0.tar.gz");
 smart.install.packages(url.package="ftp://ctan.uib.no/pub/bioconductor/2.7/data/annotation/src/contrib/illuminaHumanv4BeadID.db_1.8.0.tar.gz");
 
-
 # Install the whole annotation repository from Bioconductor
 smart.install.bioconductor.repo(repo.index = 3, mirror=repo.bioc) # for R 3.0.0, repo number 3 is annotations (might change)
 
+# Install BrainArray custom CDF's. 
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/entrezg.asp", update=1)
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/tairg.asp", update=1)
+# Install exon arrays from BrainArray. Parameter chiptype can be used to grep files with a certain substring. 
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="ex", update=1)
+smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="hta", update=1)
 
-# Install BrainArray custom CDF's
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/entrezg.asp")
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/tairg.asp")
-# Install exon arrays from BrainArray. Parameter chiptype can be used to grep files with a certain substring
-smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.1.0/ense.asp", chiptype="ex")
-
+# Test if R.script has been linked to appropriate custom_cdf packages. Not perfect, but better than nothing.
+# NOTE: below commands should match those listed above
+db.custom.packages <- smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/entrezg.asp", list.only=1)
+db.custom.packages <- c(db.custom.packages, smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/tairg.asp", list.only=1))
+db.custom.packages <- c(db.custom.packages, smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="ex", list.only=1))
+db.custom.packages <- c(db.custom.packages, smart.install.scavenge.web.packages("http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/latest/ense.asp", chiptype="hta", list.only=1))
+check.affy.customnames(script.basename, db.custom.packages)

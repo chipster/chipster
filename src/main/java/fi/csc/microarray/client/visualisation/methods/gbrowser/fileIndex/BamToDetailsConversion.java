@@ -13,8 +13,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 
@@ -25,7 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
  */
 public class BamToDetailsConversion extends DataThread {
 	
-	private static final int RESULT_CHUNK_SIZE = 100;
+	private static final int RESULT_CHUNK_SIZE = 5000;
 
 	private BamDataSource dataSource;
 
@@ -52,13 +52,14 @@ public class BamToDetailsConversion extends DataThread {
 	 * 
 	 * @param request
 	 * @return
+	 * @throws InterruptedException 
 	 */
 	@Override
-	protected void processDataRequest(DataRequest request) {
-
+	protected void processDataRequest(DataRequest request) throws InterruptedException {
+		
 		// Read the given region
-		CloseableIterator<SAMRecord> iterator = dataSource.query(request.start.chr, request.start.bp.intValue(), request.end.bp.intValue());		
-
+		CloseableIterator<SAMRecord> iterator = dataSource.query(request.start.chr, request.start.bp.intValue(), request.end.bp.intValue());
+		
 		// Produce results
 		while (iterator.hasNext()) {
 

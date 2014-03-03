@@ -52,6 +52,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackFactor
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RegionTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.util.BrowserLauncher;
 
 /**
@@ -95,7 +96,7 @@ public class GBrowser {
 		this.selectionManager = new SelectionManager(this);
 	}
 
-	public JComponent getVisualisation(List<Interpretation> interpretations) throws IOException {
+	public JComponent getVisualisation(List<Interpretation> interpretations) throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
 
 		this.interpretations = interpretations;
 
@@ -124,10 +125,13 @@ public class GBrowser {
 	 * Removes all tracks and data layers and creates new tracks according to current settings.
 	 * This is useful when the dataset selection is changed and only those datasets are kept 
 	 * in memory that are currently in use.
+	 * @throws GBrowserException 
+	 * @throws IOException 
+	 * @throws URISyntaxException 
 	 * 
 	 * @See updateVisibilityForTracks()
 	 */
-	public void updateTracks() {
+	public void updateTracks() throws URISyntaxException, IOException, GBrowserException {
 
 		GBrowserView dataView = plot.getDataView();
 		GBrowserView overviewView = plot.getOverviewView();
@@ -169,7 +173,7 @@ public class GBrowser {
 	}
 
 	private void createAnalysisTracks(GBrowserView dataView,
-			ScrollGroup analyses) {
+			ScrollGroup analyses) throws URISyntaxException, IOException, GBrowserException {
 		
 		boolean firstAnalysisTrack = true;
 
@@ -260,7 +264,7 @@ public class GBrowser {
 		}
 	}
 
-	private void createSampleTracks(GBrowserView dataView, ScrollGroup samples) {
+	private void createSampleTracks(GBrowserView dataView, ScrollGroup samples) throws URISyntaxException, IOException {
 		boolean firstReadTrack = true;
 
 		// Add selected read tracks
@@ -359,7 +363,7 @@ public class GBrowser {
 		}
 	}
 
-	public void showVisualisation() {
+	public void showVisualisation() throws URISyntaxException, IOException, GBrowserException {
 
 		//Clean old data layers
 		if (plot != null) {
@@ -518,29 +522,26 @@ public class GBrowser {
 		gia = null;	
 	}
 
-	public LinkedList<Chromosome> getChromosomeNames() throws IOException {
+	public LinkedList<Chromosome> getChromosomeNames() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
 
 		// Gather all chromosome names from all indexed datasets (SAM/BAM)
 		TreeSet<Chromosome> chromosomes = new TreeSet<>(); 
-		try {
-			for (Interpretation interpretation : interpretations) {
-				if (interpretation.getType() == TrackType.READS) {
 
+		for (Interpretation interpretation : interpretations) {
+			if (interpretation.getType() == TrackType.READS) {
+
+				chromosomes.addAll(interpretation.getChromosomeNames());
+			}
+		}
+
+		// If we still don't have names, go through non-indexed datasets
+		if (chromosomes.isEmpty()) {
+			for (Interpretation interpretation : getInterpretations()) {
+				if (interpretation.getType() != TrackType.READS) {	
 					chromosomes.addAll(interpretation.getChromosomeNames());
 				}
 			}
-
-			// If we still don't have names, go through non-indexed datasets
-			if (chromosomes.isEmpty()) {
-				for (Interpretation interpretation : getInterpretations()) {
-					if (interpretation.getType() != TrackType.READS) {	
-						chromosomes.addAll(interpretation.getChromosomeNames());
-					}
-				}
-			}
-		} catch (URISyntaxException	| GBrowserException e) {
-			reportException(e);
-		}
+		}		
 
 		LinkedList<Chromosome> list = new LinkedList<Chromosome>();
 
@@ -701,8 +702,11 @@ public class GBrowser {
 	 * when the dataset visibility settings are changed and old location is shown with the new settings, whereas
 	 * in initialization the tracks are created when the visualization opens, but data is requested only later after the "Go"
 	 * button is pressed.
+	 * @throws GBrowserException 
+	 * @throws IOException 
+	 * @throws URISyntaxException 
 	 */
-	public void updateData() {
+	public void updateData() throws URISyntaxException, IOException, GBrowserException {
 		updateTracks();
 		settings.updateVisibilityForTracks();
 		plot.updateData();

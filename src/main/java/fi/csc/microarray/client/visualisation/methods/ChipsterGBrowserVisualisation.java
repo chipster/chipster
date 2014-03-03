@@ -16,6 +16,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import org.apache.commons.io.FilenameUtils;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -30,7 +32,6 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.BrowserSelectionListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
@@ -39,6 +40,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedDataException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
@@ -48,12 +51,10 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
- * with Chipster visualization system. See class GBrowserStarter for how to start genome browser 
- * outside Chipster. 
+ * with Chipster visualization system.
  * 
  * @author Petri Klemelä, Aleksi Kallio
  * @see GBrowserPlot
- * @see GBrowserStarter
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
 	
@@ -127,7 +128,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		@Override
 		public void reportException(Exception e) {
-			application.reportException(e);
+			if (e instanceof UnsortedDataException) {
+				reportUnsortedDataException((UnsortedDataException) e);
+			} else {
+				application.reportException(e);
+			}
 		}
 		
 		@Override
@@ -156,16 +161,16 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			}
 		}
 		
-		public void showVisualisation() {
+		public void showVisualisation() throws URISyntaxException, IOException, GBrowserException {
 
 			super.showVisualisation();
-							
+
 			// Add selection listener (but try to remove first old one that would prevent garbage collection of the visualization) 
 			application.removeClientEventListener(this);
 			application.addClientEventListener(this);
-			
+
 			getSelectionManager().addSelectionListener(this);
-			
+
 			//Update selections for every data
 			for (DataBean bean : datas) {
 				updateSelectionsFromChipster(bean, null);
@@ -390,16 +395,31 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+		
+		try {
 
-		browser.setDatas(datas);
+			browser.setDatas(datas);
+
+			List<Interpretation> interpretations = interpretUserDatas(datas);
+
+			if (interpretations != null) {
+				return browser.getVisualisation(interpretations);
+			} else {
+				return null;
+			}
 		
-		List<Interpretation> interpretations = interpretUserDatas(datas);
-		
-		if (interpretations != null) {
-			return browser.getVisualisation(interpretations);
-		} else {
-			return null;
+		} catch (UnsortedDataException e) {
+			reportUnsortedDataException(e);
+			return new JPanel();
 		}
+	}
+
+	private static void reportUnsortedDataException(UnsortedDataException e) {
+		String shortName = FilenameUtils.getName(e.getFilename());
+		
+		Session.getSession().getApplication().showDialog("Unsorted data " + shortName, 
+				"Dataset " + shortName + " cannot be visualized because it's not sorted."
+				+ "Please sort the dataset first using tools in NGS Utilities category.", e.getFilename(), Severity.INFO, false);		
 	}
 
 	private boolean isIndexData(DataBean bean) {
