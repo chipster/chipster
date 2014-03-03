@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta: human-hta, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # JTT 08.06.2006: Created
@@ -10,7 +10,7 @@
 # JTT 29.01.2007: Changes to phenodata table writing on 
 # MG 11.11.2009: modified 11.11.2009
 # MG 25.11.2009: modified 25.11.2009
-# MK 12.02.2014: added hta-20 chips to the body. Not yet added to SADL-descriptions
+# MK 12.02.2014: added hta-20 chips to the body.
 
 # Initializes analyses
 library(oligo)
@@ -22,20 +22,20 @@ if(chiptype=="empty") {
 	stop("You need to specify the chiptype. Please run the script again.")
 }
 if(chiptype=="human" & summary.feature=="exon") {
-	custom_cdf = "huex10stv2hsensecdf"
-	chiptype <- "huex10stv2hsensecdf.db"	
+	custom_cdf = "huex10sthsensecdf"
+	chiptype <- "huex10sthsensecdf.db"	
 	#dat@cdfName<-"huex10stv2hsensecdf"
 	#dat@annotation<-"huex10stv2hsensecdf.db"
 }
 if(chiptype=="mouse" & summary.feature=="exon") {
-	custom_cdf <- "moex10stv1mmensecdf"
-	chiptype <- "moex10stv1mmensecdf.db"	
+	custom_cdf <- "moex10stmmensecdf"
+	chiptype <- "moex10stmmensecdf.db"	
 	#dat@cdfName<-"moex10stv1mmensecdf"
 	#dat@annotation<-"moex10stv1mmensecdf.db"
 }
 if(chiptype=="rat" & summary.feature=="exon") {
-	custom_cdf <- "raex10stv1rnensecdf"
-	chiptype <- "raex10stv1rnensecdf.db"	
+	custom_cdf <- "raex10strnensecdf"
+	chiptype <- "raex10strnensecdf.db"	
 	#dat@cdfName<-"raex10stv1rnensecdf"
 	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
@@ -47,20 +47,20 @@ if(chiptype=="human-hta" & summary.feature=="exon") {
 }
 
 if(chiptype=="human" & summary.feature=="gene") {
-	custom_cdf <- "huex10stv2hsentrezgcdf"
-	chiptype <- "huex10stv2hsentrezg.db"	
+	custom_cdf <- "huex10sthsentrezgcdf"
+	chiptype <- "huex10sthsentrezg.db"	
 	#dat@cdfName<-"huex10stv2hsentrezgcdf"
 	#dat@annotation<-"huex10stv2hsentrezg.db"
 }
 if(chiptype=="mouse" & summary.feature=="gene") {
-	custom_cdf <- "moex10stv1mmentrezgcdf"
-	chiptype <- "moex10stv1mmentrezg.db"
+	custom_cdf <- "moex10stmmentrezgcdf"
+	chiptype <- "moex10stmmentrezg.db"
 	#dat@cdfName<-"moex10stv1mmentrezgcdf"
 	#dat@annotation<-"moex10stv1mmentrezg.db"
 }
 if(chiptype=="rat" & summary.feature=="gene") {
-	custom_cdf <- "raex10stv1rnentrezgcdf"
-	chiptype <- "raex10stv1rnentrezg.db"
+	custom_cdf <- "raex10strnentrezgcdf"
+	chiptype <- "raex10strnentrezg.db"
 	#dat@cdfName<-"raex10stv1rnentrezgcdf"
 	#dat@annotation<-"raex10stv1rnentrezg.db"
 }

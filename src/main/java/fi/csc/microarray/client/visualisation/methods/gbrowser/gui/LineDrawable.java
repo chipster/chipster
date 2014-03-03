@@ -3,8 +3,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackContext;
-
 /**
  * A line that goes from one point to another.
  * 
@@ -39,13 +37,5 @@ public class LineDrawable extends Drawable {
     @Override
     public int getMaxY() {
         return Math.min(y, y2);
-    }
-    
-    @Override
-    public void expand(TrackContext context) {
-
-        int maxY = context.trackHeight-1;
-        this.y = Math.min(maxY, (int) (this.y * context.expansionRatio));
-        this.y2 = Math.min(maxY, (int) (this.y2 * context.expansionRatio));
     }
 }

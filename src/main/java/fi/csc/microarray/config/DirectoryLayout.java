@@ -97,16 +97,6 @@ public class DirectoryLayout {
 		return initialiseClientLayout(configURL);
 	}
 
-	public static DirectoryLayout initialiseStandaloneClientLayout() throws IOException, IllegalConfigurationException {
-		synchronized (DirectoryLayout.class) {
-			if (DirectoryLayout.instance != null) {
-				throw new IllegalStateException("already initialised");
-			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, null, Arrays.asList(new String[] {"messaging", "security", "client"}), AvailableConfiguration.DEFAULTS);
-			return DirectoryLayout.instance;
-		}
-	}
-
 	public static DirectoryLayout initialiseClientLayout(String configURL) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {

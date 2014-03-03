@@ -8,6 +8,7 @@
 # Latest version, matching tar-packages must be available 
 ##
 LATEST_VERSION=2.10.0
+R_VERSION=3.0.2
 
 # Exit immediately if some command fails
 set -e
@@ -1195,9 +1196,12 @@ if [ $CURRENT_COMPARED -lt 0 ] ; then
   rm -rf manager/webapps
   tar -C .. -xzf chipster-$LATEST_VERSION.tar.gz chipster/manager/webapps/admin-web.war
 
+  # Update R libs
+  #echo "** Updating R libraries"
+  #${TOOLS_PATH}/R-${R_VERSION}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
 
   # Clean up
-    rm chipster-$LATEST_VERSION.tar.gz
+  rm chipster-$LATEST_VERSION.tar.gz
 fi
 
 # Remove temp dir

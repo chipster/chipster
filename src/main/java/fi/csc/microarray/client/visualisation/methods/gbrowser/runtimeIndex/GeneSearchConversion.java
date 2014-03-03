@@ -44,7 +44,7 @@ public class GeneSearchConversion extends DataThread {
 	}
 
 	@Override
-	protected void processDataRequest(DataRequest request) {
+	protected void processDataRequest(DataRequest request) throws InterruptedException {
 
 		if (geneNameMap == null) {
 			geneNameMap = new HashMap<String, Chromosome>();

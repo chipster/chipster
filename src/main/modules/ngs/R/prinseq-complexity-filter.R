@@ -12,7 +12,7 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file.)
 
 # KM 17.1.2012
-# AMS 17.2.2014
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -22,7 +22,7 @@ unzipIfGZipFile("fastqfile")
 # binary
 binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl" ))
 
-filter.params <- paste(" ")
+filter.params <- paste("")
 
 if (!is.na(lc.dust)) {
 	if (!is.na(lc.entropy)) {
@@ -60,20 +60,6 @@ if (log.file == "y") {
 
 system(filter.command)
 
-# gzip the output files if they exist
-if (file.exists("accepted.fastq")){
-	system("gzip accepted.fastq")
-}
-if (file.exists("rejected.fastq")){
-	system("gzip rejected.fastq")
-}
-if (file.exists("accepted.fasta")){
-	system("gzip accepted.fasta")
-}
-if (file.exists("rejected.fasta")){
-	system("gzip rejected.fasta")
-}	
-	
-	
-#stop
+system("gzip *.fastq")
+system("gzip *.fasta")
 

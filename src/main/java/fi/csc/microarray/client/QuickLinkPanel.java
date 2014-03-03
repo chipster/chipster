@@ -51,7 +51,7 @@ public class QuickLinkPanel extends JPanel {
 		exampleLinkAlternative = null;
 
 		try {
-			final URL[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone);
+			final URL[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone());
 			if (urls != null) {
 
 				if (urls.length == 1) {
@@ -172,7 +172,7 @@ public class QuickLinkPanel extends JPanel {
 		importLinks.add(importURLLink);
 
 		// module specific links
-		if (!application.isStandalone) {
+		if (!application.isStandalone()) {
 			Module primaryModule = Session.getSession().getPrimaryModule();
 			primaryModule.addImportLinks(this, importLinks);
 		}

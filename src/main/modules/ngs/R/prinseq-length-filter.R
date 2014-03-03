@@ -1,9 +1,9 @@
 # TOOL prinseq-length-filter.R: "Filter reads for length" (Filters reads based on length. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input sequence set" TYPE GENERIC
-# OUTPUT OPTIONAL accepted.fastq
-# OUTPUT OPTIONAL accepted.fasta
-# OUTPUT OPTIONAL rejected.fastq
-# OUTPUT OPTIONAL rejected.fasta
+# OUTPUT OPTIONAL accepted.fastq.gz
+# OUTPUT OPTIONAL accepted.fasta.gz
+# OUTPUT OPTIONAL rejected.fastq.gz
+# OUTPUT OPTIONAL rejected.fasta.gz
 # OUTPUT OPTIONAL filter.log
 # PARAMETER max.len: "Maximum length" TYPE INTEGER DEFAULT 500 (Select only reads that are shorter than the given value.)
 # PARAMETER min.len: "Minimum length" TYPE INTEGER DEFAULT 15 (Select only reads that are longer than the given value.)
@@ -12,6 +12,7 @@
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file. The log file shows the PRINSEQ command used and the amount of reads in the result files)
 
 # KM 17.1.2012
+# AMS 17.2.2014, gzip outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -22,7 +23,7 @@ binary.prinseq <- c(file.path(chipster.tools.path, "prinseq", "prinseq-lite.pl")
 
 
 
-filter.params <- paste(" ")
+filter.params <- paste("")
 filter.params <- paste(filter.params, "-max_len",  max.len)
 
 if (!is.na(min.len)) {
@@ -34,7 +35,7 @@ if (output.mode == "both") {
 }
 
 if (input.mode == "fq") {
-	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted")
+	filter.command <- paste(binary.prinseq, filter.params, "-fastq fastqfile -out_good accepted -no_qual_header")
 }
 
 if (input.mode == "fa") {
@@ -51,25 +52,7 @@ if (log.file == "y") {
 
 system(filter.command)
 
-#Make sure that someting is given as an output
-if (input.mode == "fq") {
-	system("if [ ! -e  accepted.fastq ] ; then echo 'Filtering produced an empty accepted.fastq sequence set.' >> filter.log ; echo '' > accepted.fastq ; fi")
-}
+system("gzip *.fastq")
+system("gzip *.fasta")
 
-if (input.mode == "fa") {
-	system("if [ ! -e  accepted.fasta ] ; then echo 'Filtering produced an empty accepted.fasta sequence set.' >> filter.log  ; echo '' > accepted.fasta ; fi")
-}
-
-if (output.mode == "both") {
-	if (input.mode == "fq") {
-		system("if [ ! -e  rejected.fastq ] ; then echo 'Filtering produced an empty rejected.fastq sequence set.' >> filter.log ; echo '' > rejected.fastq ; fi")
-	}
-	
-	if (input.mode == "fa") {
-		system("if [ ! -e  rejected.fasta ] ; then echo 'Filtering produced an empty rejected.fasta sequence set.' >> filter.log  ; echo '' > rejected.fasta ; fi")
-	}
-}
-
-
-#stop
 

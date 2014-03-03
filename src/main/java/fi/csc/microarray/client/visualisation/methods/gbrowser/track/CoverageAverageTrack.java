@@ -7,11 +7,11 @@ import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.CoverageStorage;
@@ -26,8 +26,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.CoverageStor
  * SNPs are disabled.
  * 
  */
-public class CoverageAverageTrack extends Track { 
+public class CoverageAverageTrack extends ScaleTrack { 
 	
+	public CoverageAverageTrack() {
+		super(100, 3);
+	}
+
 	private boolean strandSpecificCoverageType;
 
 	private CoverageStorage coverageStorage = new CoverageStorage();
@@ -66,7 +70,7 @@ public class CoverageAverageTrack extends Track {
 			Float coverage = coverageStorage.getAverage(region, strand);					
 			
 			if (coverage != null) {
-				profileY = (int)(float)coverage;
+				profileY = super.getScaledY((float)coverage);
 			} else {
 				//this totalBase is on the wrong strand
 				continue;
@@ -104,7 +108,22 @@ public class CoverageAverageTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-				
+		
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			super.setMaxValue(getMaxTotalCoverage());
+		} else {
+			super.setMaxValue(view.parentPlot.getReadScale().numReads);
+		}
+		
+		drawables.addAll(getScaleDrawables());		
+		drawables.addAll(getAverageDrawables());
+							
+		return drawables;
+	}
+
+	private Collection<? extends Drawable> getAverageDrawables() {
+		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
 		if (strandSpecificCoverageType) {
 
 			// add drawables of both strands separately
@@ -115,32 +134,30 @@ public class CoverageAverageTrack extends Track {
 			
 			// add drawables according to sum of both strands
 			drawables.addAll(getAverageDrawables(Strand.BOTH, GBrowserConstants.getCoverageColor()));
-		}				
-
+		}
+		
 		return drawables;
+	}
+
+	private int getMaxTotalCoverage() {
+		float max = 0;
+		
+		for (Float coverage : coverageStorage.getTotalAverageCoverage().values()) {
+			if (coverage > max) {
+				max = coverage;
+			}
+		}
+		return (int) max;
 	}
 
 	public void processDataResult(DataResult dataResult) {				
 		
 		coverageStorage.addAverages(dataResult, view.getRequestRegion());		
 	}
-
-	@Override
-	public int getTrackHeight() {
-		return 100;
-	}
 	
 	@Override
 	public void defineDataTypes() {
 		addDataType(DataType.COVERAGE_AVERAGE);
-	}
-
-	/**
-	 * @see GBrowserView#drawView
-	 */
-	@Override
-	public boolean canExpandDrawables() {
-		return true;
 	}
 
 	public void setStrandSpecificCoverageType(boolean b) {
