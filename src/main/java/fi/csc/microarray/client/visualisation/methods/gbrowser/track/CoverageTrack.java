@@ -7,13 +7,13 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserConstants;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.CoverageStor
  * SNPs are disabled.
  * 
  */
-public class CoverageTrack extends Track { 
+public class CoverageTrack extends ScaleTrack { 
 
 	private boolean highlightSNP = false;
 
@@ -44,7 +44,7 @@ public class CoverageTrack extends Track {
 
 	public CoverageTrack(DataThread coverage, DataThread referenceSequenceFile) {
 		
-		super();
+		super(100, 3);
 
 		detailsIndex = addDataThread(coverage);
 
@@ -102,7 +102,7 @@ public class CoverageTrack extends Track {
 			Base coverageBase = coverageStorage.getBase(location, strand);			
 			
 			if (coverageBase != null) {
-				profileY = coverageBase.getCoverage();
+				profileY = super.getScaledY(coverageBase.getCoverage());
 			} else {
 				//this totalBase is on the wrong strand
 				continue;
@@ -165,7 +165,34 @@ public class CoverageTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-				
+		
+		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+			super.setMaxValue(getMaxTotalCoverage());
+		} else {
+			super.setMaxValue(view.parentPlot.getReadScale().numReads);
+		}
+		
+		drawables.addAll(super.getScaleDrawables());		
+		drawables.addAll(getCoverageDrawables());
+							
+		return drawables;
+	}
+
+	private int getMaxTotalCoverage() {
+		int max = 0;
+		
+		for (Base base : coverageStorage.getTotalBases().values()) {
+			if (base.getCoverage() > max) {
+				max = base.getCoverage();
+			}
+		}		
+		return max;
+	}
+
+	private Collection<Drawable> getCoverageDrawables() {
+		
+		Collection<Drawable> drawables = getEmptyDrawCollection();
+		
 		if (strandSpecificCoverageType) {
 
 			// add drawables of both strands separately
@@ -176,8 +203,8 @@ public class CoverageTrack extends Track {
 			
 			// add drawables according to sum of both strands
 			drawables.addAll(getCoverageDrawables(Strand.BOTH, GBrowserConstants.getCoverageColor()));
-		}				
-
+		}
+		
 		return drawables;
 	}
 
@@ -190,11 +217,6 @@ public class CoverageTrack extends Track {
 			this.refReads.addAll(dataResult.getFeatures());
 		}
 	}
-
-	@Override
-	public int getTrackHeight() {
-		return 100;
-	}
 	
 	@Override
 	public void defineDataTypes() {
@@ -204,14 +226,6 @@ public class CoverageTrack extends Track {
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
 			addDataType(dataThreads.get(referenceIndex), DataType.SEQUENCE);
 		}
-	}
-
-	/**
-	 * @see GBrowserView#drawView
-	 */
-	@Override
-	public boolean canExpandDrawables() {
-		return true;
 	}
 
 	public void setSNPHighlight(boolean highlightSnp) {

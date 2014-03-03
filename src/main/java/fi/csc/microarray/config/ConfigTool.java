@@ -45,7 +45,6 @@ public class ConfigTool {
 			"auth",
 			"fileserver",
 			"manager",
-			"client",
 			"webstart"
 	};
 

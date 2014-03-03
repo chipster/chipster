@@ -116,7 +116,7 @@ public class AdminAPI {
 	}
 
 	/**
-	 * Checks that analyser and frontend are up.
+	 * Checks that authentication service, compute service and file broker is up. 
 	 * 
 	 * @return true iff services are up
 	 * @throws JMSException 

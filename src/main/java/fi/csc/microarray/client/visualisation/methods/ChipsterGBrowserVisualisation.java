@@ -32,7 +32,6 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowserStarter;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.BrowserSelectionListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.DataUrl;
@@ -52,12 +51,10 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * Facade class that hides genome browser internals and exposes an API that is compatible 
- * with Chipster visualization system. See class GBrowserStarter for how to start genome browser 
- * outside Chipster. 
+ * with Chipster visualization system.
  * 
  * @author Petri Klemelä, Aleksi Kallio
  * @see GBrowserPlot
- * @see GBrowserStarter
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
 	

@@ -1,4 +1,4 @@
-# TOOL extract-samples-from-dataset.R: "Extract samples from dataset" (Makes a subset of a dataset. The samples to be extracted have to be coded with 1, and the samples to be deleted with 0 in the same phenodata column. If there are missing values in the specified phenodata column, the samples that do have a value are extracted.)
+# TOOL extract-samples-from-dataset.R: "Extract samples from table" (Makes a subset of a dataset. The samples to be extracted have to be coded with 1, and the samples to be deleted with 0 in the same phenodata column. If there are missing values in the specified phenodata column, the samples that do have a value are extracted.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT extract.tsv: extract.tsv 

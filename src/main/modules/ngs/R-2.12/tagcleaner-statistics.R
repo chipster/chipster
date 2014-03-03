@@ -1,4 +1,4 @@
-# TOOL tagcleaner-statistics.R: "Statistics for primers/adaptors" (Prints the number of tag (i.e. the primer/adapter\) sequences matching for different numbers of mismatches. No trimming will be performed. This tool is based on TagCleaner.)
+# TOOL tagcleaner-statistics.R: "Statistics for primers/adaptors with TagCleaner" (Prints the number of tag (i.e. the primer/adapter\) sequences matching for different numbers of mismatches. No trimming will be performed. This tool is based on TagCleaner.)
 # INPUT reads: "FASTQ/FASTA file" TYPE GENERIC
 # OUTPUT tag.statistics.tsv
 # PARAMETER input.type: "Input type" TYPE [FASTQ, FASTA] DEFAULT FASTQ (Input type.)

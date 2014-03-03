@@ -69,7 +69,7 @@ public class CnaConversion extends DataThread {
 	}
 
 	@Override
-	protected void processDataRequest(DataRequest request) {						
+	protected void processDataRequest(DataRequest request) throws InterruptedException {						
 		
 		if (index == null) {
 			return;

@@ -172,7 +172,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 					
 					// workflow items only enabled for correct type of data
 					boolean workflowCompatibleDataSelected = Session.getSession().getPrimaryModule().isWorkflowCompatible((DataBean)selectedItem);
-					if (!application.isStandalone) {
+					if (!application.isStandalone()) {
 						this.saveWorkflowItem.setEnabled(workflowCompatibleDataSelected);
 					} else {
 						this.saveWorkflowItem.setEnabled(false);

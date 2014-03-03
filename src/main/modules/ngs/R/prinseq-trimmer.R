@@ -1,4 +1,4 @@
-# TOOL prinseq-trimmer.R: "Trim reads for several criteria" (Trims reads based on given criteria. This tool is based on the PRINSEQ package.)
+# TOOL prinseq-trimmer.R: "Trim reads for several criteria with PRINSEQ" (Trims reads based on given criteria. This tool is based on the PRINSEQ package.)
 # INPUT fastqfile: "Input reads set" TYPE GENERIC
 # INPUT OPTIONAL matepair_fastqfile: "Input reads mate pair file" TYPE GENERIC
 # OUTPUT OPTIONAL trimmed.fastq.gz
@@ -27,6 +27,7 @@
 # PARAMETER OPTIONAL trim.tail.right: "Trim right A/T tails" TYPE INTEGER (Trim poly-A/T tail with a minimum length of the given value at the 3-prime end.)
 # PARAMETER OPTIONAL trim.ns.left: "Trim left poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 5-prime end.)
 # PARAMETER OPTIONAL trim.ns.right: "Trim right poly-N tails" TYPE INTEGER (Trim poly-N tail with a minimum length of the given value at the 3-prime end.)		
+# PARAMETER OPTIONAL min.len: "Minimum length" TYPE INTEGER (Select only reads that are longer than the given value after trimming.)
 # PARAMETER OPTIONAL log.file: "Write a log file" TYPE [ n: "no", y: "yes"] DEFAULT y (Write a log file)
 
 # KM 17.1.2012
@@ -103,6 +104,10 @@ if (!is.na(trim.qual.left)) {
 
 if ( phred64 == "y") {
 	trim.params <- paste(trim.params, "-phred64")
+}
+
+if (!is.na(min.len)) {
+	trim.params <- paste(trim.params, "-min_len",  min.len)
 }
 
 if (input.mode == "fq") {

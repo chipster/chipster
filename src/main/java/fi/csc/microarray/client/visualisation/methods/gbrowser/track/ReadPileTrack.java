@@ -30,6 +30,32 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Data
  */
 public class ReadPileTrack extends Track {
 	
+	public static class Read extends Feature {
+		
+		private int layer;
+		private boolean warning;
+
+		public Read(Feature feature) {
+			super(feature);
+		}
+
+		public boolean isWarning() {
+			return warning;
+		}
+
+		public void setWarning(boolean warning) {
+			this.warning = warning;
+		}
+
+		public int getLayer() {
+			return layer;
+		}
+
+		public void setLayer(int layer) {
+			this.layer = layer;
+		}
+	}
+	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 
 	private static final int MAX_FULL_HEIGHT = 1000;
@@ -39,7 +65,7 @@ public class ReadPileTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	private TreeSet<Feature> dividedReads = new TreeSet<Feature>();
+	private TreeSet<Read> dividedReads = new TreeSet<>();
 
 	public ReadPileTrack(DataThread refData, Color fontColor) {
 		super();
@@ -49,20 +75,16 @@ public class ReadPileTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
+		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(referenceSequenceFeatures, view, strand) : null;		
+		
 
-		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
-		//Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
-		//int reads = 0;
-		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
-		List<Integer> occupiedSpace = new ArrayList<Integer>();
-
-		Iterator<Feature> splittedReadIter = dividedReads.iterator();
-		Feature splittedRead = null;
-
+		Iterator<Read> splittedReadIter = dividedReads.iterator();
+		Read splittedRead = null;
+		
 		while (splittedReadIter.hasNext()) {
 			splittedRead = splittedReadIter.next();
 
@@ -85,41 +107,13 @@ public class ReadPileTrack extends Track {
 			}
 
 			// Read parts are drawn in order and placed in layers
-			int layer = 0;
-			while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > readRect.x + 1) {
-				layer++;
-			}
-
-			// Read part reserves the space of the layer from end to left corner of the screen
-			int end = readRect.x + readRect.width;
-			if (occupiedSpace.size() > layer) {
-				occupiedSpace.set(layer, end);
-			} else {
-				occupiedSpace.add(end);
-			}
+			int layer = splittedRead.getLayer();
+			boolean lastBeforeMaxStackingDepthCut = splittedRead.isWarning();
 			
 			// Now we can decide the y coordinate
-			readRect.y = getYCoord(layer, GBrowserConstants.READ_HEIGHT);
+			readRect.y = getYCoord(layer);
 			readRect.height = GBrowserConstants.READ_HEIGHT;
 
-			boolean lastBeforeMaxStackingDepthCut = false;						
-			int maxHeight;
-			
-			if (getLayoutMode() == LayoutMode.FULL) {
-				maxHeight = getYCoord(MAX_FULL_HEIGHT, GBrowserConstants.READ_HEIGHT);				
-			} else {
-				maxHeight = getComponent().getHeight();				
-			}
-			
-			// Check if we are about to go over the edge of the drawing area
-			int nextLayerY = getYCoord(layer + 1, GBrowserConstants.READ_HEIGHT);
-			lastBeforeMaxStackingDepthCut = nextLayerY >= maxHeight;
-			
-			// Check if we are over the edge of the drawing area
-			if (readRect.y > maxHeight) {					
-				splittedReadIter.remove();
-				continue;
-			}				
 
 			for (ReadPart readPart : Cigar.splitElements(splittedRead)) {
 
@@ -246,13 +240,17 @@ public class ReadPileTrack extends Track {
 					}					
 				}
 			}			
-		}		
-
+		}
+		
 		return drawables;
 	}
 
-	private int getYCoord(int layer, int height) {
-		return (int) ((layer + 1) * (height + GBrowserConstants.SPACE_BETWEEN_READS));
+	private int getYCoord(int layer) {
+		return (int) ((layer + 1) * (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS));
+	}
+	
+	private int getLayer(int yCoord) {
+		return (int) (yCoord / (GBrowserConstants.READ_HEIGHT + GBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
 	public void processDataResult(DataResult dataResult) {
@@ -268,16 +266,79 @@ public class ReadPileTrack extends Track {
 					continue;
 				}
 
-				dividedReads.addAll(Cigar.splitRead(feature, splitters));
+				List<Feature> reads = Cigar.splitRead(feature, splitters);
+				
+				for (Feature featureRead : reads) {
+					
+					Read read = new Read(featureRead);
+					dividedReads.add(read);
+				}
+				
 			}
 		}
-
+		
 		if (dataResult.getStatus().getDataThread() == refData) {			
 			this.referenceSequenceFeatures.addAll(dataResult.getFeatures());
 		}
+		
+		// do layout immediately to remove useless data
+		doLayout();
 	}
 	
-    @Override
+    private void doLayout() {
+    	
+		Iterator<Read> splittedReadIter = dividedReads.iterator();
+		Read splittedRead = null;
+		
+		List<Long> occupiedSpace = new ArrayList<>();
+		
+		while (splittedReadIter.hasNext()) {
+			splittedRead = splittedReadIter.next();
+
+			if (!getView().requestIntersects(splittedRead.region)) {
+				splittedReadIter.remove();
+				continue;
+			}
+
+			// Read parts are drawn in order and placed in layers
+			int layer = 0;
+			while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > splittedRead.region.start.bp + 1) {
+				layer++;
+			}
+					
+			// Read part reserves the space of the layer from end to left corner of the screen
+			long end = splittedRead.region.end.bp;
+			if (occupiedSpace.size() > layer) {
+				occupiedSpace.set(layer, end);
+			} else {
+				occupiedSpace.add(end);
+			}
+									
+			int maxHeight;
+			
+			if (getLayoutMode() == LayoutMode.FULL) {
+								
+				maxHeight = MAX_FULL_HEIGHT;				
+			} else {
+				maxHeight = getLayer(getComponent().getHeight());				
+			}
+			
+			// Check if we are about to go over the edge of the drawing area
+			boolean lastBeforeMaxStackingDepthCut = layer + 1 >= maxHeight;
+
+			
+			// Check if we are over the edge of the drawing area
+			if (layer > maxHeight) {					
+				splittedReadIter.remove();
+				continue;
+			}
+			
+			splittedRead.setLayer(layer);
+			splittedRead.setWarning(lastBeforeMaxStackingDepthCut);	
+		}
+	}
+
+	@Override
 	public void defineDataTypes() {
 		addDataType(DataType.ID);
 		addDataType(DataType.SEQUENCE);

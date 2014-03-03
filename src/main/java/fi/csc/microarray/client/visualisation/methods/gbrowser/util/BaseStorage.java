@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserView;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
@@ -20,7 +19,7 @@ public class BaseStorage {
 	private static final int MIN_SIGNIFICANT_SNP_COUNT = 2;
 	private static final double MIN_SIGNIFICANT_SNP_RATIO = 0.20;
 
-	private TreeMap<Long, Base> collector; 
+	private TreeMap<Long, Base> collector = new TreeMap<Long, Base>();; 
 	
 	public enum Nucleotide { 
 		A, 
@@ -161,61 +160,37 @@ public class BaseStorage {
 	}
 
 	/**
-	 * Goes through data and gives count for each location and nucleotide.
+	 * Goes through data and gives updates count for each location and nucleotide.
 	 * @param refSeq 
 	 */
-	public void getNucleotideCounts(Iterable<ReadPart> readParts, GBrowserView view, char[] refSeq) {
+	public void addNucleotideCounts(ReadPart readPart) {
 	
-		// Sweep collector
-		collector = new TreeMap<Long, Base>();
+		// Skip invisible types
+		if (!readPart.isVisible()) {
+			return;
+		}
 
-			for (ReadPart readPart : readParts) {
+		Base base = null;
 
-				// Skip elements that are not in this view
-				if (view != null && !view.requestIntersects(readPart)) {
-					continue;
-				}
-				
-				// Skip invisible types
-				if (!readPart.isVisible()) {
-					continue;
-				}
+		String seq = readPart.getSequencePart();
+		for (int j = 0; j < seq.length(); j++) {
 
-				Base base = null;
+			Long bp = readPart.start.bp + j;
 
-				String seq = readPart.getSequencePart();
-				for (int j = 0; j < seq.length(); j++) {
 
-					Long bp = readPart.start.bp + j;
-					
-					// Part of read can be out of view
-					if (view != null && bp.longValue() < view.bpRegion.start.bp.longValue()) {
-						continue;
-						
-					} else if (view != null && bp.longValue() > view.bpRegion.end.bp.longValue()) {
-						break;
-					}
+			if (!collector.containsKey(bp)) {
 
-					if (!collector.containsKey(bp)) {
-						
-						if (view != null && refSeq != null) {
-							int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
-							Nucleotide referenceNucleotide = Nucleotide.fromCharacter(refSeq[viewIndex]);						
-							base = new Base(bp, referenceNucleotide);
-						} else {
-							base = new Base(bp, null);
-						}
-						
-						collector.put(bp, base);
-						
-					} else {
-						base = collector.get(bp);
-					}
+				base = new Base(bp, null);
 
-					Nucleotide nucleotide = Nucleotide.fromCharacter(seq.charAt(j));
-					if (nucleotide != null) {
-						base.addNucleotidee(nucleotide);
-					}
+				collector.put(bp, base);
+
+			} else {
+				base = collector.get(bp);
+			}
+
+			Nucleotide nucleotide = Nucleotide.fromCharacter(seq.charAt(j));
+			if (nucleotide != null) {
+				base.addNucleotidee(nucleotide);
 			}
 		}
 	}

@@ -75,7 +75,7 @@ if(pathways=="KEGG") {
 
 	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
 	table.out<-data.frame(pathwayID=names(test.gt), Genes=path_count[names(test.gt)], Tested=size(test.gt), 
-			             Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+			             Statistic=test.gt@result[, "Statistic"], Expected=test.gt@result[, "Expected"], Std.dev=test.gt@result[,"Std.dev"],
 						 p.value=p.value(test.gt), p.adjusted=result(test.gt)[, mult.test.cor], Description=alias(test.gt))
 	rownames(table.out)<-paste("KEGG:", rownames(table.out), sep = "")
 }
@@ -92,7 +92,7 @@ if(pathways=="GO") {
 
 	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
 	table.out<-data.frame(pathwayID=names(test.gt), Genes=path_count[names(test.gt)], Tested=size(test.gt), 
-						  Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+ 			              Statistic=test.gt@result[, "Statistic"], Expected=test.gt@result[, "Expected"], Std.dev=test.gt@result[,"Std.dev"],
 						  p.value=p.value(test.gt), p.adjusted=result(test.gt)[, mult.test.cor], Description=alias(test.gt))
 }
 
@@ -103,7 +103,7 @@ if(pathways=="current") {
 
 	if(mult.test.cor == "Holm") { mult.test.cor = "holm"; }
 	table.out<-data.frame(pathwayID=column, Genes=nrow(dat2), Tested=size(test.gt), 
-		   Statistic.Q=test.gt@result[, "Statistic"], Expected.Q=test.gt@result[, "Expected"], sd.of.Q=test.gt@result[,"Std.dev"],
+		   Statistic=test.gt@result[, "Statistic"], Expected=test.gt@result[, "Expected"], Std.dev=test.gt@result[,"Std.dev"],
 		   p.value=p.value(test.gt), p.adjusted=p.value(test.gt), Description="Phenodata column")
 	rownames(table.out) <- column
 }

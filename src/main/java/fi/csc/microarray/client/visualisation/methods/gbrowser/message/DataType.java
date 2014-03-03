@@ -31,5 +31,6 @@ public enum DataType {
 	FLOAT_LIST, 
 	COVERAGE_AVERAGE, 
 	CANCEL, 
-	REGION 
+	REGION, 
+	NOTE 
 	};

@@ -75,9 +75,16 @@ public class VisualisationUtilities {
 				String newLine = "";
 
 				// Column header
-				for (String colName : columnOrder) {
+				for (int i = 0; i < columnOrder.size(); i++) {
+					String colName = columnOrder.get(i);
+					
+					if (i == 0 && " ".equals(colName)) {
+						//remove identifier column to make this R-compatible
+						continue;
+					}					
 					newLine += colName + "\t";
 				}
+
 
 				if (newLine.endsWith("\t")) {
 					newLine = newLine.substring(0, newLine.length() - 1);
