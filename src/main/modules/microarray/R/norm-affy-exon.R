@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta: human-hta, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # JTT 08.06.2006: Created
@@ -10,7 +10,7 @@
 # JTT 29.01.2007: Changes to phenodata table writing on 
 # MG 11.11.2009: modified 11.11.2009
 # MG 25.11.2009: modified 25.11.2009
-# MK 12.02.2014: added hta-20 chips to the body. Not yet added to SADL-descriptions
+# MK 12.02.2014: added hta-20 chips to the body.
 
 # Initializes analyses
 library(oligo)

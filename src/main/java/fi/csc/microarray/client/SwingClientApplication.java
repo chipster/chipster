@@ -94,7 +94,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
-import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -170,10 +169,10 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser importExportFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
 	        throws MicroarrayException, IOException, IllegalConfigurationException {
 
-		super(isStandalone, overridingARL);
+		super(overridingARL);
 		
 		// this had to be delayed as logging is not available before loading configuration
 		logger = Logger.getLogger(SwingClientApplication.class);
@@ -220,24 +219,8 @@ public class SwingClientApplication extends ClientApplication {
 			public void run() {
 
 				showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
-						"Please see the details below for more information about the problem.\n\n" + 
-						"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
-						Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
-						new PluginButton() {
-					@Override
-					public void actionPerformed() {
-						try {
-							new SwingClientApplication(getShutdownListener(), null, null, true);
-							
-						} catch (Exception e) {
-							// ignore
-						}
-					}
-					@Override
-					public String getText() {
-						return "Start standalone";
-					}
-				});
+						"Please see the details below for more information about the problem.\n\n", 
+						Exceptions.getStackTrace(e), Severity.ERROR, false);
 				splashScreen.close();
 				logger.error(e);			
 			}
@@ -1271,35 +1254,6 @@ public class SwingClientApplication extends ClientApplication {
 		System.exit(0);
 	}
 
-	
-	public static void startStandalone(String module) throws IOException {
-		try {
-			DirectoryLayout.initialiseStandaloneClientLayout();
-			Configuration config = DirectoryLayout.getInstance().getConfiguration();
-			config.getRootModule().getModule("messaging").getEntry("broker-host").setValue("(none)");
-			config.getRootModule().getModule("messaging").getEntry("broker-protocol").setValue("");
-			config.getRootModule().getModule("messaging").getEntry("broker-port").setValue("0");
-			config.getRootModule().getModule("security").getEntry("username").setValue("");
-			config.getRootModule().getModule("security").getEntry("password").setValue("");
-					
-		} catch (IllegalConfigurationException e) {
-			reportIllegalConfigurationException(e);
-		}
-
-		ClientListener shutdownListener = getShutdownListener();
-		
-		try {
-			new SwingClientApplication(shutdownListener, null, module, true);
-			
-		} catch (Throwable t) {
-			t.printStackTrace();
-			if (logger != null) {
-				logger.error(Exceptions.getStackTrace(t));
-			}
-		}
-
-	}
-
 	private static ClientListener getShutdownListener() {
 		ClientListener shutdownListener = new ClientListener() {
 			public void onSuccessfulInitialisation() {
@@ -1329,7 +1283,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {						
-			new SwingClientApplication(shutdownListener, null, module, false);			
+			new SwingClientApplication(shutdownListener, null, module);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();

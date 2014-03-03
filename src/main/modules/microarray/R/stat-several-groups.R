@@ -15,6 +15,7 @@
 
 # JTT 4.7.2006 Created Several groups parametric and non-parametric tests
 # MK 24.06.2013 
+# EK 2.3.2014 Phenodata groups are always considered as factors
 
 # Loads the libraries
 library(multtest)
@@ -38,7 +39,7 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,pmatch(column,colnames(phenodata))]
+groups<-as.factor(phenodata[,pmatch(column,colnames(phenodata))])
 
 # Sanity checks
 if(ncol(dat2)<4) {

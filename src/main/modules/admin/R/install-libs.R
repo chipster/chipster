@@ -62,6 +62,7 @@ smart.install.packages(package="prodlim", mirror=repo.cran)
 
 
 # Install packages, and their dependencies, from Bioconductor
+smart.install.packages(bioconductor.package="RankProd", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="Biobase", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="IRanges", mirror=repo.bioc)
 smart.install.packages(bioconductor.package="AnnotationDbi", mirror=repo.bioc)

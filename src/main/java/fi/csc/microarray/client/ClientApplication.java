@@ -176,7 +176,6 @@ public abstract class ClientApplication {
     protected DataSelectionManager selectionManager;
     protected ServiceAccessor serviceAccessor;
 	protected TaskExecutor taskExecutor;
-	protected boolean isStandalone;
 	private AuthenticationRequestListener overridingARL;
 
 	protected boolean unsavedChanges = false;
@@ -194,14 +193,13 @@ public abstract class ClientApplication {
 	private String announcementText = null;
 
 	public ClientApplication() {
-		this(false, null);
+		this(null);
 	}
 
-	public ClientApplication(boolean isStandalone, AuthenticationRequestListener overridingARL) {
+	public ClientApplication(AuthenticationRequestListener overridingARL) {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.clientConstants = new ClientConstants();
-		this.serviceAccessor = isStandalone ? new LocalServiceAccessor() : new RemoteServiceAccessor();
-		this.isStandalone = isStandalone;
+		this.serviceAccessor = new RemoteServiceAccessor();
 		this.overridingARL = overridingARL;
 		
 		// disable http cache
@@ -258,7 +256,7 @@ public abstract class ClientApplication {
 			toolModules.addAll(serviceAccessor.getModules());
 
 			// Add local modules also when in remote mode
-			if (!isStandalone) {
+			if (!isStandalone()) {
 				ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
 				localServiceAccessor.initialise(manager, null);
 				localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
@@ -754,8 +752,11 @@ public abstract class ClientApplication {
 		return authenticator;
 	}
 	
+	/**
+	 * @return true if client is running in standalone mode (no connection to server).
+	 */
 	public boolean isStandalone() {
-		return this.isStandalone;
+		return false; // standalone not supported
 	}
 
 	/**

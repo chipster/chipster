@@ -168,7 +168,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			if (!application.isStandalone) {
+			if (!application.isStandalone()) {
 				Module primaryModule = Session.getSession().getPrimaryModule();
 				primaryModule.addImportMenuItems(importMenu);
 			}
@@ -437,7 +437,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.addSeparator();
 			workflowsMenu.add(getSaveWorkflowMenuItem());
-			if (application.isStandalone) {
+			if (application.isStandalone()) {
 				workflowsMenu.setEnabled(false);
 			}
 		}

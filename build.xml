@@ -385,30 +385,6 @@
 			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/fileserver/security" prefix="chipster/fileserver/security" />
 
-
-			<!-- client -->
-			<tarfileset file="${ext-src}/wrapper/client/chipster-client-generic" filemode="755" fullpath="chipster/client/bin/chipster-client" />
-			
-			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
-
-			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
-
-			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/client/bin/macosx" />
-			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/macosx" />
-
-			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/client/bin/win32" />
-			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/client/bin/win32/chipster-manager.bat" />
-			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/client/bin/win32" />
-			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/client/bin/win32" />
-			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/client/bin/win32" />
-
-			<tarfileset dir="${ext-src}/wrapper/client/conf" prefix="chipster/client/conf" />
-			<tarfileset dir="${ext-src}/wrapper/client/logs" prefix="chipster/client/logs" />			
-
-			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/client/conf/chipster-config.xml" />
-			
 			<!-- web start -->
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
 			

@@ -42,6 +42,9 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 if(exists("pairing")) {
+	if(column == pairing) {
+		stop("CHIPSTER-NOTE: Phenodata column describing the groups to test cannot be the same defifing pairing information")	
+	}
 	if(pairing!="EMPTY") {
 		pairs<-phenodata[,pmatch(pairing,colnames(phenodata))]
 	}
@@ -92,6 +95,7 @@ if(meth=="RankProd") {
 	if(pairing =="EMPTY") {
 		group_vec <- c(rep(0, ncol(dat2.1)), rep(1, ncol(dat2.1)));
 		dat.rp <- cbind(dat2.1, dat2.2);
+		rp.fold.change <- apply(dat2.1, 1, mean, na.rm=T) - apply(dat2.2, 1, mean, na.rm=T)
 	} else {
 		pairs.1 <-pairs[groups==unique(groups)[1]]
 		pairs.2 <-pairs[groups==unique(groups)[2]]
@@ -118,6 +122,8 @@ if(meth=="RankProd") {
 		if(ncol(dat2.1) != ncol(dat2.2)) { stop("Paired RankProd error: matrices differn in column number")}
 		dat.rp <- dat2.1 - dat2.2;
 		group_vec <- rep(0, ncol(dat.rp));
+
+		rp.fold.change <- apply(dat.rp, 1, mean, na.rm=T)
 	}
 
 	RPdata 	<- RP(dat.rp, cl=group_vec, num.perm=10, logged=TRUE)
@@ -289,13 +295,17 @@ if(meth=="RankProd") {
 		dat <- dat[which(apply(p.adjusted,1,min)<=p.cut|is.na(apply(p.adjusted,1,min))),]   
 		p.adjusted <- p.adjusted[which(apply(p.adjusted,1,min)<=p.cut|is.na(apply(p.adjusted,1,min))), ]
 		p.adjusted <- apply(p.adjusted,1,min)
+
+		rp.fold.change<-rp.fold.change[which(p.adjusted<=p.cut|is.na(p.adjusted))]  
 	} else {
 		dat <- dat[which(apply(p.adjusted,1,min)<=p.cut),]   
 		p.adjusted <- p.adjusted[which(apply(p.adjusted,1,min)<=p.cut), ]
 		p.adjusted <- apply(p.adjusted,1,min)
+
+		rp.fold.change<-rp.fold.change[which(p.adjusted<=p.cut)]
 	}
 	
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)),
+	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6), FC=round(rp.fold.change, digits=2)),
 			file="two-sample.tsv", sep="\t", row.names=TRUE,
 			col.names=TRUE, quote=FALSE)
 }

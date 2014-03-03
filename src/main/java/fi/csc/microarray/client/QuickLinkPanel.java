@@ -136,7 +136,7 @@ public class QuickLinkPanel extends JPanel {
 		importLinks.add(importURLLink);
 
 		// module specific links
-		if (!application.isStandalone) {
+		if (!application.isStandalone()) {
 			Module primaryModule = Session.getSession().getPrimaryModule();
 			primaryModule.addImportLinks(this, importLinks);
 		}
