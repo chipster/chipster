@@ -4,9 +4,9 @@
 # PARAMETER OPTIONAL reverse: "Reverse sequence" TYPE [ Y: Yes, N: No] DEFAULT Y (Set this to be false if you do not wish to reverse the output sequence)
 # PARAMETER OPTIONAL complement: "Complement sequence" TYPE [ Y: Yes, N: No] DEFAULT Y (Set this to be false if you do not wish to complement the output sequence)
 
-
-
 # KM 8.11. 2013
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 

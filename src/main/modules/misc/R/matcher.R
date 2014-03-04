@@ -14,6 +14,7 @@
 # PARAMETER OPTIONAL aformat: "Output type for outfile" TYPE [pair: "Pairvise", fasta: FASTA, clustal: ClustalW, phylip: Phylip] DEFAULT pair (Choose format for output file)
 # PARAMETER OPTIONAL awidth: "Row length in the alignmnet file" TYPE INTEGER FROM 3 DEFAULT 100 (This parameter defines the row length used in the alinment file)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
+
 options(scipen=999)
 # K.M 28.10.2013
 source(file.path(chipster.common.path, "zip-utils.R"))

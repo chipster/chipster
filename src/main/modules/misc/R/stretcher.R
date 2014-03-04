@@ -19,6 +19,10 @@
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 options(scipen=999)
 
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("asequence.fa")
+unzipIfGZipFile("bsequence.fa")
+
 #check sequece file type
 inputfile.to.check <- ("asequence.fa")
 sfcheck.binary <- file.path(chipster.module.path ,"/shell/sfcheck.sh")

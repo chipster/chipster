@@ -3,6 +3,9 @@
 # INPUT input2: "Second file" TYPE GENERIC
 # OUTPUT result.txt
 
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("input1")
+unzipIfGZipFile("input2")
 
 command.full <- paste("cat input1 input2 > result.txt")
 

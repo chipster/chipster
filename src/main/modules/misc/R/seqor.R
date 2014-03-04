@@ -6,9 +6,10 @@
 # PARAMETER OPTIONAL operator: "Logical operator for merging" TYPE [OR: OR, AND: AND, XOR: XOR, NOT: NOT] DEFAULT OR (The following logical operators combine the sequences in the following ways. OR - gives all that occur in one set or the other. AND - gives only those which occur in both sets.  XOR - gives those which only occur in one set or the other, but not in both. NOT - gives those which occur in the first set except for those that also occur in the second )
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
-
-
 # KM 8.11. 2013
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequences1.txt")
+unzipIfGZipFile("sequences2.txt")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 

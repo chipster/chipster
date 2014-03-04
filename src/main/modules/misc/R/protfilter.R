@@ -15,6 +15,9 @@
 #settings
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
+# KM 8.11. 2013
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequences")
 
 #check sequece file type
 inputfile.to.check <- ("sequence")
