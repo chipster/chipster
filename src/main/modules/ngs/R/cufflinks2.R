@@ -99,6 +99,8 @@ command <- paste(cufflinks.binary, cufflinks.options, "-q", "-o tmp", "alignment
 system(command)
 
 # Rename files
+source(file.path(chipster.common.path, "gtf-utils.R"))
+
 if (file.exists("tmp/genes.fpkm_tracking") && file.info("tmp/genes.fpkm_tracking")$size > 0) {
 	system("mv tmp/genes.fpkm_tracking genes.fpkm_tracking.tsv")
 }
@@ -106,9 +108,9 @@ if (file.exists("tmp/isoforms.fpkm_tracking") && file.info("tmp/isoforms.fpkm_tr
 	system("mv tmp/isoforms.fpkm_tracking isoforms.fpkm_tracking.tsv")
 }
 if (file.exists("tmp/skipped.gtf") && file.info("tmp/skipped.gtf")$size > 0) {
-	system("mv tmp/skipped.gtf skipped.gtf")
+	sort.gtf("tmp/skipped.gtf", "skipped.gtf")
 }
 if (file.exists("tmp/transcripts.gtf") && file.info("tmp/transcripts.gtf")$size > 0) {
-	system("mv tmp/transcripts.gtf transcripts.gtf")
+	sort.gtf("tmp/transcripts.gtf", "transcripts.gtf")
 }
 
