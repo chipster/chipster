@@ -27,8 +27,8 @@
 # KM 24.10.2013
 
 # check out if the file is compressed and if so unzip it
-#source(file.path(chipster.common.path, "zip-utils.R"))
-#unzipIfGZipFile("query.fa")
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("query.fa")
 #unzipIfGZipFile("dbprot.fa")
 
 # pb settings

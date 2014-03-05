@@ -5,6 +5,10 @@
 # PARAMETER winsize: "Window size" TYPE INTEGER DEFAULT 4 (Number of columns to average alignment quality over. The larger this value is, the smoother the plot will be.)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
+# KM 8.11. 2013
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequences")
+
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
 #check sequece file type

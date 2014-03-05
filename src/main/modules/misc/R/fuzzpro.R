@@ -2,13 +2,16 @@
 # INPUT OPTIONAL sequence: sequence TYPE GENERIC 
 # OUTPUT OPTIONAL pattern_matches.txt
 # OUTPUT OPTIONAL pattern_matches.tsv
-# OUTPUT OPTIONAL fuzznuc.log
+# OUTPUT OPTIONAL fuzzpro.log
 # PARAMETER pattern TYPE STRING (pattern)
 # PARAMETER OPTIONAL rformat: "Output format type" TYPE [excel: "Table", table: "Text formatted report", gff: "GFF3 formatted file", tagseq: "Tagseq format", listfile: "EMBOSS list file"] DEFAULT excel (Output format type)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 options(scipen=999)
+
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence")
 
 #check sequece file type
 inputfile.to.check <- ("sequence")
@@ -38,8 +41,8 @@ emboss.parameters <- paste(emboss.parameters, "-pattern", pattern)
 emboss.parameters <- paste(emboss.parameters, "-rformat", rformat)
 emboss.parameters <- paste(emboss.parameters, "-outfile pattern_matches.txt")
 
-command.full <- paste(emboss.binary, emboss.parameters, ' >> fuzznuc.log 2>&1' )
-echo.command <- paste('echo "',command.full, ' "> fuzznuc.log' )
+command.full <- paste(emboss.binary, emboss.parameters, ' >> fuzzpro.log 2>&1' )
+echo.command <- paste('echo "',command.full, ' "> fuzzpro.log' )
 system(echo.command)
 
 system(command.full)
@@ -47,10 +50,18 @@ system(command.full)
 
 if (rformat == "excel") {
 	system ("mv pattern_matches.txt pattern_matches.tsv")	
+	num.hits <- system("cat pattern_matches.tsv | wc -l", intern = TRUE )
+	#stop(paste("CHIPSTER-NOTE: Ongelma", num.hits ))
+    if (num.hits == "0") {
+		system ("rm -f pattern_matches.tsv" )
+		system ("echo -------------------------------------------- >> fuzzpro.log" )
+		system ("echo The pattern search produced no hits. >> fuzzpro.log" )
+		system ("echo -------------------------------------------- >> fuzzpro.log" )
+		#stop(paste("CHIPSTER-NOTE: Ongelma", num.hits ))
+		save_log <- paste("yes")
+	}
 }
-
-system("ls -l >> fuzznuc.log")
-
+ 
 if ( save_log == "no") {
-	system ("rm -f fuzznuc.log")
+	system ("rm -f fuzzpro.log")
 }
