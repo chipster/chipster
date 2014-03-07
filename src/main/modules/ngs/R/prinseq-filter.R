@@ -100,17 +100,17 @@ if (!is.na(min.qual.score)) {
 	filter.params <- paste(filter.params, "-min_qual_score",  min.qual.score)
 }
 
-if (!is.na(max.qual.score)) {
-	filter.params <- paste(filter.params, "-max_qual_score",  max.qual.score)
-}
+#if (!is.na(max.qual.score)) {
+#	filter.params <- paste(filter.params, "-max_qual_score",  max.qual.score)
+#}
 
 if (!is.na(min.qual.mean)) {
 	filter.params <- paste(filter.params, "-min_qual_mean",  min.qual.mean)
 }
 
-if (!is.na(max.qual.mean)) {
-	filter.params <- paste(filter.params, "-max_qual_mean",  max.qual.mean)
-}
+#if (!is.na(max.qual.mean)) {
+#	filter.params <- paste(filter.params, "-max_qual_mean",  max.qual.mean)
+#}
 
 if (!is.na(ns.max.p)) {
 	filter.params <- paste(filter.params, "-ns_max_p",  ns.max.p)
@@ -120,9 +120,9 @@ if (!is.na(ns.max.n)) {
 	filter.params <- paste(filter.params, "-ns_max_n",  ns.max.n)
 }
 
-if (!is.na(seq.num)) {
-	filter.params <- paste(filter.params, "-seq_num",  seq.num)
-}
+#if (!is.na(seq.num)) {
+#	filter.params <- paste(filter.params, "-seq_num",  seq.num)
+#}
 
 if (!is.na(lc.dust)) {
 	filter.params <- paste(filter.params, "-lc_method dust -lc_threshold", lc.dust )
