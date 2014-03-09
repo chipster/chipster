@@ -7,6 +7,9 @@
 # PARAMETER replace: "Replacement sequence section" TYPE STRING DEFAULT A (Replacement sequence section)
 # PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No] DEFAULT no (Collect a log file about the analysis run.)
 
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence")
+
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
 #check sequece file type

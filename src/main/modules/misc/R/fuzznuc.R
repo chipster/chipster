@@ -11,6 +11,10 @@
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 options(scipen=999)
 
+# KM 8.11. 2013
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence")
+
 #check sequece file type
 inputfile.to.check <- ("sequence")
 sfcheck.binary <- file.path(chipster.module.path ,"/shell/sfcheck.sh")
@@ -49,9 +53,17 @@ system(command.full)
 
 if (rformat == "excel") {
 	system ("mv pattern_matches.txt pattern_matches.tsv")	
+	num.hits <- system("cat pattern_matches.tsv | wc -l", intern = TRUE )
+	if (num.hits == "0") {
+		system ("rm -f pattern_matches.tsv" )
+		system ("echo -------------------------------------------- >> fuzznuc.log" )
+		system ("echo The pattern search produced no hits. >> fuzznuc.log" )
+		system ("echo -------------------------------------------- >> fuzznuc.log ")
+		save_log <- paste("yes")
+	}
 }
 
-system("ls -l >> fuzznuc.log")
+#system("ls -l >> fuzznuc.log")
 
 if ( save_log == "no") {
 	system ("rm -f fuzznuc.log")

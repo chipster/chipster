@@ -1043,8 +1043,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   sudo apt-get -y install python-zsi
 fi
 
-# 2.10.0
-compare_to_current_and_latest "2.10.0"
+# 2.11.0
+compare_to_current_and_latest "2.11.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   
   echo "** Installing Picard tools"

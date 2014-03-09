@@ -18,6 +18,9 @@
 
 # K.M 28.10.2013
 
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("input.txt")
+
 outfile <- paste("converted.",osformat , sep="" )
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
