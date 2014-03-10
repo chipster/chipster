@@ -131,13 +131,19 @@ public abstract class InterpreterAnalysisHandler implements AnalysisHandler {
 		ad.setModuleDir(moduleDir);
 
 		// tool and script locations and other variables
-		
 		int threadsMax = 2;
 		try {
 			threadsMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-threads-max");
 		} catch (Exception e) {
 			logger.warn("could not read job-threads-max from configuration", e);
 		}
+		int memoryMax = 1024;
+		try {
+			memoryMax = DirectoryLayout.getInstance().getConfiguration().getInt("comp", "job-memory-max");
+		} catch (Exception e) {
+			logger.warn("could not read job-memory-max from configuration", e);
+		}
+
 		File commonScriptDir = new File(moduleDir.getParentFile(), "common" + toolPath);
 		
 		String vns = getVariableNameSeparator();
@@ -147,7 +153,9 @@ public abstract class InterpreterAnalysisHandler implements AnalysisHandler {
 				"chipster" + vns + "tools" + vns + "path = " + sd + externalToolPath + sd + "\n" +
 				"chipster" + vns + "common" + vns + "path = " + sd + commonScriptDir.getAbsolutePath() + sd + "\n" + 
 				"chipster" + vns + "module" + vns + "path = " + sd + moduleDir.getAbsolutePath() + sd + "\n" + 
-				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n");
+				"chipster" + vns + "threads" + vns + "max = " + sd + threadsMax + sd + "\n" +
+				"chipster" + vns + "memory" + vns + "max = " + sd + memoryMax + sd + "\n");
+
 		return ad;		
 	}
 

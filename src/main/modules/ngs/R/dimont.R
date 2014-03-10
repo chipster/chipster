@@ -29,7 +29,8 @@ cat(fasta_file, file="seqdata.fa", sep="\n")
 
 tool<-file.path(chipster.tools.path,"dimont","Dimont.jar");
 
-command<-paste("java -Xms512M -Xmx8G -Djava.awt.headless=true -jar ",tool,
+maxMemoryParameter<-paste("-Xmx", chipster.memory.max, "M", sep="")
+command<-paste("java -Xms512M ", maxMemoryParameter, " -Djava.awt.headless=true -jar ",tool,
 			   " data=seqdata.fa",
 			   " infix=dimont",
 			   " position=",postag,
