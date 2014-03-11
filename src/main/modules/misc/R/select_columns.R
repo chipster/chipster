@@ -1,13 +1,13 @@
-# TOOL select_columns.R: "Table converter" (Tool to select columns from tables and to convert text files into tables.)
+# TOOL select_columns.R: "Table converter" (Selects and renames table columns, and converts text files into tables.)
 # INPUT input: "Query sequences" TYPE GENERIC
 # OUTPUT selected.tsv
-# PARAMETER cols: "Column list" TYPE STRING DEFAULT "1,2" (Select columns to be printed. Use comma separated lists of cloumn numbers like 3,1,5 )
-# PARAMETER OPTIONAL colnames: "Column name list" TYPE STRING (Add a new header row for the selected columns. Use comma separated lists of column names like source,date,name. By default the first imported row is used a as a header row. If you rename the columns with this tool, you probably want to start reading the data from row 2. )
-# PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "double point(\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, chipster uses tabulator.)  
-# PARAMETER OPTIONAL startrow: "First row to read" TYPE INTEGER DEFAULT 1 (Skip the first few lines of the input dataset. Note that in table files, the header row is considered as a the first row)
-# PARAMETER OPTIONAL skiprows: "Number of rows to remove from the end of the file" TYPE INTEGER DEFAULT 0 (Remov the given number number of lines from the end of the file or table )
+# PARAMETER cols: "Column list" TYPE STRING DEFAULT "1,2" (Select columns to be printed. Use comma separated lists of column numbers like 3,1,5 )
+# PARAMETER OPTIONAL colnames: "New column names" TYPE STRING (Add a new header row for the selected columns. Use comma separated lists of column names like source,date,name. By default the first imported row is used as a header row. If you rename the columns with this tool, you probably want to start reading the data from row 2. )
+# PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "double point(\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, Chipster uses tabulator.)  
+# PARAMETER OPTIONAL startrow: "First row to read" TYPE INTEGER DEFAULT 1 (Skip the first few lines of the input dataset. Note that in table files, the header row is considered as the first row)
+# PARAMETER OPTIONAL skiprows: "Number of rows to remove from the end of the file" TYPE INTEGER DEFAULT 0 (Remove the given number number of lines from the end of the file or table )
 
-# KM 8.11. 2013
+# KM 8.11.2013
 
 
 #create new header if defined
@@ -21,7 +21,7 @@ if ( nchar(colnames) > 0 ){
 	system(command.full)
 }
 
-#AWK command to create the datarows
+# AWK command to create the datarows
 
 
 # replace tabs with spaces if other separators are used
