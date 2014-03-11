@@ -15,6 +15,9 @@ echo '# PARAMETER OPTIONAL save_log: "Collect a log file" TYPE [yes: Yes, no: No
 
 
 cat <<EOF  > alku
+# check out if the file is compressed and if so unzip it
+source(file.path(chipster.common.path, "zip-utils.R"))
+unzipIfGZipFile("sequence")
 
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 
