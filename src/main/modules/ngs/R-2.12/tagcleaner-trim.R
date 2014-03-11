@@ -2,9 +2,9 @@
 # INPUT reads: "FASTQ/FASTA file" TYPE GENERIC
 # INPUT OPTIONAL qual: "QUAL file" TYPE GENERIC
 # OUTPUT trim.log.txt
-# OUTPUT OPTIONAL trimmed.fastq
-# OUTPUT OPTIONAL trimmed.fasta
-# OUTPUT OPTIONAL trimmed.qual
+# OUTPUT OPTIONAL trimmed.fastq.gz
+# OUTPUT OPTIONAL trimmed.fasta.gz
+# OUTPUT OPTIONAL trimmed.qual.gz
 # PARAMETER input.type: "Input type" TYPE [FASTQ, FASTA] DEFAULT FASTQ (Input type. If using a FASTA file you can provide an optional QUAL file to trim sequences and their quality scores.)
 # PARAMETER tag5: "Tag sequence at 5'-end" TYPE STRING DEFAULT "-" (Tag sequence at 5'-end.)
 # PARAMETER tag3: "Tag sequence at 3'-end" TYPE STRING DEFAULT "-" (Tag sequence at 3'-end.)
@@ -15,6 +15,7 @@
 # PARAMETER OPTIONAL split.mismatch: "Allowed mismatches" TYPE INTEGER DEFAULT 0 (Maximum number of allowed mismatches for the internal (concatenated\) tag sequence(s\).)
 
 # AMS 2013.02.18
+# AMS 11.3.2014, gzip fastq outputs
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -70,3 +71,6 @@ command <- paste(tagcleaner.binary, options)
 
 # run
 system(command)
+system("gzip *.fastq")
+system("gzip *.fasta")
+system("gzip *.qual")
