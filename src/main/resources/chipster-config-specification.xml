@@ -208,6 +208,10 @@
 		<entry entryKey="job-threads-max" type="int" description="max number or threads that single job should use">
 			<value>2</value>
 		</entry>
+		
+		<entry entryKey="job-memory-max" type="int" description="max memory that single job should use, megabytes">
+			<value>8192</value>
+		</entry>
 
 	</configuration-module>
 	
