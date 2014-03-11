@@ -3,7 +3,7 @@
 # OUTPUT selected.tsv
 # PARAMETER cols: "Column list" TYPE STRING DEFAULT "1,2" (Select columns to be printed. Use comma separated lists of column numbers like 3,1,5 )
 # PARAMETER OPTIONAL colnames: "New column names" TYPE STRING (Add a new header row for the selected columns. Use comma separated lists of column names like source,date,name. By default the first imported row is used as a header row. If you rename the columns with this tool, you probably want to start reading the data from row 2. )
-# PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "double point(\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, Chipster uses tabulator.)  
+# PARAMETER OPTIONAL sep: "Column separator in input file" TYPE [tab: "tabulator", space: "space or tabulator", semic: "semicolon (\;\)", doubp: "colon (\:\)", comma: "comma (\,\)", pipe: "pipe (\|\)"] DEFAULT tab (Select the column separator used to parse the input data. By default, Chipster uses tabulator.)  
 # PARAMETER OPTIONAL startrow: "First row to read" TYPE INTEGER DEFAULT 1 (Skip the first few lines of the input dataset. Note that in table files, the header row is considered as the first row)
 # PARAMETER OPTIONAL skiprows: "Number of rows to remove from the end of the file" TYPE INTEGER DEFAULT 0 (Remove the given number number of lines from the end of the file or table )
 
