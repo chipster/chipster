@@ -4,7 +4,7 @@
 # OUTPUT nuse-plot.png: nuse-plot.png 
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, human-hta20: human-hta20, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair, oligo: oligo] DEFAULT empty (The use of empty and oligo envokes the default behaviour of the AffyPLM and oligo packages, respectively. If default annotation packages are found, AffyPLM and oligo will use them)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: HuGene-1.0-ST, human-1.1-ST: HuGene-1.1-ST, human-2.0-ST: HuGene-2.0-ST, human-2.1-ST: HuGene-2.1-ST, human-hta20: HuHta20, mouse-1.0-ST: MoGene-1.0-ST, mouse-1.1-ST: MoGene-1.1-ST, mouse-2.0-ST: MoGene-2.0-ST, mouse-2.1-ST: MoGene-2.1-ST, rat-1.0-ST: RaGene-1.0-ST, rat-1.1-ST: RaGene-1.1-ST, rat-2.0-ST: RaGene-2.0-ST, rat-2.1-ST: RaGene-2.1-ST, zebra_fish-1.0-ST: zebra_fish_gene-1.0-ST, zebra_fish-1.1-ST: zebra_fish_gene-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis_gene-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis_gene-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis_gene-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis_gene-1.1-ST-tair, oligo: oligo] DEFAULT empty (The use of empty and oligo envokes the default behaviour of the AffyPLM and oligo packages, respectively. If default annotation packages are found, AffyPLM and oligo will use them)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type for Exon arrays)
 
 # Affymetrix quality control
@@ -15,16 +15,42 @@
 # Loading the libraries
 library(affy)
 library(affyPLM)
+library(oligo)
 
 # Renaming variables
 w<-image.width
 h<-image.height
 
+headdetails <- affyio::read.celfile.header(as.character(list.celfiles()[1]))
+
 # Reading in data
-dat<-ReadAffy()
+if(chiptype == "oligo") {
+	if(length(grep("HuEx", headdetails$cdfName, ignore.case = T)) > 0) {
+		data.raw <- read.celfiles(filenames=list.celfiles(), pkgname="pd.huex.1.0.st.v2")
+	} else {
+		data.raw <- read.celfiles(filenames=list.celfiles())		
+	}
+} else {
+	#Try if cel-files can be read using ReadAffy
+	dat <- try(ReadAffy())
+
+	#If ReadAffy not working (i.e. gene st2, exon arrays), fake affy-batch object
+	#Could be done commeting out line 81-85 from ReadAffy
+	if(class(dat)=="try-error") {
+		if(length(grep("HuEx", headdetails$cdfName, ignore.case = T)) > 0) {
+			dat <- read.celfiles(filenames=list.celfiles(), pkgname="pd.huex.1.0.st.v2")
+		} else {
+			dat <- read.celfiles(filenames=list.celfiles())		
+		}
+		dim.intensity <- headdetails[[2]]
+
+		class(dat) <- "AffyBatch"
+		dat@nrow <- dim.intensity[2]
+		dat@ncol <- dim.intensity[1]
+	}
+}
 
 # Set up proper cdf package information
-
 if(chiptype=="empty") {
 	chiptype<-dat@annotation
 	a <- try(library(paste(chiptype,"cdf",sep=""), character.only=T))
@@ -57,7 +83,6 @@ if(chiptype=="rat-exon" & summary.feature=="gene") {
 	dat@cdfName<-"raex10stv1rnentrezgcdf"
 	dat@annotation<-"raex10stv1rnentrezg.db"
 }
-
 if(chiptype=="human-1.0-ST") {
 	dat@cdfName<-"hugene10sthsentrezgcdf"
 	dat@annotation<-"hugene10sthsentrezgcdf"
@@ -137,24 +162,33 @@ if(chiptype=="arabidopsis-1.1-ST-tair") {
 
 # Calculating quality control values
 if(chiptype == "oligo") {
-	library(oligo)
-	data.raw <- read.celfiles(filenames=list.celfiles())
 	aqc <- fitProbeLevelModel(data.raw, target="core")
+
+	# Plotting the QC-values
+	par(mar=c(7, 4, 4, 2) + 0.1)
+	title <- paste("RLE\n(", summary.feature, " level)", sep="")
+	bitmap(file="rle-plot.png", width=w/72, height=h/72)
+	RLE(aqc, main=title, las=2)
+	dev.off()
+
+	par(mar=c(7, 4, 4, 2) + 0.1)
+	title <- paste("NUSE\n(", summary.feature, " level)", sep="")
+	bitmap(file="nuse-plot.png", width=w/72, height=h/72)
+	NUSE(aqc, main=title, las=2)
+	dev.off()
 } else {
-	chiptype<-dat@annotation	
-	aqc<-fitPLM(dat)
+	aqc<-affyPLM::fitPLM(dat)
+
+	# Plotting the QC-values
+	par(mar=c(7, 4, 4, 2) + 0.1)
+	title <- paste("RLE\n(", summary.feature, " level)", sep="")
+	bitmap(file="rle-plot.png", width=w/72, height=h/72)
+	Mbox(aqc, main=title, las=2)
+	dev.off()
+
+	par(mar=c(7, 4, 4, 2) + 0.1)
+	title <- paste("NUSE\n(", summary.feature, " level)", sep="")
+	bitmap(file="nuse-plot.png", width=w/72, height=h/72)
+	boxplot(aqc, main=title, las=2)
+	dev.off()
 }
-
-# Plotting the QC-values
-par(mar=c(7, 4, 4, 2) + 0.1)
-title <- paste("RLE\n(", summary.feature, " level)", sep="")
-bitmap(file="rle-plot.png", width=w/72, height=h/72)
-Mbox(aqc, main=title, las=2)
-dev.off()
-
-par(mar=c(7, 4, 4, 2) + 0.1)
-title <- paste("NUSE\n(", summary.feature, " level)", sep="")
-bitmap(file="nuse-plot.png", width=w/72, height=h/72)
-boxplot(aqc, main=title, las=2)
-dev.off()
-
