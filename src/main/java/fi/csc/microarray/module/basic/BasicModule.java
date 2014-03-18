@@ -150,6 +150,11 @@ public class BasicModule implements Module {
 	public boolean isMetadata(DataBean data) {
 		return false; // we don't use metadata
 	}
+	
+	@Override
+	public void preProcessInputMetadata(Operation oper, DataBean metadataInput) throws MicroarrayException, IOException {
+		// do nothing, we don't use metadata
+	}
 
 	@Override
 	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {

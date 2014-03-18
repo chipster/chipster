@@ -933,6 +933,10 @@ public class SwingClientApplication extends ClientApplication {
 			// exception can be scavenged for details
 			MicroarrayException me = (MicroarrayException) e;
 			String details = "";
+			
+			if (e.getMessage() != null) {
+				details += e.getMessage() + "\n";
+			}
 
 			if (ErrorDialogUtils.getMessage(me.getExtraInfo()) != null) {
 				details += ErrorDialogUtils.getMessage(me.getExtraInfo()) + "\n";

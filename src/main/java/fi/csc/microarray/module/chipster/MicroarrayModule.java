@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jms.JMSException;
 import javax.swing.AbstractAction;
@@ -352,6 +354,22 @@ public class MicroarrayModule implements Module {
 	public boolean isMetadata(DataBean data) {
 		// FIXME how this should actually work in the new type system?
 		return data.queryFeatures("/phenodata").exists();
+	}
+	
+	@Override
+	public void preProcessInputMetadata(Operation oper, DataBean metadataInput) throws MicroarrayException, IOException {
+		
+		// R can't handle spaces in column titles. Terminate job if there are any white space characters.
+		
+		Table table = metadataInput.queryFeatures("/column/*").asTable();
+		
+		Pattern pattern = Pattern.compile("\\s"); // whitespace characters: space, tab and new line
+		for (String column : table.getColumnNames()) {						
+			Matcher matcher = pattern.matcher(column);
+			if (matcher.find()) { 
+				throw new MicroarrayException("Phenodata columnn titles must not contain white space characters (space, tab and new line)");
+			}
+		}
 	}
 
 	@Override

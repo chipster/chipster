@@ -104,6 +104,16 @@ public interface Module {
 	public boolean isMetadata(DataBean data);
 	
 	/**
+	 * Pre-processes metadata datasets before the task is started.
+	 * 
+	 * @param operation operation that is going to run 
+	 * @param metadataOutput the metadata input to pre-process
+	 * @throws MicroarrayException
+	 * @throws IOException
+	 */
+	void preProcessInputMetadata(Operation oper, DataBean metadataInput) throws MicroarrayException, IOException;
+	
+	/**
 	 * Post-processes metadata datasets after they have been created by finished tasks.
 	 * 
 	 * @param operation operation that generated the output metadata 

@@ -566,7 +566,7 @@ then
       if [[ -e  "$BLASTDB"/"$blast_database".pal ]]
       then
        cp  "$BLASTDB"/"$blast_database".pal $pbtmproot/pb_$$_tmpdir/
-          for subdb in $(grep DBLIST "$BLASTDB"/"$blast_database".pal | sed s/"DBLIST "/""/ )
+          for subdb in $(grep DBLIST "$BLASTDB"/"$blast_database".pal | sed s/"DBLIST "/""/ | tr -d '"' )
           do
             location=$(pwd)
             cd $BLASTDB
@@ -577,7 +577,7 @@ then
          if [[ -e  "$BLASTDB"/"$blast_database".nal ]]
          then
            cp "$BLASTDB"/"$blast_database".nal $pbtmproot/pb_$$_tmpdir/
-           for subdb in $(grep DBLIST "$BLASTDB"/"$blast_database".nal | sed s/"DBLIST "/""/)
+           for subdb in $(grep DBLIST "$BLASTDB"/"$blast_database".nal | sed s/"DBLIST "/""/ | tr -d '"')
            do
              location=$(pwd)
              cd $BLASTDB
