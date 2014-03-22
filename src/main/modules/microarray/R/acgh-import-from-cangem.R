@@ -14,7 +14,9 @@
 # PARAMETER genome.build: genome.build TYPE [none: none, GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2014-03-22
+
+source(file.path(chipster.common.path, 'library-Chipster.R'))
 
 # check for valid accession
 accession <- toupper(accession)
@@ -264,8 +266,7 @@ if (ncol(dat)==1)
   colnames(dat2)[ncol(dat2)] <- chips[1]
 dat2$probe <- NULL
 
-options(scipen=10)
-write.table(dat2, file='normalized.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
-write.table(phenodata, file='phenodata.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=FALSE)
+writeData(dat2, "normalized.tsv")
+writePhenodata(phenodata, "phenodata.tsv")
 
 # EOF
