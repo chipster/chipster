@@ -1,6 +1,6 @@
 # Collection of handy code snippets to be shared between tools.
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-01-12
+# 2014-01-17
 
 ### Basic I/O for data and phenodata files.
 
@@ -27,7 +27,7 @@ writePhenodata <- function(x, file, quote=FALSE, sep="\t", na="", row.names=FALS
 addAnnotationColumns <- function(input, output) {
   inputAnnotationColumns <- annotationColumns(input)
   outputAnnotationColumns <- annotationColumns(output)
-  data.frame(output[, outputAnnotationColumns], input[rownames(output), setdiff(inputAnnotationColumns, outputAnnotationColumns)], output[, setdiff(colnames(output), outputAnnotationColumns)])
+  data.frame(output[, outputAnnotationColumns, drop=FALSE], input[rownames(output), setdiff(inputAnnotationColumns, outputAnnotationColumns), drop=FALSE], output[, setdiff(colnames(output), outputAnnotationColumns), drop=FALSE])
 }
 
 annotationColumns <- function(df) {
