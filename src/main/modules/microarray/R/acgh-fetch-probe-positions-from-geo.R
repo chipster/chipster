@@ -13,91 +13,83 @@ platform <- toupper(platform)
 if (length(grep('^GPL[0-9]+$', platform)) == 0)
   stop('CHIPSTER-NOTE: Not a valid accession: ', platform)
 
-dat2 <- readData("normalized.tsv")
+dat <- readData("normalized.tsv")
 
 # remove probe positions if already present
-dat2$chromosome <- NULL
-dat2$start <- NULL
-dat2$end <- NULL
-dat2$cytoband <- NULL
+dat$chromosome <- NULL
+dat$start <- NULL
+dat$end <- NULL
+dat$cytoband <- NULL
 
 # load data
 library(GEOquery)
 
 gds <- getGEO(platform)
-
-dat <- gds@dataTable@table
-dat$chromosome <- NA
-dat$start <- NA
-dat$end <- NA
-dat$cytoband <- NA
-dat$symbol <- NA
-dat$description <- NA
-
-# annotation columns
 plat <- gds@dataTable@table
+plat <- plat[!is.na(plat[, 1]) & plat[, 1] != "", ]
+rownames(plat) <- plat[, 1]
 colnames(plat) <- toupper(colnames(plat))
 
 # Agilent
 if ('CHROMOSOMAL_LOCATION' %in% colnames(plat)) {
-  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$CHROMOSOMAL_LOCATION)
-  dat$start <- as.integer(gsub('.*:|-.*','', plat$CHROMOSOMAL_LOCATION))
-  dat$end <- as.integer(gsub('.*-|','', plat$CHROMOSOMAL_LOCATION))
+  plat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$CHROMOSOMAL_LOCATION)
+  plat$start <- as.integer(gsub('.*:|-.*','', plat$CHROMOSOMAL_LOCATION))
+  plat$end <- as.integer(gsub('.*-|','', plat$CHROMOSOMAL_LOCATION))
 }
-if (all(is.na(dat$chromosome)) && 'SYSTEMATICNAME' %in% colnames(plat)) {
+if (all(is.na(plat$chromosome)) && 'SYSTEMATICNAME' %in% colnames(plat)) {
   plat$SYSTEMATICNAME[grep('^.*:[0-9]*-[0-9]*$', plat$SYSTEMATICNAME, invert=TRUE)] <- ''
-  dat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$SYSTEMATICNAME)
-  dat$start <- as.integer(gsub('.*:|-.*','', plat$SYSTEMATICNAME))
-  dat$end <- as.integer(gsub('.*-|','', plat$SYSTEMATICNAME))
+  plat$chromosome <- gsub('chr|_random|_hla_hap1|_hla_hap2|:.*','', plat$SYSTEMATICNAME)
+  plat$start <- as.integer(gsub('.*:|-.*','', plat$SYSTEMATICNAME))
+  plat$end <- as.integer(gsub('.*-|','', plat$SYSTEMATICNAME))
 }
-if (all(is.na(dat$cytoband)) && 'CYTOBAND' %in% colnames(plat))
-  dat$cytoband <- gsub('hs\\|', '', plat$CYTOBAND)
-if (all(is.na(dat$symbol)) && 'GENE_SYMBOL' %in% colnames(plat))
-  dat$symbol <- plat$GENE_SYMBOL
-if (all(is.na(dat$description)) && 'GENE_NAME' %in% colnames(plat))
-  dat$description <- plat$GENE_NAME
-if (all(is.na(dat$description)) && 'DESCRIPTION' %in% colnames(plat))
-  dat$description <- plat$DESCRIPTION
+if (all(is.na(plat$cytoband)) && 'CYTOBAND' %in% colnames(plat))
+  plat$cytoband <- gsub('hs\\|', '', plat$CYTOBAND)
+if (all(is.na(plat$symbol)) && 'GENE_SYMBOL' %in% colnames(plat))
+  plat$symbol <- plat$GENE_SYMBOL
+if (all(is.na(plat$description)) && 'GENE_NAME' %in% colnames(plat))
+  plat$description <- plat$GENE_NAME
+if (all(is.na(plat$description)) && 'DESCRIPTION' %in% colnames(plat))
+  plat$description <- plat$DESCRIPTION
 
 # Nimblegen
-if (all(is.na(dat$chromosome)) && 'CHROMOSOME' %in% colnames(plat))
-  dat$chromosome <- plat$CHROMOSOME
-if (all(is.na(dat$start)) && 'RANGE_START' %in% colnames(plat))
-  dat$start <- as.integer(plat$RANGE_START)
-if (all(is.na(dat$end)) && 'RANGE_END' %in% colnames(plat))
-  dat$end <- as.integer(plat$RANGE_END)
+if (all(is.na(plat$chromosome)) && 'CHROMOSOME' %in% colnames(plat))
+  plat$chromosome <- plat$CHROMOSOME
+if (all(is.na(plat$start)) && 'RANGE_START' %in% colnames(plat))
+  plat$start <- as.integer(plat$RANGE_START)
+if (all(is.na(plat$end)) && 'RANGE_END' %in% colnames(plat))
+  plat$end <- as.integer(plat$RANGE_END)
 
 # other
-if (all(is.na(dat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(plat))
-  dat$chromosome <- plat$CHROMOSOME_NR
-if (all(is.na(dat$start)) && 'START' %in% colnames(plat))
-  dat$start <- as.integer(plat$START)
-if (all(is.na(dat$start)) && 'POSITION' %in% colnames(plat))
-  dat$start <- as.integer(plat$POSITION)
-if (all(is.na(dat$start)) && 'KB POSITION' %in% colnames(plat))
-  dat$start <- as.integer(plat$'KB POSITION') * 1000
-if (all(is.na(dat$end)) && 'END' %in% colnames(plat))
-  dat$end <- as.integer(plat$END)
-if (all(is.na(dat$symbol)) && 'SYMBOL' %in% colnames(plat))
-  dat$symbol <- plat$SYMBOL
-if (all(is.na(dat$description)) && 'GENE_DESCRIPTION' %in% colnames(plat))
-  dat$description <- plat$GENE_DESCRIPTION
+if (all(is.na(plat$chromosome)) && 'CHROMOSOME_NR' %in% colnames(plat))
+  plat$chromosome <- plat$CHROMOSOME_NR
+if (all(is.na(plat$start)) && 'START' %in% colnames(plat))
+  plat$start <- as.integer(plat$START)
+if (all(is.na(plat$start)) && 'POSITION' %in% colnames(plat))
+  plat$start <- as.integer(plat$POSITION)
+if (all(is.na(plat$start)) && 'KB POSITION' %in% colnames(plat))
+  plat$start <- as.integer(plat$'KB POSITION') * 1000
+if (all(is.na(plat$end)) && 'END' %in% colnames(plat))
+  plat$end <- as.integer(plat$END)
+if (all(is.na(plat$symbol)) && 'SYMBOL' %in% colnames(plat))
+  plat$symbol <- plat$SYMBOL
+if (all(is.na(plat$description)) && 'GENE_DESCRIPTION' %in% colnames(plat))
+  plat$description <- plat$GENE_DESCRIPTION
 
 # if missing, impute end column from start (assuming 60 bp probes)
-if (all(is.na(dat$end)))
-  dat$end <- dat$start + 60
+if (all(is.na(plat$end)))
+  plat$end <- plat$start + 60
 
-dat3 <- cbind(dat[rownames(dat2), c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')], dat2, row.names=rownames(dat2))
+dat2 <- cbind(plat[rownames(dat), c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')], dat, row.names=rownames(dat))
 
 # remove empty annotation columns and clean up
 for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')) {
-  if (all(is.na(dat3[,x]))) {
-    dat3[,x] <- NULL
+  if (all(is.na(dat2[,x]))) {
+    dat2[, x] <- NULL
   } else {
-    dat3[,x] <- gsub('"|\'|#|\t', '', dat3[,x])
+    dat2[, x] <- gsub('"|\'|#|\t', '', dat2[, x])
   }
 }
 
-writeData(dat3, "probe-positions.tsv")
+writeData(dat2, "probe-positions.tsv")
 
 # EOF

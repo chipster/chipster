@@ -10,7 +10,9 @@
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-10-12
+# 2014-03-23
+
+source(file.path(chipster.common.path, 'library-Chipster.R'))
 
 # determine platform accession if a platform was chosen from the popup
 if (platform != 'other') {
@@ -23,8 +25,7 @@ platform.accession <- toupper(other.platform.accession)
 if (length(grep('^CG-PLM-[0-9]+$', platform.accession))==0)
   stop('CHIPSTER-NOTE: Not a valid platform accession: ', platform.accession)
 
-file <- 'normalized.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+dat <- readData("normalized.tsv")
 
 # remove probe positions if already present
 dat$chromosome <- NULL
@@ -49,12 +50,10 @@ if (platform == 'other') {
 colnames(plat) <- tolower(colnames(plat))
 colnames(plat)[colnames(plat)=='chr'] <- 'chromosome'
 rownames(plat) <- plat[,1]
-plat$chromosome <- factor(plat$chromosome, levels=c(1:22, "X", "Y", "MT"), ordered=TRUE)
 
 dat2 <- cbind(plat[rownames(dat), c('chromosome', 'start', 'end')], dat, row.names=rownames(dat))
-dat2 <- dat2[order(dat2$chromosome, dat2$start),]
+dat2 <- dat2[order(chromosomeToInteger(dat2$chromosome), dat2$start),]
 
-options(scipen=10)
-write.table(dat2, file='probe-positions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+writeData(dat2, "probe-positions.tsv")
 
 # EOF

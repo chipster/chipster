@@ -9,22 +9,23 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-01-08
+# 2014-03-23
 
-file <- 'regions.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+source(file.path(chipster.common.path, 'library-Chipster.R'))
+library(gtools)
+
+dat <- readData("regions.tsv")
+phenodata <- readPhenodata("phenodata.tsv")
 
 groupnames <- unique(phenodata[,column])
 groupnames <- groupnames[!is.na(groupnames)]
 groupnames <- groupnames[groupnames!='']
 
-first.data.col <- min(grep('chip', names(dat)), grep('flag', names(dat)))
-data.info <- dat[,1:(first.data.col-1)]
-
-calls <- as.matrix(dat[,grep('flag', colnames(dat))])
+data.info <- dat[, annotationColumns(dat)]
+calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 
 datacgh <- data.frame()
+freqs <- data.frame(row.names=rownames(dat))
 group.sizes <- integer()
 for (group in groupnames) {
   group.samples <- which(phenodata[,column] == group & !is.na(phenodata[,column]))
@@ -35,10 +36,12 @@ for (group in groupnames) {
     datacgh <- cbind(datacgh, group.calls)
   }
   group.sizes <- c(group.sizes, length(group.samples))
-  data.info[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls == -1), digits=3)
-  data.info[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls == 1), digits=3)
+  if (-2 %in% calls)
+    freqs[,paste('del.freq.', group, sep='')] <- round(rowMeans(group.calls == -2), digits=3)
+  freqs[,paste('loss.freq.', group, sep='')] <- round(rowMeans(group.calls == -1), digits=3)
+  freqs[,paste('gain.freq.', group, sep='')] <- round(rowMeans(group.calls == 1), digits=3)
   if (2 %in% calls)
-    data.info[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
+    freqs[,paste('amp.freq.', group, sep='')] <- round(rowMeans(group.calls == 2), digits=3)
 }
 
 # first try parallel computing
@@ -56,16 +59,17 @@ if (prob) {
   fdrs <- fdrperm(pvs)
 }
 
-options(scipen=10)
-write.table(fdrs, file='groups-test.tsv', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
+fdrs <- cbind(fdrs, freqs, dat[, dataColumns(dat)])
 
-FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
+writeData(fdrs, "groups-test.tsv")
+
+FDRplot <- function(fdrs, which, a, b, main = 'Frequency Plot with FDR',...) {
   par(mar=c(5,4,4,5) + 0.1)
   cols <- c('blue', 'red')
   names(cols) <- c('gain', 'loss')
   chromosomes <- fdrs$chromosome
-  a.freq <- fdrs[,paste(which, '.freq.', groupnames[1], sep='')]
-  b.freq <- fdrs[,paste(which, '.freq.', groupnames[2], sep='')]
+  a.freq <- fdrs[,paste0(which, '.freq.', a)]
+  b.freq <- fdrs[,paste0(which, '.freq.', b)]
   fdr <- fdrs$fdr
   if ('num.probes' %in% colnames(fdrs)) {
     chromosomes <- rep(chromosomes, fdrs$num.probes)
@@ -94,15 +98,18 @@ FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
   labels <- c(0.01, 0.05, 0.025, 0.1, 0.25, 0.5, 1)
   axis(side=4, at=-log10(labels) - 1, labels=labels, las=1)
   mtext('FDR', side=4, line=3)
-  mtext(groupnames[1], side=2, line=3, at=0.5)
-  mtext(groupnames[2], side=2, line=3, at=-0.5)
+  mtext(a, side=2, line=3, at=0.5)
+  mtext(b, side=2, line=3, at=-0.5)
 }
 
+combs <- combinations(n=length(groupnames), r=2, v=groupnames)
 pdf('groups-test.pdf', paper='a4r', width=0, height=0)
 if (test.aberrations != '-1')
-  FDRplot(fdrs, 'gain')
+  for (i in seq_len(nrow(combs)))
+    FDRplot(fdrs, 'gain', combs[i, 1], combs[i, 2])
 if (test.aberrations != '1')
-  FDRplot(fdrs, 'loss')
+  for (i in seq_len(nrow(combs)))
+    FDRplot(fdrs, 'loss', combs[i, 1], combs[i, 2])
 dev.off()
 
 # EOF

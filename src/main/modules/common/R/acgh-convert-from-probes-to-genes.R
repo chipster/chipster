@@ -3,31 +3,47 @@
 # OUTPUT gene-aberrations.tsv: gene-aberrations.tsv 
 # PARAMETER method.for.calls: "method for calls" TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes/bins give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes/bins have the same call, otherwise the gene will be labeled as normal.)
 # PARAMETER method.for.others: "method for others" TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
-# PARAMETER genome.build: "genome build" TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-04-26
+# 2014-03-24
 
-file <- 'aberrations.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+source(file.path(chipster.common.path, 'library-Chipster.R'))
+library(Homo.sapiens)
+
+dat <- readData("aberrations.tsv")
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # load genes
-# genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
-genes <- read.table(file.path(chipster.tools.path, 'CanGEM', 'Ensembl_Genes', paste(genome.build, '.txt', sep='')), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
-colnames(genes) <- tolower(colnames(genes))
-colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
-colnames(genes)[colnames(genes)=='band'] <- 'cytoband'
-if ('cnv.per.mb' %in% colnames(genes)) {
-  colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.proportion'
-  genes$cnv.proportion <- round(genes$cnv.proportion / 1000000, digits=2)
-}
+all.genes <- AnnotationDbi::select(Homo.sapiens::Homo.sapiens, keys=keys(Homo.sapiens::Homo.sapiens,
+    keytype='CHRLOC'), columns=c('CHRLOC', 'CHRLOCEND', 'ENTREZID', 'SYMBOL', 'GENENAME'), keytype='CHRLOC')
+all.genes <- all.genes[all.genes$CHRLOCCHR %in% unique(dat$chromosome), ]
+all.genes$CHRLOC <- abs(all.genes$CHRLOC)
+all.genes$CHRLOCEND <- abs(all.genes$CHRLOCEND)
+all.genes <- all.genes[, c('CHRLOCCHR', 'CHRLOC', 'CHRLOCEND', 'SYMBOL', 'GENENAME', 'ENTREZID')]
+colnames(all.genes) <- c('chromosome', 'start', 'end', 'symbol', 'description', 'entrez')
 
-# remove genes from chromosomes not present in the array data
-genes <- genes[genes$chromosome %in% dat$chromosome,]
+all.genes$entrez.chr <- paste(all.genes$entrez, all.genes$chromosome, sep=";")
+ambiguous <- unique(all.genes$entrez.chr[duplicated(all.genes$entrez.chr)])
+unambiguous.positions <- all.genes[!all.genes$entrez.chr %in% ambiguous, ]
+positions <- vector("list", length(ambiguous))
+for (i in seq_along(ambiguous)) {
+  entries <- all.genes[all.genes$entrez.chr == ambiguous[i], ]
+  entries$start <- min(entries$start)
+  entries$end <- max(entries$end)
+  # entries <- unique(entries)
+  # if (nrow(entries) > 1) stop("PERKELE!")
+    positions[[i]] <- entries[1, ]
+}
+genes <- do.call(rbind, positions)
+genes[(nrow(genes)+1):(nrow(genes)+nrow(unambiguous.positions)),] <- unambiguous.positions
+genes$entrez.chr <- NULL
+genes <- genes[order(chromosomeToInteger(genes$chromosome), genes$start, genes$end), ]
+rownames(genes) <- 1:nrow(genes)
+
+all.genes <- rm(list=c("all.genes", "ambiguous", "unambiguous.positions", "positions", "entries", "i"))
 
 # define the functions for calculating gene copy numbers from probe/bin copy numbers
 unambiguous <- function(values) {
@@ -108,14 +124,15 @@ try({
 if (prob)
   gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))
 
-calls.bygene <- gene.calls.and.logratios[,1:ncol(calls)]
-genes$loss.freq <- mean(as.data.frame(t(calls.bygene==-1)))
-genes$gain.freq <- mean(as.data.frame(t(calls.bygene==1)))
+calls.bygene <- gene.calls.and.logratios[, 1:ncol(calls)]
+if (-2 %in% calls.bygene)
+  genes$del.freq <- round(rowMeans(calls.bygene == -2), digits=3)
+genes$loss.freq <- round(rowMeans(calls.bygene == -1), digits=3)
+genes$gain.freq <- round(rowMeans(calls.bygene == 1), digits=3)
 if (2 %in% calls.bygene)
-    genes$amp.freq <- mean(as.data.frame(t(calls.bygene==2)))
+  genes$amp.freq <- round(rowMeans(calls.bygene == 2), digits=3)
 genes <- cbind(genes, gene.calls.and.logratios)
 
-options(scipen=10)
-write.table(genes, file='gene-aberrations.tsv', sep="\t", quote=FALSE, row.names=TRUE, col.names=TRUE)
+writeData(genes, "gene-aberrations.tsv")
 
 # EOF

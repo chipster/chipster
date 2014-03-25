@@ -2,7 +2,7 @@
 # INPUT gene-aberrations.tsv: gene-aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 
-# PARAMETER aberrations: aberrations TYPE [losses: losses, gains: gains, amplifications: amplifications, gains_and_amplifications: gains_and_amplifications, all_aberrations: all_aberrations] DEFAULT all_aberrations (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
+# PARAMETER aberrations: aberrations TYPE [all_aberrations: "all aberrations", losses_and_deletions: "losses and deletions", deletions: deletions, losses: losses, gains: gains, amplifications: amplifications, gains_and_amplifications: "gains and amplifications"] DEFAULT all_aberrations (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
 # PARAMETER frequency.threshold: frequency.threshold TYPE DECIMAL DEFAULT 0.5 (The minimum proportion of samples containing the particular type of aberration.)
 # PARAMETER ontology: ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
@@ -12,32 +12,18 @@
 # PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-02-24
+# 2014-03-24
 
-# load packages
+source(file.path(chipster.common.path, 'library-Chipster.R'))
 library(org.Hs.eg.db)
 library(GOstats)
 library(R2HTML)
 
 # read input
-file <- 'gene-aberrations.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-
-# convert list of reference genes from Ensembl to Entrez IDs
-ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
-reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
-
-# check that we have something (i.e. that input file was in fact Ensembl IDs)
-if (length(reference.genes)==0)
-  stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Detect genes from called copy number data.')
+dat <- readData("gene-aberrations.tsv")
 
 # detect the frequency column to use
-if (aberrations == 'all_aberrations') {
-  if ('amp.freq' %in% colnames(dat))
-    dat$gain.freq <- dat$gain.freq + dat$amp.freq
-  dat$loss.freq <- dat$loss.freq + dat$gain.freq
-  column <- 'loss.freq'
-} else if (aberrations == 'gains_and_amplifications') {
+if (aberrations == 'gains_and_amplifications') {
   if ('amp.freq' %in% colnames(dat))
     dat$gain.freq <- dat$gain.freq + dat$amp.freq
   column <- 'gain.freq'
@@ -45,7 +31,20 @@ if (aberrations == 'all_aberrations') {
   column <- 'amp.freq'
 } else if (aberrations == 'gains') {
   column <- 'gain.freq'
+} else if (aberrations == 'losses'){
+  column <- 'loss.freq'
+} else if (aberrations == 'deletions'){
+  column <- 'del.freq'
+} else if (aberrations == 'losses_and_deletions') {
+  if ('del.freq' %in% colnames(dat))
+    dat$loss.freq <- dat$loss.freq + dat$del.freq
+  column <- 'loss.freq'
 } else {
+  if ('del.freq' %in% colnames(dat))
+    dat$loss.freq <- dat$loss.freq + dat$del.freq
+  if ('amp.freq' %in% colnames(dat))
+    dat$gain.freq <- dat$gain.freq + dat$amp.freq
+  dat$loss.freq <- dat$loss.freq + dat$gain.freq
   column <- 'loss.freq'
 }
 
@@ -53,11 +52,22 @@ if (aberrations == 'all_aberrations') {
 if (!column %in% colnames(dat))
   stop('CHIPSTER-NOTE: The required frequency column not found in file: ', column)
 
-# extract the list of frequently aberrated genes
-selected.genes <- unique(unlist(ensembl.to.entrez[rownames(dat[dat[,column] >= frequency.threshold,])]))
+if ("entrez" %in% colnames(dat)) {
+  # new version of acgh-convert-from-probes-to-genes.R contains column "entrez"
+  reference.genes <- dat$entrez
+  selected.genes <- dat[dat[,column] >= frequency.threshold, "entrez"]
+} else {
+  # old version of acgh-convert-from-probes-to-genes.R contained ensembl ids
+  ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
+  reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
+  selected.genes <- unique(unlist(ensembl.to.entrez[rownames(dat[dat[,column] >= frequency.threshold,])]))
+}
+
+if (length(reference.genes) == 0)
+  stop('CHIPSTER-NOTE: No gene IDs found in the input file, please first run the tool Detect genes from called copy number data.')
 
 # check that we have a list of genes to test
-if (length(reference.genes)==0)
+if (length(selected.genes) == 0)
   stop('CHIPSTER-NOTE: There were no aberrated genes above the selected threshold (', frequency.threshold, '). Please choose a lower threshold.')
 
 # check for conditional testing and multiple testing correction
@@ -76,10 +86,10 @@ if (ontology == 'biological_process' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
   go <- hyperGTest(params)
   go.table <- summary(go, pvalue=2)
-  if (nrow(go.table)>0) {
+  if (nrow(go.table) > 0) {
     go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
     go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
-    if (nrow(go.table)>0) {
+    if (nrow(go.table) > 0) {
       rownames(go.table) <- go.table[,1]
       go.table <- go.table[,c(6, 4, 5, 2, 7)]
       go.table$ontology <- 'biological process'
@@ -95,10 +105,10 @@ if (ontology == 'molecular_function' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='MF', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
   go <- hyperGTest(params)
   go.table <- summary(go, pvalue=2)
-  if (nrow(go.table)>0) {
+  if (nrow(go.table) > 0) {
     go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
     go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
-    if (nrow(go.table)>0) {
+    if (nrow(go.table) > 0) {
       rownames(go.table) <- go.table[,1]
       go.table <- go.table[,c(6, 4, 5, 2, 7)]
       go.table$ontology <- 'molecular function'
@@ -114,10 +124,10 @@ if (ontology == 'cellular_component' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='CC', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
   go <- hyperGTest(params)
   go.table <- summary(go, pvalue=2)
-  if (nrow(go.table)>0) {
+  if (nrow(go.table) > 0) {
     go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
     go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
-    if (nrow(go.table)>0) {
+    if (nrow(go.table) > 0) {
       rownames(go.table) <- go.table[,1]
       go.table <- go.table[,c(6, 4, 5, 2, 7)]
       go.table$ontology <- 'cellular component'
@@ -129,10 +139,12 @@ if (ontology == 'cellular_component' || ontology == 'all') {
   }
 }
 
+output$expected <- signif(output$expected, digits=3)
+output$p.value <- signif(output$p.value, digits=3)
+
 # write outputs
-options(scipen=10)
-write.table(output, file='hypergeo-go.tsv', quote=FALSE, sep='\t')
-if (nrow(output)==0)
+writeData(output, "hypergeo-go.tsv")
+if (nrow(output) == 0)
   write('<html>\n\t<body>\n\t\tNo significant results found!</br />\n\t</body>\n</html>', file='hypergeo-go.html')
 
 # EOF

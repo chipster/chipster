@@ -4,10 +4,11 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-01-08
+# 2014-03-23
 
-file <- 'normalized.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+source(file.path(chipster.common.path, 'library-Chipster.R'))
+
+dat <- readData("normalized.tsv")
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -61,7 +62,7 @@ cnv.counter <- function(x) {
   bases <- 0
   for (j in rownames(overlaps))
     bases <- bases + min(end, overlaps[j, 'end']) - max(start, overlaps[j, 'start']) + 1
-  c(count, round(bases / (end - start + 1), digits=3))
+  c(count, signif(bases / (end - start + 1), digits=3))
 }
 
 # first try parallel computing
@@ -81,7 +82,6 @@ if (prob)
 if (first.data.col > 0)
   dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
-options(scipen=10)
-write.table(dat2, file='cnvs.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+writeData(dat2, "cnvs.tsv")
 
 # EOF

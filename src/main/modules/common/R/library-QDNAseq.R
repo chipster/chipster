@@ -117,31 +117,31 @@ fromQDNAseqCopyNumbers <- function(object) {
       df$amp.freq <- round(rowMeans(calls == 2), digits=3)
     df <- cbind(df, calls)
   }
-  copynumber <- round(QDNAseq:::log2adhoc(assayDataElement(object, "copynumber")), digits=3)
+  copynumber <- signif(QDNAseq:::log2adhoc(assayDataElement(object, "copynumber")), digits=3)
   colnames(copynumber) <- paste0("chip.", colnames(copynumber))
   df <- cbind(df, copynumber)
   if ("segmented" %in% assayDataElementNames(object)) {
-    segmented <- round(QDNAseq:::log2adhoc(assayDataElement(object, "segmented")), digits=3)
+    segmented <- signif(QDNAseq:::log2adhoc(assayDataElement(object, "segmented")), digits=3)
     colnames(segmented) <- paste0("segmented.", colnames(segmented))
     df <- cbind(df, segmented)
   }
   if ("calls" %in% assayDataElementNames(object)) {
     if ("probdloss" %in% assayDataElementNames(object)) {
-      probdel <- round(assayDataElement(object, "probdloss"), digits=3)
+      probdel <- signif(assayDataElement(object, "probdloss"), digits=3)
       colnames(probdel) <- paste0("probdel.", colnames(probdel))
       df <- cbind(df, probdel)
     }
-    probloss <- round(assayDataElement(object, "probloss"), digits=3)
+    probloss <- signif(assayDataElement(object, "probloss"), digits=3)
     colnames(probloss) <- paste0("probloss.", colnames(probloss))
     df <- cbind(df, probloss)
-    probnorm <- round(assayDataElement(object, "probnorm"), digits=3)
+    probnorm <- signif(assayDataElement(object, "probnorm"), digits=3)
     colnames(probnorm) <- paste0("probnorm.", colnames(probnorm))
     df <- cbind(df, probnorm)
-    probgain <- round(assayDataElement(object, "probgain"), digits=3)
+    probgain <- signif(assayDataElement(object, "probgain"), digits=3)
     colnames(probgain) <- paste0("probgain.", colnames(probgain))
     df <- cbind(df, probgain)
     if ("probamp" %in% assayDataElementNames(object)) {
-      probamp <- round(assayDataElement(object, "probamp"), digits=3)
+      probamp <- signif(assayDataElement(object, "probamp"), digits=3)
       colnames(probamp) <- paste0("probamp.", colnames(probamp))
       df <- cbind(df, probamp)
     }
