@@ -4,15 +4,16 @@
 # PARAMETER platform: platform TYPE STRING DEFAULT GPL (The accession of the platform.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-03-18
+# 2014-03-22
+
+source(file.path(chipster.common.path, 'library-Chipster.R'))
 
 # check for valid accession
 platform <- toupper(platform)
 if (length(grep('^GPL[0-9]+$', platform)) == 0)
   stop('CHIPSTER-NOTE: Not a valid accession: ', platform)
 
-file <- 'normalized.tsv'
-dat2 <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
+dat2 <- readData("normalized.tsv")
 
 # remove probe positions if already present
 dat2$chromosome <- NULL
@@ -97,7 +98,6 @@ for (x in c('chromosome', 'start', 'end', 'cytoband', 'symbol', 'description')) 
   }
 }
 
-options(scipen=10)
-write.table(dat3, file='probe-positions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+writeData(dat3, "probe-positions.tsv")
 
 # EOF
