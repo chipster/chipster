@@ -497,6 +497,9 @@
 			<lib dir="${admin-web}/WebContent/WEB-INF/lib-ivy" />
 			<lib dir="${admin-web}/WebContent/WEB-INF/lib" />
 			<fileset dir="${admin-web}/WebContent">
+				<include name="WEB-INF/*-module-*.xml"/>
+			</fileset>
+			<fileset dir="${admin-web}/WebContent">
 				<include name="VAADIN/**"/>
 			</fileset>
 			<classes dir="${admin-web-bin}" />
