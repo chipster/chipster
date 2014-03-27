@@ -118,7 +118,7 @@ public class SessionLoader {
 			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
 			
 			if (validationEventHandler.hasEvents()) {
-				throw new JAXBException("Invalid session file:\n" + validationEventHandler.getValidationEventsAsString());
+				throw new JAXBException("Invalid session file: " + sessionFile.getName() + "\n" + validationEventHandler.getValidationEventsAsString());
 			}
 		}
 		finally {
