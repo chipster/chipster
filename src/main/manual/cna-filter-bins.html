@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>CNA-seq / Filter copy number bins</h2>
+	
+	<h3>Description</h3>
+	<p>Filters out low-quality bins.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>QDNAseq blacklist (filter out, keep) [filter out]</li>
+		<li>ENCODE blacklist (filter out, keep) [filter out]</li>
+		<li>Minimum mappability (0-100) [0]</li>
+		<li>Sex chromosomes (filter out, keep) [filter out]
+	</ul>
+	
+	<h3>Details</h3>
+	<p>This tool filters out low-quality bins from subsequent analyses. The data rows are not really removed from the data table, but only flagged to be ignored.</p>
+	
+	<h3>Output</h3>
+	<p>The table from the input file with the column &quot;use&quot; updated for the new filtering.</p>
+</body>
+</html>

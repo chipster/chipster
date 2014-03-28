@@ -8,13 +8,14 @@
 # PARAMETER confidence.intervals: "plot confidence intervals" TYPE [yes: yes, no: no] DEFAULT no (Whether to plot the confidence intervals.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-04-04
+# 2014-03-24
 
+source(file.path(chipster.common.path, 'library-Chipster.R'))
+source(file.path(chipster.common.path, 'library-CGHcall.R'))
 library(survival)
 
-file <- 'survival-test.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+dat <- readData("survival-test.tsv")
+phenodata <- readPhenodata("phenodata.tsv")
 
 s <- Surv(phenodata[,survival], phenodata[,status])
 reg <- as.matrix(dat[, grep('^flag\\.', colnames(dat))])
@@ -32,7 +33,7 @@ if (aberrations == 'gains') {
 names(call.legend) <- -1:1
 call.cols <- c('red', 'black', 'blue')
 names(call.cols) <- -1:1
-pdf('survival.pdf', paper='a4r')
+pdf('survival.pdf', paper='a4r', width=0, height=0)
 for (i in rownames(dat)) {
   f <- survfit(s ~ reg[i,])
   call <- sub('^.*=(.*)', '\\1', names(f$strata))
