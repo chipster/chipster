@@ -4,7 +4,7 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-23
+# 2014-03-28
 
 source(file.path(chipster.common.path, 'library-Chipster.R'))
 
@@ -25,12 +25,10 @@ if (first.data.col > 0) {
 }
 
 # load cnvs
-if (genome.build=='NCBI36') {
+if (genome.build == 'NCBI36') {
   cnv <- read.table('http://dgv.tcag.ca/dgv/docs/NCBI36_hg18_variants_2013-07-23.txt', header=TRUE, sep='\t', as.is=TRUE)
-  # cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg18.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 } else {
   cnv <- read.table('http://dgv.tcag.ca/dgv/docs/GRCh37_hg19_variants_2013-07-23.txt', header=TRUE, sep='\t', as.is=TRUE)
-  # cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg19.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 }
 cnv <- cnv[cnv$varianttype == 'CNV',]
 cnv$chr <- factor(cnv$chr, levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)
