@@ -2,8 +2,8 @@
 
 <project name="Chipster" default="package" basedir=".">
 	<description>
-		The Chipster server installation package (incl. clients and everything)
-    	</description>
+		The Chipster server installation package (incl. client and everything)
+    </description>
 
 	<!-- get the environment variables -->
 	<property environment="env" />
@@ -496,6 +496,9 @@
 		<war destfile="${dist}/admin-web.war" webxml="${admin-web}/WebContent/WEB-INF/web.xml">
 			<lib dir="${admin-web}/WebContent/WEB-INF/lib-ivy" />
 			<lib dir="${admin-web}/WebContent/WEB-INF/lib" />
+			<fileset dir="${admin-web}/WebContent">
+				<include name="WEB-INF/*-module-*.xml"/>
+			</fileset>
 			<fileset dir="${admin-web}/WebContent">
 				<include name="VAADIN/**"/>
 			</fileset>

@@ -405,6 +405,7 @@ public abstract class ClientApplication {
 		
 		// start executing the task
 		Task task = taskExecutor.createTask(operation);
+		
 		task.addTaskEventListener(new TaskEventListener() {
 			public void onStateChange(Task job, State oldState, State newState) {
 				if (newState.isFinished()) {
@@ -419,9 +420,24 @@ public abstract class ClientApplication {
 		});
 
 		try {
+			onNewTask(task, operation);
+			
 			taskExecutor.startExecuting(task);
-		} catch (TaskException te) {
+		} catch (TaskException | MicroarrayException | IOException te) {
 			reportException(te);
+		}
+	}
+	
+	public void onNewTask(Task task, Operation oper) throws MicroarrayException, IOException {
+		
+		Module primaryModule = Session.getSession().getPrimaryModule();
+		
+		for (String inputName : task.getInputNames()) {
+			DataBean input = task.getInput(inputName);
+
+			if (primaryModule.isMetadata(input)) {				
+				primaryModule.preProcessInputMetadata(oper, input);				
+			}
 		}
 	}
 	
