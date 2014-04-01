@@ -14,12 +14,12 @@
 	<h3>Parameters</h3>
 	<ul>
 		<li>Number of copy number states (3, 4) [3]</li>
-		<li>Genome build (GRCh37/hg19, NCBI36/hg18, NCBI35/hg17, NCBI34/hg16, other) [GRCh37/h19]</li>
 		<li>Cellularity</li>
 	</ul>
 	
 	<h3>Details</h3>
 	<p>After normalizing and segmenting the log ratios, this tool is used to obtain discrete copy number levels with CGHcall. Calling of three copy number states means separating losses, normals and gains. Amplifications can also be detected separately as the fourth copy number state. For each data point, the frequencies of arrays exhibiting a loss/gain/amplification are also included.</p>
+	<p>If available, a phenodata column specifying the cellularities (proportion of tumor cells) can be specified, which is used to correct the data.</p>
 	<p>The input data must be segmented and contain these columns: chromosome, start, end.</p>
 	
 	<h3>Output</h3>
