@@ -15,11 +15,10 @@
 	<ul>
 		<li>Method to use to determine calls for the genes (majority, unambiguous) [majority]</li>
 		<li>Method to use for other data columns (mean, median) [mean]</li>
-		<li>Human genome build to use (GRCh37/hg19, NCBI36/hg18, NCBI35/hg17, NCBI34/hg16) [GRCh37/hg19]</li>
 	</ul>
 	
 	<h3>Details</h3>
-	<p>The list of Ensembl genes is retrieved, and the input data converted from probe/bin-based to gene-based. For a given gene, the probes/bins to use are determined as described in the referenced CanGEM paper. The majority method means that the gene is marked as a loss (or gain), if more than 50% of the determined probes/bins show a loss (or a gain). The unambiguous method requires that all of the probes/bins have to give the same signal, or otherwise the gene is marked as normal copy number.</p>
+	<p>The list of human genes is retrieved from Bioconductor, and the input data converted from probe/bin-based to gene-based. For a given gene, the features to use are determined as described in the referenced CanGEM paper. Briefly, if there are features overlapping the position of a gene, those are used. If not, the last preceding feature and the first tailing feature are used. The majority method means that the gene is marked as a loss (or gain), if more than 50% of the determined probes/bins show a loss (or a gain). The unambiguous method requires that all of the probes/bins have to give the same signal, or otherwise the gene is marked as normal copy number.</p>
 	
 	<h3>Output</h3>
 	<p>Input data set transferred from probe/bin-based to gene-based measurements.</p>

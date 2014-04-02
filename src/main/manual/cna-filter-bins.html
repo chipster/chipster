@@ -9,20 +9,23 @@
 	<h2>CNA-seq / Filter copy number bins</h2>
 	
 	<h3>Description</h3>
-	<p>Filters out low-quality bins.</p>
+	<p>This tool takes as input a table on binned read counts (from Define CNA-seq experiment), and filters out bins that are known to behave spuriously.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
-		<li>QDNAseq blacklist (filter out, keep) [filter out]</li>
-		<li>ENCODE blacklist (filter out, keep) [filter out]</li>
-		<li>Minimum mappability (0-100) [0]</li>
-		<li>Sex chromosomes (filter out, keep) [filter out]
+		<li>QDNAseq blacklist (remove, keep) [remove]</li>
+		<li>ENCODE blacklist (remove, keep) [remove]</li>
+		<li>minimum mappability (0-100) [0]</li>
+		<li>sex chromosomes (remove, keep) [remove]</li>
 	</ul>
 	
 	<h3>Details</h3>
-	<p>This tool filters out low-quality bins from subsequent analyses. The data rows are not really removed from the data table, but only flagged to be ignored.</p>
-	
+	<p>By default, bins in the QDNAseq or ENCODE blacklists are filtered out, as are the sex chromosomes. A minimum mappability can also be specified.</p>
 	<h3>Output</h3>
-	<p>The table from the input file with the column &quot;use&quot; updated for the new filtering.</p>
+	<p>Data table with the chosen bins filtered out.</p>
+	
+	<h3>References</h3>
+	<p>Scheinin et al. (2014) DNA copy number analysis of fresh and formalin-fixed specimens by whole-genome sequencing: improved correction of systematic biases and exclusion of problematic regions. Manuscript submitted.</p>
+	<p>Mappability: Koehler et al. (2011) The uniqueome: a mappability resource for short-tag sequencing. Bioinformatics 27: 272-274</p>
 </body>
 </html>

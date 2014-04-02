@@ -13,16 +13,19 @@
 	
 	<h3>Parameters</h3>
 	<ul>
-		<li>Log2 transform (yes, no) [yes]</li>
 		<li>Normalization method (median, mode, none) [median]</li>
-		<li>Number of chromosomes (...) [22]</li>
+		<li>Smooth outliers (yes, no) [yes]</li>
 	</ul>
 	
 	<h3>Details</h3>
-	<p>Copy number data is log2 transformed (if chosen), and then normalized using the chosen method.</p>
+	<p>Copy number data is normalized using the chosen method. Optionally, outliers can be smoothed using using the DNAcopy package.</p>
 	<p>The input data must contain these columns: chromosome, start, end.</p>
 	
 	<h3>Output</h3>
 	<p>Normalized values.</p>
+	
+	<h3>References</h3>
+	<p>DNAcopy:<br />
+		Venkatraman et al. (2007) A faster circular binary segmentation algorithm for the analysis of array CGH data. Bioinformatics 23: 657-663</p>
 </body>
 </html>
