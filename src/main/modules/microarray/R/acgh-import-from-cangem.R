@@ -181,7 +181,7 @@ if (cangem.samples$Format[1] == 'agilent') {
     dat <- .Call("rma_c_complete_copy", dat, pNList, ngenes, normalize=FALSE, background=FALSE, bgversion=2, verbose=TRUE, PACKAGE="affy")
     colnames(dat) <- chips
   }
-  dat <- round(dat, digits=2)
+  dat <- signif(dat, digits=3)
   dat <- as.data.frame(dat)
   chiptype <- cangem.samples$BioconductorPackage[1]
   if (is.na(chiptype)) {
@@ -202,13 +202,13 @@ if (cangem.samples$Format[1] == 'agilent') {
   calls<-as.data.frame(exprs(mas5calls(raw)))
   names(calls)<-paste("flag.", microarrays, sep="") # or names(calls) ???
   if (affymetrix.normalization == 'mas5')
-    dat<-as.data.frame(round(log2(exprs(mas5(raw))), digits=2))
+    dat<-as.data.frame(signif(log2(exprs(mas5(raw))), digits=3))
   rm(raw)
   gc()
   if (affymetrix.normalization == 'rma')
-    dat <- as.data.frame(round(exprs(justRMA(filenames=cangem.samples$FileName)), digits=2))
+    dat <- as.data.frame(signif(exprs(justRMA(filenames=cangem.samples$FileName)), digits=3))
   if (affymetrix.normalization == 'gcrma')
-    dat <- as.data.frame(round(exprs(justGCRMA(filenames=cangem.samples$FileName, type='fullmodel', fast=TRUE, optimize.by='speed')), digits=2))
+    dat <- as.data.frame(signif(exprs(justGCRMA(filenames=cangem.samples$FileName, type='fullmodel', fast=TRUE, optimize.by='speed')), digits=3))
   names(dat) <- chips # or names(dat) ???
   dat <- data.frame(dat, calls)
   unlink(cangem.samples$FileName)

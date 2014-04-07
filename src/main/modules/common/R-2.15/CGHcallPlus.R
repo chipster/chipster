@@ -1,6 +1,15 @@
 library(CGHcall)
 library(CGHregions)
 library(WECCA)
+library(matrixStats)
+library(QDNAseq)
+
+setMethod('plot', signature(x='cghRaw', y='missing'),
+  getMethod('plot', signature=c(x='QDNAseqReadCounts', y='missing')))
+setMethod('plot', signature(x='cghSeg', y='missing'),
+  getMethod('plot', signature=c(x='QDNAseqReadCounts', y='missing')))
+setMethod('plot', signature(x='cghCall', y='missing'),
+  getMethod('plot', signature=c(x='QDNAseqReadCounts', y='missing')))
 
 setMethod("frequencyPlot", signature(x="cghCall", y="missing"), frequencyPlotCalls)
 
@@ -178,34 +187,35 @@ regioningPlus <- function (cghdata.called, threshold = 0.00001, cghdata.regions 
 environment(regioningPlus) <- environment(WECCA:::regioning)
 regioning <- regioningPlus
 
-WECCA.heatmapPlus <- function (cghdata.regioned, dendrogram, build='GRCh37', ...) 
-{
-    nclass <- dim(cghdata.regioned$softcalls)[2]/dim(cghdata.regioned$hardcalls)[2]
+WECCA.heatmapPlus <- function (cghdata.regioned, dendrogram, build='GRCh37',
+  ...) {
+  nclasses <- sort(unique(as.numeric(cghdata.regioned$hardcalls)))
+  cols <- c('lightgreen', 'darkgreen', 'lightgray', 'darkslategray')
+  chr.color <- rep(1, nrow(cghdata.regioned$ann))
+  centromeres <- CGHbase:::.getCentromere(build)
+  for (chr in unique(cghdata.regioned$ann$Chromosome))
+    chr.color[cghdata.regioned$ann$Chromosome == chr &
+      (cghdata.regioned$ann$Start + cghdata.regioned$ann$End) / 2 >
+      centromeres[chr]] <- 2
+  even <- cghdata.regioned$ann$Chromosome %% 2 == 0
+  chr.color[even] <- chr.color[even] + 2
+  chr.color <- cols[chr.color]
 
-    cols <- c('lightgreen', 'darkgreen', 'lightgray', 'darkslategray')
-    chr.color <- rep(1, nrow(cghdata.regioned$ann))
-    centromeres <- CGHbase:::.getCentromere(build)
-    for (chr in unique(cghdata.regioned$ann$Chromosome))
-      chr.color[cghdata.regioned$ann$Chromosome == chr &
-               (cghdata.regioned$ann$Start + cghdata.regioned$ann$End) / 2 > centromeres[chr]] <- 2
-    even <- cghdata.regioned$ann$Chromosome %% 2 == 0
-    chr.color[even] <- chr.color[even] + 2
-    chr.color <- cols[chr.color]
-
-    Y <- rep(FALSE, dim(cghdata.regioned$hardcalls)[1])
-    for (i in 2:(dim(cghdata.regioned$ann)[1])) {
-        if ((cghdata.regioned$ann[i - 1, 1] != cghdata.regioned$ann[i, 
-            1])) {
-            Y[i] <- TRUE
-        }
-    }
-    Y[1] <- TRUE
-    begin.chr <- rep("", dim(cghdata.regioned$ann)[1])
-    begin.chr[Y] <- cghdata.regioned$ann[Y, 1]
-    color.coding <- c("red", "black", "blue", "white")[1:nclass]
-    heatmap(cghdata.regioned$hardcalls, Colv = as.dendrogram(dendrogram), 
-        Rowv = NA, col = color.coding, labRow = begin.chr, RowSideColors = chr.color, 
-        scale = "none", ...)
+  Y <- rep(FALSE, dim(cghdata.regioned$hardcalls)[1])
+  for (i in 2:(dim(cghdata.regioned$ann)[1])) {
+      if ((cghdata.regioned$ann[i - 1, 1] != cghdata.regioned$ann[i, 
+          1])) {
+          Y[i] <- TRUE
+      }
+  }
+  Y[1] <- TRUE
+  begin.chr <- rep("", dim(cghdata.regioned$ann)[1])
+  begin.chr[Y] <- cghdata.regioned$ann[Y, 1]
+  color.coding <- c("-2"="darkred", "-1"="red", "0"="black", "1"="blue",
+    "2"="darkblue")[as.character(nclasses)]
+  heatmap(cghdata.regioned$hardcalls, Colv = as.dendrogram(dendrogram), 
+    Rowv=NA, col=color.coding, labRow=begin.chr, RowSideColors=chr.color, 
+    scale="none", ...)
 }
 environment(WECCA.heatmapPlus) <- environment(WECCA:::WECCA.heatmap)
 WECCA.heatmap <- WECCA.heatmapPlus

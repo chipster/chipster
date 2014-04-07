@@ -8,14 +8,14 @@
 # PARAMETER test.aberrations: test.aberrations TYPE [1: gains, -1: losses, 0: both] DEFAULT 0 (Whether to test only for gains or losses, or both.) 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-04-04
+# 2014-03-23
 
-file <- 'regions.tsv'
-dat <- read.table(file, header=TRUE, sep='\t', quote='', row.names=1, as.is=TRUE, check.names=FALSE)
-phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', check.names=FALSE)
+source(file.path(chipster.common.path, 'library-Chipster.R'))
 
-first.data.col <- min(grep('^chip\\.', names(dat)), grep('^flag\\.', names(dat)))
-data.info <- dat[,1:(first.data.col-1)]
+dat <- readData("regions.tsv")
+phenodata <- readPhenodata("phenodata.tsv")
+
+data.info <- dat[, annotationColumns(dat)]
 calls <- as.matrix(dat[,grep('^flag\\.', colnames(dat))])
 
 # first try parallel computing
@@ -33,9 +33,8 @@ if (prob) {
   fdrs <- fdrperm(pvs)
 }
 
-fdrs <- cbind(fdrs, dat[,first.data.col:ncol(dat)])
+fdrs <- cbind(fdrs, dat[, dataColumns(dat)])
 
-options(scipen=10)
-write.table(fdrs, file='survival-test.tsv', quote=FALSE, sep='\t')
+writeData(fdrs, "survival-test.tsv")
 
 # EOF
