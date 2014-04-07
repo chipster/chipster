@@ -212,11 +212,13 @@ if(chiptype=="rice-1.0-ST-entrez") {
 	custom_cdf = "ricegene10stosentrezgcdf"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	dataset <- "osativa_eg_gene"
+	filt <- "entrezgene"
 }
 if(chiptype=="rice-1.1-ST-entrez") {
 	custom_cdf = "ricegene11stosentrezgcdf"
 	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
 	dataset <- "osativa_eg_gene"
+	filt <- "entrezgene"
 }
 
 
