@@ -9,20 +9,24 @@
 	<h2>Copy number aberrations / Normalize copy number data</h2>
 	
 	<h3>Description</h3>
-	<p>Normalizes copy number data (either aCGH log ratios or log2-transformed NGS data).</p>
+	<p>Normalizes copy number data before segmentation.</p>
 	
 	<h3>Parameters</h3>
 	<ul>
 		<li>Normalization method (median, mode, none) [median]</li>
+		<li>Smooth outliers (yes, no) [yes]</li>
 		<li>Number of chromosomes (...) [23]</li>
 	</ul>
 	
 	<h3>Details</h3>
-	<p>Log ratios are normalized using the chosen method.</p>
+	<p>Copy number data is normalized using the chosen method. Optionally, outliers can be smoothed using using the DNAcopy package.</p>
 	<p>The input data must contain these columns: chromosome, start, end.</p>
-	<p>Normalization can also be done by setting the corresponding parameters in the tool Segment copy number data.</p>
 	
 	<h3>Output</h3>
 	<p>Normalized values.</p>
+	
+	<h3>References</h3>
+	<p>DNAcopy:<br />
+		Venkatraman et al. (2007) A faster circular binary segmentation algorithm for the analysis of array CGH data. Bioinformatics 23: 657-663</p>
 </body>
 </html>

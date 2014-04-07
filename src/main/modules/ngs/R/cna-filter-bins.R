@@ -1,4 +1,4 @@
-# TOOL cna-filter.R: "Filter copy number bins" (Filters out low-quality bins.)
+# TOOL cna-filter-bins.R: "Filter copy number bins" (Filters out low-quality bins.)
 # INPUT read-counts.tsv: read-counts.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT filtered-counts.tsv: filtered-counts.tsv
@@ -8,7 +8,7 @@
 # PARAMETER allosomes: "sex chromosomes" TYPE [TRUE: remove, FALSE: keep] DEFAULT TRUE (Whether to filter out X and Y chromosomes.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-22
+# 2014-04-01
 
 source(file.path(chipster.common.path, 'library-Chipster.R'))
 source(file.path(chipster.common.path, 'library-QDNAseq.R'))
