@@ -70,7 +70,9 @@ div.header-item {
 				Tools for filtering data tables have been moved to the Utilities category.</li>
 				<li><a href="tophat2.html">Alignment / Align reads with TopHat2</a>: Human transcriptome index has been added in order to make the first alignment step faster.</li>
 				<li><a href="cufflinks2.html">RNA-seq / Assemble trancripts using Cufflinks</a>: GTF sorting and the possibility to perform RABT and have been added.</li>
-				<li><a href="cna-call-aberrations.html">CNA-seq / Call aberrations from segmented copy number data</a>: New preprocessing method QDNAseq has been added for BAM files.</li>	
+				<li><a href="cna-call-aberrations.html">CNA-seq / Call aberrations from segmented copy number data</a>: New preprocessing method QDNAseq has been added for BAM files. If cellularities (proportion of tumor cells in the samples) are known, it is now possible to correct for it by choosing the phenodata column containing the values.</li>	
+				<li><a href="acgh-cluster.html">CNA-seq / Cluster called copy number data</a>: Possible to skip clustering and plot a heatmap in the original sample order.</li>
+				<li><a href="acgh-convert-from-probes-to-genes.html">CNA-seq / Detect genes from called copy number data</a>: Now uses gene list from Bioconductor instead of CanGEM.</li>
 				<li>PRINSEQ tools for read filtering and trimming use PRINSEQ's own paired end support and, in order to make the output files smaller, they do not fill the quality header lines.</li>
 				<li>TopHat2 has been updated to version 2.0.10.</li>
 				<li>PRINSEQ has been updated to version 0.20.4.</li>
@@ -80,16 +82,19 @@ div.header-item {
 
 		<li><div class=header-item>Updates to microarray data analysis tools</div>
 			<ul>
-				<li><a href="norm-affy-gene.html">Normalization / Affymetrix gene arrays</a>: Support for the following arrays has been added: PrimeView, Drosophila 1.1, Caenorhabditis elegans, Canis familiaris, Oryza sativa (rice - ricegene1.1st), 
-				Human Transcriptome Array (HTA 2.0). Normalization to genes uses now custom CDFs.</li>
+				<li><a href="norm-affy-gene.html">Normalization / Affymetrix gene arrays</a>: Normalization to genes uses now custom CDFs. Support for the following arrays has been added: PrimeView, Drosophila 1.1, Caenorhabditis elegans, Canis familiaris, Oryza sativa (rice - ricegene1.1st), 
+				Human Transcriptome Array (HTA 2.0).</li>
 			    <li><a href="norm-affy-exon.html">Normalization / Affymetrix exon arrays</a>: Support for Human Transcriptome Array (HTA 2.0) has been added. Normalization to genes uses now custom CDFs.</li>
 				<li><a href="norm-illumina-SNP.html">Normalization / Illumina SNP arrays</a>: Support has been added for many chiptypes and GEO format.</li>
+				<li><a href="qc-affy-rle-nuse.html">Quality control / Affymetrix - using RLE and NUSE</a>: Support for Affymetrix gene and exon arrays has been added.</li>
 				<li><a href="norm-illumina-methylumi.html">Normalization / Illumina methylumi</a>: Three new parameters have been added to cope better with atypical columns, like those found in GEO.</li>
 				<li><a href="stats-two-groups.html">Statistics / Two group test</a>: The RankProd method has been added.</li>
 				<li><a href="stats-several-groups.html">Statistics / Several group test</a>: Phenodata groups are forced to be considered as factors.</li>
 				<li><a href="stats-timeseries.html">Statistics / Time series</a>: P-value correction has been added to the time series function.</li>
 				<li><a href="plot-chrom-pos.html">Visualization / Chromosomal position</a>: You can choose to visualize fold change values instead of expression values.</li>		
 				<li><a href="pathways-mirna-hyperg-go.html">Pathways / GO enrichment for miRNA targets</a>: miRNA targets for mouse miRNAs are retrieved from the TargetScan database.</li>
+				<li><a href="acgh-cluster.html">Copy number aberrations / Cluster called copy number data</a>: Possible to skip clustering and plot a heatmap in the original sample order.</li>
+				<li><a href="acgh-convert-from-probes-to-genes.html">Copy number aberrations / Detect genes from called copy number data</a>: Now uses gene list from Bioconductor instead of CanGEM.</li>
 			</ul>
 		</li>
 
