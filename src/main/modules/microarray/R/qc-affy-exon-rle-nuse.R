@@ -4,13 +4,15 @@
 # OUTPUT nuse-plot.png: nuse-plot.png 
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: HuGene-1.0-ST, human-1.1-ST: HuGene-1.1-ST, human-2.0-ST: HuGene-2.0-ST, human-2.1-ST: HuGene-2.1-ST, human-hta20: HuHta20, mouse-1.0-ST: MoGene-1.0-ST, mouse-1.1-ST: MoGene-1.1-ST, mouse-2.0-ST: MoGene-2.0-ST, mouse-2.1-ST: MoGene-2.1-ST, rat-1.0-ST: RaGene-1.0-ST, rat-1.1-ST: RaGene-1.1-ST, rat-2.0-ST: RaGene-2.0-ST, rat-2.1-ST: RaGene-2.1-ST, zebra_fish-1.0-ST: zebra_fish_gene-1.0-ST, zebra_fish-1.1-ST: zebra_fish_gene-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis_gene-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis_gene-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis_gene-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis_gene-1.1-ST-tair, oligo: oligo] DEFAULT empty (The use of empty and oligo envokes the default behaviour of the AffyPLM and oligo packages, respectively. If default annotation packages are found, AffyPLM and oligo will use them)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human-exon: human-exon, mouse-exon: mouse-exon, rat-exon: rat-exon, human-1.0-ST: HuGene-1.0-ST, human-1.1-ST: HuGene-1.1-ST, human-2.0-ST: HuGene-2.0-ST, human-2.1-ST: HuGene-2.1-ST, human-hta20: human-hta20, human-prime: human-prime, mouse-1.0-ST: MoGene-1.0-ST, mouse-1.1-ST: MoGene-1.1-ST, mouse-2.0-ST: MoGene-2.0-ST, mouse-2.1-ST: MoGene-2.1-ST, rat-1.0-ST: RaGene-1.0-ST, rat-1.1-ST: RaGene-1.1-ST, rat-2.0-ST: RaGene-2.0-ST, rat-2.1-ST: RaGene-2.1-ST, zebra_fish-1.0-ST: zebra_fish_gene-1.0-ST, zebra_fish-1.1-ST: zebra_fish_gene-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis_gene-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis_gene-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis_gene-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis_gene-1.1-ST-tair, fly-1.0-ST: FlyGene-1.1-ST, fly-1.1-ST: FlyGene-1.1-ST, celegans-1.0-ST: celegans_gene-1.1-ST, celegans-1.1-ST: celegans_gene-1.1-ST, dog-1.0-ST: DogGene-1.1-ST, dog-1.1-ST: DogGene-1.1-ST, rice-1.0-ST-entrez: rice_gene-1.1-ST, rice-1.1-ST-entrez: rice_gene-1.1-ST, oligo: oligo] DEFAULT empty (The use of empty and oligo envokes the default behaviour of the AffyPLM and oligo packages, respectively. If default annotation packages are found, AffyPLM and oligo will use them)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type for Exon arrays)
+
 
 # Affymetrix quality control
 # MG 12.1.2010
 # MK: 12.06.2013 added possibility to analyse custom chips
 # MK: 20.02.2014 added support for oligo-package
+# MK: 07.04.2014 added support for new gene chips
 
 # Loading the libraries
 library(affy)
@@ -83,6 +85,7 @@ if(chiptype=="rat-exon" & summary.feature=="gene") {
 	dat@cdfName<-"raex10stv1rnentrezgcdf"
 	dat@annotation<-"raex10stv1rnentrezg.db"
 }
+
 if(chiptype=="human-1.0-ST") {
 	dat@cdfName<-"hugene10sthsentrezgcdf"
 	dat@annotation<-"hugene10sthsentrezgcdf"
@@ -158,6 +161,44 @@ if(chiptype=="arabidopsis-1.0-ST-tair") {
 if(chiptype=="arabidopsis-1.1-ST-tair") {
 	dat@cdfName<-"aragene11stattairgcdf"
 	dat@annotation<-"aragene11stattairgcdf"
+}
+
+if(chiptype=="human-prime") {
+	dat@cdfName<-"primeviewhsentrezgcdf"
+	dat@annotation<-"primeviewhsentrezgcdf"
+}
+if(chiptype=="fly-1.0-ST") {
+	dat@cdfName<-"drogene10stdmentrezgcdf"
+	dat@annotation<-"drogene10stdmentrezgcdf"
+}
+if(chiptype=="fly-1.1-ST") {
+	dat@cdfName<-"drogene11stdmentrezgcdf"
+	dat@annotation<-"drogene11stdmentrezgcdf"
+}
+if(chiptype=="celegans-1.0-ST") {
+	dat@cdfName<-"elegene10stceentrezgcdf"
+	dat@annotation<-"elegene10stceentrezgcdf"
+}
+if(chiptype=="celegans-1.1-ST") {
+	dat@cdfName<-"elegene11stceentrezgcdf"
+	dat@annotation<-"elegene11stceentrezgcdf"
+
+}
+if(chiptype=="dog-1.0-ST") {
+	dat@cdfName<-"cangene10stcfentrezgcdf"
+	dat@annotation<-"cangene10stcfentrezgcdf"
+}
+if(chiptype=="dog-1.1-ST") {
+	dat@cdfName<-"cangene11stcfentrezgcdf"
+	dat@annotation<-"cangene11stcfentrezgcdf"
+}
+if(chiptype=="rice-1.0-ST-entrez") {
+	dat@cdfName<-"ricegene10stosentrezgcdf"
+	dat@annotation<-"ricegene10stosentrezgcdf"
+}
+if(chiptype=="rice-1.1-ST-entrez") {
+	dat@cdfName<-"ricegene11stosentrezgcdf"
+	dat@annotation<-"ricegene11stosentrezgcdf"
 }
 
 # Calculating quality control values
