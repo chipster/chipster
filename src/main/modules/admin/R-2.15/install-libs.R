@@ -50,8 +50,6 @@ biocLite("BiodiversityR")
 biocLite("pegas")
 biocLite("labdsv")
 
-biocLite(c('CGHregions', 'CGHcall', 'CGHbase', 'GOstats', 'impute'))
-
 
 # SNP 5.0 / 6.0
 biocLite("crlmm")
