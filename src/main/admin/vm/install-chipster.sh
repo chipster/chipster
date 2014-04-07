@@ -426,6 +426,10 @@ then
 
   # could also use the package from nic
   #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-03-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/png-0.1-7-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/WECCA-0.40-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/QDNAseq-0.99.4-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
@@ -647,11 +651,6 @@ then
   ln -s /usr/bin/fastq_* ${TOOLS_PATH}/fastx/bin/
   ln -s /usr/bin/fastx_* ${TOOLS_PATH}/fastx/bin/
 
-  # CanGEM probe mapping data
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/CanGEM/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CanGEM_probe_mappings/All_CanGEM_probe_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/CanGEM/
-
   # Genome data for tools
   cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/genomes/
@@ -675,11 +674,6 @@ then
   mkdir ${TOOLS_PATH}/miRNA_mappings/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/miRNA_mappings/All_miRNA_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/miRNA_mappings/
 
-  # Genome variant databases
-  cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/DGV/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomic_variant_dbs/All_genomic_variant_dbs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/DGV/
-
   # bwa indexes, built for Chipster
   cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/bwa_indexes/
@@ -698,13 +692,6 @@ then
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Escherichia_coli_n1.GCA_000303635.1.18.tar.gz | tar xz -C ${TOOLS_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_Gasterosteus_aculeatus.BROADS1.71.tar.gz | tar xz -C ${TOOLS_PATH}/
 
-
-
-  # Data for CNA-seq tools (produced by Ilari Scheinin)
-  cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/MPScall.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CNA_seq/FREEC_Linux64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  # FREEC not needed anymore 12.11.2013
 
   # prinseq
   cd ${TMPDIR_PATH}/
@@ -929,6 +916,10 @@ then
   #make install
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/mafft-7.130-without-extensions-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
   ln -s mafft-7.130-without-extensions ${TOOLS_PATH}/mafft
+
+  # QDNAseq files from Ilari
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/QDNAseq.hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
 
 
   ## Create checksums
