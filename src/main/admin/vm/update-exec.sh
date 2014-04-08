@@ -1145,8 +1145,9 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing R libs"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/png-0.1-7-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/WECCA-0.40-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/QDNAseq-0.99.4-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+  rm -rf ${TOOLS_PATH}/R-3.0.2/lib64/R/library/WECCA
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/WECCA-0.40-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
 
   echo "** Installing QDNAseq files"
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/QDNAseq.hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
