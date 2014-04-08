@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.0
+LATEST_VERSION=2.11.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1139,8 +1139,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
 fi
 
-# 2.12.0
-compare_to_current_and_latest "2.12.0"
+# 2.11.1
+compare_to_current_and_latest "2.11.1"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing R libs"
