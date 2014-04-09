@@ -59,7 +59,7 @@ smart.install.packages(package="R.utils", mirror=repo.cran) # required by zinba
 smart.install.packages(package="tcltk", mirror=repo.cran)
 smart.install.packages(package="ipred", mirror=repo.cran)
 smart.install.packages(package="prodlim", mirror=repo.cran)
-
+smart.install.packages(package="png", mirror=repo.cran)
 
 # Install packages, and their dependencies, from Bioconductor
 smart.install.packages(bioconductor.package="RankProd", mirror=repo.bioc)
@@ -209,8 +209,9 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/ratexonpmcdf_1.1.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/intCNGEan_0.55.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
-smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.30.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.40.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/zinba_2.02.03.tar.gz")
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/QDNAseq_0.99.4.tar.gz") # will be in bioconductor in the future
 
 
 # affy_20 for R-2.12"		
