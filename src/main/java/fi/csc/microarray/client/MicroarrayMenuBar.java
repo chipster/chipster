@@ -149,12 +149,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
+			fileMenu.add(getLoadLocalSessionMenuItem());
+			fileMenu.add(getSaveLocalSessionMenuItem());
+			fileMenu.addSeparator();
 			fileMenu.add(getLoadSessionMenuItem());
 			fileMenu.add(getSaveSessionMenuItem());
 			fileMenu.add(getManageSessionsMenuItem());
-			fileMenu.addSeparator();
-			fileMenu.add(getLoadLocalSessionMenuItem());
-			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
@@ -747,8 +747,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadSessionMenuItem() {
 		if (loadSessionMenuItem == null) {
 			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open session...");
-			loadSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			loadSessionMenuItem.setText("Open cloud session...");
 			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -767,6 +766,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (loadLocalSessionMenuItem == null) {
 			loadLocalSessionMenuItem = new JMenuItem();
 			loadLocalSessionMenuItem.setText("Open local session...");
+			loadLocalSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -784,8 +784,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getSaveSessionMenuItem() {
 		if (saveSessionMenuItem == null) {
 			saveSessionMenuItem = new JMenuItem();
-			saveSessionMenuItem.setText("Save session...");
-			saveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			saveSessionMenuItem.setText("Save cloud session... (beta)");
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
@@ -798,7 +797,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getManageSessionsMenuItem() {
 		if (manageSessionsMenuItem == null) {
 			manageSessionsMenuItem = new JMenuItem();
-			manageSessionsMenuItem.setText("Manage sessions...");
+			manageSessionsMenuItem.setText("Manage cloud sessions...");
 			manageSessionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.manageRemoteSessions();
@@ -813,6 +812,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (archiveSessionMenuItem == null) {
 			archiveSessionMenuItem = new JMenuItem();
 			archiveSessionMenuItem.setText("Save local session...");
+			archiveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);

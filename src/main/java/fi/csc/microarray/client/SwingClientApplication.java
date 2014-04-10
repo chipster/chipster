@@ -916,7 +916,7 @@ public class SwingClientApplication extends ClientApplication {
 		// collect error information to dialogInfo
 		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR,
 		        "An error has occurred and the action was not performed successfully.",
-		        "If problem persist, please check that your data is valid. For more information open the details panel below.", null);
+		        "If problem persists, please check that your data is valid. For more information open the details panel below.", null);
 		dialogInfo.setFeedbackVisible(true);
 
 		// exception has extra info

@@ -80,13 +80,13 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		sessionLink = LinkUtil.createLink("Open session", new AbstractAction() {
+		sessionLink = LinkUtil.createLink("open cloud session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.loadSession(true);
 			}
 		});
-		localSessionLink = LinkUtil.createLink("open a local session", new AbstractAction() {
+		localSessionLink = LinkUtil.createLink("Open local session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.loadSession(false);
@@ -123,10 +123,10 @@ public class QuickLinkPanel extends JPanel {
 		}
 	
 		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
-		openLinks.add(sessionLink);
 		openLinks.add(localSessionLink);
+		openLinks.add(sessionLink);
 		
-		addLinks("*** to continue working on previous sessions. You can also *** file.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		addLinks("*** to continue working on previous sessions. You can also *** from the server.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
 
 		
 		// common links
