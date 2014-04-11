@@ -106,28 +106,32 @@
 
 	<category name="Copy number aberrations" color="#c0d2de">
 		<tool runtime="R-3.0"><resource>import-soft2.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-import-from-cangem.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-normalize.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-profile.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-smooth.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-segment.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-call-aberrations.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-identify-regions.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-cluster.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-group-test.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-survival-test.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-survival.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-pathways-go.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-match-probes.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-expression-test.R</resource></tool>	
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-fetch-probe-positions-from-geo.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-add-cytobands.R</resource></tool>
-		<tool runtime="R-2.15_bioc-2.11" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-import-from-cangem.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-normalize.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-plot-profile.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-smooth.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-segment.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-call-aberrations.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-identify-regions.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-add-cytobands.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-count-overlapping-cnvs.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-plot-frequencies.R</resource></tool>
+
+		<tool runtime="R-3.0" module="common"><resource>acgh-cluster.R</resource></tool>
+
+		<tool runtime="R-3.0" module="common"><resource>acgh-group-test.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-survival-test.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-plot-survival.R</resource></tool>
+
+
+		<tool runtime="R-3.0" module="common"><resource>acgh-convert-from-probes-to-genes.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-pathways-go.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-match-probes.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
+		<tool runtime="R-3.0" module="common"><resource>acgh-expression-test.R</resource></tool>	
+		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-fetch-probe-positions-from-geo.R</resource></tool>
+		<tool runtime="R-3.0"><resource>acgh-fetch-probe-positions-from-cangem.R</resource></tool>
 	</category>
 
 	<category name="Visualisation" color="#a49900">

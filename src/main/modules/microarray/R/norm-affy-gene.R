@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, oligo: oligo, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, human-hta20: human-hta20, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair] DEFAULT empty (Chiptype. The oligo class has platform design information for various Affymetrix chips, but at the moment corresponding annotation packages are available only for human, mouse and rat chips.)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, oligo: oligo, human-1.0-ST: human-1.0-ST, human-1.1-ST: human-1.1-ST, human-2.0-ST: human-2.0-ST, human-2.1-ST: human-2.1-ST, human-hta20: human-hta20, human-prime: human-prime, mouse-1.0-ST: mouse-1.0-ST, mouse-1.1-ST: mouse-1.1-ST, mouse-2.0-ST: mouse-2.0-ST, mouse-2.1-ST: mouse-2.1-ST, rat-1.0-ST: rat-1.0-ST, rat-1.1-ST: rat-1.1-ST, rat-2.0-ST: rat-2.0-ST, rat-2.1-ST: rat-2.1-ST, zebra_fish-1.0-ST: zebra_fish-1.0-ST, zebra_fish-1.1-ST: zebra_fish-1.1-ST, arabidopsis-1.0-ST-entrez: arabidopsis-1.0-ST-entrez, arabidopsis-1.1-ST-entrez: arabidopsis-1.1-ST-entrez, arabidopsis-1.0-ST-tair: arabidopsis-1.0-ST-tair, arabidopsis-1.1-ST-tair: arabidopsis-1.1-ST-tair, fly-1.0-ST: fly-1.0-ST, fly-1.1-ST: fly-1.1-ST, celegans-1.0-ST: celegans-1.0-ST, celegans-1.1-ST: celegans-1.1-ST, dog-1.0-ST: dog-1.0-ST, dog-1.1-ST: dog-1.1-ST, rice-1.0-ST-entrez: rice-1.0-ST-entrez, rice-1.1-ST-entrez: rice-1.1-ST-entrez] DEFAULT empty (Chiptype. The oligo class has platform design information for various Affymetrix chips, but at the moment corresponding annotation packages are available only for human, mouse and rat chips.)
 # PARAMETER biomart: "biomaRt annotation" TYPE [yes: annotate, no: skip] DEFAULT no (In the case where no annotation has been attached to CDF-files, attach symbol and description information to probesets using bioMart)
 
 # Affymetrix normalization
@@ -11,6 +11,7 @@
 # MK 15.05.2014, added new arrays
 # MK 12.02.2014, added hta-20 chip
 # MK 13.02.2014, annotation for oligo packages
+# MK 28.03.2014, added dog, fly, c.elegans, human-prime chips
 
 # Initializes analyses
 library(oligo)
@@ -25,6 +26,11 @@ if(chiptype=="empty") {
 filt <- "entrezgene"
 usemart <- "ensembl"
 
+if(chiptype=="human-prime") {
+	custom_cdf = "primeviewhsentrezgcdf"
+	chiptype<-"primeviewhsentrezg.db"
+	dataset <- "hsapiens_gene_ensembl"
+}
 if(chiptype=="human-1.0-ST") {
 	custom_cdf = "hugene10sthsentrezgcdf"
 	#dat@cdfName<-"hugene10sthsentrezgcdf"
@@ -130,6 +136,39 @@ if(chiptype=="zebra_fish-1.1-ST") {
 	chiptype<-"zebgene11stdrentrezg.db"
 	dataset <- "drerio_gene_ensembl"
 }
+
+if(chiptype=="fly-1.0-ST") {
+	custom_cdf = "drogene10stdmentrezgcdf"
+	chiptype<-"drogene10stdmentrezg.db"
+	dataset <- "dmelanogaster_gene_ensembl"
+}
+if(chiptype=="fly-1.1-ST") {
+	custom_cdf = "drogene11stdmentrezgcdf"
+	chiptype<-"drogene11stdmentrezg.db"
+	dataset <- "dmelanogaster_gene_ensembl"
+}
+if(chiptype=="celegans-1.0-ST") {
+	custom_cdf = "elegene10stceentrezgcdf"
+	chiptype<-"elegene10stceentrezg.db"
+	dataset <- "celegans_gene_ensembl"
+}
+if(chiptype=="celegans-1.1-ST") {
+	custom_cdf = "elegene11stceentrezgcdf"
+	chiptype<-"elegene11stceentrezg.db"
+	dataset <- "celegans_gene_ensembl"
+}
+if(chiptype=="dog-1.0-ST") {
+	custom_cdf = "cangene10stcfentrezgcdf"
+	chiptype<-"cangene10stcfentrezg.db"
+	dataset <- "cfamiliaris_gene_ensembl"
+}
+if(chiptype=="dog-1.1-ST") {
+	custom_cdf = "cangene11stcfentrezgcdf"
+	chiptype<-"cangene11stcfentrezg.db"
+	dataset <- "cfamiliaris_gene_ensembl"
+}
+
+
 if(chiptype=="arabidopsis-1.0-ST-entrez") {
 	custom_cdf = "aragene10statentrezgcdf"
 	#dat@cdfName<-"aragene10statentrezgcdf"
@@ -168,6 +207,20 @@ if(chiptype=="arabidopsis-1.1-ST-tair") {
 	dataset <- "athaliana_eg_gene"
 	filt <- "ensembl_gene_id"
 }
+
+if(chiptype=="rice-1.0-ST-entrez") {
+	custom_cdf = "ricegene10stosentrezgcdf"
+	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	dataset <- "osativa_eg_gene"
+	filt <- "entrezgene"
+}
+if(chiptype=="rice-1.1-ST-entrez") {
+	custom_cdf = "ricegene11stosentrezgcdf"
+	usemart <- as.character(listMarts()[grep("plants_mart", listMarts()[,1]),1])
+	dataset <- "osativa_eg_gene"
+	filt <- "entrezgene"
+}
+
 
 # Normalizations
 if(chiptype != "oligo") {

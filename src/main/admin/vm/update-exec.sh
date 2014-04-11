@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.0
+LATEST_VERSION=2.11.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1137,13 +1137,30 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   mv ${TOOLS_PATH}/tophat-2.0.9.Linux_x86_64 ${BACKUPDIR_PATH}/
   rm ${TOOLS_PATH}/tophat2
   ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
+fi
 
+# 2.11.1
+compare_to_current_and_latest "2.11.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
+  echo "** Installing R libs"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/png-0.1-7-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/QDNAseq-0.99.4-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+  rm -rf ${TOOLS_PATH}/R-3.0.2/lib64/R/library/WECCA
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/WECCA-0.40-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
+
+  echo "** Installing QDNAseq files"
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/QDNAseq.hg19.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  echo "** Removing obsolete files"
+  rm -rf ${TOOLS_PATH}/MPScall
+  rm -rf ${TOOLS_PATH}/CanGEM
+  rm -rf ${TOOLS_PATH}/DGV
 
 fi
 
 
-  
+
 
 #####################################
 # VERSION SPECIFIC ENTRIES END HERE #

@@ -52,10 +52,10 @@ if (number_files==2) {
 if (number_files==3) {
 	list_1 <- levels(list_1)
 	list_2 <- levels(list_2)
-	list_2 <- levels(list_3)	
+	list_3 <- levels(list_3)	
 	list_1 <- list_1[list_1!=""]
 	list_2 <- list_2[list_2!=""]
-	list_2 <- list_2[list_3!=""]	
+	list_3 <- list_3[list_3!=""]	
 }
 
 if (number_files==2) {
