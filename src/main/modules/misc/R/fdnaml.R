@@ -4,7 +4,7 @@
 # OUTPUT OPTIONAL outtree.txt
 # OUTPUT OPTIONAL fdnaml.log
 # PARAMETER OPTIONAL ncategories: "Number of substitution rate categories" TYPE INTEGER FROM 1 TO 9 DEFAULT 1 (Number of substitution rate categories)
-# PARAMETER OPTIONAL rate: "Rate for each category" TYPE STRING DEFAULT 1.0(Rate for each category)
+# PARAMETER OPTIONAL rate: "Rate for each category" TYPE STRING DEFAULT 1.0 (Rate for each category)
 # PARAMETER OPTIONAL lengths: "Use branch lengths from user trees" TYPE [<undefined>: " ", Y: Yes, N: No] DEFAULT N (Use branch lengths from user trees)
 # PARAMETER OPTIONAL ttratio: "Transition/transversion ratio" TYPE DECIMAL FROM 0.001 DEFAULT 2.0 (Transition/transversion ratio)
 # PARAMETER OPTIONAL freqsfrom: "Use empirical base frequencies from seqeunce input" TYPE [<undefined>: " ", Y: Yes, N: No] DEFAULT Y (Use empirical base frequencies from seqeunce input)
