@@ -6,8 +6,9 @@
 # OUTPUT OPTIONAL ma-plot-deseq.pdf
 # OUTPUT OPTIONAL dispersion-plot-deseq.pdf
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
+# PARAMETER version: "DEseq version" TYPE [DEseq, DEseq2] DEFAULT DEseq (Version of DESeq to be used in the analysis.)
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
-# PARAMETER OPTIONAL version: "DEseq version" TYPE [DEseq, DEseq2] DEFAULT DEseq (Version of DESeq to be used in the analysis.)
+# PARAMETER ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factors relevant for statistical testing.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (Dispersion can be estimated using a local fit or a two-coefficient parametric model. You should use local fit if there are no biological replicates.)
 # PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives.)
@@ -42,6 +43,10 @@ groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
 number_samples <- length(groups)
 
+if(ad_factor != "EMPTY") {
+	exp_factor <- as.character (phenodata[,pmatch(ad_factor,colnames(phenodata))])
+}
+
 # If the library_size column of phenodata contains data, then use that to estimate size factors
 lib_size <- as.numeric(phenodata$library_size)
 if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
@@ -52,15 +57,12 @@ if (length(unique(groups))==1 | length(unique(groups))>=3) {
 	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
 
-
-fit1 = fitNbinomGLMs( cdsFull, count ~ libType + condition )
-fit0 = fitNbinomGLMs( cdsFull, count ~ libType )
-pvalsGLM = nbinomGLMTest( fit1, fit0 )
-padjGLM = p.adjust( pvalsGLM, method="BH" )
-
-
 # Create a counts data object
-counts_data <- newCountDataSet(dat2, groups)
+if(ad_factor == "EMPTY") {
+	counts_data <- newCountDataSet(dat2, groups)
+} else {
+	counts_data <- newCountDataSet(dat2, as.data.frame(groups=groups, exp_factor=exp_factor))
+}
 
 # Calculate size factors based on estimated library size, unless it is given in phenodata
 # Set size factors to 1 if normalization is turned off
@@ -83,38 +85,47 @@ if (normalization == "yes") {
 
 # Estimate dispersion values for each gene and replace with fitted values always or only when the fitted value is higher
 # Use fitType to control for parametric or local fit
-if (number_samples == 2 ) {
+if(ad_factor == "EMPTY" && number_samples == 2) {
+	#no biological replicates. 
 	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode="fit-only", fitType=dispersion_estimate)
-} else {
+} else if(ad_factor == "EMPTY" && number_samples > 2) {
 	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method, fitType=dispersion_estimate)
+} else if(ad_factor != "EMPTY") {
+	counts_data <- estimateDispersions(counts_data, method="pooled-CR", sharingMode=fitting_method, fitType=dispersion_estimate)	
 }
 
 # Function that produces a dispersion plot
-plotDispEsts <- function(cds) {
-	plot(rowMeans( counts(cds, normalized=TRUE)), fitInfo(cds)$perGeneDispEsts,pch = '.', 
-			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion")
-	xg <- 10^seq( -.5, 5, length.out=300)
-	lines(xg, fitInfo(cds)$dispFun(xg), col="red")
-	legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
-}
+#plotDispEsts <- function(cds) {
+#	plot(rowMeans( counts(cds, normalized=TRUE)), fitInfo(cds)$perGeneDispEsts,pch = '.', 
+#			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion")
+#	xg <- 10^seq( -.5, 5, length.out=300)
+#	lines(xg, fitInfo(cds)$dispFun(xg), col="red")
+#	legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
+#}
 
 # Make dispersion plot
 pdf(file="dispersion-plot-deseq.pdf")
-plotDispEsts(counts_data)
+plotDispEsts(counts_data, cex=1)
 dev.off()
 
 # Calculate statistic for differential expression
-results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
+
+if(ad_factor == "EMPTY") {
+	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
+} else {
+	fit1 = fitNbinomGLMs( counts_data, count ~ exp_factor + groups )
+	fit0 = fitNbinomGLMs( cdsFull, count ~ exp_factor )
+	results_table = nbinomGLMTest( fit1, fit0 )
+}
 
 # Merge with original data table
-
 output_table <- cbind (dat, results_table[,-1])
 
 # Adjust p-values
 output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
 
 # Keep significant DEGs
-significant_table <- output_table[ (output_table$padj <  p.value.cutoff),]
+significant_table <- output_table[ (output_table$padj <=  p.value.cutoff),]
 
 # Remove rows with NA adjusted p-values
 significant_table <- significant_table[! (is.na(significant_table$padj)),]
