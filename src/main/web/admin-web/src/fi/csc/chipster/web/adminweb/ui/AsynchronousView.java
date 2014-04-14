@@ -22,13 +22,28 @@ public class AsynchronousView extends VerticalLayout {
 	
 	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
 	private ExecutorService executor = Executors.newCachedThreadPool();
+
+	private long timeout; // seconds
 	
+	public AsynchronousView(long timeout) {
+		this.timeout = timeout;
+	}
+	
+	public AsynchronousView() {
+		this(30);
+	}
+
 	public ProgressIndicator getProggressIndicator() {
 		progressIndicator.setWidth(100, Unit.PERCENTAGE);
 		return progressIndicator;
 	}
 	
-	protected void waitForUpdate(final Future<?> future, final AfterUpdateCallBack callBack) {				
+	/**
+	 * @param future
+	 * @param callBack
+	 * @param wait Wait always for timeout. Use this when Runnable doesn't block to keep progress indicator refreshing client continuously.
+	 */
+	protected void waitForUpdate(final Future<?> future, final AfterUpdateCallBack callBack, final boolean wait) {				
 		
 		//This makes the browser start polling, but the browser will get it only if this is executed in this original thread.
 		setProgressIndicatorValue(0f);
@@ -40,16 +55,21 @@ public class AsynchronousView extends VerticalLayout {
 					 * threads is messy. Nevertheless, these delays should have approximately same duration
 					 * to prevent user from starting several background updates causing concurrent modifications.   
 					 */
-					final int DELAY = 300; 				
-					for (int i = 0; i <= DELAY; i++) {
+					final long POLL_LIMIT = timeout * 1000 / POLLING_INTERVAL;										
+					
+					for (int i = 0; i <= POLL_LIMIT; i++) {						
 
 						try {
-							future.get(POLLING_INTERVAL, TimeUnit.MILLISECONDS);
-							break;
+							if (wait) {
+								Thread.sleep(POLLING_INTERVAL);
+							} else {
+								future.get(POLLING_INTERVAL, TimeUnit.MILLISECONDS);
+								break;
+							}
 						} catch (TimeoutException e) {
-							//No results yet, update progress bar							
-							setProgressIndicatorValue((float)i/DELAY);			
 						}
+						//No results yet or wait==true, update progress bar							
+						setProgressIndicatorValue((float)i/POLL_LIMIT);
 					}
 					//Update was successful
 					if (callBack != null) {
@@ -89,12 +109,25 @@ public class AsynchronousView extends VerticalLayout {
 		}
 	}
 
-	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack) {
+	
+	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack, boolean wait) {
 		Future<?> future = executor.submit(runnable);
 		
-		waitForUpdate(future, callBack);
+		waitForUpdate(future, callBack, wait);
+	}
+	
+	public void submitUpdate(Runnable runnable, AfterUpdateCallBack callBack) {
+		submitUpdate(runnable, callBack, false);
 	}
 
+	public void submitUpdate(Runnable runnable) {
+		submitUpdate(runnable, null, false);
+	}
+	
+	public void submitUpdateAndWait(Runnable runnable) {
+		submitUpdate(runnable, null, true);
+	}
+	
 	public Button createRefreshButton(ClickListener listener) {
 		refreshButton = new Button("Refresh");
 		refreshButton.addClickListener(listener);
@@ -106,7 +139,4 @@ public class AsynchronousView extends VerticalLayout {
 		return refreshButton == object;
 	}
 
-	public void submitUpdate(Runnable runnable) {
-		submitUpdate(runnable, null);
-	}
 }

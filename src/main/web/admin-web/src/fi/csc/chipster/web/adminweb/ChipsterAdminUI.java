@@ -65,22 +65,23 @@ public class ChipsterAdminUI extends UI implements DetachListener {
 
 			jobsView = new JobsView(this);
 		}
+		jobsView.update();
 		return jobsView;
 	}
 	
 	private StatView getStatView() {
 		if (statView == null) {
-
 			statView = new StatView(this);
 		}
+		statView.update();
 		return statView;
 	}
 	
-	private ReportView getReportView() {
+	private ReportView getReportView() {		
 		if (reportView == null) {
-
 			reportView = new ReportView(this);
 		}
+		reportView.updateData();
 		return reportView;
 	}
 

@@ -1,4 +1,4 @@
-package fi.csc.chipster.web.adminweb.data;
+package fi.csc.microarray.messaging.admin;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -18,7 +18,7 @@ import javax.swing.Timer;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class StatusBar {
 
@@ -243,8 +243,8 @@ public class StatusBar {
 	}
 
 	public void updateMemoryIndicator() {
-		memoryIndicator.setString(MemUtil.getMemInfo());
-		memoryIndicator.setValue((int) (((float) MemUtil.getUsed()) / ((float) Runtime.getRuntime().maxMemory()) * 100f));
+		memoryIndicator.setString(SystemMonitorUtil.getMemInfo());
+		memoryIndicator.setValue((int) (((float) SystemMonitorUtil.getUsed()) / ((float) Runtime.getRuntime().maxMemory()) * 100f));
 	}
 
 	public void setFontSize(float fontSize) {

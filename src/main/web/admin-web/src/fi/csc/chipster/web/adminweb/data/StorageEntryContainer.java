@@ -14,6 +14,8 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI;
+import fi.csc.microarray.messaging.admin.StorageEntry;
 
 @SuppressWarnings("serial")
 public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements Serializable {

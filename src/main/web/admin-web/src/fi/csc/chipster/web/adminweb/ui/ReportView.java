@@ -1,10 +1,9 @@
 package fi.csc.chipster.web.adminweb.ui;
 
-import java.io.IOException;
-
-import javax.jms.JMSException;
+import org.apache.log4j.Logger;
 
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
@@ -16,28 +15,30 @@ import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
 import fi.csc.chipster.web.adminweb.data.ReportDataSource;
-import fi.csc.chipster.web.adminweb.data.StorageAdminAPI;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.exception.MicroarrayException;
 
 
 public class ReportView extends AsynchronousView implements ClickListener {
 	
+	@SuppressWarnings("unused")
+	private static final Logger logger = Logger.getLogger(ReportView.class);
+	
+	protected static final int UPDATE_WAIT = 5; // seconds
 	private VerticalLayout filebrokerLayout = new VerticalLayout();
+	private VerticalLayout compLayout = new VerticalLayout();
 	private Label filebrokerLabel;
+	private Label compLabel;
 	
 	private TabSheet tabSheet;
-	private int selectedTab;
 	
 	private HorizontalLayout toolbarLayout;
 
 	private ReportDataSource dataSource;
 
 	private ChipsterAdminUI app;
-
-	private StorageAdminAPI adminEndpoint;
 	
 	public ReportView(ChipsterAdminUI app) {
+		
+		super(UPDATE_WAIT);
 		
 		this.app = app;
 					
@@ -47,56 +48,83 @@ public class ReportView extends AsynchronousView implements ClickListener {
 
 		tabSheet = new TabSheet();
 				
-		updateData();
 		tabSheet.setSizeFull();
 		tabSheet.addSelectedTabChangeListener(new SelectedTabChangeListener() {
 
 			@Override
 			public void selectedTabChange(SelectedTabChangeEvent e) {
-				
-				selectedTab = tabSheet.getTabPosition(tabSheet.getTab(tabSheet.getSelectedTab()));
+				updateData();
 			}
 		});
 		
         this.addComponent(tabSheet);        
         this.setExpandRatio(tabSheet, 1);
 		this.setSizeFull();
+		
+		filebrokerLabel = new Label("waiting for status report...", ContentMode.PREFORMATTED);
+		filebrokerLabel.addStyleName("report-text");
+		compLabel = createReportLabel("waiting for status report..."); 			
+		
+		filebrokerLayout.addComponent(filebrokerLabel);
+		tabSheet.addTab(filebrokerLayout, "Filebroker");
+		compLayout.addComponent(compLabel);
+		tabSheet.addTab(compLayout, "Comp");        
 	}
 	
-	private void updateData() {
-		
-		try {
-			if (dataSource == null) {
-				adminEndpoint = new StorageAdminAPI();
-				dataSource = new ReportDataSource(adminEndpoint);
-			}
-			filebrokerLabel = new Label("waiting for status report...", ContentMode.PREFORMATTED);
-			filebrokerLabel.addStyleName("report-text");
-			
-			super.submitUpdate(new Runnable() {
+	public void updateData() {
 
-				@Override
-				public void run() {				
-					dataSource.update(ReportView.this);
-				}			
-			});
+		if (dataSource == null) {
+			dataSource = new ReportDataSource();
+		}
 
-			//selectedTab field is updated when new tabs are added, keep the old value
-			int lastSelectedTab = this.selectedTab;
+		if (tabSheet.getSelectedTab() == filebrokerLayout) {
+			updateFileBrokerData();
+		}
 
-			tabSheet.removeAllComponents();
-			filebrokerLayout.removeAllComponents();
-			filebrokerLayout.addComponent(filebrokerLabel);
-			tabSheet.addTab(filebrokerLayout, "Filebroker");        
-
-			tabSheet.setSelectedTab(lastSelectedTab);
-			
-		} catch (InstantiationException | IllegalAccessException | IOException | IllegalConfigurationException | MicroarrayException | JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (tabSheet.getSelectedTab() == compLayout) {
+			updateCompData();
 		}
 	}
 	
+	private void updateCompData() {
+		
+		// comp						
+		super.submitUpdateAndWait(new Runnable() {
+			
+			@Override
+			public void run() {				
+				dataSource.updateCompReport(ReportView.this);					
+			}			
+		});
+	}
+
+	private void updateFileBrokerData() {
+
+		// filebroker
+		super.submitUpdate(new Runnable() {
+			
+			@Override
+			public void run() {				
+				dataSource.updateFilebrokerReport(ReportView.this);
+			}			
+		});
+		
+	}
+
+	public Label createReportLabel(String text) {
+		Label label = new Label(text, ContentMode.PREFORMATTED);
+		label.addStyleName("report-text");
+		
+		return label;
+	}
+	
+	public Button createReportButton(String text) {
+		Button button = new Button(text);
+		button.addStyleName("report-button");
+		
+		return button;
+	}
+
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
@@ -126,5 +154,9 @@ public class ReportView extends AsynchronousView implements ClickListener {
 
 	public Label getFilebrokerLabel() {
 		return filebrokerLabel;
+	}
+	
+	public VerticalLayout getCompLayout() {
+		return compLayout;
 	}
 }

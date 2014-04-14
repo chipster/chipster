@@ -53,7 +53,7 @@ import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Emails;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
@@ -244,7 +244,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 
 	private void insertTestAccounts(String[] accounts) {

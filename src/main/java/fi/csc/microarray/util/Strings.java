@@ -196,5 +196,13 @@ public class Strings {
 		return result;
 	}
 
+	public static String pad(String[] array, int width) {
+		String line = "";
+		for (String title : array) {
+			line += String.format("%-" + width + "s", title);
+		}
+		return line;
+	}
+
 	
 }

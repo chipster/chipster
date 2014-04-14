@@ -43,8 +43,8 @@ import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.MemUtil;
 import fi.csc.microarray.util.Strings;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class FileServer extends NodeBase implements MessagingListener, DirectMessagingListener, ShutdownCallback {
 	/**
@@ -83,7 +83,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 
 	public static void main(String[] args) {
-		FileServer server = new FileServer(null, null);
+		new FileServer(null, null);
 	}
 
 	public FileServer(String configURL, MessagingEndpoint overriddenEndpoint) {
@@ -196,7 +196,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 			logger.info("will not clean up files newer than: " + (cleanUpMinimumFileAge/3600) + "h");
     		
     		logger.info("fileserver is up and running [" + ApplicationConstants.VERSION + "]");
-    		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+    		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 			
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -219,6 +219,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	}
 		
 	
+	@SuppressWarnings("deprecation")
 	public void onChipsterMessage(ChipsterMessage msg, MessagingEndpoint endpoint) {
 				
 		try {

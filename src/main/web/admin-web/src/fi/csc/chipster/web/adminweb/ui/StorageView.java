@@ -22,13 +22,14 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
-import fi.csc.chipster.web.adminweb.data.StorageAdminAPI;
-import fi.csc.chipster.web.adminweb.data.StorageAggregate;
 import fi.csc.chipster.web.adminweb.data.StorageAggregateContainer;
 import fi.csc.chipster.web.adminweb.data.StorageEntryContainer;
+import fi.csc.chipster.web.adminweb.util.Notificationutil;
 import fi.csc.chipster.web.adminweb.util.StringUtils;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI;
+import fi.csc.microarray.messaging.admin.StorageAggregate;
 
 @SuppressWarnings("serial")
 public class StorageView extends AsynchronousView implements ClickListener, ValueChangeListener, AfterUpdateCallBack {
@@ -252,7 +253,8 @@ public class StorageView extends AsynchronousView implements ClickListener, Valu
 		//TODO are you sure?
 		try {
 			adminEndpoint.deleteRemoteSession(entryDataSource.getItem(itemId).getBean().getID());
-		} catch (JMSException e) {
+		} catch (JMSException | MicroarrayException e) {			
+			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
 			logger.warn("could not delete session", e);
 			return;
 		}

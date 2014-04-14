@@ -1,7 +1,9 @@
-package fi.csc.chipster.web.adminweb.data;
+package fi.csc.microarray.messaging.admin;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
 
 
 public class JobsEntry implements Serializable {
@@ -11,6 +13,7 @@ public class JobsEntry implements Serializable {
 	private Date startTime;
 	private String username;
 	private String compHost;
+	private String jobId;
 		
 	public String getOperation() {
 		return operation;
@@ -41,5 +44,31 @@ public class JobsEntry implements Serializable {
 	}
 	public void setCompHost(String compHost) {
 		this.compHost = compHost;
+	}
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+	
+	public String getJobId() {
+		return jobId;
+	}
+	
+	public String toString() {		
+		return ""
+				+ StringUtils.rightPad(jobId, 40)
+				+ StringUtils.rightPad(operation, 20)
+				+ StringUtils.rightPad(status, 20)
+				+ StringUtils.rightPad(username, 20)
+				+ StringUtils.rightPad(startTime.toString(), 30)
+				+ StringUtils.rightPad(compHost, 20);
+	}
+	public static String getToStringHeaders() {
+		return ""
+				+ StringUtils.rightPad("JOB ID", 40)
+				+ StringUtils.rightPad("OPERATION", 20)
+				+ StringUtils.rightPad("STATUS", 20)
+				+ StringUtils.rightPad("USERNAME", 20)
+				+ StringUtils.rightPad("START TIME", 30)
+				+ StringUtils.rightPad("HOST", 20);
 	}
 }

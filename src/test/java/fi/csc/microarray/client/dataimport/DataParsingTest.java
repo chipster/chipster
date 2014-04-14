@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class DataParsingTest {
 	
@@ -41,11 +41,11 @@ public class DataParsingTest {
 		public void setValue(int state) {
 			// Every 10000
 			if(state % 10000 == 0 && state != 0){
-				System.out.println("Line: " + state + "   percents done: " + (int)(((float)state/(float)max) * 100) + "%   memory usage: " + MemUtil.getMemInfo());
+				System.out.println("Line: " + state + "   percents done: " + (int)(((float)state/(float)max) * 100) + "%   memory usage: " + SystemMonitorUtil.getMemInfo());
 			}
 			
 			// If memory usage raises too high the test is failed
-			Assert.assertTrue("Memory limit exceeded. Limit: " + MemUtil.bytesToMegas(memoryLimit) + " Mb, used " + MemUtil.bytesToMegas(MemUtil.getUsed()), MemUtil.getUsed() < memoryLimit);
+			Assert.assertTrue("Memory limit exceeded. Limit: " + SystemMonitorUtil.bytesToMegas(memoryLimit) + " Mb, used " + SystemMonitorUtil.bytesToMegas(SystemMonitorUtil.getUsed()), SystemMonitorUtil.getUsed() < memoryLimit);
 			
 		}
 

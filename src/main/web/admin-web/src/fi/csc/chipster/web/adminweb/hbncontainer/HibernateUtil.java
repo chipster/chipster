@@ -9,9 +9,9 @@ import org.hibernate.dialect.H2Dialect;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
 
-import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.chipster.web.adminweb.data.AccountEntry;
 import fi.csc.chipster.web.adminweb.data.JobLogEntry;
+import fi.csc.microarray.messaging.admin.ManagerConfiguration;
 import fi.csc.microarray.util.Exceptions;
 
 //import java.util.Date;
@@ -31,7 +31,7 @@ public class HibernateUtil {
 		
 		fi.csc.microarray.config.Configuration chiptserConf;
 		try {
-			chiptserConf = ChipsterConfiguration.getConfiguration();
+			chiptserConf = ManagerConfiguration.getConfiguration();
 		} catch (Exception e) {
     		System.err.println("Initialising Chipster configuration failed.\n" + Exceptions.getStackTrace(e));
     		throw new ExceptionInInitializerError(e);

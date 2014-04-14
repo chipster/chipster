@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.admin.AdminAPI;
 
 public class AdminAPITest extends MessagingTestBase {
 

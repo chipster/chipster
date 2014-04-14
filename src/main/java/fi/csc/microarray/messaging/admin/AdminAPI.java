@@ -1,4 +1,4 @@
-package fi.csc.microarray.messaging;
+package fi.csc.microarray.messaging.admin;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,7 +9,9 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
+import fi.csc.microarray.messaging.MessagingListener;
+import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 

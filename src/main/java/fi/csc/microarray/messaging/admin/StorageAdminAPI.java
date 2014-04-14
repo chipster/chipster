@@ -1,10 +1,9 @@
-package fi.csc.chipster.web.adminweb.data;
+package fi.csc.microarray.messaging.admin;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 
@@ -12,18 +11,8 @@ import org.apache.log4j.Logger;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import com.vaadin.server.Page;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
-
-import fi.csc.chipster.web.adminweb.ChipsterConfiguration;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.JMSMessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingTopic;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.SuccessMessageListener;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
@@ -39,32 +28,17 @@ import fi.csc.microarray.messaging.message.SuccessMessage;
  * 
  * @author klemela
  */
-public class StorageAdminAPI {
+public class StorageAdminAPI extends ServerAdminAPI {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(StorageAdminAPI.class);
 
 	public interface StorageEntryListener {
 		public void process(List<StorageEntry> entries);
 	}
-
-	NodeBase nodeSupport = new NodeBase() {
-		public String getName() {
-			return "admin";
-		}
-	};
 	
-	private static final long TIMEOUT = 30;
-	private final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
-
-	private MessagingTopic filebrokerAdminTopic;
-
-	private MessagingEndpoint messagingEndpoint;
-
 	public StorageAdminAPI() throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
-
-		ChipsterConfiguration.init();
-		messagingEndpoint = new JMSMessagingEndpoint(nodeSupport);
-		filebrokerAdminTopic = messagingEndpoint.createTopic(Topics.Name.FILEBROKER_ADMIN_TOPIC, AccessMode.WRITE);
+		super(Topics.Name.FILEBROKER_ADMIN_TOPIC, "filebroker-admin");
 	}
 	
 	public Long[] getStorageUsage() throws JMSException, InterruptedException {
@@ -85,30 +59,21 @@ public class StorageAdminAPI {
 		return listener.query();
 	}		
 	
-	public void deleteRemoteSession(String sessionID) throws JMSException {
+	public void deleteRemoteSession(String sessionID) throws JMSException, MicroarrayException {
 		SuccessMessageListener replyListener = new SuccessMessageListener();  
 		
 		
 		try {
 			CommandMessage removeRequestMessage = new CommandMessage(CommandMessage.COMMAND_REMOVE_SESSION);
 			removeRequestMessage.addNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID, sessionID); 
-			filebrokerAdminTopic.sendReplyableMessage(removeRequestMessage, replyListener);
+			getTopic().sendReplyableMessage(removeRequestMessage, replyListener);
 
 			SuccessMessage reply = replyListener.waitForReply(TIMEOUT, TIMEOUT_UNIT);
 			
-			if (reply == null ) {
-				showFailNotification("Delete session failed", "No reply before timeout");
-			} else if (!reply.success()) {
-				showFailNotification("Delete session failed", reply);
-			}
+			checkSuccessMessage(reply, "delete session");
 		} finally {
 			replyListener.cleanUp();
 		}
-	}
-	
-	public String getStatusReport() throws JMSException, InterruptedException {
-		StatusReportMessageListener listener = new StatusReportMessageListener();
-		return listener.query();
 	}
 	
 	private class StorageTotalsMessageListener extends TempTopicMessagingListenerBase {
@@ -123,7 +88,7 @@ public class StorageAdminAPI {
 
 			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STORAGE_USAGE_TOTALS);
 
-			filebrokerAdminTopic.sendReplyableMessage(request, this);
+			getTopic().sendReplyableMessage(request, this);
 			latch.await(TIMEOUT, TIMEOUT_UNIT);
 
 			if (usedSpace != null && freeSpace != null) {
@@ -166,7 +131,7 @@ public class StorageAdminAPI {
 			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS);
 			request.addNamedParameter("username", username);
 
-			filebrokerAdminTopic.sendReplyableMessage(request, this);			
+			getTopic().sendReplyableMessage(request, this);			
 			latch.await(TIMEOUT, TIMEOUT_UNIT);
 			
 			return entries;
@@ -216,7 +181,7 @@ public class StorageAdminAPI {
 
 			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_LIST_STORAGE_USAGE_OF_USERS);
 
-			filebrokerAdminTopic.sendReplyableMessage(request, this);
+			getTopic().sendReplyableMessage(request, this);
 			latch.await(TIMEOUT, TIMEOUT_UNIT);
 
 			return entries;
@@ -243,76 +208,5 @@ public class StorageAdminAPI {
 
 			latch.countDown();
 		}
-	}
-	
-	private class StatusReportMessageListener extends TempTopicMessagingListenerBase {
-
-		private CountDownLatch latch;
-		private String report;
-
-		public String query() throws JMSException, InterruptedException {
-
-			latch = new CountDownLatch(1);
-
-			CommandMessage request = new CommandMessage(CommandMessage.COMMAND_GET_STATUS_REPORT);
-
-			filebrokerAdminTopic.sendReplyableMessage(request, this);
-			latch.await(TIMEOUT, TIMEOUT_UNIT);
-
-			return report;
-		}
-
-
-		public void onChipsterMessage(ChipsterMessage msg) {
-			ParameterMessage resultMessage = (ParameterMessage) msg;
-			report = resultMessage.getNamedParameter(ParameterMessage.PARAMETER_STATUS_REPORT);
-			latch.countDown();
-		}
-	}
-
-	public void clean() {
-		if (filebrokerAdminTopic != null) {
-			try {
-				filebrokerAdminTopic.delete();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
-		if (messagingEndpoint != null) {
-			try {
-				messagingEndpoint.close();
-			} catch (JMSException e) {
-				logger.error(e);
-			}
-		}
-	}
-	
-	
-	private void showFailNotification(String title, String description) {
-		Notification notification = new Notification(title + "\n", description, Type.WARNING_MESSAGE);
-		notification.setDelayMsec(-1);
-		notification.setHtmlContentAllowed(false);
-		notification.show(Page.getCurrent());
-	}
-	
-	private void showFailNotification(String title, SuccessMessage message) {
-		String description = "";
-		String lineBreak = "\n\n";
-		if (message.getErrorMessage() != null && !message.getErrorMessage().isEmpty()) {
-			description += message.getErrorMessage() + lineBreak;
-		}
-		
-		if (message.getDetails() != null && !message.getDetails().isEmpty()) {
-			description += message.getDetails() + lineBreak;
-		}
-
-		if (message.getExceptionString() != null && !message.getExceptionString().isEmpty()) {
-			description += message.getExceptionString() + lineBreak;
-		}
-		
-		if (description.endsWith(lineBreak)) {
-			description = description.substring(0, description.length() - lineBreak.length());
-		}
-		showFailNotification(title, description);
 	}
 }

@@ -38,6 +38,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	// these should be moved away, maybe to CommandMessage
 	public static final String PARAMETER_AS_ID = "as-id";
 	public static final String PARAMETER_JOB_ID = "job-id";
+	public static final String PARAMETER_HOST_ID = "comp-id";
 	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
 	public static final String PARAMETER_FILE_ID = "file-id";
 	public static final String PARAMETER_SIZE = "file-size";
@@ -55,6 +56,7 @@ public abstract class ParameterMessage extends ChipsterMessage {
 	public static final String PARAMETER_SIZE_LIST = "size-list";
 	public static final String PARAMETER_DATE_LIST = "date-list";
 	public static final String PARAMETER_STATUS_REPORT = "status-report";
+	public static final String PARAMETER_HOST = "host";
 	
 	private List<String> parameters = new LinkedList<String>();
 	private HashMap<String, String> namedParameters = new HashMap<String, String>();

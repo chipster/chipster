@@ -20,7 +20,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class WebstartJettyServer implements ShutdownCallback {
 	
@@ -82,7 +82,7 @@ public class WebstartJettyServer implements ShutdownCallback {
 			KeepAliveShutdownHandler.init(this);
 			
 			logger.info("webstart is up and running [" + ApplicationConstants.VERSION + "]");
-			logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+			logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -24,7 +24,7 @@ import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 /**
  * @author Aleksi Kallio
@@ -102,7 +102,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("authenticator is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 	
 	private class RequestListener implements MessagingListener {

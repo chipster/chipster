@@ -1,12 +1,27 @@
 package fi.csc.chipster.web.adminweb.data;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.locks.Lock;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.data.util.BeanItemContainer;
 
-public class JobsContainer extends BeanItemContainer<JobsEntry> implements
-Serializable {
+import fi.csc.chipster.web.adminweb.ui.JobsView;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.admin.CompAdminAPI;
+import fi.csc.microarray.messaging.admin.JobsEntry;
+import fi.csc.microarray.messaging.admin.CompAdminAPI.JobsListener;
+
+public class JobsContainer extends BeanItemContainer<JobsEntry> implements Serializable, JobsListener {
+	
+	private static final Logger logger = Logger.getLogger(JobsContainer.class);
 
 	public static final String USERNAME = "username";
 	public static final String OPERATION = "operation";
@@ -20,47 +35,48 @@ Serializable {
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Operation", 	"Status", 	"Comp host", 	"Start time", 	"" };
+	
+	private CompAdminAPI compAdminAPI;
+
+	private JobsView view;
 
 
 
-	public JobsContainer() {
+	public JobsContainer(JobsView view, CompAdminAPI compAdminAPI) throws IOException, IllegalConfigurationException, MicroarrayException, JMSException {
 		super(JobsEntry.class);
+		this.view = view;
+		this.compAdminAPI = compAdminAPI;
 	}
 	
-//	private static final String[] status = new String[] { "RUNNING", "WAITING", "TRANSFERRING FILES" }; 
+	public void update() {		
+		
+		try {
+			compAdminAPI.queryRunningJobs(this);
+			// clear table even if there aren't any status updates
+			statusUpdated(new ArrayList<JobsEntry>());
+			
+		} catch (JMSException | InterruptedException e) {
+			logger.error(e);
+		}
+	}
 
-	public void update() {
+	@Override
+	public void statusUpdated(Collection<JobsEntry> jobs) {
 		
-      JobsEntry entry = new JobsEntry();
-      
-      entry.setUsername("Not implemented yet");
-      entry.setOperation("");
-      entry.setStatus("");
-      entry.setCompHost("");
-      entry.setStartTime(new Date());
-      
-      this.addBean(entry);
-		
-//		Random rnd = new Random();
-//		
-//		int count = rnd.nextInt(10);
-//		
-//		
-//		removeAllItems();
-//		
-//    	
-//		JobsEntry entry;
-//
-//        for (int i = 0; i < count; i++) {
-//            entry = new JobsEntry();
-//            
-//            entry.setUsername(RandomUtil.getRandomUserName(rnd));
-//            entry.setOperation(RandomUtil.getRandomOperation(rnd));
-//            entry.setStatus(status[rnd.nextInt(status.length)]);
-//            entry.setCompHost(RandomUtil.getRandomComp(rnd));
-//            entry.setStartTime(RandomUtil.getRandomDateToday(rnd));
-//            
-//            this.addBean(entry);
-//        }
-    }
+		//Following is null if data loading was faster than UI initialisation in another thread
+		if (view.getEntryTable().getUI() != null) {
+			Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+			tableLock.lock();
+			try {
+				removeAllItems();
+
+				for (JobsEntry entry : jobs) {
+					addBean(entry);
+				}
+
+			} finally {
+				tableLock.unlock();
+			}
+		}
+	}
 }
