@@ -28,8 +28,6 @@ emboss.parameters <- paste("-auto")
 emboss.parameters <- paste(emboss.parameters, '-taxon ', etaxon)
 emboss.parameters <- paste(emboss.parameters, "-oformat", oformat)
 emboss.parameters <- paste(emboss.parameters, "-outfile taxonomy.txt")
-
-
 command.full <- paste(emboss.binary, emboss.parameters, ' >> taxonomy.log 2>&1' )
 echo.command <- paste('echo "',command.full, ' "> taxonomy.log' )
 system(echo.command)
@@ -38,11 +36,16 @@ system(echo.command)
 system(command.full)
 system ("ls -l >> taxonomy.log ")
 if ( oformat == "excel"){
-system ('printf "%s\t%s\t%s\t%s\t%s\n" taxid parent_taxid level species name > taxonomy.tsv ')
-system ("cat taxonomy.txt >> taxonomy.tsv")
+system ('curl ftp://ftp.ensemblgenomes.org/pub/current/species.txt | cut -f4 | grep -i -v "[a-z]" > ensembl_taxid')
+system ('curl ftp://ftp.ensembl.org/pub/release-75/mysql/ensembl_stable_ids_75/species.txt.gz | gunzip | cut -f3 | grep -i -v "[a-z]" >> ensembl_taxid')
+system ('printf "%s\t%s\t%s\t%s\t%s\t%s\n" taxid "parent taxid" level species name "available in ensembl" > taxonomy.tsv ')
+system ('grep -f ensembl_taxid -w taxonomy.txt | awk \'{print $0"\tYes"}\' > taxonomy2.txt')
+system ('grep -v -f ensembl_taxid -w taxonomy.txt | awk \'{print $0"\tNo"}\' >> taxonomy2.txt')
+system ("cat taxonomy2.txt >> taxonomy.tsv")
+system ("ls -l >> taxonomy.log ")
 system ("rm -f taxonomy.txt ")
+system ("rm -f taxonomy2.txt ")
 }
-
 if ( save_log == "no") {
 	system ("rm -f taxonomy.log")
 }
