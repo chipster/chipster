@@ -2,8 +2,6 @@ package fi.csc.microarray.analyser;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -337,16 +335,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		return sweepWorkDir;
 	}
 
-
 	public void removeRunningJob(AnalysisJob job) {
-		String hostname = "";
-		
-		try {
-			hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException e1) {
-			logger.warn("Could not get local hostname.");
-			hostname = "";
-		}
+		String hostname = getHost();	
 		
 		char delimiter = ';';
 		try {
@@ -397,14 +387,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private JobLogMessage jobToMesage(AnalysisJob job) {
 		
-		String hostname = "";
-		
-		try {
-			hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException e1) {
-			logger.warn("Could not get local hostname.");
-			hostname = "";
-		}
+		String hostname = getHost();
 		
 		// current jobs in admin-web may not have starTime yet
 		Date startTime = job.getExecutionStartTime();
