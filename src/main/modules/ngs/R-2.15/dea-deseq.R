@@ -7,6 +7,7 @@
 # OUTPUT OPTIONAL dispersion-plot-deseq.pdf
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
+# PARAMETER OPTIONAL version: "DEseq version" TYPE [DEseq, DEseq2] DEFAULT DEseq (Version of DESeq to be used in the analysis.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (Dispersion can be estimated using a local fit or a two-coefficient parametric model. You should use local fit if there are no biological replicates.)
 # PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives.)
@@ -22,6 +23,7 @@
 # EK 30.4.2013, added BED sorting, made genomic location info optional so that external count tables can be used
 # EK 6.5.2013, removed replicates parameter
 # MK 29.01.2013, fixed bug why FoldChange column was duplicated in results
+# MK 14.04.2014, added posibility to use DESeq2
 
 # Loads the libraries
 library(DESeq)
@@ -49,6 +51,13 @@ lib_size <- lib_size/mean(lib_size)
 if (length(unique(groups))==1 | length(unique(groups))>=3) {
 	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
+
+
+fit1 = fitNbinomGLMs( cdsFull, count ~ libType + condition )
+fit0 = fitNbinomGLMs( cdsFull, count ~ libType )
+pvalsGLM = nbinomGLMTest( fit1, fit0 )
+padjGLM = p.adjust( pvalsGLM, method="BH" )
+
 
 # Create a counts data object
 counts_data <- newCountDataSet(dat2, groups)
