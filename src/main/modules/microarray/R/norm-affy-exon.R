@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta: human-hta, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, human-hta20: human-hta20, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # JTT 08.06.2006: Created
@@ -39,7 +39,7 @@ if(chiptype=="rat" & summary.feature=="exon") {
 	#dat@cdfName<-"raex10stv1rnensecdf"
 	#dat@annotation<-"raex10stv1rnensecdf.db"
 }
-if(chiptype=="human-hta" & summary.feature=="exon") {
+if(chiptype=="human-hta20" & summary.feature=="exon") {
 	custom_cdf = "hta20hsensecdf"
 	chiptype <- "hta20hsensecdf.db"	
 	#dat@cdfName<-"huex10stv2hsensecdf"
@@ -64,7 +64,7 @@ if(chiptype=="rat" & summary.feature=="gene") {
 	#dat@cdfName<-"raex10stv1rnentrezgcdf"
 	#dat@annotation<-"raex10stv1rnentrezg.db"
 }
-if(chiptype=="human-hta" & summary.feature=="gene") {
+if(chiptype=="human-hta20" & summary.feature=="gene") {
 	custom_cdf = "hta20hsentrezgcdf"
 	chiptype <- "hta20hsentrezg.db"	
 	#dat@cdfName<-"huex10stv2hsensecdf"
