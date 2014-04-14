@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Strings {
 		
 	/**
@@ -196,10 +198,10 @@ public class Strings {
 		return result;
 	}
 
-	public static String pad(String[] array, int width) {
+	public static String rightPad(String[] array, int width) {
 		String line = "";
 		for (String title : array) {
-			line += String.format("%-" + width + "s", title);
+			line += StringUtils.rightPad(title, width);
 		}
 		return line;
 	}

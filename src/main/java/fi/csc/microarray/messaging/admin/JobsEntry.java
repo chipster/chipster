@@ -56,19 +56,19 @@ public class JobsEntry implements Serializable {
 	public String toString() {		
 		return ""
 				+ StringUtils.rightPad(jobId, 40)
+				+ StringUtils.rightPad(compHost, 30)
 				+ StringUtils.rightPad(operation, 20)
-				+ StringUtils.rightPad(status, 20)
 				+ StringUtils.rightPad(username, 20)
 				+ StringUtils.rightPad(startTime.toString(), 30)
-				+ StringUtils.rightPad(compHost, 20);
+				+ StringUtils.rightPad(status, 20);
 	}
 	public static String getToStringHeaders() {
 		return ""
 				+ StringUtils.rightPad("JOB ID", 40)
+				+ StringUtils.rightPad("HOST", 30)
 				+ StringUtils.rightPad("OPERATION", 20)
-				+ StringUtils.rightPad("STATUS", 20)
 				+ StringUtils.rightPad("USERNAME", 20)
 				+ StringUtils.rightPad("START TIME", 30)
-				+ StringUtils.rightPad("HOST", 20);
+				+ StringUtils.rightPad("STATUS", 20);
 	}
 }

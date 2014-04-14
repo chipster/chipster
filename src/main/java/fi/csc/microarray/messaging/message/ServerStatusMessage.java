@@ -3,6 +3,7 @@ package fi.csc.microarray.messaging.message;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.util.Strings;
@@ -128,7 +129,7 @@ public class ServerStatusMessage extends ChipsterMessage {
 	}
 	
 	public String toStringLine() {
-		String[] array = new String[] {
+		String[] array = new String[] {				
 				"" + receivedJobs,				
 				"" + scheduledJobs,
 				"" + runningJobs,
@@ -140,9 +141,10 @@ public class ServerStatusMessage extends ChipsterMessage {
 				SystemMonitorUtil.bytesToGigas(memTotal),
 				"" + diskPercents,
 				SystemMonitorUtil.bytesToGigas(diskUsed),
-				SystemMonitorUtil.bytesToGigas(diskTotal)
+				SystemMonitorUtil.bytesToGigas(diskTotal),
+				status == null ? "" : status
 		};
-		return Strings.pad(array, 10);
+		return StringUtils.rightPad(hostId, 40) + StringUtils.rightPad(host, 30) + Strings.rightPad(array, 10);
 				
 	}
 	
@@ -159,10 +161,11 @@ public class ServerStatusMessage extends ChipsterMessage {
 				"TOTAL GB",
 				"DISK %",
 				"USED GB",
-				"TOTAL GB"
+				"TOTAL GB",
+				"STATUS"
 				};
 		
-		return Strings.pad(array, 10);		
+		return StringUtils.rightPad("COMP ID", 40) + StringUtils.rightPad("HOST", 30) + Strings.rightPad(array, 10);		
 	}
 
 	public long getDiskPercents() {

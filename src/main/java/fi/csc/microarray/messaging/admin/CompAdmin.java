@@ -22,7 +22,8 @@ public class CompAdmin {
 	private void printHelp() {
 		System.out.println("Chipster comp admin tool\n"
 				+ "\n"
-				+ "Usage: java -jar chipster.jar " + CompAdmin.class.getName() + " [-h] -c CHIPSTER-CONFIG.XML [--wait=SECONDS] COMMAND\n"
+				+ "Usage:\n"
+				+ "   java -cp path/to/jar/lib/directory/*: " + CompAdmin.class.getName() + " [-h] --config=CHIPSTER-CONFIG.XML [--wait=SECONDS] [--quiet] COMMAND\n"
 				+ "\n"
 				+ "Options\n"
 				+ "   -h --help                     show this help and exit\n"
@@ -33,8 +34,8 @@ public class CompAdmin {
 				+ "   --list-comps                  list compute servers' ids, hosts and status reports\n"
 				+ "   --list-jobs                   list jobs on compute servers\n"
 				+ "   --cancel=JOB                  cancel a job with given id\n"		
-				+ "   --stop-gracefully=COMP          wait for running jobs to complete and stop the service with given id\n"
-				+ "   --stop-gracefully-slowest       gracefully stop the slowest server\n");
+				+ "   --stop-gracefully=COMP        wait for running jobs to complete and stop the service with given id\n"
+				+ "   --stop-gracefully-slowest     gracefully stop the slowest server\n");
 	}
 
 	public int waitTime = 10; // seconds
@@ -104,10 +105,10 @@ public class CompAdmin {
 			case "--cancel":
 				cancelJob = arg;
 				break;
-			case "--graceful-stop":
+			case "--stop-gracefully":
 				stopComp = arg;
 				break;
-			case "--graceful-stop-slowest":
+			case "--stop-gracefully-slowest":
 				shutdownOne = true;
 				break;
 			default:
