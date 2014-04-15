@@ -6,8 +6,6 @@ import javax.swing.ImageIcon;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.methods.Empty;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
@@ -27,13 +25,6 @@ import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
  * 
  */
 public class VisualisationMethod {
-
-	/**
-	 * Method None can be always available and spaces reserve space also for the longer names
-	 * when they aren't present. This is the easiest found way to keep things
-	 * steady. Duration estimation 0 means no limit.
-	 */
-	public static VisualisationMethod NONE = new VisualisationMethod("None                                   ", Empty.class, VisualConstants.EMPTY_MENUICON, 0, 0);
 	
 	public String getName() {
 		return name;

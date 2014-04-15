@@ -15,7 +15,6 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
 	
@@ -119,13 +118,13 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			//panel causes only irritating flickering
 			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
 						
-			if(method != VisualisationMethod.NONE && method != VisualisationMethods.DATA_DETAILS){
+			if(method != VisualisationMethod.getDefault()){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
 			
 			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
-			if(method == VisualisationMethod.NONE){
+			if(method == VisualisationMethod.getDefault()){
 				if (toolBar.isMaximised) {
 					toolBar.maximiseOrRestoreVisualisation();
 				}

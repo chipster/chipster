@@ -46,7 +46,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.Visu
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
 	
@@ -90,8 +89,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	public static final String COMMAND = "command";
 	public static final String RENAME_COMMAND = "rename";
 	
-	final int LEFT_WIDTH = 450;
-	final int INDENTION = 20;
+	public final static int LEFT_WIDTH = 450;
+	public final static int INDENTION = 20;
 
 	private List<DataBean> datas;
 
@@ -164,8 +163,6 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		JPanel panel = getPanelBase("wrap 1");
 		
 		List<VisualisationMethod> visualisations = VisualisationToolBar.getMethodsFor(datas);
-		visualisations.remove(VisualisationMethod.NONE);
-		visualisations.remove(VisualisationMethods.DATA_DETAILS);
 		
 		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(visualisations);
 		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
@@ -284,6 +281,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		panel.addMouseListener(this);
 		
 		scroller = new JScrollPane(panel);
+		scroller.setBorder(null);
 		updateFocusTraversal(scroller);
 
 		return scroller;
@@ -331,29 +329,34 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 					OperationDefinition tool = application.getOperationDefinition(operationRecord.getNameID().getID());
 
 					String defaultValue = "";
-
-					Parameter parameter = tool.getParameter(parameterRecord.getNameID().getID());
-					if (parameter != null) {
-						defaultValue = parameter.getValueAsString();
-					}
-
+					
 					//Parameter value
 					String valueString = parameterRecord.getValue();
 
-					//EnumParameters have a display name for values
-					if (parameter instanceof EnumParameter) {
-						EnumParameter enumParameter = (EnumParameter) parameter;
-
-						//List<SelectionOption> options = enumParameter.getSelectedOptions();
-						Object[] options = enumParameter.getOptions();
-
-						for (Object choice : options) {
-							SelectionOption option = (SelectionOption) choice;
-
-							//for (SelectionOption option : options) {
-							if (parameterRecord.getValue().equals(option.getValue())) {
-
-								valueString = option.toString();
+					if (tool != null) {
+						Parameter parameter = tool.getParameter(parameterRecord.getNameID().getID());
+						if (parameter != null) {
+							defaultValue = parameter.getValueAsString();
+						}
+						
+						//EnumParameters have a display name for values
+						if (parameter instanceof EnumParameter) {
+							EnumParameter enumParameter = (EnumParameter) parameter;
+							
+							Object[] options = enumParameter.getOptions();
+							
+							// column selection doesn't have better name
+							if (options != null) {
+								// search for human readable name
+								for (Object choice : options) {
+									SelectionOption option = (SelectionOption) choice;
+									
+									//for (SelectionOption option : options) {
+									if (parameterRecord.getValue().equals(option.getValue())) {
+										
+										valueString = option.toString();
+									}
+								}
 							}
 						}
 					}
@@ -362,9 +365,13 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 					JTextArea value =  new JTextArea(valueString);
 					
 					name.setLineWrap(true);
-					name.setWrapStyleWord(true);
 					value.setLineWrap(true);
+					
+					name.setWrapStyleWord(true);
 					value.setWrapStyleWord(true);
+					
+					name.setEditable(false);
+					value.setEditable(false);
 
 					//Fade out default values
 					if (defaultValue.equals(parameterRecord.getValue())) {

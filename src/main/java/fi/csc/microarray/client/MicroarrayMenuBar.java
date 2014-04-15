@@ -118,7 +118,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		visualiseMenuItem.setEnabled(selectedDataBean != null);
 
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
-		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
+		visualisationMenu.setEnabled(method != null);
 		
 		closeVisualisationMenuItem.setEnabled(method != null && method != VisualisationMethods.DATA_DETAILS);
 

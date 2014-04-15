@@ -25,7 +25,7 @@ public class VisualisationMethodRepository {
 
 	public VisualisationMethod getDefaultVisualisationFor(DataBean dataBean) throws IOException, MicroarrayException {
 		for (VisualisationMethod method : getOrderedDefaultCandidates()) {
-			if (method != VisualisationMethod.NONE && method.isApplicableTo(dataBean)) {
+			if (method != VisualisationMethod.getDefault() && method.isApplicableTo(dataBean)) {
 				return method;
 			}
 		}

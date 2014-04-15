@@ -125,8 +125,8 @@ public class BasicModule implements Module {
 	public VisualisationMethod[] getVisualisationMethods() {
 		
 		return new VisualisationMethod[] {
-				VisualisationMethod.NONE,
-				VisualisationMethods.DATA_DETAILS,
+				//VisualisationMethod.NONE,
+				//VisualisationMethods.DATA_DETAILS,
 				VisualisationMethods.SPREADSHEET,
 				VisualisationMethods.SHOW_IMAGE, 
 				VisualisationMethods.WEBVIEW, 

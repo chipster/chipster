@@ -29,8 +29,6 @@ import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.BrowserSelectionListener;
@@ -45,8 +43,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -164,7 +162,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);
 			
 			if (closeBrowser) {
-				application.setVisualisationMethod(VisualisationMethod.NONE, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				application.setVisualisationMethod();
 			}
 		}
 		
@@ -440,7 +438,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 	@Override
 	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
-		return interpretUserDatas(datas) != null;
+		return  !datas.isEmpty() && interpretUserDatas(datas) != null;
 	}
 
 	public class ObjVariable extends Variable {

@@ -9,7 +9,6 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -81,12 +80,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		waitPanel.add(waitLabel, BorderLayout.CENTER);
 		viewChangerPanel.add(waitPanel, WAIT_PANEL_NAME);
 
-		// show empty panel
-		try {
-			this.showVisualisationComponent(VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>()));
-		} catch (Exception e) {
-			application.reportException(e);
-		}
 		this.setContent(viewChangerPanel);
 		viewChangerLayout.show(viewChangerPanel, VISUALISATION_PANEL_NAME);
 
@@ -170,14 +163,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public void showVisualisationComponent(JComponent panel) {
 		// Clean
 		removeVisualisationComponent();
-
-		if (panel == null) {
-			try {
-				panel = VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>());
-			} catch (Exception e) {
-				application.reportException(e);
-			}
-		}
 
 		String title = "Visualisation";
 		if (datas != null && datas.size() > 0) {
@@ -263,11 +248,11 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		if (e instanceof DataItemRemovedEvent) {
 			// Data removed, check if it was part of visualisation
 			if (datas != null && datas.contains(((DataItemRemovedEvent) e).getDataItem())) {
-				application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
+				application.setVisualisationMethod();
 			}
 			
 			// Data removed, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.NONE) {
+			if (method == null || method == VisualisationMethod.getDefault()) {
 				updateContextLinks();
 			}
 
@@ -275,7 +260,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		} else if (e instanceof DataItemCreatedEvent) {
 
 			// Data added, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.NONE) {
+			if (method == null || method == VisualisationMethod.getDefault()) {
 				updateContextLinks();
 			}
 		}

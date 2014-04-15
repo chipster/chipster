@@ -1,17 +1,19 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.awt.Component;
+import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.LineBorder;
 
-class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+class ComboBoxRenderer extends JLabel implements ListCellRenderer<VisualisationMethod> {
 	public ComboBoxRenderer() {
 		setOpaque(true);
 		setHorizontalAlignment(LEFT);
-		setVerticalAlignment(CENTER);
+		setVerticalAlignment(CENTER);		
 	}
 
 	/*
@@ -19,9 +21,10 @@ class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 	 * to the selected value and returns the label, set up
 	 * to display the text and image.
 	 */
+	@Override
 	public Component getListCellRendererComponent(
-			JList list,
-			Object value,
+			JList<? extends VisualisationMethod> list,
+			VisualisationMethod value,
 			int index,
 			boolean isSelected,
 			boolean cellHasFocus) {
@@ -43,10 +46,24 @@ class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 		}
 		
 		if (value != null) {
-			setIcon(icon);
+			ImageIcon menuIcon = null;
+			
+			if (index < 0) {
+				// small icon for closed combo box
+				menuIcon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+				setBorder(null);
+			} else {
+				// original icon size for combo box menu
+				menuIcon = icon;
+				setBorder(new LineBorder(this.getBackground(), 5));
+			}
+			
+			setIcon(menuIcon);
 			setText(value.toString());
 			setFont(list.getFont());
 		}
+		
+		
 		return this;
 	}
 }

@@ -30,7 +30,7 @@ public class InternalVisualisationFrame extends VisualisationFrame {
 	@Override
 	protected void updateContextLinks() {
 		if (type == FrameType.MAIN) {
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
+			application.setVisualisationMethod();
 		}
 		
 	}

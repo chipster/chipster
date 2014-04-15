@@ -11,6 +11,8 @@ import javax.swing.JComboBox;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
+
 public class ToolBarComponentFactory {
 	
 	public static void initialiseButton(AbstractButton button, boolean leftBorder, boolean rightBorder){
@@ -83,8 +85,8 @@ public class ToolBarComponentFactory {
 	
 	// J C O M B O  B O X /////////////////////////////////////////////
 	
-	public static JComboBox createComboBox() {
-		JComboBox combo = new JComboBox();
+	public static JComboBox<VisualisationMethod> createComboBox() {
+		JComboBox<VisualisationMethod> combo = new JComboBox<VisualisationMethod>();
 		combo.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(0,0,0,0,Color.LIGHT_GRAY),
 				BorderFactory.createEmptyBorder(0,0,0,0)));

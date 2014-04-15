@@ -62,9 +62,9 @@ public abstract class Visualisation {
 		return panel;
 	}
 
-	public static void fillComboBox(JComboBox box, Object[] content) {
+	public static <T> void fillComboBox(JComboBox<T> box, T[] content) {
 		box.removeAllItems();
-		for (Object o : content) {
+		for (T o : content) {
 			box.addItem(o);
 		}
 	}

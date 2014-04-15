@@ -388,7 +388,8 @@ public class SwingClientApplication extends ClientApplication {
 		// final touches
 		updateFocusTraversal();
 		restoreDefaultView();
-		enableKeyboardShortcuts();
+		enableKeyboardShortcuts();		
+		setVisualisationMethod();
 		
 		// check for warnings generated at earlier non-GUI stages
 		if (!getInitialisationWarnings().isEmpty()) {
@@ -1006,7 +1007,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * Is the selected databeans possible to visualise
 	 */
 	public boolean isSelectedDataVisualisable() {
-		return getDefaultVisualisationForSelection() != VisualisationMethod.NONE;
+		return getDefaultVisualisationForSelection() != VisualisationMethod.getDefault();
 	}
 
 	/**
@@ -1034,7 +1035,7 @@ public class SwingClientApplication extends ClientApplication {
 	private VisualisationMethod getDefaultVisualisationForSelection() {
 		logger.debug("getting default visualisation");
 		if (getSelectionManager().getSelectedDataBeans() == null || getSelectionManager().getSelectedDataBeans().size() == 0) {
-			return VisualisationMethod.NONE;
+			return VisualisationMethod.getDefault();
 		}
 
 		try {
@@ -1044,7 +1045,7 @@ public class SwingClientApplication extends ClientApplication {
 				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
 			} else if (beans.size() > 1)
 				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
-					if (method == VisualisationMethod.NONE || !method.getHeadlessVisualiser().isForMultipleDatas()) {
+					if (!method.getHeadlessVisualiser().isForMultipleDatas()) {
 						continue;
 					}
 					if (method.isApplicableTo(beans)) {
@@ -1088,11 +1089,11 @@ public class SwingClientApplication extends ClientApplication {
 			 * if (isSuitableMethod) { logger.debug("Method " + method + " will
 			 * be used to visualise selected datas"); return method; } } }
 			 */
-			return VisualisationMethod.NONE;
+			return VisualisationMethod.getDefault();
 
 		} catch (Exception e) {
 			reportException(e);
-			return VisualisationMethod.NONE;
+			return VisualisationMethod.getDefault();
 		}
 	}
 
@@ -1395,7 +1396,7 @@ public class SwingClientApplication extends ClientApplication {
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target) {
 
 		if (method == null || datas == null) {
-			super.setVisualisationMethod(VisualisationMethod.NONE, null, null, target);
+			super.setVisualisationMethod();
 			return;
 		}
 		long estimate = method.estimateDuration(datas);

@@ -900,4 +900,11 @@ public abstract class ClientApplication {
 	public String getAnnouncementText() {
 		return this.announcementText;
 	}
+	
+	/**
+	 * Set default visualisation method (DataDetails)
+	 */
+	public void setVisualisationMethod() {
+		setVisualisationMethod(VisualisationMethod.getDefault(), null, getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+	}
 }
