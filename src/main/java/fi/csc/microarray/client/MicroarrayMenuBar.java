@@ -71,10 +71,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem archiveSessionMenuItem;
 	private JMenuItem saveSessionMenuItem;
 	private JMenu recentWorkflowMenu;
-	private JMenuItem loadSessionMenuItem;
-	private JMenuItem loadLocalSessionMenuItem;
 	private JMenuItem taskListMenuItem;
 	private JMenuItem clearSessionMenuItem;
+	private JMenu joinSessionMenu;
 	private JMenuItem selectAllMenuItem;
 	private JMenuItem historyMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
@@ -149,18 +148,29 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getLoadLocalSessionMenuItem());
+			fileMenu.add(getLoadLocalSessionMenuItem(true));
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getLoadSessionMenuItem());
+			fileMenu.add(getLoadSessionMenuItem(true));
 			fileMenu.add(getSaveSessionMenuItem());
 			fileMenu.add(getManageSessionsMenuItem());
-			fileMenu.addSeparator();
+			fileMenu.addSeparator();			
+			fileMenu.add(getJoinSessionMenu());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
 		}
 		return fileMenu;
+	}
+
+	private JMenuItem getJoinSessionMenu() {
+		if (joinSessionMenu == null) {
+			joinSessionMenu = new JMenu();
+			joinSessionMenu.setText("Join session");
+			joinSessionMenu.add(getLoadLocalSessionMenuItem(false));
+			joinSessionMenu.add(getLoadSessionMenuItem(false));
+		}
+		return joinSessionMenu;
 	}
 
 	private JMenu getImportMenu() {
@@ -744,40 +754,38 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return clearSessionMenuItem;
 	}
 
-	private JMenuItem getLoadSessionMenuItem() {
-		if (loadSessionMenuItem == null) {
-			loadSessionMenuItem = new JMenuItem();
-			loadSessionMenuItem.setText("Open cloud session...");
-			loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						application.loadSession(true);
+	private JMenuItem getLoadSessionMenuItem(final boolean clear) {
+		JMenuItem loadSessionMenuItem = new JMenuItem();
+		loadSessionMenuItem.setText("Open cloud session...");
+		loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				try {
+					application.loadSession(true, false, clear);
 
-					} catch (Exception ioe) {
-						application.reportException(ioe);
-					}
+				} catch (Exception ioe) {
+					application.reportException(ioe);
 				}
-			});
-		}
+			}
+		});
 		return loadSessionMenuItem;
 	}
 
-	private JMenuItem getLoadLocalSessionMenuItem() {
-		if (loadLocalSessionMenuItem == null) {
-			loadLocalSessionMenuItem = new JMenuItem();
-			loadLocalSessionMenuItem.setText("Open local session...");
+	private JMenuItem getLoadLocalSessionMenuItem(final boolean clear) {
+		JMenuItem loadLocalSessionMenuItem = new JMenuItem();
+		loadLocalSessionMenuItem.setText("Open local session...");
+		if (!clear) {
 			loadLocalSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						application.loadSession(false);
-
-					} catch (Exception ioe) {
-						application.reportException(ioe);
-					}
-				}
-			});
 		}
+		loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				try {
+					application.loadSession(false, false, clear);
+
+				} catch (Exception ioe) {
+					application.reportException(ioe);
+				}
+			}
+		});
 		return loadLocalSessionMenuItem;
 	}
 

@@ -50,7 +50,7 @@ public class QuickLinkPanel extends JPanel {
 		exampleLink = LinkUtil.createLink("Open example session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				application.loadSession(true, true);							
+				application.loadSession(true, true, true);							
 			}
 		});
 		

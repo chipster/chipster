@@ -69,7 +69,6 @@ import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
-import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -1696,12 +1695,11 @@ public class SwingClientApplication extends ClientApplication {
 	
 	@Override	
 	public void loadSession(boolean remote) {
-		loadSession(remote, false);		
+		loadSession(remote, false, true);		
 	}
 	
-	public void loadSession(boolean remote, boolean openExampleDir) {
+	public void loadSession(boolean remote, boolean openExampleDir, boolean clear) {
 
-		SnapshotAccessory accessory = new SnapshotAccessory();
 		// create filechooser dialog
 		final JFileChooser fileChooser;
 		try {
@@ -1760,7 +1758,7 @@ public class SwingClientApplication extends ClientApplication {
 			} 
 
 			// clear previous session 
-			if (accessory.clearSession()) {
+			if (clear) {
 				if (!clearSession()) {
 					return; // loading cancelled
 				}
