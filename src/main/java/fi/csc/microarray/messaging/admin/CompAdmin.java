@@ -28,7 +28,7 @@ public class CompAdmin {
 				+ "Options\n"
 				+ "   -h --help                     show this help and exit\n"
 				+ "   --config=CHIPSTER-CONFIG.XML  Chipster manager config file\n"
-				+ "   --wait=SECONDS                wait time in seconds for server responses, default 10\n"
+				+ "   --wait=SECONDS                wait time in seconds for server responses, default 3\n"
 				+ "   -q --quiet                    do not print table headers\n"
 				+ "Commands\n"
 				+ "   --list-comps                  list compute servers' ids, hosts and status reports\n"
@@ -38,7 +38,7 @@ public class CompAdmin {
 				+ "   --stop-gracefully-slowest     gracefully stop the slowest server\n");
 	}
 
-	public int waitTime = 10; // seconds
+	public int waitTime = 3; // seconds
 	
 	public static void main(String[] argArray) {
 		

@@ -438,6 +438,8 @@
 
 			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
 			<tarfileset file="${dist}/admin-web.war" prefix="chipster/manager/webapps" />
+			
+			<tarfileset file="${ext-src}/wrapper/comp-admin.sh" filemode="755" prefix="chipster/manager/bin" />
 		
 			
 			<!-- activemq -->
