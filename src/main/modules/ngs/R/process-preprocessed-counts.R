@@ -5,33 +5,43 @@
 # PARAMETER experimentype: "Experiment type" TYPE STRING DEFAULT empty (You can define experiment type, for example rna-seq.)
 # PARAMETER OPTIONAL keep.annotations: "Keep annotations" TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation columns after preprocessing.)
 
-
 # MK 08.05.2013 Created based on the process prenormalized affy script
+# MK 11.04.2013 Support for multiple annotation columns added
 
-
-# Loads the libraries
-library(limma)
-
-# Reading data
-columns<-list(R="sample")
-annotation<-c("identifier")
-columns.other<-c("annotation", "Annotation", "ANNOTATION")
-
+# Read files
 files<-dir()
 files<-files[files!="phenodata.tsv"]
-#seems to check columns from the first file only. If the column is not there, attribute is ignored. If the column is there, but not
-#in the others, function crashes
+
+# Loads the limma library
+library(limma)
+
+# Define accepted column headers
+columns <- list(R="sample")
+annotation <- c("identifier")
+columns.other <- c("annotation", "Annotation", "ANNOTATION")
+
+# Check how many annotation columns, fix name of annotation columns >2 and modify files accordingly
+header <- t(read.table(files[1], header=F, nrows = 1))
+anno.cols <- grep("annotation", t(header), ignore.case=T)
+if(length(anno.cols) > 1) {
+	header[anno.cols[-1]] <- paste(header[anno.cols[-1]], 1:length(anno.cols[-1]), sep="")
+	replace.header <- paste(header, collapse = "\t")
+	system(paste("find n*.tsv -exec sed -i -e '1s/.*/", replace.header,"/' {} \\; ", sep=""))
+	columns.other <- c(columns.other, paste(columns.other, rep(1:length(anno.cols[-1]), each=3), sep=""))
+}
+
+# Read data
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
-	
-#dat <- read.table(file="normalized.tsvt", header=TRUE, sep="\t")
 
 # Extract annotations
 annotation.info <- NULL;
 if (keep.annotations=="yes") {
-	if(length(grep("^annotation$", unlist(attributes(dat$other)), ignore.case=T))) {
-		annotation.col <- unlist(attributes(dat$other))[grep("^annotation$", unlist(attributes(dat$other)), ignore.case=T)]
-		annotation.info	<- dat$other[[annotation.col]];
-		annotation.info <- as.character(annotation.info[,1]);
+	if(length(grep("^annotation", unlist(attributes(dat$other)), ignore.case=T)) > 0) {
+		annotation.col <- unlist(attributes(dat$other))[grep("^annotation", unlist(attributes(dat$other)), ignore.case=T)]
+		annotation.info	<- NULL
+		for(i in 1:length(annotation.col)) {
+			annotation.info	<- cbind(annotation.info, (dat$other[[annotation.col[i]]])[,1]);
+		}
 	}
 }
 
@@ -53,8 +63,13 @@ libsize <-c(rep("", length(sample)))
 write.table(data.frame(sample=sample, chiptype=chiptype, experiment=experiment, group=group, library_size=libsize, description=sample), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Writes the results into a file
-if (keep.annotations=="yes") {
-	output_table <- data.frame(symbol=annotation.info, dat2);	
+if (keep.annotations=="yes" && (!is.null(annotation.info))) {
+	if(ncol(annotation.info) == 1) {
+		output_table <- data.frame(symbol=annotation.info, dat2);	
+	} else {
+		colnames(annotation.info) <- c("Annotation", paste("Annotation", 2:(length(anno.cols[-1])+1), sep=""))
+		output_table <- data.frame(annotation.info, dat2);
+	}
 } else {
 	output_table <- data.frame(dat2);		
 }

@@ -1,5 +1,7 @@
 #!/bin/bash 
 
+#export PATH=${PATH}:/opt/chipster4/comp/modules/admin/shell/:/opt/chipster/tools/emboss/bin/:/opt/chipster/tools/samtools/:/opt/chipster/tools/tabix
+
 add_genome_help ()
 {
 cat <<EOF
@@ -160,7 +162,7 @@ location=$(pwd)
 INDEX_BWA=1
 INDEX_BOWTIE=1
 INDEX_BOWTIE2=1
-
+INDEX_TOPHAT2=1
 
 while [[ $# -ge 1 ]]
 do
@@ -243,7 +245,8 @@ then
 fi 
 tools_path="$chipster_path""/tools"
 comp_path="$chipster_path""/comp"
-export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/tabix-0.2.6/
+export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/:$tools_path/bowtie2/
+echo $PATH
 
 ##
 #Retrieve the fasta file
@@ -483,7 +486,6 @@ fi
 
 
 
-
 #make bowtie2_indexes
 if [[ $INDEX_BOWTIE2 -eq 1 ]]
 then
@@ -510,9 +512,14 @@ then
      exit 1
   else
     echo Bowtie2 index of genome $bowtie2_name OK
+    if [[ $INDEX_TOPHAT2 -eq 1 ]]
+    then
+       echo Builduing TopHat2 transcriptome index using $genome_gtf
+       $tools_path/tophat2/tophat -G  $tools_path/genomes/gtf/$genome_gtf --transcriptome-index $tools_path/tools/tophat2/indexes $tools_path/bowtie2/indexes/$bowtie2_name
+    fi
   fi
 else
-    echo "Skipping Bowtie indexing"
+    echo "Skipping Bowtie2 indexing"
 fi
 
 
