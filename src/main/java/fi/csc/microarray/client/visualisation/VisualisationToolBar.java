@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -28,6 +30,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -285,8 +288,11 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		} else {
 			applicableVisualisations = onlyDefaultList;
 		}
+		
+		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(applicableVisualisations);
+		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
 
-		return applicableVisualisations;
+		return orderedMethods;
 	}
 
 	public void fillMethodsFor(List<DataBean> datas) {

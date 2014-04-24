@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.awt.Component;
-import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -46,20 +45,20 @@ class ComboBoxRenderer extends JLabel implements ListCellRenderer<VisualisationM
 		}
 		
 		if (value != null) {
-			ImageIcon menuIcon = null;
-			
+						
 			if (index < 0) {
-				// small icon for closed combo box
-				menuIcon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+				// closed menu
+				setIcon(null);
 				setBorder(null);
+				//setText(value.toString());
 			} else {
-				// original icon size for combo box menu
-				menuIcon = icon;
+				// open menu
+				setIcon(icon);
 				setBorder(new LineBorder(this.getBackground(), 5));
 			}
 			
-			setIcon(menuIcon);
-			setText(value.toString());
+			// both closed and open menu look better when there is some empty space in front of the text
+			setText("  " + value.toString());
 			setFont(list.getFont());
 		}
 		

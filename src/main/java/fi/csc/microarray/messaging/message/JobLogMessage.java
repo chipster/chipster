@@ -215,7 +215,7 @@ public class JobLogMessage extends ChipsterMessage {
 		return 
 		
 		"operation: " + operation + "\n" + 
-		"state: " + state.toString() + "\n" +
+		"state: " + (state != null ? state.toString() : "") + "\n" +
 		"jobId: " + jobId + "\n" +
 		"start time: " + (startTime != null ? startTime.toString() : "") + "\n" +
 		"end time: " + (endTime != null ? endTime.toString() : "") + "\n" +
