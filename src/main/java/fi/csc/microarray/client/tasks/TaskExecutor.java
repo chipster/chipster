@@ -458,7 +458,7 @@ public class TaskExecutor {
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							long length = Session.getSession().getDataManager().getContentLength(task.getInput(name));
+							long length = Session.getSession().getApplication().getDataManager().getContentLength(task.getInput(name));
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());

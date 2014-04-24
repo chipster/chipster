@@ -196,7 +196,10 @@ public class SessionReplayTest extends MessagingTestBase {
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
 		// Load session
+		// some loading code uses Session.getSession().getDataManagers
+		Session.getSession().setDataManager(sourceManager);
 		sourceManager.loadSession(session, false);
+		Session.getSession().setDataManager(manager);
 		
 		// Pick import operations and copy imported data beans to target manager 
 		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
