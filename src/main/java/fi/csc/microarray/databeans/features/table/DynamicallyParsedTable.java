@@ -38,7 +38,7 @@ public class DynamicallyParsedTable implements Table {
 		this.columnNames = settings.columns.keySet().toArray(new String[0]);
 
 		try {
-			this.reader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA)));
+			this.reader = new BufferedReader(new InputStreamReader(Session.getSession().getApplication().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 			this.source = new LookaheadLineReader(this.reader);
 			this.headerParsed = false;
 

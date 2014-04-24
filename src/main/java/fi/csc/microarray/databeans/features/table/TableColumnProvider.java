@@ -63,7 +63,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 	public static MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
 		BufferedReader bufferedReader = null;
 		try {
-			bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
+			bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getApplication().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
 			LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 			MatrixParseSettings settings = new MatrixParseSettings();
 
