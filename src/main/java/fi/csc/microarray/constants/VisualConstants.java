@@ -168,7 +168,7 @@ public class VisualConstants {
     public static ImageIcon SCATTER_MENUICON = 
     		new ImageIcon(VisualConstants.class.getResource("/listicons/scatter4.png"));
     public static ImageIcon PROFILE_MENUICON = 
-    		new ImageIcon(VisualConstants.class.getResource("/listicons/profile2.png"));
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/profile4.png"));
     public static ImageIcon SCATTER3DPCA_MENUICON = 
     		new ImageIcon(VisualConstants.class.getResource("/listicons/pca.png"));
     public static ImageIcon HC_MENUICON = 
@@ -182,7 +182,9 @@ public class VisualConstants {
     public static ImageIcon HISTOGRAM_MENUICON = 
     		new ImageIcon(VisualConstants.class.getResource("/listicons/histogram2.png"));
     public static ImageIcon GB_MENUICON = 
-    		new ImageIcon(VisualConstants.class.getResource("/listicons/gb.png"));
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/gb3.png"));
+    public static ImageIcon HEATMAP_MENUICON = 
+    		new ImageIcon(VisualConstants.class.getResource("/listicons/heatmap.png"));
     
     
     public static final ImageIcon SPLASH_SCREEN =

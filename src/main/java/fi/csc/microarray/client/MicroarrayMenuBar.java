@@ -155,7 +155,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getSaveSessionMenuItem());
 			fileMenu.add(getManageSessionsMenuItem());
 			fileMenu.addSeparator();			
-			fileMenu.add(getJoinSessionMenu());
+			fileMenu.add(getMergeSessionMenu());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -163,10 +163,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return fileMenu;
 	}
 
-	private JMenuItem getJoinSessionMenu() {
+	private JMenuItem getMergeSessionMenu() {
 		if (joinSessionMenu == null) {
 			joinSessionMenu = new JMenu();
-			joinSessionMenu.setText("Join session");
+			joinSessionMenu.setText("Merge session");
 			joinSessionMenu.add(getLoadLocalSessionMenuItem(false));
 			joinSessionMenu.add(getLoadSessionMenuItem(false));
 		}
@@ -756,7 +756,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private JMenuItem getLoadSessionMenuItem(final boolean clear) {
 		JMenuItem loadSessionMenuItem = new JMenuItem();
-		loadSessionMenuItem.setText("Open cloud session...");
+		if (clear) {			
+			loadSessionMenuItem.setText("Open cloud session...");
+		} else {
+			loadSessionMenuItem.setText("cloud session...");
+		}
 		loadSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				try {
@@ -773,8 +777,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadLocalSessionMenuItem(final boolean clear) {
 		JMenuItem loadLocalSessionMenuItem = new JMenuItem();
 		loadLocalSessionMenuItem.setText("Open local session...");
-		if (!clear) {
+		if (clear) {
+			loadLocalSessionMenuItem.setText("Open local session...");
 			loadLocalSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+		} else {
+			loadLocalSessionMenuItem.setText("local session...");
 		}
 		loadLocalSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {

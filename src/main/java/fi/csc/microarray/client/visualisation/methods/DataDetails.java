@@ -12,8 +12,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -42,7 +40,6 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -163,11 +160,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		JPanel panel = getPanelBase("wrap 1");
 		
 		List<VisualisationMethod> visualisations = VisualisationToolBar.getMethodsFor(datas);
-		
-		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(visualisations);
-		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
-		
-		for (VisualisationMethod method : orderedMethods) {
+			
+		for (VisualisationMethod method : visualisations) {
 	
 			JXHyperlink link = new JXHyperlink();
 			

@@ -115,7 +115,7 @@ public class MicroarrayModule implements Module {
 	public static class VisualisationMethods {
 		public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, 100, 0.0009);
 		public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, 70, 0.024);
-		public static VisualisationMethod HEATMAP = new VisualisationMethod("Heatmap", Heatmap.class, VisualConstants.ARRAY_MENUICON, 100, 0.0009);
+		public static VisualisationMethod HEATMAP = new VisualisationMethod("Heatmap", Heatmap.class, VisualConstants.HEATMAP_MENUICON, 100, 0.0009);
 		public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, 79, 0.039);
 		public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, 78, 0.082);
 		public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, 77, 0.082);
@@ -272,6 +272,7 @@ public class MicroarrayModule implements Module {
 		return new VisualisationMethod[] {
 				VisualisationMethods.PHENODATA,
 				VisualisationMethods.ARRAY_LAYOUT,
+//				VisualisationMethods.HEATMAP,
 				VisualisationMethods.HISTOGRAM,
 				VisualisationMethods.SCATTERPLOT,
 				VisualisationMethods.SCATTERPLOT3D,
