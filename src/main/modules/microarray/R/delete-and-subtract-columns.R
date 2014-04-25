@@ -33,6 +33,9 @@ dat2 <- dat[,annotations]
 
 #identify samples to be deleted
 del.cols   <- phenodata[, column1]
+if(max(del.cols) > 1) { stop("Delete column can only contain 0 and 1 values, where 1 is used to mark samples to be deleted!") }
+if(min(del.cols) < 0) { stop("Delete column can only contain 0 and 1 values, where 1 is used to mark samples to be deleted!") }
+
 del.groups <- unique(phenodata[which(del.cols == 1), column2])
 sample.groups <- phenodata[, column2]
 

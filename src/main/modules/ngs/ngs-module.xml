@@ -78,6 +78,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>normalise-counts.R</resource>
 		</tool>		
 		<tool runtime="R-3.0">
 			<resource>samtools-index.R</resource>
