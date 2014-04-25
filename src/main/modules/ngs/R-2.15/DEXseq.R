@@ -10,14 +10,8 @@
 # PARAMETER pvalue: "Threshold for adjusted p-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (Threshold for BH adjusted p-values. If a gene has at least one exon below this p-value, all its exons will be included in the result list.)
 # PARAMETER OPTIONAL dispersion: "Common dispersion" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.1 (If dispersions can not be estimated, this common dispersion value is used for all exons. In this case no graphical output is generated.)
 
-
-# JTT 18.7.2013
-
-####
-####setwd("C:/Users/Jarno Tuimala/Desktop/DEXSeq")
-####pvalue<-0.05
-####dispersion<-0.1
-####
+# 18.07.2013 JTT, Created
+# 25.04.2014 MK, Modified for R-3.0
 
 # Loads the library 
 library(DEXSeq)
@@ -35,9 +29,6 @@ if(any(as.vector(table(phenodata$group))<2)) {
 }
 
 # Path to the gff file
-####
-####gtf<-"C:/Users/Jarno Tuimala/Desktop/DEXSeq/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf"
-####
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
 
 # Reads the data
@@ -107,25 +98,27 @@ if(nrow(res)>0) {
    dev.off()
 }
 
-plotDispEsts = function( cds, ymin, linecol="#ff000080",
-  xlab = "mean of normalized counts", ylab = "dispersion",
-  log = "xy", cex = 0.45, ... )
-{
-  px = rowMeans( counts( cds, normalized=TRUE ) )
-  sel = (px>0)
-  px = px[sel]
-
-  py = fData(cds)$dispBeforeSharing[sel]
-  if(missing(ymin))
-      ymin = 10^floor(log10(min(py[py>0], na.rm=TRUE))-0.1)
-
-  plot(px, pmax(py, ymin), xlab=xlab, ylab=ylab,
-    log=log, pch=ifelse(py<ymin, 6, 16), cex=cex, ... )
-  xg = 10^seq( -.5, 5, length.out=100 )
-  fun = function(x) { cds@dispFitCoefs[1] + cds@dispFitCoefs[2] / x }
-  lines( xg, fun(xg), col=linecol, lwd=4)
-}
+#plotDispEsts = function( cds, ymin, linecol="#ff000080",
+#  xlab = "mean of normalized counts", ylab = "dispersion",
+#  log = "xy", cex = 0.45, ... )
+#{
+#  px = rowMeans( counts( cds, normalized=TRUE ) )
+#  sel = (px>0)
+#  px = px[sel]
+#
+#  py = fData(cds)$dispBeforeSharing[sel]
+#  if(missing(ymin))
+#      ymin = 10^floor(log10(min(py[py>0], na.rm=TRUE))-0.1)
+#
+#  plot(px, pmax(py, ymin), xlab=xlab, ylab=ylab,
+#    log=log, pch=ifelse(py<ymin, 6, 16), cex=cex, ... )
+#  xg = 10^seq( -.5, 5, length.out=100 )
+#  fun = function(x) { cds@dispFitCoefs[1] + cds@dispFitCoefs[2] / x }
+#  lines( xg, fun(xg), col=linecol, lwd=4)
+#}
 
 pdf("dexseq-dispersion-plot.pdf", width=297/25.4, height=210/25.4)
-plotDispEsts(ecs)
+#plotDispEsts(ecs)
+plotDispEsts(ecs, main="Dispersion plot", cex=0.2)
+legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()
