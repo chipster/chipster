@@ -1249,6 +1249,13 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   install_bundle "Drosophila_melanogaster.BDGP5"
 fi
 
+# 2.11.1
+compare_to_current_and_latest "2.11.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  update_bundles
+  install_bundle "Schizosaccharomyces_pombe.ASM294v2"
+fi
+
 # Check backup dir
 SIZE=`du -hs ${BACKUPDIR_PATH} | cut -f1`
 echo ""

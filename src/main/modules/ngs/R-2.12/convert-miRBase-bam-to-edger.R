@@ -1,5 +1,5 @@
 # TOOL convert-miRBase-bam-to-edger.R: "Convert miRBased BAM file to count table" (This tool takes BAM files as an input, calculates the number of times each miRNA is identified and removes the ones for which the count is under the user defined threshold.)
-# INPUT bam_file.bam: "Alignment agains miRBase in BAM format" TYPE GENERIC
+# INPUT bam_file.bam: "Alignment against miRBase in BAM format" TYPE GENERIC
 # OUTPUT miRNA-counts.tsv: "A converted BAM file suitable for edgeR analysis"
 # PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 1000 DEFAULT 10 (Keep miRNAs which have more reads than this.)
 
