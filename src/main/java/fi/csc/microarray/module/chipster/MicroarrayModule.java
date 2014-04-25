@@ -272,7 +272,7 @@ public class MicroarrayModule implements Module {
 		return new VisualisationMethod[] {
 				VisualisationMethods.PHENODATA,
 				VisualisationMethods.ARRAY_LAYOUT,
-//				VisualisationMethods.HEATMAP,
+				VisualisationMethods.HEATMAP,
 				VisualisationMethods.HISTOGRAM,
 				VisualisationMethods.SCATTERPLOT,
 				VisualisationMethods.SCATTERPLOT3D,
