@@ -1,4 +1,4 @@
-# TOOL express.R: "Count reads per transcripts using eXpress" (Counts reads per transcript using the eXpress package. This tool takes as input either paired end or single end reads in fastq files, and transcripts in a multi-fasta file. It aligns the reads to the transcripts using Bowtie2, and you should allow as many multimappings as possible. Note that Bowtie2 can be very slow if many alignments are allowed per read. Both the read and transcript file can be compressed.)
+# TOOL express.R: "Count reads per transcripts using eXpress" (Counts reads per transcripts using the eXpress package. This tool takes as input either paired end or single end reads in fastq files, and transcripts in a multi-fasta file. It aligns the reads to the transcripts using Bowtie2, and you should allow as many multimappings as possible. Note that Bowtie2 can be very slow if many alignments are allowed per read. Both the read and transcript file can be compressed.)
 # INPUT transcripts.fasta: "Fasta file containing transcript sequences" TYPE GENERIC (Fasta file containing transcript sequences.)
 # INPUT reads1.fq: "Read file 1" TYPE GENERIC (Reads in fastq format)
 # INPUT OPTIONAL reads2.fq: "Read file 2 with mates in matching order" TYPE GENERIC (Read file 2 with mates in matching order.)
@@ -9,6 +9,7 @@
 # PARAMETER OPTIONAL fragmentlength: "Mean fragment length" TYPE INTEGER FROM 10 TO 10000 DEFAULT 200 (While the empirical distribution is estimated from paired-end reads on-the-fly, this value paramaterizes the prior distribution. If only single-end reads are available, this prior distribution is also used to determine the effective length.)
 # PARAMETER OPTIONAL fragmentlengthstdev: "Fragment length standard deviation" TYPE INTEGER FROM 5 TO 200 DEFAULT 60 (While the empirical distribution is estimated from paired-end reads on-the-fly, this value paramaterizes the prior distribution. If only single-end reads are available, this prior distribution is also used to determine the effective length.)
 
+# EK 28.4.2014
 
 # check out if the fastq files are compressed and if so unzip them
 source(file.path(chipster.common.path, "zip-utils.R"))
