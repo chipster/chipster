@@ -1,4 +1,4 @@
-# TOOL dea-deseq.R: "Differential expression using DESeq" (Differential expression analysis using the DESeq Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL dea-deseq.R: "Differential expression using DESeq" (Differential expression analysis using the DESeq Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". If using DESeq2 for finding differentially expressed genes between more than two experimental groups, note that output figures sum up information from all pairwise comparisons.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
@@ -27,6 +27,7 @@
 # MK 15.04.2014, added posibility to use DESeq2
 
 # Loads the correct library
+source(file.path(chipster.common.path, "bed-utils.R"))
 if(version == "DESeq") {
 	library(DESeq)
 } else {
@@ -43,7 +44,6 @@ dat2 <- dat[,grep("chip", names(dat))]
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
-number_samples <- length(groups)
 
 # Sanity check: only 2 group comparison is supported
 if (length(unique(groups)) == 1 | (version == "DESeq" && length(unique(groups)) >= 3)) {
@@ -54,7 +54,7 @@ if (length(unique(groups)) == 1 | (version == "DESeq" && length(unique(groups)) 
 exp_factor <- NULL
 if(ad_factor != "EMPTY") {
 	exp_factor <- as.character (phenodata[,pmatch(ad_factor,colnames(phenodata))])
-	design <- data.frame(condition=groups, exp_factor=exp_factor)
+	design <- data.frame(condition=as.factor(groups), exp_factor=exp_factor)
 	rownames(design) <- colnames(dat2)
 }
 
@@ -66,7 +66,7 @@ if(ad_factor == "EMPTY" && version == "DESeq") {
 } else if (ad_factor == "EMPTY" && version == "DESeq2") {
 	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition=groups), design = ~ condition)
 } else if (ad_factor != "EMPTY" && version == "DESeq2") {
-	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=design, design = ~ condition + condition)
+	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=design, design = ~ exp_factor + condition)
 }
 
 # Calculate size factors based on estimated library size, unless it is given in phenodata
@@ -89,11 +89,10 @@ if (normalization == "yes" && is.na(lib_size[1])) {
 #}
 
 # Estimate dispersion values for each gene and replace with fitted values always or only when the fitted value is higher
-# Use fitType to control for parametric or local fit
-if(ad_factor == "EMPTY" && number_samples == 2 && version == "DESeq") {
-	#no biological replicates. 
+# Use fitType to control for parametric or local fit. Method blind can be used when data has no biological replicates. 
+if(ad_factor == "EMPTY" && length(groups) == 2 && version == "DESeq") {
 	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode="fit-only", fitType=dispersion_estimate)
-} else if(ad_factor == "EMPTY" && number_samples > 2 && version == "DESeq") {
+} else if(ad_factor == "EMPTY" && length(groups) > 2 && version == "DESeq") {
 	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method, fitType=dispersion_estimate)
 } else if(ad_factor != "EMPTY" && version == "DESeq") {
 	counts_data <- estimateDispersions(counts_data, method="pooled-CR", sharingMode=fitting_method, fitType=dispersion_estimate, modelFormula = count ~ exp_factor + condition)	
@@ -101,68 +100,84 @@ if(ad_factor == "EMPTY" && number_samples == 2 && version == "DESeq") {
 	counts_data <- estimateDispersions(counts_data, fitType=dispersion_estimate)	
 }
 
+#vector / variable that holds comparison names
+results_name <- NULL
+
 # Calculate statistic for differential expression
-if(version == "DESeq") {
-	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )
+if(version == "DESeq" && (ad_factor == "EMPTY")) {
+	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )[,-1]
+} else if (version == "DESeq" && (ad_factor != "EMPTY")) {
+	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )[,-1]
 
-	if(ad_factor != "EMPTY") {
-		fit0 = fitNbinomGLMs( counts_data, count ~ exp_factor )
-		fit1 = fitNbinomGLMs( counts_data, count ~ exp_factor + condition )
-		glm_pvals = nbinomGLMTest( fit1, fit0 )
+	fit0 = fitNbinomGLMs( counts_data, count ~ exp_factor )
+	fit1 = fitNbinomGLMs( counts_data, count ~ exp_factor + condition )
+	glm_pvals = nbinomGLMTest( fit1, fit0 )
 
-		results_table$pval <- glm_pvals
-		results_table$log2FoldChange <- fit1[, grep("condition", colnames(fit1))]
-		results_table$foldChange <- 2^fit1[, grep("condition", colnames(fit1))]
-
-		#fit0a <- nbinomGLMTest( cds, count ~ genotype )
-		#fit0b <- nbinomGLMTest( cds, count ~ treatment )
-		#fit1 <- nbinomGLMTest( cds, count ~ genotype + treatment )
-		#fit2 <- nbinomGLMTest( cds, count ~ genotype + treatment + genotype:treatment )
-		#See whether treatment has an effect: fit1 vs. fit0a
-		#See whether genotype has an effect: fit1 vs. fit0b
-		#To find interaction: fit2 vs fit1
+	results_table$pval <- glm_pvals
+	results_table$log2FoldChange <- fit1[, grep("condition", colnames(fit1))]
+	results_table$foldChange <- 2^fit1[, grep("condition", colnames(fit1))]
+} else if (version == "DESeq2" && (length(unique(groups)) > 2)) {
+	# If using DESeq >= 1.3, no need to set betaPrior=FALSE
+	test_results <- nbinomWaldTest(counts_data, betaPrior = FALSE)		
+	results_table <- NULL
+	for (i in levels(colData(test_results)$condition)[-(length(levels(colData(test_results)$condition)))]) {
+		for (j in levels(colData(test_results)$condition)[-(1:i)]) {
+			pairwise_results <- as.data.frame(results(test_results, contrast=c("condition",i,j)))
+			pairwise_results$padj <- p.adjust(pairwise_results$pval, method=p.value.adjustment.method)
+			if(is.null(results_table)) results_table <- pairwise_results else  results_table <- cbind(results_table, pairwise_results)
+			results_name <- c(results_name, paste(i,"_vs_", j, sep=""))
+		}
 	}
-	results_table <- results_table[,-1]
-} else {
-	if(length(group_levels) > 2 || length(unique(exp_factor)) > 2) {
-		results_table <- nbinomWaldTest(counts_data, betaPrior = FALSE)		
-	} else {
-		results_table <- nbinomWaldTest(counts_data)		
-	}
-	results_table <- results(results_table)
+	colnames(results_table) <- paste(colnames(results_table), rep(results_name,each=6), sep=".")
+} else if (version == "DESeq2" && length(unique(groups)) == 2 && length(unique(exp_factor)) > 2) {
+	# If using DESeq >= 1.3, no need to set betaPrior=FALSE
+	results_table <- results(nbinomWaldTest(counts_data, betaPrior = FALSE))
+} else if (version == "DESeq2") {
+	results_table <- results(nbinomWaldTest(counts_data))
 }
 
-# Merge with original data table
-output_table <- cbind (dat, results_table)
+# Merge with original data table and keep significant DEGs
+if(length(unique(groups)) == 2) {
+	results_table$padj <- p.adjust(results_table$pval, method=p.value.adjustment.method)
+	significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
+	significant_table <- significant_table[! (is.na(significant_table$padj)), ]
+	significant_table <- significant_table[ order(significant_table$padj), ] 
+} else {
+	min_padj <- apply(results_table[, grep("padj", colnames(results_table))], 1, min)
+	significant_table <- cbind(dat, results_table, min_padj=min_padj)
 
-# Adjust p-values
-output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
+	significant_table <- significant_table[ (significant_table$min_padj <=  p.value.cutoff), ]
+	significant_table <- significant_table[! (is.na(significant_table$min_padj)), ]
+	significant_table <- significant_table[ order(significant_table$min_padj), ] 
+	significant_table <- significant_table[, -grep("min_padj", colnames(significant_table))]
+}
 
-# Keep significant DEGs
-significant_table <- output_table[ (output_table$padj <=  p.value.cutoff),]
-
-# Remove rows with NA adjusted p-values
-significant_table <- significant_table[! (is.na(significant_table$padj)),]
-
-# Order results based on raw p-values
-significant_table <- significant_table[ order(significant_table$pval), ] 
-
-# Output the table
+# Output significant DEGs
 if (dim(significant_table)[1] > 0) {
 	ndat <- ncol(dat)
 	nmax <- ncol(significant_table)
 	write.table(cbind(significant_table[,1:ndat], round(significant_table[, (ndat+1):(nmax-2)], digits=2), format(significant_table[, (nmax-1):nmax], digits=4, scientific=T)), file="de-list-deseq.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
+#Create a template output table for plotting. If having N genes and 3 comparisons, this conversion results in a data matrix that has Nx3 rows 
+output_table <- NULL
+colnames(results_table) <- gsub("\\..*$", "", colnames(results_table))
+for(i in grep("baseMean$", colnames(results_table))) {
+	col_size <- grep("padj", colnames(results_table))[1] - grep("baseMean", colnames(results_table))[1]
+	output_table <- rbind(output_table, cbind(dat, results_table[, (i:(i+col_size))]))
+}
+rownames(output_table) <- make.names(rep(rownames(results_table), length(grep("baseMean$", colnames(results_table)))), unique=T)
+
 # If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
-source(file.path(chipster.common.path, "bed-utils.R"))
 these.colnames <- colnames(dat)
 if("chr" %in% these.colnames) {
 	if (dim(significant_table)[1] > 0) {
-		empty_column <- character(length(significant_table[1]))
-		bed_output <- significant_table [,c("chr","start","end")]
-		bed_output <- cbind(bed_output,empty_column)
-		bed_output <- cbind(bed_output, significant_table[,"log2FoldChange"])
+		bed_output <- output_table[,c("chr","start","end")]
+		if(is.null(results_name)) peak_names <- character(nrow(output_table)) else peak_names <- paste(rep(results_name, each=nrow(results_table)), "_peak", 1:nrow(results_table), sep="")
+		bed_output <- cbind(bed_output, name=peak_names)							#name
+		bed_output <- cbind(bed_output, score=output_table[, "log2FoldChange"])		#score
+		bed_output <- bed_output[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
+
 		bed_output <- sort.bed(bed_output)
 		write.table(bed_output, file="de-list-deseq.bed", sep="\t", row.names=F, col.names=F, quote=F)
 	}
@@ -174,17 +189,13 @@ plotDispEsts(counts_data, main="Dispersion plot", cex=0.2)
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()
 
-# Make histogram of p-values with overlaid significance cutoff and uniform distribution
+# Make histogram of p-values with overlaid significance cutoff and uniform distribution. When more than two groups, min.pvalue is taken over all comparisons for genes
 pdf (file="p-value-plot-deseq.pdf")
-hist(output_table$pval, breaks=100, col="blue",
-		border="slateblue", freq=FALSE,
-		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
-hist(output_table$padj, breaks=100, col="red",
-		border="slateblue", add=TRUE, freq=FALSE)
+hist(output_table$pval, breaks=100, col="blue", border="slateblue", freq=FALSE, main="P-value distribution", xlab="p-value", ylab="proportion (%)")
+hist(output_table$padj, breaks=100, col="red", border="slateblue", add=TRUE, freq=FALSE)
 abline(h=1, lwd=2, lty=2, col="black")
 abline(v=p.value.cutoff, lwd=2, lty=2, col="green")
-legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribution", "significance cutoff"), col=c("blue","red","black","green"),
-		cex=1, pch=15)
+legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribution", "significance cutoff"), col=c("blue","red","black","green"), cex=1, pch=15)
 dev.off()
 
 # Define function for making MA-plot of significant findings
