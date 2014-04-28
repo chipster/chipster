@@ -81,6 +81,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>normalise-counts.R</resource>
 		</tool>		
 		<tool runtime="R-3.0">
 			<resource>samtools-index.R</resource>
@@ -268,7 +271,7 @@
 		<tool runtime="R-2.12">
 			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>dexseq-exoncount.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -282,7 +285,7 @@
 		</tool>
 <!-- 	<tool runtime="R-2.15_bioc-2.11"><resource>edgeR-several_groups_V3.R</resource>
 		</tool>	 -->
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>DEXseq.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
