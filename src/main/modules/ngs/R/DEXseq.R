@@ -119,6 +119,7 @@ if(nrow(res)>0) {
 
 pdf("dexseq-dispersion-plot.pdf", width=297/25.4, height=210/25.4)
 #plotDispEsts(ecs)
-plotDispEsts(ecs, main="Dispersion plot", cex=0.2)
+plotDispEsts(ecs, cex=0.2)
+title(main="Dispersion plot")
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()

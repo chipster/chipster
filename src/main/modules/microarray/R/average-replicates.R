@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT average-replicates.tsv: average-replicates.tsv 
-# OUTPUT META phenodata.tsv: phenodata.tsv 
+# OUTPUT META phenodata-average.tsv: phenodata.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
 # PARAMETER averaging: averaging TYPE [mean: mean, median: median] DEFAULT mean (Averaging using the mean or median.)
 
@@ -72,6 +72,6 @@ for (m in matrices) {
 # write output
 options(scipen=10)
 write.table(dat2, file='average-replicates.tsv', quote=FALSE, sep='\t')
-write.table(phenodata2, file='phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(phenodata2, file='phenodata-average.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 
 # EOF

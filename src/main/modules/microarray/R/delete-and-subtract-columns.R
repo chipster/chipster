@@ -2,7 +2,7 @@
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT deleted.tsv: deleted.tsv
-# OUTPUT META phenodata.tsv: phenodata.tsv 
+# OUTPUT META phenodata-extract.tsv: phenodata.tsv 
 # PARAMETER column1: Delete TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples to be deleted. Chips to be deleted should be coded with 1 in the column.)
 # PARAMETER column2: "Sample Groups" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing sample groups. Effects of deleted chips of one group will be removed from the effects of the other chips of that group. If more than one chip are to be removed from a group, removed chips will be averaged.)
 
@@ -68,4 +68,4 @@ for (m in matrices) {
 
 # Writes out the combined table
 write.table(dat2, file="deleted.tsv", sep="\t", quote=F)
-write.table(phenodata2, file='phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
+write.table(phenodata2, file='phenodata-extract.tsv', quote=FALSE, sep='\t', row.names=FALSE)
