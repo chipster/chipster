@@ -54,7 +54,7 @@ parameters <- paste(strategy, "--mp", mp,"--np", np, "--rdg", rdg.value, "--rfg"
 
 if ( alignment.no>0){
 	if ( alignment.no==6){
-		parameters <- paste(parameters, "--all")
+		parameters <- paste(parameters, "-a")
 	}
 	if ( alignment.no<6){
 		parameters <- paste(parameters, "-k", alignment.no )
