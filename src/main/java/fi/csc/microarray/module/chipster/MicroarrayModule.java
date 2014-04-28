@@ -858,7 +858,7 @@ public class MicroarrayModule implements Module {
 			
 			// require .tsv to have columns for genomic coordinates
 			String line = readFirstLine(data); 
-			if (line.contains("chr") && line.contains("start") && line.contains("end")) { 
+			if (line != null && line.contains("chr") && line.contains("start") && line.contains("end")) { 
 				data.addTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES);
 			}
 			

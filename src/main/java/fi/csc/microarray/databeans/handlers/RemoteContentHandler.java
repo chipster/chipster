@@ -56,7 +56,7 @@ public class RemoteContentHandler implements ContentHandler {
 	}
 	
 	@Override
-	public long getContentLength(ContentLocation location) throws IOException {
+	public Long getContentLength(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		
 		return UrlTransferUtil.getContentLength(location.getUrl());

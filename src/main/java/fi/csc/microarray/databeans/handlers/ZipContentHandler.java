@@ -26,7 +26,7 @@ public class ZipContentHandler implements ContentHandler {
 	private Map<File, ZipFile> zipFileInstances = new HashMap<File, ZipFile>();
 	
 	@Override
-	public long getContentLength(ContentLocation location) throws IOException {
+	public Long getContentLength(ContentLocation location) throws IOException {
 		checkCompatibility(location);
 		ZipFile zipFile = createZipFile(location);
 		ZipEntry zipEntry = zipFile.getEntry(location.getUrl().getRef());

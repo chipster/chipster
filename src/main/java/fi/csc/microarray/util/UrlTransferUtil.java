@@ -152,11 +152,16 @@ public class UrlTransferUtil {
 	}
 
 
-	public static long getContentLength(URL url) throws IOException {
+	public static Long getContentLength(URL url) throws IOException {
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection)url.openConnection();
-			return Long.parseLong(connection.getHeaderField("content-length"));
+			String lengthString = connection.getHeaderField("content-length");
+			if (lengthString != null) {
+				return Long.parseLong(lengthString);
+			} else {
+				return null;
+			}
 		} finally {
 			IOUtils.disconnectIfPossible(connection);
 		}

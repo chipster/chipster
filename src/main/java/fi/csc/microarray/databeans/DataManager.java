@@ -1066,7 +1066,7 @@ public class DataManager {
 		return bean.getSize();
 	}
 	
-	private long getContentLength(ContentLocation location) throws IOException {
+	private Long getContentLength(ContentLocation location) throws IOException {
 		return location.getHandler().getContentLength(location);
 	}
 	

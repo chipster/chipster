@@ -27,7 +27,7 @@ public class LocalFileContentHandler implements ContentHandler {
 		return new BufferedOutputStream(new FileOutputStream(getFile(location)));
 	}
 	
-	public long getContentLength(ContentLocation location) {
+	public Long getContentLength(ContentLocation location) {
 		checkCompatibility(location);
 		return getFile(location).length();
 	}

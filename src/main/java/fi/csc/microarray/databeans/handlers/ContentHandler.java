@@ -12,7 +12,7 @@ public interface ContentHandler {
 	
 	public OutputStream getOutputStream(ContentLocation location) throws IOException;
 	
-	public long getContentLength(ContentLocation location) throws IOException;
+	public Long getContentLength(ContentLocation location) throws IOException;
 	
 	public void markDeletable(ContentLocation location);
 	
