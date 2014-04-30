@@ -207,8 +207,7 @@ plotDE <- function(res)
 # Make MA-plot
 pdf(file="ma-plot-deseq.pdf")
 plotDE(unique(output_table))
-legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"),
-		cex=1, pch=19)
+legend (x="topleft", legend=c("significant","not significant"), col=c("red","black"), cex=1, pch=19)
 abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
 dev.off()
 
