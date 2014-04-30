@@ -40,6 +40,9 @@
 		<tool runtime="R-3.0">
 			<resource>tagcleaner-statistics.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>trimmomatic.R</resource>
+		</tool>
 <!--	<tool runtime="R-2.12">
 			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
@@ -270,6 +273,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>dexseq-exoncount.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>express.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>dea-deseq.R</resource>
