@@ -618,6 +618,11 @@ public class ToolPanel extends JPanel
 	}
 
 	public void updateSuitability() {
+		
+//		1. kokeile toimiiko nykyinen normaalisti
+//		2. lisää tähän batch ja katso toimiiko uusi erinäköinen nappi
+//		3. pistä ajaminen toimimaan
+//		4. kokeile sessiot ja workflowt
 		Suitability suitability = evaluateSuitability();
 		if (suitability.isOk()) {
 			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
@@ -724,7 +729,7 @@ public class ToolPanel extends JPanel
 		
 		// Check suitability of parameters and inputs
 		Suitability suitability = currentOperation.evaluateSuitabilityFor(
-		        application.getSelectionManager().getSelectedDataBeans(), null);
+		        application.getSelectionManager().getSelectedDataBeans());
 		
 		return suitability;
 	}
