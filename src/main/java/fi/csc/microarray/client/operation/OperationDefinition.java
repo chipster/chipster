@@ -51,14 +51,10 @@ public class OperationDefinition implements ExecutionItem {
 	 * operation's suitability to a dataset.
 	 */
 	public static enum Suitability {
-		SUITABLE, SUITABLE_AS_BATCH, IMPOSSIBLE, EMPTY_REQUIRED_PARAMETERS;
+		SUITABLE, IMPOSSIBLE, EMPTY_REQUIRED_PARAMETERS;
 
 		public boolean isOk() {
-			return this == SUITABLE || this == SUITABLE_AS_BATCH;
-		}
-
-		public boolean isOkAsBatch() {
-			return this == SUITABLE_AS_BATCH;
+			return this == SUITABLE;
 		}
 	};
 
@@ -612,5 +608,27 @@ public class OperationDefinition implements ExecutionItem {
 	public boolean isLocal() {
 		return isLocal;
 	}
+	
+	/**
+	 * Checks if the operation defined by this operation definition is safe to run as batch.
+	 * Batch run is tricky for input binding and input sensitive parameter evaluation, so 
+	 * we do strict checks and only allow "simple" operations to be run as batch. This is 
+	 * done to not confuse the user and create surprising effects to workflows, for example.
+	 * 
+	 * @return true if the operation passes checks and is safe to run as batch
+	 */
+	public boolean isBatchable() {
+		
+		// Check that parameters are not sensitive to inputs
+		for (Parameter parameter : parameters) {
+			if (parameter.isInputSensitive()) {
+				return false;
+			}
+		}
+		
+		// Allow only single input operations to be batched
+		return inputs.size() == 1;
+	}
+
 	
 }
