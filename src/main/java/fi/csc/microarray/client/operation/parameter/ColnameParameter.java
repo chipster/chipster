@@ -13,6 +13,7 @@ public class ColnameParameter extends DataSelectionParameter {
 		super(id, displayName, description, initValue);
 	}
 
+	@Override
 	public void setDataBindings(List<DataBinding> bindings) throws MicroarrayException {
 		DataBean data = null;
 		for (DataBinding binding : bindings) {
@@ -22,5 +23,10 @@ public class ColnameParameter extends DataSelectionParameter {
 			}
 		}
 		loadOptionsFromColumnNames(data);
+	}
+	
+	@Override
+	public boolean isInputSensitive() {
+		return true;
 	}
 }
