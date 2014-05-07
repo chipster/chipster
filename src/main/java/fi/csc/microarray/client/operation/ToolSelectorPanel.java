@@ -171,7 +171,7 @@ public class ToolSelectorPanel extends JPanel
 		public void mousePressed(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				if (e.getClickCount() == 2) {
-					toolPanel.runSelectedOperation();
+					toolPanel.executeCurrentOperation(true);
 				}
 			}
 			maybeShowPopup(e);        
