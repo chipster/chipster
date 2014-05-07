@@ -118,7 +118,7 @@ public class IntegratedSelectionManager {
 			ext = "tsv";
 		}
 		
-		DataBean newData = dataManager.createDataBean("user_edited." + ext);
+		DataBean newData = dataManager.createLocalTempDataBean("user_edited." + ext);
 		
 		String header = primarySource.queryFeatures("/header").asString();
 		
