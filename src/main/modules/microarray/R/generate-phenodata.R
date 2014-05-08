@@ -1,7 +1,7 @@
 # TOOL generate-phenodata.R: "Generate phenodata" (If run on a prenormalized file, generates a blank phenodata for it.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT input.tsv: input.tsv 
 # PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
 
 
