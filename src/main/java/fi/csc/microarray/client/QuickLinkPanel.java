@@ -122,11 +122,19 @@ public class QuickLinkPanel extends JPanel {
 			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 		}
 	
-		List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
-		openLinks.add(localSessionLink);
-		openLinks.add(sessionLink);
+		String cloudSessionsString = "*** to continue working on previous sessions. You can also *** from the server.";
+		String localSessionsString = "*** to continue working on previous sessions.";
 		
-		addLinks("*** to continue working on previous sessions. You can also *** from the server.", openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		if (MicroarrayMenuBar.areCloudSessionsEnabled()) {
+			List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+			openLinks.add(localSessionLink);
+			openLinks.add(sessionLink);		
+			addLinks(cloudSessionsString, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		} else {
+			List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+			openLinks.add(localSessionLink);
+			addLinks(localSessionsString, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);	
+		}
 
 		
 		// common links

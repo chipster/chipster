@@ -357,9 +357,11 @@
 		<entry entryKey="enable-contact-support" type="boolean" description="Enable contact support menu item">
 			<value>false</value>
 		</entry>
-
+		
+		<entry entryKey="enable-cloud-sessions" type="boolean" description="Enable cloud sessions">
+			<value>false</value>
+		</entry>
 		
 	</configuration-module>
 	
-
 </configuration>

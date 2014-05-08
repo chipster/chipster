@@ -151,10 +151,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadLocalSessionMenuItem(true));
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
-			fileMenu.add(getLoadSessionMenuItem(true));
-			fileMenu.add(getSaveSessionMenuItem());
-			fileMenu.add(getManageSessionsMenuItem());
-			fileMenu.addSeparator();			
+			if (areCloudSessionsEnabled()) {
+				fileMenu.add(getLoadSessionMenuItem(true));
+				fileMenu.add(getSaveSessionMenuItem());
+				fileMenu.add(getManageSessionsMenuItem());
+				fileMenu.addSeparator();			
+			}
 			fileMenu.add(getMergeSessionMenu());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
@@ -163,12 +165,18 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return fileMenu;
 	}
 
+	public static boolean areCloudSessionsEnabled() {
+		return DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-cloud-sessions");
+	}
+
 	private JMenuItem getMergeSessionMenu() {
 		if (joinSessionMenu == null) {
 			joinSessionMenu = new JMenu();
 			joinSessionMenu.setText("Merge session");
 			joinSessionMenu.add(getLoadLocalSessionMenuItem(false));
-			joinSessionMenu.add(getLoadSessionMenuItem(false));
+			if (areCloudSessionsEnabled()) {
+				joinSessionMenu.add(getLoadSessionMenuItem(false));
+			}
 		}
 		return joinSessionMenu;
 	}
