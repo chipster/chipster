@@ -515,7 +515,7 @@ then
     if [[ $INDEX_TOPHAT2 -eq 1 ]]
     then
        echo Builduing TopHat2 transcriptome index using $genome_gtf
-       $tools_path/tophat2/tophat -G  $tools_path/genomes/gtf/$genome_gtf --transcriptome-index $tools_path/tools/tophat2_indexes/$bowtie2_name $tools_path/bowtie2/indexes/$bowtie2_name
+       $tools_path/tophat2/tophat -G  $tools_path/genomes/gtf/$genome_gtf --transcriptome-index $tools_path/tophat2_indexes/$bowtie2_name $tools_path/bowtie2/indexes/$bowtie2_name
     fi
   fi
 else
