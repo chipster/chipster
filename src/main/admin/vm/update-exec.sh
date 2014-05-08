@@ -1159,6 +1159,15 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.11.2
+compare_to_current_and_latest "2.11.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+  echo "** Updating genome browser annotation index"
+  # remove old droso
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.11.2/contents2.txt
+
+fi
 
 
 
@@ -1247,6 +1256,13 @@ compare_to_current_and_latest "2.9.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then 
   update_bundles
   install_bundle "Drosophila_melanogaster.BDGP5"
+fi
+
+# 2.11.2
+compare_to_current_and_latest "2.11.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  update_bundles
+  install_bundle "Schizosaccharomyces_pombe.ASM294v2"
 fi
 
 # Check backup dir
