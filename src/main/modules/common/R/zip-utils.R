@@ -6,7 +6,7 @@ unzipIfGZipFile <- function(file.name) {
 	# if gzip, unzip it
 	if (isGZipFile(file.name)) {
 		zipfile.name <- paste(file.name, ".gz", sep="")
-		system(paste("mv", file.name, zipfile.name, "; gzip -d", zipfile.name))
+		system(paste("mv", file.name, zipfile.name, "; gzip -df", zipfile.name))
 	}
 }
 
