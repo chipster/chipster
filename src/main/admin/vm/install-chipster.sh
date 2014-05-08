@@ -754,6 +754,12 @@ then
   python3 bundle.py install Drosophila_melanogaster.BDGP5.gb
   python3 bundle.py install Drosophila_melanogaster.BDGP5
 
+  python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2.bowtie
+  python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2.bowtie2
+  python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2.bwa
+  python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2.gb
+  python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2
+
   # ConsensuPathDB
   apt-get -y install python-zsi #sudo
 

@@ -74,6 +74,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		
 		@Override
 		public void run() {
+			// TODO delete the oldest backups
 			logger.info("Creating database backup");
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss.SSS");
 			String fileName = baseBackupDir.getAbsolutePath() + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
