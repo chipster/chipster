@@ -7,8 +7,8 @@
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER species: Genome TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
-# PARAMETER read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The length in nucleotides of the sequence reads. Option 0 envokes the default behaviour in which read length is auto-detected)
 # PARAMETER version: "MACS version" TYPE [1, 2] DEFAULT 1 (Determines if analysis is done using MACS1 or MACS2)
+# PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The length in nucleotides of the sequence reads. Option 0 envokes the default behaviour in which read length is auto-detected)
 # PARAMETER OPTIONAL band.with: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 300 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER OPTIONAL p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction, the cutoff needs to be substantially more conservative than what is usually applied.)
 # PARAMETER OPTIONAL build.model: "Peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the bandwidth.)
@@ -44,7 +44,7 @@ if (species == "rat") {
 	genome.size <- as.character(3.05e+9*0.978*.9)
 }
 
-if (read.length <= 5) {
+if (read.length == 0) {
 	read.length = FALSE
 }
 
@@ -62,7 +62,7 @@ if (build.model == "yes") {
 # Set up the m-fold limits
 mfold.limits <- paste (as.character(m.fold.lower),",",as.character(m.fold.upper), sep="")
 
-# MK 05.05.2014: Instead of commeting code, use version control to store old code that could be useful in
+# MK 05.05.2014: Instead of commeting code, use version control to store old code that could be useful in future
 # See version control for code that could be used if reading the experiment setup from the phenodata file, like is done for 
 # microarray data. The code allows multiple samples per treatment group and will automatically merge all samples into a 
 # single file per treatment group.      
@@ -154,9 +154,11 @@ if (build.model == "yes") {
 						version=FALSE)
 }
 
-pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
-pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
+#For testing purposes
+#pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
+#pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
 
+print(command)
 system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
 if (system.output != 0) {
 	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value.") 
