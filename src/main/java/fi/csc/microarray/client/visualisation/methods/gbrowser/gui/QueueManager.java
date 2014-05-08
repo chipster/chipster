@@ -124,11 +124,9 @@ public class QueueManager {
 		view.redraw();
 	}
 
-	public void poisonAll() {
-		
-		for (DataThread thread : queues.keySet()) {		
-			
-			thread.poison();
+	public void poisonAll() {		
+		for (DataThread thread : queues.keySet()) {					
+			thread.poison();			
 		}
 	}
 
