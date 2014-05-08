@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.1
+LATEST_VERSION=2.11.2
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1159,6 +1159,13 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.11.2
+compare_to_current_and_latest "2.11.2"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+  echo ""
+
+fi
 
 
 
@@ -1249,8 +1256,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   install_bundle "Drosophila_melanogaster.BDGP5"
 fi
 
-# 2.11.1
-compare_to_current_and_latest "2.11.1"
+# 2.11.2
+compare_to_current_and_latest "2.11.2"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   update_bundles
   install_bundle "Schizosaccharomyces_pombe.ASM294v2"
