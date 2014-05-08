@@ -11,6 +11,7 @@ public class InputSelectParameter extends DataSelectionParameter {
 		super(id, displayName, description, initValue);
 	}
 
+	@Override
 	public void setDataBindings(List<DataBinding> bindings) {
 		SelectionOption[] inputs = new SelectionOption[bindings.size()];
 		List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
@@ -22,5 +23,10 @@ public class InputSelectParameter extends DataSelectionParameter {
 			}
 		}
 		setOptions(inputs, defaultOptions);	
+	}
+	
+	@Override
+	public boolean isInputSensitive() {
+		return true;
 	}
 }

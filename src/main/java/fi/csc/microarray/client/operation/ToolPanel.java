@@ -16,7 +16,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -47,6 +49,7 @@ import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -104,6 +107,14 @@ public class ToolPanel extends JPanel
 
 	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	
+	public static enum Runnability {
+		RUNNABLE, RUNNABLE_AS_BATCH, NOT_RUNNABLE;
+
+		public boolean isRunnable() {
+			return this != NOT_RUNNABLE;
+		}		
+	};
+
 	/**
 	 * Creates a new ToolPanel.
 	 * 
@@ -478,27 +489,47 @@ public class ToolPanel extends JPanel
 		if (e.getSource() == parametersButton) {
 			parametersButtonClicked();
 		} else if (e.getSource() == executeButton ) {
-		    executeCurrentOperation();
+		    executeCurrentOperation(false);
 		}
 	}
 
-	private void executeCurrentOperation() {
-		// Check if we can run the operation
-		Suitability suitability = evaluateSuitability();
+	public void executeCurrentOperation(boolean failSilently) {
 		
-		if (!suitability.isOk()) {
-		    application.showDialog("Check parameters", suitability.toString(), "",
-		                           Severity.INFO, true,
-		                           DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+		// Check again if we can run the operation. It might not be possible even if the button
+		// was enabled, because parameter values might have changed.
+		Runnability runnability = evaluateRunnability();
+		if (!runnability.isRunnable()) {
+			if (!failSilently) {
+			    application.showDialog("Check parameters", runnability.toString(), "",
+                        Severity.INFO, true,
+                        DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+			}
 		    return;
 		}
 		
-		// Run it	    
+		// Everything is now ok, so proceed to actually run it (or them)	    
 		try {
-			// we MUST clone the operation, or otherwise results share the same
-			// operation as long as it is executed and parameter panel is not closed
-			Operation clonedOperation = new Operation(currentOperation);
-			application.executeOperation(clonedOperation);
+			
+			// When running, we must clone the operation, or otherwise results share the same
+			// operation as long as it is executed and parameter panel is not closed.
+			
+			if (runnability == Runnability.RUNNABLE_AS_BATCH) {
+				
+				// Do batch of runs
+				List<DataBean> datas = application.getSelectionManager().getSelectedDataBeans();
+				for (DataBean data : datas) {
+					Operation clonedOperation = new Operation(currentOperation);
+					clonedOperation.bindInputs(new DataBean[] { data });
+					application.executeOperation(clonedOperation);
+				}
+			
+			} else {
+				
+				// Do normal run
+				Operation clonedOperation = new Operation(currentOperation);
+				application.executeOperation(clonedOperation);
+			}
+			
 		} catch (MicroarrayException me) {
 			throw new RuntimeException(me);
 		}
@@ -618,16 +649,23 @@ public class ToolPanel extends JPanel
 	}
 
 	public void updateSuitability() {
-		Suitability suitability = evaluateSuitability();
-		if (suitability.isOk()) {
+		
+		Runnability runnability = evaluateRunnability();
+		if (runnability == Runnability.RUNNABLE) {
 			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+			executeButton.setText("<html><b>Run</b></html>");
+			executeButton.setEnabled(true);
+		} else if (runnability == Runnability.RUNNABLE_AS_BATCH) {
+			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+			executeButton.setText("<html><b>Run all</b></html>");
 			executeButton.setEnabled(true);
 		} else {
 			suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
+			executeButton.setText("<html><b>Run</b></html>");
 			executeButton.setEnabled(false);
 		}
 
-		suitabilityLabel.setToolTipText(" " + suitability.toString());
+		suitabilityLabel.setToolTipText(" " + runnability.toString());
 	}
 
 	private void clearOperationSelection() {
@@ -715,26 +753,36 @@ public class ToolPanel extends JPanel
 	
 	/**
 	 * Reevaluate the suitability of parameter values
-	 * and inputs.
+	 * and inputs. Returns runnability of selected inputs.
 	 */
-	private Suitability evaluateSuitability() {
+	private Runnability evaluateRunnability() {
+		
 		if (currentOperation == null) {
-			return Suitability.IMPOSSIBLE;
+			return Runnability.NOT_RUNNABLE;
 		}
 		
 		// Check suitability of parameters and inputs
-		Suitability suitability = currentOperation.evaluateSuitabilityFor(
-		        application.getSelectionManager().getSelectedDataBeans(), null);
+		List<DataBean> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
+		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas);
 		
-		return suitability;
+		if (suitability.isOk()) {
+			// Is runnable
+			return Runnability.RUNNABLE;
+		} else if (currentOperation.getDefinition().isBatchable() && selectedDatas.size() > 1) {
+			// Check if it is batch runnable (run separately for each individual input)
+			List<DataBean> datas = selectedDatas;
+			
+			for (DataBean data : datas) {
+				if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data })).isOk()) {
+					// Does not work with this input, so cannot run as batch
+					return Runnability.NOT_RUNNABLE;			
+				}
+			}
+			return Runnability.RUNNABLE_AS_BATCH;
+		} else {
+			return Runnability.NOT_RUNNABLE;			
+		}		
 	}
-
-	public void runSelectedOperation() {
-		if (evaluateSuitability().isOk()) {
-			this.executeCurrentOperation();
-		}
-	}
-
 	
 	private void clearSearchField() {
 		searchField.setText("");

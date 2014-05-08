@@ -120,18 +120,14 @@ public class Operation implements ExecutionItem {
 	 * @throws MicroarrayException 
 	 */
 	public void bindInputs(DataBean[] beans) throws MicroarrayException {
-		this.bindings = definition.bindInputs(Arrays.asList(beans));
+		this.bindings = definition.bindInputs(Arrays.asList(beans)).bindings;
 		if (bindings == null) {
 			bindings = new LinkedList<DataBinding>();
 		}
 		
 		// update bindings to parameters
 		for (Parameter parameter : parameters) {
-			if (bindings == null) {
-				parameter.setDataBindings(new LinkedList<DataBinding>());
-			} else {
-				parameter.setDataBindings(this.bindings);
-			}
+			parameter.setDataBindings(this.bindings);
 		}
 	}
 
@@ -215,17 +211,19 @@ public class Operation implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
-	        Suitability currentSuitability) {
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
 	    
-	    // Check parameter suitability
-	    Suitability suitability = 
-	        OperationDefinition.parameterSuitability(getParameters());
-        
-	    // Check suitability that can be checked in definition
-	    suitability = definition.evaluateSuitabilityFor(data, suitability);
+	    // Check parameters and inputs
+	    Suitability parameterSuitability = 
+	        OperationDefinition.evaluateParameterSuitability(getParameters());
+	    Suitability inputSuitability = definition.evaluateSuitabilityFor(data);
 	    
-		return suitability;
+	    // Return ok suitability only when both are ok
+	    if (inputSuitability.isOk()) {
+	    	return parameterSuitability;
+	    }  else {
+	    	return inputSuitability;
+	    }
 	}
 
 

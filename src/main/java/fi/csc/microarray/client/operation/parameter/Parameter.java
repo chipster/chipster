@@ -45,10 +45,22 @@ public abstract class Parameter implements Cloneable {
 		return clones;
 	}
 	
+	/**
+	 * Sets currently bound input datasets, so that parameter can adapt to them (for example, populate drop down box).
+	 * Most parameters do not care about inputs. See also {@link #isInputSensitive()}.
+	 * 
+	 * @param bindings currently bound inputs
+	 */
 	public void setDataBindings(List<DataBinding> bindings) throws MicroarrayException {
-		// empty implementation, bindings are not usually needed
+		// empty implementation, overridden on parameter classes that need to know inputs
 	}
 	
+	/**
+	 * @return true if changes behavior depending on inputs
+	 */
+	public boolean isInputSensitive() {
+		return false;
+	}
 
 	// FIXME implementation could be made nicer with Class<? extends Parameter>, see VisualisationMethod.getVisualiser
 	public static Parameter createInstance(Name name, ParameterType type, Name[] names,
