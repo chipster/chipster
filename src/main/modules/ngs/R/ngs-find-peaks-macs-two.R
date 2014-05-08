@@ -152,10 +152,6 @@ if (build.model == "yes") {
 pypath <- ""
 
 system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
-
-system("cp . /tmp/matti/.")
-save.image("/tmp/matti/xxx.Rdata")
-
 if (system.output != 0) {
 	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value.") 
 }

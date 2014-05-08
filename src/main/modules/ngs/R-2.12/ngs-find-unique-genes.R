@@ -2,6 +2,7 @@
 # INPUT ensembl-list.tsv: "Table with ENSEMBL identifiers" TYPE GENERIC 
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
 # PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat"] DEFAULT Human (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse_mm9: "Mouse (mm9\)", Mouse_mm10: "Mouse (mm10\)", Rat_rn4: "Rat (rn4\)", Rat_rn5: "Rat (rn5\)", Zebraﬁsh_Zv8: "Zebraﬁsh (Zv8\)", Zebraﬁsh_Zv9: "Zebraﬁsh (Zv9\)"] DEFAULT EMPTY (The genome to use for fetching annotations.)
 
 # MG, 13.7.2011                                       
 # EK, 17.5.2012 fixed parameters
@@ -16,23 +17,45 @@ library(ChIPpeakAnno)
 library(biomaRt)
 
 # Load the annotation data
-if (species == "Human") {
+if (species == "Human_hg18") {
+	data(TSS.human.NCBI36)
+	annotations <- TSS.human.NCBI36
+	ensembl_dataset <- "hsapiens_gene_ensembl"
+}
+if (species == "Human_hg19") {
 	data(TSS.human.GRCh37)
 	annotations <- TSS.human.GRCh37
 	ensembl_dataset <- "hsapiens_gene_ensembl"
-	filter <- "ens_hs_gene"
 }
-if (species == "Mouse") {
+if (species == "Mouse_mm9") {
 	data(TSS.mouse.NCBIM37)
 	annotations <- TSS.mouse.NCBIM37
 	ensembl_dataset <- "mmusculus_gene_ensembl"
-	filter <- "ens_mm_gene"
 }
-if (species == "Rat") {
+if (species == "Mouse_mm10") {
+	data(TSS.mouse.GRCm38)
+	annotations <- TSS.mouse.GRCm38
+	ensembl_dataset <- "mmusculus_gene_ensembl"
+}
+if (species == "Rat_rn4") {
 	data(TSS.rat.RGSC3.4)
 	annotations <- TSS.rat.RGSC3.4
 	ensembl_dataset <- "rnorvegicus_gene_ensembl"
-	filter <- "ens_rn_gene"
+}
+if (species == "Rat_rn5") {
+	data(TSS.rat.Rnor_5.0)
+	annotations <- TSS.rat.Rnor_5.0
+	ensembl_dataset <- "rnorvegicus_gene_ensembl"
+}
+if (species == "Zebraﬁsh_Zv8") {
+	data(TSS.zebraﬁsh.Zv8)
+	annotations <- TSS.zebraﬁsh.Zv8
+	ensembl_dataset <- "drerio_gene_ensembl"
+}
+if (species == "Zebraﬁsh_Zv9") {
+	data(TSS.zebraﬁsh.Zv9)
+	annotations <- TSS.zebraﬁsh.Zv9
+	ensembl_dataset <- "drerio_gene_ensembl"
 }
 
 # Read in data and extract the identifiers
@@ -48,7 +71,6 @@ if("ensembl_id" %in% colnames(ensembl_list)) {
 } else {
 	ensembl_id_list <- rownames(ensembl_list)
 }
-print(ensembl_id_list[1:10])
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
