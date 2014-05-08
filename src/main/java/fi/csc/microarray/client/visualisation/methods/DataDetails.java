@@ -265,18 +265,12 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 	@Override
 	public JComponent getVisualisation(List<DataBean> datas) throws Exception {
+		
+		// this is not in EDT, do only minimal stuff to avoid problems if something else modifies databeans at the same time
 		this.datas = datas;
 
-		panel = getPanelBase("gapy 20");
-					
-		panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
-		panel.add(createVisualisations(), "aligny top");
-		
-		panel.addMouseListener(this);
-		
-		scroller = new JScrollPane(panel);
-		scroller.setBorder(null);
-		updateFocusTraversal(scroller);
+		panel = getPanelBase("gapy 20");						
+		scroller = new JScrollPane(panel);			
 
 		return scroller;
 	}
@@ -554,6 +548,15 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	
 	@Override
 	public void visualisationShown() {
+		
+		// this is EDT, now it's safe to access databeans
+		panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
+		panel.add(createVisualisations(), "aligny top");
+		
+		panel.addMouseListener(this);
+		scroller.setBorder(null);
+		updateFocusTraversal(scroller);
+		
 		if (getFrame().getVariables() != null) {
 			for (Variable variable : getFrame().getVariables()) {
 				//These are set by rename menu command
