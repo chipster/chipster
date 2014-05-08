@@ -8,10 +8,10 @@
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER OPTIONAL ug: "Estimate expression of known isoforms, don't assemble novel ones" TYPE [yes, no] DEFAULT no (Reference annotation (a GFF/GTF file\) is used to estimate isoform expression. Program will not assemble novel transcripts, and the it will ignore alignments not structurally compatible with any reference transcript. You can supply your own GTF file or use one of the provided annotations.)
 # PARAMETER OPTIONAL lg: "Do reference annotation based transcript assembly" TYPE [yes, no] DEFAULT no (Cufflinks will use the supplied reference annotation (a GFF/GTF file\) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled. You can supply your own GTF file or use one of the provided annotations.)
-# PARAMETER OPTIONAL internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
+# PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cufflinks can detect sequence-specific bias and correct for it in abundance estimation.)
-# PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
+# PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", mm10.fa: "Mouse genome (mm10\)", rn4.fa: "Rat genome (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel.fa: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (Genome used for bias correction.)
 
 # AMS 21.11.2012
 # AMS 2.07.2013 Added chr1/1 option
@@ -59,6 +59,9 @@ if (file.exists("annotation.gtf")){
 			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
 		}
 	}
+	if (internalgtf =="Schizosaccharomyces_pombe.ASM294v2.22"){
+		annotation.file <- "Schizosaccharomyces_pombe.ASM294v2.22.gtf"
+	}
 	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 }
 if (lg == "yes"){
@@ -72,22 +75,10 @@ if (mmread == "yes") {
 	cufflinks.options <- paste(cufflinks.options, "-u")
 }
 if (bias == "yes") {
-	if (genome == "hg19"){
-		genomefile <- "hg19.fa"
-	}
-	if (genome == "mm9"){
-		genomefile <- "mm9.fa"
-	}
-	if (genome == "mm10"){
-		genomefile <- "mm10.fa"
-	}
-	if (genome == "rn4"){
-		genomefile <- "rn4.fa"
-	}
 	if (chr == "chr1"){
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genomefile))
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genome))
 	}else{
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genome))
 	}
 	cufflinks.options <- paste(cufflinks.options, "-b", genomefile)
 }
