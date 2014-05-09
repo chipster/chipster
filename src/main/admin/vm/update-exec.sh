@@ -1163,7 +1163,9 @@ fi
 compare_to_current_and_latest "2.11.2"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
-  echo ""
+  echo "** Updating genome browser annotation index"
+  # remove old droso
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.11.2/contents2.txt
 
 fi
 
