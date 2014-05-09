@@ -69,6 +69,13 @@ public abstract class FileServerListener {
 		}
 	}
 	
+	public static class AfterStoreSessionReply extends StoreSessionEvent {
+
+		public AfterStoreSessionReply(String username, String sessionName, String uuid, List<String> fileIds, MessagingEndpoint endpoint) {
+			super(username, sessionName, uuid, fileIds, endpoint);
+		}
+	}
+	
 	public static class BeforeRemoveSession extends Event {
 
 		public BeforeRemoveSession(String uuid, String username, MessagingEndpoint endpoint) {

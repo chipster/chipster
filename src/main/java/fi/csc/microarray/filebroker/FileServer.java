@@ -532,12 +532,11 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		String username = requestMessage.getUsername();
 		String name = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_NAME);		
 		String sessionId = AuthorisedUrlRepository.stripCompressionSuffix(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID));
+		List<String> fileIds = Arrays.asList(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t"));
 		
 		ChipsterMessage reply; 
 		try {
-			
-			List<String> fileIds = Arrays.asList(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_FILE_ID_LIST).split("\t"));
-			
+						
 			dispatch(new FileServerListener.BeforeStoreSession(username, name, sessionId, fileIds, endpoint));			
 			storeSession(username, name, sessionId, fileIds);			
 			dispatch(new FileServerListener.AfterStoreSession(username, name, sessionId, fileIds, endpoint));
@@ -550,6 +549,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}
 		
 		endpoint.replyToMessage(requestMessage, reply);
+		
+		dispatch(new FileServerListener.AfterStoreSessionReply(username, name, sessionId, fileIds, endpoint));
 	}
 
 	private void storeSession(String username, String name, String sessionId, List<String> fileIds) throws SQLException {

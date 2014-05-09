@@ -151,6 +151,22 @@ public class ExampleSessionUpdater extends FileServerListener {
 		DbFile dbSessionFile = metadataServer.fetchFile(dataId);
 		return Timestamp.valueOf(dbSessionFile.getCreated());
 	}
+	
+	/**
+	 * Run method exportServerSession() in a background thread 
+	 * 
+	 * @param sessionUuid
+	 * @param basename
+	 */
+	public void exportServerSessionInBackground(final String sessionUuid, final String basename) {
+	     Runnable r = new Runnable() {
+	         public void run() {
+	             exportServerSession(sessionUuid, basename);
+	         }
+	     };
+
+	     new Thread(r).start();
+	}
 
 	/**
 	 * Export server session to zip session. Possible existing files are overwritten.
@@ -292,10 +308,6 @@ public class ExampleSessionUpdater extends FileServerListener {
 	 * - if a new server session is stored, export it to zip session
 	 * - if a server session is removed, remove also the zip session
 	 * 
-	 * Client will show an error message if this takes longer than a few seconds, because the
-	 * session saving is just a database write for normal users  and client has very short 
-	 * timeout for it.
-	 * 
 	 * (non-Javadoc)
 	 * @see fi.csc.microarray.filebroker.FileServerListener#listen(fi.csc.microarray.filebroker.FileServerListener.Event)
 	 */
@@ -305,12 +317,14 @@ public class ExampleSessionUpdater extends FileServerListener {
 		//don't care about events originated in file broker (for example when we import a zip file, don't export it again here)
 		if (!(e.getEndpoint() instanceof DirectMessagingEndpoint)) {
 			
-			if (e instanceof BeforeStoreSession) {
-				BeforeStoreSession event = (BeforeStoreSession) e;
+			// do this after reply is send to avoid client time out
+			// consequently, client won't know if this fails
+			if (e instanceof AfterStoreSessionReply) {
+				AfterStoreSessionReply event = (AfterStoreSessionReply) e;
 
 				if (DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(event.getUsername())) {
 					logger.info("example session " + event.getSessionName() + " is being saved, exporting it also as a zip file");
-					exportServerSession(event.getUuid(), event.getSessionName());
+				    exportServerSessionInBackground(event.getUuid(), event.getSessionName());
 				}			
 			}
 
