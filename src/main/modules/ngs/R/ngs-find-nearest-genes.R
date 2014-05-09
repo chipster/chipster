@@ -67,11 +67,11 @@ if (species == "Zebraﬁsh_Zv9") {
 }
 
 # Read in data from BED or tsv file and convert to BED format
-if(length(grep("column", chr_column)) == 1 && length(grep("column", start_column)) == 1 && length(grep("column", end_column)) == 1) {
+if(length(grep("^column\\d+$", chr_column)) == 1 && length(grep("^column\\d+$", start_column)) == 1 && length(grep("^column\\d+$", end_column)) == 1) {
 	results_file <- read.table (file="regions-list.tsv", sep="\t", header=F)
-	chr_column <- as.numeric(gsub("column", "", chr_column)) + 1
-	start_column <- as.numeric(gsub("column", "", start_column)) + 1
-	end_column <- as.numeric(gsub("column", "", end_column)) + 1
+	chr_column <- as.numeric(gsub("^column", "", chr_column)) + 1
+	start_column <- as.numeric(gsub("^column", "", start_column)) + 1
+	end_column <- as.numeric(gsub("^column", "", end_column)) + 1
 } else {
 	results_file <- read.table (file="regions-list.tsv", sep="\t", header=T)	
 	chr_column <- grep(paste("^", chr_column, "$", sep=""), colnames(results_file))

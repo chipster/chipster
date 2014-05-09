@@ -2,6 +2,8 @@
 # INPUT gene-list.tsv: gene-list.tsv TYPE GENERIC 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 
+# PARAMETER genome: "Genome" TYPE [org.Hs.eg.db: "Human", org.Mm.eg.db: "Mouse", org.Rn.eg.db: "Rat", org.Ag.eg.db: "Arabidopsis", org.Dm.eg.db: "Fly"] DEFAULT Human (Reference organism.)
+# PARAMETER column: "Identifier column" TYPE COLUMN_SEL DEFAULT entrezgene (Column containing gene identifiers. Identifiers should either be Entrez or EnsEMBL identifiers.)
 # PARAMETER ontology: ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
 # PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
@@ -10,27 +12,37 @@
 # PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # pathways-ngs-hyperg-go.R
-# MG 2010-12-02
+# 12.02.2010 MG, Created
+# 09.05.2014 MK, Added Mouse and Rat. Added possibility to annotate EnsEMBL ids as well 
 
 # load packages
-library(org.Hs.eg.db)
+library(genome, character.only=T)
+annotpkg <- gsub(".db", "", genome)
 library(GOstats)
 library(R2HTML)
-
 
 # read input
 dat <- read.table('gene-list.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
 # convert list of reference genes from Ensembl to Entrez IDs
-ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
+#ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
+lib <- paste(annotpkg, "ENSEMBL2EG", sep="")
+ensembl.to.entrez <- as.list(get(lib))
 reference.genes <- unique(unlist(ensembl.to.entrez))
+ens_identifiers <- names(unlist(ensembl.to.entrez))
 
-# check that we have something (i.e. that input file was in fact Ensembl IDs)
-if (length(reference.genes)==0)
-	stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Convert called aCGH data from probes to genes.')
+#See if column is the first "empty" element, indicating that the user wish to use row.names
+if(length(column) == 0 || column == " " || column == "") {
+	selected.genes <- row.names(dat)
+} else {
+	column <- grep(paste("^", column, "$", sep=""), colnames(dat))
+	selected.genes <- as.character(dat[,column])
+}
 
-# extract the list of frequently aberrated genes
-selected.genes <- as.character (dat$entrezgene)
+#check do IDs match more EnsEMBL or Entrez genes
+if(length(intersect(selected.genes, reference.genes)) < length(intersect(selected.genes, ens_identifiers))) {
+	selected.genes <- unique(unlist(ensembl.to.entrez[selected.genes]))
+}
 
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {
@@ -45,7 +57,7 @@ if (conditional.testing == 'no') {
 output <- data.frame(total=integer(0), expected=numeric(0), observed=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 
 if (ontology == 'biological_process' || ontology == 'all') {
-	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=genome, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
 	go <- hyperGTest(params)
 	go.table <- summary(go, pvalue=2)
 	if (nrow(go.table)>0) {
@@ -64,7 +76,7 @@ if (ontology == 'biological_process' || ontology == 'all') {
 }
 
 if (ontology == 'molecular_function' || ontology == 'all') {
-	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='MF', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=genome, ontology='MF', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
 	go <- hyperGTest(params)
 	go.table <- summary(go, pvalue=2)
 	if (nrow(go.table)>0) {
@@ -80,10 +92,10 @@ if (ontology == 'molecular_function' || ontology == 'all') {
 			HTML(go.table, file='hypergeo-go.html', append=TRUE, Border=0, innerBorder=1)
 		}
 	}
-}
+}   
 
 if (ontology == 'cellular_component' || ontology == 'all') {
-	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='CC', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=genome, ontology='CC', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
 	go <- hyperGTest(params)
 	go.table <- summary(go, pvalue=2)
 	if (nrow(go.table)>0) {

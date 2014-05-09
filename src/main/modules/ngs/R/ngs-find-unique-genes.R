@@ -1,12 +1,13 @@
 # TOOL ngs-find-unique-genes.R: "Find unique and annotated genes" (This tool takes a list of ENSEMBL gene identifiers, removes duplicates and fetches annotation information. The output file is compatible with downstream tools used for example for pathway analysis.)
 # INPUT ensembl-list.tsv: "Table with ENSEMBL identifiers" TYPE GENERIC 
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
-# PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse_mm9: "Mouse (mm9\)", Mouse_mm10: "Mouse (mm10\)", Rat_rn4: "Rat (rn4\)", Rat_rn5: "Rat (rn5\)", Zebraﬁsh_Zv8: "Zebraﬁsh (Zv8\)", Zebraﬁsh_Zv9: "Zebraﬁsh (Zv9\)"] DEFAULT EMPTY (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat", Zebraﬁsh: "Zebraﬁsh"] DEFAULT EMPTY (The genome to use for fetching annotations.)
 
-# MG, 13.7.2011                                       
-# EK, 17.5.2012 fixed parameters
-# EK, 22.5.2012 fixed parameters
+# MG, 13.07.2011                                       
+# EK, 17.05.2012, fixed parameters
+# EK, 22.05.2012, fixed parameters
 # Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
+# MK, 08.05.2012, Added new genomes 
 
 # Set up testing parameters
 # species <- "Human"
@@ -16,44 +17,16 @@ library(ChIPpeakAnno)
 library(biomaRt)
 
 # Load the annotation data
-if (species == "Human_hg18") {
-	data(TSS.human.NCBI36)
-	annotations <- TSS.human.NCBI36
+if (species == "Human") {
 	ensembl_dataset <- "hsapiens_gene_ensembl"
 }
-if (species == "Human_hg19") {
-	data(TSS.human.GRCh37)
-	annotations <- TSS.human.GRCh37
-	ensembl_dataset <- "hsapiens_gene_ensembl"
-}
-if (species == "Mouse_mm9") {
-	data(TSS.mouse.NCBIM37)
-	annotations <- TSS.mouse.NCBIM37
+if (species == "Mouse") {
 	ensembl_dataset <- "mmusculus_gene_ensembl"
 }
-if (species == "Mouse_mm10") {
-	data(TSS.mouse.GRCm38)
-	annotations <- TSS.mouse.GRCm38
-	ensembl_dataset <- "mmusculus_gene_ensembl"
-}
-if (species == "Rat_rn4") {
-	data(TSS.rat.RGSC3.4)
-	annotations <- TSS.rat.RGSC3.4
+if (species == "Rat") {
 	ensembl_dataset <- "rnorvegicus_gene_ensembl"
 }
-if (species == "Rat_rn5") {
-	data(TSS.rat.Rnor_5.0)
-	annotations <- TSS.rat.Rnor_5.0
-	ensembl_dataset <- "rnorvegicus_gene_ensembl"
-}
-if (species == "Zebraﬁsh_Zv8") {
-	data(TSS.zebraﬁsh.Zv8)
-	annotations <- TSS.zebraﬁsh.Zv8
-	ensembl_dataset <- "drerio_gene_ensembl"
-}
-if (species == "Zebraﬁsh_Zv9") {
-	data(TSS.zebraﬁsh.Zv9)
-	annotations <- TSS.zebraﬁsh.Zv9
+if (species == "Zebraﬁsh") {
 	ensembl_dataset <- "drerio_gene_ensembl"
 }
 
