@@ -314,13 +314,13 @@ if(meth=="LPE") {
 	if(pairing!="EMPTY") { stop("CHIPSTER-NOTE: LPE does not support pairing information"); }
 	
 	library(LPE)
-	
+
 	group1 <-dat2[,groups==unique(groups)[1]]
 	group2 <-dat2[,groups==unique(groups)[2]]	
 	g1.x<-baseOlig.error(group1)
 	g2.x<-baseOlig.error(group2)
 	lp<-data.frame(lpe(group1, group2, g1.x, g2.x, probe.set.name=row.names(dat2)))
-	
+
 	if(adj.method=="none" | adj.method=="Holm") {
 		x.location <- grep("^x", names(lp))
 		y.location <- grep("^y", names(lp))
