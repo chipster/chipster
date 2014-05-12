@@ -817,7 +817,7 @@ then
 
   # RSeQC, GPLv3
   cd ${TOOLS_PATH}
-  curl http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  curl -L http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
   ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
   cd RSeQC
   python setup.py install #sudo
