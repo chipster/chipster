@@ -40,7 +40,7 @@
 
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.12.0" />
+	<property name="release-version" value="2.12.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
