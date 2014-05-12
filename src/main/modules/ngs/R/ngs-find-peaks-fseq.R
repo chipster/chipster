@@ -7,18 +7,10 @@
 # PARAMETER feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. In the case of DNase-seq, set this parameter to 0.)
 # PARAMETER extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
 
-######################################################
-#                                                    #
-# MK, 20.3.2012                                      #
-#                                                    #
-# F-seq is a tool to find broad peaks from pre-      #
-# aligned SAM/BAM/ELAND files. The analysis needs to #
-# be done for each file separately. Peaks are        #
-# typically binned into categories representing      #
-# exons (first, last all), introns, TSS, promoters,  #
-# intergenic. Motifs can be searched from them also  #
-#                                                    #
-######################################################
+# MK, 20.3.2012                                      
+# F-seq is a tool to find broad peaks from pre-aligned SAM/BAM/ELAND files. The analysis needs to  #
+# be done for each file separately. Found peaks are typically binned into categories representing  #
+# exons (first, last all), introns, TSS, promoters, intergenic. Motifs can also be searched        #
 
 #Export2sam.pl is a part of samtools and is used to convert ELAND outputs to SAM
 eland_to_sam.binary <- c(file.path(chipster.tools.path, "samtools-0.1.18", "misc", "export2sam.pl"))
@@ -60,7 +52,7 @@ if (extend.reads > 0) {
 
 #Count number of aligned reads from the BED-file
 data <- read.table(file=input.file, sep="\t");
-nread <- ncol(data);
+nread <- nrow(data);
 
 #Output of F-seq is printed to a folder that must exists before F-seq is executed
 dir.create("alignment_fseq")

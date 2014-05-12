@@ -53,7 +53,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	protected FrameType type;
 
-	private Visualisation visualiser;
+	public Visualisation visualiser;
 
 	private JPanel waitPanel;
 
@@ -103,8 +103,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		
 		JComponent componentToReturn = null;
 
-		// Create new visualiser only if needed to keep the settings made in settings panel
 		try {
+			// Create new visualiser only if needed to keep the settings made in settings panel
 			if (this.datas != e.getDatas() || this.method != e.getNewMethod()) {
 				this.datas = e.getDatas();
 				this.method = e.getNewMethod();
@@ -225,12 +225,17 @@ public abstract class VisualisationFrame implements DataChangeListener {
 				// remove all references to visualisation panel
 				viewChangerPanel.remove(component);
 				viewChangerLayout.removeLayoutComponent(component);
-			}
-			
+				 
+				if (component == paramSplit) {
+					// next visualisation will clear this in main window but we have to
+					// clear it manually in disposable detached window
+					paramSplit.removeAll();
+				}
+			}			
 		}
 	}
 
-	private void removeVisualiser() {
+	public void removeVisualiser() {
 		if (visualiser instanceof PropertyChangeListener) {
 			application.removeClientEventListener((PropertyChangeListener) visualiser);
 		}

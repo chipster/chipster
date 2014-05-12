@@ -93,8 +93,16 @@ if(doplot & nrow(res2)>0) {
 if(nrow(res)>0) {
    pdf("dexseq-MAplot.pdf", width=297/25.4, height=210/25.4)
    plot(x=log2(res[,6]), y=res[,7], xlab="mean of normalized counts (log2)", ylab="log2 fold change", type="n")
-   points(x=log2(res[res[,5]>pvalue,6]), y=res[res[,5]>pvalue,7], col="black", pch=16, cex=0.5)
-   points(x=log2(res[res[,5]<=pvalue,6]), y=res[res[,5]<=pvalue,7], col="#CC0000", pch=16, cex=0.5)
+
+   nonsig <- data.frame(x=log2(res[res[,5]>pvalue,6]), y=res[res[,5]>pvalue,7])
+   nonsig <- unique(nonsig)
+   points(x=nonsig$x, y=nonsig$y, col="black", pch=16, cex=0.5)
+
+   sig <- data.frame(x=log2(res[res[,5]<=pvalue,6]), y=res[res[,5]<=pvalue,7])
+   sig <- unique(sig)
+   points(x=sig$x, y=sig$y,, col="#CC0000", pch=16, cex=0.5)
+
+   legend(x="topright", legend=c("significant", "unsignificant"), col=c("#CC0000", "black"), cex=1, pch=16)
    dev.off()
 }
 

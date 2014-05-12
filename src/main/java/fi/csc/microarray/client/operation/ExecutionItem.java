@@ -4,10 +4,8 @@ import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.databeans.DataBean;
 
 /**
- * A common interface for Operations, OperationDefinitions (which eventually
- * produce Operations) and Workflows (which consist of several Operations).
- * For now, this exists only to make things a bit smoother with the
- * operation selection lists.
+ * A common interface for Operations and OperationDefinitions (which eventually
+ * produce Operations).
  * 
  * @author Janne Käki
  *
@@ -23,8 +21,7 @@ public interface ExecutionItem {
 	
 	
 	/**
-	 * @return The category name of this ExecutionItem (either the name of an
-	 * 		   ToolCategory or, for workflows, simply "Workflow".
+	 * @return The category name of this ExecutionItem
 	 */
 	public String getCategoryName();
 	
@@ -43,6 +40,5 @@ public interface ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration,
 	 * 		   depending on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
-	        Suitability currentSuitability);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data);
 }
