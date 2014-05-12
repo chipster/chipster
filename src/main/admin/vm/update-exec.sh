@@ -1058,8 +1058,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing RSeQC"
   cd ${TOOLS_PATH}
-  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
-  ln -s RSeQC-2.3.7 RSeQC
+  curl http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
   cd RSeQC
   sudo python setup.py install
 
