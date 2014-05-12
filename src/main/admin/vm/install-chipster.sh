@@ -623,7 +623,7 @@ then
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/cufflinks
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-2.1.1.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  ln -s cufflinks-2.0.2.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
+  ln -s cufflinks-2.1.1.Linux_x86_64 ${TOOLS_PATH}/cufflinks2
  
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
