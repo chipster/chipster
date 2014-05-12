@@ -99,7 +99,11 @@ if (!is_gtf && genome_available) {
 		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Drosophila_melanogaster.BDGP5.73.gtf"))
 		annotation.command <- paste("-G", annotation.file)
 	}
-   
+	if (genome == "Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel") {
+		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Schizosaccharomyces_pombe.ASM294v2.22.gtf"))
+		annotation.command <- paste("-G", annotation.file)
+	}
+	
    	if (no.novel.juncs == "yes") {
 		command.gtf <- paste(annotation.command, "--no-novel-juncs")
 	} else {

@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.2
+LATEST_VERSION=2.12.0
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1159,8 +1159,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
-# 2.11.2
-compare_to_current_and_latest "2.11.2"
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Updating genome browser annotation index"
@@ -1258,8 +1258,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   install_bundle "Drosophila_melanogaster.BDGP5"
 fi
 
-# 2.11.2
-compare_to_current_and_latest "2.11.2"
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   update_bundles
   install_bundle "Schizosaccharomyces_pombe.ASM294v2"
