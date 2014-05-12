@@ -146,9 +146,9 @@ if (build.model == "yes") {
 }
 
 
-#For testing purposes
-#pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
-#pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
+#For testing purposes. Remove before moving to production
+pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
+pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
 pypath <- ""
 
 system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
