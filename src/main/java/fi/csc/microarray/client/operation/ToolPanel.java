@@ -86,7 +86,8 @@ public class ToolPanel extends JPanel
 	private JPanel operationCardPanel;
 	private LinkedList<ToolSelectorPanel> operationChoicePanels = new LinkedList<ToolSelectorPanel>();
 	private ToolFilterPanel toolFilterPanel;
-	private JTextField searchField;
+	// make sure this is initialized when the tool tip is set in method setSearchFieldToolTipText()
+	private JTextField searchField = new JTextField(18);;
 	private JButton clearSearchButton;
 	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
@@ -192,7 +193,6 @@ public class ToolPanel extends JPanel
 	    // search panel contents
         
         // Text field
-        searchField = new JTextField(18);
         searchField.setMinimumSize(searchField.getPreferredSize());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -846,4 +846,11 @@ public class ToolPanel extends JPanel
 
 	}
 
+	public void focusSearchField() {
+		searchField.requestFocusInWindow();
+	}
+
+	public void setSearchFieldToolTipText(String text) {
+		searchField.setToolTipText(text);
+	}
 }

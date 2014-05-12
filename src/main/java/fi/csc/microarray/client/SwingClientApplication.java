@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -2100,9 +2101,25 @@ public class SwingClientApplication extends ClientApplication {
 
 	private void enableKeyboardShortcuts() {
 		// add application wide keyboard shortcuts
-		
-		// add application wide keyboard shortcuts
 		final HashMap<KeyStroke, Action> shortcutActionMap = new HashMap<KeyStroke, Action>();
+					
+		// find tool
+		
+		KeyStroke findKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+		shortcutActionMap.put(findKeyStroke,	
+				new AbstractAction("FIND_TOOL") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toolPanel.focusSearchField();
+			}
+		});
+		// KeyStroke.toString() creates ugly "ctrl/meta pressed F", make it little bit more like
+		// menu shortcuts
+		String shortcut = findKeyStroke.toString().replace(" pressed ", "-");		
+		toolPanel.setSearchFieldToolTipText("Find tool (" + shortcut + ")");
+		
+		// debug print
+		
 		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK), 
 				new AbstractAction("DEBUG_PRINT_SESSION") {
 			@Override
@@ -2110,6 +2127,8 @@ public class SwingClientApplication extends ClientApplication {
 				showDebugDialog(1);
 			}
 		});
+		
+		// open feedback session
 		
 		shortcutActionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 
 				KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK | 
