@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.1
+LATEST_VERSION=2.12.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -1058,8 +1058,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing RSeQC"
   cd ${TOOLS_PATH}
-  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
-  ln -s RSeQC-2.3.7 RSeQC
+  curl -L http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
   cd RSeQC
   sudo python setup.py install
 
@@ -1159,6 +1159,15 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+  echo "** Updating genome browser annotation index"
+  # remove old droso
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.11.2/contents2.txt
+
+fi
 
 
 
@@ -1250,8 +1259,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   install_bundle "Drosophila_melanogaster.BDGP5"
 fi
 
-# 2.11.1
-compare_to_current_and_latest "2.11.1"
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   update_bundles
   install_bundle "Schizosaccharomyces_pombe.ASM294v2"

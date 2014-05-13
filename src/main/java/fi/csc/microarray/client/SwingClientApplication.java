@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -807,23 +808,66 @@ public class SwingClientApplication extends ClientApplication {
 		return null;
 	}
 
-	public void runWorkflow(URL workflowScript) {
-		runWorkflow(workflowScript, null);
-	}
+	public void runWorkflow(final URL workflowScript, final boolean runForEach) {
+		Thread thread = new Thread(new Runnable() {
 
-	public void runWorkflow(URL workflowScript, final AtEndListener atEndListener) {
-		workflowManager.runScript(workflowScript, atEndListener);
+			@Override
+			public void run() {
+				
+				if (!runForEach) {
+					// Run once
+					workflowManager.runScript(workflowScript, null);
+
+				} else {
+					// Run for every selected data separately
+					
+					// Store current selection
+					List<DataBean> datas = getSelectionManager().getSelectedDataBeans();
+
+					// Select one by one and run workflow
+					for (DataBean data : datas) {
+
+						// Need synchronized latch to wait for each workflow execution
+						final CountDownLatch latch = new CountDownLatch(1);
+						AtEndListener atEndListener = new AtEndListener() {
+							@Override
+							public void atEnd(boolean success) {
+								System.out.println("at end");
+								latch.countDown();
+							}
+						};
+
+						// Run it
+						getSelectionManager().selectSingle(data, this);
+						System.out.println("selected " + getSelectionManager().getSelectedDataBeans().size());
+						workflowManager.runScript(workflowScript, atEndListener);
+						try {
+							latch.await();
+						} catch (InterruptedException e) {
+							// Ignore
+						}
+					}
+
+					// Restore original selection
+					System.out.println("restore");
+					Collection<DataItem> items = new LinkedList<DataItem>();
+					items.addAll(datas);
+					getSelectionManager().selectMultiple(items, this);
+				}
+			}
+		});
+		thread.start();
 	}
 
 
 	@Override
-	public File openWorkflow() {
+	public File openWorkflow(boolean runForEach) {
 
 		try {
 			JFileChooser fileChooser = this.getWorkflowFileChooser();
 			int ret = fileChooser.showOpenDialog(this.getMainFrame());
 			if (ret == JFileChooser.APPROVE_OPTION) {
-				runWorkflow(fileChooser.getSelectedFile().toURI().toURL());
+				runWorkflow(fileChooser.getSelectedFile().toURI().toURL(), runForEach);
 
 				menuBar.updateMenuStatus();
 				return fileChooser.getSelectedFile();

@@ -1,4 +1,4 @@
-# TOOL reseqc.R: "RNA-seq BAM quality metrics with RseQC" (Given an RNA-seq BAM file and gene and exon locations in a BED file, this tool reports several quality metrics such as coverage uniformity, gene and junction saturation, junction annotation and alignment statistics. This tool is based on the RSeQC package.)
+# TOOL reseqc.R: "RNA-seq quality metrics with RseQC" (Given an RNA-seq BAM file and gene and exon locations in a BED file, this tool reports several quality metrics such as coverage uniformity, gene and junction saturation, junction annotation and alignment statistics. This tool is based on the RSeQC package.)
 # INPUT alignment_file: "BAM file" TYPE GENERIC
 # INPUT reference_file: "BED file" TYPE GENERIC
 # OUTPUT OPTIONAL RSeQC.geneBodyCoverage.pdf

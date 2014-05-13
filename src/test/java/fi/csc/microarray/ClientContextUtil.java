@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportItem;
@@ -154,7 +153,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public File openWorkflow() {
+		public File openWorkflow(boolean runForEach) {
 			return null;
 		}
 
@@ -174,12 +173,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void runWorkflow(URL workflowScript) {
-			// do nothing
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript, AtEndListener atEndListener) {
+		public void runWorkflow(URL workflowScript, boolean runForEach) {
 			// do nothing
 		}
 

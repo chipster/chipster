@@ -1,3 +1,8 @@
 #Build Number for ANT. Do not edit!
+<<<<<<< HEAD
 #Mon Apr 14 12:05:54 EEST 2014
 build.number=1435
+=======
+#Mon May 12 16:41:58 EEST 2014
+build.number=1423
+>>>>>>> refs/heads/master

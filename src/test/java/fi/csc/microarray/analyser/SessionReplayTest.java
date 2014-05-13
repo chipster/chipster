@@ -30,7 +30,6 @@ import org.junit.Assert;
 import org.springframework.validation.Errors;
 
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
-import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
@@ -1062,11 +1061,6 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public File openWorkflow() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void removeLink(DataBean source, DataBean target, Link type) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
@@ -1093,16 +1087,6 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		@Override
 		public void runBlockingTask(String taskName, Runnable runnable) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript, AtEndListener atEndListener) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1181,6 +1165,16 @@ public class SessionReplayTest extends MessagingTestBase {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
+		@Override
+		public File openWorkflow(boolean runForEach) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+
+		@Override
+		public void runWorkflow(URL workflowScript, boolean runForEach) {
+			throw new UnsupportedOperationException("not supported by skeleton app");
+		}
+		
 		@Override
 		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
