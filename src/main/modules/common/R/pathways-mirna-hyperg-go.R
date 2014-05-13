@@ -26,7 +26,23 @@ library(R2HTML)
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
 
 # extracts identifiers
-mirna_ids <- tolower(as.character(rownames(dat)))
+if("id" %in% colnames(dat)) {
+	mirna_ids <- as.character(dat$id)
+} else {
+	mirna_ids <- as.character(rownames(dat))
+}
+
+# If convert genomic BAM file has been used, table has a column which name is sequence
+if("sequence" %in% colnames(dat) && (length(grep(dat$sequence[1], mirna_ids[1])) > 0)) {
+	mirna_id_list <- strsplit(as.vector(mirna_ids), "_")
+	mirna_ids <- NULL
+	for(i in 1:length(mirna_id_list)) {
+		#remove last three sections of the id
+		mirna_ids <- c(mirna_ids, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+	}
+}
+
+mirna_ids <- tolower(mirna_ids)
 
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {

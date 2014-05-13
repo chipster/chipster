@@ -1,5 +1,5 @@
 # TOOL pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Given a list of miRNA identifiers, tests for enrichment of KEGG pathways in their predicted gene targets.)
-# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT hyperg_kegg.tsv: hyperg_kegg.tsv 
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
 # PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (Method for adjusting the p-value in order to account for multiple testing)
@@ -10,6 +10,7 @@
 
 # 04.11.2009, MG miRNA hypergeometric test for KEGG
 # 16.12.2009, MG modifed 
+# 13.05.2014, MK removed ngs script and moved microrray scripts to common folder
 
 # force "transcript" mode
 summary.feature <- "transcript"
@@ -18,7 +19,21 @@ summary.feature <- "transcript"
 dat<-read.table("normalized.tsv", sep="\t", header=T)
 
 # Extracts the identifiers
-id<-as.character(rownames(dat))
+if("id" %in% colnames(dat)) {
+	id <- as.character(dat$id)
+} else {
+	id <- as.character(rownames(dat))
+}
+
+# If convert genomic BAM file has been used, table has a column which name is sequence
+if("sequence" %in% colnames(dat) && (length(grep(dat$sequence[1], id[1])) > 0)) {
+	mirna_id_list <- strsplit(as.vector(id), "_")
+	id <- NULL
+	for(i in 1:length(mirna_id_list)) {
+		#remove last three sections of the id
+		id <- c(id, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+	}
+}
 
 # Translate parameter settings for biomaRt queries
 if (species=="human") {
@@ -133,6 +148,7 @@ test <- corna.test.fun(
 
 # fetch significant pathways
 significant.kegg <- test[test$hypergeometric<=p.value.threshold,]
+rownames(significant.kegg) <- paste("KEGG:", rownames(significant.kegg), sep="")
 
 # write results table
 write.table(significant.kegg, file="hyperg_kegg.tsv", sep="\t", quote=F)
