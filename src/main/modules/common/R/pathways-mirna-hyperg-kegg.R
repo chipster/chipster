@@ -8,9 +8,8 @@
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 
-# miRNA hypergeometric test for KEGG
-# MG, 4.11.2009
-# modifed 16.12.2009 by MG
+# 04.11.2009, MG miRNA hypergeometric test for KEGG
+# 16.12.2009, MG modifed 
 
 # force "transcript" mode
 summary.feature <- "transcript"
@@ -25,15 +24,9 @@ id<-as.character(rownames(dat))
 if (species=="human") {
 	dataset <- "hsapiens_gene_ensembl"
 }
-#if (species=="human" & summary.feature=="transcript") {
-#        dataset <- "hsapiens_transcript_ensembl"
-#}
 if (species=="mouse") {
 	dataset <- "mmusculus_gene_ensembl"
 }
-#if (species=="mouse" & summary.feature=="transcript") {
-#        dataset <- "mmusculus_t_ensembl"
-#}
 if (species=="rat") {
 	dataset <- "rnorvegicus_gene_ensembl"
 }

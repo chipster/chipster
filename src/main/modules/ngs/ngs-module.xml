@@ -315,7 +315,7 @@
 		<tool runtime="R-3.0">
 			<resource>convert-bam-to-edger.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>convert-miRBase-bam-to-edger.R</resource>
 		</tool>
 		<!--
@@ -329,17 +329,17 @@
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.0">
 			<resource>dea-deseq.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
 		</tool> 
 		<tool runtime="R-3.0" module="common">
 			<resource>pathways-mirna-hyperg-go.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>pathways-mirna-hyperg-kegg.R</resource>
 		</tool>
 		<tool runtime="R-2.15_bioc-2.11">
 			<resource>miRNA_RNA-seq_integration.R</resource>

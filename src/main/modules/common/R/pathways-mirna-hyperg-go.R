@@ -45,14 +45,24 @@ if (species == 'mouse') {
 	library(targetscan.Mm.eg.db)
 	
 	reference.genes <- unique(names(as.list(targetscan.Mm.egTARGETS)))
-	unique(names(unlist(as.list(targetscan.Mm.egTARGETS))))
+	selected.genes <- NULL
 	for(i in 1:length(mirna_ids)) {
-		a <- try(mget(mirna_ids[i], revmap(targetscan.Mm.egTARGETS)), silent=T)
-		if(class(a) != "try-error") {
-			selected.genes <- c(selected.genes, unlist(a))
+		mirna.fam <- try(mget(as.vector(mirna_ids[i]), revmap(targetscan.Mm.egFAMILY2MIRBASE)), silent=T)
+		if(class(mirna.fam) != "try-error") {
+			mirna.targets <- try(mget(unlist(mirna.fam), revmap(targetscan.Mm.egTARGETS)), silent=T)
+			if(class(mirna.targets) != "try-error") {	
+				selected.genes <- c(selected.genes, unique(unlist(mirna.targets)))
+			}
 		}
 	}
-	selected.genes <- unique(selected.genes)
+
+	#for(i in 1:length(mirna_ids)) {
+	#	a <- try(mget(mirna_ids[i], revmap(targetscan.Mm.egTARGETS)), silent=T)
+	#	if(class(a) != "try-error") {
+	#		selected.genes <- c(selected.genes, unlist(a))
+	#	}
+	#}
+	#selected.genes <- unique(selected.genes)
 
 	if (length (selected.genes) == 0) {
 		stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")

@@ -8,9 +8,8 @@
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 
-# miRNA hypergeometric test for KEGG
-# MG, 4.11.2009
-# modifed 16.12.2009 by MG
+# 04.11.2009, MG miRNA hypergeometric test for KEGG
+# 16.12.2009, MG modifed 
 
 # force "transcript" mode
 summary.feature <- "transcript"
@@ -25,15 +24,9 @@ id<-as.character(rownames(dat))
 if (species=="human") {
 	dataset <- "hsapiens_gene_ensembl"
 }
-#if (species=="human" & summary.feature=="transcript") {
-#        dataset <- "hsapiens_transcript_ensembl"
-#}
 if (species=="mouse") {
 	dataset <- "mmusculus_gene_ensembl"
 }
-#if (species=="mouse" & summary.feature=="transcript") {
-#        dataset <- "mmusculus_t_ensembl"
-#}
 if (species=="rat") {
 	dataset <- "rnorvegicus_gene_ensembl"
 }
@@ -58,7 +51,6 @@ library(CORNA)
 #	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.rattus_norvegicus.zip")
 #}
 
-
 # Download the mapping of miRNA to its targets from locally installed files
 path.mappings <- c(file.path(chipster.tools.path, "miRNA_mappings"))
 if (species=="human") {
@@ -70,7 +62,6 @@ if (species=="mouse") {
 if (species=="rat") {
 	targets <- read.table(file.path(path.mappings, "mirna_mappings_rnorvegious.txt"), sep="\t")
 }
-
 
 # obtain a link from transcript to gene from BiomaRt
 # disabled for now to avoid connection problems to BiomaRt
@@ -93,16 +84,10 @@ if (species=="rat") {
 }
 
 # link microRNAs to genes instead of transcripts
-mir2gene <- corna.map.fun(targets,
-		tran2gene,
-		"gene",
-		"mir")
+mir2gene <- corna.map.fun(targets, tran2gene, "gene", "mir")
 
 # get those genes associated with a list of regulated miRNA:s
-sample.list <- corna.map.fun(mir2gene,
-		id,
-		"mir",
-		"gene")
+sample.list <- corna.map.fun(mir2gene, id, "mir", "gene")
 
 # read pathway information from KEGG
 # disabled for now to avoid connection problems to KEGG

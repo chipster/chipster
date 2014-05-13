@@ -3,8 +3,9 @@
 # OUTPUT miRNA-counts.tsv: "A converted BAM file suitable for edgeR analysis"
 # PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 1000 DEFAULT 10 (Keep miRNAs which have more reads than this.)
 
-# EK 7.7.2011
-# MK 13.05.2013 fix bug in header formats
+# EK 07.07.2011
+# MK 13.05.2013, fix bug in header formats
+# MK 12.05.2014, added check for file size 
 
 # Convert to SAM, grep miRNA name, count, filter on tag number
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
@@ -12,9 +13,13 @@ counts.command <- paste(samtools.binary, "view bam_file.bam | awk '{print $3}' |
 system(counts.command)
 
 input.file <- "counts.tsv"
-dat <- read.table(input.file, header=F, sep="\t", row.names=NULL)
-colnames(dat) <- c("id", "count")
-write.table(data.frame(dat), file="miRNA-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+if(file.info(input.file)$size > 0) {
+	dat <- read.table(input.file, header=F, sep="\t", row.names=NULL)
+	colnames(dat) <- c("id", "count")
+	write.table(data.frame(dat), file="miRNA-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+} else {
+	stop("CHIPSTER-NOTE: Your BAM file has no mirBase targets identified more than the user-given threshold")	
+}
 
 # Add column headers
 #headers <- paste("id\t","count", sep="")
