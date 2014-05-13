@@ -1082,7 +1082,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing EMBOSS"
   # dependency for png images
-  sudo apt-get -y install libgd2-noxpm-dev
+  #sudo apt-get -y install libgd2-noxpm-dev
   # update EMBOSS
   mv -b ${TOOLS_PATH}/EMBOSS-6.5.7 ${BACKUPDIR_PATH}/
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-with-extras-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
