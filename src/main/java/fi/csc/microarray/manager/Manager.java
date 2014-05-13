@@ -6,11 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -32,6 +29,7 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
+import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -68,23 +66,25 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	private class BackupTimerTask extends TimerTask {
 
-		private File baseBackupDir;
+		private BackupRotation backupRotation;
 		
 		public BackupTimerTask(File backupDir) {
-			this.baseBackupDir = backupDir;
+			this.backupRotation = new BackupRotation(backupDir);
 		}
-		
-		
+				
 		@Override
 		public void run() {
-			// TODO delete the oldest backups
 			logger.info("Creating database backup");
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss.SSS");
-			String fileName = baseBackupDir.getAbsolutePath() + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
-			String sql = "SCRIPT TO '" + fileName + ".zip' COMPRESSION ZIP";
+			String fileName = backupRotation.getBackupFile(DateTime.now()).getPath();
+			String sql = "SCRIPT TO '" + fileName + "' COMPRESSION ZIP";
 			jdbcTemplate.execute(sql);
-		}
-		
+			
+			int affectedRows = jdbcTemplate.update(REMOVE_OLD_TEST_JOBS);
+			logger.debug("cleaned up " + affectedRows + " old test jobs from database");
+			
+			int deletedFiles = backupRotation.rotate();
+			logger.debug("cleaned up " + deletedFiles + " old database backup files");
+		}		
 	}
 	
 	
@@ -120,6 +120,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 			"username VARCHAR(200) PRIMARY KEY, " +
 			"ignoreInStatistics BOOLEAN DEFAULT FALSE" + 			
 			");";
+	
+	private static final String REMOVE_OLD_TEST_JOBS = 
+			"DELETE FROM JOBS" +
+			"WHERE starttime < DATEADD('MONTH', -1, CURRENT_DATE()) " + // at least a month old
+			"AND username IN (SELECT username FROM accounts WHERE ignoreinstatistics=TRUE);"; // username is a test account
 	
 	private static final String ADMIN_ROLE = "admin_role";
 	
