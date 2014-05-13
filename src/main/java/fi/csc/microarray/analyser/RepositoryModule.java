@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -17,6 +19,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import fi.csc.microarray.analyser.ToolDescription.InputDescription;
+import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
@@ -362,7 +366,38 @@ public class RepositoryModule {
 		    		logger.warn("loading " + resource + " failed, could not create description", e);
 		    		continue;
 		    	}
-
+		    	
+		    	// Check that filenames are unique. Overwriting input files is a bad idea when the input file is
+		    	// only a symlink to the original file 		
+		    	boolean filenamesOk = true;
+		    	HashSet<String> uniqueNames = new HashSet<>();
+		    	ArrayList<String> allNames = new ArrayList<>();
+		    	
+		    	for (InputDescription input : description.getInputFiles()) {
+		    		allNames.add(input.getFileName());
+		    	}
+		    	
+		    	for (OutputDescription output : description.getOutputFiles()) {
+		    		allNames.add(output.getFileName().getID());
+		    	}
+		    	
+		    	for (String name : allNames) {
+		    		if (name == null) {
+		    			// name is null for file sets
+		    			continue;
+		    		}
+		    		if (uniqueNames.contains(name)) {
+		    			logger.warn("filename " + name + " isn't unique");
+		    			filenamesOk = false;
+		    		} else {
+		    			uniqueNames.add(name);
+		    		}
+		    	}
+		    	
+		    	if (!filenamesOk) {
+		    		logger.warn("not loading " + resource + ": non-unique filename(s)");
+		    		continue;
+		    	}
 		    	
 		    	// Register the tool, override existing
 		    	descriptions.put(description.getID(), description);

@@ -72,10 +72,8 @@ if(normalization.method=="tmm") {
    gene3<-DGEList(gene.data.3)
    mirna3.1<-calcNormFactors(mirna3)
    gene3.1<-calcNormFactors(gene3)
-   mirna3.2 = estimateCommonDisp(mirna3.1, verbose=TRUE)
-   gene3.2 = estimateCommonDisp(gene3.1, verbose=TRUE)
-   mirna.data.3<-mirna3.2$pseudo.counts
-   gene.data.3<-gene3.2$pseudo.counts
+   mirna.data.3<-cpm(mirna3.1, normalized.lib.sizes=TRUE)
+   gene.data.3<-cpm(gene3.1, normalized.lib.sizes=TRUE)
 }
 if(normalization.method=="cpm") {
    library(edgeR)
@@ -83,8 +81,8 @@ if(normalization.method=="cpm") {
    gene3<-DGEList(gene.data.3)
    mirna3.1<-calcNormFactors(mirna3)
    gene3.1<-calcNormFactors(gene3)
-   mirna.data.3<-cpm(mirna3.1, normalized.lib.sizes=TRUE)
-   gene.data.3<-cpm(gene3.1, normalized.lib.sizes=TRUE)
+   mirna.data.3<-cpm(mirna3.1, normalized.lib.sizes=FALSE)
+   gene.data.3<-cpm(gene3.1, normalized.lib.sizes=FALSE)
 }
 
 # Pearson correlation coefficients and the corresponding p-values are calculated for all possible miRNA-mRNA pairs

@@ -49,6 +49,7 @@ public class ChipCountPanel extends JXTaskPane implements ActionListener{
 	}
 	
 	public ChipCountPanel(ImportScreen screen) {
+		ToolsInternalFrame.setUpTaskPane(this);
 		this.setLayout(new GridBagLayout());		
 		this.screen = screen;
 				

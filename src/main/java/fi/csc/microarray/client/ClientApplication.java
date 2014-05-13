@@ -117,15 +117,14 @@ public abstract class ClientApplication {
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
-	public abstract File saveWorkflow();
-	public abstract File openWorkflow();
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
 	public abstract void loadSessionFrom(File file);
 	public abstract void restoreSessionFrom(File file);
 	public abstract void saveSession();
-	public abstract void runWorkflow(URL workflowScript);
-	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
+	public abstract File saveWorkflow();
+	public abstract File openWorkflow(boolean runForEach);
+	public abstract void runWorkflow(URL workflowScript, boolean runForEach);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();

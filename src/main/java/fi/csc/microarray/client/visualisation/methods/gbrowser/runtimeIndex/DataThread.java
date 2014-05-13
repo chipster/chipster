@@ -224,5 +224,7 @@ public abstract class DataThread {
 
 	public void poison() {
 		this.poison = true;
+		// wake up thread
+		dataRequestQueue.add(new DataRequest(new Region(), null, null));
 	}
 }

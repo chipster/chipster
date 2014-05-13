@@ -1,12 +1,13 @@
 # TOOL ngs-find-unique-genes.R: "Find unique and annotated genes" (This tool takes a list of ENSEMBL gene identifiers, removes duplicates and fetches annotation information. The output file is compatible with downstream tools used for example for pathway analysis.)
 # INPUT ensembl-list.tsv: "Table with ENSEMBL identifiers" TYPE GENERIC 
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
-# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat"] DEFAULT Human (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat", Zebraﬁsh: "Zebraﬁsh"] DEFAULT EMPTY (The genome to use for fetching annotations.)
 
-# MG, 13.7.2011                                       
-# EK, 17.5.2012 fixed parameters
-# EK, 22.5.2012 fixed parameters
+# MG, 13.07.2011                                       
+# EK, 17.05.2012, fixed parameters
+# EK, 22.05.2012, fixed parameters
 # Removes duplicate ENSEMBL identifiers, converts them to unique Entrez identifiers, and adds gene annotations to the output 
+# MK, 08.05.2012, Added new genomes 
 
 # Set up testing parameters
 # species <- "Human"
@@ -17,22 +18,16 @@ library(biomaRt)
 
 # Load the annotation data
 if (species == "Human") {
-	data(TSS.human.GRCh37)
-	annotations <- TSS.human.GRCh37
 	ensembl_dataset <- "hsapiens_gene_ensembl"
-	filter <- "ens_hs_gene"
 }
 if (species == "Mouse") {
-	data(TSS.mouse.NCBIM37)
-	annotations <- TSS.mouse.NCBIM37
 	ensembl_dataset <- "mmusculus_gene_ensembl"
-	filter <- "ens_mm_gene"
 }
 if (species == "Rat") {
-	data(TSS.rat.RGSC3.4)
-	annotations <- TSS.rat.RGSC3.4
 	ensembl_dataset <- "rnorvegicus_gene_ensembl"
-	filter <- "ens_rn_gene"
+}
+if (species == "Zebraﬁsh") {
+	ensembl_dataset <- "drerio_gene_ensembl"
 }
 
 # Read in data and extract the identifiers
@@ -48,7 +43,6 @@ if("ensembl_id" %in% colnames(ensembl_list)) {
 } else {
 	ensembl_id_list <- rownames(ensembl_list)
 }
-print(ensembl_id_list[1:10])
 
 # Fetch additional gene info from BioMart database
 ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))

@@ -14,15 +14,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.UIManager;
 
+import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
+import org.jdesktop.swingx.painter.MattePainter;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
+import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -51,22 +52,16 @@ public class ToolParameterPanel extends ParameterPanel {
 	 * 
 	 * @param operation The operation which is to be started from this panel.
 	 * @param client The client that is to be informed when a job is done.
-	 * @throws MicroarrayException 
-	 */
+	 * @throws MicroarrayException
+	 */ 
 	public ToolParameterPanel(Operation operation, ToolPanel parent) throws MicroarrayException {
 
 	    super(operation, new BorderLayout());
 		this.parent = parent;
 		
-		// Configure style of parameter panel
-        UIManager.put("TaskPaneContainer.background",
-            UIManager.getColor("TaskPane.background"));
-        UIManager.put("TaskPane.borderColor",
-            UIManager.getColor("TaskPane.background"));
-		
+                
 		// Create a collapsible pane container
         JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
-        paneContainer.setBorder(null);
         JXTaskPane pane;
         JPanel paramPane;
         GridBagConstraints con;
@@ -75,7 +70,6 @@ public class ToolParameterPanel extends ParameterPanel {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setGap(0);
         paneContainer.setLayout(verticalLayout);
-        paneContainer.setBackground(this.getBackground());
 	    
         // Parameters
         paramPane = new JPanel(new GridBagLayout());
@@ -92,6 +86,7 @@ public class ToolParameterPanel extends ParameterPanel {
 
             }
         }
+        
         paneContainer.add(paramPane);
         
         // Input file mappings
@@ -99,13 +94,9 @@ public class ToolParameterPanel extends ParameterPanel {
         pane.setTitle("Input datasets");
         pane.setCollapsed(false);
 
-        pane.getContentPane().setBackground(this.getBackground());
-        pane.setBackground(this.getBackground());
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
-        paramPane.setBackground(this.getBackground());
-        paramPane.setBorder(BorderFactory.createEmptyBorder());
 
         con = prepareBagConstraints();
         
@@ -131,9 +122,14 @@ public class ToolParameterPanel extends ParameterPanel {
 		scroller = new JScrollPane(paneContainer);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
+		// without this background painter fills all extra space with its default background (blue in windows)
+		paneContainer.setBackgroundPainter(new MattePainter(this.getBackground()));
+		pane.getContentPane().setBackground(this.getBackground());
+		// change JXPanel default border which draws some small quirks around the panel
+		((JXPanel)pane.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 		
-		scroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-	    
+		paneContainer.setBorder(BorderFactory.createEmptyBorder());
+
 		this.add(scroller, BorderLayout.CENTER);
 	}
 

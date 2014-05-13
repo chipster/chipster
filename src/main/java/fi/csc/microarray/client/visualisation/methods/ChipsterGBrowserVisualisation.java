@@ -577,6 +577,8 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		browser.removeVisualisation();
 
 		application.removeClientEventListener(browser);
+		
+		browser = null;
 
 	}
 	

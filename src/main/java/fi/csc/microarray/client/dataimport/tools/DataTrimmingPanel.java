@@ -54,6 +54,7 @@ public class DataTrimmingPanel extends JXTaskPane implements ActionListener, Lis
 	private ImportPreviewTable table;
 	
 	public DataTrimmingPanel(ImportScreen screen) {
+		ToolsInternalFrame.setUpTaskPane(this);
 		this.setLayout(new GridBagLayout());
 		
 		this.screen = screen;

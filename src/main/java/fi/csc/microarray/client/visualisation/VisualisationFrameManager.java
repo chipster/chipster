@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.awt.Component;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
@@ -178,7 +181,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 		case SIDE:
 			return sideFrame.createVisualisation(e);			
 		case WINDOW:
-			ExternalVisualisationFrame window;
+			final ExternalVisualisationFrame window;
 			if(e.getTargetFrameInstance() == null || !windows.contains(e.getTargetFrameInstance())){
 				window = new ExternalVisualisationFrame();
 				e.setTargetFrameInstance(window);
@@ -187,6 +190,26 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 				window = (ExternalVisualisationFrame)e.getTargetFrameInstance();
 			}
 			JComponent visualisation = window.createVisualisation(e);
+			
+			// Other visualisations are removed when the same frame gets the next (often empty) visualisation.
+			// In a detached window, we have to listen for window close event for clean up because the frame is
+			// disposable and won't be used for other visualisations.
+			window.getFrameComponent().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			window.getFrameComponent().addWindowListener(new WindowListener() {
+				
+				public void windowClosed(WindowEvent e) {
+					window.removeVisualisationComponent();
+					window.removeVisualiser();
+				}
+				
+				public void windowOpened(WindowEvent e) {}				
+				public void windowIconified(WindowEvent e) {}			
+				public void windowDeiconified(WindowEvent e) {}			
+				public void windowDeactivated(WindowEvent e) {}				
+				public void windowClosing(WindowEvent e) {}
+				public void windowActivated(WindowEvent e) {}								
+			});
+			
 			return visualisation;
 		}
 		return null;

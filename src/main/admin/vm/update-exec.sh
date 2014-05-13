@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.11.1
+LATEST_VERSION=2.12.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -196,6 +196,23 @@ if [ $CURRENT_COMPARED -eq 0 ] ; then
   exit
 fi
 echo "Will update to version $LATEST_VERSION"
+echo ""
+
+# EMBOSS warning for 2.12
+echo "IMPORTANT!"
+echo ""
+echo "When updating to Chipster 2.12, it is highly recommended to download the full virtual machine"
+echo "images from http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/2.12.0/"
+echo ""
+echo "If you update to 2.12 using this script, some of the EMBOSS tools may not work correctly."
+echo ""
+echo "Continue with the update?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No )  exit;;
+    esac
+done
 echo ""
 
 
@@ -1058,14 +1075,14 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing RSeQC"
   cd ${TOOLS_PATH}
-  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
-  ln -s RSeQC-2.3.7 RSeQC
+  curl -L http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
   cd RSeQC
   sudo python setup.py install
 
   echo "** Installing EMBOSS"
   # dependency for png images
-  sudo apt-get -y install libgd2-noxpm-dev
+  #sudo apt-get -y install libgd2-noxpm-dev
   # update EMBOSS
   mv -b ${TOOLS_PATH}/EMBOSS-6.5.7 ${BACKUPDIR_PATH}/
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-with-extras-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -1159,6 +1176,15 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+
+  echo "** Updating genome browser annotation index"
+  # remove old droso
+  wget -O ${TOOLS_PATH}/genomebrowser/annotations/contents2.txt http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/2.11.2/contents2.txt
+
+fi
 
 
 
@@ -1249,8 +1275,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   install_bundle "Drosophila_melanogaster.BDGP5"
 fi
 
-# 2.11.1
-compare_to_current_and_latest "2.11.1"
+# 2.12.0
+compare_to_current_and_latest "2.12.0"
 if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
   update_bundles
   install_bundle "Schizosaccharomyces_pombe.ASM294v2"

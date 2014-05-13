@@ -11,19 +11,12 @@
 # PARAMETER model.chr: "One chromosome to use for model selection" TYPE STRING DEFAULT chr22 (One chromosome name to use for model selection.)
 
 
-######################################################
-#                                                    #
-# MK, 20.3.2012                                      #
-#                                                    #
-# Zinba is a tool to find broad peaks from pre-      #
-# aligned SAM/BAM/ELAND files. The analysis needs to #
-# be done for each file separately. Peaks are        #
-# typically binned into categories representing      #
-# exons (first, last all), introns, TSS, promoters,  #
-# intergenic. Motifs can be searched from them also  #
-#                                                    #
-######################################################
+# MK, 20.3.2012
+# Zinba is a tool to find broad peaks from pre-aligned SAM/BAM/ELAND files. The analysis needs to      # 
+# be done for each file separately. Found peaks are then typically binned into categories representing #
+# exons (first, last, all), introns, TSS, promoters, intergenic, etc. Motifs can be searched also      #
 
+# Note that the tool is commented in ngs-module.xml due to the long run time of the tool 
 
 #Export2sam.pl is a part of samtools and is used to convert ELAND outputs to SAM
 eland_to_sam.binary <- c(file.path(chipster.tools.path, "samtools-0.1.18", "misc", "export2sam.pl"))
@@ -129,11 +122,6 @@ run.zinba(
 		method="mixture",
 		selecttype="dirty",
 );
-
-
-#system(paste("cp -r ", "/tmp/matti/ce671df2-8b95-4826-8259-950c658c2d77/zinba.out3.peaks.bed ", getwd(), "/zinba.out.peaks.bed", sep=""))
-#system(paste("cp -r ", getwd(), "/tmp/matti/."))
-#print(list.files())
 
 #Read Output
 data <- read.table(file="zinba.out.peaks.bed", sep="\t")

@@ -29,12 +29,12 @@
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
 # PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output.)
-# PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
+# PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER OPTIONAL fdr: "Allowed false discovery rate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR-adjusted p-values (q-values\) are calculated. The concise output files include only those genes or transcripts which have a q-value lower than the given FDR. The value of the Significant-column is adjusted accordingly (yes/no\) in all output files.) 
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cuffdiff can detect sequence-specific bias and correct for it in abundance estimation.)
-# PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
+# PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", mm10.fa: "Mouse genome (mm10\)", rn4.fa: "Rat genome (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel.fa: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (Genome used for bias correction.)
 
 # AMS 21.1.2013
 # check column renaming when replicates are enabled
@@ -56,22 +56,10 @@ if (mmread == "yes") {
 	cuffdiff.options <- paste(cuffdiff.options, "-u")
 }
 if (bias == "yes") {
-	if (genome == "hg19"){
-		genomefile <- "hg19.fa"
-	}
-	if (genome == "mm9"){
-		genomefile <- "mm9.fa"
-	}
-	if (genome == "mm10"){
-		genomefile <- "mm10.fa"
-	}
-	if (genome == "rn4"){
-		genomefile <- "rn4.fa"
-	}
-	if (chr == "chr1"){
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genomefile))
+		if (chr == "chr1"){
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genome))
 	}else{
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
+		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genome))
 	}
 	cuffdiff.options <- paste(cuffdiff.options, "-b", genomefile)
 }
@@ -105,6 +93,9 @@ if (file.exists("annotation.gtf")){
 		}else{
 			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
 		}
+	}	
+	if (internalgtf =="Schizosaccharomyces_pombe.ASM294v2.22"){
+		annotation.file <- "Schizosaccharomyces_pombe.ASM294v2.22.gtf"
 	}
 	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 	cuffdiff.options <- paste(cuffdiff.options, annotation.file)

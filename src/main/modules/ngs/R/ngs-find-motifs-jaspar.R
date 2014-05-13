@@ -4,22 +4,39 @@
 # OUTPUT logo-plot-{...}.pdf: "Logo plots for each consensus motif" 
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
 # PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
-# PARAMETER genome: Genome TYPE [BSgenome.Hsapiens.UCSC.hg17: hg17, BSgenome.Hsapiens.UCSC.hg18: hg18, BSgenome.Hsapiens.UCSC.hg19: hg19, BSgenome.Mmusculus.UCSC.mm8: mm8, BSgenome.Mmusculus.UCSC.mm9: mm9, BSgenome.Rnorvegicus.UCSC.rn4: rn4] DEFAULT BSgenome.Hsapiens.UCSC.hg18 (The genome and version used when aligning the sequences.)
+# PARAMETER genome: Genome TYPE [BSgenome.Hsapiens.UCSC.hg17: hg17, BSgenome.Hsapiens.UCSC.hg18: hg18, BSgenome.Hsapiens.UCSC.hg19: hg19, BSgenome.Mmusculus.UCSC.mm8: mm8, BSgenome.Mmusculus.UCSC.mm9: mm9, BSgenome.Mmusculus.UCSC.mm10: mm10, BSgenome.Rnorvegicus.UCSC.rn4: rn4, BSgenome.Rnorvegicus.UCSC.rn5: rn5, BSgenome.Dmelanogaster.UCSC.dm2: dm2, BSgenome.Dmelanogaster.UCSC.dm3: dm3] DEFAULT BSgenome.Hsapiens.UCSC.hg19 (The genome and version used when aligning the sequences.)
 # PARAMETER number.best.matches: "Number of matches" TYPE INTEGER FROM 1 TO 20 DEFAULT 10 (The number of best matching transcription factors for each consensus sequence found. This affects both the textual summary output and the LOGO plots.)
+# PARAMETER chr_column: "Chr column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome infomration of peaks)
+# PARAMETER start_column: "Start coord column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks)
+# PARAMETER end_column: "End coord column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks)
 
-# MG, 26.5.2010
-# MG, 6.10.2011, added parameter to control number of best matches per TF and updated to changes in R-2.12.1
-# EK, 6.2.2014, text changes
+# MG, 26.05.2010
+# MG, 06.10.2011, added parameter to control number of best matches per TF and updated to changes in R-2.12.1
+# EK, 06.02.2014, text changes
+# MK, 08.05.2014, added new genomes, added BED support
 
 # Load the required libraries
 library(MotIV)
 library(rGADEM)
 library(package=genome, character.only=TRUE)
 
-# Read in data and convert to BED format
-results_file <- read.table (file="results.tsv", sep="\t", header=T)
-results_bed <- results_file[,1:3]
-results_bed[,1] <- paste("chr",results_bed[,1], sep="")
+# Read in data from BED or tsv file and convert to BED format
+if(length(grep("^column\\d+$", chr_column)) == 1 && length(grep("^column\\d+$", start_column)) == 1 && length(grep("^column\\d+$", end_column)) == 1) {
+	results_file <- read.table (file="results.tsv", sep="\t", header=F)
+	chr_column <- as.numeric(gsub("^column", "", chr_column)) + 1
+	start_column <- as.numeric(gsub("^column", "", start_column)) + 1
+	end_column <- as.numeric(gsub("^column", "", end_column)) + 1
+} else {
+	results_file <- read.table (file="results.tsv", sep="\t", header=T)	
+	chr_column <- grep(paste("^", chr_column, "$", sep=""), colnames(results_file))
+	start_column <- grep(paste("^", start_column, "$", sep=""), colnames(results_file))
+	end_column <- grep(paste("^", end_column, "$", sep=""), colnames(results_file))
+}
+
+results_bed <- results_file[,c(chr_column, start_column, end_column)]
+if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
+	levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)] <- paste("chr", levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)], sep="")
+}
 
 # Convert to Ranged data
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
@@ -34,7 +51,7 @@ if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.
 			pValue=p.value.cutoff,
 			eValue=e.value.cutoff)
 }
-if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
+if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9" | genome == "BSgenome.Mmusculus.UCSC.mm10") {
 	results_gadem <- GADEM(
 			results_sequences,
 			verbose=1,
@@ -42,7 +59,7 @@ if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC
 			pValue=p.value.cutoff,
 			eValue=e.value.cutoff)
 }
-if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
+if (genome == "BSgenome.Rnorvegicus.UCSC.rn4" | genome == "BSgenome.Rnorvegicus.UCSC.rn5") {
 	results_gadem <- GADEM(
 			results_sequences,
 			verbose=1,
@@ -50,6 +67,15 @@ if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
 			pValue=p.value.cutoff,
 			eValue=e.value.cutoff)
 }
+if (genome == "BSgenome.Dmelanogaster.UCSC.dm2" | genome == "BSgenome.Dmelanogaster.UCSC.dm3") {
+	results_gadem <- GADEM(
+			results_sequences,
+			verbose=1,
+			genome=Dmelanogaster,
+			pValue=p.value.cutoff,
+			eValue=e.value.cutoff)
+}
+
 
 # Read in Jaspar database
 # path_jaspar <- system.file(package="rGADEM")
