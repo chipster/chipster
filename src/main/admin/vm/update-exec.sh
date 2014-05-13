@@ -198,6 +198,23 @@ fi
 echo "Will update to version $LATEST_VERSION"
 echo ""
 
+# EMBOSS warning for 2.12
+echo "IMPORTANT!"
+echo ""
+echo "When updating to Chipster 2.12, it is highly recommended to download the full virtual machine"
+echo "images from http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/2.12.0/"
+echo ""
+echo "If you update to 2.12 using this script, some of the EMBOSS tools may not work correctly."
+echo ""
+echo "Continue with the update?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No )  exit;;
+    esac
+done
+echo ""
+
 
 # Confirm update
 echo "Update will start next. It can take several hours, depending on your network connection"
