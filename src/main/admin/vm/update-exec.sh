@@ -7,7 +7,7 @@
 
 # Latest version, matching tar-packages must be available 
 ##
-LATEST_VERSION=2.12.0
+LATEST_VERSION=2.12.1
 R_VERSION=3.0.2
 
 # Exit immediately if some command fails
@@ -196,6 +196,23 @@ if [ $CURRENT_COMPARED -eq 0 ] ; then
   exit
 fi
 echo "Will update to version $LATEST_VERSION"
+echo ""
+
+# EMBOSS warning for 2.12
+echo "IMPORTANT!"
+echo ""
+echo "When updating to Chipster 2.12, it is highly recommended to download the full virtual machine"
+echo "images from http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/2.12.0/"
+echo ""
+echo "If you update to 2.12 using this script, some of the EMBOSS tools may not work correctly."
+echo ""
+echo "Continue with the update?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No )  exit;;
+    esac
+done
 echo ""
 
 
@@ -1058,8 +1075,8 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing RSeQC"
   cd ${TOOLS_PATH}
-  curl -L RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
-  ln -s RSeQC-2.3.7 RSeQC
+  curl -L http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
+  ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
   cd RSeQC
   sudo python setup.py install
 
