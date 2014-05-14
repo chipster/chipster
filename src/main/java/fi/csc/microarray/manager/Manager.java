@@ -122,7 +122,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 			");";
 	
 	private static final String REMOVE_OLD_TEST_JOBS = 
-			"DELETE FROM JOBS" +
+			"DELETE FROM JOBS " +
 			"WHERE starttime < DATEADD('MONTH', -1, CURRENT_DATE()) " + // at least a month old
 			"AND username IN (SELECT username FROM accounts WHERE ignoreinstatistics=TRUE);"; // username is a test account
 	
