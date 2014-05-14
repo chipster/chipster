@@ -48,7 +48,7 @@ public class DerbyMetadataServer {
 	
 	private static final String METADATA_BACKUP_PREFIX="filebroker-metadata-db-backup-";
 
-	protected static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
+	public static final String DEFAULT_EXAMPLE_SESSION_OWNER = "example_session_owner";
 	public static final String DEFAULT_EXAMPLE_SESSION_FOLDER = "Example sessions";
 
 	

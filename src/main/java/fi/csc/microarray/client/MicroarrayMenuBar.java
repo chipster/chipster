@@ -31,6 +31,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.Files;
@@ -171,7 +172,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 	public static boolean areCloudSessionsEnabled() {
-		return DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-cloud-sessions");
+		boolean conf =  DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-cloud-sessions");
+		boolean specialUser = DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(Session.getSession().getUsername());
+		
+		return conf || specialUser;
 	}
 
 	private JMenuItem getMergeSessionMenu() {
