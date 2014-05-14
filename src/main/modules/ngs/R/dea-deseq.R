@@ -139,6 +139,7 @@ if(version == "DESeq" && (ad_factor == "EMPTY")) {
 # Merge with original data table and keep significant DEGs
 if(length(unique(groups)) == 2) {
 	results_table$padj <- p.adjust(results_table$pval, method=p.value.adjustment.method)
+
 	significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
 	significant_table <- significant_table[! (is.na(significant_table$padj)), ]
 	significant_table <- significant_table[ order(significant_table$padj), ] 
@@ -173,7 +174,13 @@ these.colnames <- colnames(dat)
 if("chr" %in% these.colnames) {
 	if (dim(significant_table)[1] > 0) {
 		bed_output <- output_table[,c("chr","start","end")]
-		if(is.null(results_name)) peak_names <- character(nrow(output_table)) else peak_names <- paste(rep(results_name, each=nrow(results_table)), "_peak", 1:nrow(results_table), sep="")
+		if(is.null(results_name)) {
+			#peak_names <- character(nrow(output_table))
+			peak_names <- rownames(results_table)
+		} else {
+			#peak_names <- paste(rep(results_name, each=nrow(results_table)), "_peak", 1:nrow(results_table), sep="")
+			peak_names <- paste(rep(results_name, each=nrow(results_table)), rownames(results_table), sep="")	
+		}
 		bed_output <- cbind(bed_output, name=peak_names)							#name
 		bed_output <- cbind(bed_output, score=output_table[, "log2FoldChange"])		#score
 		bed_output <- bed_output[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
