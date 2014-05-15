@@ -80,10 +80,10 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 			jdbcTemplate.execute(sql);
 			
 			int affectedRows = jdbcTemplate.update(REMOVE_OLD_TEST_JOBS);
-			logger.debug("cleaned up " + affectedRows + " old test jobs from database");
+			logger.info("cleaned up " + affectedRows + " old test jobs from database");
 			
 			int deletedFiles = backupRotation.rotate();
-			logger.debug("cleaned up " + deletedFiles + " old database backup files");
+			logger.info("cleaned up " + deletedFiles + " old database backup files");
 		}		
 	}
 	

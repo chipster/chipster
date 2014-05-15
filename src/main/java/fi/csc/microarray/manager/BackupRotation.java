@@ -128,7 +128,10 @@ public class BackupRotation {
 	 */
 	private void removeLastItems(TreeMap<DateTime, File> filesToDelete, int count) {
 		
-		for (int i = 0; i < count; i++) {			
+		for (int i = 0; i < count; i++) {
+			if (filesToDelete.isEmpty()) {
+				break;
+			}
 			filesToDelete.remove(filesToDelete.lastKey());
 		}
 	}
