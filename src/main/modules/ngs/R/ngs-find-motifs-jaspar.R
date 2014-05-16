@@ -38,6 +38,7 @@ results_bed[,1] <- as.factor(results_bed[,1])
 if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
 	levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)] <- paste("chr", levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)], sep="")
 }
+results_bed[,1] <- as.character(results_bed[,1])
 
 # Convert to Ranged data
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
