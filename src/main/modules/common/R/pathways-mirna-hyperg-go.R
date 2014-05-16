@@ -26,7 +26,23 @@ library(R2HTML)
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
 
 # extracts identifiers
-mirna_ids <- tolower(as.character(rownames(dat)))
+if("id" %in% colnames(dat)) {
+	mirna_ids <- as.character(dat$id)
+} else {
+	mirna_ids <- as.character(rownames(dat))
+}
+
+# If convert genomic BAM file has been used, table has a column which name is sequence
+if("sequence" %in% colnames(dat) && (length(grep(dat$sequence[1], mirna_ids[1])) > 0)) {
+	mirna_id_list <- strsplit(as.vector(mirna_ids), "_")
+	mirna_ids <- NULL
+	for(i in 1:length(mirna_id_list)) {
+		#remove last three sections of the id
+		mirna_ids <- c(mirna_ids, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+	}
+}
+
+mirna_ids <- tolower(mirna_ids)
 
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {
@@ -45,14 +61,24 @@ if (species == 'mouse') {
 	library(targetscan.Mm.eg.db)
 	
 	reference.genes <- unique(names(as.list(targetscan.Mm.egTARGETS)))
-	unique(names(unlist(as.list(targetscan.Mm.egTARGETS))))
+	selected.genes <- NULL
 	for(i in 1:length(mirna_ids)) {
-		a <- try(mget(mirna_ids[i], revmap(targetscan.Mm.egTARGETS)), silent=T)
-		if(class(a) != "try-error") {
-			selected.genes <- c(selected.genes, unlist(a))
+		mirna.fam <- try(mget(as.vector(mirna_ids[i]), revmap(targetscan.Mm.egFAMILY2MIRBASE)), silent=T)
+		if(class(mirna.fam) != "try-error") {
+			mirna.targets <- try(mget(unlist(mirna.fam), revmap(targetscan.Mm.egTARGETS)), silent=T)
+			if(class(mirna.targets) != "try-error") {	
+				selected.genes <- c(selected.genes, unique(unlist(mirna.targets)))
+			}
 		}
 	}
-	selected.genes <- unique(selected.genes)
+
+	#for(i in 1:length(mirna_ids)) {
+	#	a <- try(mget(mirna_ids[i], revmap(targetscan.Mm.egTARGETS)), silent=T)
+	#	if(class(a) != "try-error") {
+	#		selected.genes <- c(selected.genes, unlist(a))
+	#	}
+	#}
+	#selected.genes <- unique(selected.genes)
 
 	if (length (selected.genes) == 0) {
 		stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")

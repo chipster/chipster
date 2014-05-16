@@ -102,6 +102,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	
 	private TaskExecutor executor;
 	private DataManager manager, sourceManager;
+	private ServiceAccessor serviceAccessor;
 	LinkedList<ToolModule> toolModules;
 	
 	public SessionReplayTest(String username, String password, String configURL) {
@@ -116,13 +117,13 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Set up modules
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
-		
+		try {
 		// Set up main (target) system
 		manager = new DataManager();
 		moduleManager.plugAll(manager, null);
 		executor = new TaskExecutor(super.endpoint, manager);
 		toolModules = new LinkedList<ToolModule>();
-		ServiceAccessor serviceAccessor = new RemoteServiceAccessor();
+		serviceAccessor = new RemoteServiceAccessor();
 		serviceAccessor.initialise(manager, this.authenticationListener);
 		serviceAccessor.fetchDescriptions(new MicroarrayModule());
 		Session.getSession().setServiceAccessor(serviceAccessor);
@@ -151,6 +152,11 @@ public class SessionReplayTest extends MessagingTestBase {
 			} catch (Throwable e) {
 				e.printStackTrace();
 				sessionsWithErrors.put(testSession, e);
+			}
+		}
+		} finally {
+			if (serviceAccessor != null) {
+				serviceAccessor.close();
 			}
 		}
 
