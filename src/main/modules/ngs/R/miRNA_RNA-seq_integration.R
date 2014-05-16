@@ -14,7 +14,7 @@
 # PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (This (large\) matrix contains correlations between all miRNAs and genes, with no filtering applied.)
 
 # 08.24.2013, JTT Correlation analysis of miRNA-seq and RNA-seq data
-# 15.05.2014, MK Upgraded to R-3
+# 15.05.2014, MK Upgraded to R-3. Added support to gene symbols and customcdf entrez-probesets. Corrected typos
 
 ## setwd("C:\\Users\\Jarno Tuimala\\Desktop\\Chipster2013\\miRNA_rna-seq\\sample_data")
 ## data_1<-read.table(file="normalized-mirna.tsv", header=T, sep="\t", row.names=1)
@@ -26,6 +26,10 @@
 ## filtering.method<-"correlation"
 ## filter.threshold<-0.90
 ## save.full.matrix<-"no"
+
+if(order.column.mirna == "EMPTY" || order.column.gene == "EMPTY") {
+  stop("CHIPSTER-NOTE: Please incidate which phenodata columns describing the order of the samples with numbers.")
+}
 
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
@@ -73,10 +77,10 @@ mirna.order <- mirna.phenodata[common.samples, 'n']
 gene.order <- gene.phenodata[common.samples, 'n']
 
 # Arrange the columns in the two data sets so that they match
-if(normalization.method=="none") {
-  mirna.data.3 <- mirna.data.2[,order(mirna.order)]
-  gene.data.3 <- gene.data.2[,order(gene.order)]
-} else {
+mirna.data.3 <- mirna.data.2[,order(mirna.order)]
+gene.data.3 <- gene.data.2[,order(gene.order)]
+
+if(normalization.method != "none") {
   # Normalization
   if(normalization.method=="cpm") { norm.method <- "none"; } 
   if(normalization.method=="TMM") { norm.method <- "TMM"; } 
@@ -199,14 +203,12 @@ res[,6]<-names(ptemp)
 rm(ptemp, ctemp)
 gc()
 
-save.image("/tmp/matti/temp.Rdata")
-
 # Filter the results on correlation or p-value
 if(filtering.method=="correlation") {
    res2<-na.omit(res[res$pearson.correlation.coefficient>=filter.threshold | res$pearson.correlation.coefficient<=-filter.threshold,])
 }
 
-if(filtering.method=="p-value") {
+if(filtering.method=="p.value") {
    res2<-na.omit(res[res$p.value<=filter.threshold,])
 }
 
