@@ -34,6 +34,7 @@ if(length(grep("^column\\d+$", chr_column)) == 1 && length(grep("^column\\d+$", 
 }
 
 results_bed <- results_file[,c(chr_column, start_column, end_column)]
+results_bed[,1] <- as.factor(results_bed[,1])
 if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
 	levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)] <- paste("chr", levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)], sep="")
 }
@@ -41,8 +42,6 @@ if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
 # Convert to Ranged data
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
 results_sequences <- RangedData(results_ranged, space=results_bed[,1])
-
-save.image("/tmp/matti/temp.Rdata")
 
 # Perform unseeded GADEM analysis with default values for specific genome
 if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
