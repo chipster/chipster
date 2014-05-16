@@ -341,13 +341,13 @@
 		<tool runtime="R-3.0" module="common">
 			<resource>pathways-mirna-hyperg-kegg.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.0">
 			<resource>miRNA_RNA-seq_integration.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-correlation-analysis-mirna.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-up-down-analysis-mirna.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
