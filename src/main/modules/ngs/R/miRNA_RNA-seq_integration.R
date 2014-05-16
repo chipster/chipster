@@ -73,26 +73,29 @@ mirna.order <- mirna.phenodata[common.samples, 'n']
 gene.order <- gene.phenodata[common.samples, 'n']
 
 # Arrange the columns in the two data sets so that they match
-mirna.data.3 <- mirna.data.2[,order(mirna.order)]
-gene.data.3 <- gene.data.2[,order(gene.order)]
-
-# Normalization
-library(edgeR)
-mirna3 <- DGEList(mirna.data.3)
-mirna3.1 <- calcNormFactors(mirna3, method=normalization.method)
-
-gene3 <- DGEList(gene.data.3)
-gene3.1 <- calcNormFactors(gene3, method=normalization.method)
-
 if(normalization.method=="none") {
-  mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=FALSE)
-  gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=FALSE)
+  mirna.data.3 <- mirna.data.2[,order(mirna.order)]
+  gene.data.3 <- gene.data.2[,order(gene.order)]
 } else {
-  mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=TRUE)
-  gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=TRUE)
-}
+  # Normalization
+  if(normalization.method=="cpm") { norm.method <- "none"; } 
+  if(normalization.method=="TMM") { norm.method <- "TMM"; } 
 
-#none, cpm, TMM
+  library(edgeR)
+  mirna3 <- DGEList(mirna.data.3)
+  mirna3.1 <- calcNormFactors(mirna3, method=norm.method)
+
+  gene3 <- DGEList(gene.data.3)
+  gene3.1 <- calcNormFactors(gene3, method=norm.method)
+
+  if(normalization.method=="none") {
+    mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=FALSE)
+    gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=FALSE)
+  } else {
+    mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=TRUE)
+    gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=TRUE)
+  }
+}
 
 # Pearson correlation coefficients and the corresponding p-values are calculated for all possible miRNA-mRNA pairs
 library(WGCNA)
@@ -120,7 +123,7 @@ if(length(grep("_at$", id)) > 10) {
 
 #If Entrez IDS, use them
 if(length(xx[id]) > 1) {
-  m<-data.frame(id=id, entrez.gene=id)
+  m<-data.frame(id=rownames(gene.data), entrez.gene=id)
 } else if(length(grep("ENS", id))>0) {
   # Convert possible ENSEMBL IDs to Entrez Gene
   xx <- as.list(org.Hs.egENSEMBL2EG)
@@ -149,8 +152,6 @@ mid2<-mid[!duplicated(mid),]
 # Some cleaning
 rm(miranda, mirbase, targetscan, pictar, tarbase)
 gc()
-
-save.image("/tmp/matti/temp.Rdata")
 
 # Keep only miRNAs that are expressed in at least one sample and have target gene annotation
 mirna.ind<-unique(which(as.character(rownames(mirna.data)) %in% as.character(mid$mature_miRNA)))
@@ -197,6 +198,8 @@ res[,6]<-names(ptemp)
 # Some cleaning
 rm(ptemp, ctemp)
 gc()
+
+save.image("/tmp/matti/temp.Rdata")
 
 # Filter the results on correlation or p-value
 if(filtering.method=="correlation") {
