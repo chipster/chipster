@@ -101,6 +101,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	
 	private TaskExecutor executor;
 	private DataManager manager, sourceManager;
+	private ServiceAccessor serviceAccessor;
 	LinkedList<ToolModule> toolModules;
 	
 	public SessionReplayTest(String username, String password, String configURL) {
@@ -115,43 +116,48 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Set up modules
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
-		
-		// Set up main (target) system
-		manager = new DataManager();
-		moduleManager.plugAll(manager, null);
-		executor = new TaskExecutor(super.endpoint, manager);
-		toolModules = new LinkedList<ToolModule>();
-		ServiceAccessor serviceAccessor = new RemoteServiceAccessor();
-		serviceAccessor.initialise(manager, this.authenticationListener);
-		serviceAccessor.fetchDescriptions(new MicroarrayModule());
-		toolModules.addAll(serviceAccessor.getModules());
-		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules));
-		
-		// Set up source system
-		sourceManager = new DataManager();
-		moduleManager.plugAll(sourceManager, null);
-		
-		// Run all sessions
-		for (File testSession : sessionsDir.listFiles()) {
+		try {
+			// Set up main (target) system
+			manager = new DataManager();
+			moduleManager.plugAll(manager, null);
+			executor = new TaskExecutor(super.endpoint, manager);
+			toolModules = new LinkedList<ToolModule>();
+			serviceAccessor = new RemoteServiceAccessor();
+			serviceAccessor.initialise(manager, this.authenticationListener);
+			serviceAccessor.fetchDescriptions(new MicroarrayModule());
+			toolModules.addAll(serviceAccessor.getModules());
+			Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules));
 			
-			// Zip files only, maybe should check if it really is a session file
-			if (!testSession.getName().endsWith(".zip")) {
-				continue;
+			// Set up source system
+			sourceManager = new DataManager();
+			moduleManager.plugAll(sourceManager, null);
+			
+			// Run all sessions
+			for (File testSession : sessionsDir.listFiles()) {
+				
+				// Zip files only, maybe should check if it really is a session file
+				if (!testSession.getName().endsWith(".zip")) {
+					continue;
+				}
+	
+				// Clear data managers after previous session
+				manager.deleteAllDataItems();
+				sourceManager.deleteAllDataItems();
+				
+				// Test session
+				try {
+					testSession(testSession);
+				} catch (Throwable e) {
+					e.printStackTrace();
+					sessionsWithErrors.put(testSession, e);
+				}
 			}
-
-			// Clear data managers after previous session
-			manager.deleteAllDataItems();
-			sourceManager.deleteAllDataItems();
-			
-			// Test session
-			try {
-				testSession(testSession);
-			} catch (Throwable e) {
-				e.printStackTrace();
-				sessionsWithErrors.put(testSession, e);
+		} finally {
+			if (serviceAccessor != null) {
+				serviceAccessor.close();
 			}
 		}
-
+		
 		// Create reports
 		createReports();
 		
