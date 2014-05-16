@@ -42,6 +42,8 @@ if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
 results_sequences <- RangedData(results_ranged, space=results_bed[,1])
 
+save.image("/tmp/matti/temp.Rdata")
+
 # Perform unseeded GADEM analysis with default values for specific genome
 if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
 	results_gadem <- GADEM(
@@ -75,7 +77,6 @@ if (genome == "BSgenome.Dmelanogaster.UCSC.dm2" | genome == "BSgenome.Dmelanogas
 			pValue=p.value.cutoff,
 			eValue=e.value.cutoff)
 }
-
 
 # Read in Jaspar database
 # path_jaspar <- system.file(package="rGADEM")
