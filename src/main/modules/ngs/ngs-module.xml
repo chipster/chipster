@@ -438,37 +438,37 @@
 	</category>
 	
 	<category name="Metagenomics" color="#83010b">
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
       		<resource>mothur-sffinfo.R</resource>
     	</tool>
     	<tool runtime="R-2.15">
       		<resource>merge-fasta-qual.R</resource>		
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-summaryseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-trimseqs-uniqueseqs.R</resource>
 		</tool>	
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-alignseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-filterseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-uniqueseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-precluster.R</resource>
 		</tool>		
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-chimera-uchime.R</resource>
 		</tool>		
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-classifyseqs.R</resource>
 		</tool>
-	    <tool runtime="R-2.15_bioc-2.11">
+	    <tool runtime="R-3.0">
 			<resource>mothur-analyses.R</resource>
 		</tool>
 	</category>
