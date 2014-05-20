@@ -6,8 +6,7 @@
 # OUTPUT phenodata-target-gene.tsv: phenodata-target-gene.tsv 
 # PARAMETER common.column: "The gene name column in both files" TYPE STRING DEFAULT empty (The gene name column that is common to both data tables.)
 
-# Setting up test parameter settings
-# common.column <- "symbol"
+# MK 15.05.2014, modified to R3
 
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
@@ -15,11 +14,11 @@ data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1
 phenodata <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
 # Figure out which is the miRNA data
-if (length (grep ("miRNA", names (data_1))) == 1) {
+if (length (grep ("mirna", names (data_1), ignore.case = TRUE)) == 1) {
 	mirna.data <- data_1
 	gene.data <- data_2
 }
-if (length (grep ("miRNA", names (data_2))) == 1) {
+if (length (grep ("mirna", names (data_2), ignore.case = TRUE)) == 1) {
 	mirna.data <- data_2
 	gene.data <- data_1
 }
