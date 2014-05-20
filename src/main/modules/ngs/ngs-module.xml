@@ -145,10 +145,10 @@
 		<tool runtime="R-3.0">
 			<resource>fastx-renamer.R</resource>
 		</tool>		
-	    <tool runtime="R-2.12">
+	    <tool runtime="R-3.0">
 			<resource>test-data-in.R</resource>
 		</tool>	
-        <tool runtime="R-2.12">
+        <tool runtime="R-3.0">
 			<resource>test-data-in-out.R</resource>
 		</tool>	
 	</category>
