@@ -3,8 +3,8 @@
 # OUTPUT htseq-counts.tsv 
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68: "Human (hg19)", Mus_musculus.GRCm38.68: "Mouse (mm10)", Mus_musculus.NCBIM37.62: "Mouse (mm9)", Rattus_norvegicus.RGSC3.4.68: "Rat (rn4)"] DEFAULT Homo_sapiens.GRCh37.68 (Which organism is your data from.)
-# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
-# PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
+# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER paired: "Does the BAM file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if your was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 10 (Skip all reads with alignment quality lower than the given minimum value.)
@@ -17,7 +17,7 @@
 # 3.2.2013 AMS added chr/nochr option
 # 6.5.2013 MK added chr-location information to the output
 # 30.5.2013 EK changed the default for "add chromosomal coordinates" to no
-# 21.5.2014 EK updated to use HTSeq 0.6.1, -f bam not added, bam-sam conversion no removed yet
+# 21.5.2014 EK updated to use HTSeq 0.6.1
 
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.7", "site-packages"), ":$PYTHONPATH")
@@ -26,10 +26,11 @@ command.end <- "'"
 
 # sort bam if the data is paired-end
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
-samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
+# samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
+ifelse(paired == "yes", samtools.binary, "sort -n alignment.bam alignment")
 
 # convert bam to sam
-samtools.view <- paste(samtools.binary, "view -")
+# samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
 if(print.coord == "no") {
@@ -45,10 +46,13 @@ if(chr == "no"){
 	organism <- paste(organism, ".gtf", sep="")
 }
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
-htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
+# htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
+
 
 # run
-command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
+# command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
+command <- paste(command.start, htseq, command.end)
 system(command)
 
 # separate result file
