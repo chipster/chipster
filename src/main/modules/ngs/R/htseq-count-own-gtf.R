@@ -16,7 +16,7 @@
 # 21.5.2014 EK updated to use HTSeq 0.6.1
 
 # bash wrapping
-python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.6", "site-packages"), ":$PYTHONPATH")
+python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.7", "site-packages"), ":$PYTHONPATH")
 command.start <- paste("bash -c '", python.path, ";")
 command.end <- "'"
 
