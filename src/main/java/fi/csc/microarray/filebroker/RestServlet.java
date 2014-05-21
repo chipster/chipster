@@ -68,8 +68,8 @@ public class RestServlet extends DefaultServlet {
 		this.metadataServer = metadataServer;
 		
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		cachePath = configuration.getString("filebroker", "cache-path");
-		storagePath = configuration.getString("filebroker", "storage-path");
+		cachePath = FileServer.CACHE_PATH;
+		storagePath = FileServer.STORAGE_PATH;
 		publicPath = configuration.getString("filebroker", "public-path");
 		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
 		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");

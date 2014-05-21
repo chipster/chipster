@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.PropertyConfigurator;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.filebroker.FileServer;
 
 
 /**
@@ -204,8 +205,8 @@ public class DirectoryLayout {
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File fileRoot = new File(getBaseDir(), configuration.getString("filebroker", "file-root-path"));
-			File cacheRoot = new File(fileRoot, configuration.getString("filebroker", "cache-path"));
-			File storageRoot = new File(fileRoot, configuration.getString("filebroker", "storage-path"));
+			File cacheRoot = new File(fileRoot, FileServer.CACHE_PATH);
+			File storageRoot = new File(fileRoot, FileServer.STORAGE_PATH);
 			File publicRoot = new File(fileRoot, configuration.getString("filebroker", "public-path"));
 			initialise(fileRoot);
 			initialise(cacheRoot);
