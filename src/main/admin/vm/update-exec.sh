@@ -198,6 +198,23 @@ fi
 echo "Will update to version $LATEST_VERSION"
 echo ""
 
+# EMBOSS warning for 2.12
+echo "IMPORTANT!"
+echo ""
+echo "When updating to Chipster 2.12, it is highly recommended to download the full virtual machine"
+echo "images from http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/2.12.0/"
+echo ""
+echo "If you update to 2.12 using this script, some of the EMBOSS tools may not work correctly."
+echo ""
+echo "Continue with the update?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No )  exit;;
+    esac
+done
+echo ""
+
 
 # Confirm update
 echo "Update will start next. It can take several hours, depending on your network connection"
@@ -1065,7 +1082,7 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
   echo "** Installing EMBOSS"
   # dependency for png images
-  sudo apt-get -y install libgd2-noxpm-dev
+  #sudo apt-get -y install libgd2-noxpm-dev
   # update EMBOSS
   mv -b ${TOOLS_PATH}/EMBOSS-6.5.7 ${BACKUPDIR_PATH}/
   curl http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-6.5.7-with-extras-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/

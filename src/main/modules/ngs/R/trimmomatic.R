@@ -21,6 +21,7 @@
 # PARAMETER OPTIONAL logfile: "Write a log file" TYPE [yes, no] DEFAULT yes (Write a log file.)
 
 # AMS 2014.04.08
+# MK, 2014.12.05, corrected typo: avqual => avgqual. Corrected bug in initialisation of adapter.file parameter
 
 # Check out if the files are compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -64,7 +65,7 @@ if (adapter.file != "none") {
 	if (!nchar(illuminaclip) > 0) {
 		stop("CHIPSTER-NOTE: You need to provide the required parameters for the adapter clipping to work.")
 	}
-	step.params <- paste(c(step.params, " ILLUMINACLIP:", illuminaclip), collapse="")
+	step.params <- paste(c(step.params, " ILLUMINACLIP:", adapter.path, ":", illuminaclip), collapse="")
 }
 if (!is.na(leading)) {
 	step.params <- paste(c(step.params, " LEADING:",  leading), collapse="")
@@ -84,7 +85,7 @@ if (nchar(slidingwindow) > 0 ){
 if (nchar(maxinfo) > 0 ){
 	step.params <- paste(c(step.params, " MAXINFO:",  maxinfo), collapse="")
 }
-if (!is.na(avqual)) {
+if (!is.na(avgqual)) {
 	step.params <- paste(c(step.params, " AVGQUAL:",  avgqual), collapse="")
 }
 if (!is.na(minlen)) {

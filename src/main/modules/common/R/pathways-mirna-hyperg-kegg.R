@@ -1,16 +1,16 @@
-# TOOL ngs-pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Performs a statistical test for enrichmens of KEGG pathways in the predicted gene targets of a list of miRNA ID:s.)
+# TOOL pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Given a list of miRNA identifiers, tests for enrichment of KEGG pathways in their predicted gene targets.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT hyperg_kegg.tsv: hyperg_kegg.tsv 
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
-# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
-# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (minimum number of genes in in the reference list that map to a pathway)
-# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
+# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (Method for adjusting the p-value in order to account for multiple testing)
+# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 10 (Minimum number of genes in in the reference list that map to a pathway)
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 
-# miRNA hypergeometric test for KEGG
-# MG, 4.11.2009
-# modifed 16.12.2009 by MG
+# 04.11.2009, MG miRNA hypergeometric test for KEGG
+# 16.12.2009, MG modifed 
+# 13.05.2014, MK removed ngs script and moved microrray scripts to common folder
 
 # force "transcript" mode
 summary.feature <- "transcript"
@@ -19,21 +19,29 @@ summary.feature <- "transcript"
 dat<-read.table("normalized.tsv", sep="\t", header=T)
 
 # Extracts the identifiers
-id<-as.character(rownames(dat))
+if("id" %in% colnames(dat)) {
+	id <- as.character(dat$id)
+} else {
+	id <- as.character(rownames(dat))
+}
+
+# If convert genomic BAM file has been used, table has a column which name is sequence
+if("sequence" %in% colnames(dat) && (length(grep(dat$sequence[1], id[1])) > 0)) {
+	mirna_id_list <- strsplit(as.vector(id), "_")
+	id <- NULL
+	for(i in 1:length(mirna_id_list)) {
+		#remove last three sections of the id
+		id <- c(id, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+	}
+}
 
 # Translate parameter settings for biomaRt queries
 if (species=="human") {
 	dataset <- "hsapiens_gene_ensembl"
 }
-#if (species=="human" & summary.feature=="transcript") {
-#        dataset <- "hsapiens_transcript_ensembl"
-#}
 if (species=="mouse") {
 	dataset <- "mmusculus_gene_ensembl"
 }
-#if (species=="mouse" & summary.feature=="transcript") {
-#        dataset <- "mmusculus_t_ensembl"
-#}
 if (species=="rat") {
 	dataset <- "rnorvegicus_gene_ensembl"
 }
@@ -58,7 +66,6 @@ library(CORNA)
 #	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.rattus_norvegicus.zip")
 #}
 
-
 # Download the mapping of miRNA to its targets from locally installed files
 path.mappings <- c(file.path(chipster.tools.path, "miRNA_mappings"))
 if (species=="human") {
@@ -70,7 +77,6 @@ if (species=="mouse") {
 if (species=="rat") {
 	targets <- read.table(file.path(path.mappings, "mirna_mappings_rnorvegious.txt"), sep="\t")
 }
-
 
 # obtain a link from transcript to gene from BiomaRt
 # disabled for now to avoid connection problems to BiomaRt
@@ -93,16 +99,10 @@ if (species=="rat") {
 }
 
 # link microRNAs to genes instead of transcripts
-mir2gene <- corna.map.fun(targets,
-		tran2gene,
-		"gene",
-		"mir")
+mir2gene <- corna.map.fun(targets, tran2gene, "gene", "mir")
 
 # get those genes associated with a list of regulated miRNA:s
-sample.list <- corna.map.fun(mir2gene,
-		id,
-		"mir",
-		"gene")
+sample.list <- corna.map.fun(mir2gene, id, "mir", "gene")
 
 # read pathway information from KEGG
 # disabled for now to avoid connection problems to KEGG
@@ -148,6 +148,7 @@ test <- corna.test.fun(
 
 # fetch significant pathways
 significant.kegg <- test[test$hypergeometric<=p.value.threshold,]
+rownames(significant.kegg) <- paste("KEGG:", rownames(significant.kegg), sep="")
 
 # write results table
 write.table(significant.kegg, file="hyperg_kegg.tsv", sep="\t", quote=F)
