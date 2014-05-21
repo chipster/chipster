@@ -200,9 +200,6 @@ public abstract class ClientApplication {
 		this.clientConstants = new ClientConstants();
 		this.serviceAccessor = new RemoteServiceAccessor();
 		this.overridingARL = overridingARL;
-		
-		// disable http cache
-		IOUtils.disableHttpCache();
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
@@ -335,6 +332,9 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
+						
+			// disable http cache (only after initialization, because it slows down jar reading)
+			IOUtils.disableHttpCache();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
