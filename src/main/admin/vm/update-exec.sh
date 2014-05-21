@@ -1186,6 +1186,12 @@ if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
 
 fi
 
+# 2.12.1
+compare_to_current_and_latest "2.12.1"
+if [ $CURRENT_COMPARED -lt 0 ] && [ ! $LATEST_COMPARED -lt 0 ] ; then
+  echo ""
+fi
+
 
 
 #####################################
