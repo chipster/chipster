@@ -36,7 +36,6 @@ import fi.csc.microarray.util.XmlUtil;
  */
 public class ConfigTool {
 
-	static final String CURRENT_R_VERSION = "R-2.12";
 	private final String brokerDir = "activemq";
 	private final String webstartDir = "webstart";
 
@@ -58,7 +57,6 @@ public class ConfigTool {
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
 			{"admin e-mail address", "chipster-admin@mydomain"},
-			{"path to R binary", "/opt/chipster/tools/R/bin/R"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
@@ -74,8 +72,7 @@ public class ConfigTool {
 	private final int WS_PORT = 6;
 	private final int MANAGER_PORT = 7;
 	private final int MANAGER_EMAIL = 8;
-	private final int R_COMMAND_INDEX = 9;
-	private final int MAX_JOBS_INDEX = 10;
+	private final int MAX_JOBS_INDEX = 9;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -92,7 +89,6 @@ public class ConfigTool {
 	
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
-		UpgradeTool upgradeTool = new UpgradeTool();
 		
 		if (args.length == 0) {
 			fail();
@@ -105,16 +101,6 @@ public class ConfigTool {
 			configTool.simpleConfigure(args[1]);
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
-
-		} else if (args[0].startsWith("upgrade")) {
-			String[] parts = args[0].split("_");
-			int fromMajor = Integer.parseInt(parts[1]);
-			int toMajor = Integer.parseInt(parts[2]);
-			if (args.length > 1) {
-				upgradeTool.upgrade(new File(args[1]), fromMajor, toMajor);
-			} else {
-				System.out.println("Please specify location of the old installation directory as an argument (e.g., \"./upgrade.sh /opt/chipster-1.2.3\")");
-			}
 
 		} else {
 			fail();
@@ -312,10 +298,6 @@ public class ConfigTool {
 		if (wsClientConfigFile.exists()) {
 			updateChipsterConfigFile(wsClientConfigFile);
 		}
-		File runtimesConfigFile = new File("comp" + File.separator + DirectoryLayout.CONF_DIR + File.separator + "runtimes.xml");
-		if (runtimesConfigFile.exists()) {
-			updateRuntimesConfigFile(runtimesConfigFile);
-		}
 
 		// update ActiveMQ config
 		File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
@@ -426,35 +408,6 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 
-	private void updateRuntimesConfigFile(File configFile) throws Exception {
-		
-		boolean ok = false;
-		Document doc = openForUpdating("Runtimes", configFile);
-		Element runtimesElement = (Element)doc.getElementsByTagName("runtimes").item(0);
-		for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
-			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
-			if (runtimeName.equals(CURRENT_R_VERSION)) {
-				Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
-				for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
-					String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
-					if (paramName.equals("command")) {
-						Element commandValueElement = XmlUtil.getChildElement(parameterElement, "value");
-						updateElementValue(commandValueElement, "R-2.6.1 command", configs[R_COMMAND_INDEX][VAL_INDEX]);
-						ok = true;
-					}
-				}
-			} 
-		}
-
-		if (ok) {
-			writeLater(configFile, doc);
-		} else {
-			throw new RuntimeException("Could not update R-2.6.1 command to runtimes.xml");
-		}
-	}
-
-	
-	
 	private String createFilebrokerUrl() {
 		return "http://" + configs[FILEBROKER_HOST_INDEX][VAL_INDEX];
 	}
