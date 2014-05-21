@@ -35,11 +35,11 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-# htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
+# htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
 htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
 
 # run
-# command <- paste(command.start, samtools.sort, " | ", htseq, command.end)
+# command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
 command <- paste(command.start, htseq, command.end)
 system(command)
 
