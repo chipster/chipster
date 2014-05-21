@@ -34,9 +34,11 @@ if(length(grep("^column\\d+$", chr_column)) == 1 && length(grep("^column\\d+$", 
 }
 
 results_bed <- results_file[,c(chr_column, start_column, end_column)]
+results_bed[,1] <- as.factor(results_bed[,1])
 if(length(grep("chr", levels(results_bed[,1]), invert=T)) > 0) {
 	levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)] <- paste("chr", levels(results_bed[,1])[grep("chr", levels(results_bed[,1]), invert=T)], sep="")
 }
+results_bed[,1] <- as.character(results_bed[,1])
 
 # Convert to Ranged data
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
@@ -75,7 +77,6 @@ if (genome == "BSgenome.Dmelanogaster.UCSC.dm2" | genome == "BSgenome.Dmelanogas
 			pValue=p.value.cutoff,
 			eValue=e.value.cutoff)
 }
-
 
 # Read in Jaspar database
 # path_jaspar <- system.file(package="rGADEM")
