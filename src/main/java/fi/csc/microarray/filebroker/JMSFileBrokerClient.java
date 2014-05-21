@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.LinkedList;
@@ -59,10 +60,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private File localFilebrokerCache;
 	private File localFilebrokerStorage;
 	private boolean useChecksums;
+	private String overridingFilebrokerIp;
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath, String overridingFilebrokerIp) throws JMSException {
 
 		this.filebrokerTopic = urlTopic;
+		
+		// null by default
+		this.overridingFilebrokerIp = overridingFilebrokerIp;
 		
 		if (localFilebrokerPath != null) {
 			this.localFilebrokerCache = new File(localFilebrokerPath, FileServer.CACHE_PATH);
@@ -77,7 +82,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
-		this(urlTopic, null);
+		this(urlTopic, null, null);
 	}
 
 	/**
@@ -485,8 +490,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * 
 	 * @throws JMSException
 	 * @throws FileBrokerException 
+	 * @throws MalformedURLException 
 	 */
-	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException {
+	private URL getNewURL(String dataId, boolean useCompression, FileBrokerArea area, long contentLength) throws JMSException, FileBrokerException, MalformedURLException {
 		logger.debug("getting new url");
 	
 		UrlMessageListener replyListener = new UrlMessageListener();  
@@ -505,12 +511,15 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} finally {
 			replyListener.cleanUp();
 		}
+		
+		url = applyOverridingFilebrokerIp(url);
+		
 		logger.debug("new url is: " + url);
 	
 		return url;
 	}
 
-	private URL getURL(String dataId) throws JMSException, FileBrokerException {
+	private URL getURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException {
 		
 		logger.debug("getting url for dataId " + dataId);
 		
@@ -525,14 +534,25 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		} finally {
 			replyListener.cleanUp();
 		}
+				
+		url = applyOverridingFilebrokerIp(url);
 		
 		logger.debug("url is: " + url);
 	
 		return url;
 	}
 
+	private URL applyOverridingFilebrokerIp(URL url)
+			throws MalformedURLException {
+		if (url != null && overridingFilebrokerIp != null) {
+			logger.debug("overriding filebroker ip: " + overridingFilebrokerIp);
+			url = new URL(url.getProtocol(), overridingFilebrokerIp, url.getPort(), url.getFile());						
+		}
+		return url;
+	}
+
 	@Override
-	public String getExternalURL(String dataId) throws JMSException, FileBrokerException {
+	public String getExternalURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException {
 		return getURL(dataId).toExternalForm();
 	}
 

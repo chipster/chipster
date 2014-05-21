@@ -181,6 +181,10 @@
 			<value></value>
 		</entry>
 		
+		<entry entryKey="overriding-filebroker-ip" type="string" description="connect to filebroker using this ip address instead of its public address">
+			<value></value>
+		</entry>
+		
 		<entry entryKey="work-dir" type="string" description="directory for temporary job files">
 			<value>jobs-data</value>
 		</entry>

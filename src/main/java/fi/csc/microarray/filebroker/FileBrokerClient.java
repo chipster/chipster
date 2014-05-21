@@ -148,8 +148,9 @@ public interface FileBrokerClient {
 	 * @return
 	 * @throws JMSException
 	 * @throws FileBrokerException
+	 * @throws MalformedURLException 
 	 */
-	public String getExternalURL(String dataId) throws JMSException, FileBrokerException;
+	public String getExternalURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException;
 
 
 	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException;

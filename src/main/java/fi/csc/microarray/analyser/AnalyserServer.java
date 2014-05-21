@@ -108,6 +108,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
 	private String localFilebrokerPath;
+	private String overridingFilebrokerIp;
 	
 	volatile private boolean stopGracefully;
 	
@@ -128,12 +129,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
-		String fbPath = configuration.getString("comp", "local-filebroker-user-data-path");
-		if ("".equals(fbPath.trim())) {
-			this.localFilebrokerPath = null; // null => path optimisation not used
-		} else {
-			this.localFilebrokerPath = fbPath;
-		}
+		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
+		this.overridingFilebrokerIp = nullIfEmpty(configuration.getString("comp", "overriding-filebroker-ip"));				
 		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -166,7 +163,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.COMP_ADMIN_TOPIC, AccessMode.READ);
 		filebrokerAdminTopic.setListener(new CompAdminMessageListener());
 		
-		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
@@ -175,6 +172,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 	
+
+	private String nullIfEmpty(String value) {
+		if ("".equals(value.trim())) {
+			return null;
+		} else {
+			return value;
+		}
+	}
+
 
 	public String getName() {
 		return "analyser";
