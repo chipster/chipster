@@ -2,15 +2,10 @@
 # INPUT bedfile.bed: "BED file with description column to extract" TYPE GENERIC 
 # OUTPUT extracted-features.tsv: "Table listing the unique features found in the description column of the bed file." 
 
-#######################################################
-#                                                     #
-# MG, 1.11.2011                                       #
-#                                                     #
-# Tool that extracts a column with genomic features   #
-# from a BED file in order to make it suitable to     #
-# downstream analysis.                                #
-#                                                     #
-#######################################################
+
+
+# MG, 1.11.2011   
+
 
 file <- "bedfile.bed"
 dat <- read.table(file=file, header=TRUE, sep="\t")
