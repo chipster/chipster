@@ -56,13 +56,18 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private MessagingTopic filebrokerTopic;	
 	private boolean useChunked;
 	private boolean useCompression;
-	private String localFilebrokerPath;
+	private File localFilebrokerCache;
+	private File localFilebrokerStorage;
 	private boolean useChecksums;
 	
 	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) throws JMSException {
 
 		this.filebrokerTopic = urlTopic;
-		this.localFilebrokerPath = localFilebrokerPath;
+		
+		if (localFilebrokerPath != null) {
+			this.localFilebrokerCache = new File(localFilebrokerPath, FileServer.CACHE_PATH);
+			this.localFilebrokerStorage = new File(localFilebrokerPath, FileServer.STORAGE_PATH);
+		}
 		
 		// Read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
@@ -98,9 +103,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		// try to move/copy it locally, or otherwise upload the file
-		if (localFilebrokerPath != null && !useCompression) {
+		if (localFilebrokerCache != null && !useCompression) {
 			String filename = dataId;
-			File dest = new File(localFilebrokerPath, filename);
+			File dest = new File(localFilebrokerCache, filename);
 			boolean success = file.renameTo(dest);
 			if (!success) {
 				IOUtils.copy(file, dest); // could not move (different partition etc.), do a local copy
@@ -226,17 +231,24 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	public void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException {
 		
 		// Try to find the file locally and symlink/copy it
-		if (localFilebrokerPath != null) {
+		if (localFilebrokerCache != null && localFilebrokerStorage != null) {
 			
 			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
-			File fileInFilebrokerCache = new File(localFilebrokerPath, dataId);
+			File fileInFilebrokerCache = new File(localFilebrokerCache, dataId);
+			File fileInFilebrokerStorage = new File(localFilebrokerStorage, dataId);
+			
+			File fileInFilebroker = null;
 			
 			if (fileInFilebrokerCache.exists()) {
-				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
-	
-				if (!linkCreated) {
-					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
-				}
+				fileInFilebroker = fileInFilebrokerCache;
+			} else if (fileInFilebrokerStorage.exists()) {
+				fileInFilebroker = fileInFilebrokerStorage;
+			}
+							
+			boolean linkCreated = Files.createSymbolicLink(fileInFilebroker, destFile);
+
+			if (!linkCreated) {
+				IOUtils.copy(fileInFilebroker, destFile); // cannot create a link, must copy
 			}
 			
 		} else {

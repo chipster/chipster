@@ -90,14 +90,6 @@
 		<entry entryKey="file-root-path" type="string" description="path to file broker root directory">
 			<value>file-root</value>
 		</entry>
-
-		<entry entryKey="cache-path" type="string" description="path to user cache files'">
-			<value>cache</value>
-		</entry>
-
-		<entry entryKey="storage-path" type="string" description="path to user storage files'">
-			<value>storage</value>
-		</entry>
 		
 		<entry entryKey="example-session-path" type="string" description="path to example session files'">
 			<value>example-session</value>
@@ -185,7 +177,7 @@
     
 	<configuration-module moduleId="comp" description="comp service">
 
-		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's user data directory">
+		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's file root directory">
 			<value></value>
 		</entry>
 		

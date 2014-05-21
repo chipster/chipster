@@ -53,6 +53,9 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	private static Logger logger;
 	
 	public static final String ERROR_QUOTA_EXCEEDED = "quota-exceeded";
+	
+	public static final String CACHE_PATH = "cache";
+	public static final String STORAGE_PATH = "storage";
 
 	private MessagingEndpoint jmsEndpoint;	
 	private ManagerClient managerClient;
@@ -103,18 +106,17 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
     		// get configurations
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
-    		String cachePath = configuration.getString("filebroker", "cache-path");
-    		String storagePath = configuration.getString("filebroker", "storage-path");
+
     		String exampleSessionPath = configuration.getString("filebroker", "example-session-path");
     		this.publicPath = configuration.getString("filebroker", "public-path");
     		this.host = configuration.getString("filebroker", "url");
     		this.port = configuration.getInt("filebroker", "port");    	
     		this.defaultUserQuota = configuration.getInt("filebroker", "default-user-quota");
     		// initialise filebroker areas
-    		this.filebrokerAreas = new FileBrokerAreas(fileRepository, cachePath, storagePath);
+    		this.filebrokerAreas = new FileBrokerAreas(fileRepository, CACHE_PATH, STORAGE_PATH);
     		
     		// initialise url repository
-    		this.urlRepository = new AuthorisedUrlRepository(host, port, cachePath, storagePath);
+    		this.urlRepository = new AuthorisedUrlRepository(host, port, CACHE_PATH, STORAGE_PATH);
 
     		// initialise metadata database
     		logger.info("starting derby metadata server");
@@ -139,7 +141,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		jettyFileServer.start(fileRepository.getPath(), port);
 
     		// cache clean up setup
-    		cacheRoot = new File(fileRepository, cachePath);
+    		cacheRoot = new File(fileRepository, CACHE_PATH);
     		publicRoot = new File(fileRepository, publicPath);
     		
     		cleanUpTriggerLimitPercentage = configuration.getInt("filebroker", "clean-up-trigger-limit-percentage");
@@ -147,7 +149,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
     		
-    		storageRoot = new File(fileRepository, storagePath);
+    		storageRoot = new File(fileRepository, STORAGE_PATH);
     		publicRoot = new File(fileRepository, publicPath);
     		
     		// disable periodic clean up for now
