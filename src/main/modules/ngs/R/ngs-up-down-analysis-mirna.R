@@ -25,17 +25,29 @@ phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
 phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
 # Figure out which is the miRNA data
-if (phenodata_1$chiptype[1] == "miRNA") {
+if ((("chiptype" %in% colnames(phenodata_1)) && (phenodata_1$chiptype[1] == "miRNA")) || (("experiment" %in% colnames(phenodata_1)) && (phenodata_1$experiment[1] == "mirna_seq"))) {
 	mirna.phenodata <- phenodata_1
 	mirna.data <- data_1
 	gene.phenodata <- phenodata_2
 	gene.data <- data_2
 }
-if (phenodata_2$chiptype[1] == "miRNA") {
+if ((("chiptype" %in% colnames(phenodata_2)) && (phenodata_2$chiptype[1] == "miRNA")) || (("experiment" %in% colnames(phenodata_2)) && (phenodata_2$experiment[1] == "mirna_seq"))) {
 	mirna.phenodata <- phenodata_2
 	mirna.data <- data_2
 	gene.phenodata <- phenodata_1
 	gene.data <- data_1
+}
+
+# If convert genomic BAM file has been used, table has a column which name is sequence
+if(length(grep("[0-9]+_[0-9]+_[acgt]{5,}", rownames(mirna.data)[1], ignore.case = TRUE)) > 0) {
+	mirna_id_list <- strsplit(as.character(rownames(mirna.data)), "_")
+	mirna_id <- NULL
+	for(i in 1:length(mirna_id_list)) {
+		#remove last three sections of the id
+		mirna_id <- c(mirna_id, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+	}
+} else {
+	mirna_id <- as.character(rownames(mirna.data))
 }
 
 # Separates expression values and flags
@@ -60,6 +72,7 @@ mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
 mirna.average.2 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
 mirna.average.2 <- apply(mirna.average.2, FUN=average.method, MARGIN=1)
 mirna.ratio <- mirna.average.1-mirna.average.2
+
 gene.average.1 <- gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
 gene.average.1 <- apply(gene.average.1, FUN=average.method, MARGIN=1)
 gene.average.2 <- gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
@@ -75,23 +88,18 @@ if (id.type=="entrez_id") {
 }
 
 # Construct datasets suitable for read.mir() function
-mirna.data.3 <- cbind(names(mirna.ratio),as.numeric(mirna.ratio))
-gene.data.3 <- cbind(names(gene.ratio),as.numeric(gene.ratio))
+mirna.data.3 <- cbind(mirna=mirna_id, exprs=as.numeric(mirna.ratio))
+gene.data.3 <- cbind(gene=names(gene.ratio), exprs=as.numeric(gene.ratio))
 mirna.data.4 <- as.data.frame(mirna.data.3)
 gene.data.4 <- as.data.frame(gene.data.3)
 mirna.data.4[,2] <- as.numeric(mirna.data.3[,2])
 gene.data.4[,2] <- as.numeric(gene.data.3[,2])
 
 # Check that the gene list actually contain at least one miRNA target
-try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-				annotation=chip.type), silent=FALSE)
+try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type), silent=FALSE)
 if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("There were no targets found in either TarBase or PicTar databases
-					for the supplied list of miRNA:s in the gene list selected.
-					Try again by selecting a longer list of genes!")
+	stop("There were no targets found in either TarBase or PicTar databases or the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
 }
-merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
-		annotation=chip.type, verbose=TRUE)
 
 # Change the symbols that come from the read.mir() function into
 # the ones that come from the org.Hs.eg.db package
@@ -101,13 +109,17 @@ mapped_genes  <- as.list(all_genes[mapped_genes])
 symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])
 merged.table$symbol <- symbols_list
 
+if(length(grep("mirCV", colnames(merged.table))) > 0) {
+	merged.table <- merged.table[, -(grep("mirCV", colnames(merged.table)))]
+}
+
 # Change the column names for sake of consistency with other tools
 colnames (merged.table) [1] <- "entrez_id"
 colnames (merged.table) [2] <- "miRNA"
 
 # Add rownames to allow use of Venn diagrams
 # Construct the names from combining the miRNA nameand the target gene symbol
-rownames (merged.table) <- paste (merged.table[,2],"_",merged.table[,4],sep="")
+rownames (merged.table) <- make.names(paste(merged.table[,2],"_",merged.table[,4],sep=""), unique = T)
 
 # Identify the miRNA-gene pairs that are behaving oppositely
 mirna.ratio <- merged.table$mirExpr
