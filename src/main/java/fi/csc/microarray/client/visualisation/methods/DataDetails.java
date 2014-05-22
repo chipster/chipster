@@ -549,6 +549,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public void visualisationShown() {
 		
+		panel.removeAll();
+		
 		// this is EDT, now it's safe to access databeans
 		panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
 		panel.add(createVisualisations(), "aligny top");
