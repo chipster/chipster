@@ -97,19 +97,20 @@ public class ConfigurationLoader {
 				// mark to be set or fill with values
 				if (entry.hasAttribute("mustBeSet") && entry.getAttribute("mustBeSet").equals("true")) {
 					if (values.getLength() > 0) {
-						throw new IllegalConfigurationException("illegal config specification: both values and mustBeSet given for " + name);
+						throw new IllegalConfigurationException("illegal config specification: both value and mustBeSet given for " + name);
 					}
 					
 					configurationEntry.setMustBeSet(true);
 
 				} else {
-
-					String[] textValues = new String[values.getLength()];
-					for (int v = 0; v < values.getLength(); v++) {
-						textValues[v] = values.item(v).getTextContent();
-					}
-					configurationEntry.setValue(textValues);
 					
+					if (values.getLength() > 1) {
+						throw new IllegalConfigurationException("illegal config: multiple values in " + name);
+						
+					} else if (values.getLength() > 0) {
+						String textValue = values.item(0).getTextContent();
+						configurationEntry.setValue(textValue);					
+					}
 				}
 			}
 		}
