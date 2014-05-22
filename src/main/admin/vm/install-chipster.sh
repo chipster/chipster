@@ -235,6 +235,13 @@ wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http:/
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
+
+	# old R versions for Chipster 3.0 
+	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-medips.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-variantannotation.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	
+		
+	# R			
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
   ln -s R-${R_VER} ${TOOLS_PATH}/R
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
