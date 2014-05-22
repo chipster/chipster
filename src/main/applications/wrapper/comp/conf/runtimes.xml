@@ -58,53 +58,6 @@
 	</runtime>
 
 	<runtime>
-		<name>R-2.14</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
-			<parameter>
-				<name>command</name>
-				<value>/opt/chipster/tools/R-2.14.1/bin/R</value>
-			</parameter>
-			<parameter>
-				<name>commandParameters</name>
-				<value>--vanilla --quiet</value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R-2.14</value>
-			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
-			
-		</handler>
-	</runtime>
-
-	<runtime>
-		<name>R-2.15</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
-			<parameter>
-				<name>command</name>
-				<value>/opt/chipster/tools/R-2.15.1/bin/R</value>
-			</parameter>
-			<parameter>
-				<name>commandParameters</name>
-				<value>--vanilla --quiet</value>
-			</parameter>
-			<parameter>
-				<name>toolPath</name>
-				<value>/R-2.15</value>
-			</parameter>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
-		</handler>
-	</runtime>
-
-	<runtime>
 		<name>R-2.15_bioc-2.11</name>
 		<handler>
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
@@ -161,27 +114,6 @@
         </handler>
     </runtime>
 	
-	<!-- By default we don't require EMBOSS (disabling handler makes tools disabled) 
-	<runtime>
-		<name>EMBOSS</name>
-		<handler>
-			<class>fi.csc.microarray.analyser.emboss.EmbossAnalysisHandler</class>
-			<parameter>
-				<name>externalToolPath</name>
-				<value>/opt/chipster/tools</value>
-			</parameter>
-			<parameter>
-				<name>embossPath</name>
-				<value>/EMBOSS-6.2.0/emboss</value>
-			</parameter>
-			<parameter>
-				<name>descriptionPath</name>
-				<value>/EMBOSS-6.2.0/emboss/acd</value>
-			</parameter>
-		</handler>
-	</runtime>
-	-->
-	 
 	<runtime>
 		<name>shell</name>
 		<handler>
