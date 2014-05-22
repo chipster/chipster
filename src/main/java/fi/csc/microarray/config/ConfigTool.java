@@ -48,10 +48,10 @@ public class ConfigTool {
 	};
 
 	private String[][] configs = new String[][] {
-			{"message broker (ActiveMQ) host", "myhost.mydomain"},
+			{"broker public host/ip", "myhost.mydomain"},
+			{"broker private host/ip", "myhost.mydomain"},
 			{"message broker protocol", "tcp"},
 			{"message broker port", "61616"},
-			{"file broker host", "myhost.mydomain"},
 			{"file broker port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
@@ -63,10 +63,10 @@ public class ConfigTool {
 	private final int KEY_INDEX = 0;
 	private final int VAL_INDEX = 1;
 
-	private final int BROKER_HOST_INDEX = 0;
-	private final int BROKER_PROTOCOL_INDEX = 1;
-	private final int BROKER_PORT_INDEX = 2;
-	private final int FILEBROKER_HOST_INDEX = 3;
+	private final int BROKER_PUBLIC_HOST_INDEX = 0;
+	private final int BROKER_PRIVATE_HOST_INDEX = 1;
+	private final int BROKER_PROTOCOL_INDEX = 2;
+	private final int BROKER_PORT_INDEX = 3;
 	private final int FILEBROKER_PORT_INDEX = 4;
 	private final int WS_CODEBASE_INDEX = 5;
 	private final int WS_PORT = 6;
@@ -84,7 +84,7 @@ public class ConfigTool {
 	private HashMap<String, Document> documentsToWrite = new HashMap<String, Document>();
 
 	public ConfigTool() throws ParserConfigurationException {
-		System.out.println("Configuring Chipster");
+		System.out.println("Configuring Chipster...");
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -96,9 +96,11 @@ public class ConfigTool {
 		} else if ("configure".equals(args[0])) {
 			configTool.configure();
 		} else if ("auto-configure".equals(args[0])) {
-			configTool.simpleConfigure(null);
-		} else if ("simple-configure".equals(args[0]) && args.length == 2) {
-			configTool.simpleConfigure(args[1]);
+			configTool.simpleConfigure(null, null);
+		} else if ("simple-configure".equals(args[0]) && args.length >= 3) {
+			configTool.simpleConfigure(args[1], args[2]);
+		} else if ("simple-configure".equals(args[0]) && args.length >= 2) {
+			configTool.simpleConfigure(args[1], null);
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
 
@@ -108,7 +110,18 @@ public class ConfigTool {
 	}
 	
 	private static void fail() {
-		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, upgrade_<major version number of source>_<major version number of target>");
+		System.out.println("\n" + 
+				"Incorrect syntax. Use:\n" + 
+				"\n" + 
+				"  configure.sh configure\n" + 
+				"    Start interactive configuration utility\n" + 
+				"\n" + 
+				"  configure.sh auto-configure\n" + 
+				"    Detect IP automatically and configure everything else with default values\n" + 
+				"\n" + 
+				"  configure.sh simple-configure public-ip [private-ip]\n" + 
+				"    Use given IP address (and separate private IP, when given) and configure everything else with default values\n" + 
+				"");
 	}
 	
 	private void genpasswd() throws Exception {
@@ -199,9 +212,9 @@ public class ConfigTool {
 			// sniff current host
 			try {
 				String host = getInetAddress().getHostName();
-				configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
-				configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
-				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
+				configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] = host;
+				configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] = host;
+				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":" + configs[WS_PORT][VAL_INDEX];
 			} catch (UnknownHostException e) {
 				// ignore, sniffing failed
 			}
@@ -217,12 +230,7 @@ public class ConfigTool {
 					configs[i][VAL_INDEX] = line;
 				}
 			}
-			
-			// add web start location
-			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
 
-			
-			
 			
 			//
 			// STEP 2. UPDATE CONFIGS
@@ -253,18 +261,20 @@ public class ConfigTool {
 	 * @param host
 	 * @throws Exception
 	 */
-	public void simpleConfigure(String host) throws Exception {
+	public void simpleConfigure(String publicHost, String privateHost) throws Exception {
 	
-		// auto detect hostname
-		if (host == null) {
-			host = getInetAddress().getHostName();
+		// auto detect hostname(s)
+		if (publicHost == null) {
+			publicHost = getInetAddress().getHostName();
+		}
+		if (privateHost == null) {
+			privateHost = publicHost;
 		}
 		
 		try {
-
-			configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
-			configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
-			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":" + configs[WS_PORT][VAL_INDEX];
+			configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] = publicHost;
+			configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] = privateHost;
+			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + publicHost + ":" + configs[WS_PORT][VAL_INDEX];
 			
 			updateConfigs();
 
@@ -291,12 +301,12 @@ public class ConfigTool {
 		for (String componentDir : getComponentDirsWithConfig()) {
 			if (new File(componentDir).exists()) {
 				File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
-				updateChipsterConfigFile(configFile);
+				updateChipsterConfigFile(configFile, true);
 			}
 		}
 		File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
 		if (wsClientConfigFile.exists()) {
-			updateChipsterConfigFile(wsClientConfigFile);
+			updateChipsterConfigFile(wsClientConfigFile, false);
 		}
 
 		// update ActiveMQ config
@@ -318,7 +328,7 @@ public class ConfigTool {
 		
 		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
 		Element transportConnector = (Element)transportConnectors.getElementsByTagName("transportConnector").item(0); // edit first in the list (could use attribute name to decide right one)..
-		String uri = configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] + "://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[BROKER_PORT_INDEX][VAL_INDEX];
+		String uri = configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] + "://" + configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] + ":" + configs[BROKER_PORT_INDEX][VAL_INDEX];
 		updateElementAttribute(transportConnector, "uri", uri);
 		
 		writeLater(configFile, doc);
@@ -331,7 +341,7 @@ public class ConfigTool {
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
 		NodeList arguments = applicationDesc.getElementsByTagName("argument");
 		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
-		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
+		String url = "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
 		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
 		writeLater(configFile, doc);
 	}
@@ -369,11 +379,15 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 	
-	private void updateChipsterConfigFile(File configFile) throws Exception {
+	private void updateChipsterConfigFile(File configFile, boolean isPrivateNetwork) throws Exception {
 		Document doc = openForUpdating("Chipster", configFile);
 
 		Element messagingModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
-		updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_HOST_INDEX][VAL_INDEX]);
+		if (isPrivateNetwork) {
+			updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX]);
+		} else {
+			updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX]);			
+		}
 		updateConfigEntryValue(messagingModule, "broker-protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker-port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
@@ -409,7 +423,7 @@ public class ConfigTool {
 	}
 
 	private String createFilebrokerUrl() {
-		return "http://" + configs[FILEBROKER_HOST_INDEX][VAL_INDEX];
+		return "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX];
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {
