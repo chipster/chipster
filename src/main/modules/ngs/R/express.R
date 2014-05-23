@@ -5,7 +5,7 @@
 # OUTPUT OPTIONAL effective-counts-express.tsv: "Effective read counts per transcript from eXpress" (This file contains effective read counts per transcript from eXpress.)
 # OUTPUT OPTIONAL full-express-output.tsv: "Express output table containing all the columns." (Express output table containing all the columns.)
 # PARAMETER phred.scale: "Quality scale used in the fastq file" TYPE [phred33: "phred + 33", phred64: "phred + 64"] DEFAULT phred33 (Quality scale used in the fastq file.)
-# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [20: "20", 100: "100", 1000: "1000", 6: "all alignments"] DEFAULT 20 (How many alignments should Bowtie report per read.)
+# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [20: "20", 100: "100", 1000: "1000"] DEFAULT 20 (How many alignments should Bowtie2 search per read.)
 # PARAMETER OPTIONAL fragmentlength: "Mean fragment length" TYPE INTEGER FROM 10 TO 10000 DEFAULT 200 (While the empirical distribution is estimated from paired-end reads on-the-fly, this value paramaterizes the prior distribution. If only single-end reads are available, this prior distribution is also used to determine the effective length.)
 # PARAMETER OPTIONAL fragmentlengthstdev: "Fragment length standard deviation" TYPE INTEGER FROM 5 TO 200 DEFAULT 60 (While the empirical distribution is estimated from paired-end reads on-the-fly, this value paramaterizes the prior distribution. If only single-end reads are available, this prior distribution is also used to determine the effective length.)
 
@@ -27,22 +27,22 @@ bowtie.build.command <- paste(bowtie.build.binary, "-offrate=1 -f transcripts.fa
 system(bowtie.build.command)
 
 # collect Bowtie paramters
-bowtie.params <- paste("-a -X 800 -p", chipster.threads.max)
+bowtie.params <- paste("--rdg 6,5 --rfg 6,5 --score-min L,-.6,-.4 -p", chipster.threads.max, "-k", alignment.no)
 if(phred.scale == "phred64"){
 	bowtie.params <- paste(bowtie.params, "--phred64")
 }
  # how many alignments should Bowtie report
-if ( alignment.no==6){
-	bowtie.params <- paste(bowtie.params, "-a")
-}
-if ( alignment.no>6){
-	bowtie.params <- paste(bowtie.params, "-k", alignment.no )
-}
+# if (alignment.no==6){
+#	bowtie.params <- paste(bowtie.params, "-a")
+#}
+#if (alignment.no>6){
+#	bowtie.params <- paste(bowtie.params, "-k", alignment.no )
+#}
 
 
 if (file.exists("reads2.fq")){
 	# Paired end reads
-	bowtie.command <- paste(bowtie.binary, bowtie.params, "-x transcriptome -1 reads1.fq -2 reads2.fq |", samtools.binary, "view -Sb - > alignment.bam")
+	bowtie.command <- paste(bowtie.binary, bowtie.params, "--no-discordant --no-mixed -x transcriptome -1 reads1.fq -2 reads2.fq |", samtools.binary, "view -Sb - > alignment.bam")
 	
 } else{
 	# Single end reads
@@ -67,8 +67,14 @@ system(command)
 # rename result file
 system("cp results.xprs full-express-output.tsv")
 
+# take the title row and put it to a new file
+system("head -1 results.xprs > id_sorted")
+
+# sort the remaining rows by the identifier column and add it to the file. Sorting by the identifier is necessary so that count files for individual samples can be combined to a count table later.
+system("tail -n +2 results.xprs | sort -k 2,2 >> id_sorted")
+
 # make a second output file containing only the effective counts
-results <- read.table(file="results.xprs", sep="\t", header=T, quote="")
+results <- read.table(file="id_sorted", sep="\t", header=T, quote="")
 effcounts <- data.frame(target_id = results$target_id, eff_counts=round(results$eff_counts, digits=0))
 write.table(effcounts, file="effective-counts-express.tsv", sep="\t", row.names=F, quote=F)
 
