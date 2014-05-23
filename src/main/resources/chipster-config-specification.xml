@@ -166,12 +166,6 @@
 		<entry entryKey="offer-delay" type="int" description="delay before sending the job offer message, multiplied by number of scheduled and running jobs, milliseconds">
 			<value>100</value>
 		</entry>
-		
-		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
-		</entry>
-		
-		<entry entryKey="exclude-operations" type="strings" description="if specified, listed operations are excluded">
-		</entry>
 
 		<entry entryKey="sweep-work-dir" type="boolean" description="should job specific temporary directory be sweeped after job execution">
 			<value>true</value>
