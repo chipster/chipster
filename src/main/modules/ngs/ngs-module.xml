@@ -136,7 +136,7 @@
 		<tool runtime="R-3.0">
 			<resource>bedtools-slopbed.R</resource>
 		</tool>	
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
@@ -144,6 +144,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>fastx-renamer.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-collapser.R</resource>
 		</tool>		
 	    <tool runtime="R-3.0">
 			<resource>test-data-in.R</resource>
@@ -268,7 +271,7 @@
 		<tool runtime="R-3.0">
 			<resource>htseq-count.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -441,7 +444,7 @@
 		<tool runtime="R-3.0">
       		<resource>mothur-sffinfo.R</resource>
     	</tool>
-    	<tool runtime="R-2.15">
+    	<tool runtime="R-3.0">
       		<resource>merge-fasta-qual.R</resource>		
 		</tool>
 		<tool runtime="R-3.0">
