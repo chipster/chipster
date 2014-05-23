@@ -56,5 +56,5 @@ if(length(grep("symbol", tolower(colnames(dat2)))) > 0) {
 }
 
 # Writes out the data and the phenodata table
-write.table(dat, file="normalized.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(dat, file="input.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
