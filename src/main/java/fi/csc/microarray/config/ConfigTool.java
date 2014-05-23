@@ -83,44 +83,100 @@ public class ConfigTool {
 	
 	private HashMap<String, Document> documentsToWrite = new HashMap<String, Document>();
 
-	public ConfigTool() throws ParserConfigurationException {
-		System.out.println("Configuring Chipster...");
-	}
-	
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
-		
-		if (args.length == 0) {
-			fail();
 
-		} else if ("configure".equals(args[0])) {
+		if (args.length == 0 || "configure".equals(args[0])) {
+			System.out.println("Configuring Chipster...");
 			configTool.configure();
-		} else if ("auto-configure".equals(args[0])) {
+		} else if ("auto-configure".equals(args[0]) || "auto".equals(args[0])) {
+			System.out.println("Configuring Chipster...");
 			configTool.simpleConfigure(null, null);
-		} else if ("simple-configure".equals(args[0]) && args.length >= 3) {
-			configTool.simpleConfigure(args[1], args[2]);
-		} else if ("simple-configure".equals(args[0]) && args.length >= 2) {
-			configTool.simpleConfigure(args[1], null);
+			System.out.println("Configuring Chipster...");
 		} else if ("genpasswd".equals(args[0])) {
+			System.out.println("Generating Chipster server password...");
 			configTool.genpasswd();
+		} else if ("edit".equals(args[0]) && args.length >= 4) {
+			
+			// Check components to process
+			String[] components;
+			if ("all".equals(args[1])) {
+				components = componentDirsWithConfig;
+			} else {
+				components = new String[] { args[1] };
+			}
+						
+			// Process the edit command
+			if (!"print".equals(args[2])) {
+				System.out.println("Configuring Chipster...");
+			}
+			configTool.editConfig(components, args[2], args[3], args.length > 4 ? args[4] : null);
 
+		} else if ("help".equals(args[0]) || "--help".equals(args[0]) || "-h".equals(args[0])) {
+			printHelp();
+			
 		} else {
-			fail();
-		}
+			// simple-configure (command not required on CLI, so gets really messy)
+			if (args.length == 3 && "simple-configure".equals(args[0])) {
+				System.out.println("Configuring Chipster...");
+				configTool.simpleConfigure(args[1], args[2]);			
+
+			} else if (args.length == 2 && "simple-configure".equals(args[0])) {
+				System.out.println("Configuring Chipster...");
+				configTool.simpleConfigure(args[1], null);			
+				
+			} else if (args.length == 2 ) {
+				System.out.println("Configuring Chipster...");
+				configTool.simpleConfigure(args[0], args[1]);			
+				
+			} else 	if (args.length == 1 ) {
+				System.out.println("Configuring Chipster...");
+				configTool.simpleConfigure(args[0], null);			
+				
+			} else {
+				printHelp();
+			}				
+		}						
 	}
 	
-	private static void fail() {
-		System.out.println("\n" + 
+	private static void printHelp() {
+		System.out.println("Configuring Chipster...\n" + 
+				"\n" + 
 				"Incorrect syntax. Use:\n" + 
 				"\n" + 
-				"  configure.sh configure\n" + 
+				"  configure.sh [configure]\n" + 
 				"    Start interactive configuration utility\n" + 
 				"\n" + 
-				"  configure.sh auto-configure\n" + 
+				"  configure.sh [auto-configure | auto]\n" + 
 				"    Detect IP automatically and configure everything else with default values\n" + 
 				"\n" + 
-				"  configure.sh simple-configure public-ip [private-ip]\n" + 
-				"    Use given IP address (and separate private IP, when given) and configure everything else with default values\n" + 
+				"  configure.sh [simple-configure] public-ip [private-ip]\n" + 
+				"    Use given IP address (and separate private IP, when given) and configure \n" + 
+				"    everything else with default values\n" + 
+				"\n" + 
+				"  configure.sh genpasswd\n" + 
+				"    Generate strong random passwords for connections between server components \n" + 
+				"    and message broker (AMQ).\n" + 
+				"\n" + 
+				"  configure.sh edit [<component name> | all] set entry-name entry-value\n" + 
+				"    The \"edit\" command makes small changes to chipster-config.xml files and it\n" + 
+				"    is mostly provided as an interface to use from automatic configuration\n" + 
+				"    management and installation tools.\n" + 
+				"    Set the value of entry with given name to given value. If the entry does not \n" + 
+				"    exist, it is created. Entry name follows pattern CATEGORY_NAME/ENTRY_NAME,\n" + 
+				"    such as comp/max-jobs. Component name is one of the available components or \n" + 
+				"    \"all\" to change all components.\n" + 
+				"\n" + 
+				"  configure.sh edit [<component name> | all] remove entry-name\n" + 
+				"    Remove entry with given name completely. If the entry has default value, the\n" + 
+				"    system will proceed to use it. If the entry does not exist nothing is done.\n" + 
+				"\n" + 
+				"  configure.sh edit [<component name> | all] print entry-name\n" + 
+				"    Print the value of entry with given name to STDOUT. If the entry does not\n" + 
+				"    exist nothing is printed.\n" + 
+				"\n" + 
+				"  configure.sh [help | --help | -h]\n" + 
+				"    Print this help text.\n" + 
 				"");
 	}
 	
@@ -177,7 +233,7 @@ public class ConfigTool {
 	private void writeChangesToDisk() throws TransformerException, UnsupportedEncodingException, FileNotFoundException {
 		// write out files
 		for (String file : documentsToWrite.keySet()) {
-			System.out.println("Writing changes to " + file + "...");
+			System.out.println("Writing changes to: " + file);
 			XmlUtil.printXml(documentsToWrite.get(file), new OutputStreamWriter(new FileOutputStream(file)));
 		}
 		System.out.println("\nAll changes successfully written!");
@@ -294,7 +350,55 @@ public class ConfigTool {
 
 	}
 
-	
+
+	private void editConfig(String[] components, String command, String entryName, String entryValue) throws Exception {
+
+		try {
+
+			// Collect changes for each config file
+			for (String component : components) {
+				File configFile = new File(component + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
+				Document doc = openForUpdating("Chipster", configFile, true);
+
+				String[] nameParts = entryName.split("/");
+				if (nameParts.length != 2) {
+					throw new IllegalArgumentException("illegal entry name: " + entryName);
+				}
+				String category = nameParts[0];
+				String name = nameParts[1];
+				Element module = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", category);
+				if (module == null) {
+					throw new IllegalArgumentException("illegal category name: " + category);
+				}
+				if ("set".equals(command)) {
+					setConfigEntryValue(doc, module, name, entryValue);
+					writeLater(configFile, doc);
+					
+				} else if ("remove".equals(command)) {
+					removeConfigEntry(module, name);
+					writeLater(configFile, doc);
+					
+				} else if ("print".equals(command)) {
+					printConfigEntryValue(module, name, entryValue);
+					
+				} else {
+					throw new IllegalArgumentException("unknown command: " + command);					
+				}
+			}
+
+		} catch (Throwable t) {
+			t.printStackTrace();
+			System.err.println("\nQuitting, no changes written to disk!");
+			return;
+
+		}
+
+		// Process changes
+		if (!"print".equals(command)) {
+			writeChangesToDisk();
+		}
+
+	}
 	
 	private void updateConfigs() throws Exception {
 		// update all Chipster configs
@@ -323,7 +427,7 @@ public class ConfigTool {
 	}
 
 	private void updateActivemqConfigFile(File configFile) throws Exception {
-		Document doc = openForUpdating("ActiveMQ", configFile);
+		Document doc = openForUpdating("ActiveMQ", configFile, false);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 		
 		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
@@ -335,7 +439,7 @@ public class ConfigTool {
 	}
 	
 	private void updateWsConfigFile(File configFile) throws Exception {
-		Document doc = openForUpdating("Web Start", configFile);
+		Document doc = openForUpdating("Web Start", configFile, false);
 		Element jnlp = (Element)doc.getDocumentElement();
 		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
@@ -347,7 +451,7 @@ public class ConfigTool {
 	}
 
 	private void updateActivemqConfigFilePasswords(File configFile) throws Exception {
-		Document doc = openForUpdating("ActiveMQ", configFile);
+		Document doc = openForUpdating("ActiveMQ", configFile, false);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 			
 		NodeList users = ((Element)((Element)((Element)broker.getElementsByTagName("plugins").item(0)).getElementsByTagName("simpleAuthenticationPlugin").item(0)).getElementsByTagName("users").item(0)).getElementsByTagName("authenticationUser");
@@ -365,7 +469,7 @@ public class ConfigTool {
 	}
 
 	private void updateChipsterConfigFilePasswords(File configFile) throws Exception {
-		Document doc = openForUpdating("Chipster", configFile);
+		Document doc = openForUpdating("Chipster", configFile, false);
 
 		Element securityModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "security");
 		Element usernameElement = XmlUtil.getChildWithAttributeValue(securityModule, "entryKey", "username");
@@ -380,7 +484,7 @@ public class ConfigTool {
 	}
 	
 	private void updateChipsterConfigFile(File configFile, boolean isPrivateNetwork) throws Exception {
-		Document doc = openForUpdating("Chipster", configFile);
+		Document doc = openForUpdating("Chipster", configFile, false);
 
 		Element messagingModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
 		if (isPrivateNetwork) {
@@ -411,7 +515,6 @@ public class ConfigTool {
 		if (clientModule != null) {
 			updateConfigEntryValue(clientModule, "manual-root", configs[WS_CODEBASE_INDEX][VAL_INDEX] + "/manual/");
 		}
-
 		
 		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
@@ -430,6 +533,31 @@ public class ConfigTool {
 		Element entry = XmlUtil.getChildWithAttributeValue(module, "entryKey", name);
 		Element value = (Element)entry.getElementsByTagName("value").item(0);
 		updateElementValue(value, name, newValue);
+	}
+
+	private void setConfigEntryValue(Document doc, Element module, String name, String newValue) {
+		Element entry = XmlUtil.getChildWithAttributeValue(module, "entryKey", name);
+		if (entry == null) {
+			entry = doc.createElement("entry");
+			module.appendChild(entry);
+			entry.setAttribute("entryKey", name);
+			Element newValueElement = doc.createElement("value");
+			entry.appendChild(newValueElement);
+		}
+		Element value = (Element)entry.getElementsByTagName("value").item(0);
+		updateElementValue(value, name, newValue);
+	}
+
+	private void removeConfigEntry(Element module, String name) {
+		Element entry = XmlUtil.getChildWithAttributeValue(module, "entryKey", name);
+		System.out.println("  removing " + name);
+		module.removeChild(entry);
+	}
+
+	private void printConfigEntryValue(Element module, String name, String newValue) {
+		Element entry = XmlUtil.getChildWithAttributeValue(module, "entryKey", name);
+		Element value = (Element)entry.getElementsByTagName("value").item(0);
+		System.out.println(value.getTextContent());
 	}
 
 	private void updateElementValue(Element element, String logicalName, String newValue) {
@@ -451,8 +579,10 @@ public class ConfigTool {
 		System.out.println("");
 	}
 
-	private Document openForUpdating(String name, File configFile) throws SAXException, IOException, ParserConfigurationException {
-		System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
+	private Document openForUpdating(String name, File configFile, boolean silent) throws SAXException, IOException, ParserConfigurationException {
+		if (!silent) {
+			System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
+		}
 		Document doc = XmlUtil.parseFile(configFile);
 		return doc;
 	}
