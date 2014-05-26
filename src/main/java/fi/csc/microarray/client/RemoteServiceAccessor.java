@@ -36,21 +36,24 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	private Collection<ToolModule> modules = null;
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
-		this.initialise(new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener), manager, authenticationRequestListener);
-	}
-		
+		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
+		this.initialise(endpoint, 
+				manager, 
+				new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE)));	
+	}		
+	
 	/**
-	 * Initialise RemoteServiceAccessor with custom messaging endpoint. This is used when file broker uses client code to manage example sessions.
+	 * Initialise RemoteServiceAccessor with custom messaging endpoint and custom file broker client. This is used when file broker uses client code to manage example sessions.
 	 * 
 	 * @param endpoint
 	 * @param manager
 	 * @param authenticationRequestListener
 	 * @throws Exception
 	 */
-	public void initialise(MessagingEndpoint endpoint, DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {		
+	public void initialise(MessagingEndpoint endpoint, DataManager manager, FileBrokerClient fileBrokerClient) throws Exception {
 		this.endpoint = endpoint;
-	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
-		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
+	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);	    
+		this.filebrokerClient = fileBrokerClient;
 	    this.taskExecutor = new TaskExecutor(endpoint, manager);
 	}
 
