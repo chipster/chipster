@@ -419,6 +419,8 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
 
+			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/activemq/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
