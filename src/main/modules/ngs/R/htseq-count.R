@@ -47,7 +47,7 @@ if(chr == "no"){
 }
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
 # htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
-htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam", gtf, " > htseq-counts-out.txt")
 
 
 # run
