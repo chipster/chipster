@@ -89,29 +89,14 @@ public class Configuration {
 		}
 	}
 
-	public String[] getStrings(String moduleName, String name) {
-		ConfigurationModule module = findModule(moduleName);		
-		return module.getEntry(name).getStrings();
-	}
-
 	public String getString(String moduleName, String name) {
 		ConfigurationModule module = findModule(moduleName); 
 		return module.getEntry(name).getString();
 	}
 
-	public int[] getInts(String moduleName, String name) {
-		ConfigurationModule module = findModule(moduleName);		
-		return module.getEntry(name).getInts();
-	}
-
 	public int getInt(String moduleName, String name) {
 		ConfigurationModule module = findModule(moduleName); 
 		return module.getEntry(name).getInt();
-	}
-
-	public boolean[] getBooleans(String moduleName, String name) {
-		ConfigurationModule module = findModule(moduleName);		
-		return module.getEntry(name).getBooleans();
 	}
 
 	public boolean getBoolean(String moduleName, String name) {

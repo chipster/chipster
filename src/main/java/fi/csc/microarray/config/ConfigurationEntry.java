@@ -5,30 +5,22 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
 
 public class ConfigurationEntry {
 	
-	
 	private static final String PROPERTY_REFERENCE_POSTFIX = "}";
 	private static final String PROPERTY_REFERENCE_PREFIX = "${";
 
 	enum Type {
 		STRING,
 		INT,
-		BOOLEAN,
-		STRINGS,
-		INTS,
-		BOOLEANS;
-
-		public boolean isSingle() {
-			return this == STRING || this == INT || this == BOOLEAN;
-		}
+		BOOLEAN;
 
 		public static Type fromName(String typeName) {
 			return valueOf(typeName.toUpperCase());
 		}
 	}
 	
-	private String[] stringValues;
-	private int[] intValues;
-	private boolean[] booleanValues;	
+	private String stringValue;
+	private int intValue;
+	private boolean booleanValue;	
 	private Type type;
 	private String name;
 	private boolean mustBeSet = false;
@@ -39,56 +31,35 @@ public class ConfigurationEntry {
 	}
 	
 	public void setValue(String value) throws IllegalConfigurationException {
-		setValue(new String[] { value });
-	}
-	
-	public void setValue(String[] values) throws IllegalConfigurationException {
-		
-		// pre checks
-		if (type.isSingle() && values.length > 1) {
-			throw new IllegalConfigurationException(name + " accepts only single value");
-		}
 		
 		// do system property rewrites
-		for (int i = 0; i < values.length; i++) {
-			if (values[i].startsWith(PROPERTY_REFERENCE_PREFIX)) {
-				String[] split = values[i].split(PROPERTY_REFERENCE_POSTFIX);
-				String systemProperty = System.getProperty(split[0].substring(2));
-				values[i] = systemProperty + split[1];
-			}
+		if (value.startsWith(PROPERTY_REFERENCE_PREFIX)) {
+			String[] split = value.split(PROPERTY_REFERENCE_POSTFIX);
+			String systemProperty = System.getProperty(split[0].substring(2));
+			value = systemProperty + split[1];
 		}
 		
 		// set value and check type
 		switch (type) {
 		case STRING:
-		case STRINGS:
-			this.stringValues = values;
+			this.stringValue = value;
 			break;
 			
 		case INT:
-		case INTS:
-			this.intValues = new int[values.length];
-			for (int i = 0; i < values.length; i++) {
-				try {
-					this.intValues[i] = Integer.parseInt(values[i]);
-				} catch (NumberFormatException e) {
-					throw new IllegalConfigurationException("illegal integer values " + values[i] + " for setting " + name);				
-				}
+			try {
+				this.intValue = Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+				throw new IllegalConfigurationException("illegal integer values " + value + " for setting " + name);				
 			}
 			break;
 			
 		case BOOLEAN:
-		case BOOLEANS:
-			this.booleanValues = new boolean[values.length];
-			for (int i = 0; i < values.length; i++) {
-
-				if (Boolean.TRUE.toString().equals(values[i].toLowerCase())) {
-					this.booleanValues[i] = true;
-				} else if (Boolean.FALSE.toString().equals(values[i].toLowerCase())) {
-					this.booleanValues[i] = false;
-				} else {
-					throw new IllegalConfigurationException("illegal boolean value " + values[i] + " for setting " + name);
-				}
+			if (Boolean.TRUE.toString().equals(value.toLowerCase())) {
+				this.booleanValue = true;
+			} else if (Boolean.FALSE.toString().equals(value.toLowerCase())) {
+				this.booleanValue = false;
+			} else {
+				throw new IllegalConfigurationException("illegal boolean value " + value + " for setting " + name);
 			}
 			break;
 
@@ -102,56 +73,22 @@ public class ConfigurationEntry {
 
 	public String getString() {
 		checkType(Type.STRING);
-
-		if (stringValues.length > 1) {
-			throw new IllegalArgumentException("multiple values found for " + name);
-
-		} else {
-			return stringValues[0];
-		}
+		return stringValue;
 	}
 	
 	public int getInt() {
 		checkType(Type.INT);
-		
-		if (intValues.length > 1) {
-			throw new IllegalArgumentException("multiple values found for " + name);
-
-		} else {
-			return intValues[0];
-		}
+		return intValue;
 	}
 	
 	public boolean getBoolean() {
 		checkType(Type.BOOLEAN);
-		
-		if (booleanValues.length > 1) {
-			throw new IllegalArgumentException("multiple values found for " + name);
-
-		} else {
-			return booleanValues[0];
-		}
-	}
-	
-	public String[] getStrings() {
-		checkType(Type.STRINGS);
-		return stringValues;
-	}
-	
-	public int[] getInts() {
-		checkType(Type.INTS);
-		return intValues;
-	}
-	
-	public boolean[] getBooleans() {
-		checkType(Type.BOOLEANS);
-		return booleanValues;
+		return booleanValue;
 	}
 	
 	private void checkType(Type suggested) {
 		if (type != suggested) {
 			throw new IllegalArgumentException(name + " has type " + type + ", not " + suggested);
-			
 		}
 	}
 
