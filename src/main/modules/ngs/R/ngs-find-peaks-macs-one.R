@@ -28,7 +28,7 @@
 
 # MACS settings
 if(version == 1) {
-	macs.binary <- file.path(chipster.tools.path, "macs", "macs142")
+	macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
 } else {
 	macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
 }
