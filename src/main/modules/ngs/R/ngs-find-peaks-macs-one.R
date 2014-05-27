@@ -154,13 +154,10 @@ if (build.model == "yes") {
 						version=FALSE)
 }
 
-#For testing purposes. Remove before moving to production
-pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
-pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
-pypath <- ""
+#pypath <- ""
+#system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
 
 print(command)
-system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
 if (system.output != 0) {
 	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value.") 
 }
