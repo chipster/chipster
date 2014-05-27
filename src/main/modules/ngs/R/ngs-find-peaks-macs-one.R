@@ -154,8 +154,8 @@ if (build.model == "yes") {
 						version=FALSE)
 }
 
-#pypath <- ""
-#system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
+pypath <- ""
+system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
 
 print(command)
 if (system.output != 0) {
