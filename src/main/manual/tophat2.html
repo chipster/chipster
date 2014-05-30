@@ -18,13 +18,16 @@ You need to supply the reads in a FASTQ file. Supplying a GTF file is optional b
 <li>Use annotation GTF (yes, no) [yes]</li>
 <li>When GTF file is used, ignore novel junctions (yes, no) [yes]</li>
 <li>Base quality encoding used (phred+33, phred+64) [phred+33]</li>
+<li>Expected inner distance between mate pairs (Integer) [200]</li>
+<li>Standard deviation for the inner distances between mate pairs (Integer) [20]</li>
+<li>How many hits is a read allowed to have (1-1000000) [20]</li>
 <li>Number of mismatches allowed in final alignment [2]</li>
-<li>Expected inner distance between mate pairs (1-1000) [200]</li>
-<li>Standard deviation for the inner distances between mate pairs (Int) [20]</li>
 <li>Minimum anchor length (3-1000) [8]</li>
 <li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
 <li>Minimum intron length (10-1000) [70]</li>
-<li>How many hits is a read allowed to have (1-1000000) [20]</li>
+<li>Maximum intron length (1000-1000000) [500000]</li>
+<li>Report only concordant alignments (yes, no) [yes]</li>
+<li>Report only concordant alignments (yes, no) [yes]</li>
 </ul>
 
 <h3>Details</h3>

@@ -2,8 +2,8 @@
 # INPUT reads1.fq: "Read file 1" TYPE GENERIC
 # INPUT reads2.fq: "Read file 2 with mates in matching order" TYPE GENERIC
 # INPUT OPTIONAL genes.gtf: "Optional GTF file" TYPE GENERIC
-# OUTPUT tophat.bam
-# OUTPUT tophat.bam.bai
+# OUTPUT OPTIONAL tophat.bam
+# OUTPUT OPTIONAL tophat.bam.bai
 # OUTPUT OPTIONAL junctions.bed
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
@@ -20,7 +20,8 @@
 # PARAMETER OPTIONAL splice.mismatches: "Maximum number of mismatches allowed in the anchor" TYPE INTEGER FROM 0 TO 2 DEFAULT 0 (The maximum number of mismatches that may appear in the anchor region of a spliced alignment.)
 # PARAMETER OPTIONAL min.intron.length: "Minimum intron length" TYPE INTEGER FROM 10 TO 1000 DEFAULT 70 (TopHat2 will ignore donor-acceptor pairs closer than this many bases apart.)
 # PARAMETER OPTIONAL max.intron.length: "Maximum intron length" TYPE INTEGER FROM 1000 TO 1000000 DEFAULT 500000 (TopHat2 will ignore donor-acceptor pairs farther than this many bases apart, except when such a pair is supported by a split segment alignment of a long read.)
-
+# PARAMETER OPTIONAL no.discordant: "Report only concordant alignments" TYPE [yes, no] DEFAULT yes (Report only concordant mappings.) 
+# PARAMETER OPTIONAL no.mixed: "Report only paired alignments" TYPE [yes, no] DEFAULT yes (Only report read alignments if both reads in a pair can be mapped.)
 
 # EK 17.4.2012 added -G and -g options
 # MG 24.4.2012 added ability to use gtf files from Chipster server
@@ -58,6 +59,14 @@ command.parameters <- paste("-p", chipster.threads.max, "-r", mate.inner.distanc
 
 if ( quality.format == "phred64") {
 	command.parameters <- paste(command.parameters, "--phred64-quals")
+}
+
+if (no.discordant == "yes"){
+	command.parameters <- paste(command.parameters, "--no-discordant")
+}
+
+if (no.mixed == "yes"){
+	command.parameters <- paste(command.parameters, "--no-mixed")
 }
 
 # optional GTF command, if a GTF file has been provided by user
