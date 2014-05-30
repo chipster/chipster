@@ -522,7 +522,7 @@ then
 
   # Genome data for tools
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/genomes/
+  mkdir -p ${TOOLS_PATH}/genomes/
 
   # GTF gene data for tools
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar -xz -C ${TOOLS_PATH}/
@@ -539,12 +539,12 @@ then
 
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/miRNA_mappings/
+  mkdir -p ${TOOLS_PATH}/miRNA_mappings/
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/miRNA_mappings/All_miRNA_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/miRNA_mappings/
 
   # bwa indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  mkdir ${TOOLS_PATH}/bwa_indexes/
+  mkdir -p ${TOOLS_PATH}/bwa_indexes/
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_hg9.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_mm9.tar.gz | tar -xz -C ${TOOLS_PATH}/
   curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/bwa_index_rn4.tar.gz | tar -xz -C ${TOOLS_PATH}/
