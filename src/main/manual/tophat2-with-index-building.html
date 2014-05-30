@@ -3,29 +3,29 @@
 <head><title></title></head>
 <body>
 
-<h2>Alignment / TopHat2 for single end reads</h2>
+<h2>Alignment / TopHat2 TopHat2 for paired end reads and own genome</h2>
 
 <h3>Description</h3>
 
-<p>This tool aligns Illumina single end RNA-seq reads to publicly available genomes. If you would like us to add new reference genomes to Chipster, please contact us.
-You need to supply the reads in a FASTQ file. Supplying a GTF file is optional but recommended, because using annotation information improves the alignment process. 
-</p> 
-
+<p>
+Aligns paired end Illumina RNA-seq reads to a genome provided as a FASTQ file in order to identify exon-exon splice junctions. 
+</p>
 
 <h3>Parameters</h3> 
 
 <ul>
-<li>Genome (human hg19, mouse mm10, rat rn5, sheep oar3.1, Arabidopsis thaliana TAIR 10, Gasterosteus aculeatus BROADS1.67,...) [human hg19]</li>
-<li>Use annotation GTF (yes, no) [yes]</li>
 <li>When GTF file is used, ignore novel junctions (yes, no) [yes]</li>
 <li>Base quality encoding used (phred+33, phred+64) [phred+33]</li>
+<li>Expected inner distance between mate pairs (Integer) [200]</li>
+<li>Standard deviation for the inner distances between mate pairs (Integer) [20]</li>
 <li>How many hits is a read allowed to have (1-1000000) [20]</li>
 <li>Number of mismatches allowed in final alignment [2]</li>
 <li>Minimum anchor length (3-1000) [8]</li>
 <li>Maximum number of mismatches allowed in the anchor (0, 1, 2) [0]</li>
 <li>Minimum intron length (10-1000) [70]</li>
-<li>Maximum intron length (1000-1,000,000) [500,000]</li>
-
+<li>Maximum intron length (1000-1000000) [500000]</li>
+<li>Report only concordant alignments (yes, no) [yes]</li>
+<li>Report only paired alignments (yes, no) [yes]</li>
 </ul>
 
 <h3>Details</h3>
@@ -43,6 +43,13 @@ in spliced alignments is supported by at least one read with this many bases on 
 </p>
 <p>
 TopHat2 will ignore donor-acceptor pairs which are closer than the minimum intron length or further than the maximum intron length apart.  
+</p>
+<p>
+For paired-end reads, TopHat2 processes the two reads separately through the same
+mapping stages described above. In the final stage, the independently aligned reads are
+analyzed together to produce paired alignments, taking into consideration additional
+factors including fragment length and orientation.
+The expected mean inner distance between mate pairs means the fragment length minus the reads. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.
 </p>
 
 <p>After running TopHat2, Chipster indexes the BAM file using the <a href="http://samtools.sourceforge.net/">SAMtools</a> package. This way the results are ready to be visualized in the genome browser.</p>
@@ -68,5 +75,7 @@ The score is the number of alignments spanning the junction.</li>
 <p>This tool is based on the <a href="http://tophat.cbcb.umd.edu/">TopHat</a> package. Please cite the following article:</p>
 Kim D, Petrtea G, Trapnell C, et al. <a href="http://genomebiology.com/2013/14/4/R36/abstract">TopHat2: accurate alignments of transcriptomes in the presence of insertions, deletions and gene fusions.</a>  Genome Biology (2013) 14: R36. 
 </p>
+ 
+
 
 </body>
