@@ -143,27 +143,32 @@ system("mv tophat_out/align_summary.txt tophat-summary.txt")
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
 
-size <- 0
-size <- file.info("junctions.u.bed")$size
-if (size > 100){	
-	bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
-	colnames(bed)[1:2] <- c("chr", "start")
-	sorted.bed <- sort.bed(bed)
-	write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+if (file.exists("junctions.u.bed")){
+	size <- file.info("junctions.u.bed")$size
+	if (size > 100){	
+		bed <- read.table(file="junctions.u.bed", skip=1, sep="\t")
+		colnames(bed)[1:2] <- c("chr", "start")
+		sorted.bed <- sort.bed(bed)
+		write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	}	
 }
 
-size <- file.info("insertions.u.bed")$size
-if (size > 100){
-	bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
-	colnames(bed)[1:2] <- c("chr", "start")
-	sorted.bed <- sort.bed(bed)
-	write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+if (file.exists("insertions.u.bed")){
+	size <- file.info("insertions.u.bed")$size
+	if (size > 100){
+		bed <- read.table(file="insertions.u.bed", skip=1, sep="\t")
+		colnames(bed)[1:2] <- c("chr", "start")
+		sorted.bed <- sort.bed(bed)
+		write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	}
 }
 
-size <- file.info("deletions.u.bed")$size
-if (size > 100){
-	bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
-	colnames(bed)[1:2] <- c("chr", "start")
-	sorted.bed <- sort.bed(bed)
-	write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+if (file.exists("insertions.u.bed")){
+	size <- file.info("deletions.u.bed")$size
+	if (size > 100){
+		bed <- read.table(file="deletions.u.bed", skip=1, sep="\t")
+		colnames(bed)[1:2] <- c("chr", "start")
+		sorted.bed <- sort.bed(bed)
+		write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	}
 }
