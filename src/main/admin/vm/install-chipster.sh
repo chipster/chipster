@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# This script will install Chipster 2, w/ dependencies
+# This script will install Chipster 3, w/ dependencies
 #
 # Notice! This script needs super-user rights!!
 # e.g. sudo bash install-chipster.sh 2>&1 | tee chipster.log
@@ -19,40 +19,13 @@ set -o pipefail
 # Set exit on unset variable
 set -u
 
-# Wrapper function to run commands and check return values
-#run ()
-#{
-#    # NOTICE!! Nothing is allowed to be sent to standard out!!
-#
-#    # Uncomment to enable debugging
-#    debug=true
-#    
-#    # Print command
-#    [ debug ] && echo "Run: Cmdline: $@" > &2
-#    
-#    # Run command
-#    eval $@
-#    retval=$?
-#    
-#    # Print return value
-#    [ debug ] && echo "Run: Return value: ${retval}" > &2
-#    
-#    # Check return value
-#    if [ ${retval} -ne 0 ]
-#    then
-#        [ debug ] && echo "Run: Command failed!"  > &2
-#    else
-#        [ debug ] && echo "Run: Command succeeded!"  > &2
-#    fi
-#}
-
 ## System update
 aptitude update
 aptitude -y full-upgrade
 
 ## Install packages:
 
-## Pre-requesites:
+## Pre-requisites:
 
 # Java
 # sun-java6-jre (prefered would be openjdk-7-jre)
@@ -112,14 +85,15 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # libnetcdf6, for R
 build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
+
 if [ $mode == "runtime" ]
 then
   ## Runtime:
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk libnetcdf6
+  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc gawk libnetcdf6 cython
 elif [ $mode == "devel" ]
 then
   ## Devel:
-  aptitude -y --without-recommends install build-essential gfortran libcurl4-openssl-dev libglib2.0-dev libglu1-mesa-dev libgsl0-dev libpng-dev libreadline-dev libxml2-dev mesa-common-dev tcl-dev tk-dev xorg-dev python-dev unixodbc-dev libnetcdf-dev 
+  aptitude -y --without-recommends install build-essential gfortran libcurl4-openssl-dev libglib2.0-dev libglu1-mesa-dev libgsl0-dev libpng-dev libreadline-dev libxml2-dev mesa-common-dev tcl-dev tk-dev xorg-dev python-dev unixodbc-dev libnetcdf-dev openjdk-7-jdk git ant cython
 else
   echo "PROBLEM!!"
   exit 1
@@ -136,31 +110,67 @@ fi
 # Math::Cephes, for prinseq-graph
 # Math::MatrixReal, for prinseq-graph
 aptitude -y --without-recommends install libjson-perl libcairo-perl libtext-simpletable-perl libcontextual-return-perl libwant-perl cpanminus
-cpanm Statistics::PCA Math::Cephes Math::MatrixReal 
+cpanm Contextual::Return Exception::Class Test::{Warn,Exception,Differences,Deep} Math::Cephes Math::MatrixReal Statistics::PCA
+
+# misc packages
+aptitude -y --without-recommends install unzip pigz pbzip2 dstat emacs23
 
 ## Initialize:
 # Versions
-CHIP_VER=2.0.2
-R_VER=2.12.1
+CHIP_VER=3.0.0
+
 # Paths
 EXEC_PATH=${PWD}
 INST_PATH=/opt
 CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
-TMPDIR_PATH=/tmp/install
+TMPDIR_PATH=$TMPDIR/tmp/install
+
 # Misc
 USERNAME=chipster
 GROUPNAME=chipster
 
+# prebundled tar or git 
+CHIPSTER_SOURCE="git"
+#GIT_LABEL="tags/chipster-${CHIP_VER}" 
+GIT_LABEL="data_beta" 
+
 ## Create tmpdir
-rm -rf ${TMPDIR_PATH}/
-mkdir ${TMPDIR_PATH}/
+rm -rf ${TMPDIR_PATH}
+mkdir -p ${TMPDIR_PATH}/
 
 ## Chipster:
 
 # Install Chipster
+
 cd ${TMPDIR_PATH}/
-curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
+
+# use prebuilt version
+if [ $CHIPSTER_SOURCE == 'tar' ]; then
+  
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
+
+elif [ $CHIPSTER_SOURCE == 'git' ]; then
+
+  #build it from github
+  rm -rf chipster
+  #git clone https://github.com/chipster/chipster.git
+  #cd chipster
+  #git checkout $GIT_LABEL 
+  curl -s -L http://github.com/chipster/chipster/tarball/$GIT_LABEL/ | tar -xz
+  mv chipster-chipster-* chipster
+  cd chipster
+  
+  rm -f keystore.ks
+  keytool -genkey -alias chipster -keystore keystore.ks -storepass chipster -keypass chipster -validity 1825 -dname "cn=TEST, ou=TEST, o=TEST, c=TEST"
+  echo "chipster" > passfeed; echo "chipster" >> passfeed; 
+  ant < passfeed
+  cd ..
+  mv chipster/dist/chipster-${CHIP_VER}.tar.gz .
+  rm -rf chipster
+  tar xf chipster-${CHIP_VER}.tar.gz
+fi
+
 mv chipster/ ${CHIP_PATH}/
 
 # Make some config "corrections"
@@ -169,7 +179,7 @@ sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/runtimes.xml
 sed -i'~' '/<configuration-module moduleId="comp">/a <!-- make compute service access filebroker file repository locally -->\
 <entry entryKey="local-filebroker-user-data-path" type="string" \
 description="path to local filebrokers user data directory">\
-        <value>/opt/chipster/fileserver/file-root/user-data</value>\
+      <value>/opt/chipster/fileserver/file-root/user-data</value>\
 </entry>' ${CHIP_PATH}/comp/conf/chipster-config.xml
 sed -i'~' "s/#RUN_AS_USER=/RUN_AS_USER=${USERNAME}/" \
     ${CHIP_PATH}/activemq/bin/linux-x86-64/activemq \
@@ -206,21 +216,35 @@ touch ${CHIP_PATH}/auto-config-to-be-run
 #/etc/update-motd.d/31-vm-instructions
 #/etc/update-motd.d/32-announcements
 echo "Chipster announcements not done yet"
-exit -1
-
 
 ##############################################
 # Install external applications and datasets #
 ##############################################
+
 
 ## In root:
 
 # MACS, Artistic license
 # part 1
 cd ${TMPDIR_PATH}/
-wget -nv http://liulab.dfci.harvard.edu/MACS/deb/macs_1.4.1.deb
-dpkg -i macs_1.4.1.deb
-rm macs_1.4.1.deb
+wget -nv https://github.com/downloads/taoliu/MACS/MACS-1.4.2-1.tar.gz
+tar xfz MACS-1.4.2-1.tar.gz
+cd MACS-1.4.2
+python setup.py install
+cd ..
+rm -rf MACS-1.4.2
+rm -f MACS-1.4.2-1.tar.gz
+
+# MACS2, BSD licence
+# part 1
+
+cd $TMPDIR_PATH
+wget -O MACS-2.0.9-1.tar.gz 'https://github.com/downloads/taoliu/MACS/MACS-2.0.9-1.tar.gz'
+tar -xzvf MACS-2.0.9-1.tar.gz
+cd MACS-2.0.9/
+sudo python setup.py install
+cd ..
+rm -rf MACS-2.0.9
 
 # HTSeq, GPL v3 or later
 # part 1
@@ -231,193 +255,21 @@ wget -O /usr/local/lib/python2.7/dist-packages/HTSeq/scripts/count_chr.py http:/
 
 
 ## In tools:
- 
+
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
-  ## R:
-
-	# old R versions for Chipster 3.0 
-	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-medips.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-variantannotation.tar.gz | tar -xz -C ${TOOLS_PATH}/
-	
-		
-	# R			
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
-  ln -s R-${R_VER} ${TOOLS_PATH}/R
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/FruitFlyAgilent.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/hgug4851a.db-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/widgetTools-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/tkWidgets-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-vmbin/library/Mfuzz-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.12.1/lib64/R/library/
+  ## R
   
-  # maSigPro is included in the R-2.12.1-vmbin.tar.gz
-        
-                        
-#  cd ${TMPDIR_PATH}/
-#  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
-#  cd R-${R_VER}/
-#  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
-#  sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
-#  export MAKEFLAGS=-j
-#  #LIBnn=lib
-#  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
-#  make
-#  make install
-#  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
-#  cd ../
-#  rm -rf R-${R_VER}/
-#  ln -s R-${R_VER} ${TOOLS_PATH}/R
-#
-#  ## R Libraries:
-#  cd ${CHIP_PATH}/
-#  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-${R_VER}/install-libs.R
+  # old R versions for Chipster 3.0
 
-  # Add R package outside of install-libs.R
-  cd ${TMPDIR_PATH}/
-  wget http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/nz131a520662fcdf.tar.gz
-  ${TOOLS_PATH}/R/bin/R CMD INSTALL nz131a520662fcdf.tar.gz
-  rm nz131a520662fcdf.tar.gz
+  # R-2.12.1-medips
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.12.1-medips.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
+  # R-2.15.1-variantannotation
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-variantannotation.tar.gz | tar -xz -C ${TOOLS_PATH}/
+
   
-  
-  # affy_20 for R-2.12"
-  cd ${TMPDIR_PATH}/
-  
-  # TAIR annotations for Arabidosis 1.0 and 1.1
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene11stattairgprobe_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/tairg.download/aragene10stattairgprobe_17.0.0.tar.gz'
-
-  # Entrez annotations for human
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene20sthsentrezgprobe_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/hugene21sthsentrezgprobe_17.0.0.tar.gz'
-
-  # Entrez annotations for Arabidosis 1.0 and 1.1
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene10statentrezgprobe_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgprobe_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/aragene11statentrezgcdf_17.0.0.tar.gz'
-
-  # Entrez annotations for ragene_20 and ragene_21
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezgprobe_17.0.0.tar.gz'
-  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene20strnentrezg.db_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgprobe_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/ragene21strnentrezgcdf_17.0.0.tar.gz'
-
-  # Entrez annotations for mouse_20 and mouse_21
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezgprobe_17.0.0.tar.gz'
-  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene20stmmentrezg.db_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezgprobe_17.0.0.tar.gz'
-  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/mogene21stmmentrezg.db_17.0.0.tar.gz'
-
-  # Entrez annotations for Danio rerio 1.0 and 1.1
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
-  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene10stdrentrezg.db_17.0.0.tar.gz'
-
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
-  ##wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezg.db_17.0.0.tar.gz'
-  #wget 'http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/17.0.0/entrezg.download/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
-  
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11stattairgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10stattairgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene20sthsentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/hugene21sthsentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene10statentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/aragene11statentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene20strnentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/ragene21strnentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene20stmmentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/mogene21stmmentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgcdf_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene10stdrentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgprobe_17.0.0.tar.gz'
-  wget 'http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/affy_20/zebgene11stdrentrezgcdf_17.0.0.tar.gz'
-
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10statentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene10stattairgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11statentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ aragene11stattairgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene20sthsentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ hugene21sthsentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene20stmmentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ mogene21stmmentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene20strnentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ ragene21strnentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene10stdrentrezgprobe_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgcdf_17.0.0.tar.gz
-  ${TOOLS_PATH}/R-2.12.1/bin/R CMD INSTALL -l ${TOOLS_PATH}/R-2.12.1/lib64/R/library/ zebgene11stdrentrezgprobe_17.0.0.tar.gz
-  
-  
-  
-  
-      
-  ## R-2.14:
-  R_VER=2.14.1
-  cd ${TMPDIR_PATH}/
-  #wget -nv http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz
-  #tar -xzf R-${R_VER}.tar.gz
-  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
-  cd R-${R_VER}/
-  ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
-  #sed -i '/Rlapack_la_LIBADD =/ s/@DYLIB_UNDEFINED_ALLOWED_FALSE@//' src/modules/lapack/Makefile.in
-  export MAKEFLAGS=-j
-  #LIBnn=lib
-  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
-  make
-  make install
-  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
-  cd ../
-  rm -rf R-${R_VER}/
-  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.14/install-libs.R   
-
-
-  ## R-2.15:
-  R_VER=2.15.1
-  cd ${TMPDIR_PATH}/
-  curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
-  cd R-${R_VER}/
-  export MAKEFLAGS=-j
-  ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
-  make
-  make install
-  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
-  cd ../
-  rm -rf R-${R_VER}/
-  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R-2.15/install-libs.R   
-
-  # could also use the package from nic
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-${R_VER}-vmbin/R-${R_VER}.tar.gz | tar -xz -C ${TOOLS_PATH}/  
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1-vmbin/R-2.15.1-2013-05-26.tar.gz | tar -xz -C ${TOOLS_PATH}/
-
-  ## R-3.0 :
-  R_VER=3.0.2
+  R_VER=3.0.2  
   cd ${TMPDIR_PATH}/
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-3/R-${R_VER}.tar.gz | tar -xz
   cd R-${R_VER}/
@@ -425,38 +277,33 @@ then
   ./configure --prefix=${TOOLS_PATH}/R-${R_VER}
   make
   make install
-  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
+  # clean makeflags after R install
+  export MAKEFLAGS=
+
   cd ../
   rm -rf R-${R_VER}/
   
-  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R   
-
-  # could also use the package from nic
-  #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/R-3.0.2-2014-03-03.tar.gz | tar -xz -C ${TOOLS_PATH}/
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/png-0.1-7-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/WECCA-0.40-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
-  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-3.0.2-vmbin/library/QDNAseq-0.99.4-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-3.0.2/lib64/R/library/
-
+  ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
 
   # extra data for zinba R library
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/zinba-extras.tar.gz | tar xz -C ${TOOLS_PATH}
 
+  ## R-2.15.1_bioc-2.11  
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
 
-  ## R-2.15.1_bioc-2.11	
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/R-2.15.1_bioc-2.11-vmbin_v4.tar.gz | tar -xz -C ${TOOLS_PATH}/  
-	# Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
-	
+ 	# Add RmiR.Hs.miRNA to R-2.15.1_bioc-2.11
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R/R-2.15.1_bioc-2.11/library/RmiR.Hs.miRNA-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/R-2.15.1_bioc-2.11/lib64/R/library/
 
-  ## External apps:
+  ## External apps
 
   # Link tool admin scripts from Chipster installation
   mkdir ${TOOLS_PATH}/admin/
   ln -s ${CHIP_PATH}/comp/modules/ngs/admin ${TOOLS_PATH}/admin/ngs
-  
+
   # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
-  curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
+  curl -s http://159.149.160.51/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
   ./compileall
   cd ../
@@ -465,7 +312,9 @@ then
 
   # ClusterBuster, no license
   cd ${TMPDIR_PATH}/
-  curl -s http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz | tar -xz
+  wget -O cbust-src.tar.gz http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz
+  tar xf cbust-src.tar.gz
+  rm -rf cbust-src.tar.gz
   cd cbust-src/
   make
   mkdir ${TOOLS_PATH}/ClusterBuster/
@@ -496,12 +345,13 @@ then
   #curl -L http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bedtools-2.17.0-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 
 
-  # MACS, Artistic license
-  # part 2
+  # MACS 1 & 2 
+  # part 2 - creating links
   cd ${TMPDIR_PATH}/
-  mkdir -p ${TOOLS_PATH}/macs/
-  ln -s /usr/bin/macs14 ${TOOLS_PATH}/macs/macs14
-
+  mkdir ${TOOLS_PATH}/macs/
+  ln -s /usr/local/bin/macs14 ${TOOLS_PATH}/macs/macs14
+  ln -s /usr/local/bin/macs2 /mnt/tools/macs/macs2
+  
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
   #curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.19/samtools-0.1.19.tar.bz2/download | tar -xj
@@ -624,18 +474,24 @@ then
  
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz | tar -xz
+  wget -O tophat-1.3.2.Linux_x86_64.tar.gz http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz
+  tar -xf tophat-1.3.2.Linux_x86_64.tar.gz
+  rm -f tophat-1.3.2.Linux_x86_64.tar.gz
   mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
   ln -s tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/tophat
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  curl -s http://tophat.cbcb.umd.edu/downloads/tophat-2.0.10.Linux_x86_64.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  wget -O tophat-2.0.10.Linux_x86_64.tar.gz http://tophat.cbcb.umd.edu/downloads/tophat-2.0.10.Linux_x86_64.tar.gz
+  tar -xf tophat-2.0.10.Linux_x86_64.tar.gz -C ${TOOLS_PATH}/
+  rm -f tophat-2.0.10.Linux_x86_64.tar.gz
   ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download | tar -xj
+  wget -O bwa-0.6.1.tar.bz2 http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download
+  tar -xf bwa-0.6.1.tar.bz2 --use-compress-program=pbzip2
+  rm -f bwa-0.6.1.tar.bz2
   cd bwa-0.6.1/
   make
   cd ../
@@ -767,15 +623,17 @@ then
 	cp DEXSeq/inst/python_scripts/dexseq_prepare_annotation.py ${TOOLS_PATH}/dexseq-exoncounts
 	rm -rf DEXSeq	
 
- 	# vcftools, GPLv3
-    cd ${TMPDIR_PATH}/
-    curl -sL http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download| tar -xz
-    cd vcftools_0.1.11/
-    make
-    cd ../
-    mv vcftools_0.1.11/ ${TOOLS_PATH}/
-    #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
-    ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
+  # vcftools, GPLv3
+  cd ${TMPDIR_PATH}/
+  wget -O vcftools_0.1.11.tar.gz http://sourceforge.net/projects/vcftools/files/vcftools_0.1.11.tar.gz/download
+  tar xf vcftools_0.1.11.tar.gz
+  cd vcftools_0.1.11/
+  make
+  cd ../
+  rm -f vcftools_0.1.11.tar.gz
+  mv vcftools_0.1.11/ ${TOOLS_PATH}/
+  #curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/vcftools_0.1.11-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+  ln -s vcftools_0.1.11 ${TOOLS_PATH}/vcftools
 
 
   # GATK, MIT
@@ -783,9 +641,12 @@ then
   ln -s GenomeAnalysisTKLite-2.1-11-gfb37f33 ${TOOLS_PATH}/GenomeAnalysisTK2
 
   # tagcleaner, GPLv3
-  curl -L http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz | tar xz -C ${TOOLS_PATH}/
- 	ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
- 	
+  cd ${TMPDIR_PATH}/
+  wget -nv -O tagcleaner-standalone-0.12.tar.gz http://downloads.sourceforge.net/project/tagcleaner/standalone/tagcleaner-standalone-0.12.tar.gz
+  tar xf tagcleaner-standalone-0.12.tar.gz -C ${TOOLS_PATH}/
+  rm -f tagcleaner-standalone-0.12.tar.gz
+  ln -s tagcleaner-standalone-0.12 ${TOOLS_PATH}/tagcleaner
+
   # fseq, GPLv3
   curl -s http://fureylab.med.unc.edu/fseq/fseq_1.84.tgz | tar -xz -C ${TMPDIR_PATH}/ 
   mv ${TMPDIR_PATH}/fseq ${TOOLS_PATH}/fseq-1.84
@@ -813,9 +674,14 @@ then
   ln -s picard-tools-1.105 picard-tools
 
   # RSeQC, GPLv3
+  cd ${TMPDIR_PATH}/
+  wget -nv -O RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download
+  tar xf RSeQC-2.3.7.tar.gz
+  mv RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC-2.3.7
+  rm -f RSeQC-2.3.7.tar.gz
   cd ${TOOLS_PATH}
-  curl -L http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download | tar -xz
-  ln -s RSeQC-2.3.7 ${TOOLS_PATH}/RSeQC
+  rm -f RSeQC
+  ln -s RSeQC-2.3.7 RSeQC
   cd RSeQC
   python setup.py install #sudo
 
@@ -858,7 +724,7 @@ then
 	cd ..
 	
   # vienna                                                                                                                                                                            
-	curl wget ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	curl ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
 	cd  ${TMPDIR_PATH}/VIENNA-1.7.2.650
 	./configure ${EMBOSS_OPTIONS}
 	make
@@ -926,16 +792,18 @@ then
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
+
+fi
+
+## Fix rights 
+chown -R -h ${USERNAME}.${GROUPNAME} ${CHIP_PATH}/
+if [ -d /mnt/tools/ ]; then
+  chown -R ${USERNAME}.${GROUPNAME} /mnt/tools/
 fi
 
 ## Clean up:
-chown -R -h ${USERNAME}:${GROUPNAME} ${CHIP_PATH}/
-chown -R ${USERNAME}:${GROUPNAME} /mnt/tools/
 ls -lah ${TMPDIR_PATH}/ # Debug, list uncleaned mess
 rm -rf ${TMPDIR_PATH}/
-
-## Configure Chipster:
-# Configure chipster ports and hostname
 
 ## Init.d:
 ln -s ${CHIP_PATH}/chipster /etc/init.d/chipster
@@ -947,10 +815,4 @@ ln -s ${CHIP_PATH}/auth/bin/linux-x86-64/chipster-auth /etc/init.d/chipster-auth
 ln -s ${CHIP_PATH}/fileserver/bin/linux-x86-64/chipster-fileserver /etc/init.d/chipster-fileserver
 ln -s ${CHIP_PATH}/webstart/bin/linux-x86-64/chipster-webstart /etc/init.d/chipster-webstart
 ln -s ${CHIP_PATH}/manager/bin/linux-x86-64/chipster-manager /etc/init.d/chipster-manager
-#update-rc.d chipster-activemq defaults
-#update-rc.d chipster-comp defaults
-#update-rc.d chipster-auth defaults
-#update-rc.d chipster-fileserver defaults
-#update-rc.d chipster-webstart defaults
-#update-rc.d chipster-manager defaults
 
