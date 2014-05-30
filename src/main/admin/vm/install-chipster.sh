@@ -133,7 +133,8 @@ EXEC_PATH=${PWD}
 INST_PATH=/opt
 CHIP_PATH=${INST_PATH}/chipster
 TOOLS_PATH=${CHIP_PATH}/tools
-if [ "xxx$TMPDIR" == "xxx" ]; then
+# check if TMPDIR is set and set it if necessary
+if [ -z ${TMPDIR+x} ]; then
   TMPDIR=/tmp
 fi
 export TMPDIR
