@@ -1,4 +1,4 @@
-# TOOL trimmomatic.R: "Trim reads with Trimmomatic" (This tool performs a variety of trimming tasks for illumina paired-end and single ended data. This tool is based on the Trimmomatic package.)
+# TOOL trimmomatic.R: "Trim reads with Trimmomatic" (This tool performs a variety of trimming tasks for Illumina paired end and single end data. This tool is based on the Trimmomatic package.)
 # INPUT reads1.fastaq: "Read file 1" TYPE GENERIC
 # INPUT OPTIONAL reads2.fastaq: "Read file 2" TYPE GENERIC
 # OUTPUT OPTIONAL trimmed.fq.gz
@@ -7,7 +7,7 @@
 # OUTPUT OPTIONAL trimmed_reads2_paired.fq.gz
 # OUTPUT OPTIONAL trimmed_reads2_unpaired.fq.gz
 # OUTPUT OPTIONAL trimlog.txt
-# PARAMETER OPTIONAL adapter.file: "Adapter set" TYPE [none: "none", TruSeq2-SE.fa: "TruSeq2-SE", TruSeq3-SE.fa: "TruSeq3-SE", TruSeq2-PE.fa: "TruSeq2-PE", TruSeq3-PE.fa: "TruSeq3-PE", TruSeq3-PE-2.fa: "TruSeq3-PE-2", NexteraPE-PE.fa: "NexteraPE-PE"] DEFAULT none (Cut adapter and other illumina-specific sequences from the read. You will also need to provide cutting parameters.)
+# PARAMETER OPTIONAL adapter.file: "Adapter set" TYPE [none: "none", TruSeq2-SE.fa: "TruSeq2-SE", TruSeq3-SE.fa: "TruSeq3-SE", TruSeq2-PE.fa: "TruSeq2-PE", TruSeq3-PE.fa: "TruSeq3-PE", TruSeq3-PE-2.fa: "TruSeq3-PE-2", NexteraPE-PE.fa: "NexteraPE-PE"] DEFAULT none (Cut adapter and other Illumina-specific sequences from the read. You will also need to provide cutting parameters.)
 # PARAMETER OPTIONAL illuminaclip: "Adapter clipping parameters" TYPE STRING (You will need to supply minimum three parameters: <seed mismatches>:<palindrome clip threshold>:<simple clip threshold>. There are also two optional parameters that affect palindrome mode only: <min adapter length> and <keep both reads>. Value for <keep both reads> is given as true/false. Values are separated by colons, e.g. 2:30:10 or 2:30:10:1:true)
 # PARAMETER OPTIONAL phred.scale: "Quality scale used in the fastq file" TYPE [phred33: "phred + 33", phred64: "phred + 64"] DEFAULT phred33 (Quality scale used in the fastq file.)
 # PARAMETER OPTIONAL leading: "Minumum quality to keep a leading base" TYPE INTEGER (Cut bases off the start of a read, if below a threshold quality.)
