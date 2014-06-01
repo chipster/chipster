@@ -1,6 +1,6 @@
 # TOOL htseq-count.R: "Count aligned reads per genes with HTSeq" (Calculates how many reads in a BAM file map to each gene. If you would like to map reads against your own GTF files, please use the tool \"Count aligned reads per genes with HTSeq using own GTF\". This tool is based on the HTSeq package. In order to use the output in edgeR or DESeq, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
-# OUTPUT htseq-counts.tsv 
+# OUTPUT htseq-counts.tsv
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68: "Human (hg19)", Mus_musculus.GRCm38.68: "Mouse (mm10)", Mus_musculus.NCBIM37.62: "Mouse (mm9)", Rattus_norvegicus.RGSC3.4.68: "Rat (rn4)"] DEFAULT Homo_sapiens.GRCh37.68 (Which organism is your data from.)
 # PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
@@ -26,11 +26,10 @@ command.end <- "'"
 
 # sort bam if the data is paired-end
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
-# samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
-ifelse(paired == "yes", samtools.binary, "sort -n alignment.bam alignment")
-
-# convert bam to sam
-# samtools.view <- paste(samtools.binary, "view -")
+if(paired == "yes"){
+	system(paste(samtools.binary, "sort -n alignment.bam name-sorted"))
+	system("mv name-sorted.bam alignment.bam")
+}
 
 # htseq-count
 if(print.coord == "no") {
@@ -46,14 +45,10 @@ if(chr == "no"){
 	organism <- paste(organism, ".gtf", sep="")
 }
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
-# htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
 htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam", gtf, " > htseq-counts-out.txt")
 
-
-# run
-# command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
-command <- paste(command.start, htseq, command.end)
-system(command)
+htseq.command <- paste(command.start, htseq, command.end)
+system(htseq.command)
 
 # separate result file
 system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")

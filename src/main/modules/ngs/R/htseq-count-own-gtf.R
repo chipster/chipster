@@ -22,11 +22,10 @@ command.end <- "'"
 
 # if the data is paired-end, sort BAM by read names
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
-# samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
-ifelse(paired == "yes", samtools.binary, "sort -n alignment.bam alignment")
-
-# convert bam to sam
-# samtools.view <- paste(samtools.binary, "view -")
+if(paired == "yes"){
+	system(paste(samtools.binary, "sort -n alignment.bam name-sorted"))
+	system("mv name-sorted.bam alignment.bam")
+}
 
 # htseq-count
 if(print.coord == "no") {
@@ -35,13 +34,11 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-# htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
 htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
 
 # run
-# command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
-command <- paste(command.start, htseq, command.end)
-system(command)
+htseq.command <- paste(command.start, htseq, command.end)
+system(htseq.command)
 
 # separate result file
 system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")
