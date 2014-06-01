@@ -20,11 +20,13 @@ python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib"
 command.start <- paste("bash -c '", python.path, ";")
 command.end <- "'"
 
-# if the data is paired-end, sort BAM by read names
+# sort bam if the data is paired-end
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
 if(paired == "yes"){
 	system(paste(samtools.binary, "sort -n alignment.bam name-sorted"))
-	system("mv name-sorted.bam alignment.bam")
+	bam<-"name-sorted.bam"
+} else {
+	bam<-"alignment.bam"
 }
 
 # htseq-count
@@ -34,7 +36,7 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, bam, "features.gtf > htseq-counts-out.txt")
 
 # run
 htseq.command <- paste(command.start, htseq, command.end)

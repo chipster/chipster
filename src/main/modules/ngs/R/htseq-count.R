@@ -28,7 +28,9 @@ command.end <- "'"
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
 if(paired == "yes"){
 	system(paste(samtools.binary, "sort -n alignment.bam name-sorted"))
-	system("mv name-sorted.bam alignment.bam")
+	bam<-"name-sorted.bam"
+} else {
+	bam<-"alignment.bam"
 }
 
 # htseq-count
@@ -45,7 +47,7 @@ if(chr == "no"){
 	organism <- paste(organism, ".gtf", sep="")
 }
 gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
-htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam", gtf, " > htseq-counts-out.txt")
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, bam, gtf, " > htseq-counts-out.txt")
 
 htseq.command <- paste(command.start, htseq, command.end)
 system(htseq.command)
