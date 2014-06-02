@@ -34,7 +34,7 @@
 
 # MACS settings
 if(version == 1) {
-	macs.binary <- file.path(chipster.tools.path, "macs", "macs142")
+	macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
 } else {
 	macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
 }
@@ -146,15 +146,8 @@ if (build.model == "yes") {
 }
 
 
-#For testing purposes
-#pypath <- "export PYTHONPATH=/tmp/matti/macs/bin/lib/python2.7/site-packages/:$PYTHONPATH"
-#pypath <- paste(pypath, "export PYTHONPATH=/tmp/matti/macs/macs20/lib/python2.7/site-packages/:$PYTHONPATH", sep=";")
 pypath <- ""
-
 system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
-
-system("cp . /tmp/matti/.")
-save.image("/tmp/matti/xxx.Rdata")
 
 if (system.output != 0) {
 	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value.") 

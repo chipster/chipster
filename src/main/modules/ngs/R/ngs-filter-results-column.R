@@ -2,14 +2,16 @@
 # INPUT results.tsv: results.tsv TYPE GENERIC 
 # OUTPUT filtered-NGS-results.tsv: filtered-NGS-results.tsv 
 # PARAMETER column: "Column to filter by" TYPE COLUMN_SEL (Data column to filter by)
-# PARAMETER has.rownames: "Does the first column have a title" TYPE [yes: no, no: yes] DEFAULT no (Specifies whether the data has unique identifiers as rownames or lacks them.)
+# PARAMETER has.rownames: "Does the first column have a title" TYPE [yes: no, no: yes] DEFAULT no (Specifies whether the first column has a title or not.)
 # PARAMETER cutoff: Cutoff TYPE DECIMAL FROM -10000000 TO 10000000 DEFAULT 0.05 (Cut-off for filtering)
 # PARAMETER smaller.or.larger: "Filtering criteria" TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
-# Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
+# Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for up- and down-regulated genes.)
 
 # Filter NGS results on the basis of a continuous parameter in a column
-# 26.5.2010 MG 
-# 8.5.2013 EK clarified wording
+# 26.05.2010, MG 
+# 08.05.2013, EK clarified wording
+# 08.05.2014, MK read.table command fixed and change the script to support duplicate row names (e.g. BED files)
+# 01.06.2014, EK reverted the has.rownames parameter definition, moved BED support to a separate script
 
 # Loads the data
 file <- c("results.tsv")
@@ -17,16 +19,14 @@ if (has.rownames == "yes") {
 	dat <- read.table(file, header=TRUE, sep="\t", row.names=1, check.names=FALSE)
 }
 if (has.rownames == "no") {
-	dat <- read.table(file, header=T, sep="\t") 
+	dat <- read.table(file, header=TRUE, sep="\t", row.names=NULL) 
 }
 
 # Extract the data to a vector
-#f <- dat[,grep(column, colnames(dat))]
 f <- dat[,colnames(dat) %in% column]
-
 if(length(which(colnames(dat) %in% column == TRUE)) > 1) {
-	stop("CHIPSTER-NOTE: Please choose a column that occurs only once in the table")
-}
+stop("CHIPSTER-NOTE: Please choose a column that occurs only once in the table")
+	}
 
 # Filters the data
 if(smaller.or.larger=="equal-to") {

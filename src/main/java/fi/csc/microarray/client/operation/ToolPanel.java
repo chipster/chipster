@@ -657,7 +657,7 @@ public class ToolPanel extends JPanel
 			executeButton.setEnabled(true);
 		} else if (runnability == Runnability.RUNNABLE_AS_BATCH) {
 			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
-			executeButton.setText("<html><b>Run all</b></html>");
+			executeButton.setText("<html><b>Run for each</b></html>");
 			executeButton.setEnabled(true);
 		} else {
 			suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);

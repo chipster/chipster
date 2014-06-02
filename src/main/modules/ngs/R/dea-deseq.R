@@ -1,4 +1,4 @@
-# TOOL dea-deseq.R: "Differential expression using DESeq" (Differential expression analysis using the DESeq Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". If using DESeq2 for finding differentially expressed genes between more than two experimental groups, note that output figures sum up information from all pairwise comparisons.)
+# TOOL dea-deseq.R: "Differential expression using DESeq" (Differential expression analysis using the DESeq and DESeq2 Bioconductor packages. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". If using DESeq2 for finding differentially expressed genes between more than two experimental groups, note that output figures sum up information from all pairwise comparisons.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
@@ -8,7 +8,7 @@
 # OUTPUT OPTIONAL p-value-plot-deseq.pdf
 # PARAMETER version: "DESeq version" TYPE [DESeq, DESeq2] DEFAULT DESeq (Version of DESeq to be used in the analysis.)
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test.)
-# PARAMETER ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factors. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor vs a model which only includes the experimental factor.)
+# PARAMETER ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factor. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor vs a model which only includes the experimental factor.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (Dispersion can be estimated using a local fit or a two-coefficient parametric model. You should use local fit if there are no biological replicates.)
 # PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always", gene-est-only: "no fitting"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives. Gene-est only option is preferable when the number of replicates is large. This parameter is effective only in the case of DESeq)
@@ -23,8 +23,8 @@
 # EK 30.4.2013, added BED sorting, made genomic location info optional so that external count tables can be used
 # EK 6.5.2013, removed replicates parameter
 # MK 29.01.2013, fixed bug why FoldChange column was duplicated in results
-# MK 14.04.2014, added posibility to compare GLM models
-# MK 15.04.2014, added posibility to use DESeq2
+# MK 14.04.2014, added possibility to compare GLM models
+# MK 15.04.2014, added possibility to use DESeq2
 
 # Loads the correct library
 source(file.path(chipster.common.path, "bed-utils.R"))
@@ -139,6 +139,7 @@ if(version == "DESeq" && (ad_factor == "EMPTY")) {
 # Merge with original data table and keep significant DEGs
 if(length(unique(groups)) == 2) {
 	results_table$padj <- p.adjust(results_table$pval, method=p.value.adjustment.method)
+
 	significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
 	significant_table <- significant_table[! (is.na(significant_table$padj)), ]
 	significant_table <- significant_table[ order(significant_table$padj), ] 
@@ -173,7 +174,13 @@ these.colnames <- colnames(dat)
 if("chr" %in% these.colnames) {
 	if (dim(significant_table)[1] > 0) {
 		bed_output <- output_table[,c("chr","start","end")]
-		if(is.null(results_name)) peak_names <- character(nrow(output_table)) else peak_names <- paste(rep(results_name, each=nrow(results_table)), "_peak", 1:nrow(results_table), sep="")
+		if(is.null(results_name)) {
+			#peak_names <- character(nrow(output_table))
+			peak_names <- rownames(results_table)
+		} else {
+			#peak_names <- paste(rep(results_name, each=nrow(results_table)), "_peak", 1:nrow(results_table), sep="")
+			peak_names <- paste(rep(results_name, each=nrow(results_table)), rownames(results_table), sep="")	
+		}
 		bed_output <- cbind(bed_output, name=peak_names)							#name
 		bed_output <- cbind(bed_output, score=output_table[, "log2FoldChange"])		#score
 		bed_output <- bed_output[(output_table$padj <= p.value.cutoff & (! (is.na(output_table$padj)))), ]
