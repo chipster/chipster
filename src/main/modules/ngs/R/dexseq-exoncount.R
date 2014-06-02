@@ -8,10 +8,10 @@
 # PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (Select no if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 
-# 18.9.2012 TH and EK 
-# 16.7.2013 EK, BAM sorting changed
+# 18.09.2012 TH and EK 
+# 16.07.2013 EK, BAM sorting changed
 # 23.04.2013 MK, added the info output file and strandedness parameter
-# 1.6.2014 EK, fixed BAM sorting by name, updated to use dexseq-count.py from DEXSeq v1.8.0, added support for BAMs which don't have the chr prefix in chromosome names, moved NH tag production to a separate script
+# 01.06.2014 EK, fixed BAM sorting by name, updated to use dexseq-count.py from DEXSeq v1.8.0, added support for BAMs which don't have the chr prefix in chromosome names, moved NH tag production to a separate script
 
 # if BAM contains paired-end data, sort it by read names
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
