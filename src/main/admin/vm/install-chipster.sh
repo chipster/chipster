@@ -391,6 +391,8 @@ then
   mv bowtie-0.12.7/ ${TOOLS_PATH}
   ln -s bowtie-0.12.7 ${TOOLS_PATH}/bowtie
   rm bowtie-0.12.7-linux-x86_64.zip
+  # remove example index
+  rm ${TOOLS_PATH}/bowtie/indexes/e_coli.*
 
   # Bowtie 2, Artistic License
   cd ${TMPDIR_PATH}/
