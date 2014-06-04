@@ -7,7 +7,7 @@
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
 # OUTPUT OPTIONAL tophat-summary.txt
-# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel: "Schizosaccharomyces pombe (ASM294v2.22\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER OPTIONAL use.gtf: "Use annotation GTF" TYPE [yes, no] DEFAULT yes (If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final tophat output. If no GTF file is provided by user, internal annotation file wil be used if available. Internal annotation is provided for human, mouse, rat, dog and fruitfly.)
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT no (Only look for reads across junctions indicated in the supplied GTF file.)
 # PARAMETER OPTIONAL quality.format: "Base quality encoding used" TYPE [sanger: "Sanger - Phred+33", phred64: "Phred+64"] DEFAULT sanger (Quality encoding used in the fastq file.)
@@ -28,6 +28,7 @@
 # AMS 11.11.2013 added thread support
 # AMS 3.1.2014 added transcriptome index for human
 # EK 3.1.2014 added alignment summary to output, added quality and mismatch parameter
+# EK 3.6.2014 rn4 commented out
 
 
 # check out if the file is compressed and if so unzip it
@@ -83,10 +84,10 @@ if (!is_gtf && genome_available) {
 		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Mus_musculus.GRCm38.68.chr.gtf"))
 		annotation.command <- paste("-G", annotation.file)
 	}
-	if (genome == "rn4") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.RGSC3.4.62.chr.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}
+#	if (genome == "rn4") {
+#		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.RGSC3.4.62.chr.gtf"))
+#		annotation.command <- paste("-G", annotation.file)
+#	}
 	if (genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel") {
 		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.Rnor_5.0.70.gtf"))
 		annotation.command <- paste("-G", annotation.file)
