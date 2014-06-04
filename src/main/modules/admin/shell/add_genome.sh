@@ -243,10 +243,28 @@ then
   echo
   exit 1
 fi 
+
 tools_path="$chipster_path""/tools"
 comp_path="$chipster_path""/comp"
+genomes_path=${tools_path}/genomes
+index_path=${genomes_path}/indexes
+
+if [[ ! -e ${genomes_path} ]]
+then
+  mkdir ${genomes_path}
+fi
+
+if [[ ! -e ${index_path} ]]
+then
+  mkdir ${index_path}
+fi
+
+
+
 export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/:$tools_path/bowtie2/
 echo $PATH
+
+echo "Installing genomes to: $genomes_path"
 
 ##
 #Retrieve the fasta file
@@ -276,8 +294,7 @@ echo $ensembl
 if [[ $ensembl -eq 1 ]]
 then
   echo "Retrtieving and indexing genome sequence for $species"
-
-  cd ${tools_path}/genomes/fasta/nochr
+  cd ${genomes_path}/fasta/nochr
   echo ensemblfetch.sh -chipster_path $chipster_path $species
   genome_fasta=$(ensemblfetch.sh -chipster_path $chipster_path $species | tail -1)
 
@@ -338,8 +355,8 @@ fi
 
 if [[ $fasta -eq 1 ]]
 then
-  cp $genome_fasta ${tools_path}/genomes/fasta/
-  cd ${tools_path}/genomes/fasta
+  cp $genome_fasta ${genomes_path}/fasta/
+  cd ${tools_path}/fasta
 fi
 
 ####
@@ -386,12 +403,24 @@ fi
 ###
 #  get the gtf file
 ###
+if [[ ! -e ${genomes_path}/gtf ]]
+then
+   mkdir ${genomes_path}/gtf
+fi
+
+
 if [[ $ensembl -eq 1 ]]
 then
-  cd ${tools_path}/genomes/gtf
+  cd ${genomes_path}/gtf
+  which ensemblfetch.sh
+  echo "ensemblfetch.sh -chipster_path $chipster_path -type gtf $species"
   genome_gtf=$(ensemblfetch.sh -chipster_path $chipster_path -type gtf $species | tail -1 )
   
-  process_gtf $genome_gtf
+  echo "executing: python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_gtf.DEXSeq.gtf "
+  python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_gtf.DEXSeq.gtf 
+
+
+  process_gtf $genome_gtf 
 
   #FILE_BODY=$(basename $genome_gtf .gtf)
   #cat "$genome_gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5  | 	uniq | sed -e 's/; gene_name "/\t/' | sed -e 's/\"//' > "$FILE_BODY.gene.tsv"
@@ -399,38 +428,38 @@ then
 fi
 
 if [[ $gtf -eq 1 ]]
-then
-  if [[ ! -e ${tools_path}/genomes/gtf ]]
-  then
-     mkdir ${tools_path}/genomes/gtf
-  fi  
-  cp $location/$genome_gtf ${tools_path}/genomes/gtf/
+then  
+  cp $location/$genome_gtf ${genomes_path}/gtf/
   FILE_BODY=$(basename $genome_gtf .gtf)
-  cat "$location/$genome_gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5  | 	uniq | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > " ${tools_path}/genomes/gtf/$FILE_BODY.gene.tsv"
+  cat "$location/$genome_gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5  | 	uniq | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > " ${genomes_path}/gtf/$FILE_BODY.gene.tsv"
 fi
 
 
 ###
 #  get the mysql files
 ###
-if [[ ! -e ${tools_path}/genomes/mysql ]]
+if [[ ! -e ${genomes_path}/mysql ]]
 then
-  mkdir ${tools_path}/genomes/mysql
+  mkdir ${genomes_path}/mysql
 fi
 
 if [[ $ensembl -eq 1 ]]
 then
-  cd ${tools_path}/genomes/mysql
+  cd ${genomes_path}/mysql
   mysql_files=$(ensemblfetch.sh  -chipster_path $chipster_path -type mysql $species | tail -1)
-  mysql_dir=$(basename $mysql_files .tar)
-  tar xf $mysql_files
-  cd $mysql_dir
-  gunzip *.gz
-  ensembl_mysql .
-  
-  cd ..
-  
-  rm -f $mysql_files
+  testtsring=$(echo $mysql_files | wc -c)
+  if [[ $testtsring -gt 50 ]]
+  then
+    echo No MySQL data for $species was found from the Ensembl database.
+  else
+    mysql_dir=$(basename $mysql_files .tar)
+    tar xf $mysql_files
+    cd $mysql_dir
+    gunzip *.gz
+    ensembl_mysql .
+    cd ..
+    rm -f $mysql_files
+  fi
 fi
 ###
 
@@ -438,16 +467,23 @@ fi
 #make bwa_indexes
 if [[ $INDEX_BWA -eq 1 ]]
 then
+
+  if [[ ! -e ${index_path}/bwa ]]
+  then
+    mkdir ${index_path}/bwa
+  fi
+
   echo -------------------------------------------------------
   echo Calculating BWA indexes for $genome_fasta
-  cd $tools_path/bwa_indexes
+  cd $index_path/bwa
   if [[ $ensembl -eq 1 ]]
   then
-    ln -s ../genomes/fasta/nochr/$genome_fasta $genome_fasta
+    ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
   else 
-    ln -s ../genomes/fasta/$genome_fasta $genome_fasta
+    ln -s ../../fasta/$genome_fasta $genome_fasta
   fi
-  $tools_path/bwa/bwa index $genome_fasta
+   bwa_name=$(basename $genome_fasta .dna.toplevel.fa)
+  $tools_path/bwa/bwa index -p $bwa_name  $genome_fasta
 else
   echo "Skipping BWA indexing"
 fi
@@ -456,16 +492,21 @@ fi
 #make bowtie_indexes
 if [[ $INDEX_BOWTIE -eq 1 ]]
 then
+  if [[ ! -e ${index_path}/bowtie ]]
+  then
+    mkdir ${index_path}/bowtie
+  fi
+
   echo -------------------------------------------------------
   echo Calculating Bowtie indexes for $genome_fasta 
-  cd $tools_path/bowtie/indexes
+  cd $index_path/bowtie
   if [[ $ensembl -eq 1 ]]
   then
-   ln -s ../../genomes/fasta/nochr/$genome_fasta $genome_fasta
+   ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
   else
-   ln -s ../../genomes/fasta/$genome_fasta $genome_fasta
+   ln -s ../../fasta/$genome_fasta $genome_fasta
   fi
-  bowtie_name=$(basename $genome_fasta .fa)
+  bowtie_name=$(basename $genome_fasta .dna.toplevel.fa)
   $tools_path/bowtie/bowtie-build $genome_fasta $bowtie_name
 
   #check bowtie2 indexes
@@ -489,17 +530,25 @@ fi
 #make bowtie2_indexes
 if [[ $INDEX_BOWTIE2 -eq 1 ]]
 then
+  if [[ ! -e ${index_path}/bowtie2 ]]
+  then
+    mkdir ${index_path}/bowtie2
+  fi
+
+
   echo -------------------------------------------------------
   echo Calculating Bowtie2 indexes for $genome_fasta 
 
-  cd $tools_path/bowtie2/indexes
+  cd $index_path/bowtie2
   if [[ $ensembl -eq 1 ]]
   then
-   ln -s ../../genomes/fasta/nochr/$genome_fasta $genome_fasta
+   ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
   else
-    ln -s ../../genomes/fasta/$genome_fasta $genome_fasta
+   ln -s ../../fasta/$genome_fasta $genome_fasta
   fi
-  bowtie2_name=$(basename $genome_fasta .fa)
+  bowtie2_name=$(basename $genome_fasta .dna.toplevel.fa)
+  ln -s $genome_fasta ${bowtie2_name}.fa
+  
   $tools_path/bowtie2/bowtie2-build $genome_fasta $bowtie2_name
 
   #check bowtie2 indexes
@@ -514,8 +563,14 @@ then
     echo Bowtie2 index of genome $bowtie2_name OK
     if [[ $INDEX_TOPHAT2 -eq 1 ]]
     then
+       if [[ ! -e ${index_path}/tophat2 ]]
+       then
+          mkdir ${index_path}/tophat2
+       fi
+       
        echo Builduing TopHat2 transcriptome index using $genome_gtf
-       $tools_path/tophat2/tophat -G  $tools_path/genomes/gtf/$genome_gtf --transcriptome-index $tools_path/tophat2_indexes/$bowtie2_name $tools_path/bowtie2/indexes/$bowtie2_name
+
+       $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$bowtie2_name $index_path/bowtie2/$bowtie2_name
     fi
   fi
 else
@@ -560,12 +615,12 @@ fi
 
 ## gtf
 #ln -s  ../../../../genomes/gtf/$genome_gtf 
-mv $tools_path/genomes/gtf/$FILE_BODY.gene.tsv ./$FILE_BODY.gene.tsv
+mv $genomes_path/gtf/$FILE_BODY.gene.tsv ./$FILE_BODY.gene.tsv
 
 ##tabix
-mv $tools_path/genomes/gtf/$FILE_BODY.tabix.gtf* ./
-mv ${tools_path}/genomes/mysql/$mysql_dir/* ./
-rm -rf ${tools_path}/genomes/mysql/$mysql_dir
+mv $genomes_path/gtf/$FILE_BODY.tabix.gtf* ./
+mv ${genomes_path}/mysql/$mysql_dir/* ./
+rm -rf ${genomes_path}/mysql/$mysql_dir
 rm -f log repeat-tabix.bed
 
 rm -f karyotype.txt
@@ -585,4 +640,4 @@ echo "---------------------------------------------------------------"
 
 
 day=$(date)
-echo $taxid $species $genome_fasta $version $size $day $checksum >> $tools_path/genomes/genome_list
+echo $taxid $species $genome_fasta $version $size $day $checksum >> $genomes_path/genome_list
