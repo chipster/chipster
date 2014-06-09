@@ -89,13 +89,23 @@ public class ConfigTool {
 		if (args.length == 0 || "configure".equals(args[0])) {
 			System.out.println("Configuring Chipster...");
 			configTool.configure();
+			
 		} else if ("auto-configure".equals(args[0]) || "auto".equals(args[0])) {
 			System.out.println("Configuring Chipster...");
 			configTool.simpleConfigure(null, null);
+			
+		} else if ("simple-configure".equals(args[0]) && args.length == 3) {
 			System.out.println("Configuring Chipster...");
+			configTool.simpleConfigure(args[1], args[2]);			
+			
+		} else if ("simple-configure".equals(args[0]) && args.length == 2) {
+			System.out.println("Configuring Chipster...");
+			configTool.simpleConfigure(args[1], null);			
+
 		} else if ("genpasswd".equals(args[0])) {
 			System.out.println("Generating Chipster server password...");
 			configTool.genpasswd();
+			
 		} else if ("edit".equals(args[0]) && args.length >= 4) {
 			
 			// Check components to process
@@ -116,33 +126,16 @@ public class ConfigTool {
 			printHelp();
 			
 		} else {
-			// simple-configure (command not required on CLI, so gets really messy)
-			if (args.length == 3 && "simple-configure".equals(args[0])) {
-				System.out.println("Configuring Chipster...");
-				configTool.simpleConfigure(args[1], args[2]);			
-
-			} else if (args.length == 2 && "simple-configure".equals(args[0])) {
-				System.out.println("Configuring Chipster...");
-				configTool.simpleConfigure(args[1], null);			
-				
-			} else if (args.length == 2 ) {
-				System.out.println("Configuring Chipster...");
-				configTool.simpleConfigure(args[0], args[1]);			
-				
-			} else 	if (args.length == 1 ) {
-				System.out.println("Configuring Chipster...");
-				configTool.simpleConfigure(args[0], null);			
-				
-			} else {
-				printHelp();
-			}				
+			commandNotUnderstood();
 		}						
+	}
+
+	private static void commandNotUnderstood() {
+		System.out.println("Incorrect parameter syntax. Use \"help\" for more information"); 
 	}
 	
 	private static void printHelp() {
-		System.out.println("Configuring Chipster...\n" + 
-				"\n" + 
-				"Incorrect syntax. Use:\n" + 
+		System.out.println("Use:\n" + 
 				"\n" + 
 				"  configure.sh [configure]\n" + 
 				"    Start interactive configuration utility\n" + 
@@ -150,7 +143,7 @@ public class ConfigTool {
 				"  configure.sh [auto-configure | auto]\n" + 
 				"    Detect IP automatically and configure everything else with default values\n" + 
 				"\n" + 
-				"  configure.sh [simple-configure] public-ip [private-ip]\n" + 
+				"  configure.sh simple-configure public-ip [private-ip]\n" + 
 				"    Use given IP address (and separate private IP, when given) and configure \n" + 
 				"    everything else with default values\n" + 
 				"\n" + 
