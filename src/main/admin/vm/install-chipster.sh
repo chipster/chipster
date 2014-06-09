@@ -145,7 +145,8 @@ USERNAME=chipster
 GROUPNAME=chipster
 
 # nic.funet.fi service endpoint
-NIC_MIRROR=bio.nic.funet.fi
+#NIC_MIRROR=bio.nic.funet.fi
+NIC_MIRROR=nic.funet.fi
 
 # prebundled tar or git 
 CHIPSTER_SOURCE="git"
