@@ -37,7 +37,7 @@ def load_installed_bundles(filename):
         # pprint(bundles_yaml)
     except IOError as e:
         if e.errno == 2:
-            print(e)
+            print("List of installed bundles " + filename + "isn't found. Empty list will be created")
         else:
             raise
     if bundles_yaml:    
@@ -768,7 +768,7 @@ def handle_file_error(e):
 
 if __name__ == '__main__':
     prog_path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/"
-    chipster_version = "2.12.2"
+    chipster_version = "3.0.0"
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
     installation_path = "/opt/chipster/"
