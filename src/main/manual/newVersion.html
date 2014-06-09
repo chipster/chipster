@@ -15,6 +15,53 @@ div.header-item {
 </head>
 <body>
 
+<h2>Version update 4.6.2014: What is new in Chipster 3.0</h2>
+
+	<p>
+		This is a major update which contains improvements to the user interface functionality and looks. 
+		Importantly, all the NGS analysis tools except MEDIPS and variant annotation has been updated to use R3.0.2. 
+		Several new NGS analysis tools have been added, and many existing tools have been updated and improved. 
+		The virtual machine has been updated to use Ubuntu 12.04.
+	</p>
+
+	<ul>
+
+
+		<li><div class=header-item>Improvements to the user interface</div>
+			<ul>
+				<li>Information on the selected data set is now shown in the visualization panel, which also includes shortcuts to the visualizations.</li>
+				<li>"Batch mode" of running analysis tools: You can launch several identical analysis jobs at the same time, if the analysis tool requires only one input file: Select the files, set the parameters, and click on the "Run for each" button.</li>
+				<li>"Batch mode" of running workflows: You can launch a workflow on several input files at the same time: Select the files and "Workflow / Run for each".</li>
+
+			</ul>
+		</li>
+
+		<li><div class=header-item>New NGS analysis tools</div>
+			<ul>
+				<li><a href="trimmomatic.html">Preprocessing / Trim reads with Trimmomatic</a>: Performs a variety of read trimming tasks.</li>
+				<li><a href="express.html">RNA-seq / Count reads per transcripts using eXpress</a>: Quantitates expression at transcript level.</li>
+				<li><a href="tophat2-with-index-building.html">Alignment / TopHat2 for paired end reads and own genome</a>: Aligns reads to user-supplied reference genome.</li>
+				<li><a href="tophat2-single-end-with-index-building.html">Alignment / TopHat2 for single end reads and own genome</a>: Aligns reads to user-supplied reference genome.</li>
+			</ul>
+		</li>
+
+		<li><div class=header-item>Updates to NGS analysis tools</div>		
+			<ul>
+				<li><a href="dea-deseq.html">RNA-seq / Differential expression using DESeq</a>: DESeq2 option and GLM support have been added, so you can now analyze experiments containing several groups and a second experimental factor like pairing.</li>
+				<li><a href="dexseq-exoncount.html">RNA-seq / Count aligned reads per exons for DEXSeq</a>: Parameter to indicate stranded data has been added.</li>
+				<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>: New parameters to exclude discordant and mixed alignments have been added.</li>
+				<li><a href="rseqc.html">Quality control / RNA-seq quality metrics with RseQC</a>: Possibility to plot inner distance distribution has been added.</li>
+				<li>HTSeq has been updated to version 0.6.1.</li>
+				<li>MACS peak calling tools have been updated to use MACS 1.4.2 and MACS 2.0.</li>
+			</ul>
+		</li>
+
+
+
+
+	</ul>
+	<hr />
+
 	<h2>Version update 21.5.2014: What is new in Chipster 2.12.1</h2>
 
 	<p>Small bug fix update.</p>

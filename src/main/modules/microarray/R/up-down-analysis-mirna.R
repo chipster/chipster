@@ -1,18 +1,19 @@
-# TOOL up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment, this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. Please note that the tool itself does not apply any statistical test to the datasets and we recommend to apply it on data sets from which low quality and invariable features have been filtered. NOTE that higher of the group identifiers in the chosen phenodata column is used for choosing the treatment group.)
+# TOOL up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given miRNA expression data and gene expression data from a two-group comparison experiment, this tool identifies miRNA target genes whose expression is upregulated when the miRNA is down-regulated, and vice-versa. Please note that the tool itself does not perform any statistical test, so we recommend to use it on data sets which have been filtered for low quality and invariable expression. Note that the experimental group which has a higher number in the phenodata is used for choosing the treatment group.)
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
 # INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
 # INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
 # OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
 # OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
-# PARAMETER average.method: average.method TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
-# PARAMETER groups.column: groups.column.mirna TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the both dataset.)
-# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
-# PARAMETER organism: organism TYPE [Hs: human] DEFAULT Hs (From which organism does the data come from)
+# PARAMETER groups.column: "Phenodata column describing the experimental groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the both dataset.)
+# PARAMETER id.type: "Identifier type" TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
+# PARAMETER organism: Organism TYPE [Hs: human] DEFAULT Hs (From which organism does the data come from)
+# PARAMETER OPTIONAL average.method: "Averaging method" TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
 
 # Up-down analysis of miRNA targets
 # MG, 25.2.2010
 # MG, 10.2.2011, now gets the gene symbols from the org.HS.eg.db package and adds rownames the output tables to allow use of Venn diagram
+# EK, 28.5.2014, updated descriptions
 
 # Loads the libraries
 library(RmiR)
@@ -85,10 +86,10 @@ if (id.type=="entrez_id") {
 	id_type <- "genes"
 }
 
-# Check that the gene list actually contain at least one miRNA target
+# Check that the gene list actually contains at least one miRNA target
 try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, org=organism, id=id_type), silent=FALSE)
 if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("CHIPSTER-NOTE: There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
+	stop("CHIPSTER-NOTE: There were no targets found in either TarBase or PicTar databases for the supplied list of miRNAs in the gene list selected. Try again by selecting a longer list of genes!")
 }
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4, annotation=chip.type, , org=organism, id=id_type, verbose=TRUE)
 
@@ -106,8 +107,8 @@ merged.table$symbol <- symbols_list
 colnames (merged.table) [1] <- "entrez_id"
 colnames (merged.table) [2] <- "miRNA"
 
-# Add rownames to allow use of Venn diagrams
-# Construct the names from combining the miRNA nameand the target gene symbol
+# Add rownames to allow use of Venn diagram
+# Construct the names from combining the miRNA name and the target gene symbol
 rownames (merged.table) <- paste (merged.table[,2],"_",merged.table[,4],sep="")
 
 # Identify the miRNA-gene pairs that are behaving oppositely

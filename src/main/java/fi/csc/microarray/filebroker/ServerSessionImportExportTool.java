@@ -8,6 +8,8 @@ import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.module.ModuleManager;
 
 /**
@@ -22,6 +24,8 @@ import fi.csc.microarray.module.ModuleManager;
  */
 public class ServerSessionImportExportTool {
 	
+	private static final String LOCAL_FILEBROKER_IP = "127.0.0.1";
+
 	public DataManager dataManager;
 	
 	//A whitelist of allowed characters in file names 
@@ -33,7 +37,11 @@ public class ServerSessionImportExportTool {
 		this.dataManager = new DataManager();
 		//setup service accessor manually to customize messaging endpoint
 		RemoteServiceAccessor serviceAccessor = new RemoteServiceAccessor();
-		serviceAccessor.initialise(endpoint, dataManager, null);		
+		FileBrokerClient fileBrokerClient = new JMSFileBrokerClient(
+				endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE), 
+				null, 
+				LOCAL_FILEBROKER_IP );
+		serviceAccessor.initialise(endpoint, dataManager, fileBrokerClient);		
 		//module manager is needed when session loading checks if a file is phenodata
 		ModuleManager moduleManager = new ModuleManager();		
 		moduleManager.plugAll(dataManager, null);

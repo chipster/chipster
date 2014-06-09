@@ -12,19 +12,12 @@
 
 
 #MK: 11.12.2013. Since also row-names are printed, column indexes had to be shifted by one 
-
 #JG: 30.01.2014: Code for chr=="no" does not work, data extraction script works in either case. Hence, parameter and code removed
-# PARAMETER OPTIONAL chr: "Chromosome names in my Regions file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the Regions file and in the genome. Check your Regions file and choose accordingly.)
-
+#EK: 3.6.2014: removed chr parameter that was commented out already
 
 genome.fa<-file.path(chipster.tools.path, "genomes", "fasta", paste(genome,".fa",sep="",collapse=""))
 
 tool<-file.path(chipster.tools.path,"dimont","extract_data_single_chipster.pl");
-
-#if(chr=="no") {	
-#	system(paste("awk '{BEGIN {FS=OFS=\"\t\"} gsub(\"^\",\"chr\",$",chromcol,"); print }' regions.bed > regions.temp", sep=""))
-#	system("mv regions.temp regions.bed")
-#}
 
 if(has.row.names=="yes") {
 	command<-paste("perl",tool,genome.fa,"regions.bed",(chromcol+1),(startcol+1),seccol,(seccoord+1),width,(statcol+1),"extracted.fasta");	
