@@ -29,6 +29,9 @@
 			<resource>prinseq-trimmer.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
+			<resource>trimmomatic.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -40,9 +43,7 @@
 		<tool runtime="R-3.0">
 			<resource>tagcleaner-statistics.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>trimmomatic.R</resource>
-		</tool>
+
 <!--	<tool runtime="R-2.12">
 			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
@@ -72,6 +73,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>ngs-filter-results-column.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>filter-bed-value.R</resource>
 		</tool>
 		<tool runtime="R-3.0" module="common">
 		<resource>extract-samples-from-dataset.R</resource>
@@ -113,6 +117,9 @@
 			<resource>samtools-consensus.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
+			<resource>unique-alignments-from-bam.R</resource>
+		</tool>
+				<tool runtime="R-3.0">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -133,9 +140,6 @@
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.SortVcf</resource>
 		</tool>		
-		<tool runtime="R-3.0">
-			<resource>bedtools-slopbed.R</resource>
-		</tool>	
 		<tool runtime="R-3.0">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>	
@@ -194,6 +198,9 @@
 			<resource>bedtools-overlap.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
+			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+		<tool runtime="R-3.0">
 			<resource>bedtools-pairtobed.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -219,6 +226,12 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>tophat2-single-end.R</resource>
+		</tool>
+	    <tool runtime="R-3.0">
+			<resource>tophat2-with-index-building.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>tophat2-single-end-with-index-building.R</resource>
 		</tool>
 	    <tool runtime="R-3.0">
 			<resource>bwa.R</resource>
@@ -425,11 +438,11 @@
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
 	</category>
 
-	<category name="Methyl-seq" color="#83010b">
-		<tool runtime="R-2.12">
+<!--  	<category name="Methyl-seq" color="#83010b">
+		<tool runtime="R-3.0">
 			<resource>convertBAMtoMEDIPS.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>combineMEDIPS.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -439,6 +452,7 @@
 			<resource>MEDIPS_two_samples.R</resource>
 		</tool>
 	</category>
+-->
 	
 	<category name="Metagenomics" color="#83010b">
 		<tool runtime="R-3.0">

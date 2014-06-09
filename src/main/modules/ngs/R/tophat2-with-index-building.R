@@ -1,6 +1,7 @@
-# TOOL tophat2.R: "TopHat2 for paired end reads" (Aligns paired end Illumina RNA-seq reads to a genome in order to identify exon-exon splice junctions. The alignment process consists of several steps. If annotation is available as a GTF file, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that remain still unmapped are split into shorter segments, which are then aligned to the genome. Alignment results are given in a BAM file, which is automatically indexed and hence ready to be viewed in Chipster genome browser.)
+# TOOL tophat2-with-index-building.R: "TopHat2 for paired end reads and own genome" (Aligns paired end Illumina RNA-seq reads to a genome in order to identify exon-exon splice junctions. The alignment process consists of several steps. If annotation is available as a GTF file, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that remain still unmapped are split into shorter segments, which are then aligned to the genome. Alignment results are given in a BAM file, which is automatically indexed and hence ready to be viewed in Chipster genome browser.)
 # INPUT reads1.fq: "Read file 1" TYPE GENERIC
 # INPUT reads2.fq: "Read file 2 with mates in matching order" TYPE GENERIC
+# INPUT genome.txt: "Genome to align against" TYPE GENERIC
 # INPUT OPTIONAL genes.gtf: "Optional GTF file" TYPE GENERIC
 # OUTPUT OPTIONAL tophat.bam
 # OUTPUT OPTIONAL tophat.bam.bai
@@ -8,8 +9,7 @@
 # OUTPUT OPTIONAL insertions.bed
 # OUTPUT OPTIONAL deletions.bed
 # OUTPUT OPTIONAL tophat-summary.txt
-# PARAMETER genome: "Genome" TYPE [hg19: "Human genome (hg19\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)",  Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel: "Schizosaccharomyces pombe (ASM294v2.22\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome"] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
-# PARAMETER OPTIONAL use.gtf: "Use annotation GTF" TYPE [yes, no] DEFAULT yes (If this option is provided, TopHat will extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed\) and merged with the novel mappings and junctions in the final TopHat output. If no GTF file is provided by user, internal annotation file will be used if available. Internal annotation is provided for human, mouse, rat, dog and fruitfly.)
+# OUTPUT OPTIONAL tophat2.log
 # PARAMETER OPTIONAL no.novel.juncs: "When GTF file is used, ignore novel junctions" TYPE [yes, no] DEFAULT no (Only look for reads across junctions indicated in the supplied GTF file.)
 # PARAMETER OPTIONAL quality.format: "Base quality encoding used" TYPE [sanger: "Sanger - Phred+33", phred64: "Phred+64"] DEFAULT sanger (Quality encoding used in the fastq file.)
 # PARAMETER OPTIONAL mate.inner.distance: "Expected inner distance between mate pairs" TYPE INTEGER DEFAULT 200 (Expected mean inner distance between mate pairs. For example, if your fragment size is 300 bp and read length is 50 bp, the inner distance is 200.)
@@ -32,8 +32,7 @@
 # AMS 11.11.2013 added thread support
 # AMS 3.1.2014 added transcriptome index for human
 # EK 3.1.2014 added alignment summary to output, added quality and mismatch parameter
-# EK 3.6.2014 rn4 commented out
-
+# AMS 22.5.2014 modified to use own genome
 # OUTPUT OPTIONAL tophat2.log
 
 # check out if the file is compressed and if so unzip it
@@ -46,10 +45,19 @@ options(scipen = 10)
 
 # setting up TopHat
 tophat.binary <- c(file.path(chipster.tools.path, "tophat2", "tophat2"))
+bowtie.binary <- c(file.path(chipster.tools.path, "bowtie2", "bowtie2"))
+bowtie2.index.binary <- file.path(chipster.module.path, "shell", "check_bowtie2_index.sh")
 path.bowtie <- c(file.path(chipster.tools.path, "bowtie2"))
 path.samtools <- c(file.path(chipster.tools.path, "samtools"))
 set.path <-paste(sep="", "PATH=", path.bowtie, ":", path.samtools, ":$PATH")
-path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
+
+# Do indexing
+print("Indexing the genome...")
+system("echo Indexing the genome... > bowtie2.log")
+check.command <- paste ( bowtie2.index.binary, "genome.txt| tail -1 ")
+genome.dir <- system(check.command, intern = TRUE)
+bowtie2.genome <- file.path( genome.dir , "genome.txt")
+
 
 # command start
 command.start <- paste("bash -c '", set.path, tophat.binary)
@@ -71,74 +79,27 @@ if (no.mixed == "yes"){
 }
 
 # optional GTF command, if a GTF file has been provided by user
-command.gtf <- ""
-input_files <- dir()
-is_gtf <- (length(grep("genes.gtf", input_files))>0)
-if (is_gtf) {
+if (file.exists("genes.gtf")){
 	if (no.novel.juncs == "yes") {
-		command.gtf <- paste("-G", "genes.gtf", "--no-novel-juncs")
+		command.parameters <- paste(command.parameters, "-G", "genes.gtf", "--no-novel-juncs")
 	} else {
-		command.gtf <- paste("-G", "genes.gtf")
+		command.parameters <- paste(command.parameters, "-G", "genes.gtf")
 	}
 }
 
-# optional GTF command, if a GTF file has NOT been provided by user
-# BUT is avaliable from Chipster server OR transkriptome index is available
-genome_available <- FALSE
-if (genome == "hg19" ||	genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel" ||genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") genome_available <- TRUE
-if (!is_gtf && genome_available) {
-
-	# annotation file setup
-	if (genome == "hg19") {
-		annotation.file <- c(file.path(path.bowtie, "indexes", "hg19.ti"))
-		ti.command <- c("--transcriptome-index=", annotation.file)
-		annotation.command <- paste(ti.command, collapse = '')		
-	}
-	if (genome == "mm10") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Mus_musculus.GRCm38.68.chr.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}
-	#	if (genome == "rn4") {
-	#	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.RGSC3.4.62.chr.gtf"))
-	#	annotation.command <- paste("-G", annotation.file)
-	#}
-	if (genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Rattus_norvegicus.Rnor_5.0.70.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}
-	if (genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Canis_familiaris.CanFam3.1.71.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}	
-	if (genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Drosophila_melanogaster.BDGP5.73.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}
-	if (genome == "Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel") {
-		annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", "Schizosaccharomyces_pombe.ASM294v2.22.gtf"))
-		annotation.command <- paste("-G", annotation.file)
-	}
-	
-	if (no.novel.juncs == "yes") {
-		command.gtf <- paste(annotation.command, "--no-novel-juncs")
-	} else {
-		command.gtf <- paste(annotation.command)
-	}
-}
 
 # command ending
-command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq >> tophat2.log '")
+#command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq '")
+command.end <- paste(bowtie2.genome, "reads1.fq reads2.fq 1>> tophat2.log 2>> tophat2.log'")
 
 # run tophat
-if (use.gtf == "yes"){ 
-	command <- paste(command.start, command.parameters, command.gtf, command.end)
-}else{
-	command <- paste(command.start, command.parameters, command.end)
-}
+command <- paste(command.start, command.parameters, command.end)
+
 echo.command <- paste("echo '",command ,"' > tophat2.log " )
 system(echo.command)
 #stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
+
 
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
@@ -158,13 +119,6 @@ system("mv tophat_out/align_summary.txt tophat-summary.txt")
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
 
-size <- 0
-size <- file.info("junctions.u.bed")$size
-
-echo.command <- paste("echo ",size ," >> tophat2.log" )
-system(echo.command)
-#system("sleep 120")
-#stop(paste('CHIPSTER-NOTE: ', size))
 
 if (file.exists("junctions.u.bed")){
 	size <- file.info("junctions.u.bed")$size

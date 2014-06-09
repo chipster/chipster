@@ -4,7 +4,7 @@
 # OUTPUT htseq-counts.tsv
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER paired: "Does the BAM file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
-# PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if yours was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
+# PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (Select no if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one gene" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 10 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
@@ -20,13 +20,14 @@ python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib"
 command.start <- paste("bash -c '", python.path, ";")
 command.end <- "'"
 
-# if the data is paired-end, sort BAM by read names
+# sort bam if the data is paired-end
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
-# samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
-ifelse(paired == "yes", samtools.binary, "sort -n alignment.bam alignment")
-
-# convert bam to sam
-# samtools.view <- paste(samtools.binary, "view -")
+if(paired == "yes"){
+	system(paste(samtools.binary, "sort -n alignment.bam name-sorted"))
+	bam<-"name-sorted.bam"
+} else {
+	bam<-"alignment.bam"
+}
 
 # htseq-count
 if(print.coord == "no") {
@@ -35,13 +36,11 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-# htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", "features.gtf > htseq-counts-out.txt")
-htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "alignment.bam features.gtf > htseq-counts-out.txt")
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, bam, "features.gtf > htseq-counts-out.txt")
 
 # run
-# command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
-command <- paste(command.start, htseq, command.end)
-system(command)
+htseq.command <- paste(command.start, htseq, command.end)
+system(htseq.command)
 
 # separate result file
 system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")
