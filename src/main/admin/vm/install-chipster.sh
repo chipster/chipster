@@ -434,7 +434,7 @@ then
  
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  wget_retry -O tophat-1.3.2.Linux_x86_64.tar.gz http://tophat.cbcb.umd.edu/downloads/tophat-1.3.2.Linux_x86_64.tar.gz
+  wget_retry -O tophat-1.3.2.Linux_x86_64.tar.gz http://ccb.jhu.edu/software/tophat/downloads/tophat-1.3.2.Linux_x86_64.tar.gz
   tar -xf tophat-1.3.2.Linux_x86_64.tar.gz
   rm -f tophat-1.3.2.Linux_x86_64.tar.gz
   mv tophat-1.3.2.Linux_x86_64 ${TOOLS_PATH}/
@@ -442,7 +442,7 @@ then
 
   # Tophat 2, The Artistic License
   cd ${TMPDIR_PATH}/
-  wget_retry -O tophat-2.0.10.Linux_x86_64.tar.gz http://tophat.cbcb.umd.edu/downloads/tophat-2.0.10.Linux_x86_64.tar.gz
+  wget_retry -O tophat-2.0.10.Linux_x86_64.tar.gz http://ccb.jhu.edu/software/tophat/downloads/tophat-2.0.10.Linux_x86_64.tar.gz
   tar -xf tophat-2.0.10.Linux_x86_64.tar.gz -C ${TOOLS_PATH}/
   rm -f tophat-2.0.10.Linux_x86_64.tar.gz
   ln -s tophat-2.0.10.Linux_x86_64 ${TOOLS_PATH}/tophat2
