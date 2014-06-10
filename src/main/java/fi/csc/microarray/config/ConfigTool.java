@@ -52,6 +52,7 @@ public class ConfigTool {
 			{"broker private host/ip", "myhost.mydomain"},
 			{"message broker protocol", "tcp"},
 			{"message broker port", "61616"},
+			{"file broker protocol", "http"},
 			{"file broker port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
@@ -67,12 +68,13 @@ public class ConfigTool {
 	private final int BROKER_PRIVATE_HOST_INDEX = 1;
 	private final int BROKER_PROTOCOL_INDEX = 2;
 	private final int BROKER_PORT_INDEX = 3;
-	private final int FILEBROKER_PORT_INDEX = 4;
-	private final int WS_CODEBASE_INDEX = 5;
-	private final int WS_PORT = 6;
-	private final int MANAGER_PORT = 7;
-	private final int MANAGER_EMAIL = 8;
-	private final int MAX_JOBS_INDEX = 9;
+	private final int FILEBROKER_PORT_PROTOCOL = 4;
+	private final int FILEBROKER_PORT_INDEX = 5;
+	private final int WS_CODEBASE_INDEX = 6;
+	private final int WS_PORT = 7;
+	private final int MANAGER_PORT = 8;
+	private final int MANAGER_EMAIL = 9;
+	private final int MAX_JOBS_INDEX = 10;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -526,7 +528,7 @@ public class ConfigTool {
 	}
 
 	private String createFilebrokerUrl() {
-		return "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX];
+		return configs[FILEBROKER_PORT_PROTOCOL][VAL_INDEX] + "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX];
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {
