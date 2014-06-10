@@ -403,9 +403,11 @@ then
   mv bowtie2-2.1.0 ${TOOLS_PATH}
   ln -s bowtie2-2.1.0 ${TOOLS_PATH}/bowtie2
   rm bowtie2-2.1.0-linux-x86_64.zip
-	
+  
+  mkdir -p ${TOOLS_PATH}/bowtie2/indexes/
+		
   # GRCh37_74 ensembl transcripts   
-	curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37_74_ensembl_transcripts.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37_74_ensembl_transcripts.tar.gz | tar -xzv -C ${TOOLS_PATH}/bowtie2/indexes/
 																																																														
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
