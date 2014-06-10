@@ -159,12 +159,14 @@ def get_compatible_bundle_versions(name):
 
 def less_than_or_equal_to(bundle_version, platform_version):
     """
-    Compare version numbers presented with three integers separated by period
+    Compare version numbers presented with two integers separated by period
     """
     for bundle, platform in zip(bundle_version.split("."), platform_version.split(".")):
-        if (int(bundle) > int(platform)):
-            return False
-    return True
+        if int(bundle) < int(platform):
+            return True 
+    return bundle_version == platform_version
+
+
 
 def less_than(bundle_version, platform_version):
     return less_than_or_equal_to(bundle_version, platform_version) and bundle_version != platform_version 
@@ -768,7 +770,7 @@ def handle_file_error(e):
 
 if __name__ == '__main__':
     prog_path = os.path.abspath(os.path.dirname(sys.argv[0])) + "/"
-    chipster_version = "3.0.0"
+    chipster_version = "3.0" # must be in same format with the yaml files (i.e. two integers separated by a dot)
     bundles_file = prog_path + "bundles.yaml"
     installed_file = prog_path + "installed.yaml"
     installation_path = "/opt/chipster/"
