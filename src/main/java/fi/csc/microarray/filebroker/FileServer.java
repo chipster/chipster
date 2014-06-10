@@ -83,8 +83,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.publicPath = configuration.getString("filebroker", "public-data-path");
 
     		// boot up file server
+    		URL hostURL = new URL(this.host);
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
-    		fileServer.start(fileRepository.getPath(), port);
+    		fileServer.start(fileRepository.getPath(), port, hostURL.getProtocol());
 
     		// cache clean up setup
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
