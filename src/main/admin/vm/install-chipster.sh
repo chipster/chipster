@@ -570,6 +570,7 @@ then
   python3 bundle.py install Drosophila_melanogaster.BDGP5.bowtie
   python3 bundle.py install Drosophila_melanogaster.BDGP5.bowtie2
   python3 bundle.py install Drosophila_melanogaster.BDGP5.bwa
+  python3 bundle.py install Drosophila_melanogaster.BDGP5.gb
   python3 bundle.py install Drosophila_melanogaster.BDGP5
 
   python3 bundle.py install Schizosaccharomyces_pombe.ASM294v2.bowtie
@@ -589,6 +590,13 @@ then
   python3 bundle.py install Ovis_aries.Oar_v3.1
   python3 bundle.py install Rattus_norvegicus.RGSC3.4
   python3 bundle.py install Sus_scrofa.Sscrofa10.2
+
+  # Some bundles are missing few files
+
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/genomes/fasta_nochr_Human-MT.NC_012920.1-v2.tar.gz | tar xz -C ${TOOLS_PATH}/
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Mus_musculus.GRCm38.68.tar.gz | tar xz -C ${TOOLS_PATH}/ genomes/gtf/Mus_musculus.NCBIM37.62.chr.gtf
+  curl -s http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/genomes/gtf_Homo_sapiens.GRCh37.68.tar.gz | tar xz -C ${TOOLS_PATH}/ genomes/gtf/Homo_sapiens.GRCh37.68.DEXSeq.gtf genomes/gtf/Homo_sapiens.GRCh37.68.chr.DEXSeq.gtf
+
 
   # ConsensuPathDB
   apt-get -y install python-zsi #sudo
