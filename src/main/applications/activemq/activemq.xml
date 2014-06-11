@@ -78,6 +78,7 @@
           use before disabling caching and/or slowing down producers. For more information, see:
           http://activemq.apache.org/producer-flow-control.html
         -->
+        <!--
         <systemUsage>
           <systemUsage>
               <memoryUsage>
@@ -91,7 +92,7 @@
               </tempUsage>
           </systemUsage>
       	</systemUsage>
-
+		-->
 
     	<plugins>
       		<simpleAuthenticationPlugin>
@@ -145,5 +146,6 @@
     -->
     <!--
     <import resource="jetty.xml"/>
+    -->
 
 </beans>
