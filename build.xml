@@ -55,7 +55,7 @@
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.5.7" />
 	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.5.7" />
 	<property name="wrapper-macosx" value="${wrapper-dist}/wrapper-macosx-universal-64-3.5.7" />
-	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
+	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.10.0" />
 
 	<!-- keystore for signing -->
 	<property name="keyalias" value="chipster" />
@@ -94,7 +94,7 @@
         	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-io-2.2.jar" relpath=""/>
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
+			<fatjar.jarsource file="${lib}/activemq-all-5.10.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/sam-1.103.jar" relpath=""/>
 			<fatjar.jarsource file="${lib}/picard-1.103.jar" relpath=""/>

@@ -1,5 +1,15 @@
 #! /bin/sh
 
+### BEGIN INIT INFO
+# Provides:          activemq
+# Required-Start:    $remote_fs $network $syslog
+# Required-Stop:     $remote_fs $network $syslog
+# Default-Start:     3 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts ActiveMQ
+# Description:       Starts ActiveMQ Message Broker Server
+### END INIT INFO
+
 # ------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -7,9 +17,9 @@
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -249,7 +259,7 @@ else
         fi
     fi
 fi
- 
+
 # Build the nice clause
 if [ "X$PRIORITY" = "X" ]
 then
@@ -292,7 +302,7 @@ checkUser() {
                 exit 1
             fi
         fi
-    
+
         if [ "`$IDEXE -u -n`" = "$RUN_AS_USER" ]
         then
             # Already running as the configured user.  Avoid password prompts by not calling su.
@@ -309,7 +319,7 @@ checkUser() {
         then
             if [ "X$2" != "X" ]
             then
-                # Resolve the primary group 
+                # Resolve the primary group
                 RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
                 if [ "X$RUN_AS_GROUP" = "X" ]
                 then
@@ -323,6 +333,7 @@ checkUser() {
         # Still want to change users, recurse.  This means that the user will only be
         #  prompted for a password once.
         su -m $RUN_AS_USER -c "$REALPATH $1"
+        RETVAL=$?
 
         # Now that we are the original user again, we may need to clean up the lock file.
         if [ "X$LOCKPROP" != "X" ]
@@ -338,7 +349,7 @@ checkUser() {
             fi
         fi
 
-        exit 0
+        exit $RETVAL
     fi
 }
 
@@ -393,7 +404,7 @@ console() {
         exit 1
     fi
 }
- 
+
 start() {
     echo "Starting $APP_LONG_NAME..."
     getpid
@@ -406,7 +417,7 @@ start() {
         exit 1
     fi
 }
- 
+
 stopit() {
     echo "Stopping $APP_LONG_NAME..."
     getpid
