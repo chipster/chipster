@@ -676,10 +676,13 @@ then
   apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
   # also vmbin from nic
 
+#  EMBOSS_MIRROR=ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0
+  EMBOSS_MIRROR=http://$NIC_MIRROR/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS
+
   EMBOSS_VERSION=6.5.7
   EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
   # note version in path                                                                                                                                                              
-	curl ftp://emboss.open-bio.org/pub/EMBOSS/old/6.5.0/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	curl ${EMBOSS_MIRROR}/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
   cd ${TMPDIR_PATH}/EMBOSS-6.5.7
 	
   #wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
@@ -695,7 +698,7 @@ then
 
   # EMBOSS extras
 
-	curl ftp://emboss.open-bio.org/pub/EMBOSS/MEME-4.7.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	curl ${EMBOSS_MIRROR}/MEME-4.7.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
 	cd ${TMPDIR_PATH}/MEME-4.7.650
 	./configure ${EMBOSS_OPTIONS}
 	make
@@ -703,7 +706,7 @@ then
 	cd ..
 
   # phylipnew                                                                                                                                                                         
-	curl ftp://emboss.open-bio.org/pub/EMBOSS/PHYLIPNEW-3.69.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	curl ${EMBOSS_MIRROR}/PHYLIPNEW-3.69.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
 	cd PHYLIPNEW-3.69.650
 	./configure ${EMBOSS_OPTIONS}
 	make
@@ -711,7 +714,7 @@ then
 	cd ..
 	
   # vienna                                                                                                                                                                            
-	curl ftp://emboss.open-bio.org/pub/EMBOSS/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	curl ${EMBOSS_MIRROR}/VIENNA-1.7.2.650.tar.gz | tar -xz -C ${TMPDIR_PATH}/
 	cd  ${TMPDIR_PATH}/VIENNA-1.7.2.650
 	./configure ${EMBOSS_OPTIONS}
 	make
