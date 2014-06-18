@@ -115,7 +115,7 @@ public class Interpretation {
 
 			return new CytobandConversion(cytobandUrl, browser);
 		}
-		throw new IllegalStateException("Cytoband url is null");
+		return null;
 	}
 	
 	public static GeneIndexActions getGeneSearchDataThread(GBrowser browser) {
@@ -134,7 +134,7 @@ public class Interpretation {
 			return new GeneIndexActions(browser.getPlot().getDataView().getQueueManager(), gtfDataThread, geneRequestHandler);
 		} 
 		
-		throw new IllegalStateException("Can't initialize gene search without gtf data");
+		return null;
 	}	
 	
 	public static GtfToFeatureConversion getAnnotationDataThread(GBrowser browser) {

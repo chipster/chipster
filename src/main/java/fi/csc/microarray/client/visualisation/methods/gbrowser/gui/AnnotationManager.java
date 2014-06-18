@@ -187,13 +187,37 @@ public class AnnotationManager {
 		@Override
 		public int compareTo(Genome other) {
 			int speciesComparison = speciesId.compareTo(other.speciesId);
-			int versionComparison = versionId.compareTo(other.versionId) * -1;
+			int versionComparison;
+
+			Integer ensemblVersion =  parseEnsemblVersion(versionId);
+			Integer otherEnsemblVersion =  parseEnsemblVersion(other.versionId);
+			
+			if (ensemblVersion != null && otherEnsemblVersion != null) {
+				versionComparison = -ensemblVersion.compareTo(otherEnsemblVersion);
+			} else {
+				// alphabetical order if parsing fails
+				versionComparison = -versionId.compareTo(other.versionId);
+			}
 			
 			if (speciesComparison != 0){
 				return speciesComparison;
 			} else {
 				return versionComparison;
 			}
+		}
+
+		private Integer parseEnsemblVersion(String versionId) {			
+			int period = versionId.lastIndexOf(".");
+			
+			if (period >= 0) {
+				String ensemblString = versionId.substring(period + 1);
+				try {
+					return Integer.parseInt(ensemblString);
+				} catch (NumberFormatException e) {
+					// just return null
+				}
+			}			
+			return null;
 		}
 
 		private AnnotationManager getOuterType() {
