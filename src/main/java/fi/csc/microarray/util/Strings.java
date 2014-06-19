@@ -3,6 +3,8 @@ package fi.csc.microarray.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -206,5 +208,28 @@ public class Strings {
 		return line;
 	}
 
-	
+	public static List<String> splitConsideringQuotes(String input, char delimiter) {
+		// based on http://stackoverflow.com/questions/1757065/splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
+		List<String> result = new ArrayList<String>();
+		int start = 0;
+		boolean inQuotes = false;
+		
+		for (int current = 0; current < input.length(); current++) {
+			
+		    if (input.charAt(current) == '\"') {
+		    	inQuotes = !inQuotes; // toggle state
+		    }
+		    
+		    boolean atLastChar = (current == input.length() - 1);
+		    
+		    if (atLastChar) {
+		    	result.add(input.substring(start).replace("\"", ""));
+		    	
+		    } else if (input.charAt(current) == delimiter && !inQuotes) {
+		        result.add(input.substring(start, current).replace("\"", ""));
+		        start = current + 1;
+		    }
+		}
+		return result;
+	}
 }
