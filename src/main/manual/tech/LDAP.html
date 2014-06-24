@@ -1,0 +1,125 @@
+<html><body>
+<table id="toc" class="toc" summary="Contents"><tbody><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1"><a href="#How_to_authenticate_chipster_users_via_LDAP_and_JNDI">1 How to authenticate chipster users via LDAP and JNDI</a>
+<ul>
+<li class="toclevel-2"><a href="#Date:_24.11.2008">1.1 Date: 24.11.2008</a></li>
+<li class="toclevel-2"><a href="#Updated:_24.07.2009_.28minor_changes_in_chipster_version_1.3.0.29">1.2 Updated: 24.07.2009 (minor changes in chipster version 1.3.0)</a></li>
+<li class="toclevel-2"><a href="#Problem_description:">1.3 Problem description:</a></li>
+<li class="toclevel-2"><a href="#Remarks:">1.4 Remarks:</a></li>
+<li class="toclevel-2"><a href="#Solution:">1.5 Solution:</a></li>
+</ul>
+</li>
+</ul>
+</td></tr></tbody></table>
+<a name="How_to_authenticate_chipster_users_via_LDAP_and_JNDI" id="How_to_authenticate_chipster_users_via_LDAP_and_JNDI"></a><h2> How to authenticate chipster users via LDAP and JNDI</h2>
+<a name="Date:_24.11.2008" id="Date:_24.11.2008"></a><h3> Date: 24.11.2008</h3>
+<a name="Updated:_24.07.2009_.28minor_changes_in_chipster_version_1.3.0.29" id="Updated:_24.07.2009_.28minor_changes_in_chipster_version_1.3.0.29"></a><h3> Updated: 24.07.2009 (minor changes in chipster version 1.3.0)</h3>
+<a name="Problem_description:" id="Problem_description:"></a><h3> Problem description:</h3>
+<p>Every user with an account in our Active Directory Domain should be 
+able to log into chipster using the Active Directory login credentials.
+</p>
+<a name="Remarks:" id="Remarks:"></a><h3> Remarks:</h3>
+<ul><li> JNDI is the Java Naming and Directory Interface
+</li><li> Java contains a class LdapLoginModule, which does not support 
+initial binding with a special LDAP user who has search rights in the 
+directory. Therefore the class LdapExtLoginModule of JBOSS is utilized.
+</li><li> JBOSS at <a href="http://www.jboss.org/" class="external free" title="http://www.jboss.org/" rel="nofollow">http://www.jboss.org/</a> provides the source of the community release of the J2EE application server. Here jboss-4.2.3.GA-src.tar.gz was used.
+</li><li> This solution was developed with
+<ul><li> debian linux 4.0 (etch)
+</li><li> linux kernel 2.6.18-6-amd64
+</li><li> java version 1.5.0
+</li><li> apache ant version 1.7.1
+</li><li> J2EE application server version 4.2.3
+</li><li> chipster version 1.2.0, 1.3.0
+</li></ul>
+</li></ul>
+<a name="Solution:" id="Solution:"></a><h3> Solution:</h3>
+<p>1. Download and build a current release of the J2EE application server from <a href="http://www.jboss.org/" class="external free" title="http://www.jboss.org/" rel="nofollow">http://www.jboss.org/</a>
+</p>
+<dl><dd> Build works very straightforward. For our purpose it is 
+sufficient to move the build result, which resides in build/output, to 
+some directory on the chipster server.
+</dd></dl>
+<p>2. Edit wrapper.conf of chipsters auth module
+</p>
+<dl><dd> auth/conf/wrapper.conf
+</dd><dd> (auth/bin/linux-x86-64/wrapper.conf in chipster versions &lt; 1.3.0)
+</dd></dl>
+<pre>...
+# Java Classpath (include wrapper.jar) Add class path elements as
+# needed starting from 1
+wrapper.java.classpath.1=../shared/lib/*.jar
+wrapper.java.classpath.2=/YOUR_JBOSS_DIR/jboss-4.2.3.GA/server/default/lib/*.jar
+wrapper.java.classpath.3=/YOUR_JBOSS_DIR/jboss-4.2.3.GA/lib/*.jar
+...</pre>
+<p>3. Edit jaas.config of chipsters auth module
+</p>
+<dl><dd> auth/conf/jaas.config
+</dd><dd> (auth/nami-work-files/jaas.config in chipster versions 1.3.0)
+</dd></dl>
+<pre>/ **Login Configuration for Chipster**
+
+Chipster {
+  /* fi.csc.microarray.auth.SimpleFileLoginModule sufficient passwdFile="users"; */
+  /* fi.csc.microarray.auth.UnixCryptLoginModule sufficient passwdFile="chipster_shadow"; */
+  org.jboss.security.auth.spi.LdapExtLoginModule REQUIRED
+  java.naming.provider.url="ldap://your.ldap.server:389"
+  bindDN="your_active_directory_name\\your_ldap_search_user"
+  bindCredential="your_ldap_search_user_password"
+  baseCtxDN="OU=your_ou,DC=some_more,DC=your_domain,DC=com"
+  baseFilter="(&amp;(objectClass=user)(cn={0}))"
+  rolesCtxDN="OU=your_ou,DC=some_more,DC=your_domain,DC=com"
+  roleFilter="(&amp;(objectClass=user)(cn={0}))"
+  roleAttributeID="memberOf"
+  allowEmptyPasswords="false";
+};</pre>
+<dl><dd> The above LDAP information is very specific. You need to know 
+your information to access your LDAP service. To explore and learn about
+ the required LDAP search strings and DNs the tool "LDAP Browser" from 
+LDAPSOFT (<a href="http://www.ldapsoft.com/" class="external free" title="http://www.ldapsoft.com" rel="nofollow">http://www.ldapsoft.com</a>) showed to be of great help.
+</dd></dl>
+<p>4. Replace all chipster log4j.jar occurrences with the log4j.jar of JBOSS
+</p>
+<dl><dd> <i>This will propably not be necessary in future when chipster uses the newer files itself.</i>
+</dd></dl>
+<pre>#
+# chipster version 1.3.0
+#
+cd /YOUR_CHIPSTER_DIR
+find . -name "log4*"
+./shared/lib/log4j-1.2.9.jar
+./activemq/example/conf/log4j.properties
+./activemq/lib/optional/log4j-1.2.14.jar
+./activemq/conf/log4j.properties
+
+cp ./shared/lib/log4j-1.2.9.jar ./shared/lib/log4j-1.2.9.jar.bck
+cp /YOUR_JBOSS_DIR/jboss-4.2.3.GA/client/log4j.jar ./shared/lib/log4j-1.2.9.jar
+
+cp ./activemq/lib/optional/log4j-1.2.14.jar ./activemq/lib/optional/log4j-1.2.14.jar.bck
+cp /YOUR_JBOSS_DIR/jboss-4.2.3.GA/client/log4j.jar ./activemq/lib/optional/log4j-1.2.14.jar
+
+
+#
+# chipster version &lt; 1.3.0
+#
+cd /YOUR_CHIPSTER_DIR
+find . -name "log4*"
+./chipster-1.2.0/shared/lib/log4j-1.2.9.jar
+./chipster-1.2.0/activemq/lib/optional/log4j-1.2.14.jar
+
+cp ./chipster-1.2.0/shared/lib/log4j-1.2.9.jar ./chipster-1.2.0/shared/lib/log4j-1.2.9.jar.bck
+cp /YOUR_JBOSS_DIR/jboss-4.2.3.GA/client/log4j.jar ./chipster-1.2.0/shared/lib/log4j-1.2.9.jar
+
+cp ./chipster-1.2.0/activemq/lib/optional/log4j-1.2.14.jar ./chipster-1.2.0/activemq/lib/optional/log4j-1.2.14.jar.bck
+cp /YOUR_JBOSS_DIR/jboss-4.2.3.GA/client/log4j.jar ./chipster-1.2.0/activemq/lib/optional/log4j-1.2.14.jar</pre>
+<p>5. Restart chipster
+</p><p>Relevant chipster log files to look for errors and problems are
+</p>
+<dl><dd> auth/logs/wrapper.log
+</dd><dd> auth/logs/chipster.log
+</dd><dd> auth/logs/security.log
+</dd></dl>
+<p>(In Chipster &lt; 1.3, auth/logs/wrapper.log, auth/nami-work-files/security.log and auth/nami-work-files/nami.log.)
+</p>
+</body></html>
