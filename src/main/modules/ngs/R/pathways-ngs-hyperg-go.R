@@ -13,10 +13,15 @@
 
 # pathways-ngs-hyperg-go.R
 # 12.02.2010 MG, Created
-# 09.05.2014 MK, Added Mouse and Rat. Added possibility to annotate EnsEMBL ids as well 
+# 09.05.2014 MK, Added Mouse and Rat. Added possibility to annotate Ensembl IDs as well.
+# 25.06.2014 EK, Fixed a bug in genome library loading.
 
 # load packages
-library(genome, character.only=T)
+library(org.Hs.eg.db)
+library(org.Mm.eg.db)
+library(org.Rn.eg.db)
+library(org.Dm.eg.db)
+library(org.Ag.eg.db)
 annotpkg <- gsub(".db", "", genome)
 library(GOstats)
 library(R2HTML)
@@ -25,13 +30,13 @@ library(R2HTML)
 dat <- read.table('gene-list.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
 # convert list of reference genes from Ensembl to Entrez IDs
-#ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
+# ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
 lib <- paste(annotpkg, "ENSEMBL2EG", sep="")
 ensembl.to.entrez <- as.list(get(lib))
 reference.genes <- unique(unlist(ensembl.to.entrez))
 ens_identifiers <- names(unlist(ensembl.to.entrez))
 
-#See if column is the first "empty" element, indicating that the user wish to use row.names
+#See if column is the first "empty" element, indicating that the user wishes to use row.names
 if(length(column) == 0 || column == " " || column == "") {
 	selected.genes <- row.names(dat)
 } else {
@@ -39,7 +44,7 @@ if(length(column) == 0 || column == " " || column == "") {
 	selected.genes <- as.character(dat[,column])
 }
 
-#check do IDs match more EnsEMBL or Entrez genes
+#check that IDs match more EnsEMBL or Entrez genes
 if(length(intersect(selected.genes, reference.genes)) < length(intersect(selected.genes, ens_identifiers))) {
 	selected.genes <- unique(unlist(ensembl.to.entrez[selected.genes]))
 }
