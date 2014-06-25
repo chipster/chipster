@@ -5,10 +5,10 @@
 # OUTPUT OPTIONAL isoforms.fpkm_tracking.tsv
 # OUTPUT OPTIONAL skipped.gtf
 # OUTPUT OPTIONAL transcripts.gtf
-# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER OPTIONAL organism: "Annotation GTF" TYPE [Homo_sapiens.GRCh37.75.gtf: "Human (hg19\)", Mus_musculus.GRCm38.75.gtf: "Mouse (mm10\)", Rattus_norvegicus.Rnor_5.0.75.gtf: "Rat (rn5\)", Schizosaccharomyces_pombe.ASM294v2.22.gtf: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT Homo_sapiens.GRCh37.75.gtf (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL ug: "Estimate expression of known isoforms, don't assemble novel ones" TYPE [yes, no] DEFAULT no (Reference annotation (a GFF/GTF file\) is used to estimate isoform expression. Program will not assemble novel transcripts, and the it will ignore alignments not structurally compatible with any reference transcript. You can supply your own GTF file or use one of the provided annotations.)
 # PARAMETER OPTIONAL lg: "Do reference annotation based transcript assembly" TYPE [yes, no] DEFAULT no (Cufflinks will use the supplied reference annotation (a GFF/GTF file\) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled. You can supply your own GTF file or use one of the provided annotations.)
-# PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
 # PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cufflinks can detect sequence-specific bias and correct for it in abundance estimation.)
 # PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", mm10.fa: "Mouse genome (mm10\)", rn4.fa: "Rat genome (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel.fa: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (Genome used for bias correction.)
@@ -25,45 +25,27 @@ cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cufflinks"))
 # options
 cufflinks.options <- ""
 cufflinks.options <- paste(cufflinks.options, "-p", chipster.threads.max)
+
 # if (normalize == "yes") {
 # 	cufflinks.options <- paste(cufflinks.options, "-N")
 # }
+
+# If user has provided a GTF, we use it
 if (file.exists("annotation.gtf")){
 	annotation.file <- "annotation.gtf"
 }else{
-	if (internalgtf == "hg19") {
-		if (chr == 1){
-			annotation.file <- "Homo_sapiens.GRCh37.68.gtf"
-		}else {
-			annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
-		}		
+	# If not, we use the internal one.
+	internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
+	# If chromosome names in BAM have chr, we make a temporary copy of gtf with chr names, otherwise we use it as is.
+	if(chr == "chr1"){
+		source(file.path(chipster.common.path, "gtf-utils.R"))
+		addChrToGtf(internal.gtf, "internal_chr.gtf") 
+		annotation.file <- paste("internal_chr.gtf")
+	}else{
+		annotation.file <- paste(internal.gtf)
 	}
-	if (internalgtf == "mm9") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.NCBIM37.62.gtf"
-		}else {
-			annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
-		}
-	}
-	if (internalgtf == "mm10") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.GRCm38.68.gtf"
-		}else{
-			annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
-		}
-	}
-	if (internalgtf == "rn4") {
-		if (chr == 1){
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.gtf"
-		}else{
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
-		}
-	}
-	if (internalgtf =="Schizosaccharomyces_pombe.ASM294v2.22"){
-		annotation.file <- "Schizosaccharomyces_pombe.ASM294v2.22.gtf"
-	}
-	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
-}
+}	
+
 if (lg == "yes"){
 	cufflinks.options <-paste(cufflinks.options, "-g", annotation.file)
 }
