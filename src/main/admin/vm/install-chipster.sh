@@ -246,8 +246,7 @@ echo "Chipster announcements not done yet"
 # MACS, Artistic license
 # part 1
 cd ${TMPDIR_PATH}/
-wget_retry -nv https://github.com/downloads/taoliu/MACS/MACS-1.4.2-1.tar.gz
-tar xfz MACS-1.4.2-1.tar.gz
+curl -s https://cloud.github.com/downloads/taoliu/MACS/MACS-1.4.2-1.tar.gz | tar -xz
 cd MACS-1.4.2
 python setup.py install
 cd ..
@@ -258,8 +257,7 @@ rm -f MACS-1.4.2-1.tar.gz
 # part 1
 
 cd $TMPDIR_PATH
-wget_retry -O MACS-2.0.9-1.tar.gz 'https://github.com/downloads/taoliu/MACS/MACS-2.0.9-1.tar.gz'
-tar -xzvf MACS-2.0.9-1.tar.gz
+curl -s 'https://cloud.github.com/downloads/taoliu/MACS/MACS-2.0.9-1.tar.gz' | tar -xz
 cd MACS-2.0.9/
 sudo python setup.py install
 cd ..
