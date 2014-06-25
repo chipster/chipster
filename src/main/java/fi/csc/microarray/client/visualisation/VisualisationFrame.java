@@ -20,8 +20,8 @@ import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
@@ -36,7 +36,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private static final Color BG = Color.white;
 
-	protected ClientApplication application = Session.getSession().getApplication();
+	protected SwingClientApplication application = (SwingClientApplication) Session.getSession().getApplication();
 
 	private static final String WAIT_PANEL_NAME = "wait";
 	private static final String VISUALISATION_PANEL_NAME = "visualisation";

@@ -1,6 +1,5 @@
 package fi.csc.microarray.analyser;
 
-import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -9,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,8 +22,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.Icon;
-
 import org.junit.Assert;
 import org.springframework.validation.Errors;
 
@@ -34,7 +30,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -49,16 +44,11 @@ import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.databeans.DataManager.StorageMethod;
@@ -1009,65 +999,9 @@ public class SessionReplayTest extends MessagingTestBase {
 		public OperationDefinition getOperationDefinition(String toolId) {
 			return parent.getOperationDefinition(toolId, toolModules);
 		};
-		
-		@Override
-		public void checkFreeMemory() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
 
 		@Override
-		public void createLink(DataBean source, DataBean target, Link type) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void deleteDatas(DataItem... datas) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void flipTaskListVisibility(boolean closeIfVisible) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public DataManager getDataManager() {
-			return manager;
-//			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public Icon getIconFor(DataItem data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public VisualisationFrameManager getVisualisationFrameManager() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void importGroup(Collection<ImportItem> datas, String folderName) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		protected void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public DataFolder initializeFolderForImport(String folderName) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void loadSession(boolean remote) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void removeLink(DataBean source, DataBean target, Link type) {
+		public void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1087,22 +1021,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void restoreSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void runBlockingTask(String taskName, Runnable runnable) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public File saveWorkflow() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void setMaximisedVisualisationMode(boolean maximisedVisualisationMode) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1122,72 +1041,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void showHistoryScreenFor(DataBean data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, DataItem data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, List<DataItem> datas) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showSourceFor(String operationName) throws TaskException {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		protected void taskCountChanged(int newTaskCount, boolean attractAttention) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void viewHelp(String id) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void viewHelpFor(OperationDefinition operationDefinition) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void visualiseWithBestMethod(FrameType target) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void reportExceptionThreadSafely(Exception e) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public File openWorkflow(boolean runForEach) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript, boolean runForEach) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-		
-		@Override
-		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void manageRemoteSessions() {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 	}

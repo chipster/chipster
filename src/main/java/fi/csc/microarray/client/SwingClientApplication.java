@@ -7,8 +7,11 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,14 +24,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,6 +41,7 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -72,9 +74,7 @@ import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.client.screen.ChildScreenPool;
 import fi.csc.microarray.client.screen.HistoryScreen;
@@ -99,22 +99,15 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
-import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.DbSession;
-import fi.csc.microarray.filebroker.QuotaExceededException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
-import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -168,7 +161,17 @@ public class SwingClientApplication extends ClientApplication {
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
 
 	private JFileChooser importExportFileChooser;
-	private JFileChooser workflowFileChooser;
+	private JFileChooser workflowFileChooser;	
+	
+	/**
+	 * Listens to jobExecutor's state in general.
+	 */
+	private PropertyChangeListener jobExecutorChangeListener = new PropertyChangeListener() {	
+		public void propertyChange(PropertyChangeEvent evt) {
+			taskCountChanged((Integer)evt.getNewValue(), true);
+			logger.debug("JobExecutor property changed event: " + evt.getPropertyName() + ": " + (Integer)evt.getNewValue());
+		}		
+	};
 
 	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
 	        throws MicroarrayException, IOException, IllegalConfigurationException {
@@ -203,7 +206,7 @@ public class SwingClientApplication extends ClientApplication {
 			@Override
 			public void run() {
 				try {
-					initialiseApplication();
+					initialiseApplication(false);
 
 				} catch (Exception e) {
 					reportInitalisationErrorThreadSafely(e);
@@ -242,7 +245,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 
-	protected void initialiseGUIThreadSafely(final File mostRecentDeadTempDirectory) {
+	public void initialiseGUIThreadSafely(final File mostRecentDeadTempDirectory) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -266,6 +269,7 @@ public class SwingClientApplication extends ClientApplication {
 		if (toolModules == null) {
 			throw new MicroarrayException("metadata was not received (analyser not functional?)");
 		}
+		
 
 		// initialize the main frame
 		this.mainFrame = new JFrame();
@@ -370,6 +374,20 @@ public class SwingClientApplication extends ClientApplication {
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
+		// start listening to job events
+		taskExecutor.addChangeListener(jobExecutorChangeListener);
+		
+		// Start checking amount of free memory 
+		final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				checkFreeMemory();
+			}
+		});
+		memoryCheckTimer.setCoalesce(true);
+		memoryCheckTimer.setRepeats(true);
+		memoryCheckTimer.setInitialDelay(0);
+		memoryCheckTimer.start();
+		
 		// it's alive!
 		super.setEventsEnabled(true);
 		manager.setEventsEnabled(true);
@@ -403,6 +421,13 @@ public class SwingClientApplication extends ClientApplication {
 			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);
 			new SessionRestoreDialog(this, sessionFile).setVisible(true);
 		}
+	}
+	
+	/**
+	 * Set default visualisation method (DataDetails)
+	 */
+	public void setVisualisationMethod() {
+		setVisualisationMethod(VisualisationMethod.getDefault(), null, getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 	}
 
 	protected void showDebugDialog(int type) {
@@ -664,77 +689,13 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	@Override
 	public void importGroup(final Collection<ImportItem> datas, final String folderName) {
 
 		runBlockingTask("importing files", new Runnable() {
 
 			public void run() {
-				DataBean lastGroupMember = null;
-
-				try {
-
-					for (ImportItem item : datas) {
-
-						String dataSetName = item.getInputFilename();
-						ContentType contentType = item.getType();
-						Object dataSource = item.getInput();
-
-
-						// Selects folder where data is imported to, or creates a
-						// new one
-						DataFolder folder = initializeFolderForImport(folderName);
-
-						// create the DataBean
-						DataBean data;
-						if (dataSource instanceof File) {
-							data = manager.createDataBean(dataSetName, (File) dataSource);
-							
-						} else if (dataSource instanceof URL) {
-							data = manager.createDataBean(dataSetName, ((URL) dataSource));
-							
-						} else {
-							throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
-						}
-
-						// set the content type
-						data.setContentType(contentType);
-
-						// add the operation (all databeans have their own import
-						// operation
-						// instance, it would be nice if they would be grouped)
-						Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
-						data.setOperationRecord(new OperationRecord(importOperation));
-
-						// data is ready now, make it visible
-						manager.connectChild(data, folder);
-
-						// Create group links only if both datas are raw type
-						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
-
-							DataBean targetData = data;
-
-							// Link new data to all group linked datas of given cell
-							for (DataBean sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
-								logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
-								createLink(sourceData, targetData, DataBean.Link.GROUPING);
-							}
-
-							// Create link to the given cell after looping to avoid
-							// link duplication
-							createLink(lastGroupMember, targetData, DataBean.Link.GROUPING);
-						}
-
-						lastGroupMember = data;
-
-					}
-
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-
+				importGroupAndWait(datas, folderName);
 			}
-
 		});
 	}
 
@@ -782,10 +743,6 @@ public class SwingClientApplication extends ClientApplication {
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal, null, button);
 	}
 
-	
-	
-	
-	@Override
 	public File saveWorkflow() {
 
 		try {
@@ -795,7 +752,7 @@ public class SwingClientApplication extends ClientApplication {
 				File selected = fileChooser.getSelectedFile();
 				File newFile = selected.getName().endsWith(WorkflowManager.SCRIPT_EXTENSION) ? selected : new File(selected.getCanonicalPath() + "." + WorkflowManager.SCRIPT_EXTENSION);
 
-				workflowManager.saveSelectedWorkflow(newFile);
+				super.saveWorkflow(newFile);
 				menuBar.addRecentWorkflow(newFile.getName(), Files.toUrl(newFile));
 				menuBar.updateMenuStatus();
 				return newFile;
@@ -814,53 +771,12 @@ public class SwingClientApplication extends ClientApplication {
 			@Override
 			public void run() {
 				
-				if (!runForEach) {
-					// Run once
-					workflowManager.runScript(workflowScript, null);
-
-				} else {
-					// Run for every selected data separately
-					
-					// Store current selection
-					List<DataBean> datas = getSelectionManager().getSelectedDataBeans();
-
-					// Select one by one and run workflow
-					for (DataBean data : datas) {
-
-						// Need synchronized latch to wait for each workflow execution
-						final CountDownLatch latch = new CountDownLatch(1);
-						AtEndListener atEndListener = new AtEndListener() {
-							@Override
-							public void atEnd(boolean success) {
-								System.out.println("at end");
-								latch.countDown();
-							}
-						};
-
-						// Run it
-						getSelectionManager().selectSingle(data, this);
-						System.out.println("selected " + getSelectionManager().getSelectedDataBeans().size());
-						workflowManager.runScript(workflowScript, atEndListener);
-						try {
-							latch.await();
-						} catch (InterruptedException e) {
-							// Ignore
-						}
-					}
-
-					// Restore original selection
-					System.out.println("restore");
-					Collection<DataItem> items = new LinkedList<DataItem>();
-					items.addAll(datas);
-					getSelectionManager().selectMultiple(items, this);
-				}
+				runWorkflow(workflowScript, runForEach);
 			}
 		});
 		thread.start();
 	}
 
-
-	@Override
 	public File openWorkflow(boolean runForEach) {
 
 		try {
@@ -885,14 +801,6 @@ public class SwingClientApplication extends ClientApplication {
 	public void showHistoryScreenFor(DataBean data) {
 		historyScreen.setData(data);
 		childScreens.show("History", true);
-	}
-
-	public Icon getIconFor(DataItem element) {
-		if (element instanceof DataFolder) {
-			return VisualConstants.ICON_TYPE_FOLDER;
-		} else {
-			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
-		}
 	}
 
 	public void restoreDefaultView() {
@@ -1054,92 +962,7 @@ public class SwingClientApplication extends ClientApplication {
 		return getDefaultVisualisationForSelection() != VisualisationMethod.getDefault();
 	}
 
-	/**
-	 * Gets default visualisation method for selected databeans. The method is
-	 * selected by following steps:
-	 * 
-	 * <ol>
-	 * <li>If no dataset is selected, return
-	 * <code>VisualisationMethod.NONE</code> </li>
-	 * <li>If only one dataset is selected, return the default method for the
-	 * data </li>
-	 * </li>
-	 * <li>If multiple datasets are selected, check the best method for each
-	 * dataset. If the best method is same for all selected datasets and it can
-	 * be used with multiple data, the best method is returned. </li>
-	 * <li>If the best method is not same for all of the datas, try to find
-	 * just some method which is suitable for all datas and can be used with
-	 * multiple datasets. </li>
-	 * <li>If there were no method to fill the requirements above, return
-	 * <code>VisualisationMethod.NONE</code> </li>
-	 * 
-	 * @return default visualisation method which is suitable for all selected
-	 *         datasets
-	 */
-	private VisualisationMethod getDefaultVisualisationForSelection() {
-		logger.debug("getting default visualisation");
-		if (getSelectionManager().getSelectedDataBeans() == null || getSelectionManager().getSelectedDataBeans().size() == 0) {
-			return VisualisationMethod.getDefault();
-		}
 
-		try {
-			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
-
-			if (beans.size() == 1) {
-				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
-			} else if (beans.size() > 1)
-				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
-					if (!method.getHeadlessVisualiser().isForMultipleDatas()) {
-						continue;
-					}
-					if (method.isApplicableTo(beans)) {
-						return method;
-					}
-				}
-
-			/*
-			 * 
-			 * VisualisationMethod defaultMethodForDatas = null; // First, try
-			 * to find best suitable visualisation for all for (DataBean bean :
-			 * beans) { VisualisationMethod method = new
-			 * BioBean(bean).getDefaultVisualisation(); if
-			 * (defaultMethodForDatas == null &&
-			 * VisualisationMethod.isApplicableForMultipleDatas(method)) {
-			 * defaultMethodForDatas = method; } else { if
-			 * (defaultMethodForDatas != method) { // Searching for best method
-			 * for all failed defaultMethodForDatas = null; logger.debug("Method " +
-			 * method + " can not be used to visualise selected datas"); break; } } }
-			 * 
-			 * if (defaultMethodForDatas != null) { // Visualise datas if the
-			 * best method was found logger.debug("Method " +
-			 * defaultMethodForDatas + " will be used to visualise selected
-			 * datas"); return defaultMethodForDatas; } // Keep looking for
-			 * suitable visualisation DataBean firstData = beans.get(0);
-			 * 
-			 * for (VisualisationMethod method :
-			 * VisualisationMethod.getApplicableForMultipleDatas()) { if (method ==
-			 * VisualisationMethod.NONE) { continue; }
-			 * 
-			 * if (method.isApplicableTo(firstData)) { // The method is
-			 * applicable to one of the selected datas // Check that the same
-			 * method is applicable to the other // datasets too boolean
-			 * isSuitableMethod = true; for (DataBean otherData : beans) { if
-			 * (otherData.equals(firstData)) { continue; }
-			 * 
-			 * if (!method.isApplicableTo(otherData)) { isSuitableMethod =
-			 * false; logger.debug("Method " + method + " can not be used to
-			 * visualise selected datas"); break; } }
-			 * 
-			 * if (isSuitableMethod) { logger.debug("Method " + method + " will
-			 * be used to visualise selected datas"); return method; } } }
-			 */
-			return VisualisationMethod.getDefault();
-
-		} catch (Exception e) {
-			reportException(e);
-			return VisualisationMethod.getDefault();
-		}
-	}
 
 	public void visualiseWithBestMethod(FrameType target) {
 		setVisualisationMethod(getDefaultVisualisationForSelection(), null, getSelectionManager().getSelectedDataBeans(), target);
@@ -1173,25 +996,9 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// delete actually
-		deleteDatasWithoutConfirming(datas);
+		super.deleteDatasWithoutConfirming(datas);
 	}
-	
-	public void deleteDatasWithoutConfirming(DataItem... datas) {
-	
-		// check that we have something to delete
-		if (datas.length == 0) {
-			return; // no selection, do nothing
-		}		
-		
-		// remove all selections
-		getSelectionManager().clearAll(true, this);
 
-		// do actual delete
-		for (DataItem data : datas) {
-			manager.delete(data);
-		}
-
-	}
 
 	public void fixFileChooserFontSize(JFileChooser fileChooser) {
 		// Some special care has to be taken to get the fileChooser list update
@@ -1240,7 +1047,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 	
-	protected void quit() {
+	public void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;
 
 		// Check the running tasks
@@ -1266,7 +1073,7 @@ public class SwingClientApplication extends ClientApplication {
 		// Check for unsaved changes
 		returnValue = JOptionPane.DEFAULT_OPTION;
 
-		if (unsavedChanges) {
+		if (super.hasUnsavedChanges()) {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
@@ -1274,7 +1081,11 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
+					if (super.areCloudSessionsEnabled()) {
+						saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
+					} else {
+						saveSession(SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
+					}
 					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
@@ -1353,7 +1164,6 @@ public class SwingClientApplication extends ClientApplication {
 		throw new RuntimeException("configuration not compatible, will not start");
 	}
 
-	@Override
 	public void showSourceFor(String operationID) throws TaskException {
 		childScreens.show("ShowSource", true, operationID);
 	}
@@ -1408,6 +1218,21 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		}
 	}
+	
+	/**
+	 * FIXME Better handling for existing file
+	 * 
+	 * @param data
+	 * @param selectedFile
+	 */
+	protected void exportToFile(final DataBean data, final File selectedFile) {
+		runBlockingTask("exporting file", new Runnable() {
+
+			public void run() {
+				exportToFileAndWait(data, selectedFile);
+			}			
+		});		
+	}
 
 	public void exportDataset(DataBean data) throws MicroarrayException, IOException {
 		JFileChooser fc = this.getImportExportFileChooser();
@@ -1432,15 +1257,10 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void setMaximisedVisualisationMode(boolean maximisedVisualisationMode) {
-		showMaximisedVisualisation(maximisedVisualisationMode);
-	}
-
-	@Override
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target) {
 
 		if (method == null || datas == null) {
-			super.setVisualisationMethod();
+			setVisualisationMethod();
 			return;
 		}
 		long estimate = method.estimateDuration(datas);
@@ -1561,7 +1381,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
-		List<DbSession> sessions = Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		List<DbSession> sessions = super.listRemoteSessions();
 		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
@@ -1680,16 +1500,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void viewHelpFor(OperationDefinition definition) {
-        String url = definition.getHelpURL();
-	    if (url != null && !url.isEmpty()) {
-	        // Link is stored in operation definition
-	        url = definition.getHelpURL();
-	    } else {
-	        // Mostly for microarray
-	        // TODO: consider refactoring so that url is stored in definition
-	        // and this "else" branch is not needed
-	        url = HelpMapping.mapToHelppage(definition);
-	    }
+        
+		String url = super.getHelpFor(definition);
 	    
 	    try {
 			BrowserLauncher.openURL(url);
@@ -1700,9 +1512,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void viewHelp(String page) {
 		try {
-			if (!page.startsWith(HelpMapping.MANUAL_ROOT)) {
-				page = HelpMapping.MANUAL_ROOT + page;
-			}
+			super.getHelpUrl(page);
 			BrowserLauncher.openURL(page);
 		} catch (Exception e) {
 			reportException(e);
@@ -1718,27 +1528,7 @@ public class SwingClientApplication extends ClientApplication {
 		TaskExecutor taskExecutor = Session.getSession().getServiceAccessor().getTaskExecutor();
 		return new TaskManagerScreen(taskExecutor);
 	}
-
-	public void createLink(DataBean source, DataBean target, Link type) {
-		source.addLink(type, target);
-	}
-
-	public void removeLink(DataBean source, DataBean target, Link type) {
-		source.removeLink(type, target);
-	}
-
-	@Override
-	public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, new File[] { file }, destinationFolder, skipActionChooser);
-		openImportTool(importSession);
-	}
-
-	@Override
-	public void restoreSessionFrom(File file) {
-		loadSessionImpl(file, null, true, true, false);
-	}
 	
-	@Override	
 	public void loadSession(boolean remote) {
 		loadSession(remote, false, true);		
 	}
@@ -1810,71 +1600,31 @@ public class SwingClientApplication extends ClientApplication {
 			}		
 
 			// load the new session
-			loadSessionImpl(sessionFile, sessionId, remote, false, false);			
-			currentRemoteSession = remoteSessionName;
+			loadSession(sessionFile, sessionId, remote, false, false);			
 		}
 		menuBar.updateMenuStatus();
 	}
 	
-	public void loadSession(String sessionId) {
-		//don't load new session, if user canceled the clearing of the old one  
-		if (clearSession()) {
-			loadSessionImpl(null, sessionId, true, false, false);
-		}
-	}
+	public void loadSession(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
 
-	private void loadSessionImpl(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
-		
-		// check that it's a valid session file 
-		if (!isDataless) {
-			if (!UserSession.isValidSessionFile(sessionFile)) {
-				DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
-				ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
-				return;
-			}
-		}
-		
 		// start loading the session
 		runBlockingTask("loading the session", new Runnable() {
-			public void run() {						
-					
-				/* If there wasn't data or it was just cleared, there is no need to warn about
-				 * saving after opening session. However, if there was datasets already, combination
-				 * of them and new session can be necessary to save. This has to set after the import. 
-				 */
-				boolean somethingToSave = manager.databeans().size() != 0;
-
-				try {
-					if (sessionFile != null) {
-						manager.loadSession(sessionFile, isDataless);
-					} else {
-						manager.loadStorageSession(sessionId);
-					}				
-
-				} catch (Exception e) {
-					if (isExampleSession) {
-						Session.getSession().getApplication().showDialog("Opening example session failed.", "Please restart " + Session.getSession().getPrimaryModule().getDisplayName() + " to update example session links or see the details for more information.", Exceptions.getStackTrace(e), Severity.INFO, true, DetailsVisibility.DETAILS_HIDDEN, null);
-					} else {
-						Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-					}
-					logger.error("loading session failed", e);
-				}
-
-				unsavedChanges = somethingToSave;
-				
-				// If this was restored session, clear dead temp directories in the end.
-				// It is done inside this method to avoid building synchronization between
-				// session loading and temp directory cleaning during restore. 
-				if (clearDeadTempDirs) {
-					clearDeadTempDirectories();
-				}
+			public void run() {
+				loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession);
 			}
 		});
 	}
 	
+	public void restoreSessionFrom(final File file) {
+		
+		runBlockingTask("loading the session", new Runnable() {
+			public void run() {
+				restoreSessionAndWait(file);
+			}
+		});
+	}
 	
-	@Override
-	public void saveSession(final boolean quit, final SessionSavingMethod savingMethod) {
+	public void saveSession(final SessionSavingMethod savingMethod) {
 
 		// remote and local saves are quite different, first check which one this is
 		final boolean remote;
@@ -1952,66 +1702,9 @@ public class SwingClientApplication extends ClientApplication {
 					public void run() {
 
 						// save
-						boolean saveFailed = false;
-						try {
-							if (remote) {
-								getDataManager().saveStorageSession(file.getName());
-							} else {
-								getDataManager().saveSession(file);
-							}														
-							
-						} catch (ValidationException e) {
-							Session.getSession().getApplication().showDialog(
-									"Problem with saving the session", 
-									"All the datasets were saved successfully, but there were troubles with saving " +
-									"the session information about them. This means that there may be problems when " +
-									"trying to open the saved session file later on.\n" +
-									"\n" +
-									"If you have important unsaved " +
-									"datasets in this session, it might be a good idea to export such datasets using the " +
-									"File -> Export functionality.", 
-									e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-							
-							saveFailed = true;
-							
-						} catch (QuotaExceededException e) {
-							Session.getSession().getApplication().showDialog(
-									"Quota exceeded", 
-									"Saving session failed, because your disk space quota was exceeded.\n" +
-									"\n" +
-									"Please contact server maintainers to apply for more quota, remove some old sessions " +
-									"to free more disk space or save the session on your computer using the " +
-									"File -> Save local session functionality. ", 
-									e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-							saveFailed = true;
-
-						} catch (Exception e) {
-							Session.getSession().getApplication().showDialog(
-									"Saving session failed", 
-									"Unfortunately your session could not be saved. Please see the details for more " +
-									"information.\n" +
-									"\n" +
-									"If you have important unsaved datasets in this session, it might be " +
-									"a good idea to export such datasets using the File -> Export functionality.", 
-									Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-							saveFailed = true;
-						}
+						saveSessionAndWait(remote, file, file.getName());																				
 						
-						if (!saveFailed) {
-
-							// quit
-							if (quit) {
-								quitImmediately();
-							}
-
-							menuBar.updateMenuStatus();
-							unsavedChanges = false;
-							if (remote) {
-								currentRemoteSession = file.getName();
-							} else {
-								currentRemoteSession = null;
-							}
-						}						
+						menuBar.updateMenuStatus();						
 					}
 				});
 			} catch (Exception exp) {
@@ -2020,7 +1713,7 @@ public class SwingClientApplication extends ClientApplication {
 			}
 		}
 		menuBar.updateMenuStatus();
-	}
+	}	
 
 	/**
 	 * @return true if cleared, false if canceled
@@ -2028,42 +1721,37 @@ public class SwingClientApplication extends ClientApplication {
 	public boolean clearSession() {
 
 		int returnValue = JOptionPane.DEFAULT_OPTION;
-		if (unsavedChanges) {
+		if (hasUnsavedChanges()) {
 
 			String message = "The current session contains unsaved changes.\nDo you want to clear it anyway?";
 			Object[] options = { "Cancel", "Clear" };
 			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Clear session", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 		}
 
-		if (!unsavedChanges || returnValue == 1) {
-			this.deleteDatasWithoutConfirming(manager.getRootFolder());
-			unsavedChanges = false;
+		if (!hasUnsavedChanges() || returnValue == 1) {
+			super.clearSessionWithoutConfirming();			
 			return true;
 		}
 		return false;
 	}
 
-	@Override
+	/**
+	 * Method is called periodically to maintain state that cannot be maintained 
+	 * in realtime. 
+	 */
 	public void checkFreeMemory() {
 		statusBar.updateMemoryIndicator();
-	}
-
-	public DataManager getDataManager() {
-		return manager;
 	}
 
 	public VisualisationFrameManager getVisualisationFrameManager() {
 		return visualisationFrameManager;
 	}
 
-	@Override
 	public void flipTaskListVisibility(boolean closeIfVisible) {
-		statusBar.flipTaskListVisibility(closeIfVisible);
-		
+		statusBar.flipTaskListVisibility(closeIfVisible);		
 	}
 
-	@Override
-	protected void taskCountChanged(int newTaskCount, boolean attractAttention) {
+	private void taskCountChanged(int newTaskCount, boolean attractAttention) {
 		int completion = 0;
 		if (newTaskCount > 0) {
 			completion = taskExecutor.getTasks(true, false).iterator().next().getCompletionPercentage();
@@ -2088,7 +1776,6 @@ public class SwingClientApplication extends ClientApplication {
 				FrameType.MAIN); 
 	}
 
-	@Override
 	public void manageRemoteSessions() {
 		
 		final JFileChooser fileChooser = getSessionManagementFileChooser();
@@ -2100,34 +1787,26 @@ public class SwingClientApplication extends ClientApplication {
 			String filename = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
 			String sessionUuid = null;
 			
-			if (currentRemoteSession != null && currentRemoteSession.equals(filename) && !getDataManager().databeans().isEmpty()) {
-				showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
-						+ "Removal of this session is prevented, because it may be the only copy of your current "
-						+ "datasets. If you want to keep the datasets, please save them as a sessions first. If you want to remove "
-						+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true);
-				return;
-			}
-
 			try {
 				@SuppressWarnings("unchecked")
 				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 				sessionUuid = findMatchingSessionUuid(sessions, filename);
 				if (sessionUuid == null) {
-					throw new RuntimeException();
+					throw new RuntimeException("session not found");
 				}
-
-				// remove the selected session
-				serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionUuid);		
-
+			} catch (Exception e) {
+				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
+			}
+			
+			try {
+				// remove selected session
+				super.removeRemoteSession(sessionUuid);			
 				// confirm to user
 				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
 				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
 
 			} catch (JMSException e) {
 				reportException(e);
-
-			} catch (Exception e) {
-				throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
 			}
 		}
 	}
@@ -2188,7 +1867,7 @@ public class SwingClientApplication extends ClientApplication {
 		                JOptionPane.PLAIN_MESSAGE);		    
 				
 			    if (sessionId != null) {
-			    	loadSession(sessionId);
+			    	loadSession(null, sessionId, true, false, false);
 			    }
 			}
 		});

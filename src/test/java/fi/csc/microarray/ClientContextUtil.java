@@ -1,17 +1,10 @@
 package fi.csc.microarray;
 
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-
-import javax.swing.Icon;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -20,15 +13,9 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.TaskException;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
@@ -38,12 +25,7 @@ public class ClientContextUtil {
 	private static class SkeletonApplication extends ClientApplication {
 
 		@Override
-		protected void initialiseGUIThreadSafely(File backupSession) throws MicroarrayException, IOException {
-			// do nothing
-		}
-
-		@Override
-		protected void taskCountChanged(int newTaskCount, boolean attractAttention) {
+		public void initialiseGUIThreadSafely(File backupSession) throws MicroarrayException, IOException {
 			// do nothing
 		}
 
@@ -58,62 +40,7 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void importGroup(Collection<ImportItem> datas, String folderName) {
-			// do nothing
-		}
-
-		@Override
-		public DataFolder initializeFolderForImport(String folderName) {
-			return null;
-		}
-
-		@Override
-		public void showSourceFor(String operationName) throws TaskException {
-			// do nothing
-		}
-
-		@Override
-		public void showHistoryScreenFor(DataBean data) {
-			// do nothing
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, DataItem data) {
-			// do nothing
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, List<DataItem> datas) {
-			// do nothing
-		}
-
-		@Override
-		public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-			// do nothing
-		}
-
-		@Override
-		public void visualiseWithBestMethod(FrameType target) {
-			// do nothing
-		}
-
-		@Override
 		public void reportInitialisationThreadSafely(String report, boolean newline) {
-			// do nothing
-		}
-
-		@Override
-		public Icon getIconFor(DataItem data) {
-			return null;
-		}
-
-		@Override
-		public void viewHelp(String id) {
-			// do nothing
-		}
-
-		@Override
-		public void viewHelpFor(OperationDefinition operationDefinition) {
 			// do nothing
 		}
 
@@ -133,66 +60,6 @@ public class ClientContextUtil {
 		}
 
 		@Override
-		public void deleteDatas(DataItem... datas) {
-			// do nothing
-		}
-
-		@Override
-		public void createLink(DataBean source, DataBean target, Link type) {
-			// do nothing
-		}
-
-		@Override
-		public void removeLink(DataBean source, DataBean target, Link type) {
-			// do nothing
-		}
-
-		@Override
-		public File saveWorkflow() {
-			return null;
-		}
-
-		@Override
-		public File openWorkflow(boolean runForEach) {
-			return null;
-		}
-
-		@Override
-		public void loadSession(boolean remote) {
-			// do nothing
-		}
-
-		@Override
-		public void restoreSessionFrom(File file) {
-			// do nothing
-		}
-
-		@Override
-		public void saveSession(boolean quit, final SessionSavingMethod savingMethod) {
-			// do nothing
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript, boolean runForEach) {
-			// do nothing
-		}
-
-		@Override
-		public void flipTaskListVisibility(boolean closeIfVisible) {
-			// do nothing
-		}
-
-		@Override
-		public void setMaximisedVisualisationMode(boolean maximisedVisualisationMode) {
-			// do nothing
-		}
-
-		@Override
-		public VisualisationFrameManager getVisualisationFrameManager() {
-			return null;
-		}
-
-		@Override
 		public void runBlockingTask(String taskName, Runnable runnable) {
 			// do nothing
 		}
@@ -200,16 +67,6 @@ public class ClientContextUtil {
 		@Override
 		public DataManager getDataManager() {
 			return null;
-		}
-
-		@Override
-		public void checkFreeMemory() {
-			// do nothing
-		}
-
-		@Override
-		public void manageRemoteSessions() {
-			// do nothing
 		}
 
 		@Override

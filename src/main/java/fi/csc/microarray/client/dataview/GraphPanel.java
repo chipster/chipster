@@ -45,6 +45,7 @@ import com.jgoodies.looks.Options;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.dataviews.vertexes.AbstractGraphVertex;
 import fi.csc.microarray.client.dataviews.vertexes.GraphRenderer;
@@ -77,7 +78,7 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 
 	private MicroarrayGraph graph = null;
 
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 	private GraphModel model = new DefaultGraphModel(); // FIXME memory leak
 
 	private JScrollPane graphScroller = null;

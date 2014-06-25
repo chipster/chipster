@@ -305,7 +305,7 @@ public class ImportUtils {
 				// import directly
 				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files))) {
 					// skip requested and all of the files are supported => import directly and don't show action chooser			
-					application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+					((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 				} 
 
 				// action chooser or preprocess
@@ -320,7 +320,7 @@ public class ImportUtils {
 
 			// import directly
 			if (importSession.isSkipActionChooser()) {
-				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+				((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			}
 
 			// go to preprocessing

@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
@@ -52,7 +52,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 	public boolean isMaximised = false;
 
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private JButton helpButton = ToolBarComponentFactory.createButton("Help", VisualConstants.QUESTION_MARK_ICON, true, false);
 	private JButton maximiseButton = ToolBarComponentFactory.createButton("Maximise", VisualConstants.MAXIMISE_ICON, true, false);
@@ -183,7 +183,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	}
 
 	public void maximiseOrRestoreVisualisation() {
-		application.setMaximisedVisualisationMode(isMaximised = !isMaximised); // flips
+		application.showMaximisedVisualisation(isMaximised = !isMaximised); // flips
 		// isMaximised and uses the new value
 		maximiseButton.setText(getMaximiseButtonText());
 		maximiseButton.setIcon(getMaximiseButtonIcon());

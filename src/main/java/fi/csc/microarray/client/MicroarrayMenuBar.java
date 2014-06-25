@@ -31,7 +31,6 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
-import fi.csc.microarray.filebroker.DerbyMetadataServer;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.Files;
@@ -157,7 +156,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadLocalSessionMenuItem(true));
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
-			if (areCloudSessionsEnabled()) {
+			if (application.areCloudSessionsEnabled()) {
 				fileMenu.add(getLoadSessionMenuItem(true));
 				fileMenu.add(getSaveSessionMenuItem());
 				fileMenu.add(getManageSessionsMenuItem());
@@ -171,19 +170,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return fileMenu;
 	}
 
-	public static boolean areCloudSessionsEnabled() {
-		boolean conf =  DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-cloud-sessions");
-		boolean specialUser = DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(Session.getSession().getUsername());
-		
-		return conf || specialUser;
-	}
-
 	private JMenuItem getMergeSessionMenu() {
 		if (joinSessionMenu == null) {
 			joinSessionMenu = new JMenu();
 			joinSessionMenu.setText("Merge session");
 			joinSessionMenu.add(getLoadLocalSessionMenuItem(false));
-			if (areCloudSessionsEnabled()) {
+			if (application.areCloudSessionsEnabled()) {
 				joinSessionMenu.add(getLoadSessionMenuItem(false));
 			}
 		}
@@ -855,7 +847,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			saveSessionMenuItem.setText("Save cloud session... (beta)");
 			saveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
+					application.saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 				}
 			});
 		}
@@ -883,7 +875,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			archiveSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			archiveSessionMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSession(false, SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
+					application.saveSession(SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
 				}
 			});
 		}

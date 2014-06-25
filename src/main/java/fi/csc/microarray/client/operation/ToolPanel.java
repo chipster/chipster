@@ -40,8 +40,8 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
@@ -104,7 +104,7 @@ public class ToolPanel extends JPanel
 	private Operation currentOperation = null;
 
 	private LinkedList<ToolModule> toolModules;	
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	

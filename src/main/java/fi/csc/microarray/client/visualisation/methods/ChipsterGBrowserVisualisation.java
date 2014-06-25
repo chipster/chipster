@@ -20,6 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -124,11 +125,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	 */
 	private static class ChipsterGBrowser extends GBrowser implements PropertyChangeListener, BrowserSelectionListener {
 		
-		private ClientApplication application;
+		private SwingClientApplication application;
 		private List<DataBean> datas;
 
 		public ChipsterGBrowser() {
-			this.application = Session.getSession().getApplication();							
+			this.application = (SwingClientApplication) Session.getSession().getApplication();							
 		}
 
 		@Override

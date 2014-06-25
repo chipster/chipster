@@ -49,7 +49,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
-            cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
+            cmdParser.addParameter("-module", false, true, null, "client module (e.g. fi.csc.microarray.module.chipster.MicroarrayModule)");
 			
 			// parse commandline
 			cmdParser.parse(args);

@@ -33,8 +33,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
@@ -163,7 +163,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 	private DataFolder rootFolder = null;
 	private Map<DataItem, DefaultMutableTreeNode> nodeMap = new HashMap<DataItem, DefaultMutableTreeNode>();
 	
-	private ClientApplication application = Session.getSession().getApplication();	
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();	
 	
 	private boolean disableSelectionReporting = false;
 	

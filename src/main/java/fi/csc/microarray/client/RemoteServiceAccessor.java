@@ -109,7 +109,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public FileBrokerClient getFileBrokerClient() throws Exception {
+	public FileBrokerClient getFileBrokerClient() {
         return filebrokerClient;
 	}
 

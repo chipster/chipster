@@ -329,7 +329,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 			}
 		}
 		
-		Session.getSession().getApplication().importGroup(directImportDatas, importSession.getDestinationFolder());
+		((SwingClientApplication) Session.getSession().getApplication()).importGroup(directImportDatas, importSession.getDestinationFolder());
 
 		// Check if there were any custom files
 		if (importSession.hasCustomFiles()) {

@@ -27,7 +27,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.HelpMapping;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
@@ -88,7 +87,7 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 	private JButton nextButton;
 	private JButton finishButton;
 
-	private ClientApplication application;
+	private SwingClientApplication application;
 	private DataTrimmer dataTrimmer;
 	private DataTrimmer flagTrimmer;
 
@@ -143,7 +142,7 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 
 				} while (hasNext && importSession.getUseSameDescriptions());
 
-				application.importGroup(dataItems,
+				((SwingClientApplication) application).importGroup(dataItems,
 						importSession.getDestinationFolder());
 			}
 
@@ -472,7 +471,7 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 	 */
 	public void resetImportScreen(boolean setVisibleAfterReset) {
 
-		application = Session.getSession().getApplication();
+		application = (SwingClientApplication)Session.getSession().getApplication();
 
 		// If frame exists, set visibility to false while resetting
 		if (frame != null) {

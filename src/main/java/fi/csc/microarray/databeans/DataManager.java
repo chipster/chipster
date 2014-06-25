@@ -731,7 +731,7 @@ public class DataManager {
 		return buffer.toString();
 	}
 
-	public void saveStorageSession(String name) throws Exception {
+	public String saveStorageSession(String name) throws Exception {
 						
 		String sessionId = CryptoKey.generateRandom();
 		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
@@ -740,6 +740,8 @@ public class DataManager {
 		
 		// add metadata to file broker database (make session visible)
 		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionId, dataIds);
+		
+		return sessionId;
 	}
 
 	

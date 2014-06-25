@@ -125,7 +125,7 @@ public class QuickLinkPanel extends JPanel {
 		String cloudSessionsString = "*** to continue working on previous sessions. You can also *** from the server.";
 		String localSessionsString = "*** to continue working on previous sessions.";
 		
-		if (MicroarrayMenuBar.areCloudSessionsEnabled()) {
+		if (application.areCloudSessionsEnabled()) {
 			List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
 			openLinks.add(localSessionLink);
 			openLinks.add(sessionLink);		
