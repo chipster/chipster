@@ -1,4 +1,4 @@
-# TOOL dea-deseq.R: "Differential expression using DESeq" (Differential expression analysis using the DESeq Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\".)
+# TOOL deseq2.R: "Differential expression using DESeq2" (Differential expression analysis using the DESeq2 Bioconductor package. You can create the input count table and phenodata file using the tool \"Utilities - Define NGS experiment\". If using DESeq2 for finding differentially expressed genes between more than two experimental groups, note that output figures sum up information from all pairwise comparisons.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT OPTIONAL de-list-deseq.tsv
@@ -10,7 +10,6 @@
 # PARAMETER ad_factor: "Column describing additional experimental factor" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing an additional experimental factor. If given, p-values in the output table are from a likelihood ratio test of a model including the experimental groups and experimental factor vs a model which only includes the experimental factor.)
 # PARAMETER OPTIONAL normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (Should effective library size be estimated. This corrects for RNA composition bias. Note that if you have supplied library size in phenodata, size factors are calculated based on the library size total, and composition bias is not corrected.)
 # PARAMETER OPTIONAL dispersion_estimate:"Dispersion estimation method" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (Dispersion can be estimated using a local fit or a two-coefficient parametric model. You should use local fit if there are no biological replicates.)
-# PARAMETER OPTIONAL fitting_method: "Use fitted dispersion values" TYPE [maximum: "when higher than original values", fit-only: "always", gene-est-only: "no fitting"] DEFAULT maximum (Should the dispersion of counts for a gene be replaced with the fitted value always, or only when the fitted value is larger? Replacing always optimises the balance between false positives and false negatives. Replacing only when the fitted value is higher is more conservative and minimizes false positives. Gene-est only option is preferable when the number of replicates is large. This parameter is effective only in the case of DESeq)
 # PARAMETER OPTIONAL p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-value.)
 # PARAMETER OPTIONAL image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
@@ -29,7 +28,7 @@
 # Loads the correct library
 source(file.path(chipster.common.path, "bed-utils.R"))
 
-library(DESeq)
+library(DESeq2)
 
 # Loads the counts data and extract expression values
 file <- c("data.tsv")
@@ -42,11 +41,6 @@ phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
 
-# Sanity check: only 2 group comparison is supported
-if (length(unique(groups)) == 1 | (length(unique(groups)) >= 3)) {
-	stop("CHIPSTER-NOTE: You need to have exactly two groups to run DESeq. Use DESeq2 if you have multifactor, multigroup data")
-}
-
 # Read addittional factors for GLM test and DESeq2. Construct design matrix from this 
 exp_factor <- NULL
 if(ad_factor != "EMPTY") {
@@ -56,10 +50,10 @@ if(ad_factor != "EMPTY") {
 }
 
 # Create a counts data object
-if(ad_factor == "EMPTY") {
-	counts_data <- newCountDataSet(dat2, groups)
-} else if(ad_factor != "EMPTY") {
-	counts_data <- newCountDataSet(dat2, design)
+if (ad_factor == "EMPTY") {
+	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition=groups), design = ~ condition)
+} else if (ad_factor != "EMPTY") {
+	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=design, design = ~ exp_factor + condition)
 }
 
 # Calculate size factors based on estimated library size, unless it is given in phenodata
@@ -83,31 +77,32 @@ if (normalization == "yes" && is.na(lib_size[1])) {
 
 # Estimate dispersion values for each gene and replace with fitted values always or only when the fitted value is higher
 # Use fitType to control for parametric or local fit. Method blind can be used when data has no biological replicates. 
-if(ad_factor == "EMPTY" && length(groups) == 2) {
-	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode="fit-only", fitType=dispersion_estimate)
-} else if(ad_factor == "EMPTY" && length(groups) > 2) {
-	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method, fitType=dispersion_estimate)
-} else if(ad_factor != "EMPTY") {
-	counts_data <- estimateDispersions(counts_data, method="pooled-CR", sharingMode=fitting_method, fitType=dispersion_estimate, modelFormula = count ~ exp_factor + condition)	
-}
+counts_data <- estimateDispersions(counts_data, fitType=dispersion_estimate)	
+
 
 #vector / variable that holds comparison names
 results_name <- NULL
 
 # Calculate statistic for differential expression
-if(ad_factor == "EMPTY") {
-	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )[,-1]
-} else if (ad_factor != "EMPTY") {
-	results_table <- nbinomTest(counts_data, group_levels[1], group_levels[2] )[,-1]
-
-	fit0 = fitNbinomGLMs( counts_data, count ~ exp_factor )
-	fit1 = fitNbinomGLMs( counts_data, count ~ exp_factor + condition )
-	glm_pvals = nbinomGLMTest( fit1, fit0 )
-
-	results_table$pval <- glm_pvals
-	results_table$log2FoldChange <- fit1[, grep("condition", colnames(fit1))]
-	results_table$foldChange <- 2^fit1[, grep("condition", colnames(fit1))]
-} 
+if (length(unique(groups)) > 2) {
+	# If using DESeq >= 1.3, no need to set betaPrior=FALSE
+	test_results <- nbinomWaldTest(counts_data, betaPrior = FALSE)		
+	results_table <- NULL
+	for (i in levels(colData(test_results)$condition)[-(length(levels(colData(test_results)$condition)))]) {
+		for (j in levels(colData(test_results)$condition)[-(1:i)]) {
+			pairwise_results <- as.data.frame(results(test_results, contrast=c("condition",i,j)))
+			pairwise_results$padj <- p.adjust(pairwise_results$pval, method=p.value.adjustment.method)
+			if(is.null(results_table)) results_table <- pairwise_results else  results_table <- cbind(results_table, pairwise_results)
+			results_name <- c(results_name, paste(i,"_vs_", j, sep=""))
+		}
+	}
+	colnames(results_table) <- paste(colnames(results_table), rep(results_name,each=6), sep=".")
+} else if (length(unique(groups)) == 2 && length(unique(exp_factor)) > 2) {
+	# If using DESeq >= 1.3, no need to set betaPrior=FALSE
+	results_table <- results(nbinomWaldTest(counts_data, betaPrior = FALSE))
+} else {
+	results_table <- results(nbinomWaldTest(counts_data))
+}
 
 # Merge with original data table and keep significant DEGs
 if(length(unique(groups)) == 2) {
