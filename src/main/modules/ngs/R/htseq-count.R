@@ -2,8 +2,8 @@
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv
 # OUTPUT OPTIONAL htseq-count-info.txt
-# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.68: "Human (hg19)", Mus_musculus.GRCm38.68: "Mouse (mm10)", Mus_musculus.NCBIM37.62: "Mouse (mm9)", Rattus_norvegicus.RGSC3.4.68: "Rat (rn4)"] DEFAULT Homo_sapiens.GRCh37.68 (Which organism is your data from.)
-# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT yes (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.75.gtf: "Human (hg19)", Mus_musculus.GRCm38.75.gtf: "Mouse (mm10)", Rattus_norvegicus.Rnor_5.0.75.gtf: "Rat (rn5)"] DEFAULT Homo_sapiens.GRCh37.75.gtf (Which organism is your data from.)
+# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER paired: "Does the BAM file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (Select no if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
@@ -18,6 +18,7 @@
 # 6.5.2013 MK added chr-location information to the output
 # 30.5.2013 EK changed the default for "add chromosomal coordinates" to no
 # 21.5.2014 EK updated to use HTSeq 0.6.1
+# 19.6.2014 AMS changed handling of GTFs
 
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.7", "site-packages"), ":$PYTHONPATH")
@@ -40,14 +41,17 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-if(chr == "yes"){
-	organism <- paste(organism, ".chr.gtf", sep="")
+internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
+if(chr == "1"){
+	annotation.file <- paste(internal.gtf)
+}else{
+	source(file.path(chipster.common.path, "gtf-utils.R"))
+	addChrToGtf(internal.gtf, "internal_chr.gtf") 
+	annotation.file <- paste("internal_chr.gtf")
 }
-if(chr == "no"){
-	organism <- paste(organism, ".gtf", sep="")
-}
-gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
-htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, bam, gtf, " > htseq-counts-out.txt")
+
+
+htseq <- paste(htseq.binary, "-f bam -q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, bam, annotation.file, " > htseq-counts-out.txt")
 
 htseq.command <- paste(command.start, htseq, command.end)
 system(htseq.command)
