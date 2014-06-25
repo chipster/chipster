@@ -1,27 +1,23 @@
-# TOOL pathways-ngs-hyperg-go.R: "GO enrichment for list of genes" (Performs a statistical test for enrichment of GO terms in a query list of genes. The input file should be from the tool Find unique and annotated genes.)
+# TOOL pathways-ngs-hyperg-go.R: "GO enrichment for list of genes" (Performs a statistical test for enrichment of GO terms in a query list of genes. The input file should be from the tool \"Find unique and annotated genes\".)
 # INPUT gene-list.tsv: gene-list.tsv TYPE GENERIC 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 
-# PARAMETER genome: "Genome" TYPE [org.Hs.eg.db: "Human", org.Mm.eg.db: "Mouse", org.Rn.eg.db: "Rat", org.Ag.eg.db: "Arabidopsis", org.Dm.eg.db: "Fly"] DEFAULT Human (Reference organism.)
-# PARAMETER column: "Identifier column" TYPE COLUMN_SEL DEFAULT entrezgene (Column containing gene identifiers. Identifiers should either be Entrez or EnsEMBL identifiers.)
-# PARAMETER ontology: ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
-# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
-# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
-# PARAMETER conditional.testing: conditional.testing TYPE [yes: yes, no: no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
-# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
-# PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
+# PARAMETER genome: "Genome" TYPE [org.Hs.eg.db: "human", org.Mm.eg.db: "mouse", org.Rn.eg.db: "rat", org.Ag.eg.db: "arabidopsis", org.Dm.eg.db: "fruitfly"] DEFAULT org.Hs.eg.db (Reference organism.)
+# PARAMETER column: "Identifier column" TYPE COLUMN_SEL DEFAULT entrezgene (Column containing gene identifiers. Identifiers should either be Entrez or EnsEMBL identifiers. When left blank, the first column is used.)
+# PARAMETER OPTIONAL ontology: Ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
+# PARAMETER OPTIONAL p.value.threshold: "P-value threshold" TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
+# PARAMETER OPTIONAL minimum.population: "Minimum population" TYPE INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
+# PARAMETER OPTIONAL conditional.testing: "Conditional testing" TYPE [yes: yes, no: no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
+# PARAMETER OPTIONAL p.adjust.method: "P-value adjustment method" TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
+# PARAMETER OPTIONAL over.or.under.representation: "Over or under-representation" TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # pathways-ngs-hyperg-go.R
 # 12.02.2010 MG, Created
-# 09.05.2014 MK, Added Mouse and Rat. Added possibility to annotate Ensembl IDs as well.
-# 25.06.2014 EK, Fixed a bug in genome library loading.
+# 09.05.2014 MK, Added several new organisms. Added possibility to annotate Ensembl IDs as well.
+# 25.06.2014 EK, Clarified parameters.
 
 # load packages
-library(org.Hs.eg.db)
-library(org.Mm.eg.db)
-library(org.Rn.eg.db)
-library(org.Dm.eg.db)
-library(org.Ag.eg.db)
+library(genome, character.only=T)
 annotpkg <- gsub(".db", "", genome)
 library(GOstats)
 library(R2HTML)
@@ -36,7 +32,7 @@ ensembl.to.entrez <- as.list(get(lib))
 reference.genes <- unique(unlist(ensembl.to.entrez))
 ens_identifiers <- names(unlist(ensembl.to.entrez))
 
-#See if column is the first "empty" element, indicating that the user wishes to use row.names
+# see if column is the first "empty" element, indicating that the user wishes to use row.names
 if(length(column) == 0 || column == " " || column == "") {
 	selected.genes <- row.names(dat)
 } else {
@@ -44,7 +40,7 @@ if(length(column) == 0 || column == " " || column == "") {
 	selected.genes <- as.character(dat[,column])
 }
 
-#check that IDs match more EnsEMBL or Entrez genes
+# check if IDs match more EnsEMBL or Entrez genes
 if(length(intersect(selected.genes, reference.genes)) < length(intersect(selected.genes, ens_identifiers))) {
 	selected.genes <- unique(unlist(ensembl.to.entrez[selected.genes]))
 }
