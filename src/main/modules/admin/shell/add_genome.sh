@@ -294,7 +294,7 @@ echo $ensembl
 if [[ $ensembl -eq 1 ]]
 then
   echo "Retrtieving and indexing genome sequence for $species"
-  cd ${genomes_path}/fasta/nochr
+  cd ${genomes_path}/fasta
   echo ensemblfetch.sh -chipster_path $chipster_path $species
   genome_fasta=$(ensemblfetch.sh -chipster_path $chipster_path $species | tail -1)
 
@@ -476,12 +476,13 @@ then
   echo -------------------------------------------------------
   echo Calculating BWA indexes for $genome_fasta
   cd $index_path/bwa
-  if [[ $ensembl -eq 1 ]]
-  then
-    ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
-  else 
-    ln -s ../../fasta/$genome_fasta $genome_fasta
-  fi
+  ln -s ../../fasta/$genome_fasta $genome_fasta
+#  if [[ $ensembl -eq 1 ]]
+#  then
+#    ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
+#  else 
+#    ln -s ../../fasta/$genome_fasta $genome_fasta
+#  fi
    bwa_name=$(basename $genome_fasta .dna.toplevel.fa)
   $tools_path/bwa/bwa index -p $bwa_name  $genome_fasta
 else
@@ -500,12 +501,7 @@ then
   echo -------------------------------------------------------
   echo Calculating Bowtie indexes for $genome_fasta 
   cd $index_path/bowtie
-  if [[ $ensembl -eq 1 ]]
-  then
-   ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
-  else
-   ln -s ../../fasta/$genome_fasta $genome_fasta
-  fi
+  ln -s ../../fasta/$genome_fasta $genome_fasta
   bowtie_name=$(basename $genome_fasta .dna.toplevel.fa)
   $tools_path/bowtie/bowtie-build $genome_fasta $bowtie_name
 
@@ -540,12 +536,7 @@ then
   echo Calculating Bowtie2 indexes for $genome_fasta 
 
   cd $index_path/bowtie2
-  if [[ $ensembl -eq 1 ]]
-  then
-   ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
-  else
-   ln -s ../../fasta/$genome_fasta $genome_fasta
-  fi
+  ln -s ../../fasta/$genome_fasta $genome_fasta  
   bowtie2_name=$(basename $genome_fasta .dna.toplevel.fa)
   ln -s $genome_fasta ${bowtie2_name}.fa
   
@@ -582,18 +573,18 @@ fi
 #Copy data to genomebowser directory
 ###
 
-if [[ -e $tools_path/genomebrowser/annotations/$species ]]
+if [[ -e $tools_path/genomebrowser/$species ]]
 then
   echo ""
 else
-  mkdir $tools_path/genomebrowser/annotations/$species
+  mkdir $tools_path/genomebrowser/$species
 fi
 
-if [[ -e $tools_path/genomebrowser/annotations/$species/$version ]]
+if [[ -e $tools_path/genomebrowser/$species/$version ]]
 then
   echo ""
 else
-  mkdir $tools_path/genomebrowser/annotations/$species/$version
+  mkdir $tools_path/genomebrowser/$species/$version
 fi
 
 echo ""
@@ -601,17 +592,17 @@ echo "Copying data to Genome Browser directory:"
 echo "$tools_path/genomebrowser/annotations/$species/$version"
 
 
-cd $tools_path/genomebrowser/annotations/$species/$version
+cd $tools_path/genomebrowser/$species/$version
 
 ## fasta and fasta index
-if [[ $fasta -eq 1 ]]
-then
-  ln -s ../../../../genomes/fasta/$genome_fasta $genome_fasta
-  ln -s ../../../../genomes/fasta/$genome_fasta.fai $genome_fasta.fai
-else
-  ln -s ../../../../genomes/fasta/nochr/$genome_fasta $genome_fasta
-  ln -s ../../../../genomes/fasta/nochr/$genome_fasta.fai $genome_fasta.fai
-fi
+#if [[ $fasta -eq 1 ]]
+#then
+ln -s ../../../genomes/fasta/$genome_fasta $genome_fasta
+ln -s ../../../genomes/fasta/$genome_fasta.fai $genome_fasta.fai
+#else
+#  ln -s ../../../../genomes/fasta/nochr/$genome_fasta $genome_fasta
+#  ln -s ../../../../genomes/fasta/nochr/$genome_fasta.fai $genome_fasta.fai
+#fi
 
 ## gtf
 #ln -s  ../../../../genomes/gtf/$genome_gtf 
