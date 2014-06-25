@@ -585,7 +585,10 @@ mv $genomes_path/gtf/$FILE_BODY.gene.tsv ./$FILE_BODY.gene.tsv
 
 ##tabix
 mv $genomes_path/gtf/$FILE_BODY.tabix.gtf* ./
-mv ${genomes_path}/mysql/$mysql_dir/* ./
+if [[ -z "$mysql_dir" ]]
+then
+  mv ${genomes_path}/mysql/$mysql_dir/* ./
+fi
 rm -rf ${genomes_path}/mysql/$mysql_dir
 rm -f log repeat-tabix.bed
 
