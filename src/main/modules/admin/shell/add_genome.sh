@@ -322,33 +322,8 @@ then
   echo "Content:"
   infoseq $genome_fasta -auto
 
-  #genome_release=$(echo $genome_fasta | awk -F "." '{print $2}')
-  genome_release=$(echo $genome_fasta | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')
-
-  #Try to find the build name
-  wget "http://hgdownload.soe.ucsc.edu/admin/hgcentral.sql"
-  # Take only inserts of table dbDB
-  cat hgcentral.sql |grep "INSERT INTO \`dbDb\`" > dbDb.txt
-  # Take only specific columns
-  cat dbDb.txt | cut -d "(" -f 4- |cut -d "'" -f 1,11,16 > release-ucsc.txt
-  # Remove some characters
-  sed -i 's/)//g' release-ucsc.txt
-  sed -i 's/;//g' release-ucsc.txt
-  sed -i 's/,//g' release-ucsc.txt
-  # Replace slash and quotes with tab
-  sed -i 's/\//	/g' release-ucsc.txt #note tab
-  sed -i "s/'/	/g" release-ucsc.txt #note tab
-
-
-  version=$(awk '{if ( $1=="'$genome_release'" ) if ( $NF=="'$taxid'") print $2}' release-ucsc.txt) 
-  rm -f release-ucsc.txt
-  rm -f hgcentral.sql
-  rm -f dbDb.txt
-  if [[ $version == "" ]]
-  then
-    version=$genome_release
-  fi
-
+  #version=$(echo $genome_fasta | awk -F "." '{print $2}')
+  version=$(echo $genome_fasta | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')
 fi
 
 
