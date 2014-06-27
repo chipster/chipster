@@ -1,6 +1,6 @@
 # TOOL miRNA_RNA-seq_integration.R: "Correlate miRNA-seq and RNA-seq data" (Detects miRNA target genes whose expression correlates with miRNA expression, either negatively or positively. Note that you need miRNA-seq and RNA-seq data from the same samples. The matching pairs need to be indicated with numbers in phenodata. This tool works only for human data currently.)
-# INPUT normalized_mirna.tsv: "miRNA expression table" TYPE GENE_EXPRS 
-# INPUT normalized_gene.tsv: "RNA expression table" TYPE GENE_EXPRS 
+# INPUT mirna.tsv: "miRNA expression table" TYPE GENE_EXPRS 
+# INPUT gene.tsv: "RNA expression table" TYPE GENE_EXPRS 
 # INPUT phenodata_mirna.tsv: "Phenodata for miRNA" TYPE GENERIC 
 # INPUT phenodata_gene.tsv: "Phenodata for RNA" TYPE GENERIC 
 # OUTPUT OPTIONAL full_correlation_matrix.tsv: full_correlation_matrix.tsv
@@ -14,26 +14,27 @@
 # PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (This (large\) matrix contains correlations between all miRNAs and genes, with no filtering applied.)
 
 # 08.24.2013, JTT Correlation analysis of miRNA-seq and RNA-seq data
-# 15.05.2014, MK Upgraded to R-3. Added support to gene symbols and customcdf entrez-probesets. Corrected typos
+# 15.05.2014, MK Upgraded to R-3. Added support for gene symbols. Corrected typos.
+# 26.06.2014, EK Fixed a bug which prevented the recognition of Ensembl IDs.
 
 ## setwd("C:\\Users\\Jarno Tuimala\\Desktop\\Chipster2013\\miRNA_rna-seq\\sample_data")
 ## data_1<-read.table(file="normalized-mirna.tsv", header=T, sep="\t", row.names=1)
 ## data_2<-read.table(file="normalized-mrna.tsv", header=T, sep="\t", row.names=1)
 ## phenodata_1 <- read.table("phenodata-mirna.tsv", header=T, sep="\t")
 ## phenodata_2 <- read.table("phenodata-mrna.tsv", header=T, sep="\t")
-## order.column.mirna<-"sample"
-## order.column.gene<-"sample"
+## order.column.mirna<-"order"
+## order.column.gene<-"order"
 ## filtering.method<-"correlation"
 ## filter.threshold<-0.90
 ## save.full.matrix<-"no"
 
 if(order.column.mirna == "EMPTY" || order.column.gene == "EMPTY") {
-  stop("CHIPSTER-NOTE: Please incidate which phenodata columns describing the order of the samples with numbers.")
+  stop("CHIPSTER-NOTE: Please indicate which phenodata columns describing the order of the samples with numbers.")
 }
 
 # Loads the normalized data and phenodata files
-data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
-data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
+data_1 <- read.table(file="mirna.tsv", header=T, sep="\t", row.names=1)
+data_2 <- read.table(file="gene.tsv", header=T, sep="\t", row.names=1)
 phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
 phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
@@ -115,21 +116,18 @@ corp<-function (x, y = NULL, use = "pairwise.complete.obs", alternative = c("two
 }
 d<-corp(t(gene.data.3), t(mirna.data.3), use="pairwise.complete.obs")
 
-#Retrieve Entrez IDSs
+# Retrieve Entrez IDs
 library(org.Hs.eg.db)
-xx <- as.list(org.Hs.egSYMBOL)
+# xx <- as.list(org.Hs.egSYMBOL)
 id<-as.character(rownames(gene.data))
 
-#in customchip data Entrez ID end at _at charater
-if(length(grep("_at$", id)) > 10) {
-  id <- gsub("_at$", "", id)
-}
+#If Entrez IDs, use them
+# if(length(xx[id]) > 1) {
+#  m<-data.frame(id=rownames(gene.data), entrez.gene=id)
+#} else if(length(grep("ENS", id))>0) {
 
-#If Entrez IDS, use them
-if(length(xx[id]) > 1) {
-  m<-data.frame(id=rownames(gene.data), entrez.gene=id)
-} else if(length(grep("ENS", id))>0) {
-  # Convert possible ENSEMBL IDs to Entrez Gene
+# Convert possible ENSEMBL IDs to Entrez Gene
+if(length(grep("ENS", id))>0) {
   xx <- as.list(org.Hs.egENSEMBL2EG)
   dd<-as.data.frame(unlist(xx))
   id2<-as.data.frame(id)

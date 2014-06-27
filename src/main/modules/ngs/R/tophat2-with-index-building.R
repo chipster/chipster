@@ -90,12 +90,12 @@ if (file.exists("genes.gtf")){
 
 # command ending
 #command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq '")
-command.end <- paste(bowtie2.genome, "reads1.fq reads2.fq 1>> tophat2.log 2>> tophat2.log'")
+command.end <- paste(bowtie2.genome, "reads1.fq reads2.fq 1>> tmp.log 2>> tmp.log'")
 
 # run tophat
 command <- paste(command.start, command.parameters, command.end)
 
-echo.command <- paste("echo '",command ,"' > tophat2.log " )
+echo.command <- paste("echo '",command ,"' > tmp.log " )
 system(echo.command)
 #stop(paste('CHIPSTER-NOTE: ', command))
 system(command)
@@ -119,6 +119,7 @@ system("mv tophat_out/align_summary.txt tophat-summary.txt")
 # sorting BEDs
 source(file.path(chipster.common.path, "bed-utils.R"))
 
+no.results = "TRUE"
 
 if (file.exists("junctions.u.bed")){
 	size <- file.info("junctions.u.bed")$size
@@ -127,6 +128,7 @@ if (file.exists("junctions.u.bed")){
 		colnames(bed)[1:2] <- c("chr", "start")
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="junctions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+		no.results = "FALSE"
 	}	
 }
 
@@ -137,6 +139,7 @@ if (file.exists("insertions.u.bed")){
 		colnames(bed)[1:2] <- c("chr", "start")
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="insertions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+		no.results = "FALSE"
 	}
 }
 
@@ -147,5 +150,10 @@ if (file.exists("insertions.u.bed")){
 		colnames(bed)[1:2] <- c("chr", "start")
 		sorted.bed <- sort.bed(bed)
 		write.table(sorted.bed, file="deletions.bed", sep="\t", row.names=F, col.names=F, quote=F)
+		no.results = "FALSE"
 	}
+}
+
+if (no.results){
+	system("mv tmp.log tophat2.log")
 }

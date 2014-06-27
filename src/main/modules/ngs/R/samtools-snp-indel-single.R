@@ -2,8 +2,8 @@
 # INPUT alignment{...}.bam: "Sorted BAM files" TYPE BAM 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT variants.vcf
-# PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", mm10.fa: "Mouse (mm10\)", rn4.fa: "Rat (rn4\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (Sscrofa10.2.69\)", Gallus_gallus.Gallus_gallus-4.0.pre.fa: "Chicken (4.0\)", Bos_taurus.UMD3.1.69.dna.toplevel.fa: "Cow (UMD3.1.69\)"] DEFAULT hg19.fa (Reference sequence. Please note that the chr-versions of reference genomes are not available for pig, chicken and cow.)
-# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [yes: "chr1", no: "1"] DEFAULT no (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
+# PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", mm10.fa: "Mouse (mm10\)", rn4.fa: "Rat (rn4\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (Sscrofa10.2.69\)", Gallus_gallus.Gallus_gallus-4.0.pre.fa: "Chicken (4.0\)", Bos_taurus.UMD3.1.69.dna.toplevel.fa: "Cow (UMD3.1.69\)"] DEFAULT hg19.fa (Reference sequence.)
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
 # PARAMETER mpileup.r: "Call variants only for a certain region" TYPE STRING DEFAULT all (Only generate pileup in defined region. Region given as chromosome:start-end, e.g. 20:131505-131550.)
 # PARAMETER OPTIONAL mpileup.ub: "Disable probabilistic realignment for computation of BAC" TYPE [yes, no] DEFAULT no (Disable probabilistic realignment for the computation of base alignment quality (BAQ\). BAQ is the Phred-scaled probability of a read base being misaligned. Applying this option greatly helps to reduce false SNPs caused by misalignments.)
 # PARAMETER OPTIONAL mpileup.uc: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. The recommended value for BWA is 50. A zero value disables this functionality.)
@@ -19,29 +19,26 @@
 
 # AMS 30.5.2012
 # AMS 17.08.2012: Additional parameters as suggested by Jarno
+# AMS 24.6.2014: Changed handling of fasta file
 
 # binaries
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 bcftools.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "bcftools"))
 vcfutils.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "vcfutils.pl"))
 
-# path to internal reference sequences
-path.refseqs <- c(file.path(chipster.tools.path, "bowtie", "indexes"))
-
-# check which reference sequence to use: own/internal
-ref.seq <- ""
-input_files <- dir()
-is_own <- (length(grep("ownref.fa", input_files))>0)
-if (is_own) {
-	ref.seq <- paste("ownref.fa")	
-} else {
-	if (chr == "yes"){
-		ref.seq <- c(file.path(path.refseqs, ref))
+# If user provided fasta we use it, else use internal fasta
+if (file.exists("ownref.fa")){
+	refseq <- "ownref.fa"
+}else{
+	internal.refseq <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", ref))
+	if (chr == "chr1"){
+		source(file.path(chipster.common.path, "seq-utils.R"))
+		addChrToFasta(internal.refseq, "internal_chr.fa")
+		refseq <- paste("internal_chr.fa")
 	}else{
-		ref.seq <- c(file.path(path.refseqs, "nochr", ref))
+		refseq <- paste(internal.refseq)
 	}
 }
-
 
 # mpileup otions
 mpileup.options <- paste("mpileup -u")
@@ -80,7 +77,7 @@ vcfutils.options <- paste("varFilter", "-d", vcfutils.d,"-D", vcfutils.ud)
 
 
 # commands
-command1 <- paste(samtools.binary, mpileup.options, "-f", ref.seq, "*.bam", "|", bcftools.binary, bcftools.options, "- > var.raw.bcf")
+command1 <- paste(samtools.binary, mpileup.options, "-f", refseq, "*.bam", "|", bcftools.binary, bcftools.options, "- > var.raw.bcf")
 command2 <- paste(bcftools.binary, "view var.raw.bcf |", vcfutils.binary, vcfutils.options, "> variants.vcf")
 
 # run

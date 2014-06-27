@@ -23,7 +23,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/testng-5.9-jdk15.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.4.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-dom.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svg-dom.jar"/>
