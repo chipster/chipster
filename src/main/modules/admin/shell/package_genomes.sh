@@ -12,7 +12,7 @@ while read FILE_LIST
 do           
 	PACKAGE=$(basename $FILE_LIST .files)
 	echo "Packaging $PACKAGE.tar.gz"
-  	echo '  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes/3.0.0/'${PACKAGE}'.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes/' >> install-chipster-commands.sh
+  	echo '  curl -s http://${NIC_MIRROR}/pub/sci/molbio/chipster/dist/tools_extras/genomes/3.0.0/'${PACKAGE}'.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes/' >> install-chipster-commands.sh
 	# multi-core
 	tar -I pigz -T $FILE_LIST -cf $PACKAGE.tar.gz
 	# single-core
