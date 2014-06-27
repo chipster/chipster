@@ -21,6 +21,7 @@ The gtf and MySQL files are processed to create the files used by the Genome Bro
 Other options:
 
   -only_bwa       Calculate only bwa indexes
+  -only_bowtie    Calculate only bowtie indexes
   -only_bowtie2   Calculate only bowtie2 indexes
 
 ------------------------------------------------------------------------------------
@@ -41,28 +42,27 @@ process_gtf () # parameters 1:url
 	cat "$FILE_BODY.gtf" | 	cut -f 1,9 --output-delimiter=';' | 	cut -d ';' -f 1,5      | 	uniq              | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > "$FILE_BODY.gene.tsv"
 
 
-		#tabix installation folder hast to be in $PATH to find bgzip and tabix programs
-		#don't exit even if grep exits with error (when there isn't any comments)
-		set +e
-		grep "^#" "$FILE_BODY.gtf" > "$FILE_BODY-1.gtf"
-		set -e
+	#tabix installation folder hast to be in $PATH to find bgzip and tabix programs
+	#don't exit even if grep exits with error (when there isn't any comments)
+	set +e
+	grep "^#" "$FILE_BODY.gtf" > "$FILE_BODY-1.gtf"
+	set -e
 
-		grep -v "^#" "$FILE_BODY.gtf" >> "$FILE_BODY-1.gtf"
-		cat $FILE_BODY-1.gtf | sort -k1,1 -k4,4n -t "	" > "$FILE_BODY-sorted.gtf"		
-		cat "$FILE_BODY-sorted.gtf" | bgzip > "$FILE_BODY.tabix.gtf.gz"
+	grep -v "^#" "$FILE_BODY.gtf" >> "$FILE_BODY-1.gtf"
+	cat $FILE_BODY-1.gtf | sort -k1,1 -k4,4n -t "	" > "$FILE_BODY-sorted.gtf"		
+	cat "$FILE_BODY-sorted.gtf" | bgzip > "$FILE_BODY.tabix.gtf.gz"
 
-		#rm "$FILE_BODY.gtf"
-		rm "$FILE_BODY-1.gtf"
-		rm "$FILE_BODY-sorted.gtf"
+	#rm "$FILE_BODY.gtf"
+	rm "$FILE_BODY-1.gtf"
+	rm "$FILE_BODY-sorted.gtf"
 
-		#generate index
-		tabix -p gff "$FILE_BODY.tabix.gtf.gz"; 	
+	#generate index
+	tabix -p gff "$FILE_BODY.tabix.gtf.gz";
 
 #Result files	
 #"$FILE_BODY.gene.tsv"
 #"$FILE_BODY.tabix.gtf.gz"
 #"$FILE_BODY.tabix.gtf.gz.tbi"	
-
 }
 
 
@@ -70,87 +70,83 @@ process_gtf () # parameters 1:url
 ensembl_mysql () # parameters 1:url 2:new-name
 {
 
-		# Download database dump files
+	echo Prepare chromosome name and identifier mapping
+        set +e
 
-		echo Prepare chromosome name and identifier mapping
-                set +e
+	# search for chomosome (or group) coordinate systems (group for stickleback)
+        grep "chromosome\|group" $1/coord_system.txt > coord_system-chr.txt
 
-		# search for chomosome (or group) coordinate systems (group for stickleback)
-                grep "chromosome\|group" $1/coord_system.txt > coord_system-chr.txt
+	# join requires sorted input
+	LANG=en_EN sort -k 1 coord_system-chr.txt > coord_system-sorted.txt
+	LANG=en_EN sort -k 3 "$1/seq_region.txt" > seq_region-sorted.txt
 
-
-		# join requires sorted input
-		LANG=en_EN sort -k 1 coord_system-chr.txt > coord_system-sorted.txt
-		LANG=en_EN sort -k 3 "$1/seq_region.txt" > seq_region-sorted.txt
-
-		# join chromosome names and seq_region identifiers to create map of chromosome identifiers
-		LANG=en_EN join -t '	' -1 1 -2 3 coord_system-sorted.txt seq_region-sorted.txt > chr_map-join.txt
+	# join chromosome names and seq_region identifiers to create map of chromosome identifiers
+	LANG=en_EN join -t '	' -1 1 -2 3 coord_system-sorted.txt seq_region-sorted.txt > chr_map-join.txt
 	
-		# remove extra columns
-		cat chr_map-join.txt | cut -f 7,8 > chr_map.txt
+	# remove extra columns
+	cat chr_map-join.txt | cut -f 7,8 > chr_map.txt
 
-		# join requires sorted input
-		LANG=en_EN sort -k 1 chr_map.txt > chr_map-sorted.txt
+	# join requires sorted input
+	LANG=en_EN sort -k 1 chr_map.txt > chr_map-sorted.txt
 	
-		# clean
-		rm "$1/coord_system.txt" "$1/seq_region.txt"
-		rm coord_system-chr.txt coord_system-sorted.txt seq_region-sorted.txt chr_map-join.txt chr_map.txt
+	# clean
+	rm "$1/coord_system.txt" "$1/seq_region.txt"
+	rm coord_system-chr.txt coord_system-sorted.txt seq_region-sorted.txt chr_map-join.txt chr_map.txt
 
 	
-		# Low complexity region data
+	# Low complexity region data
 
-		# remove extra columns
-		#cat repeat-masker-join.txt | cut -f 3,4,5 > repeat-masker.txt		
-		cat "$1/repeat_feature.txt" | cut -d '	' -f 2,3,4 > repeat-masker.txt
+	# remove extra columns
+	#cat repeat-masker-join.txt | cut -f 3,4,5 > repeat-masker.txt		
+	cat "$1/repeat_feature.txt" | cut -d '	' -f 2,3,4 > repeat-masker.txt
 		
+	# join requires sorted input
+	LANG=en_EN sort -k 1 repeat-masker.txt > repeat-masker-sorted.txt
 
-		# join requires sorted input
-		LANG=en_EN sort -k 1 repeat-masker.txt > repeat-masker-sorted.txt
+	# join chromosome identifiers and the data
+	LANG=en_EN join -t '	' -1 1 -2 1 chr_map-sorted.txt repeat-masker-sorted.txt > repeat-join.txt
 
-		# join chromosome identifiers and the data
-		LANG=en_EN join -t '	' -1 1 -2 1 chr_map-sorted.txt repeat-masker-sorted.txt > repeat-join.txt
-
-		# remove extra columns
-		# FIXME Ensembl uses 1-based coordinates, whereas standard bed file must have 0-based coordinates
-		cat repeat-join.txt | cut -d '	' -f 2,3,4 > repeat.bed
+	# remove extra columns
+	# FIXME Ensembl uses 1-based coordinates, whereas standard bed file must have 0-based coordinates
+	cat repeat-join.txt | cut -d '	' -f 2,3,4 > repeat.bed
 	
-		# bed to tabix
-		cat repeat.bed | sort -k1,1 -k2,2n > repeat-sorted.bed		
-		cat repeat-sorted.bed | bgzip > "$1/repeat-tabix.bed.gz"
+	# bed to tabix
+	cat repeat.bed | sort -k1,1 -k2,2n > repeat-sorted.bed		
+	cat repeat-sorted.bed | bgzip > "$1/repeat-tabix.bed.gz"
 
-		#generate index
-		tabix -p bed "$1/repeat-tabix.bed.gz"
+	#generate index
+	tabix -p bed "$1/repeat-tabix.bed.gz"
 
-		# clean
-		#rm "$1/analysis.txt" "$1/repeat_feature.txt"
-		#rm repeat-masker-row.txt repeat-masker-id.txt repeat-sorted.txt repeat-masker-join.txt
-		rm repeat-masker.txt  repeat-masker-sorted.txt repeat-join.txt
-		rm repeat.bed repeat-sorted.bed
-
-
-		# Cytoband data
+	# clean
+	#rm "$1/analysis.txt" "$1/repeat_feature.txt"
+	#rm repeat-masker-row.txt repeat-masker-id.txt repeat-sorted.txt repeat-masker-join.txt
+	rm repeat-masker.txt  repeat-masker-sorted.txt repeat-join.txt
+	rm repeat.bed repeat-sorted.bed
 
 
-		# sort the actual data
-                cp karyotype.txt cytoband-tmp.txt
-		LANG=en_EN sort -k 2 "$1/cytoband-tmp.txt" > cytoband-sorted.txt
+	# Cytoband data
 
-		# join chromosome identifiers and the data
-		LANG=en_EN join -t '	' -1 1 -2 2 chr_map-sorted.txt cytoband-sorted.txt > cytoband-join.txt
+	# sort the cytoband data
+        cp karyotype.txt cytoband-tmp.txt
+	LANG=en_EN sort -k 2 "$1/cytoband-tmp.txt" > cytoband-sorted.txt
 
-		# remove extra columns
-		cat cytoband-join.txt | cut -d '	' -f 2,3,4,5,6,7 > "$1/cytoband-chr.txt"
+	# join chromosome identifiers and the cytobands
+	LANG=en_EN join -t '	' -1 1 -2 2 chr_map-sorted.txt cytoband-sorted.txt > cytoband-join.txt
 
-		# clean
-		rm cytoband-sorted.txt cytoband-join.txt "$1/cytoband-tmp.txt"
-		rm chr_map-sorted.txt
+	# remove extra columns
+	cat cytoband-join.txt | cut -d '	' -f 2,3,4,5,6,7 > "$1/cytoband-chr.txt"
+
+	# clean
+	rm repeat_feature.txt karyotype.txt
+	rm cytoband-sorted.txt cytoband-join.txt "$1/cytoband-tmp.txt"
+	rm chr_map-sorted.txt
+
+
 
 	#result files: "$2cytoband-chr.txt", "$2repeat-tabix.bed.gz" and "$2repeat-tabix.bed.gz.tbi"
 }
 
 chipster_path="0"
-#export PATH=${PATH}:/opt/chipster4/comp/modules/admin/shell/:/opt/chipster/tools/emboss/bin/:/opt/chipster/tools/samtools/
-
 ensembl=0
 fasta=0
 gtf=0
@@ -217,6 +213,11 @@ do
                 INDEX_BOWTIE2=0
                 shift
               ;;
+	      '-only_bowtie')
+                INDEX_BOWTIE2=0
+                INDEX_BWA=0
+                shift
+              ;;
 	      '-only_bowtie2')
                 INDEX_BOWTIE=0
                 INDEX_BWA=0
@@ -244,10 +245,13 @@ then
   exit 1
 fi 
 
-tools_path="$chipster_path""/tools"
-comp_path="$chipster_path""/comp"
+species=$(echo $species | sed s/" "/"_"/g )
+
+tools_path=${chipster_path}/tools
+comp_path=${chipster_path}/comp
 genomes_path=${tools_path}/genomes
 index_path=${genomes_path}/indexes
+tmp_path=${tools_path}/tmp/${species}_$$ # process id
 
 if [[ ! -e ${genomes_path} ]]
 then
@@ -259,6 +263,13 @@ then
   mkdir ${index_path}
 fi
 
+if [[ -e ${tmp_path} ]]
+then
+  echo "Work directory ${tmp_path} exists already. Please terminate all scripts using this directory and delete it."
+  exit 1
+else
+  mkdir --parents ${tmp_path}
+fi
 
 
 export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/:$tools_path/bowtie2/
@@ -267,36 +278,21 @@ echo $PATH
 echo "Installing genomes to: $genomes_path"
 
 ##
-#Retrieve the fasta file
+#  Retrieve the fasta file
 ##
-
-#Check if  taxid is used in stead of name (commented out to avoid Emboss dependency)
-
-#taxid=$(echo $species | tr -d "[a-z,A-Z]" )
-species=$(echo $species | sed s/" "/"_"/g )
-##test for taxnumber
-#if [[ "$species" == "$taxid" ]]
-#then
-#  species=$(taxget taxon:$taxid -oformat excel -filter | sed s/" "/"_"/g | awk '{print $5}')
-#  echo "Taxid: $taxid corresponds species: $species"
-#else
-#  tax_name=$(echo $species | sed s/"_"/" "/g )
-#  taxid=$(grep -i "|.$tax_name.|" $tools_path/emboss/share/EMBOSS/data/TAXONOMY/names.dmp  | awk '{print $1}')
-#fi
-
-
-#echo $species $taxid
 
 #reading the data from ensembl
 
 echo $ensembl
 
+cd $tmp_path
+
 if [[ $ensembl -eq 1 ]]
 then
-  echo "Retrtieving and indexing genome sequence for $species"
-  cd ${genomes_path}/fasta
-  echo ensemblfetch.sh -chipster_path $chipster_path $species
-  genome_fasta=$(ensemblfetch.sh -chipster_path $chipster_path $species | tail -1)
+  echo "Retrieving and indexing genome sequence for $species"
+
+  echo ensemblfetch.sh $species
+  genome_fasta=$(ensemblfetch.sh $species | tail -1)
 
   if [[ $genome_fasta == "--------------------------------------------------------------------------------" ]]
   then
@@ -319,6 +315,11 @@ then
     rm -f karyotype.tmp
   fi
   echo "$genome_fasta Downloaded"
+
+  echo "Creating fasta index..."
+  #Calculate index file for the fasta file
+  ${tools_path}/samtools/samtools faidx ${genome_fasta}
+
   echo "Content:"
   infoseq $genome_fasta -auto
 
@@ -327,34 +328,10 @@ then
 fi
 
 
-
 if [[ $fasta -eq 1 ]]
 then
-  cp $genome_fasta ${genomes_path}/fasta/
-  cd ${tools_path}/fasta
-fi
-
-####
-#Calculate index file for the fasta file
-###
-${tools_path}/samtools/samtools faidx $genome_fasta
-
-##
-#Check if the fasta file as already been indexed
-##
-
-size=$(ls -l $genome_fasta | awk '{print $5}')
-checksum=$(md5sum $genome_fasta | awk '{print $1}')
-
-#look for matching size and md5sum
-
-genome_check=$(grep -h $size $tools_path/genomes/genome_list | grep $checksum | awk '{print $1}' | tail -1)
-
-
-#
-if [ ! $genome_check == "" ]; then
-  echo "File $genome_fasta has alredy been indexed"
-  exit 0
+  #With this option, do not fetch fasta from ensembl but use given file instead
+  cp $genome_fasta ${tmp_path}/
 fi
 
 
@@ -373,71 +350,125 @@ if [[ "$text" == "1" ]]
   mv ${genome_fasta}.filtered $genome_fasta
 fi
 
-
+genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 
 ###
 #  get the gtf file
 ###
-if [[ ! -e ${genomes_path}/gtf ]]
-then
-   mkdir ${genomes_path}/gtf
-fi
 
 
 if [[ $ensembl -eq 1 ]]
 then
-  cd ${genomes_path}/gtf
-  which ensemblfetch.sh
-  echo "ensemblfetch.sh -chipster_path $chipster_path -type gtf $species"
-  genome_gtf=$(ensemblfetch.sh -chipster_path $chipster_path -type gtf $species | tail -1 )
-  
-  echo "executing: python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_gtf.DEXSeq.gtf "
-  python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_gtf.DEXSeq.gtf 
 
+  which ensemblfetch.sh
+  echo "ensemblfetch.sh -type gtf $species"
+  genome_gtf=$(ensemblfetch.sh -type gtf $species | tail -1 )
+  
+  genome_gtf_name=$(basename $genome_gtf .gtf)
+  echo "executing: python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_name.DEXSeq.gtf "
+  python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_name.DEXSeq.gtf 
 
   process_gtf $genome_gtf 
-
-  #FILE_BODY=$(basename $genome_gtf .gtf)
-  #cat "$genome_gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5  | 	uniq | sed -e 's/; gene_name "/\t/' | sed -e 's/\"//' > "$FILE_BODY.gene.tsv"
 
 fi
 
 if [[ $gtf -eq 1 ]]
 then  
   cp $location/$genome_gtf ${genomes_path}/gtf/
-  FILE_BODY=$(basename $genome_gtf .gtf)
-  cat "$location/$genome_gtf" | cut -f 1,9 --output-delimiter=';' | cut -d ';' -f 1,5  | 	uniq | sed -e 's/; gene_name "/	/' | sed -e 's/\"//' > " ${genomes_path}/gtf/$FILE_BODY.gene.tsv"
+  python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_name.DEXSeq.gtf 
+  process_gtf $genome_gtf
 fi
 
 
 ###
 #  get the mysql files
 ###
-if [[ ! -e ${genomes_path}/mysql ]]
-then
-  mkdir ${genomes_path}/mysql
-fi
 
 if [[ $ensembl -eq 1 ]]
 then
-  cd ${genomes_path}/mysql
-  mysql_files=$(ensemblfetch.sh  -chipster_path $chipster_path -type mysql $species | tail -1)
+
+  mysql_files=$(ensemblfetch.sh -type mysql $species | tail -1)
   testtsring=$(echo $mysql_files | wc -c)
   if [[ $testtsring -gt 50 ]]
   then
-    echo No MySQL data for $species was found from the Ensembl database.
-  else
+    echo "No MySQL data for $species was found from the Ensembl database."
+  else    
     mysql_dir=$(basename $mysql_files .tar)
     tar xf $mysql_files
-    cd $mysql_dir
-    gunzip *.gz
-    ensembl_mysql .
-    cd ..
+    gunzip $mysql_dir/*.gz
+    mv $mysql_dir/* .
     rm -f $mysql_files
+    rmdir $mysql_dir
+    ensembl_mysql .
   fi
 fi
+
+
+##genome.yaml
+
+echo "species: $species" > genome.yaml
+echo "version: ($version)" >> genome.yaml
+echo "ensemblBrowserUrl: " >> genome.yaml
+echo "ucscBrowserUrl: " >> genome.yaml
+echo "sortId: other" >> genome.yaml
+
+
+###
+#  Move files to right places
 ###
 
+gb_path=$genomes_path/genomebrowser/$species/$version
+
+if [[ ! -e ${genomes_path}/fasta ]]
+then
+  mkdir ${genomes_path}/fasta
+fi
+
+if [[ ! -e ${genomes_path}/gtf ]]
+then
+   mkdir ${genomes_path}/gtf
+fi
+
+if [[ ! -e $gb_path ]]
+then
+  mkdir --parents $gb_path
+fi
+
+mv ${genome_fasta} 			${genomes_path}/fasta/
+mv ${genome_fasta}.fai 			${genomes_path}/fasta/
+mv ${genome_gtf} 			${genomes_path}/gtf/
+mv ${genome_name}.DEXSeq.gtf 		${genomes_path}/gtf/
+
+ln -s ../../../fasta/$genome_fasta 	$gb_path/$genome_fasta
+ln -s ../../../fasta/$genome_fasta.fai 	$gb_path/$genome_fasta.fai
+
+mv cytoband-chr.txt			$gb_path/
+mv genome.yaml				$gb_path/
+mv repeat-tabix.bed.gz			$gb_path/
+mv repeat-tabix.bed.gz.tbi		$gb_path/
+mv ${genome_name}.gene.tsv 		$gb_path/
+mv ${genome_name}.tabix.gtf.gz 		$gb_path/
+mv ${genome_name}.tabix.gtf.gz.tbi	$gb_path/
+
+
+
+
+##
+#Check if the aligner indexes have been already created
+##
+
+size=$(ls -l $genomes_path/fasta/$genome_fasta | awk '{print $5}')
+checksum=$(md5sum $genomes_path/fasta/$genome_fasta | awk '{print $1}')
+
+#look for matching size and md5sum
+
+genome_check=$(grep -h $size $tools_path/genomes/genome_list | grep $checksum | awk '{print $1}' | tail -1)
+
+
+if [ ! $genome_check == "" ]; then
+  echo "File $genome_fasta has alredy been indexed"
+  exit 0
+fi
 
 #make bwa_indexes
 if [[ $INDEX_BWA -eq 1 ]]
@@ -448,18 +479,13 @@ then
     mkdir ${index_path}/bwa
   fi
 
-  echo -------------------------------------------------------
-  echo Calculating BWA indexes for $genome_fasta
+  echo "-------------------------------------------------------"
+  echo "Calculating BWA indexes for $genome_fasta"
   cd $index_path/bwa
-  ln -s ../../fasta/$genome_fasta $genome_fasta
-#  if [[ $ensembl -eq 1 ]]
-#  then
-#    ln -s ../../fasta/nochr/$genome_fasta $genome_fasta
-#  else 
-#    ln -s ../../fasta/$genome_fasta $genome_fasta
-#  fi
-   bwa_name=$(basename $genome_fasta .dna.toplevel.fa)
-  $tools_path/bwa/bwa index -p $bwa_name  $genome_fasta
+  ln -s ../../fasta/$genome_fasta $genome_name.fa
+
+  $tools_path/bwa/bwa index -p $genome_name  $genome_name.fa >> $tmp_path/log
+
 else
   echo "Skipping BWA indexing"
 fi
@@ -473,23 +499,22 @@ then
     mkdir ${index_path}/bowtie
   fi
 
-  echo -------------------------------------------------------
-  echo Calculating Bowtie indexes for $genome_fasta 
+  echo "-------------------------------------------------------"
+  echo "Calculating Bowtie indexes for $genome_fasta"
   cd $index_path/bowtie
-  ln -s ../../fasta/$genome_fasta $genome_fasta
-  bowtie_name=$(basename $genome_fasta .dna.toplevel.fa)
-  $tools_path/bowtie/bowtie-build $genome_fasta $bowtie_name
+  ln -s ../../fasta/$genome_fasta $genome_name.fa
+  $tools_path/bowtie/bowtie-build $genome_name.fa $genome_name >> $tmp_path/log
 
-  #check bowtie2 indexes
-  n_genome=$(grep -c "^>" $genome_fasta)
-  n_index=$($tools_path/bowtie/bowtie-inspect -n $bowtie_name | wc -l)
+  #check bowtie indexes
+  n_genome=$(grep -c "^>" $genome_name.fa)
+  n_index=$($tools_path/bowtie/bowtie-inspect -n $genome_name | wc -l)
 
   if [[ $n_genome -ne $n_index ]]
   then
-     echo "ERROR: Bowtie indexing of genome $bowtie2_name failed"
+     echo "ERROR: Bowtie indexing of genome $genome_name failed"
      exit 1
   else
-    echo Bowtie index of genome $bowtie_name OK
+    echo Bowtie index of genome $genome_name OK
   fi
 else
     echo "Skipping Bowtie indexing"
@@ -507,106 +532,54 @@ then
   fi
 
 
-  echo -------------------------------------------------------
-  echo Calculating Bowtie2 indexes for $genome_fasta 
+  echo "-------------------------------------------------------"
+  echo "Calculating Bowtie2 indexes for $genome_fasta"
 
   cd $index_path/bowtie2
-  ln -s ../../fasta/$genome_fasta $genome_fasta  
-  bowtie2_name=$(basename $genome_fasta .dna.toplevel.fa)
-  ln -s $genome_fasta ${bowtie2_name}.fa
+  ln -s ../../fasta/$genome_fasta $index_path/bowtie2/$genome_name.fa
   
-  $tools_path/bowtie2/bowtie2-build $genome_fasta $bowtie2_name
+  $tools_path/bowtie2/bowtie2-build $genome_name.fa $genome_name >> $tmp_path/log
 
   #check bowtie2 indexes
-  n_genome=$(grep -c "^>" $genome_fasta)
-  n_index=$($tools_path/bowtie2/bowtie2-inspect -n $bowtie2_name | wc -l)
+  n_genome=$(grep -c "^>" $genome_name.fa)
+  n_index=$($tools_path/bowtie2/bowtie2-inspect -n $genome_name | wc -l)
 
   if [[ $n_genome -ne $n_index ]]
   then
-     echo "ERROR: Bowtie2 indexing of genome $bowtie2_name failed"
+     echo "ERROR: Bowtie2 indexing of genome $genome_name failed"
      exit 1
   else
-    echo Bowtie2 index of genome $bowtie2_name OK
+    echo "Bowtie2 index of genome $genome_name OK"
     if [[ $INDEX_TOPHAT2 -eq 1 ]]
     then
        if [[ ! -e ${index_path}/tophat2 ]]
        then
           mkdir ${index_path}/tophat2
        fi
-       
-       echo Builduing TopHat2 transcriptome index using $genome_gtf
 
-       $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$bowtie2_name $index_path/bowtie2/$bowtie2_name
+#       ln -s ../../fasta/$genome_fasta $index_path/tophat2/$genome_name.fa
+       
+       echo "Building TopHat2 transcriptome index using $genome_gtf"		
+
+       $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name >> $tmp_path/log
+
+	rm -rf $index_path/bowtie2/tophat_out
     fi
   fi
 else
     echo "Skipping Bowtie2 indexing"
 fi
-
-
-###
-#Copy data to genomebowser directory
-###
-
-if [[ -e $tools_path/genomebrowser/$species ]]
-then
-  echo ""
-else
-  mkdir $tools_path/genomebrowser/$species
-fi
-
-if [[ -e $tools_path/genomebrowser/$species/$version ]]
-then
-  echo ""
-else
-  mkdir $tools_path/genomebrowser/$species/$version
-fi
+cd $genomes_path
+find $gb_path/* 			>  $tmp_path/$genome_name.gb.files
+find $genomes_path/fasta/$genome_name* 	>> $tmp_path/$genome_name.fa.files
+find $genomes_path/gtf/$genome_name* 	>> $tmp_path/$genome_name.gtf.files
+find $index_path/bowtie/$genome_name* 	>> $tmp_path/$genome_name.bowtie.files
+find $index_path/bowtie2/$genome_name* 	>> $tmp_path/$genome_name.bowtie2.files
+find $index_path/bwa/$genome_name* 	>> $tmp_path/$genome_name.bwa.files
+find $index_path/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
 
 echo ""
-echo "Copying data to Genome Browser directory:"
-echo "$tools_path/genomebrowser/annotations/$species/$version"
-
-
-cd $tools_path/genomebrowser/$species/$version
-
-## fasta and fasta index
-#if [[ $fasta -eq 1 ]]
-#then
-ln -s ../../../genomes/fasta/$genome_fasta $genome_fasta
-ln -s ../../../genomes/fasta/$genome_fasta.fai $genome_fasta.fai
-#else
-#  ln -s ../../../../genomes/fasta/nochr/$genome_fasta $genome_fasta
-#  ln -s ../../../../genomes/fasta/nochr/$genome_fasta.fai $genome_fasta.fai
-#fi
-
-## gtf
-#ln -s  ../../../../genomes/gtf/$genome_gtf 
-mv $genomes_path/gtf/$FILE_BODY.gene.tsv ./$FILE_BODY.gene.tsv
-
-##tabix
-mv $genomes_path/gtf/$FILE_BODY.tabix.gtf* ./
-if [[ -z "$mysql_dir" ]]
-then
-  mv ${genomes_path}/mysql/$mysql_dir/* ./
-fi
-rm -rf ${genomes_path}/mysql/$mysql_dir
-rm -f log repeat-tabix.bed
-
-rm -f karyotype.txt
-
-##genome-v1.yaml
-
-echo species: $species > genome-v1.yaml
-echo version: $version >> genome-v1.yaml
-echo ensemblBrowserUrl:  >> genome-v1.yaml
-echo ucscBrowserUrl: >> genome-v1.yaml
-echo sortId: other >> genome-v1.yaml
-
-echo ""
-ls -l
 echo "---------------------------------------------------------------"
-
-
 
 day=$(date)
 echo $taxid $species $genome_fasta $version $size $day $checksum >> $genomes_path/genome_list
