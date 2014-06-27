@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><body>
+<table id="toc" class="toc" summary="Contents"><tbody><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1"><a href="#Mounting_server_filesystem_via_SSH"><span class="tocnumber">1</span> <span class="toctext">Mounting server filesystem via SSH</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Setting_up_SFTP_access_in_Linux"><span class="tocnumber">1.1</span> <span class="toctext">Setting up SFTP access in Linux</span></a></li>
+<li class="toclevel-2"><a href="#Setting_up_SFTP_access_in_Mac_OS_X"><span class="tocnumber">1.2</span> <span class="toctext">Setting up SFTP access in Mac OS X</span></a></li>
+<li class="toclevel-2"><a href="#Setting_up_SFTP_access_in_Windows"><span class="tocnumber">1.3</span> <span class="toctext">Setting up SFTP access in Windows</span></a></li>
+</ul>
+</li>
+</ul>
+</td></tr></tbody></table>
+
+<a name="Mounting_server_filesystem_via_SSH" id="Mounting_server_filesystem_via_SSH"></a><h2> <span class="mw-headline"> Mounting server filesystem via SSH </span></h2>
+<p>When running Chipster server in a virtual machine, the host system 
+can not see directly the filesystem inside the "virtual box". Logging 
+into the system and running text editors inside the virtual machine 
+quickly becomes tedious.
+</p><p>There are several ways to access files at the server more 
+conveniently, including shared folders, NFS, rsync and deploy scripts. 
+However SFTP is often the easiest solution. The idea is to use SFTP (SSH
+ file transfer protocol) to browse the server, just like you would 
+browse files on your own workstation.  To get started, you need to log 
+into the server and check the IP address it is using. Following steps 
+depend on your host operating system.
+</p><p><br>
+</p>
+<a name="Setting_up_SFTP_access_in_Linux" id="Setting_up_SFTP_access_in_Linux"></a><h3> <span class="mw-headline"> Setting up SFTP access in Linux </span></h3>
+<p>Setting up SFTP is dead easy in Linux. Of course this should not come
+ as a surprise, as there is Ubuntu Linux running inside the virtual 
+machine as well.
+</p>
+<ul><li> Open file explorer
+</li><li> Type into location bar: ssh://&lt;IP ADDRESS&gt;/opt/chipster
+</li></ul>
+<p>Then you're done. Double click on files to edit them like you would do with local files.
+</p>
+<a name="Setting_up_SFTP_access_in_Mac_OS_X" id="Setting_up_SFTP_access_in_Mac_OS_X"></a><h3> <span class="mw-headline"> Setting up SFTP access in Mac OS X </span></h3>
+<p>In OS X you can mount server filesystem (SSHFS), after you have added two additional packages.
+</p>
+<ul><li> Download and install OSXFuse from <a href="http://osxfuse.github.com/" class="external free" title="http://osxfuse.github.com" rel="nofollow">http://osxfuse.github.com</a>
+<ul><li> When installing, select MacFUSE Compatibility Layer option
+</li></ul>
+</li><li> Download and install Macfusion from <a href="http://macfusionapp.org/" class="external free" title="http://macfusionapp.org" rel="nofollow">http://macfusionapp.org</a>
+</li><li> Open Macfusion application. 
+</li><li> Click on plus sign and select SSHFS.
+</li><li> Set host to IP address of the virtual machine, username to <i>chipster</i> and path to <i>/opt/chipster</i>. Click Ok.
+</li></ul>
+<p>Now you are set. Click Mount to connect, give the password and right-click then select Reveal to open the server folder <i>/opt/chipster</i> in Finder.
+</p><p><br>
+</p>
+<a name="Setting_up_SFTP_access_in_Windows" id="Setting_up_SFTP_access_in_Windows"></a><h3> <span class="mw-headline"> Setting up SFTP access in Windows </span></h3>
+<p>Windows has multiple different SSH/SFTP clients available. You are 
+probably using one already, so it might be best to stick with it and 
+connect following instruction below.
+</p>
+<ul><li> Open your SFTP client
+</li><li> When connecting, set host to IP address of the virtual machine, username to <i>chipster</i> and path to <i>/opt/chipster</i>
+</li></ul>
+<p>If you don't have SSH/SFTP client installed yet, a good one is WinSCP (<a href="http://winscp.net/" class="external free" title="http://winscp.net" rel="nofollow">http://winscp.net</a>).
+</p>
+</body></html>

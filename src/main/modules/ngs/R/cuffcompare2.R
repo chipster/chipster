@@ -7,52 +7,33 @@
 # OUTPUT OPTIONAL cuffcmp.loci.tsv
 # OUTPUT OPTIONAL cuffcmp.stats.txt
 # OUTPUT OPTIONAL cuffcmp.tracking.tsv
-# PARAMETER chr: "Chromosome names in my GTF files look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (If you are using the reference annotations provided in Chipster, check your GTF files and choose accordingly. This option is not used if you use your own reference GTF.)
-# PARAMETER OPTIONAL internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Schizosaccharomyces_pombe.ASM294v2.22: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
+# PARAMETER chr: "Chromosome names in my GTF files look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (If you are using the reference annotations provided in Chipster, check your GTF files and choose accordingly. This option is not used if you use your own reference GTF.)
+# PARAMETER OPTIONAL organism: "Annotation GTF" TYPE [Homo_sapiens.GRCh37.75.gtf: "Human (hg19\)", Mus_musculus.GRCm38.75.gtf: "Mouse (mm10\)", Rattus_norvegicus.Rnor_5.0.75.gtf: "Rat (rn5\)", Schizosaccharomyces_pombe.ASM294v2.22.gtf: "Schizosaccharomyces pombe (ASM294v2.22\)"] DEFAULT Homo_sapiens.GRCh37.75.gtf (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL r: "Ignore non-overlapping reference transcripts" TYPE [yes, no] DEFAULT no (Ignore reference transcripts that are not overlapped by any transcript in any of the GTF files. Useful for ignoring annotated transcripts that are not present in your RNA-seq samples and thus adjusting the sensitivity calculation in the accuracy report.)
 
 # AMS 24.2.2014
+# AMS 2014.06.18 Changed the handling of GTF files
 
 # binary
 cuffcompare.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffcompare"))
 
+
 cuffcompare.options <- ""
 
 if (file.exists("reference.gtf")){
+	# If user has provided a GTF, we use it
 	annotation.file <- "reference.gtf"
 }else{
-	if (internalgtf == "hg19") {
-		if (chr == 1){
-			annotation.file <- "Homo_sapiens.GRCh37.68.gtf"
-		}else {
-			annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
-		}		
+	# If not, we use the internal one.
+	internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
+	# If chromosome names in BAM have chr, we make a temporary copy of gtf with chr names, otherwise we use it as is.
+	if(chr == "chr1"){
+		source(file.path(chipster.common.path, "gtf-utils.R"))
+		addChrToGtf(internal.gtf, "internal_chr.gtf") 
+		annotation.file <- paste("internal_chr.gtf")
+	}else{
+		annotation.file <- paste(internal.gtf)
 	}
-	if (internalgtf == "mm9") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.NCBIM37.62.gtf"
-		}else {
-			annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
-		}
-	}
-	if (internalgtf == "mm10") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.GRCm38.68.gtf"
-		}else{
-			annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
-		}
-	}
-	if (internalgtf == "rn4") {
-		if (chr == 1){
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.gtf"
-		}else{
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
-		}
-	}
-	if (internalgtf =="Schizosaccharomyces_pombe.ASM294v2.22"){
-		annotation.file <- "Schizosaccharomyces_pombe.ASM294v2.22.gtf"
-	}
-	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
 }	
 cuffcompare.options <-paste(cuffcompare.options, "-r", annotation.file)
 

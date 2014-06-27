@@ -3,12 +3,12 @@
 <head><title></title></head>
 <body>
 
-<h2>Utilities / Slop BED</h2>
+<h2>Matching sets of genomic regions / Increase regions in BED</h2>
 
 <h3>Description</h3>
 
 <p>
-Add requested base pairs of "slop" to each feature.
+Add requested base pairs to increase each feature.
 </p>
 
 <h3>Parameters</h3>
@@ -25,7 +25,8 @@ Add requested base pairs of "slop" to each feature.
 <h3>Details</h3>
 
 <p>
-slopBed will increase the size of each feature in a feature file be a user-defined number of bases. SlopBed will restrict the resizing to the size of the chromosome (i.e. no start < 0 and no end > chromosome size).
+This tool increases the size of each feature in a feature file be a user-defined number of bases. 
+It restricts the resizing to the size of the chromosome (i.e. no start < 0 and no end > chromosome size).
 </p>
 
 <h3>Output</h3>
@@ -36,7 +37,7 @@ The output is a BED file.
 
 <h3>References</h3>
 
-<p>This tool uses the BEDTools package. Please cite the article:</p>
+<p>This tool uses the slopBed function of the BEDTools package. Please cite the article:</p>
 
 <p>Quinlan AR and Hall IM, 2010. <a href="http://bioinformatics.oxfordjournals.org/content/26/6/841.abstract?sid=62330781-9bde-4e76-8f13-b5e323cf8034">BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842.</a> </p>
 
