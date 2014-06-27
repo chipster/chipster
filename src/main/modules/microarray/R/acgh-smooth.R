@@ -4,7 +4,7 @@
 # OUTPUT smoothed.tsv: smoothed.tsv 
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-23
+# 2014-06-27
 
 source(file.path(chipster.common.path, "library-Chipster.R"))
 source(file.path(chipster.common.path, "library-CGHcall.R"))
@@ -12,13 +12,13 @@ library(NoWaves)
 
 # load tumor data and preprocess to deal with missing values
 input1 <- readData("normalized_tumor.tsv")
-cgh <- toCgh(input1)
+cgh <- toCgh(input1, level="copynumber")
 cgh <- preprocess(cgh, nchrom=23)
 cgh <- data.frame(Probe=rownames(fData(cgh)), fData(cgh), copynumber(cgh), stringsAsFactors=FALSE)
 
 # load calibration data and preprocess to deal with missing values
 input2 <- readData("normalized_calib.tsv")
-calib <- toCgh(input2)
+calib <- toCgh(input2, level="copynumber")
 calib <- preprocess(calib, nchrom=23)
 calib <- data.frame(Probe=rownames(fData(calib)), fData(calib), copynumber(calib), stringsAsFactors=FALSE)
 

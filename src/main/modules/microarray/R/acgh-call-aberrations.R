@@ -8,14 +8,14 @@
 # PARAMETER column: cellularity TYPE METACOLUMN_SEL DEFAULT EMPTY (If available, phenodata column containing the cellularities (tumor cell percentages\) of the samples. If there are values larger than 1, they are assumed to be percentages and are divided by 100. Missing values are replaced by the mean value.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-23
+# 2014-06-27
 
 source(file.path(chipster.common.path, "library-Chipster.R"))
 source(file.path(chipster.common.path, "library-CGHcall.R"))
 
 input <- readData("segmented.tsv")
 phenodata <- readPhenodata("phenodata.tsv")
-cgh <- toCgh(input)
+cgh <- toCgh(input, level="segmented")
 
 organism <- "human"
 if (genome.build == "other")

@@ -7,13 +7,16 @@
 # PARAMETER reNormalize: "re-normalize" TYPE [TRUE: yes, FALSE: no] DEFAULT TRUE (Whether to perform an additional normalization step, which recursively searches for the interval containing the most segmented data, decreasing the interval length in each recursion. The recursive search makes the post-segmentation normalization robust against local maxima. This function is particularly useful for profiles for which, after segmentation, the 0-level does not coincide with many segments. It is more or less harmless to other profiles.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-23
+# 2014-06-27
 
 source(file.path(chipster.common.path, 'library-Chipster.R'))
 source(file.path(chipster.common.path, 'library-CGHcall.R'))
 
 input <- readData("normalized.tsv")
-cgh <- toCgh(input)
+cgh <- toCgh(input, level="copynumber")
+
+if (any(is.na(copynumber(cgh))))
+  stop("CHIPSTER-NOTE: Data contains missing values. Please first run the tool Normalize copy number data.")
 
 cgh <- segmentData(cgh, alpha=significance.level, min.width=as.integer(minimum.number.of.probes.per.segment), undo.SD=minimum.number.of.sds.between.segments)
 
