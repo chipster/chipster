@@ -253,6 +253,7 @@ genomes_path=${tools_path}/genomes
 index_path=${genomes_path}/indexes
 tmp_path=${tools_path}/tmp/${species}_$$ # process id
 
+# these will fail occasionally when this script is run in parallel
 if [[ ! -e ${genomes_path} ]]
 then
   mkdir ${genomes_path}
@@ -271,6 +272,8 @@ else
   mkdir --parents ${tmp_path}
 fi
 
+# exit if there is an error
+set -e
 
 export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/:$tools_path/bowtie2/
 echo $PATH
@@ -383,7 +386,7 @@ fi
 ###
 #  get the mysql files
 ###
-
+echo "downloading mysql files"
 if [[ $ensembl -eq 1 ]]
 then
 
@@ -442,11 +445,14 @@ mv ${genome_name}.DEXSeq.gtf 		${genomes_path}/gtf/
 ln -s ../../../fasta/$genome_fasta 	$gb_path/$genome_fasta
 ln -s ../../../fasta/$genome_fasta.fai 	$gb_path/$genome_fasta.fai
 
+# we don't have mysql data for all genomes
+set +e
 mv cytoband-chr.txt			$gb_path/
 mv genome.yaml				$gb_path/
 mv repeat-tabix.bed.gz			$gb_path/
 mv repeat-tabix.bed.gz.tbi		$gb_path/
 mv ${genome_name}.gene.tsv 		$gb_path/
+set -e
 mv ${genome_name}.tabix.gtf.gz 		$gb_path/
 mv ${genome_name}.tabix.gtf.gz.tbi	$gb_path/
 
@@ -484,7 +490,7 @@ then
   cd $index_path/bwa
   ln -s ../../fasta/$genome_fasta $genome_name.fa
 
-  $tools_path/bwa/bwa index -p $genome_name  $genome_name.fa >> $tmp_path/log
+  { time $tools_path/bwa/bwa index -p $genome_name  $genome_name.fa ; } &> $tmp_path/bwa.log &
 
 else
   echo "Skipping BWA indexing"
@@ -503,25 +509,10 @@ then
   echo "Calculating Bowtie indexes for $genome_fasta"
   cd $index_path/bowtie
   ln -s ../../fasta/$genome_fasta $genome_name.fa
-  $tools_path/bowtie/bowtie-build $genome_name.fa $genome_name >> $tmp_path/log
-
-  #check bowtie indexes
-  n_genome=$(grep -c "^>" $genome_name.fa)
-  n_index=$($tools_path/bowtie/bowtie-inspect -n $genome_name | wc -l)
-
-  if [[ $n_genome -ne $n_index ]]
-  then
-     echo "ERROR: Bowtie indexing of genome $genome_name failed"
-     exit 1
-  else
-    echo Bowtie index of genome $genome_name OK
-  fi
+  { time $tools_path/bowtie/bowtie-build $genome_name.fa $genome_name ; } &> $tmp_path/bowtie.log &
 else
     echo "Skipping Bowtie indexing"
 fi
-
-
-
 
 #make bowtie2_indexes
 if [[ $INDEX_BOWTIE2 -eq 1 ]]
@@ -531,16 +522,41 @@ then
     mkdir ${index_path}/bowtie2
   fi
 
-
   echo "-------------------------------------------------------"
   echo "Calculating Bowtie2 indexes for $genome_fasta"
 
   cd $index_path/bowtie2
   ln -s ../../fasta/$genome_fasta $index_path/bowtie2/$genome_name.fa
   
-  $tools_path/bowtie2/bowtie2-build $genome_name.fa $genome_name >> $tmp_path/log
+  { time $tools_path/bowtie2/bowtie2-build $genome_name.fa $genome_name ; } &> $tmp_path/bowtie2.log &
+
+else
+    echo "Skipping Bowtie2 indexing"
+fi
+
+# wait for all background tasks to complete (bwa, bowtie and bowtie2 indexing)
+wait
+
+  #check bowtie indexes
+if [[ $INDEX_BOWTIE -eq 1 ]]
+then
+  cd $index_path/bowtie
+  n_genome=$(grep -c "^>" $genome_name.fa)
+  n_index=$($tools_path/bowtie/bowtie-inspect -n $genome_name | wc -l)
+
+  if [[ $n_genome -ne $n_index ]]
+  then
+     echo "ERROR: Bowtie indexing of genome $genome_name failed"
+     exit 1
+  else
+    echo "Bowtie index of genome $genome_name OK"
+  fi
+fi
 
   #check bowtie2 indexes
+if [[ $INDEX_BOWTIE2 -eq 1 ]]
+then
+  cd $index_path/bowtie2
   n_genome=$(grep -c "^>" $genome_name.fa)
   n_index=$($tools_path/bowtie2/bowtie2-inspect -n $genome_name | wc -l)
 
@@ -550,6 +566,7 @@ then
      exit 1
   else
     echo "Bowtie2 index of genome $genome_name OK"
+
     if [[ $INDEX_TOPHAT2 -eq 1 ]]
     then
        if [[ ! -e ${index_path}/tophat2 ]]
@@ -561,14 +578,13 @@ then
        
        echo "Building TopHat2 transcriptome index using $genome_gtf"		
 
-       $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name >> $tmp_path/log
+       { time $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name ; } &> $tmp_path/tophat2.log
 
 	rm -rf $index_path/bowtie2/tophat_out
     fi
   fi
-else
-    echo "Skipping Bowtie2 indexing"
 fi
+
 cd $genomes_path
 find $gb_path/* 			>  $tmp_path/$genome_name.gb.files
 find $genomes_path/fasta/$genome_name* 	>> $tmp_path/$genome_name.fa.files
@@ -582,4 +598,5 @@ echo ""
 echo "---------------------------------------------------------------"
 
 day=$(date)
-echo $taxid $species $genome_fasta $version $size $day $checksum >> $genomes_path/genome_list
+echo "$taxid $species $genome_fasta $version $size $day $checksum" >> $genomes_path/genome_list
+

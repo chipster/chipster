@@ -16,6 +16,20 @@ else
 	echo "$FILE doesn't exist"
 fi
 
+FILE=./genomebrowser/Bos_taurus/UMD3.1.75/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Cow" >> $FILE
+	echo "version: (UMD3.1.75)" >> $FILE
+	echo "ensemblBrowserUrl: http://www.ensembl.org/Bos_taurus/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Cow&db=bosTau6&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: other" >> $FILE
+else
+	echo "$FILE doesn't exist"
+fi
+
 FILE=./genomebrowser/Canis_familiaris/CanFam3.1.75/genome.yaml
 if [ -e $FILE ] 
 then
@@ -67,6 +81,20 @@ then
 	echo "version: (BROADS1.75)" >> $FILE
 	echo "ensemblBrowserUrl: http://www.ensembl.org/Gasterosteus_aculeatus/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
 	echo "ucscBrowserUrl: https://genome.ucsc.edu/cgi-bin/hgTracks?db=gasAcu1&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: other" >> $FILE
+else
+	echo "$FILE doesn't exist"
+fi
+
+FILE=./genomebrowser/Halorubrum_lacusprofundi_ATCC_49239/GCA_000022205.1.22/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Halorubrum_lacusprofundi_ATCC_49239" >> $FILE
+	echo "version: (GCA_000022205.1.22)" >> $FILE
+	echo "ensemblBrowserUrl: http://bacteria.ensembl.org/halorubrum_lacusprofundi_atcc_49239/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: " >> $FILE
 	echo "sortId: other" >> $FILE
 else
 	echo "$FILE doesn't exist"
@@ -181,12 +209,6 @@ rm genomes.tmp processed-genomes.tmp all-genomes.tmp
 
 exit 0
 
-./Bos_taurus/UMD3.1.70/genome-v1.yaml
-species: Cow
-version: (UMD3.1.70)
-ensemblBrowserUrl: http://www.ensembl.org/Bos_taurus/Location/View?r=[CHR]%3A[START]-[END]
-ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Cow&db=bosTau6&position=chr[CHR]%3A[START]-[END]
-sortId: other
 
 ./Canis_familiaris/BROADD2.67/genome_v1.yaml
 species: Dog
