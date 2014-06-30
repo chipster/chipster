@@ -68,13 +68,19 @@ public class RestServlet extends DefaultServlet {
 	
 	private boolean isValidRequest(HttpServletRequest request) {
 
-		// must not be directory
+		// welcome page can be shown
+		if (isWelcomePage(request)) {
+			return true;
+		}
+
+		// any other directory not valid
 		File file = locateFile(request);
 		if (file.isDirectory()) {
 			return false;
 		}
 
-		if (isWelcomePage(request) || isUserDataRequest(request) || isPublicDataRequest(request) ) {
+		// is it a valid file request
+		if (isUserDataRequest(request) || isPublicDataRequest(request)) {
 			return true;
 		}
 		

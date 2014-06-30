@@ -96,7 +96,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
-    		
 
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");

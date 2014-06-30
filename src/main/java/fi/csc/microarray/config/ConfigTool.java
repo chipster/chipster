@@ -528,7 +528,7 @@ public class ConfigTool {
 	}
 
 	private String createFilebrokerUrl() {
-		return configs[FILEBROKER_PORT_PROTOCOL][VAL_INDEX] + "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX];
+		return configs[FILEBROKER_PORT_PROTOCOL][VAL_INDEX] + "://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX];
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {

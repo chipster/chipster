@@ -31,8 +31,8 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MessagingTopic.Type;
 import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -119,9 +119,9 @@ public class MessagingEndpoint implements MessagingListener {
 		// setup keystore if needed
 		if ("ssl".equals(configuration.getString("messaging", "broker-protocol"))) {
 			try {
-				KeyAndTrustManager.initialise(
+				KeyAndTrustManager.initialiseSystem(
 						configuration.getString("security", "keystore"),
-						configuration.getString("security", "keypass").toCharArray(), 
+						configuration.getString("security", "keypass"), 
 						configuration.getString("security", "keyalias"), 
 						configuration.getString("security", "master-keystore"));
 			} catch (Exception e) {
