@@ -253,6 +253,7 @@ genomes_path=${tools_path}/genomes
 index_path=${genomes_path}/indexes
 tmp_path=${tools_path}/tmp/${species}_$$ # process id
 
+# these will fail occasionally when this script is run in parallel
 if [[ ! -e ${genomes_path} ]]
 then
   mkdir ${genomes_path}
@@ -271,6 +272,8 @@ else
   mkdir --parents ${tmp_path}
 fi
 
+# exit if there is an error
+set -e
 
 export PATH=${PATH}:$comp_path/modules/admin/shell/:$tools_path/emboss/bin/:$tools_path/samtools/:$tools_path/tabix/:$tools_path/bowtie2/
 echo $PATH
@@ -487,7 +490,7 @@ then
   cd $index_path/bwa
   ln -s ../../fasta/$genome_fasta $genome_name.fa
 
-  $tools_path/bwa/bwa index -p $genome_name  $genome_name.fa >> $tmp_path/log &
+  { time $tools_path/bwa/bwa index -p $genome_name  $genome_name.fa ; } &> $tmp_path/bwa.log &
 
 else
   echo "Skipping BWA indexing"
@@ -506,7 +509,7 @@ then
   echo "Calculating Bowtie indexes for $genome_fasta"
   cd $index_path/bowtie
   ln -s ../../fasta/$genome_fasta $genome_name.fa
-  $tools_path/bowtie/bowtie-build $genome_name.fa $genome_name >> $tmp_path/log &
+  { time $tools_path/bowtie/bowtie-build $genome_name.fa $genome_name ; } &> $tmp_path/bowtie.log &
 else
     echo "Skipping Bowtie indexing"
 fi
@@ -525,7 +528,7 @@ then
   cd $index_path/bowtie2
   ln -s ../../fasta/$genome_fasta $index_path/bowtie2/$genome_name.fa
   
-  $tools_path/bowtie2/bowtie2-build $genome_name.fa $genome_name >> $tmp_path/log &
+  { time $tools_path/bowtie2/bowtie2-build $genome_name.fa $genome_name ; } &> $tmp_path/bowtie2.log &
 
 else
     echo "Skipping Bowtie2 indexing"
@@ -575,7 +578,7 @@ then
        
        echo "Building TopHat2 transcriptome index using $genome_gtf"		
 
-       $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name >> $tmp_path/log
+       { time $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name ; } &> $tmp_path/tophat2.log
 
 	rm -rf $index_path/bowtie2/tophat_out
     fi
