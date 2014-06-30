@@ -111,5 +111,18 @@ install_dep() {
 
 export -f install_dep
 
+# Function to create flag-directories
+create_flag_dirs() {
+	cd installation_files/
+	mkdir -p flags/external_genomes
+	mkdir -p flags/external_indexes
+	mkdir -p flags/external_tools
+	mkdir -p flags/finish
+	mkdir -p flags/R
+	mkdir -p flags/start
+	cd ..
+}
+
+export -f create_flag_dirs
 
 	
