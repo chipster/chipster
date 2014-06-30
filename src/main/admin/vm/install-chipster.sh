@@ -26,6 +26,9 @@ mkdir -p ${TMPDIR_PATH}/
 rm -rf modules/inst_files/
 mkdir modules/inst_files/
 
+## Create flag-directories
+create_flag_dirs
+
 
 ## If parallel is ON, install GNU parallel
 if [ $parallel == "1" ]; then
