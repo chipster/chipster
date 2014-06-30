@@ -86,6 +86,20 @@ else
 	echo "$FILE doesn't exist"
 fi
 
+FILE=./genomebrowser/Halorubrum_lacusprofundi_ATCC_49239/GCA_000022205.1.22/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Halorubrum_lacusprofundi_ATCC_49239" >> $FILE
+	echo "version: (GCA_000022205.1.22)" >> $FILE
+	echo "ensemblBrowserUrl: http://bacteria.ensembl.org/halorubrum_lacusprofundi_atcc_49239/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: " >> $FILE
+	echo "sortId: other" >> $FILE
+else
+	echo "$FILE doesn't exist"
+fi
+
 FILE=./genomebrowser/Homo_sapiens/GRCh37.75/genome.yaml
 if [ -e $FILE ] 
 then

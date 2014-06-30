@@ -22,9 +22,9 @@ time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/ch
 wait
 
 # this script will tell you if you need to update genome.yaml files, so check its output
-add_gb_links.sh
+./add_gb_links.sh
 
 # package everything
-package_genomes.sh
+./package_genomes.sh
 
 # copy to nic
