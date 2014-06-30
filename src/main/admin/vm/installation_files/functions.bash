@@ -125,4 +125,13 @@ create_flag_dirs() {
 
 export -f create_flag_dirs
 
+read_dirs() {
+	while read line; do
+		foldiers+=( $line )
+	done < $1
+	export foldiers
+}
+
+export -f read_dirs
+
 	

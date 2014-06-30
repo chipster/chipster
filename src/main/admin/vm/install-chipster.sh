@@ -4,7 +4,7 @@
 # This script will install Chipster 3, w/ dependencies
 #
 # Notice! This script needs super-user rights!!
-# e.g. sudo bash install-chipster.sh 2>&1
+# e.g. sudo bash install-chipster.sh
 #
 
 
@@ -29,20 +29,21 @@ mkdir modules/inst_files/
 ## Create flag-directories
 create_flag_dirs
 
+## Load module directories to array
+read_dirs foldiers.bash
+
 
 ## If parallel is ON, install GNU parallel
-if [ $parallel == "1" ]; then
+if [ "$parallel" == "1" ]; then
 	bash installation_files/install_parallel.bash 2>&1 | tee $logfile
 fi
 
 
 echo "Starting to generate installation files"
-source installation_files/generate_installation_file.bash start/ inst_files/start.bash
-source installation_files/generate_installation_file.bash external_genomes/ inst_files/gnomes.bash
-source installation_files/generate_installation_file.bash external_indexes/ inst_files/indx.bash
-source installation_files/generate_installation_file.bash external_tools/ inst_files/tools.bash
-source installation_files/generate_installation_file.bash R/ inst_files/R.bash
-source installation_files/generate_installation_file.bash finish/ inst_files/finish.bash
+
+for i in "${foldiers[@]}"; do
+	source installation_files/generate_installation_file.bash $i/ inst_files/$i.bash
+done
 
 echo "Installation files rdy, proceed to installation"
 
@@ -63,35 +64,17 @@ set -u
 cd modules/
 
 
-# Install start modules
-install_file inst_files/start.bash 2>&1 | tee $logfile
+# Install modules
 
+for i in "${foldiers[@]}"; do
+	
+	# Wait for R
+	if [ "$i" == "finish" ]; then
+		wait
+	fi
+	install_file inst_files/$i.bash 2>&1 | tee $logfile
+done
 
-#Install R with libraries
-install_file inst_files/R.bash 2>&1 | tee $logfile
-
-
-#install tools
-install_file inst_files/tools.bash 2>&1 | tee $logfile
-
-
-#Make symbolic links
-bash ../installation_files/sym_link_to_admin_scripts.bash 2>&1 | tee $logfile
-
-
-#External genomes
-install_file inst_files/gnomes.bash 2>&1 | tee $logfile
-
-
-#External indeces
-install_file inst_files/indxs.bash 2>&1 | tee $logfile
-
-
-#Wait for R libs -installation
-wait
-
-#Finish installation
-install_file inst_files/finish.bash 2>&1 | tee $logfile
 
 # Return to installation directory
 cd ..

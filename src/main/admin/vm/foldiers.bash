@@ -1,0 +1,6 @@
+start
+R
+external_tools
+external_genomes
+external_indexes
+finish
