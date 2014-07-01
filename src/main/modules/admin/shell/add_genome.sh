@@ -168,6 +168,11 @@ do
                 shift
                 shift
               ;;
+              '-genomes_path')
+              genomes_path="$2"
+                shift
+                shift
+              ;;
               #
               '-species')
                 species="$2"
@@ -249,7 +254,10 @@ species=$(echo $species | sed s/" "/"_"/g )
 
 tools_path=${chipster_path}/tools
 comp_path=${chipster_path}/comp
-genomes_path=${tools_path}/genomes
+if [[ -z "$genomes_path" ]]
+then
+  genomes_path=${tools_path}/genomes
+fi
 index_path=${genomes_path}/indexes
 tmp_path=${tools_path}/tmp/${species}_$$ # process id
 
@@ -463,18 +471,18 @@ mv ${genome_name}.tabix.gtf.gz.tbi	$gb_path/
 #Check if the aligner indexes have been already created
 ##
 
-size=$(ls -l $genomes_path/fasta/$genome_fasta | awk '{print $5}')
-checksum=$(md5sum $genomes_path/fasta/$genome_fasta | awk '{print $1}')
+#size=$(ls -l $genomes_path/fasta/$genome_fasta | awk '{print $5}')
+#checksum=$(md5sum $genomes_path/fasta/$genome_fasta | awk '{print $1}')
 
 #look for matching size and md5sum
 
-genome_check=$(grep -h $size $tools_path/genomes/genome_list | grep $checksum | awk '{print $1}' | tail -1)
+#genome_check=$(grep -h $size $tools_path/genomes/genome_list | grep $checksum | awk '{print $1}' | tail -1)
 
 
-if [ ! $genome_check == "" ]; then
-  echo "File $genome_fasta has alredy been indexed"
-  exit 0
-fi
+#if [ ! $genome_check == "" ]; then
+#  echo "File $genome_fasta has alredy been indexed"
+#  exit 0
+#fi
 
 #make bwa_indexes
 if [[ $INDEX_BWA -eq 1 ]]
@@ -579,8 +587,12 @@ then
        echo "Building TopHat2 transcriptome index using $genome_gtf"		
 
        { time $tools_path/tophat2/tophat -G  $genomes_path/gtf/$genome_gtf --transcriptome-index $index_path/tophat2/$genome_name $index_path/bowtie2/$genome_name ; } &> $tmp_path/tophat2.log
-
+	
+	set +e
+	# no idea why first attempt sometimes fails
 	rm -rf $index_path/bowtie2/tophat_out
+	rm -rf $index_path/bowtie2/tophat_out
+	set -e
     fi
   fi
 fi
@@ -596,7 +608,4 @@ find $index_path/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
 
 echo ""
 echo "---------------------------------------------------------------"
-
-day=$(date)
-echo "$taxid $species $genome_fasta $version $size $day $checksum" >> $genomes_path/genome_list
 
