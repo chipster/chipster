@@ -6,13 +6,13 @@
 # PARAMETER number.of.chromosomes: number.of.chromosomes TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2013-03-23
+# 2013-06-27
 
 source(file.path(chipster.common.path, 'library-Chipster.R'))
 source(file.path(chipster.common.path, 'library-CGHcall.R'))
 
 input <- readData("raw.tsv")
-cgh <- toCgh(input)
+cgh <- toCgh(input, level="copynumber")
 
 cgh <- preprocess(cgh, nchrom=number.of.chromosomes)
 cgh <- normalize(cgh, method=method, smoothOutliers=as.logical(smoothOutliers))
