@@ -83,8 +83,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		this.publicPath = configuration.getString("filebroker", "public-data-path");
 
     		// boot up file server
+    		URL hostURL = new URL(this.host);
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
-    		fileServer.start(fileRepository.getPath(), port);
+    		fileServer.start(fileRepository.getPath(), port, hostURL.getProtocol());
 
     		// cache clean up setup
     		String userDataPath = configuration.getString("filebroker", "user-data-path");
@@ -95,7 +96,6 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		cleanUpTargetPercentage = configuration.getInt("filebroker", "clean-up-target-percentage");
     		cleanUpMinimumFileAge = configuration.getInt("filebroker", "clean-up-minimum-file-age");
     		minimumSpaceForAcceptUpload = 1024*1024*configuration.getInt("filebroker", "minimum-space-for-accept-upload");
-    		
 
     		// disable periodic clean up for now
 //    		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");

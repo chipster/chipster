@@ -15,11 +15,25 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 import javax.jms.JMSException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 public class UrlTransferUtil {
 
 	private static final int CHUNK_SIZE = 2048;
-
+	
+	static {
+		
+		// Accept all hostnames (do not try to match certificate hostname (CN) to observed hostname)
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			@Override
+			public boolean verify(String hostname, SSLSession session) {
+				return true; 
+			}
+		});
+	}
+	
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
 		return url.openStream();		
 	}
