@@ -101,13 +101,13 @@ if(ad_factor == "EMPTY") {
 # Adjust p-values
 results_table$padj <- p.adjust(results_table$pval, method=p.value.adjustment.method)
 
-# merge with original data table and keep significant DEGs
+# Merge with original data table and keep significant DEGs
 significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
 
-# remove rows where adjusted p-value is NA
+# Remove rows where adjusted p-value is NA
 significant_table <- significant_table[! (is.na(significant_table$padj)), ]
 
-# order by p-value
+# Order by p-value
 significant_table <- significant_table[ order(significant_table$padj), ] 
 
 # Output significant DEGs
