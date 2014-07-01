@@ -36,6 +36,9 @@ export TMPDIR_PATH=$TMPDIR/install
 export USERNAME=chipster
 export GROUPNAME=chipster
 
+export UBUNTU_UID=1000
+export UBUNTU_GID=1000
+
 # nic.funet.fi service endpoint
 export NIC_MIRROR=bio.nic.funet.fi
 #NIC_MIRROR=www.nic.funet.fi
