@@ -1,3 +1,7 @@
+/*
+ * Created on Jan 20, 2005
+ *
+ */
 package fi.csc.microarray.messaging;
 
 import javax.jms.JMSException;

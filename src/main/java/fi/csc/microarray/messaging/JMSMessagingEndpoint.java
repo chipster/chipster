@@ -116,9 +116,9 @@ public class JMSMessagingEndpoint implements MessagingEndpoint, MessagingListene
 		// setup keystore if needed
 		if ("ssl".equals(configuration.getString("messaging", "broker-protocol"))) {
 			try {
-				KeyAndTrustManager.initialise(
+				KeyAndTrustManager.initialiseSystem(
 						configuration.getString("security", "keystore"),
-						configuration.getString("security", "keypass").toCharArray(), 
+						configuration.getString("security", "keypass"), 
 						configuration.getString("security", "keyalias"), 
 						configuration.getString("security", "master-keystore"));
 			} catch (Exception e) {

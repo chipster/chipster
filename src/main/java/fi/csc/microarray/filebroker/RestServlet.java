@@ -94,7 +94,6 @@ public class RestServlet extends DefaultServlet {
 	
 	private boolean isValidRequest(HttpServletRequest request) {
 
-		
 		// allow welcome page
 		if (isWelcomePage(request)) {
 			return true;

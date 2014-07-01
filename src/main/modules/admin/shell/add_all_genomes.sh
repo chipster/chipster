@@ -1,22 +1,28 @@
 #!/bin/bash
 
+add_genome () # parameters 1:genome
+{
+	echo "started $1: 	Writing output to /opt/chipster/tools/tmp/$1.log"
+	{ time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster $1 -karyotype ; echo "done $1" ; } &> /opt/chipster/tools/tmp/$1.log &
+}
+
 # sudo su - chipster
 
 # run in parallel, takes about 10 hours
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Arabidopsis_thaliana -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Bos_taurus -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Canis_familiaris -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Drosophila_melanogaster -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Gallus_gallus -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Gasterosteus_aculeatus -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Halorubrum_lacusprofundi_ATCC_49239 -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Homo_sapiens -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Mus_musculus -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Ovis_aries -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Rattus_norvegicus -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Schizosaccharomyces_pombe -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Sus_scrofa -karyotype &
-time /opt/chipster/comp/modules/admin/shell/add_genome.sh -chipster_path /opt/chipster Vitis_vinifera -karyotype &
+add_genome Arabidopsis_thaliana
+#add_genome Bos_taurus -karyotype
+add_genome Canis_familiaris
+#add_genome Drosophila_melanogaster
+#add_genome Gallus_gallus
+#add_genome Gasterosteus_aculeatus
+#add_genome Halorubrum_lacusprofundi_ATCC_49239
+#add_genome Homo_sapiens
+#add_genome Mus_musculus
+add_genome Ovis_aries
+add_genome Rattus_norvegicus
+#add_genome Schizosaccharomyces_pombe
+add_genome Sus_scrofa
+#add_genome Vitis_vinifera
 
 # wait all background tasks to finish
 wait

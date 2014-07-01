@@ -132,13 +132,14 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
     		}
     		
     		// boot up file server    		
+    		URL hostURL = new URL(this.host);
     		JettyFileServer jettyFileServer;
     		if (externalFileServer != null) {
     			jettyFileServer = externalFileServer;
     		} else {
         		jettyFileServer = new JettyFileServer(urlRepository, metadataServer);    			
     		}
-    		jettyFileServer.start(fileRepository.getPath(), port);
+    		jettyFileServer.start(fileRepository.getPath(), port, hostURL.getProtocol());
 
     		// cache clean up setup
     		cacheRoot = new File(fileRepository, CACHE_PATH);
