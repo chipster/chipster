@@ -153,6 +153,7 @@ gtf=0
 text=0
 length=0
 karyotype=0
+clean=0
 version="0.0"
 location=$(pwd)
 INDEX_BWA=1
@@ -213,6 +214,10 @@ do
                 karyotype=1
                 shift
               ;;
+              '-clean')
+              clean=1
+                shift
+              ;;
               '-only_bwa')
                 INDEX_BOWTIE=0
                 INDEX_BOWTIE2=0
@@ -259,17 +264,22 @@ then
   genomes_path=${tools_path}/genomes
 fi
 index_path=${genomes_path}/indexes
-tmp_path=${tools_path}/tmp/${species}_$$ # process id
+tmp_path=${genomes_path}/tmp/${species}_$$ # process id
+
+if [[ $clean -eq 1 ]]
+then
+  rm -rf ${genomes_path}/tmp/${species}_* $genomes_path/fasta/$species* $genomes_path/gtf/$species* $index_path/bowtie/$species* $index_path/bowtie2/$species* $index_path/bwa/$species* $index_path/tophat2/$species*
+fi
 
 # these will fail occasionally when this script is run in parallel
 if [[ ! -e ${genomes_path} ]]
 then
-  mkdir ${genomes_path}
+  mkdir --parents ${genomes_path}
 fi
 
 if [[ ! -e ${index_path} ]]
 then
-  mkdir ${index_path}
+  mkdir --parents ${index_path}
 fi
 
 if [[ -e ${tmp_path} ]]
@@ -328,6 +338,7 @@ then
   echo "$genome_fasta Downloaded"
 
   echo "Creating fasta index..."
+
   #Calculate index file for the fasta file
   ${tools_path}/samtools/samtools faidx ${genome_fasta}
 
@@ -432,12 +443,12 @@ gb_path=$genomes_path/genomebrowser/$species/$version
 
 if [[ ! -e ${genomes_path}/fasta ]]
 then
-  mkdir ${genomes_path}/fasta
+  mkdir --parents ${genomes_path}/fasta
 fi
 
 if [[ ! -e ${genomes_path}/gtf ]]
 then
-   mkdir ${genomes_path}/gtf
+   mkdir --parents ${genomes_path}/gtf
 fi
 
 if [[ ! -e $gb_path ]]
@@ -445,10 +456,10 @@ then
   mkdir --parents $gb_path
 fi
 
-mv ${genome_fasta} 			${genomes_path}/fasta/
-mv ${genome_fasta}.fai 			${genomes_path}/fasta/
-mv ${genome_gtf} 			${genomes_path}/gtf/
-mv ${genome_name}.DEXSeq.gtf 		${genomes_path}/gtf/
+mv ${genome_fasta} ${genomes_path}/fasta/
+mv ${genome_fasta}.fai ${genomes_path}/fasta/
+mv ${genome_gtf} ${genomes_path}/gtf/
+mv ${genome_name}.DEXSeq.gtf ${genomes_path}/gtf/
 
 ln -s ../../../fasta/$genome_fasta 	$gb_path/$genome_fasta
 ln -s ../../../fasta/$genome_fasta.fai 	$gb_path/$genome_fasta.fai
@@ -598,13 +609,13 @@ then
 fi
 
 cd $genomes_path
-find $gb_path/* 			>  $tmp_path/$genome_name.gb.files
-find $genomes_path/fasta/$genome_name* 	>> $tmp_path/$genome_name.fa.files
-find $genomes_path/gtf/$genome_name* 	>> $tmp_path/$genome_name.gtf.files
-find $index_path/bowtie/$genome_name* 	>> $tmp_path/$genome_name.bowtie.files
-find $index_path/bowtie2/$genome_name* 	>> $tmp_path/$genome_name.bowtie2.files
-find $index_path/bwa/$genome_name* 	>> $tmp_path/$genome_name.bwa.files
-find $index_path/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
+find genomebrowser/$species/$version/* 	>  $tmp_path/$genome_name.gb.files
+find fasta/$genome_name* 		>> $tmp_path/$genome_name.fa.files
+find gtf/$genome_name* 			>> $tmp_path/$genome_name.gtf.files
+find indexes/bowtie/$genome_name* 	>> $tmp_path/$genome_name.bowtie.files
+find indexes/bowtie2/$genome_name* 	>> $tmp_path/$genome_name.bowtie2.files
+find indexes/bwa/$genome_name* 		>> $tmp_path/$genome_name.bwa.files
+find indexes/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
 
 echo ""
 echo "---------------------------------------------------------------"
