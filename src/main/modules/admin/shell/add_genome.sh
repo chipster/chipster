@@ -268,7 +268,7 @@ tmp_path=${genomes_path}/tmp/${species}_$$ # process id
 
 if [[ $clean -eq 1 ]]
 then
-  rm -rf ${genomes_path}/tmp/${species}_* $genomes_path/fasta/$species* $genomes_path/gtf/$species* $index_path/bowtie/$species* $index_path/bowtie2/$species* $index_path/bwa/$species* $index_path/tophat2/$species*
+  rm -rf ${genomes_path}/tmp/${species}_* $genomes_path/genomebrowser/$species $genomes_path/fasta/$species* $genomes_path/gtf/$species* $index_path/bowtie/$species* $index_path/bowtie2/$species* $index_path/bwa/$species* $index_path/tophat2/$species*
 fi
 
 # these will fail occasionally when this script is run in parallel
