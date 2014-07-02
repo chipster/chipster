@@ -7,7 +7,7 @@ public class MockJettyFileServer extends JettyFileServer {
 	}
 	
 	@Override
-	public void start(String resourceBase, int port) throws Exception {
+	public void start(String resourceBase, int port, String protocol) throws Exception {
 		// empty
 	}
 	

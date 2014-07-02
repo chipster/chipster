@@ -71,7 +71,7 @@ if (is_gtf) {
 # optional GTF command, if a GTF file has NOT been provided by user
 # BUT is avaliable from Chipster server
 genome_available <- FALSE
-if (genome == "hg19" ||	genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel" || genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel") genome_available <- TRUE
+if (genome == "hg19" ||	genome == "mm10" || genome == "rn4" || genome == "Rattus_norvegicus.Rnor_5.0.70.dna.toplevel" || genome == "Canis_familiaris.CanFam3.1.71.dna.toplevel" || genome == "Drosophila_melanogaster.BDGP5.73.dna.toplevel" || genome == "Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel") genome_available <- TRUE
 if (!is_gtf && genome_available) {
 
 	# annotation file setup

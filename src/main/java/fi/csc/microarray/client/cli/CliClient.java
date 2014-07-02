@@ -11,6 +11,7 @@ import javax.jms.JMSException;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
+import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -96,10 +97,8 @@ public class CliClient {
 	private static final String LIST_SESSIONS = "list-sessions";
 	private static final String DELETE_SESSION = "delete-session";
 	private static final String CLEAR_SESSION = "clear-session";
-	
-	
+		
 	private static final String DEFAULT_WORKING_COPY = "cli-working-copy.zip";
-	private static final String CHIPSTER_CONFIG_XML = "chipster-config-xml";
 	
 	// without headless mode OSX will show this process in the dock and grab the focus
     static {
@@ -148,14 +147,14 @@ public class CliClient {
 		 */
         parser = ArgumentParsers.newArgumentParser("Chipster command line client", true, "-", "@");
         
-        parser.addArgument("-c", "--" + CONFIG).dest(CHIPSTER_CONFIG_XML).help("configuration file of the chipster client");
-        parser.addArgument("-u", "--" + USERNAME).dest(USERNAME).help("chipster username");
-        parser.addArgument("-p", "--" + PASSWORD).dest(PASSWORD).help("chipster password");
-                
-        parser.addArgument("-v", "--" + VERBOSE).dest(VERBOSE).help("more verbose output").action(new StoreTrueArgumentAction());
-        parser.addArgument("-q", "--" + QUIET).dest(QUIET).help("uppress status messages and print only requested data").action(new StoreTrueArgumentAction());
-        parser.addArgument("-y", "--" + YAML).dest(YAML).help("output in yaml format for programmatical access").action(new StoreTrueArgumentAction());
-        parser.addArgument("-w", "--" + WORKING_COPY).dest(WORKING_COPY).help("name of the working copy session, either zip or cloud session").setDefault(DEFAULT_WORKING_COPY);        
+        addStringOption(parser, "-c", CONFIG,  "chipster client configuration file");
+        addStringOption(parser, "-u", USERNAME, "chipster username");
+        addStringOption(parser, "-p", PASSWORD, "chipster password");
+        addStringOption(parser, "-W", WORKING_COPY, "name of the working copy session, either zip or cloud session").setDefault(DEFAULT_WORKING_COPY);        
+        
+        addBooleanOption(parser, "-v", VERBOSE, "more verbose output");
+        addBooleanOption(parser, "-q", QUIET, "uppress status messages and print only requested data");
+        addBooleanOption(parser, "-y", YAML, "output in yaml format for programmatical access");                         
         
         Subparsers subparsers = parser.addSubparsers();
         subparsers.title("commands");
@@ -210,7 +209,7 @@ public class CliClient {
 		initClient();			
 		String workingCopy = openWorkingCopySession();
 			
-		if (nameSpace.getAttrs().containsKey(INTERACTIVE)) {
+		if (isCommand(INTERACTIVE)) {
 			
 			Scanner scanner = new Scanner(System.in);
 			
@@ -221,7 +220,7 @@ public class CliClient {
 					try {
 						parseArgs();
 						
-						if (nameSpace.getAttrs().containsKey(EXIT)) {
+						if (isCommand(EXIT)) {
 							break;
 						}
 						
@@ -245,6 +244,28 @@ public class CliClient {
 			execute();
 			saveWorkingCopySession(workingCopy);
 		}			
+	}
+	
+	private boolean isBooleanOption(String option) {
+		return nameSpace.getBoolean(option);
+	}
+	
+	private boolean isStringOption(String option) {
+		return nameSpace.getString(option) != null;
+	}
+	
+	private boolean isCommand(String cmd) {
+		return nameSpace.getAttrs().containsKey(cmd);
+	}
+
+	private Argument addBooleanOption(ArgumentParser parser, String shortOption, String longOption, String help) {
+		return addStringOption(parser, shortOption, longOption, help).action(new StoreTrueArgumentAction());
+	}
+
+	private Argument addStringOption(ArgumentParser parser, String shortOption,
+			String longOption, String help) {
+				
+		return parser.addArgument(shortOption, "--" + longOption).dest(longOption).help(help);
 	}
 
 	private Subparser addCommand(Subparsers subparsers, String command,
@@ -277,54 +298,54 @@ public class CliClient {
 
 	private void execute() throws JMSException, Exception {
 		
-		boolean yaml = nameSpace.getBoolean(YAML);
+		boolean yaml = isBooleanOption(YAML);
 				
-		if (nameSpace.getAttrs().containsKey(LIST)) {
+		if (isCommand(LIST)) {
 			listDatasets(yaml);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(LIST_SESSIONS)) {
+		if (isCommand(LIST_SESSIONS)) {
 			listSessions(yaml);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(DELETE_SESSION)) {
+		if (isCommand(DELETE_SESSION)) {
 			deleteSession(nameSpace.getString(DATASET));
 		}
 		
-		if (nameSpace.getAttrs().containsKey(VIEW)) {
+		if (isCommand(VIEW)) {
 			String dataset = nameSpace.getString(DATASET);
 			viewDataset(dataset, yaml);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(PRINT)) {
+		if (isCommand(PRINT)) {
 			String dataset = nameSpace.getString(DATASET);
 			printDataset(dataset);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(TOOLS)) {
+		if (isCommand(TOOLS)) {
 			tools(nameSpace.getString(SEARCH_TERM), yaml);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(TOOL)) {
+		if (isCommand(TOOL)) {
 			String tool = nameSpace.getString(TOOL_ID);			
 			tool(tool, yaml);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(EXPORT)) {
+		if (isCommand(EXPORT)) {
 			String dataset = nameSpace.getString(DATASET);
 			exportDataset(dataset);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(IMPORT)) {
+		if (isCommand(IMPORT)) {
 			String filename = nameSpace.getString(FILE);
 			importDataset(filename);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(RENAME)) {									
+		if (isCommand(RENAME)) {									
 			renameDataset(nameSpace.getString(OLD_NAME), nameSpace.getString(NEW_NAME));
 		}
 		
-		if (nameSpace.getAttrs().containsKey(RUN)) {
+		if (isCommand(RUN)) {
 			
 			String tool = nameSpace.getString(TOOL_ID);
 			List<String> datasets = nameSpace.<String> getList(DATASET);
@@ -333,58 +354,58 @@ public class CliClient {
 			run(tool, datasets, parameters);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(CLEAR_SESSION)) {
+		if (isCommand(CLEAR_SESSION)) {
 			clearSession();
 		}
 		
-		if (nameSpace.getAttrs().containsKey(SAVE_WORKFLOW)) {
+		if (isCommand(SAVE_WORKFLOW)) {
 			String data = nameSpace.getString(DATASET);
 			String file = nameSpace.getString(FILE);
 			saveWorkflow(data, file);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(RUN_WORKFLOW)) {
+		if (isCommand(RUN_WORKFLOW)) {
 			String data = nameSpace.getString(DATASET);
 			String file = nameSpace.getString(FILE);
 			runWorkflow(data, file);
 		}
 		
-		if (nameSpace.getAttrs().containsKey(DELETE)) {
+		if (isCommand(DELETE)) {
 			deleteDataset(nameSpace.getString(DATASET));
 		}
 			
-		if (nameSpace.getAttrs().containsKey(HISTORY)) {
+		if (isCommand(HISTORY)) {
 			String dataset = nameSpace.getString(DATASET);
 			historyOfDataset(dataset, yaml);			
 		}
 		
-		if (nameSpace.getAttrs().containsKey(OPEN_SESSION)) {
+		if (isCommand(OPEN_SESSION)) {
 			openSession(nameSpace.getString(SESSION));
 		}
 						
-		if (nameSpace.getAttrs().containsKey(SAVE_SESSION)) {
+		if (isCommand(SAVE_SESSION)) {
 			saveSession(nameSpace.getString(SESSION));
 		}
 	}
 	
 	private void initClient() throws UserErrorException, IOException,
 	IllegalConfigurationException, MicroarrayException {
-		if (!nameSpace.getAttrs().containsKey(CHIPSTER_CONFIG_XML)) {
+		if (!isStringOption(CONFIG)) {
 			throw new UserErrorException("config not set");
 		}
 
-		if (!nameSpace.getAttrs().containsKey(USERNAME)) {
+		if (!isStringOption(USERNAME)) {
 			throw new UserErrorException("username not set");
 		}
 
-		if (!nameSpace.getAttrs().containsKey(PASSWORD)) {
+		if (!isStringOption(PASSWORD)) {
 			throw new UserErrorException("password not set");
 		}
 
-		DirectoryLayout.initialiseClientLayout(nameSpace.getString(CHIPSTER_CONFIG_XML));
+		DirectoryLayout.initialiseClientLayout(nameSpace.getString(CONFIG));
 		
 		SimpleAuthenticationRequestListener auth = new SimpleAuthenticationRequestListener(nameSpace.getString(USERNAME), nameSpace.getString(PASSWORD));		
-		app = new CliClientApplication(auth, nameSpace.getAttrs().containsKey(VERBOSE), nameSpace.getAttrs().containsKey(QUIET));
+		app = new CliClientApplication(auth, isBooleanOption(VERBOSE), isBooleanOption(QUIET));
 
 		app.initialiseApplication(true);
 	}
@@ -496,7 +517,7 @@ public class CliClient {
 			System.err.println("yaml output format isn't impelemented for history");
 		}
 		
-		System.out.println(app.getHistoryText(bean, true, true, true, true, nameSpace.getBoolean(VERBOSE), true, true));
+		System.out.println(app.getHistoryText(bean, true, true, true, true, isBooleanOption(VERBOSE), true, true));
 	}
 
 	private void renameDataset(String oldName, String newName) throws UserErrorException {
@@ -550,13 +571,13 @@ public class CliClient {
 	}
 
 	private void printStatus(String status) {
-		if (!nameSpace.getBoolean(QUIET)) {
+		if (!isBooleanOption(QUIET)) {
 			System.out.print(status);
 		}
 	}
 	
 	private void printlnStatus(String status) {
-		if (!nameSpace.getBoolean(QUIET)) {
+		if (!isBooleanOption(QUIET)) {
 			System.out.println(status);
 		}
 	}
