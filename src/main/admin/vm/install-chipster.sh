@@ -27,10 +27,10 @@ rm -rf modules/inst_files/
 mkdir modules/inst_files/
 
 ## Create flag-directories
-create_flag_dirs
+create_flag_dirs $moduledir
 
 ## Load module directories to array
-read_dirs foldiers.bash
+read_dirs $moduledir
 
 
 ## If parallel is ON, install GNU parallel
@@ -41,7 +41,7 @@ fi
 
 echo "Starting to generate installation files"
 
-for i in "${foldiers[@]}"; do
+for i in "${folders[@]}"; do
 	source installation_files/generate_installation_file.bash $i/ inst_files/$i.bash
 done
 
@@ -66,11 +66,13 @@ cd modules/
 
 # Install modules
 
-for i in "${foldiers[@]}"; do
+for i in "${folders[@]}"; do
 	
 	# Wait for R
 	if [ "$i" == "finish" ]; then
-		wait
+		if [ "$parallel" == "1" ]; then
+			sem --wait
+		fi
 	fi
 	install_file inst_files/$i.bash 2>&1 | tee $logfile
 done

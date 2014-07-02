@@ -2,7 +2,7 @@
 
 #R libraries, if parallel processing is on, run libs installation with GNU parallel
 if [ $parallel == "1" ]; then
-  parallel --gnu --no-notice --tmpdir $paralleldir -v -j $jobs ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
+  sem --no-notice --tmpdir $paralleldir -j 3 ${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
 else
 	${TOOLS_PATH}/R-${R_VER}/bin/Rscript --vanilla ${CHIP_PATH}/comp/modules/admin/R/install-libs.R
 fi

@@ -94,6 +94,8 @@ arraySort "${modules[@]}"
 	fi
 	
 printf "%s\n" "${sort_array[@]}" > $2
+sed '/^$/d' $2 > $2.out
+mv  $2.out $2
 
 # Return to home foldier
 cd ..

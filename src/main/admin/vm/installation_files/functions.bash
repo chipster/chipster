@@ -37,7 +37,7 @@ if [[ "$force" == "0" ]]; then
 		# Install module
 		(
 		
-			source $1
+			bash $1
 		
 		)
 	
@@ -48,7 +48,7 @@ else
 	# Install module
 	(
 	
-		source $1
+		bash $1
 	)
 	
 	#If installed correctly, make sha256sum & flagfile
@@ -114,12 +114,9 @@ export -f install_dep
 # Function to create flag-directories
 create_flag_dirs() {
 	cd installation_files/
-	mkdir -p flags/external_genomes
-	mkdir -p flags/external_indexes
-	mkdir -p flags/external_tools
-	mkdir -p flags/finish
-	mkdir -p flags/R
-	mkdir -p flags/start
+	while read line; do
+		mkdir -p flags/$1
+	done < $1
 	cd ..
 }
 
@@ -127,9 +124,9 @@ export -f create_flag_dirs
 
 read_dirs() {
 	while read line; do
-		foldiers+=( $line )
+		folders+=( $line )
 	done < $1
-	export foldiers
+	export folders
 }
 
 export -f read_dirs
