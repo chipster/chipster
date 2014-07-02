@@ -113,11 +113,9 @@ export -f install_dep
 
 # Function to create flag-directories
 create_flag_dirs() {
-	cd installation_files/
 	while read line; do
-		mkdir -p flags/$1
+		mkdir -p installation_files/flags/$line
 	done < $1
-	cd ..
 }
 
 export -f create_flag_dirs
