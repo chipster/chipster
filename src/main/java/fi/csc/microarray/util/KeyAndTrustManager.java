@@ -64,6 +64,7 @@ public class KeyAndTrustManager {
 	/**
 	 * Return SslContextFactory with keystore initialised from Chipster configuration. 
 	 * SslContextFactory is set to trust all keys. Initialises key store if needed.
+	 * To be used on the server side.
 	 * 
 	 * @return SslContextFactory instance
 	 * @throws IOException 
@@ -80,7 +81,7 @@ public class KeyAndTrustManager {
 		SslContextFactory sslContextFactory = new SslContextFactory(keyStore);
 		sslContextFactory.setKeyStorePassword(keyStorePassword);
 
-		// Make SslContextFactory trust all keys
+		// Make SslContextFactory trust all client keys
 		sslContextFactory.setTrustAll(true);
 		
 		return sslContextFactory;

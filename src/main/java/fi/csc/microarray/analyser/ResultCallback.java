@@ -34,5 +34,5 @@ public interface ResultCallback {
 	
 	public void removeRunningJob(AnalysisJob job);
 	
-	public FileBrokerClient getFileBrokerClient();
+	public FileBrokerClient getFileBrokerClient() throws Exception;
 }

@@ -78,7 +78,7 @@ public class ShellRoundtripTest {
 
         private FileBrokerClient fileBroker = null;
 
-        public FileBrokerClient getFileBrokerClient() {
+        public FileBrokerClient getFileBrokerClient() throws Exception {
             // Create a mock file broker
             if (fileBroker == null) {
                 try {
