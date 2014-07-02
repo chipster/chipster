@@ -10,13 +10,13 @@ export logfile="../install_logs.txt"
 export moduledir="module-list.bash"
 
 #Parallel processing
-export parallel="1"
+export parallel="0"
 
 #Parallel jobs
 export jobs="4"
 
 #Force install, overrides all existing modules
-export force="0"
+export force="1"
 
 ## Initialize:
 # Versions
