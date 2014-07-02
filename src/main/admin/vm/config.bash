@@ -36,6 +36,8 @@ export TMPDIR_PATH=$TMPDIR/install
 export USERNAME=chipster
 export GROUPNAME=chipster
 
+export CHIPSTER_UID 1001
+export CHIPSTER_GID 1001
 export UBUNTU_UID=1000
 export UBUNTU_GID=1000
 
