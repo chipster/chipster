@@ -1,4 +1,5 @@
 ##depends:none
 # Genome data for tools
   cd ${TMPDIR_PATH}/
-  mkdir -p ${TOOLS_PATH}/genomes/
+  ln -s ../genomes ${TOOLS_PATH}/genomes/
+#  mkdir -p ${TOOLS_PATH}/genomes/

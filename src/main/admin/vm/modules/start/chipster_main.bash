@@ -67,7 +67,7 @@ ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
 
 # Symlink to genome browser annotations
 mkdir ${CHIP_PATH}/fileserver/file-root/public/
-ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
+ln -s ${TOOLS_PATH}/genomes/genomebrowser ${CHIP_PATH}/fileserver/file-root/public/annotations
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
