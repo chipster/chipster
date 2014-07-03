@@ -317,6 +317,7 @@ then
 
   echo ensemblfetch.sh $species
   genome_fasta=$(ensemblfetch.sh $species | tail -1)
+  genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 
   if [[ $genome_fasta == "--------------------------------------------------------------------------------" ]]
   then
@@ -332,12 +333,14 @@ then
     if [[ $num_chrs > 0 ]]
     then
        mv $genome_fasta toplevel.fasta
+       genome_fasta=$genome_name.fa
        awk '{print "toplevel.fasta:"$1}' karyotype.tmp  >  karyotype.list
        seqret @karyotype.list $genome_fasta
        rm -f toplevel.fasta karyotype.list
     fi
     rm -f karyotype.tmp
   fi
+
   echo "$genome_fasta Downloaded"
 
   echo "Creating fasta index..."
@@ -374,8 +377,6 @@ if [[ "$text" == "1" ]]
   rm -f $genome_fasta
   mv ${genome_fasta}.filtered $genome_fasta
 fi
-
-genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 
 ###
 #  get the gtf file
