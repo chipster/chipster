@@ -12,12 +12,18 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.InflaterInputStream;
 
 import javax.jms.JMSException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 
 import org.apache.log4j.Logger;
 
@@ -34,6 +40,7 @@ import fi.csc.microarray.messaging.message.SuccessMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
+import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -62,7 +69,20 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChecksums;
 	private String overridingFilebrokerIp;
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath, String overridingFilebrokerIp) throws JMSException {
+	
+	static {
+		
+		// Accept all hostnames (do not try to match certificate hostname (CN) to observed hostname)
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			@Override
+			public boolean verify(String hostname, SSLSession session) {
+				return true; 
+			}
+		});
+	}
+	
+	
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath, String overridingFilebrokerIp) throws JMSException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, KeyStoreException, IOException {
 
 		this.filebrokerTopic = urlTopic;
 		
@@ -78,10 +98,18 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
 		this.useChecksums = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-checksums");
-		
+
+		// Initialise keystore in case HTTPS connections are needed
+		KeyAndTrustManager.initialiseSystem(
+				DirectoryLayout.getInstance().getConfiguration().getString("security", "keystore"),
+				DirectoryLayout.getInstance().getConfiguration().getString("security", "keypass"), 
+				DirectoryLayout.getInstance().getConfiguration().getString("security", "keyalias"), 
+				DirectoryLayout.getInstance().getConfiguration().getString("security", "master-keystore")
+		);
+
 	}
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic) throws Exception {
 		this(urlTopic, null, null);
 	}
 
