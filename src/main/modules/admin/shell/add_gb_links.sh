@@ -1,9 +1,9 @@
 #!/bin/bash 
 
-TMPDIR=$1
+WRKDIR=$1
 
 #cd /opt/chipster/tools/genomes
-cd $TMPDIR
+cd $WRKDIR
 
 FILE=./genomebrowser/Arabidopsis_thaliana/TAIR10.22/genome.yaml
 if [ -e $FILE ] 
