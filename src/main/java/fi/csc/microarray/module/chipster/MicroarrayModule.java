@@ -34,7 +34,6 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -826,15 +825,7 @@ public class MicroarrayModule implements Module {
 			data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 		}
 
-		boolean isChipwise = false;
-		ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
-		if (pcaOn != null) {
-			String pcaOnValue = pcaOn.getValue();
-			if (pcaOnValue != null && pcaOnValue.equals("chips")) {
-				isChipwise = true;
-			}
-		}
-		if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
+		if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R")) {
 			data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
 		}
 
