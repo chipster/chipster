@@ -2,12 +2,12 @@
 
 set -e
 
-TMPDIR=$1
+WRKDIR=$1
 
 #cd /opt/chipster/tools/genomes
-cd $TMPDIR
+cd $WRKDIR
 
-find ../tmp/ -name *.files > packages.tmp
+find tmp/ -name *.files > packages.tmp
 
 while read FILE_LIST           
 do           
