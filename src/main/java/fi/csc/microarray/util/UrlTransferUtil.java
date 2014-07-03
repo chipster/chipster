@@ -22,6 +22,7 @@ import fi.csc.microarray.filebroker.ChecksumInputStream;
 public class UrlTransferUtil {
 
 	public static int HTTP_TIMEOUT_MILLISECONDS = 2000;
+	private static final long POST_UPLOAD_TIMEOUT_MILLISECONDS = 500;
 
 	private static final int CHUNK_SIZE = 2048;
 	
@@ -99,7 +100,16 @@ public class UrlTransferUtil {
     		IOUtils.disconnectIfPossible(connection);
     	}
 
-    	//may be null
+    	// Wait for upload server to make the file available, so that
+    	// after this method returns we can trust the file to be accessible.
+    	// Could be improved by explicitly trying to read from the URL.
+    	try {
+			Thread.sleep(POST_UPLOAD_TIMEOUT_MILLISECONDS);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+    	
+    	// May be null
     	return checksum;
     }
     

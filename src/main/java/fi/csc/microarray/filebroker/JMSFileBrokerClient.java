@@ -224,17 +224,6 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			// open stream
 			payload = connection.getInputStream();
 
-			// wait for payload to become available
-			long waitStartTime = System.currentTimeMillis();
-			int waitTime = 10;
-			while (payload.available() < 1 && (waitStartTime + QUICK_POLL_OPERATION_TIMEOUT*1000 > System.currentTimeMillis())) {
-				// sleep
-				try {
-					Thread.sleep(waitTime);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
 		} catch (Exception e) {
 			IOUtils.closeIfPossible(payload);
 			throw e;
