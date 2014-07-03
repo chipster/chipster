@@ -43,7 +43,7 @@ groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 if(exists("pairing")) {
 	if(column == pairing) {
-		stop("CHIPSTER-NOTE: Phenodata column describing the groups to test cannot be the same defifing pairing information")	
+		stop("CHIPSTER-NOTE: Phenodata column describing the groups to test cannot be the same that contains pairing information")	
 	}
 	if(pairing!="EMPTY") {
 		pairs<-phenodata[,pmatch(pairing,colnames(phenodata))]
