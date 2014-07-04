@@ -1,14 +1,18 @@
-Homo_sapiens
-Rattus_norvegicus
-Mus_musculus
-Bos_taurus
-Sus_scrofa
-Ovis_aries
-Canis_familiaris
-Gallus_gallus
-Vitis_vinifera
-Gasterosteus_aculeatus
-Drosophila_melanogaster
-Arabidopsis_thaliana
-Schizosaccharomyces_pombe
-Halorubrum_lacusprofundi_atcc_49239
+Homo_sapiens	75	-index
+Rattus_norvegicus	75	-index
+Mus_musculus	75	-index
+Bos_taurus	75	-index
+Sus_scrofa	75	-index
+Ovis_aries	75	-index
+Canis_familiaris	75	-index
+Gallus_gallus	75	-index
+Vitis_vinifera	22	-index
+Gasterosteus_aculeatus	75	-index
+Drosophila_melanogaster	75	-index
+Arabidopsis_thaliana	22	-index
+Schizosaccharomyces_pombe	22	-index
+Halorubrum_lacusprofundi_atcc_49239	22	-index
+Homo_sapiens	54	-no_index
+Rattus_norvegicus	69	-no_index
+Mus_musculus	67	-no_index
+Canis_familiaris	67	-no_index
