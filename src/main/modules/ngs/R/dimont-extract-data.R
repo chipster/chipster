@@ -1,7 +1,7 @@
-# TOOL dimontdata.R: "Dimont sequence extractor" (Extracts genomic regions specified in a BED-like file format in the annotated FastA format as required by Dimont.)
+# TOOL dimont-extract-data.R: "Dimont sequence extractor" (Extracts genomic regions specified in a BED-like file format in the annotated FastA format as required by Dimont.)
 # INPUT regions.bed: "Genomic regions" TYPE GENERIC (The genomic regions to be extracted in a BED-like file format, e.g., BED, GTF, narrowPeak.)
 # OUTPUT extracted.fasta: "Extracted sequences" (The sequences extracted from the given genome using the supplied region specifications.)
-# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel: "Pig (sus_scrofa10.2.69\)",  athaliana.TAIR10: "A. thaliana (TAIR10\)", ovis_aries_texel: "Sheep (oar3.1\)"] DEFAULT hg19 (Genome that the regions refer to.)
+# PARAMETER organism: "Genome" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22] DEFAULT Homo_sapiens.GRCh37.75 (Genome that the regions refer to.)
 # PARAMETER chromcol: "Chromosome column" TYPE INTEGER FROM 1 DEFAULT 1 (The column of the Regions file, which contains the chromosome information.)
 # PARAMETER startcol: "Start column" TYPE INTEGER FROM 1 DEFAULT 2 (The column of the Regions file containing the start position of the genomic region.)
 # PARAMETER seccoord: "Second coordinate" TYPE INTEGER FROM 1 DEFAULT 3 (The second genomic coordinate with meaning specified by parameter \"Meaning of second coordinate\".)
@@ -14,8 +14,9 @@
 #MK: 11.12.2013. Since also row-names are printed, column indexes had to be shifted by one 
 #JG: 30.01.2014: Code for chr=="no" does not work, data extraction script works in either case. Hence, parameter and code removed
 #EK: 3.6.2014: removed chr parameter that was commented out already
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
-genome.fa<-file.path(chipster.tools.path, "genomes", "fasta", paste(genome,".fa",sep="",collapse=""))
+genome.fa<-file.path(chipster.tools.path, "genomes", "fasta", paste(organism,".fa",sep="",collapse=""))
 
 tool<-file.path(chipster.tools.path,"dimont","extract_data_single_chipster.pl");
 

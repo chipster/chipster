@@ -5,7 +5,7 @@
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm10.fa: "Mouse genome (mm10\)", mm9.fa: "Mouse genome (mm9\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel.fa: "Rat genome (rn5\)", rn4.fa: "Rat genome (rn4\)", Canis_familiaris.CanFam3.1.71.dna.toplevel.fa: "Dog genome (Ensembl canFam3\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)",  ovis_aries_texel.fa: "Sheep (oar3.1\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (10.2\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel.fa: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10.fa: "A. thaliana genome (TAIR10\)", Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel.fa: "E. coli genome (GCA_000303635.1.18\)"  ] DEFAULT hg19.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER organism: "Genome or transcriptome" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22] DEFAULT Homo_sapiens.GRCh37.75 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 (Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled. Corresponds to the command line parameter -l) 
 # PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 (Maximum differences in the seed. Corresponds to the command line parameter -k )
 # PARAMETER total.edit: "Maximum edit distance for the whole read" TYPE DECIMAL DEFAULT 0.04 ( Maximum edit distance if the value is more than one. If the value is between 1 and 0 then it defines the fraction of missing alignments given 2% uniform base error rate. In the latter case, the maximum edit distance is automatically chosen for different read lengths. Corresponds to the command line parameter -n.)
@@ -35,8 +35,8 @@ unzipIfGZipFile("reads2.txt")
 
 # bwa
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
-bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes")
-bwa.genome <- file.path(bwa.indexes, genome)
+#bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes")
+bwa.genome <- file.path(chipster.tools.path, "genomes", "indexes", "bwa", organism)
 command.start <- paste("bash -c '", bwa.binary)
 
 ###

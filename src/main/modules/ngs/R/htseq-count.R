@@ -2,8 +2,8 @@
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv
 # OUTPUT OPTIONAL htseq-count-info.txt
-# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.75.gtf: "Human (hg19)", Mus_musculus.GRCm38.75.gtf: "Mouse (mm10)", Rattus_norvegicus.Rnor_5.0.75.gtf: "Rat (rn5)"] DEFAULT Homo_sapiens.GRCh37.75.gtf (Which organism is your data from.)
-# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER organism: "Organism" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22] DEFAULT Homo_sapiens.GRCh37.75 (Which organism is your data from.)
+# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER paired: "Does the BAM file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (Select no if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
@@ -19,6 +19,7 @@
 # 30.5.2013 EK changed the default for "add chromosomal coordinates" to no
 # 21.5.2014 EK updated to use HTSeq 0.6.1
 # 19.6.2014 AMS changed handling of GTFs
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.7", "site-packages"), ":$PYTHONPATH")
@@ -41,7 +42,8 @@ if(print.coord == "no") {
 	htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count_chr")
 }
 
-internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
+
+internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".gtf" ,sep="" ,collapse=""))
 if(chr == "1"){
 	annotation.file <- paste(internal.gtf)
 }else{
