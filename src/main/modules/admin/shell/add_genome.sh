@@ -372,7 +372,7 @@ then
   infoseq $genome_fasta -auto
 
   #version=$(echo $genome_fasta | awk -F "." '{print $2}')
-  version=$(echo $genome_fasta | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".dna." '{print $1}')
+  version=$(echo $genome_fasta | awk -F "." '{for (i=2; i<=NF; i++) printf $i"." }' | awk -F ".fa" '{print $1}')
 fi
 
 
