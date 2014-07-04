@@ -649,10 +649,22 @@ cd $genomes_path
 find genomebrowser/$species/$version/* 	>  $tmp_path/$genome_name.gb.files
 find fasta/$genome_name* 		>> $tmp_path/$genome_name.fa.files
 find gtf/$genome_name* 			>> $tmp_path/$genome_name.gtf.files
-find indexes/bowtie/$genome_name* 	>> $tmp_path/$genome_name.bowtie.files
-find indexes/bowtie2/$genome_name* 	>> $tmp_path/$genome_name.bowtie2.files
-find indexes/bwa/$genome_name* 		>> $tmp_path/$genome_name.bwa.files
-find indexes/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
+
+if [[ $INDEX_BOWTIE -eq 1 ]]
+then
+  find indexes/bowtie/$genome_name* 	>> $tmp_path/$genome_name.bowtie.files
+fi
+
+if [[ $INDEX_BOWTIE2 -eq 1 ]]
+then
+  find indexes/bowtie2/$genome_name* 	>> $tmp_path/$genome_name.bowtie2.files
+  find indexes/tophat2/$genome_name* 	>> $tmp_path/$genome_name.tophat2.files
+fi
+
+if [[ $INDEX_BWA -eq 1 ]]
+then
+  find indexes/bwa/$genome_name* 		>> $tmp_path/$genome_name.bwa.files
+fi
 
 echo ""
 echo "---------------------------------------------------------------"
