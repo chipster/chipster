@@ -173,6 +173,67 @@ then
 	echo "sortId: plant" >> $FILE
 fi
 
+FILE=./genomebrowser/Canis_familiaris/BROADD2.67/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Canis familiaris" >> $FILE
+	echo "version: BROADD2.67" >> $FILE
+	echo "ensemblBrowserUrl: http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: other" >> $FILE
+fi
+
+FILE=./genomebrowser/Rattus_norvegicus/RGSC3.4.69/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Rattus norvegicus" >> $FILE
+	echo "version: RGSC3.4.69 (rn4)" >> $FILE
+	echo "ensemblBrowserUrl: http://oct2012.archive.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn4&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: main" >> $FILE
+fi
+
+FILE=./genomebrowser/Homo_sapiens/NCBI36.54/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Homo sapiens" >> $FILE
+	echo "version: NCBI36.54 (hg18)" >> $FILE
+	echo "ensemblBrowserUrl: http://may2009.archive.ensembl.org/Homo_sapiens/Location/View?db=core;r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg18&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: main" >> $FILE
+fi
+
+FILE=./genomebrowser/Mus_musculus/NCBIM37.67/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Mus musculus" >> $FILE
+	echo "version: NCBIM37.67 (mm9)" >> $FILE
+	echo "ensemblBrowserUrl: http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]" >> $FILE
+	echo "sortId: main" >> $FILE
+fi
+
+FILE=./genomebrowser/Human_mitoch/NC_012920.1/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Human mitoch." >> $FILE
+	echo "version: NC_012920.1" >> $FILE
+	echo "ensemblBrowserUrl: " >> $FILE
+	echo "ucscBrowserUrl: " >> $FILE
+	echo "sortId: rest" >> $FILE
+fi
+
+
 cat genomes.tmp | sort > processed-genomes.tmp
 find -name genome.yaml | sort > all-genomes.tmp
 
@@ -185,49 +246,4 @@ then
   echo $DIFF
 fi
 
-
 rm genomes.tmp processed-genomes.tmp all-genomes.tmp
-
-exit 0
-
-
-./Canis_familiaris/BROADD2.67/genome_v1.yaml
-species: Dog
-version: (BROADD2.67)
-ensemblBrowserUrl: http://may2012.archive.ensembl.org/Canis_familiaris/Location/View?r=[CHR]%3A[START]-[END]
-ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Dog&db=canFam2&position=chr[CHR]%3A[START]-[END]
-sortId: other
-
-./Rattus_norvegicus/RGSC3.4.69/genome_v1.yaml
-species: Rat
-version: rn4 (RGSC3.4.69)
-ensemblBrowserUrl: http://oct2012.archive.ensembl.org/Rattus_norvegicus/Location/View?r=[CHR]%3A[START]-[END]
-ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Rat&db=rn4&position=chr[CHR]%3A[START]-[END]
-sortId: main
-
-
-./Homo_sapiens/NCBI36.54/genome_v1.yaml
-species: Human
-version: hg18 (NCBI36.54)
-ensemblBrowserUrl: http://may2009.archive.ensembl.org/Homo_sapiens/Location/View?db=core;r=[CHR]%3A[START]-[END]
-ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Human&db=hg18&position=chr[CHR]%3A[START]-[END]
-sortId: main
-
-./Human-MT/NC_012920.1/genome_v1.yaml
-species: Human mitoch.
-version: (NC_012920)
-ensemblBrowserUrl: 
-ucscBrowserUrl: 
-sortId: rest
-
-./Mus_musculus/NCBIM37.67/genome_v1.yaml
-species: Mouse
-version: mm9 (NCBIM37.67)
-ensemblBrowserUrl: http://may2012.archive.ensembl.org/Mus_musculus/Location/View?r=[CHR]%3A[START]-[END]
-ucscBrowserUrl: http://genome.ucsc.edu/cgi-bin/hgTracks?clade=mammal&org=Mouse&db=mm9&position=chr[CHR]%3A[START]-[END]
-sortId: main
-./Ovis_aries/Oar_v3.1/genome_v1.yaml
-
-
-
-

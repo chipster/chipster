@@ -155,6 +155,7 @@ length=0
 karyotype=0
 clean=0
 version="0.0"
+ensembl_version="0"
 location=$(pwd)
 INDEX_BWA=1
 INDEX_BOWTIE=1
@@ -194,7 +195,7 @@ do
                 shift 
               ;;
               '-version')
-                genome_version="$2"
+                ensembl_version="$2"
                 shift 
                 shift 
               ;;
@@ -230,6 +231,18 @@ do
               ;;
 	      '-only_bowtie2')
                 INDEX_BOWTIE=0
+                INDEX_BWA=0
+                shift
+              ;;
+	      '-index')
+                INDEX_BOWTIE=1
+                INDEX_BOWTIE2=1
+                INDEX_BWA=1
+                shift
+              ;;
+	      '-no_index')
+                INDEX_BOWTIE=0
+                INDEX_BOWTIE2=0
                 INDEX_BWA=0
                 shift
               ;;
@@ -315,8 +328,15 @@ if [[ $ensembl -eq 1 ]]
 then
   echo "Retrieving and indexing genome sequence for $species"
 
-  echo ensemblfetch.sh $species
-  genome_fasta=$(ensemblfetch.sh $species | tail -1)
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    #echo ensemblfetch.sh $species
+    genome_fasta=$(ensemblfetch.sh $species | tail -1)
+  else
+    #echo ensemblfetch.sh $species -version $ensembl_version
+    genome_fasta=$(ensemblfetch.sh $species -version $ensembl_version | tail -1)
+  fi
+
   genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 
   if [[ $genome_fasta == "--------------------------------------------------------------------------------" ]]
@@ -386,9 +406,16 @@ fi
 if [[ $ensembl -eq 1 ]]
 then
 
-  which ensemblfetch.sh
-  echo "ensemblfetch.sh -type gtf $species"
-  genome_gtf=$(ensemblfetch.sh -type gtf $species | tail -1 )
+  #which ensemblfetch.sh
+
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    #echo ensemblfetch.sh -type gtf $species
+    genome_gtf=$(ensemblfetch.sh -type gtf $species | tail -1 )
+  else
+    #echo ensemblfetch.sh -type gtf $species -version $ensembl_version
+    genome_gtf=$(ensemblfetch.sh -type gtf $species -version $ensembl_version | tail -1 )
+  fi
   
   genome_gtf_name=$(basename $genome_gtf .gtf)
   echo "executing: python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_name.DEXSeq.gtf "
@@ -413,7 +440,13 @@ echo "downloading mysql files"
 if [[ $ensembl -eq 1 ]]
 then
 
-  mysql_files=$(ensemblfetch.sh -type mysql $species | tail -1)
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    mysql_files=$(ensemblfetch.sh -type mysql $species | tail -1)
+  else
+    mysql_files=$(ensemblfetch.sh -type mysql $species -version $ensembl_version | tail -1 )
+  fi
+
   testtsring=$(echo $mysql_files | wc -c)
   if [[ $testtsring -gt 50 ]]
   then
