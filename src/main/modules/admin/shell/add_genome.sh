@@ -155,6 +155,7 @@ length=0
 karyotype=0
 clean=0
 version="0.0"
+ensembl_version="0"
 location=$(pwd)
 INDEX_BWA=1
 INDEX_BOWTIE=1
@@ -194,7 +195,7 @@ do
                 shift 
               ;;
               '-version')
-                genome_version="$2"
+                ensembl_version="$2"
                 shift 
                 shift 
               ;;
@@ -233,6 +234,18 @@ do
                 INDEX_BWA=0
                 shift
               ;;
+	      '-index')
+                INDEX_BOWTIE=1
+                INDEX_BOWTIE2=1
+                INDEX_BWA=1
+                shift
+              ;;
+	      '-no_index')
+                INDEX_BOWTIE=0
+                INDEX_BOWTIE2=0
+                INDEX_BWA=0
+                shift
+              ;;
               '-help')
               add_genome_help
               exit 0
@@ -268,7 +281,10 @@ tmp_path=${genomes_path}/tmp/${species}_$$ # process id
 
 if [[ $clean -eq 1 ]]
 then
+  echo "debug: removing $genomes_path/genomebrowser/$species"
+  echo "debug: $(ls -lah $genomes_path/genomebrowser/$species)"
   rm -rf ${genomes_path}/tmp/${species}_* $genomes_path/genomebrowser/$species $genomes_path/fasta/$species* $genomes_path/gtf/$species* $index_path/bowtie/$species* $index_path/bowtie2/$species* $index_path/bwa/$species* $index_path/tophat2/$species*
+  echo "debug: $(ls -lah $genomes_path/genomebrowser/$species)"
 fi
 
 # these will fail occasionally when this script is run in parallel
@@ -312,8 +328,16 @@ if [[ $ensembl -eq 1 ]]
 then
   echo "Retrieving and indexing genome sequence for $species"
 
-  echo ensemblfetch.sh $species
-  genome_fasta=$(ensemblfetch.sh $species | tail -1)
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    #echo ensemblfetch.sh $species
+    genome_fasta=$(ensemblfetch.sh $species | tail -1)
+  else
+    #echo ensemblfetch.sh $species -version $ensembl_version
+    genome_fasta=$(ensemblfetch.sh $species -version $ensembl_version | tail -1)
+  fi
+
+  genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 
   if [[ $genome_fasta == "--------------------------------------------------------------------------------" ]]
   then
@@ -329,12 +353,14 @@ then
     if [[ $num_chrs > 0 ]]
     then
        mv $genome_fasta toplevel.fasta
+       genome_fasta=$genome_name.fa
        awk '{print "toplevel.fasta:"$1}' karyotype.tmp  >  karyotype.list
        seqret @karyotype.list $genome_fasta
        rm -f toplevel.fasta karyotype.list
     fi
     rm -f karyotype.tmp
   fi
+
   echo "$genome_fasta Downloaded"
 
   echo "Creating fasta index..."
@@ -372,8 +398,6 @@ if [[ "$text" == "1" ]]
   mv ${genome_fasta}.filtered $genome_fasta
 fi
 
-genome_name=$(basename $genome_fasta .dna.toplevel.fa)
-
 ###
 #  get the gtf file
 ###
@@ -382,9 +406,16 @@ genome_name=$(basename $genome_fasta .dna.toplevel.fa)
 if [[ $ensembl -eq 1 ]]
 then
 
-  which ensemblfetch.sh
-  echo "ensemblfetch.sh -type gtf $species"
-  genome_gtf=$(ensemblfetch.sh -type gtf $species | tail -1 )
+  #which ensemblfetch.sh
+
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    #echo ensemblfetch.sh -type gtf $species
+    genome_gtf=$(ensemblfetch.sh -type gtf $species | tail -1 )
+  else
+    #echo ensemblfetch.sh -type gtf $species -version $ensembl_version
+    genome_gtf=$(ensemblfetch.sh -type gtf $species -version $ensembl_version | tail -1 )
+  fi
   
   genome_gtf_name=$(basename $genome_gtf .gtf)
   echo "executing: python ${tools_path}/dexseq-exoncounts/dexseq_prepare_annotation.py $genome_gtf $genome_name.DEXSeq.gtf "
@@ -409,7 +440,13 @@ echo "downloading mysql files"
 if [[ $ensembl -eq 1 ]]
 then
 
-  mysql_files=$(ensemblfetch.sh -type mysql $species | tail -1)
+  if [[ $ensembl_version -eq 0 ]]
+  then
+    mysql_files=$(ensemblfetch.sh -type mysql $species | tail -1)
+  else
+    mysql_files=$(ensemblfetch.sh -type mysql $species -version $ensembl_version | tail -1 )
+  fi
+
   testtsring=$(echo $mysql_files | wc -c)
   if [[ $testtsring -gt 50 ]]
   then

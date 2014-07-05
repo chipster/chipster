@@ -2,8 +2,8 @@
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT exon-counts.tsv
 # OUTPUT OPTIONAL exon-counts-info.txt
-# PARAMETER organism: "Organism" TYPE [Homo_sapiens.GRCh37.75.DEXseq.gtf: "Human (hg19.75)", Mus_musculus.GRCm38.75.DEXseq.gtf: "Mouse (mm10.75)", Rattus_norvegicus.Rnor_5.0.75.DEXseq.gtf: "Rat (rn5.75)"] DEFAULT Homo_sapiens.GRCh37.75.DEXseq.gtf (Which organism is your data from.)
-# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [chr1: "chr1",1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER organism: "Organism" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22] DEFAULT Homo_sapiens.GRCh37.75 (Which organism is your data from.)
+# PARAMETER chr: "Chromosome names in the BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
 # PARAMETER paired: "Does the BAM file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific protocol" TYPE [yes, no, reverse] DEFAULT no (Select no if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
@@ -12,7 +12,7 @@
 # 16.07.2013 EK, BAM sorting changed
 # 23.04.2013 MK, added the info output file and strandedness parameter
 # 01.06.2014 EK, fixed BAM sorting by name, updated to use dexseq-count.py from DEXSeq v1.8.0, added support for BAMs which don't have the chr prefix in chromosome names, moved NH tag production to a separate script
-# 03.06.2014 AMS, changed the way chr is handled, updated gtf files
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
 # if BAM contains paired-end data, sort it by read names
 samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
@@ -24,7 +24,8 @@ if(paired == "yes"){
 }
 
 # If chromosome names in BAM have chr, we make a temporary copy of gtf with chr names
-annotation.gtf <- file.path(chipster.tools.path, "genomes", "gtf", organism)
+annotation.gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".DEXSeq.gtf" ,sep="" ,collapse=""))
+
 if(chr == "chr1"){
 	source(file.path(chipster.common.path, "gtf-utils.R"))
 	addChrToGtf(annotation.gtf, "annotation_chr.gtf") 
