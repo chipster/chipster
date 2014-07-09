@@ -26,6 +26,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.sun.org.apache.xerces.internal.util.URI;
+
 import fi.csc.microarray.util.XmlUtil;
 
 /**
@@ -426,9 +428,13 @@ public class ConfigTool {
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 		
 		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
-		Element transportConnector = (Element)transportConnectors.getElementsByTagName("transportConnector").item(0); // edit first in the list (could use attribute name to decide right one)..
-		String uri = configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] + "://" + configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] + ":" + configs[BROKER_PORT_INDEX][VAL_INDEX];
-		updateElementAttribute(transportConnector, "uri", uri);
+		Element transportConnector = (Element)transportConnectors.getElementsByTagName("transportConnector").item(0); // edit first in the list (could use attribute name to decide right one..)
+		URI uri = new URI(transportConnector.getAttribute("uri"));
+		uri.setScheme(configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
+		uri.setHost(configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX]);
+		uri.setPort(Integer.parseInt(configs[BROKER_PORT_INDEX][VAL_INDEX]));
+
+		updateElementAttribute(transportConnector, "uri", uri.toString());
 		
 		writeLater(configFile, doc);
 	}
