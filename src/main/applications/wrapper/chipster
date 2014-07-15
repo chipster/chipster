@@ -1,4 +1,4 @@
-'#!/bin/bash
+#!/bin/bash
 
 # The following two lines are used by the chkconfig command. Change as is
 #  appropriate for your application.  They should remain commented.
