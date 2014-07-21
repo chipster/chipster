@@ -155,7 +155,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
 		
-		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
+		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORIZED_MANAGED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
