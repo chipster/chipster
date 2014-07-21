@@ -21,7 +21,7 @@ public interface Topics {
 		FEEDBACK_TOPIC("feedback-topic"),
 		AUTHORISED_FEEDBACK_TOPIC("authorised-feedback-topic"),
 		AUTH_LOG_TOPIC("auth-log-topic"),
-		AUTHORIZED_MANAGED_REQUEST_TOPIC("authorized-managed-request-topic"),
+		AUTHORIZED_MANAGED_REQUEST_TOPIC("authorized-managed-request-topic")
 		;
 
 		private String topicName;
