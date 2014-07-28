@@ -348,16 +348,22 @@ then
   #If karyotype option is used, pick only chromosomes
   if [[ $karyotype -eq 1 ]]
   then
+    echo "Filtering karyotype chromosomes..."
     curl -s "http://beta.rest.ensembl.org/assembly/info/$species?content-type=text/xml" | grep "<karyotype>" | sed "s/<karyotype>//g" | sed "s/<\/karyotype>//g" | sed "s/ *//g" > karyotype.tmp
+    curl -s "http://beta.rest.ensemblgenomes.org/assembly/info/$species?content-type=text/xml" | grep "<karyotype>" | sed "s/<karyotype>//g" | sed "s/<\/karyotype>//g" | sed "s/ *//g" >> karyotype.tmp
     num_chrs=$(cat karyotype.tmp | wc -l )
     if [[ $num_chrs > 0 ]]
     then
        mv $genome_fasta toplevel.fasta
-       genome_fasta=$genome_name.fa
        awk '{print "toplevel.fasta:"$1}' karyotype.tmp  >  karyotype.list
-       seqret @karyotype.list $genome_fasta
+       seqret @karyotype.list $genome_name.fa
        rm -f toplevel.fasta karyotype.list
+    else
+       echo "no karyotype chromosomes, keeping all"
+       mv $genome_fasta $genome_name.fa
     fi
+    genome_fasta=$genome_name.fa
+
     rm -f karyotype.tmp
   fi
 
