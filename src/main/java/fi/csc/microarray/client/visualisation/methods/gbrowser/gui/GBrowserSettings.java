@@ -109,7 +109,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JXHyperlink ucscLink;
 	private GBrowser browser;
 	private Long lastLocation;
-	private JCheckBox cacheBox;
+
 	private JTabbedPane tabPane;
 	private GBrowserLegend legend;
 	private SelectionPanel selectionPanel;
@@ -379,14 +379,6 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			genomeBox.addActionListener(this);
 
 			genomePanel.add(genomeBox, c);
-			
-			c.gridy++;
-			
-			cacheBox = new JCheckBox("Download workflow data");
-			cacheBox.setToolTipText("Download workflow data to create a temporary local copy of all user data files. " +
-					"The genome browser works faster with the local data, but it will take some time to download the " +
-					"files when the visualisation is started.");
-			genomePanel.add(cacheBox, c);
 		}
 
 		return genomePanel;
@@ -474,18 +466,13 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
-			this.cacheBox.setEnabled(false);
+			
 			if (!initialised) {
 
 				browser.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
 					public void run() {
-						try {
-							
-							if (cacheBox.isSelected()) {
-								// Create a local random access copy of all files in background thread
-								browser.initialiseUserDatas();
-							}
+						try {					
 
 							// Update UI in Event Dispatch Thread
 							SwingUtilities.invokeAndWait(new Runnable() {
