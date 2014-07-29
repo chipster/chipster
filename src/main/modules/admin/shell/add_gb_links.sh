@@ -77,7 +77,7 @@ then
 	echo "sortId: other" >> $FILE
 fi
 
-FILE=./genomebrowser/Halorubrum_lacusprofundi_ATCC_49239/GCA_000022205.1.22/genome.yaml
+FILE=./genomebrowser/Halorubrum_lacusprofundi_atcc_49239/GCA_000022205.1.22/genome.yaml
 if [ -e $FILE ] 
 then
 	rm $FILE
@@ -171,6 +171,18 @@ then
 	echo "ensemblBrowserUrl: http://plants.ensembl.org/Vitis_vinifera/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
 	echo "ucscBrowserUrl: " >> $FILE
 	echo "sortId: plant" >> $FILE
+fi
+
+FILE=./genomebrowser/Yersinia_enterocolitica_subsp_palearctica_y11/GCA_000253175.1.22/genome.yaml
+if [ -e $FILE ] 
+then
+	rm $FILE
+	echo $FILE >> genomes.tmp
+	echo "species: Yersinia enterocolitica subsp palearctica y11" >> $FILE
+	echo "version: GCA_000253175.1.22" >> $FILE
+	echo "ensemblBrowserUrl: http://bacteria.ensembl.org/yersinia_enterocolitica_subsp_palearctica_y11/Location/View?r=[CHR]%3A[START]-[END]" >> $FILE
+	echo "ucscBrowserUrl: " >> $FILE
+	echo "sortId: other" >> $FILE
 fi
 
 FILE=./genomebrowser/Canis_familiaris/BROADD2.67/genome.yaml
