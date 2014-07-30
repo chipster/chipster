@@ -33,6 +33,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.GBrowserPlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.Interpretation.TrackType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.AnnotationTrackGroup;
@@ -372,7 +373,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			Collection<Genome> genomes = browser.getAnnotationManager().getGenomes();
 			for (Genome genome : genomes) {
 				genomeBox.addItem(genome);
-			}
+			}					
 
 			// no selection at startup
 			genomeBox.setSelectedItem(null);
@@ -711,6 +712,14 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	}
 
 	public void updateInterpretations() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
+		
+		for (Interpretation interpretation : browser.getInterpretations()) {
+			if (interpretation.getType() == TrackType.REFERENCE) {
+				Genome ownGenome = new Genome(interpretation.getName(), "");
+				genomeBox.addItem(ownGenome);
+			}
+		}
+		
 		fillChromosomeBox();		
 	}
 

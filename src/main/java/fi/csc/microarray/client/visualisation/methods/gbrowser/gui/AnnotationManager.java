@@ -128,7 +128,7 @@ public class AnnotationManager {
 		}
 	}
 
-	public class Genome implements Comparable<Genome> {
+	public static class Genome implements Comparable<Genome> {
 		public String speciesId;
 		public String versionId;
 		public String displaySpecies;
@@ -170,19 +170,19 @@ public class AnnotationManager {
 			}
 			return false;
 		}
-
+		
 		@Override
 		public int hashCode() {
 			//Eclipse generated implementation
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + getOuterType().hashCode();
 			result = prime * result
 					+ ((speciesId == null) ? 0 : speciesId.hashCode());
 			result = prime * result
 					+ ((versionId == null) ? 0 : versionId.hashCode());
 			return result;
 		}
+		
 
 		@Override
 		public int compareTo(Genome other) {
@@ -218,10 +218,6 @@ public class AnnotationManager {
 				}
 			}			
 			return null;
-		}
-
-		private AnnotationManager getOuterType() {
-			return AnnotationManager.this;
 		}
 	}
 	

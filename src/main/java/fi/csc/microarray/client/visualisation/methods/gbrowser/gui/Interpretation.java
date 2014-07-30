@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.TreeSet;
 
+import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageConversion;
@@ -16,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationMan
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ByteDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaLineParser;
@@ -23,6 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Cyto
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.FileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ScatterplotFileLineConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.TsvLineParser;
@@ -187,6 +190,17 @@ public class Interpretation {
 		return refSeqDataThread;
 	}
 	
+	public IndexedFastaConversion getFastaDataThread(GBrowser browser) throws URISyntaxException, IOException {
+
+		if (getType() == TrackType.REFERENCE) {
+
+			//Create always a new data source, because picard doesn't support concurrent access			
+			IndexedFastaConversion fastaDataThread = new IndexedFastaConversion(getPrimaryData(), getIndexData(), browser);
+			
+			return fastaDataThread;
+		}
+		throw new IllegalStateException("requested DataThread is not compatible with the Interpreation type: " + getType());
+	}
 
 	public BamToDetailsConversion getBamDetailsDataThread(GBrowser browser) throws URISyntaxException, IOException {
 
@@ -303,7 +317,22 @@ public class Interpretation {
 
 				chromosomes.add(new Chromosome(string));
 			}
-		}		
+		}
+		
+		if (getType() == TrackType.REFERENCE) {
+
+			URL fasta  = getPrimaryData().getUrl();
+			URL index  = getIndexData().getUrl();
+			
+			ChipsterIndexedFastaSequenceFile picard = new ChipsterIndexedFastaSequenceFile(
+					new ByteDataSource(new DataUrl(fasta, fasta.toString())), 
+					new LineDataSource(new DataUrl(index, index.toString())));	
+
+			for (String string : picard.getContigs()) {
+
+				chromosomes.add(new Chromosome(string));
+			}
+		}
 		
 		boolean isBed = (getType() == TrackType.REGIONS);
 		boolean isVcf = (getType() == TrackType.VCF);

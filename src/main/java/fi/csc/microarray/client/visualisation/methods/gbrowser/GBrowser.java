@@ -21,6 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
@@ -233,6 +234,15 @@ public class GBrowser {
 				analyses.addTrackGroup(geneGroup);
 				
 				break;
+				
+			case REFERENCE:
+				// if not shown already as reference sequence
+				if (!getCustomGenome(getGenome()).equals(interpretation)) {
+					IndexedFastaConversion fastaConversion = interpretation.getFastaDataThread(this);								
+					TrackGroup fastaGroup = new SampleTrackGroup(dataView, null, null, null, fastaConversion, getTitle(interpretation));							
+					analyses.addTrackGroup(fastaGroup);				
+				}
+				break;
 
 			case CNA:
 
@@ -359,8 +369,27 @@ public class GBrowser {
 		if (annotation != null) {
 			return annotation.getUrl();					
 		} else {
-			return null;
+			// if there isn't such annotation, then this must be a user's own file
+			Interpretation customGenome = getCustomGenome(genome);
+			if (customGenome != null) {
+				if (type == AnnotationType.REFERENCE) {
+					return customGenome.getPrimaryData();
+				}
+				if (type == AnnotationType.REFERENCE_INDEX) {
+					return customGenome.getIndexData();
+				}					
+			} 
+			return null;		
 		}
+	}
+
+	private Interpretation getCustomGenome(Genome genome) {
+		for (Interpretation interpretation : interpretations) {
+			if (interpretation.getName().equals(genome.speciesId)) {
+				return interpretation;					
+			}
+		}
+		return null;
 	}
 
 	public void showVisualisation() throws URISyntaxException, IOException, GBrowserException {
