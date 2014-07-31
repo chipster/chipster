@@ -222,12 +222,12 @@ public class Strings {
 		    
 		    boolean atLastChar = (current == input.length() - 1);
 		    
-		    if (atLastChar) {
-		    	result.add(input.substring(start).replace("\"", ""));
 		    	
-		    } else if (input.charAt(current) == delimiter && !inQuotes) {
+		    if (input.charAt(current) == delimiter && !inQuotes) {
 		        result.add(input.substring(start, current).replace("\"", ""));
 		        start = current + 1;
+		    } else if (atLastChar) {
+		    	result.add(input.substring(start).replace("\"", ""));
 		    }
 		}
 		return result;
