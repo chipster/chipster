@@ -1,13 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +29,7 @@ import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.operation.parameter.SteppedComboBox;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
@@ -96,7 +97,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox<Chromosome> chrBox;
 
-	private JComboBox<Genome> genomeBox;
+	private SteppedComboBox genomeBox;
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
 	private JComboBox<ReadScale> coverageScaleBox;
@@ -133,6 +134,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			paramPanel.setLayout(new GridBagLayout());
 
 			JPanel settings = this.createSettingsPanel();
+			// for some reason, genomeBox becomes too wide if preferred size is not set 
+			settings.setPreferredSize(new Dimension(100, 50));
 			JScrollPane settingsScrollPane = new JScrollPane(settings);
 			settingsScrollPane.setBorder(BorderFactory.createEmptyBorder());
 			settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -367,13 +370,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 			c.weightx = 1.0;
 			c.gridx = 0;
 
-			genomeBox = new JComboBox<Genome>();
+			Object[] genomes = browser.getAnnotationManager().getGenomes().toArray();
+			genomeBox = new SteppedComboBox(genomes);
 			
-			// genome
-			Collection<Genome> genomes = browser.getAnnotationManager().getGenomes();
-			for (Genome genome : genomes) {
-				genomeBox.addItem(genome);
-			}					
+			genomeBox.setPopupWidth(500);
+			genomeBox.setBackground(Color.white);
 
 			// no selection at startup
 			genomeBox.setSelectedItem(null);
@@ -711,6 +712,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void updateInterpretations() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
 		
 		for (Interpretation interpretation : browser.getInterpretations()) {
