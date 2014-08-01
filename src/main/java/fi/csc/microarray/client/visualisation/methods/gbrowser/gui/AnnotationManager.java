@@ -1,14 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,9 +23,8 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * 
- * Class for saving and loading annotation contents file or parsing that information from 
- * the folder structure of the public file broker urls. The contents file describes what
- * annotation data files we have available at the annotation repository.
+ * Class for parsing annotation information from 
+ * the folder structure of the public file broker urls.
  * 
  * @author Petri Klemelä, Taavi Hupponen
  * 
@@ -40,20 +33,14 @@ public class AnnotationManager {
 	
 	private static final String ANNOTATIONS = "annotations";
 
-	private static final String CONTENTS_FILE = "contents2.txt";
-
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
 	
-	//Location parts of the external genome browser urls are replaced with these strings in the contents file
+	//Location parts of the external genome browser urls are replaced with these strings in the genomes.yaml file
 	public static final String CHR_LOCATION = "[CHR]";
 	public static final String START_LOCATION = "[START]";
 	public static final String END_LOCATION = "[END]";
 
-	private URL remoteAnnotationsRoot;
 	private File localAnnotationsRoot;
-
-	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2";
-	private final String CHR_UNSPECIFIED =  "*";
 
 	private LinkedList<GenomeAnnotation> annotations = new LinkedList<GenomeAnnotation>();
 	private GBrowser browser;
@@ -95,9 +82,6 @@ public class AnnotationManager {
 
 		/**
 		 * Return url pointing to a local file if the local file ok.
-		 * 
-		 * TODO what to do if offline and contents.txt content length and local
-		 * file content length mismatch
 		 * 
 		 * @return
 		 */
@@ -261,55 +245,13 @@ public class AnnotationManager {
 
 		// get annotation locations
 		this.remoteAnnotationFiles = browser.getRemoteAnnotationFiles();
-		//legacy support for contents2.txt
-		this.remoteAnnotationsRoot = browser.getRemoteAnnotationsUrl();
 		this.localAnnotationsRoot = browser.getLocalAnnotationDir();
 		
-		boolean remoteContentsOk = false;
-		
 		if (this.remoteAnnotationFiles != null) {
-			remoteContentsOk = interpretAnnotationFiles(remoteAnnotationFiles);
-		}
-
-		// try to parse the remote contents file
-		InputStream remoteContentsStream = null;
-		URL remoteContents = null;
-		if (this.remoteAnnotationsRoot != null) {
-			
-			remoteContents = IOUtils.createURL(remoteAnnotationsRoot, CONTENTS_FILE);
-			try {
-				remoteContentsStream = remoteContents.openStream();
-				parseFrom(remoteContentsStream);
-				remoteContentsOk = true;
-			} catch (Exception e) {
-
-			} finally {
-				IOUtils.closeIfPossible(remoteContentsStream);
-			}
-		}
-
-		// if everything went well, also make a local copy of contents file
-		// it will be used when working offline
-		File localContents = new File(localAnnotationsRoot, CONTENTS_FILE);
-		if (remoteContentsOk) {
-			logger.info("using remote annotation contents file");
-			OutputStream localContentsStream = null;
-
-			try {
-				remoteContentsStream = remoteContents.openStream();
-				localContentsStream = new FileOutputStream(localContents);
-				IOUtils.copy(remoteContentsStream, localContentsStream);
-			} catch (Exception e) {
-				logger.warn("could not make a local copy of contents file", e);
-			} finally {
-				IOUtils.closeIfPossible(remoteContentsStream);
-				IOUtils.closeIfPossible(localContentsStream);
-			}
-		}
-
-		// remote contents could not be loaded, try local contents file
-		else {
-			logger.info("trying to use local annotation contents file");
+			interpretAnnotationFiles(remoteAnnotationFiles);
+		} else {
+			// remote annotations weren't available, try local files
+			logger.info("trying to use local annotations");
 			
 			//parse directories
 			LinkedList<URL> urls = new LinkedList<URL>();
@@ -319,18 +261,10 @@ public class AnnotationManager {
 			}
 			
 			interpretAnnotationFiles(urls);
-			
-			//parse contents file
-			InputStream localContentsStream = null;
-			try {
-				localContentsStream = new BufferedInputStream(new FileInputStream(localContents));
-				parseFrom(localContentsStream);
-			} catch (Exception e) {
-				// also local contents file failed
-				throw new GBrowserException("Cannot access genome browser annotations from the server or from the local cache.", e);
-			} finally {
-				IOUtils.closeIfPossible(localContentsStream);
-			}
+		}
+		
+		if (genomes.isEmpty()) {
+			throw new GBrowserException("Cannot access genome browser annotations from the server or from the local cache.");
 		}
 
 		removeUnnecessaryFiles(localAnnotationsRoot);
@@ -503,11 +437,7 @@ public class AnnotationManager {
 	}
 
 	private boolean contains(File file) throws IOException {
-		
-		if (file.getName().equals(CONTENTS_FILE)) {
-			return true;
-		}
-		
+				
 		for (GenomeAnnotation annotation : annotations) {
 			if (annotation.url != null) {
 				
@@ -696,65 +626,6 @@ public class AnnotationManager {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Parse contents file.
-	 * 
-	 * @param contentsStream
-	 * @throws IOException
-	 */
-	@Deprecated
-	private void parseFrom(InputStream contentsStream) throws IOException {
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
-
-		if (!reader.readLine().equals(FILE_ID)) {
-			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
-		}
-
-		String line;
-		int lineIndex = 0;
-		while ((line = reader.readLine()) != null) {
-			if (line.trim().equals("")) {
-				continue;
-			}
-			String[] splitted = line.split("\t");
-
-			// Try to always store the remote url even if a local file exists.
-			// Existence of the local is checked later every time when it is needed.
-			URL url;
-			String fileName = splitted[4];
-			
-			if ("".equals(fileName)) {
-				url = null;
-			} else if (fileName.startsWith("http://")) {
-				//Not a real filename, but a full url
-				url = new URL(fileName);
-			} else {
-				url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
-			}
-			
-			long contentLength = Long.parseLong(splitted[5]);
-
-			Chromosome chr = null;
-			if (!splitted[3].equals(CHR_UNSPECIFIED)) {
-				chr = new Chromosome(splitted[3]);
-			}
-			
-			String species = splitted[0];
-			String version = splitted[1];
-
-			addAnnotation(new GenomeAnnotation(species, version, splitted[2], chr, url, contentLength));
-						
-			//Generate sortId string which preserves the order of contents file and is "smaller" than other sortIds
-			Genome genome = new Genome(species, version);
-			if (!genomes.contains(genome)) {
-				genome.sortId =  "" + String.format("%03d", lineIndex);
-				genomes.add(genome);
-			}
-			lineIndex++;
-		}
 	}
 
 	public void addAnnotation(GenomeAnnotation annotation) {

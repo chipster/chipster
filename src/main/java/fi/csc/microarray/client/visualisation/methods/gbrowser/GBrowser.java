@@ -689,16 +689,6 @@ public class GBrowser {
 	/**
 	 * Override this method to specify location for remote annotations
 	 */
-	@Deprecated
-	public URL getRemoteAnnotationsUrl() throws Exception {
-		//"http://chipster-filebroker.csc.fi:8080/public/annotations/"
-		System.out.println("getRemoteAnnotationsUrl not implemented");
-		return null;
-	}
-
-	/**
-	 * Override this method to specify location for remote annotations
-	 */
 	public List<URL> getRemoteAnnotationFiles() throws Exception {
 
 		System.out.println("getRemoteAnnotationFiles not implemented");

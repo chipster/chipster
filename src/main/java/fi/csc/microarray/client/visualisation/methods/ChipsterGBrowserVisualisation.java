@@ -59,8 +59,6 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
 	
-	private static final String ANNOTATIONS_PATH = "annotations";
-	
 	public static class BeanDataFile extends DataUrl {
 		
 		private DataBean bean;
@@ -319,27 +317,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 						}
 					});
 
-		}
-		
-		@Deprecated
-		public URL getRemoteAnnotationsUrl() throws Exception {
-			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-			
-			List<URL> publicFiles = fileBroker.getPublicFiles();
-			if (publicFiles != null) {
-				
-				//find only the annotations folder for now
-				for (URL url : publicFiles) {
-					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
-						
-						String urlString = url.toString();
-						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
-						return new URL(annotationString);
-					}
-				}
-			}
-			
-			return null;			
 		}
 
 		public List<URL> getRemoteAnnotationFiles() throws Exception {
