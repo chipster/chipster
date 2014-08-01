@@ -166,61 +166,69 @@ public class GtfToFeatureConversion extends DataThread {
 		//IndexKeys are not needed, because gtf contains unique identifiers for lines
  		for (String line : lines.values()) {
 
-			parser.setLine(line);					
-
-			Region region = parser.getRegion();
-			String feature = parser.getFeature();
-			String geneId = parser.getGeneId();
-			String transcId = parser.getTranscriptId();
-
-			String exonString = parser.getAttribute("exon_number");
-			int exonNumber = -1; 
-			if (exonString != null) {
-				exonNumber = new Integer(exonString);
-			}
-			String geneName = parser.getAttribute("gene_name");
-			String transcName = parser.getAttribute("transcript_name");
-			String biotype = null;
-
-			//Standard gtf data (for example Ensembl)
-			if ("exon".equals(feature) || "CDS".equals(feature)) {
-
-				Exon exon = new Exon(region, feature, exonNumber, geneId, transcId, geneName, transcName, biotype);
-				exons.add(exon);
-
-				//Custom almost-gtf data
-			} else 	if (feature.startsWith("GenBank")) {
-
-				if (geneId == null || transcId == null) {
-					continue;
-				}
-
-				if ("GenBank gene".equals(feature)) {
-					feature = "exon";
-				} else if ("GenBank CDS".equals(feature)) {
-					feature = "CDS";
-				} else {
-					geneId = feature + geneId;
-					transcId = feature + transcId;
-
-					if (geneName != null) {
-						geneName = feature + " " + geneName;
-					}
-
-					if (transcName != null) {
-						transcName = feature + " " + transcName;
-					}
-
-					feature = "exon";
-				}
-
-				exonNumber = 1;
-
-				Exon exon = new Exon(region, feature, exonNumber, geneId, transcId, geneName, transcName, biotype);				
-				exons.add(exon);
-			}
+ 			Exon exon = parseLine(parser, line);
+ 			if (exon != null) {
+ 				exons.add(exon);
+ 			}
 		}
 		return exons;
+	}
+	
+	public static Exon parseLine(GtfLineParser parser, String line) {
+		parser.setLine(line);					
+
+		Region region = parser.getRegion();
+		String feature = parser.getFeature();
+		String geneId = parser.getGeneId();
+		String transcId = parser.getTranscriptId();
+
+		String exonString = parser.getAttribute("exon_number");
+		int exonNumber = -1; 
+		if (exonString != null) {
+			exonNumber = new Integer(exonString);
+		}
+		String geneName = parser.getAttribute("gene_name");
+		String transcName = parser.getAttribute("transcript_name");
+		String biotype = null;
+		
+		Exon exon = null;
+
+		//Standard gtf data (for example Ensembl)
+		if ("exon".equals(feature) || "CDS".equals(feature)) {
+
+			exon = new Exon(region, feature, exonNumber, geneId, transcId, geneName, transcName, biotype);
+
+			//Custom almost-gtf data
+		} else 	if (feature.startsWith("GenBank")) {
+
+			if (geneId == null || transcId == null) {
+				return null;
+			}
+
+			if ("GenBank gene".equals(feature)) {
+				feature = "exon";
+			} else if ("GenBank CDS".equals(feature)) {
+				feature = "CDS";
+			} else {
+				geneId = feature + geneId;
+				transcId = feature + transcId;
+
+				if (geneName != null) {
+					geneName = feature + " " + geneName;
+				}
+
+				if (transcName != null) {
+					transcName = feature + " " + transcName;
+				}
+
+				feature = "exon";
+			}
+
+			exonNumber = 1;
+
+			exon = new Exon(region, feature, exonNumber, geneId, transcId, geneName, transcName, biotype);
+		}
+		return exon;
 	}
 
 	private TreeMap<IndexKey, String> getLines(DataRequest request,
