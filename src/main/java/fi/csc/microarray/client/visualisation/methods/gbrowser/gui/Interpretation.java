@@ -14,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BedTabixToRegionConversion;
@@ -127,17 +128,20 @@ public class Interpretation {
 
 		GtfToFeatureConversion gtfDataThread = getAnnotationDataThread(browser);
 
-		if (gtfDataThread != null) {
-			//Init gene search
-			DataUrl geneUrl = browser.getAnnotationManager().getAnnotation(
-					genome, AnnotationManager.AnnotationType.GENE_CHRS).getUrl();
+		GenomeAnnotation genes = browser.getAnnotationManager().getAnnotation(
+				genome, AnnotationManager.AnnotationType.GENE_INDEX);				
 
-			GeneSearchConversion geneRequestHandler = new GeneSearchConversion(geneUrl, browser);
+		GeneSearchConversion geneRequestHandler = null;
 
+		if (genes != null) {
+			geneRequestHandler = new GeneSearchConversion(genes.getUrl(), browser);
+		}
+
+		if (genes != null || gtfDataThread != null) {
 			return new GeneIndexActions(browser.getPlot().getDataView().getQueueManager(), gtfDataThread, geneRequestHandler);
-		} 
-		
-		return null;
+		} else {
+			return null;
+		}
 	}	
 	
 	public static GtfToFeatureConversion getAnnotationDataThread(GBrowser browser) {

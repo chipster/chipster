@@ -2,10 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
@@ -27,6 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.BinarySearchIndex;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.ChromosomeBinarySearch;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.Index;
@@ -44,6 +48,9 @@ public class GtfToFeatureConversion extends DataThread {
 	private TabixDataSource tabixDataSource;
 	private RandomAccessLineDataSource gtfDataSource;
 
+	private ChromosomeBinarySearch chrSearch;
+	
+
 	public GtfToFeatureConversion(DataUrl gtfTabixUrl, DataUrl gtfIndexUrl, final GBrowser browser) {
 	    
 		super(browser, null);
@@ -59,6 +66,8 @@ public class GtfToFeatureConversion extends DataThread {
 				gtfDataSource = new RandomAccessLineDataSource(gtfTabixUrl);
 				this.index = new BinarySearchIndex(gtfDataSource, parser);
 				super.setDataSource(gtfDataSource);
+				
+				chrSearch = new ChromosomeBinarySearch(gtfTabixUrl, new GtfLineParser());
 
 				//		try {
 				//			this.index = new InMemoryIndex(file, parser);
@@ -103,7 +112,7 @@ public class GtfToFeatureConversion extends DataThread {
 				resultList = processGeneSearch(geneRequest);
 				createDataResult(new GeneResult(geneRequest.getStatus(), resultList, geneRequest.getSearchString()));
 				
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}			
 
@@ -175,7 +184,10 @@ public class GtfToFeatureConversion extends DataThread {
 	}
 	
 	public static Exon parseLine(GtfLineParser parser, String line) {
-		parser.setLine(line);					
+		if (!parser.setLine(line)) {
+			//header line
+			return null;
+		}
 
 		Region region = parser.getRegion();
 		String feature = parser.getFeature();
@@ -272,31 +284,52 @@ public class GtfToFeatureConversion extends DataThread {
 		return lines;
 	}
 	
-	private List<Feature> processGeneSearch(GeneRequest request) throws IOException {
+	private List<Feature> processGeneSearch(GeneRequest request) throws IOException, UnsortedDataException, GBrowserException {
 
 		String searchString = request.getSearchString().toLowerCase();
-		Chromosome chr = request.start.chr;
-
-		Region region = new Region(1l, Long.MAX_VALUE, chr);
-
-		List<Exon> exons = fetchExons(request, region);
 		
-		GeneSet genes = new GeneSet();				
-		genes.add(exons.iterator(), region);
-
 		List<Feature> resultList = new LinkedList<Feature>();
+		
+		for (String chrName : getChromosomes()) {
+			Chromosome chr = new Chromosome(chrName);
+			Region region = new Region(1l, Long.MAX_VALUE, new Chromosome(chr));
+			request.start.chr = chr;
+			request.end.chr = chr;
+			List<Exon> exons = fetchExons(request, region);
 
-		for (Gene gene : genes.values()) {
+			GeneSet genes = new GeneSet();				
+			genes.add(exons.iterator(), region);
 
-			if (gene.getName() != null && gene.getName().toLowerCase().equals(searchString)) {
 
-				LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+			for (Gene gene : genes.values()) {
 
-				values.put(DataType.VALUE, gene);
-				resultList.add(new Feature(gene.getRegion(), values));
+				if (gene.getName() != null && gene.getName().toLowerCase().equals(searchString) || 
+						gene.getId() != null && gene.getId().toLowerCase().equals(searchString)) {
+
+					LinkedHashMap<DataType, Object> values = new LinkedHashMap<DataType, Object>();
+
+					values.put(DataType.VALUE, gene);
+					resultList.add(new Feature(gene.getRegion(), values));
+				}
 			}
 		}
 
 		return resultList;
+	}
+
+	private Collection<String> getChromosomes() throws UnsortedDataException, IOException, GBrowserException {
+		if (isTabix) {
+			return tabixDataSource.getChromosomes();
+		} else {
+			// at the moment annotations are always in tabix format. In principle gene search should
+			// work also with plain gtf files, but it has never been tested
+			TreeSet<Chromosome> chrNames = chrSearch.getChromosomes();
+			
+			ArrayList<String> chrs = new ArrayList<>();
+			for (Chromosome chr : chrNames) {
+				chrs.add(chr.toString());
+			}
+			return chrs;
+		}
 	}
 }

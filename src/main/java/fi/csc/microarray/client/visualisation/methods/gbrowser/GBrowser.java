@@ -77,7 +77,7 @@ public class GBrowser {
 	private GeneIndexActions gia;
 
 	private ViewLimiter viewLimiter;
-	protected boolean geneSearchDone;
+	protected volatile boolean geneSearchDone;
 
 	private GBrowserSettings settings;
 

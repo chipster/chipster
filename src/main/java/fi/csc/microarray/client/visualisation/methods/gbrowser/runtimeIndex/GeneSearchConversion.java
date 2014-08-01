@@ -17,14 +17,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * This class converts gene name search requests to GeneResult objects containing 
- * the chromosome of the requested gene. This information is read from the purpose-build
+ * the location of the requested gene. This information is read from the purpose-build
  * file. 
  * 
  * @author klemela
  */
 public class GeneSearchConversion extends DataThread {	
 	
-	private HashMap<String, Chromosome> geneNameMap;
+	private HashMap<String, Region> geneNameMap;
+	private HashMap<String, Region> geneIdMap;
 	private LineDataSource dataSource;
 	
 	public GeneSearchConversion(DataUrl data, final GBrowser browser) {
@@ -47,7 +48,8 @@ public class GeneSearchConversion extends DataThread {
 	protected void processDataRequest(DataRequest request) throws InterruptedException {
 
 		if (geneNameMap == null) {
-			geneNameMap = new HashMap<String, Chromosome>();
+			geneNameMap = new HashMap<String, Region>();
+			geneIdMap = new HashMap<String, Region>();
 
 			try {
 				readFile();
@@ -61,12 +63,17 @@ public class GeneSearchConversion extends DataThread {
 		
 		String searchString = geneRequest.getSearchString();
 
-		Chromosome chr = geneNameMap.get(searchString.toLowerCase());
+		Region region = geneNameMap.get(searchString.toLowerCase());
+		
+		if (region == null) {
+			region = geneIdMap.get(searchString.toLowerCase());
+		}
+		
 		List<Feature> resultList = new LinkedList<Feature>();
 
-		if (chr != null) {
+		if (region != null) {
 
-			resultList.add(new Feature(new Region(null, null, chr), null));
+			resultList.add(new Feature(region, null));
 		}
 
 		super.createDataResult(new GeneResult(geneRequest.getStatus(), resultList, searchString));
@@ -80,12 +87,14 @@ public class GeneSearchConversion extends DataThread {
 
 			String[] cols = line.split("\t");
 
-			if (cols.length == 2) {
-				String chr = cols[0];
-				String geneName = cols[1];
+			String chr = cols[0];
+			long start = Long.parseLong(cols[1]);
+			long end = Long.parseLong(cols[2]);
+			String name = cols[3];
+			String id = cols[4];
 
-				geneNameMap.put(geneName.toLowerCase(), new Chromosome(chr));
-			}
+			geneNameMap.put(name.toLowerCase(), new Region(start, end, new Chromosome(chr)));
+			geneIdMap.put(id.toLowerCase(), new Region(start, end, new Chromosome(chr)));			
 		}
 	}
 }
