@@ -45,7 +45,12 @@ public class GtfGenes {
 		GtfLineParser parser = new GtfLineParser();
 		LinkedList<Exon> exons = new LinkedList<Exon>();
 		
-		String lastChr = null;			
+		String lastChr = null;		
+		
+		/* Reading whole file at once consumes too much memory, so write out results
+		 * always on chromosome change. Cutting anywhere else would be more difficult, 
+		 * because gene must not overlap the cut position. 
+		 */
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(in))) {
 			String line;
@@ -61,12 +66,13 @@ public class GtfGenes {
 				if (lastChr != null && !currentChr.equals(lastChr)) {
 					write(out, exons);
 					exons.clear();					
-					System.out.println("chromosome " + lastChr);
 				}
 				lastChr = currentChr;
 				
 				exons.add(exon);			
 			}
+			// write out last chromosome
+			write(out, exons);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -76,7 +82,9 @@ public class GtfGenes {
 	private static void write(File out, LinkedList<Exon> exons) {		
 
 		GeneSet geneSet = new GeneSet();				
-		geneSet.add(exons.iterator(), null);		
+		geneSet.add(exons.iterator(), null);
+		
+		String chr = null;
 						
 		try ( BufferedWriter writer = new BufferedWriter(new FileWriter(out, true))) {
 
@@ -88,8 +96,10 @@ public class GtfGenes {
 				name = name == null ? "" : name;
 				id = id == null ? "" : id;
 				
+				chr = gene.getRegion().start.chr.toString();
+				
 				writer.write(
-						gene.getRegion().start.chr + "\t" + 
+						chr + "\t" + 
 						gene.getRegion().start.bp + "\t" +  
 						gene.getRegion().end.bp + "\t" + 
 						name + "\t" + 
@@ -101,5 +111,6 @@ public class GtfGenes {
 			e.printStackTrace();
 			System.exit(1);
 		}		
+		System.out.println("chromosome " + chr);
 	}
 }
