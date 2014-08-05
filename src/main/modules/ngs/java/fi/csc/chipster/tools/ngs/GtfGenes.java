@@ -20,13 +20,15 @@ public class GtfGenes {
 		try {
 		
 		File in = new File(args[0]);
-		File out = new File(args[1]);
+		File ids = new File(args[1]);
+		File names = new File(args[2]);
 		
-		System.out.println("Parsing genes from GTF file " + in + " to " + out + "...");
+		System.out.println("Parsing genes from GTF file " + in + "...");
 		
-		out.delete();
+		ids.delete();
+		names.delete();
 				
-		getGenes(in, out);
+		getGenes(in, ids, names);
 		
 		System.out.println("DONE");
 		
@@ -35,13 +37,13 @@ public class GtfGenes {
 						
 			System.out.println(
 					"usage: \n" +
-					"  GtfGenes <file-in> <file-out>\n" +
+					"  GtfGenes input-gtf gene-id-output gene-name-output\n" +
 					"example:\n " +
-					"  java -cp chipster-3.0.0.jar fi.csc.chipster.tools.ngs.GtfGenes Homo_sapiens.GRCh37.70.gtf Homo_sapiens.GRCh37.70.gene.tsv");
+					"  java -cp chipster-3.0.0.jar fi.csc.chipster.tools.ngs.GtfGenes Homo_sapiens.GRCh37.70.gtf Homo_sapiens.GRCh37.70.gene-id.search.tsv Homo_sapiens.GRCh37.70.gene-name.search.tsv");
 		}				
 	}
 
-	private static void getGenes(File in, File out) {
+	private static void getGenes(File in, File ids, File names) {
 		GtfLineParser parser = new GtfLineParser();
 		LinkedList<Exon> exons = new LinkedList<Exon>();
 		
@@ -64,7 +66,7 @@ public class GtfGenes {
 				
 				String currentChr = exon.getRegion().start.chr.toString();
 				if (lastChr != null && !currentChr.equals(lastChr)) {
-					write(out, exons);
+					write(ids, names, exons);
 					exons.clear();					
 				}
 				lastChr = currentChr;
@@ -72,40 +74,50 @@ public class GtfGenes {
 				exons.add(exon);			
 			}
 			// write out last chromosome
-			write(out, exons);
+			write(ids, names, exons);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 
-	private static void write(File out, LinkedList<Exon> exons) {		
+	private static void write(File ids, File names, LinkedList<Exon> exons) {		
 
 		GeneSet geneSet = new GeneSet();				
 		geneSet.add(exons.iterator(), null);
 		
 		String chr = null;
 						
-		try ( BufferedWriter writer = new BufferedWriter(new FileWriter(out, true))) {
+		try ( BufferedWriter idWriter = new BufferedWriter(new FileWriter(ids, true));
+				BufferedWriter nameWriter = new BufferedWriter(new FileWriter(names, true))) {
 
 			for (Gene gene : geneSet.values()) {
 			
 				String name = gene.getName();
 				String id = gene.getId();
 				
-				name = name == null ? "" : name;
-				id = id == null ? "" : id;
-				
 				chr = gene.getRegion().start.chr.toString();
 				
-				writer.write(
-						chr + "\t" + 
-						gene.getRegion().start.bp + "\t" +  
-						gene.getRegion().end.bp + "\t" + 
-						name + "\t" + 
-						id + "\n");
+				if (id != null) {
+					idWriter.write(
+							chr + "\t" + 
+									gene.getRegion().start.bp + "\t" +  
+									gene.getRegion().end.bp + "\t" +  
+									id + "\n");
+				}
+				
+				if (name != null) {
+					nameWriter.write(
+							chr + "\t" + 
+									gene.getRegion().start.bp + "\t" +  
+									gene.getRegion().end.bp + "\t" + 
+									name + "\n");
+				}
 			}
-			writer.flush();
+			
+			// does try-with-resources do this already?
+			idWriter.flush();
+			nameWriter.flush();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
