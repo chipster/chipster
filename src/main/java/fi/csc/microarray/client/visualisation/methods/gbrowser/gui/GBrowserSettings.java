@@ -1,16 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -23,9 +19,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
+import javax.swing.UIManager;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -75,16 +72,15 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	
 	private static final long DEFAULT_VIEWSIZE = 100000;
 	private static final long DEFAULT_LOCATION = 1000000;
+	private static final String FULL_WIDTH = "growx";
+	private static final String GAPY = "gapy rel";
+	//private static final String FULL_WIDTH = "w ::200, gapright 20, growx";
 	
 	private Long lastViewsize;
 	private boolean initialised;
 	
 	private JPanel paramPanel;
 	private JPanel settingsPanel = new JPanel();
-	private JPanel genomePanel;
-	private JPanel locationPanel;
-	private JPanel optionsPanel;
-	private JPanel linksPanel;
 
 	private JButton goButton = new JButton("Go");
 
@@ -113,8 +109,9 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	private Long lastLocation;
 
 	private JTabbedPane tabPane;
-	private GBrowserLegend legend;
-	private SelectionPanel selectionPanel;
+	private JScrollPane selectedScrollPane;
+	private JScrollPane settingsScrollPane;
+	private JScrollPane legendScrollPane;
 
 	public void initialise(GBrowser browser) throws Exception {
 		
@@ -131,180 +128,110 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
-			paramPanel.setLayout(new GridBagLayout());
-
+			paramPanel.setLayout(new MigLayout("insets 0, fill"));
+			
+			settingsPanel.setLayout(new MigLayout("wrap 1, fillx, gapy 0"));
+			
 			JPanel settings = this.createSettingsPanel();
-			// for some reason, genomeBox becomes too wide if preferred size is not set 
-			settings.setPreferredSize(new Dimension(100, 50));
-			JScrollPane settingsScrollPane = new JScrollPane(settings);
+			JPanel selectionPanel = new SelectionPanel(browser.getSelectionManager()); 
+			JPanel legend = new GBrowserLegend(browser);
+			
+			settingsScrollPane = new JScrollPane(settings);
+			selectedScrollPane = new JScrollPane(selectionPanel);
+			legendScrollPane = new JScrollPane(legend);
+
 			settingsScrollPane.setBorder(BorderFactory.createEmptyBorder());
+			selectedScrollPane.setBorder(BorderFactory.createEmptyBorder());			
+			legendScrollPane.setBorder(BorderFactory.createEmptyBorder());
+			
 			settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			
-			legend = new GBrowserLegend(browser);
-			selectionPanel = new SelectionPanel(browser.getSelectionManager()); 
 
 			tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settingsScrollPane);
-			tabPane.addTab("Selected", selectionPanel);
-			tabPane.addTab("Legend", legend);
+			tabPane.addTab("Selected", selectedScrollPane);
+			tabPane.addTab("Legend", legendScrollPane);
 			
 			browser.getSelectionManager().addSelectionListener(new BrowserSelectionListener() {				
 				@Override
 				public void selectionChanged(DataUrl data, Selectable selectable, Object source) {
 					//there is nothing to show if the selection was cleared 
 					if (selectable != null) {
-						tabPane.setSelectedComponent(selectionPanel);
+						tabPane.setSelectedComponent(selectedScrollPane);
 					}
 				}
 			});
 
-			GridBagConstraints c = new GridBagConstraints();
-
-			c.gridy = 0;
-			c.gridx = 0;
-			c.anchor = GridBagConstraints.NORTHWEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weighty = 1.0;
-			c.weightx = 1.0;
-			c.insets.set(5, 0, 0, 0);
-
-			paramPanel.add(tabPane, c);
+			paramPanel.add(tabPane, "top, grow");
 		}
 		
 		return paramPanel;
 	}
 
-	public JPanel getOptionsPanel() {
-		if (this.optionsPanel == null) {
-			optionsPanel = new JPanel(new GridBagLayout());
-			optionsPanel.setBorder(createSettingsPanelSubPanelBorder("Options"));
+	public void createOptions() {
 
-			GridBagConstraints oc = new GridBagConstraints();
-			oc.gridy = 0;
-			oc.gridx = 0;
-			oc.anchor = GridBagConstraints.PAGE_START;
-			oc.fill = GridBagConstraints.BOTH;
-			oc.weighty = 1.0;
-			oc.weightx = 1.0;
-
-			JPanel menu = new JPanel(new GridBagLayout());
-			menu.setBorder(BorderFactory.createEmptyBorder());
-
-			JScrollPane menuScrollPane = new JScrollPane(menu);
-
-
-			menuScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-
-			GridBagConstraints c = new GridBagConstraints();
-			c.weighty = 0.0;
-			c.weightx = 1.0;
-			c.anchor = GridBagConstraints.PAGE_START;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.gridx = 0;
-			c.gridy = 0;
-
-			setTrackSwitchesEnabled(false);
-			for (JCheckBox trackSwitch : trackSwitches.values()) {
-				trackSwitch.addActionListener(this);
-				menu.add(trackSwitch, c);
-				c.gridy++;
-			}
-
-			// coverage type
-			coverageTypeLabel.setEnabled(false);
-			c.insets.set(10,0,0,0);
-			menu.add(coverageTypeLabel, c);
-			c.gridy++;
-			c.insets.set(0,0,0,0);
-			coverageTypeBox = new JComboBox<CoverageType>(new CoverageType[] {CoverageType.NONE, CoverageType.TOTAL, CoverageType.STRAND});
-			coverageTypeBox.setSelectedItem(CoverageType.TOTAL);
-			coverageTypeBox.setEnabled(false);
-			coverageTypeBox.addActionListener(this);
-			menu.add(coverageTypeBox, c);
-
-			// coverage scale
-			c.gridy++;
-			coverageScaleLabel.setEnabled(false);
-			c.insets.set(10,0,0,0);
-			menu.add(coverageScaleLabel, c);
-			c.gridy++;
-			c.insets.set(0,0,0,0);
-			coverageScaleBox = new JComboBox<ReadScale>(GBrowserPlot.ReadScale.values());
-			coverageScaleBox.setSelectedItem(GBrowserPlot.ReadScale.SMALL);
-			coverageScaleBox.setEnabled(false);
-			coverageScaleBox.addActionListener(this);
-			menu.add(coverageScaleBox, c);
-
-			optionsPanel.add(menu, oc);
+		setTrackSwitchesEnabled(false);
+		for (JCheckBox trackSwitch : trackSwitches.values()) {
+			trackSwitch.addActionListener(this);
+			settingsPanel.add(trackSwitch, GAPY);
 		}
-		return optionsPanel;
+
+		// coverage type
+		coverageTypeLabel.setEnabled(false);
+		settingsPanel.add(coverageTypeLabel, GAPY);
+
+		coverageTypeBox = new JComboBox<CoverageType>(new CoverageType[] {CoverageType.NONE, CoverageType.TOTAL, CoverageType.STRAND});
+		coverageTypeBox.setSelectedItem(CoverageType.TOTAL);
+		coverageTypeBox.setEnabled(false);
+		coverageTypeBox.addActionListener(this);
+		settingsPanel.add(coverageTypeBox, FULL_WIDTH);
+
+		// coverage scale
+		coverageScaleLabel.setEnabled(false);
+		settingsPanel.add(coverageScaleLabel, GAPY);
+
+		coverageScaleBox = new JComboBox<ReadScale>(GBrowserPlot.ReadScale.values());
+		coverageScaleBox.setSelectedItem(GBrowserPlot.ReadScale.SMALL);
+		coverageScaleBox.setEnabled(false);
+		coverageScaleBox.addActionListener(this);
+		settingsPanel.add(coverageScaleBox, FULL_WIDTH);
 	}
 
-	private JPanel getExternalLinkPanel() {
-		if (linksPanel == null) { 
-			linksPanel = new JPanel(new GridBagLayout());
-			linksPanel.setBorder(createSettingsPanelSubPanelBorder("External links"));
-
-			ensemblLink = LinkUtil.createLink("Ensembl", new AbstractAction() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {					
-					browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL));
-				}
-			});
+	private void createExternalLinks() {
+		ensemblLink = LinkUtil.createLink("Ensembl", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {					
+				browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.ENSEMBL_BROWSER_URL));
+			}
+		});
 
 
-			ucscLink = LinkUtil.createLink("UCSC", new AbstractAction() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {			
-					browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL));
-				}
-			});
+		ucscLink = LinkUtil.createLink("UCSC", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {			
+				browser.openExternalBrowser(browser.getExternalLinkUrl(AnnotationType.UCSC_BROWSER_URL));
+			}
+		});
 
-			ensemblLink.setEnabled(false);
-			ucscLink.setEnabled(false);
-
-			GridBagConstraints c = new GridBagConstraints();
-			c.gridx = 0;
-			c.gridy = 0;
-			//c.gridwidth = 3;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.anchor = GridBagConstraints.NORTHWEST;
-			c.weightx = 0;
-			c.weighty = 0;
-
-			List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
-			importLinks.add(ensemblLink);
-			importLinks.add(ucscLink);
-
-			final int MAX_ROW_CHARS = 33;
-
-			LinkUtil.addLinks("View this region in *** or *** genome browser.", 
-					importLinks, null, c, linksPanel, MAX_ROW_CHARS, null);
-
-			// Panels to take rest of space
-			JPanel bottomPanel = new JPanel();
-			JPanel rightPanel = new JPanel();
-
-			c.weightx = 0.0;
-			c.weighty = 1.0;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.gridx = 1;
-			c.gridy++;
-			linksPanel.add(bottomPanel, c);
-			c.weightx = 1.0;
-			c.weighty = 0.0;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.gridx = 2;
-			c.gridy = 1;
-			linksPanel.add(rightPanel, c);
-
-			// linksPanel.setMinimumSize(new Dimension(0, 0));
-			//			this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
-
-		}
-
-		return linksPanel;
+		ensemblLink.setEnabled(false);
+		ucscLink.setEnabled(false);
+		
+		/* there shouldn't be need for two panels, because layout constraint
+		 * "nogrid" separates columns of the two rows, but it seems to 
+		 * disable "gap 0" settings
+		 */
+		
+		JPanel row1 = new JPanel(new MigLayout("insets 0, gap 0"));
+		JPanel row2 = new JPanel(new MigLayout("insets 0, gap 0"));
+					
+		row1.add(new JLabel("View this region in "));
+		row1.add(ensemblLink);
+		row1.add(new JLabel(" or "), "wrap");
+		row2.add(ucscLink);
+		row2.add(new JLabel(" genome browser."));
+		
+		settingsPanel.add(row1, GAPY);
+		settingsPanel.add(row2, GAPY);
 	}
 
 
@@ -316,133 +243,62 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 
 	public JPanel createSettingsPanel() {
 
-		settingsPanel.setLayout(new GridBagLayout());
-
-		GridBagConstraints c = new GridBagConstraints();
-
-		c.gridy = 0;
-		c.gridx = 0;
-		c.insets.set(0, 5, 15, 5);
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weighty = 0;
-		c.weightx = 1.0;
-
-		// genome
-		settingsPanel.add(getGenomePanel(), c);
-		c.gridy++;
-
-		// location
-		settingsPanel.add(getLocationPanel(), c);
-		c.gridy++;
-
-
-		// options
-		settingsPanel.add(getOptionsPanel(), c);
-		c.gridy++;
-
-		// datasets
-		c.insets.set(0, 5, 5, 5);
-//		settingsPanel.add(getDatasetsPanel(), c);
-//		c.gridy++;
-
-		// external links
-		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1;
-		settingsPanel.add(getExternalLinkPanel(), c);
+		settingsPanel.add(createTitle("Genome"), "gaptop unrelated");
+		createGenomeSettings();
+		settingsPanel.add(createTitle("Location"), "gaptop unrelated");
+		createLocationSettings();
+		settingsPanel.add(createTitle("Options"), "gaptop unrelated");
+		createOptions();
+		settingsPanel.add(createTitle("External links"), "gaptop unrelated");
+		createExternalLinks();
 
 		return settingsPanel;
 	}
 
 
-	private JPanel getGenomePanel() {
-		if (this.genomePanel == null) {
-			this.genomePanel = new JPanel(new GridBagLayout());
-			genomePanel.setBorder(createSettingsPanelSubPanelBorder("Genome"));
+	private void createGenomeSettings() {
 
-			GridBagConstraints c = new GridBagConstraints();
-			c.gridy = 0;
-			c.gridx = 0;
-			c.insets.set(5, 0, 5, 0);
-			c.anchor = GridBagConstraints.NORTHWEST;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weighty = 0;
-			c.weightx = 1.0;
-			c.gridx = 0;
+		Object[] genomes = browser.getAnnotationManager().getGenomes().toArray();
+		genomeBox = new SteppedComboBox(genomes);
 
-			Object[] genomes = browser.getAnnotationManager().getGenomes().toArray();
-			genomeBox = new SteppedComboBox(genomes);
-			
-			genomeBox.setPopupWidth(500);
-			genomeBox.setBackground(Color.white);
+		genomeBox.setPopupWidth(500);
+		genomeBox.setBackground(Color.white);
 
-			// no selection at startup
-			genomeBox.setSelectedItem(null);
-			genomeBox.addActionListener(this);
+		// no selection at startup
+		genomeBox.setSelectedItem(null);
+		genomeBox.addActionListener(this);
 
-			genomePanel.add(genomeBox, c);
-		}
-
-		return genomePanel;
+		// genomeBox works properly only when min:pref:max sizes are set 
+		settingsPanel.add(genomeBox, "w 100:200:300, growx, " + GAPY);
 	}
 
-	private JPanel getLocationPanel() {
-		if (this.locationPanel == null) {
+	private void createLocationSettings() {
 
-			locationPanel = new JPanel(new GridBagLayout());
-			locationPanel.setBorder(createSettingsPanelSubPanelBorder("Location"));
+		// chromosome
+		chrLabel.setEnabled(false);
+		settingsPanel.add(chrLabel, GAPY);
+		chrBox = new JComboBox<Chromosome>();
+		chrBox.setEnabled(false);
+		settingsPanel.add(chrBox, FULL_WIDTH);
 
-			GridBagConstraints c = new GridBagConstraints();
-			c.gridy = 0;
-			c.gridx = 0;
-			c.anchor = GridBagConstraints.NORTHWEST;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weighty = 0;
-			c.weightx = 1.0;
+		// location
+		locationLabel.setEnabled(false);
+		settingsPanel.add(locationLabel, GAPY);
+		locationField.setEnabled(false);
+		locationField.addActionListener(this);
+		settingsPanel.add(locationField, FULL_WIDTH);
 
-			// chromosome
-			chrLabel.setEnabled(false);
-			locationPanel.add(chrLabel, c);
-			c.gridy++;
-			chrBox = new JComboBox<Chromosome>();
-			chrBox.setEnabled(false);
-			c.insets.set(0, 0, 10, 0);
-			locationPanel.add(chrBox, c);
+		// viewsize
+		viewsizeLabel.setEnabled(false);
+		settingsPanel.add(viewsizeLabel, GAPY);
+		viewsizeField.setEnabled(false);
+		viewsizeField.setEditable(false); // view size is never editable
+		settingsPanel.add(this.viewsizeField, FULL_WIDTH);
 
-			// location
-			c.gridy++;
-			c.insets.set(0, 0, 0, 0);
-			locationLabel.setEnabled(false);
-			locationPanel.add(locationLabel, c);
-			locationField.setEnabled(false);
-			locationField.addActionListener(this);
-			c.gridy++;
-			c.insets.set(0, 0, 10, 0);
-			locationPanel.add(locationField, c);
-
-			// viewsize
-			c.gridx = 0;
-			c.gridwidth = 5;
-			c.gridy++;
-			c.insets.set(0, 0, 0, 0);
-			viewsizeLabel.setEnabled(false);
-			locationPanel.add(viewsizeLabel, c);
-			c.gridwidth = 4;
-			c.gridy++;
-			c.insets.set(0, 0, 10, 0);
-			viewsizeField.setEnabled(false);
-			viewsizeField.setEditable(false); // view size is never editable
-			locationPanel.add(this.viewsizeField, c);
-
-			// go button
-			c.gridy++;
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.anchor = GridBagConstraints.CENTER;
-			goButton.setEnabled(false);
-			goButton.addActionListener(this);
-			locationPanel.add(goButton, c);
-		}
-		return locationPanel;
+		// go button
+		goButton.setEnabled(false);
+		goButton.addActionListener(this);
+		settingsPanel.add(goButton, FULL_WIDTH + ", " + GAPY);
 	}
 
 	protected void fillChromosomeBox() throws IOException, UnsortedDataException, URISyntaxException, GBrowserException {
@@ -708,8 +564,11 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		this.lastViewsize = bpRegion.getLength();
 	}
 	
-	public static TitledBorder createSettingsPanelSubPanelBorder(String title) {
-		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
+	public static JLabel createTitle(String title) {
+		JLabel label = new JLabel(title);
+		label.setFont(UIManager.getFont("TitledBorder.font"));
+		label.setForeground(UIManager.getColor("TitledBorder.titleColor"));
+		return label;
 	}
 
 	@SuppressWarnings("unchecked")
