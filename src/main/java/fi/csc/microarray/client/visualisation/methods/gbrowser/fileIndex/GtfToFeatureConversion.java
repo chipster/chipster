@@ -24,7 +24,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Exon;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Gene;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.SearchRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.IndexKey;
@@ -104,9 +104,9 @@ public class GtfToFeatureConversion extends DataThread {
 		}
 		
 
-		if (request instanceof GeneRequest) {
+		if (request instanceof SearchRequest) {
 
-			GeneRequest geneRequest = (GeneRequest)request;
+			SearchRequest geneRequest = (SearchRequest)request;
 			List<Feature> resultList;
 			try {
 				resultList = processGeneSearch(geneRequest);
@@ -284,7 +284,7 @@ public class GtfToFeatureConversion extends DataThread {
 		return lines;
 	}
 	
-	private List<Feature> processGeneSearch(GeneRequest request) throws IOException, UnsortedDataException, GBrowserException {
+	private List<Feature> processGeneSearch(SearchRequest request) throws IOException, UnsortedDataException, GBrowserException {
 
 		String searchString = request.getSearchString().toLowerCase();
 		

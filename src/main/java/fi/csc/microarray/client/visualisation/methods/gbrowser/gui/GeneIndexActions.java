@@ -6,7 +6,7 @@ import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResultListener;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.SearchRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.DataThread;
@@ -45,9 +45,9 @@ public class GeneIndexActions implements DataResultListener {
 		listenerMap.put(gene, listener);
 		
 		if (geneDataSource != null) {
-			queueManager.addDataRequest(geneDataSource, new GeneRequest(gene, null), null);
+			queueManager.addDataRequest(geneDataSource, new SearchRequest(gene, null), null);
 		} else if (gtfDataSource != null) {
-			queueManager.addDataRequest(gtfDataSource, new GeneRequest(gene, null), null);
+			queueManager.addDataRequest(gtfDataSource, new SearchRequest(gene, null), null);
 		}
 	}
 

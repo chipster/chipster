@@ -3,6 +3,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import net.sf.picard.reference.ChipsterIndexedFastaSequenceFile;
@@ -24,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaC
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CnaLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.CytobandConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.FileLineConversion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GeneSearchConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.SearchIndexConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.GtfLineParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex.RandomAccessLineDataSource;
@@ -128,17 +130,23 @@ public class Interpretation {
 
 		GtfToFeatureConversion gtfDataThread = getAnnotationDataThread(browser);
 
-		GenomeAnnotation genes = browser.getAnnotationManager().getAnnotation(
-				genome, AnnotationManager.AnnotationType.GENE_INDEX);				
-
-		GeneSearchConversion geneRequestHandler = null;
-
-		if (genes != null) {
-			geneRequestHandler = new GeneSearchConversion(genes.getUrl(), browser);
+		List<GenomeAnnotation> indexes = browser.getAnnotationManager().getAnnotations(
+				genome, AnnotationManager.AnnotationType.SEARCH_INDEX);
+		
+		List<DataUrl> indexUrls = new ArrayList<DataUrl>();
+		
+		for (GenomeAnnotation index : indexes) {
+			indexUrls.add(index.getUrl());
 		}
 
-		if (genes != null || gtfDataThread != null) {
-			return new GeneIndexActions(browser.getPlot().getDataView().getQueueManager(), gtfDataThread, geneRequestHandler);
+		SearchIndexConversion searchIndexConversion = null;
+
+		if (!indexUrls.isEmpty()) {
+			searchIndexConversion = new SearchIndexConversion(indexUrls, browser);
+		}
+
+		if (searchIndexConversion != null || gtfDataThread != null) {
+			return new GeneIndexActions(browser.getPlot().getDataView().getQueueManager(), gtfDataThread, searchIndexConversion);
 		} else {
 			return null;
 		}

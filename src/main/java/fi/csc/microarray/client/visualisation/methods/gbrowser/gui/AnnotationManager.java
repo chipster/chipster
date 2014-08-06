@@ -208,7 +208,7 @@ public class AnnotationManager {
 	public enum AnnotationType {
 		CYTOBANDS("Cytoband"), 
 		GTF_TABIX("Transcript"), GTF_TABIX_INDEX("Transcript index"), REPEAT("Repeat"), REPEAT_INDEX("Repeat index"),
-		REFERENCE("Reference sequence", false), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), GENE_INDEX("Gene name"), 
+		REFERENCE("Reference sequence", false), REFERENCE_INDEX("Reference sequence index"), SNP("ENSEMBL SNP"), SEARCH_INDEX("Search index"), 
 		ENSEMBL_BROWSER_URL("Ensembl", false), UCSC_BROWSER_URL("UCSC", false), GENOME_INFO("Annotation definition", true), GTF("Gene annotation", false);
 
 		private String id;
@@ -295,8 +295,8 @@ public class AnnotationManager {
 				
 				AnnotationType annotationType = null;
 				
-				if (fileName.endsWith(".gene.tsv")) {
-					annotationType = AnnotationType.GENE_INDEX;
+				if (fileName.endsWith(".search.tsv")) {
+					annotationType = AnnotationType.SEARCH_INDEX;
 					
 				} else if (fileName.endsWith(".tabix.gtf.gz")) {
 					annotationType = AnnotationType.GTF_TABIX;
