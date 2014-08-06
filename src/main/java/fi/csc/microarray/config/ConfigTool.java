@@ -13,9 +13,13 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -85,7 +89,8 @@ public class ConfigTool {
 			{"manager", ""}
 	};
 	
-	private HashMap<String, Document> documentsToWrite = new HashMap<String, Document>();
+	private HashMap<String, Document> documentsToWrite = new HashMap<>();
+	private HashMap<String, List<String>> filesToWrite = new HashMap<>();
 
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
@@ -227,11 +232,16 @@ public class ConfigTool {
 		
 	}
 
-	private void writeChangesToDisk() throws TransformerException, UnsupportedEncodingException, FileNotFoundException {
+	private void writeChangesToDisk() throws TransformerException, IOException {
 		// write out files
 		for (String file : documentsToWrite.keySet()) {
 			System.out.println("Writing changes to: " + file);
 			XmlUtil.printXml(documentsToWrite.get(file), new OutputStreamWriter(new FileOutputStream(file)));
+		}
+		
+		for (String file : filesToWrite.keySet()) {
+			System.out.println("Writing changes to: " + file);			
+			Files.write(Paths.get(new File(file).toURI()), filesToWrite.get(file), Charset.defaultCharset());
 		}
 		System.out.println("\nAll changes successfully written!");
 	}
@@ -355,7 +365,7 @@ public class ConfigTool {
 			// Collect changes for each config file
 			for (String component : components) {
 				File configFile = new File(component + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
-				Document doc = openForUpdating("Chipster", configFile, true);
+				Document doc = openXmlForUpdating("Chipster", configFile, true);
 
 				String[] nameParts = entryName.split("/");
 				if (nameParts.length != 2) {
@@ -421,10 +431,16 @@ public class ConfigTool {
 		if (wsConfigFile.exists()) {
 			updateWsConfigFile(wsConfigFile);
 		}
+		
+		// update CLI client config
+		File cliConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT + File.separator + "chipster-cli.bash");
+		if (cliConfigFile.exists()) {
+			updateCliClientConfigFile(cliConfigFile);
+		}
 	}
 
 	private void updateActivemqConfigFile(File configFile) throws Exception {
-		Document doc = openForUpdating("ActiveMQ", configFile, false);
+		Document doc = openXmlForUpdating("ActiveMQ", configFile, false);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 		
 		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
@@ -440,7 +456,7 @@ public class ConfigTool {
 	}
 	
 	private void updateWsConfigFile(File configFile) throws Exception {
-		Document doc = openForUpdating("Web Start", configFile, false);
+		Document doc = openXmlForUpdating("Web Start", configFile, false);
 		Element jnlp = (Element)doc.getDocumentElement();
 		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
@@ -450,9 +466,18 @@ public class ConfigTool {
 		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
 		writeLater(configFile, doc);
 	}
+	
+	private void updateCliClientConfigFile(File configFile) throws Exception {		
+		List<String> conf = openFileForUpdating("Chipster CLI client", configFile, false);
+		String hostUrl = "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
+		String confFile = Configuration.CONFIG_FILENAME;
+		updateStringLine(conf, "host=", "Chipster host (for CLI client)", "host=" + hostUrl);
+		updateStringLine(conf, "conf=", "Chipster config (for CLI client)", "conf=" + Configuration.CONFIG_FILENAME);			
+		writeLater(configFile, conf);
+	}
 
 	private void updateActivemqConfigFilePasswords(File configFile) throws Exception {
-		Document doc = openForUpdating("ActiveMQ", configFile, false);
+		Document doc = openXmlForUpdating("ActiveMQ", configFile, false);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 			
 		NodeList users = ((Element)((Element)((Element)broker.getElementsByTagName("plugins").item(0)).getElementsByTagName("simpleAuthenticationPlugin").item(0)).getElementsByTagName("users").item(0)).getElementsByTagName("authenticationUser");
@@ -470,7 +495,7 @@ public class ConfigTool {
 	}
 
 	private void updateChipsterConfigFilePasswords(File configFile) throws Exception {
-		Document doc = openForUpdating("Chipster", configFile, false);
+		Document doc = openXmlForUpdating("Chipster", configFile, false);
 
 		Element securityModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "security");
 		Element usernameElement = XmlUtil.getChildWithAttributeValue(securityModule, "entryKey", "username");
@@ -485,7 +510,7 @@ public class ConfigTool {
 	}
 	
 	private void updateChipsterConfigFile(File configFile, boolean isPrivateNetwork) throws Exception {
-		Document doc = openForUpdating("Chipster", configFile, false);
+		Document doc = openXmlForUpdating("Chipster", configFile, false);
 
 		Element messagingModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
 		if (isPrivateNetwork) {
@@ -574,18 +599,45 @@ public class ConfigTool {
 		System.out.println("  changing " + logicalName + ": " + element.getAttribute(attrName) + " -> " + attrValue);
 		element.setAttribute(attrName, attrValue);
 	}
+	
+	private void updateStringLine(List<String> lines, String startsWith,
+			String logicalName, String newValue) {
+		
+		for (int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i);
+			if (line.startsWith(startsWith)) {
+				System.out.println("  changing " + logicalName + ": " + line + " -> " + newValue);
+				lines.set(i, newValue);
+				break;
+			}
+		}		
+	}
 
 	private void writeLater(File configFile, Document doc) throws TransformerException, UnsupportedEncodingException, FileNotFoundException {
 		documentsToWrite.put(configFile.getAbsolutePath(), doc);
 		System.out.println("");
 	}
+	
 
-	private Document openForUpdating(String name, File configFile, boolean silent) throws SAXException, IOException, ParserConfigurationException {
+	private void writeLater(File configFile, List<String> conf) {
+		filesToWrite.put(configFile.getAbsolutePath(), conf);
+		System.out.println("");
+	}
+
+	private Document openXmlForUpdating(String name, File configFile, boolean silent) throws SAXException, IOException, ParserConfigurationException {
 		if (!silent) {
 			System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
 		}
 		Document doc = XmlUtil.parseFile(configFile);
 		return doc;
+	}
+	
+	private List<String> openFileForUpdating(String name, File configFile, boolean silent) throws IOException {
+		if (!silent) {
+			System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
+		}
+		List<String> lines = Files.readAllLines(Paths.get(configFile.toURI()), Charset.defaultCharset());
+		return lines;
 	}
 
 	public static String[] getComponentDirsWithConfig() {
