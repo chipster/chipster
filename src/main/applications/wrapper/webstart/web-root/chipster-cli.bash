@@ -23,4 +23,4 @@ fi
 cmd="java -Xmx900M -cp $lib fi.csc.microarray.client.cli.CliClient"
 
 # run
-$cmd $param $@
+$cmd $param "$@"
