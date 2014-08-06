@@ -70,8 +70,8 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 	}
 	
 	
-	private static final long DEFAULT_VIEWSIZE = 100000;
-	private static final long DEFAULT_LOCATION = 1000000;
+	private static final long DEFAULT_VIEWSIZE = 100_000;
+	private static final long DEFAULT_LOCATION = 45_000;
 	private static final String FULL_WIDTH = "growx";
 	private static final String GAPY = "gapy rel";
 	//private static final String FULL_WIDTH = "w ::200, gapright 20, growx";
