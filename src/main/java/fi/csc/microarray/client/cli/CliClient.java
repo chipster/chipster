@@ -198,10 +198,10 @@ public class CliClient {
 
         parser.epilog("use 'COMMAND -h' to show command arguments");                    		
 			            	
-		// parse the command line arguments		
-		parseArgs();
-		
-		if (nameSpace == null) {
+		// parse the command line arguments
+        try {
+        	parseArgs();
+        } catch (HelpScreenException e) {
 			// parser has printed help text, we are done
 			return;
 		}
@@ -229,6 +229,9 @@ public class CliClient {
 						
 					} catch (UserErrorException e) {
 						System.err.println(e.getMessage());
+					} catch (HelpScreenException e) {
+						// skip execute() when parser shows a help text, because
+						// it doesn't update nameSpace
 					}
 					
 					printStatus(">>>");
@@ -282,14 +285,18 @@ public class CliClient {
 		return subparsers.addParser(command).help(help).setDefault(command, true);
 	}
 
-	private void parseArgs() throws ArgumentParserException, UserErrorException {
+	/**
+	 * @throws HelpScreenException help text printed, nameSpace is not updated!
+	 * @throws UserErrorException
+	 */
+	private void parseArgs() throws HelpScreenException, UserErrorException {
 		
 		try {
 			nameSpace = parser.parseArgs(args);		
 			
 		} catch (ArgumentParserException e) {
 			if (e instanceof HelpScreenException) {
-				// silence this weird exception				
+				throw (HelpScreenException)e;
 			} else {
 				throw new UserErrorException(e.getMessage());
 			}
