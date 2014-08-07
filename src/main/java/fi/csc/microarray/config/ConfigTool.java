@@ -470,9 +470,8 @@ public class ConfigTool {
 	private void updateCliClientConfigFile(File configFile) throws Exception {		
 		List<String> conf = openFileForUpdating("Chipster CLI client", configFile, false);
 		String hostUrl = "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
-		String confFile = Configuration.CONFIG_FILENAME;
-		updateStringLine(conf, "host=", "Chipster host (for CLI client)", "host=" + hostUrl);
-		updateStringLine(conf, "conf=", "Chipster config (for CLI client)", "conf=" + Configuration.CONFIG_FILENAME);			
+		updateStringLine(conf, "host=", "host", "host=\"" + hostUrl + "\"");
+		updateStringLine(conf, "conf=", "config", "conf=\"" + Configuration.CONFIG_FILENAME + "\"");			
 		writeLater(configFile, conf);
 	}
 
