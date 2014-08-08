@@ -20,6 +20,7 @@ import net.sourceforge.argparse4j.inf.Subparsers;
 import net.sourceforge.argparse4j.internal.HelpScreenException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.yaml.snakeyaml.DumperOptions;
@@ -57,46 +58,72 @@ import fi.csc.microarray.util.Strings;
 
 public class CliClient {
 	
-	private static final String CONFIG = "config";
-	private static final String USERNAME = "username";
-	private static final String PASSWORD = "password";	
+	private static final String KEY_INPUTS = "inputs";
+	private static final String KEY_NOTES = "notes";
+	private static final String KEY_SIZE = "size";
+	private static final String KEY_VALUE = "value";
+	private static final String KEY_DATE = "date";
+	private static final String KEY_PARAMETERS = "parameters";
+	private static final String KEY_TOOL = "tool";
+	private static final String KEY_HELP = "help";
+	private static final String KEY_DESCRIPTION = "description";
+	private static final String KEY_NAME = "name";
+	private static final String KEY_PARAM = "parameter";
+	private static final String KEY_OPTIONS = "options";
+	private static final String KEY_MAX = "max";
+	private static final String KEY_MIN = "min";
+	private static final String KEY_DEFAULT = "default";
+	private static final String KEY_TYPE = "type";
+	private static final String KEY_OPTION = "option";
+	private static final String KEY_INTEGER = "INTEGER";
+	private static final String KEY_DECIMAL = "DECIMAL";
+	private static final String KEY_PERCENT = "PERCENT";
+	private static final String KEY_STRING = "STRING";
+	private static final String KEY_ENUM = "ENUM";
+	private static final String KEY_METACOLUMN_SEL = "METACOLUMN_SEL ";
 	
-	private static final String VERBOSE = "verbose";
-	private static final String QUIET = "quiet";
-	private static final String YAML = "yaml";
-	private static final String WORKING_COPY = "working-copy";
 	
-	private static final String INTERACTIVE = "interactive";
-	private static final String EXIT = "exit";
+	private static final String OPT_CONFIG = "config";
+	private static final String OPT_USERNAME = "username";
+	private static final String OPT_PASSWORD = "password";	
 	
-	private static final String LIST = "list";
-	private static final String VIEW = "view";
-	private static final String PRINT = "print";
-	private static final String HISTORY = "history";
-	private static final String RENAME = "rename";
-	private static final String DELETE = "delete";
-	private static final String IMPORT = "import";
-	private static final String EXPORT = "export";
+	private static final String OPT_VERBOSE = "verbose";
+	private static final String OPT_QUIET = "quiet";
+	private static final String OPT_YAML = "yaml";
+	private static final String OPT_WORKING_COPY = "working-copy";
 	
-	private static final String TOOLS = "tools";
-	private static final String SEARCH_TERM = "search-term";
-	private static final String TOOL = "tool";
-	private static final String TOOL_ID = "tool-id";
-	private static final String RUN = "run";
-	private static final String DATASET = "dataset";
-	private static final String FILE = "file";
-	private static final String OLD_NAME = "old-name";
-	private static final String NEW_NAME = "new-name";
-	private static final String PARAMETER = "parameter";
-	private static final String SESSION = "session";
-	private static final String SAVE_WORKFLOW = "save-workflow";
-	private static final String RUN_WORKFLOW = "run-workflow";
+	private static final String CMD_INTERACTIVE = "interactive";
+	private static final String CMD_EXIT = "exit";
 	
-	private static final String OPEN_SESSION = "open-session";
-	private static final String SAVE_SESSION = "save-session";
-	private static final String LIST_SESSIONS = "list-sessions";
-	private static final String DELETE_SESSION = "delete-session";
-	private static final String CLEAR_SESSION = "clear-session";
+	private static final String CMD_LIST_DATASETS = "list-datasets";
+	private static final String CMD_DATASET = "dataset";
+	private static final String CMD_PRINT = "print";
+	private static final String CMD_HISTORY = "history";
+	private static final String CMD_RENAME = "rename";
+	private static final String CMD_DELETE = "delete";
+	private static final String CMD_IMPORT = "import";
+	private static final String CMD_EXPORT = "export";
+	
+	private static final String CMD_LIST_TOOLS = "list-tools";
+	private static final String CMD_TOOL = "tool";
+	private static final String CMD_RUN = "run";
+	private static final String CMD_SAVE_WORKFLOW = "save-workflow";
+	private static final String CMD_RUN_WORKFLOW = "run-workflow";
+	
+	private static final String ARG_SEARCH_TERM = "search-term";
+	private static final String ARG_TOOL_ID = "tool-id";
+	private static final String ARG_DATASET = "dataset";
+	private static final String ARG_FILE = "file";
+	private static final String ARG_OLD_NAME = "old-name";
+	private static final String ARG_NEW_NAME = "new-name";
+	private static final String ARG_PARAMETER = "parameter";
+	private static final String ARG_SESSION = "session";
+	
+	private static final String CMD_OPEN_SESSION = "open-session";
+	private static final String CMD_SAVE_SESSION = "save-session";
+	private static final String CMD_LIST_SESSIONS = "list-sessions";
+	private static final String CMD_DELETE_SESSION = "delete-session";
+	private static final String CMD_CLEAR_SESSION = "clear-session";
 		
 	private static final String DEFAULT_WORKING_COPY = "cli-working-copy.zip";
 	
@@ -147,54 +174,54 @@ public class CliClient {
 		 */
         parser = ArgumentParsers.newArgumentParser("Chipster command line client", true, "-", "@");
         
-        addStringOption(parser, "-c", CONFIG,  "chipster client configuration file");
-        addStringOption(parser, "-u", USERNAME, "chipster username");
-        addStringOption(parser, "-p", PASSWORD, "chipster password");
-        addStringOption(parser, "-W", WORKING_COPY, "name of the working copy session, either zip or cloud session").setDefault(DEFAULT_WORKING_COPY);        
+        addStringOption(parser, "-c", OPT_CONFIG,  "chipster client configuration file");
+        addStringOption(parser, "-u", OPT_USERNAME, "chipster username");
+        addStringOption(parser, "-p", OPT_PASSWORD, "chipster password");
+        addStringOption(parser, "-W", OPT_WORKING_COPY, "name of the working copy session, either zip or cloud session").setDefault(DEFAULT_WORKING_COPY);        
         
-        addBooleanOption(parser, "-v", VERBOSE, "more verbose output");
-        addBooleanOption(parser, "-q", QUIET, "uppress status messages and print only requested data");
-        addBooleanOption(parser, "-y", YAML, "output in yaml format for programmatical access");                         
+        addBooleanOption(parser, "-v", OPT_VERBOSE, "more verbose output");
+        addBooleanOption(parser, "-q", OPT_QUIET, "uppress status messages and print only requested data");
+        addBooleanOption(parser, "-y", OPT_YAML, "output in yaml format for programmatical access");                         
         
         Subparsers subparsers = parser.addSubparsers();
         subparsers.title("commands");
                 
-        addCommand(subparsers, LIST, "list datasets");        
-        addCommand(subparsers, VIEW, "view dataset details", DATASET);
-        addCommand(subparsers, PRINT, "output dataset contents", DATASET);
-        addCommand(subparsers, HISTORY, "view history, set verbose to view also source codes", DATASET);
-        addCommand(subparsers, RENAME, "rename dataset", OLD_NAME).addArgument(NEW_NAME);
-        addCommand(subparsers, DELETE, "delete dataset", DATASET);
-        addCommand(subparsers, IMPORT, "import file", FILE);
-        addCommand(subparsers, EXPORT, "export dataset to file", DATASET);                               
+        addCommand(subparsers, CMD_LIST_DATASETS, "list datasets");        
+        addCommand(subparsers, CMD_DATASET, "view dataset details", ARG_DATASET);
+        addCommand(subparsers, CMD_PRINT, "output dataset contents", ARG_DATASET);
+        addCommand(subparsers, CMD_HISTORY, "view history, set verbose to view also source codes", ARG_DATASET);
+        addCommand(subparsers, CMD_RENAME, "rename dataset", ARG_OLD_NAME).addArgument(ARG_NEW_NAME);
+        addCommand(subparsers, CMD_DELETE, "delete dataset", ARG_DATASET);
+        addCommand(subparsers, CMD_IMPORT, "import file", ARG_FILE);
+        addCommand(subparsers, CMD_EXPORT, "export dataset to file", ARG_DATASET);                               
         
-        addCommand(subparsers, TOOLS, "list tools, search term is optional").addArgument(SEARCH_TERM).nargs("?");        
-        addCommand(subparsers, TOOL, "show tool details", TOOL_ID);
+        addCommand(subparsers, CMD_LIST_TOOLS, "list tools, search term is optional").addArgument(ARG_SEARCH_TERM).nargs("?");        
+        addCommand(subparsers, CMD_TOOL, "show tool details, set verbose to view parameter help texts.", ARG_TOOL_ID);
         
-        Subparser run = addCommand(subparsers, RUN, "run tool");
-        run.addArgument(TOOL_ID).required(true);
+        Subparser run = addCommand(subparsers, CMD_RUN, "run tool");
+        run.addArgument(ARG_TOOL_ID).required(true);
         // options instead of positional arguments because these are lists
-        run.addArgument("--" + DATASET).nargs("*").help("input dataset(s) for a tool");
-        run.addArgument("--" + PARAMETER).nargs("*").help("set parameters for a tool, e.g. parameter=VALUE");
+        run.addArgument("--" + ARG_DATASET).nargs("*").help("input dataset(s) for a tool");
+        run.addArgument("--" + ARG_PARAMETER).nargs("*").help("set parameters for a tool, e.g. parameter=VALUE");
         // default help has tool-id in the end, which won't work
         run.usage("run [-h] tool-id [--dataset [DATASET [DATASET ...]]] [--parameter [PARAMETER [PARAMETER ...]]]");
         
-        Subparser saveWorkflow = addCommand(subparsers, SAVE_WORKFLOW, "save workflow");
-        saveWorkflow.addArgument(FILE).help("save workflow to this file").required(true);
-        saveWorkflow.addArgument(DATASET).help("start saving from this dataset").required(true);
+        Subparser saveWorkflow = addCommand(subparsers, CMD_SAVE_WORKFLOW, "save workflow");
+        saveWorkflow.addArgument(ARG_FILE).help("save workflow to this file").required(true);
+        saveWorkflow.addArgument(ARG_DATASET).help("start saving from this dataset").required(true);
         
-        Subparser runWorkflow = addCommand(subparsers, RUN_WORKFLOW, "run workflow");
-        runWorkflow.addArgument(FILE).help("run workflow of this file").required(true);
-        runWorkflow.addArgument(DATASET).help("start running from this dataset").required(true);
+        Subparser runWorkflow = addCommand(subparsers, CMD_RUN_WORKFLOW, "run workflow");
+        runWorkflow.addArgument(ARG_FILE).help("run workflow of this file").required(true);
+        runWorkflow.addArgument(ARG_DATASET).help("start running from this dataset").required(true);
         
-        addCommand(subparsers, OPEN_SESSION, "open zip session or cloud session", SESSION);
-        addCommand(subparsers, SAVE_SESSION, "save zip session or cloud session", SESSION);
-        addCommand(subparsers, CLEAR_SESSION, "delete all datasets of the working copy session");
-        addCommand(subparsers, LIST_SESSIONS, "list cloud sessions");
-        addCommand(subparsers, DELETE_SESSION, "delete cloud session", SESSION);
+        addCommand(subparsers, CMD_OPEN_SESSION, "open zip session or cloud session", ARG_SESSION);
+        addCommand(subparsers, CMD_SAVE_SESSION, "save zip session or cloud session", ARG_SESSION);
+        addCommand(subparsers, CMD_CLEAR_SESSION, "delete all datasets of the working copy session");
+        addCommand(subparsers, CMD_LIST_SESSIONS, "list cloud sessions");
+        addCommand(subparsers, CMD_DELETE_SESSION, "delete cloud session", ARG_SESSION);
         
-        addCommand(subparsers, INTERACTIVE, "enter interactive mode");
-        addCommand(subparsers, EXIT, "quit interactive mode").aliases("quit");
+        addCommand(subparsers, CMD_INTERACTIVE, "enter interactive mode");
+        addCommand(subparsers, CMD_EXIT, "quit interactive mode").aliases("quit");
 
         parser.epilog("use 'COMMAND -h' to show command arguments");                    		
 			            	
@@ -209,7 +236,7 @@ public class CliClient {
 		initClient();			
 		String workingCopy = openWorkingCopySession();
 			
-		if (isCommand(INTERACTIVE)) {
+		if (isCommand(CMD_INTERACTIVE)) {
 			
 			Scanner scanner = new Scanner(System.in);
 			
@@ -220,7 +247,7 @@ public class CliClient {
 					try {
 						parseArgs();
 						
-						if (isCommand(EXIT)) {
+						if (isCommand(CMD_EXIT)) {
 							break;
 						}
 						
@@ -305,121 +332,121 @@ public class CliClient {
 
 	private void execute() throws JMSException, Exception {
 		
-		boolean yaml = isBooleanOption(YAML);
+		boolean yaml = isBooleanOption(OPT_YAML);
 				
-		if (isCommand(LIST)) {
+		if (isCommand(CMD_LIST_DATASETS)) {
 			listDatasets(yaml);
 		}
 		
-		if (isCommand(LIST_SESSIONS)) {
+		if (isCommand(CMD_LIST_SESSIONS)) {
 			listSessions(yaml);
 		}
 		
-		if (isCommand(DELETE_SESSION)) {
-			deleteSession(nameSpace.getString(DATASET));
+		if (isCommand(CMD_DELETE_SESSION)) {
+			deleteSession(nameSpace.getString(ARG_DATASET));
 		}
 		
-		if (isCommand(VIEW)) {
-			String dataset = nameSpace.getString(DATASET);
+		if (isCommand(CMD_DATASET)) {
+			String dataset = nameSpace.getString(ARG_DATASET);
 			viewDataset(dataset, yaml);
 		}
 		
-		if (isCommand(PRINT)) {
-			String dataset = nameSpace.getString(DATASET);
+		if (isCommand(CMD_PRINT)) {
+			String dataset = nameSpace.getString(ARG_DATASET);
 			printDataset(dataset);
 		}
 		
-		if (isCommand(TOOLS)) {
-			tools(nameSpace.getString(SEARCH_TERM), yaml);
+		if (isCommand(CMD_LIST_TOOLS)) {
+			tools(nameSpace.getString(ARG_SEARCH_TERM), yaml);
 		}
 		
-		if (isCommand(TOOL)) {
-			String tool = nameSpace.getString(TOOL_ID);			
+		if (isCommand(CMD_TOOL)) {
+			String tool = nameSpace.getString(ARG_TOOL_ID);			
 			tool(tool, yaml);
 		}
 		
-		if (isCommand(EXPORT)) {
-			String dataset = nameSpace.getString(DATASET);
+		if (isCommand(CMD_EXPORT)) {
+			String dataset = nameSpace.getString(ARG_DATASET);
 			exportDataset(dataset);
 		}
 		
-		if (isCommand(IMPORT)) {
-			String filename = nameSpace.getString(FILE);
+		if (isCommand(CMD_IMPORT)) {
+			String filename = nameSpace.getString(ARG_FILE);
 			importDataset(filename);
 		}
 		
-		if (isCommand(RENAME)) {									
-			renameDataset(nameSpace.getString(OLD_NAME), nameSpace.getString(NEW_NAME));
+		if (isCommand(CMD_RENAME)) {									
+			renameDataset(nameSpace.getString(ARG_OLD_NAME), nameSpace.getString(ARG_NEW_NAME));
 		}
 		
-		if (isCommand(RUN)) {
+		if (isCommand(CMD_RUN)) {
 			
-			String tool = nameSpace.getString(TOOL_ID);
-			List<String> datasets = nameSpace.<String> getList(DATASET);
-			List<String> parameters = nameSpace.<String> getList(PARAMETER);
+			String tool = nameSpace.getString(ARG_TOOL_ID);
+			List<String> datasets = nameSpace.<String> getList(ARG_DATASET);
+			List<String> parameters = nameSpace.<String> getList(ARG_PARAMETER);
 			
 			run(tool, datasets, parameters);
 		}
 		
-		if (isCommand(CLEAR_SESSION)) {
+		if (isCommand(CMD_CLEAR_SESSION)) {
 			clearSession();
 		}
 		
-		if (isCommand(SAVE_WORKFLOW)) {
-			String data = nameSpace.getString(DATASET);
-			String file = nameSpace.getString(FILE);
+		if (isCommand(CMD_SAVE_WORKFLOW)) {
+			String data = nameSpace.getString(ARG_DATASET);
+			String file = nameSpace.getString(ARG_FILE);
 			saveWorkflow(data, file);
 		}
 		
-		if (isCommand(RUN_WORKFLOW)) {
-			String data = nameSpace.getString(DATASET);
-			String file = nameSpace.getString(FILE);
+		if (isCommand(CMD_RUN_WORKFLOW)) {
+			String data = nameSpace.getString(ARG_DATASET);
+			String file = nameSpace.getString(ARG_FILE);
 			runWorkflow(data, file);
 		}
 		
-		if (isCommand(DELETE)) {
-			deleteDataset(nameSpace.getString(DATASET));
+		if (isCommand(CMD_DELETE)) {
+			deleteDataset(nameSpace.getString(ARG_DATASET));
 		}
 			
-		if (isCommand(HISTORY)) {
-			String dataset = nameSpace.getString(DATASET);
+		if (isCommand(CMD_HISTORY)) {
+			String dataset = nameSpace.getString(ARG_DATASET);
 			historyOfDataset(dataset, yaml);			
 		}
 		
-		if (isCommand(OPEN_SESSION)) {
-			openSession(nameSpace.getString(SESSION));
+		if (isCommand(CMD_OPEN_SESSION)) {
+			openSession(nameSpace.getString(ARG_SESSION));
 		}
 						
-		if (isCommand(SAVE_SESSION)) {
-			saveSession(nameSpace.getString(SESSION));
+		if (isCommand(CMD_SAVE_SESSION)) {
+			saveSession(nameSpace.getString(ARG_SESSION));
 		}
 	}
 	
 	private void initClient() throws UserErrorException, IOException,
 	IllegalConfigurationException, MicroarrayException {
-		if (!isStringOption(CONFIG)) {
+		if (!isStringOption(OPT_CONFIG)) {
 			throw new UserErrorException("config not set");
 		}
 
-		if (!isStringOption(USERNAME)) {
+		if (!isStringOption(OPT_USERNAME)) {
 			throw new UserErrorException("username not set");
 		}
 
-		if (!isStringOption(PASSWORD)) {
+		if (!isStringOption(OPT_PASSWORD)) {
 			throw new UserErrorException("password not set");
 		}
 
-		DirectoryLayout.initialiseClientLayout(nameSpace.getString(CONFIG));
+		DirectoryLayout.initialiseClientLayout(nameSpace.getString(OPT_CONFIG));
 		
-		SimpleAuthenticationRequestListener auth = new SimpleAuthenticationRequestListener(nameSpace.getString(USERNAME), nameSpace.getString(PASSWORD));		
-		app = new CliClientApplication(auth, isBooleanOption(VERBOSE), isBooleanOption(QUIET));
+		SimpleAuthenticationRequestListener auth = new SimpleAuthenticationRequestListener(nameSpace.getString(OPT_USERNAME), nameSpace.getString(OPT_PASSWORD));		
+		app = new CliClientApplication(auth, isBooleanOption(OPT_VERBOSE), isBooleanOption(OPT_QUIET));
 
 		app.initialiseApplication(true);
 	}
 	
 	private String openWorkingCopySession() throws UserErrorException, JMSException, Exception {
 		
-		String sessionName = nameSpace.getString(WORKING_COPY);
+		String sessionName = nameSpace.getString(OPT_WORKING_COPY);
 		
 		if (isLocalSession(sessionName)) {
 			File session = new File(sessionName);
@@ -524,7 +551,7 @@ public class CliClient {
 			System.err.println("yaml output format isn't impelemented for history");
 		}
 		
-		System.out.println(app.getHistoryText(bean, true, true, true, true, isBooleanOption(VERBOSE), true, true));
+		System.out.println(app.getHistoryText(bean, true, true, true, true, isBooleanOption(OPT_VERBOSE), true, true));
 	}
 
 	private void renameDataset(String oldName, String newName) throws UserErrorException {
@@ -578,13 +605,13 @@ public class CliClient {
 	}
 
 	private void printStatus(String status) {
-		if (!isBooleanOption(QUIET)) {
+		if (!isBooleanOption(OPT_QUIET)) {
 			System.out.print(status);
 		}
 	}
 	
 	private void printlnStatus(String status) {
-		if (!isBooleanOption(QUIET)) {
+		if (!isBooleanOption(OPT_QUIET)) {
 			System.out.println(status);
 		}
 	}
@@ -642,32 +669,35 @@ public class CliClient {
 			
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		
-		map.put("tool", oper.getID());
-		map.put("name", oper.getFullName());
-		map.put("description", oper.getDescription());
-		map.put("help", oper.getHelpURL());
+		map.put(KEY_TOOL, oper.getID());
+		map.put(KEY_NAME, oper.getFullName());
+		map.put(KEY_DESCRIPTION, oper.getDescription());
+		map.put(KEY_HELP, oper.getHelpURL());
 		
-		ArrayList<HashMap<String, String>> parameters = getParameters(oper);	
+		ArrayList<HashMap<String, Object>> parameters = getParameters(oper);	
 		
-		map.put("parameters", parameters);
+		map.put(KEY_PARAMETERS, parameters);
 		
 		if (yaml) {
 			dumpYaml(map);
 		} else {
 		
-			System.out.println(map.get("tool") + "\t\t" + map.get("name"));
+			System.out.print(StringUtils.rightPad((String) map.get(KEY_TOOL), 50));
+			System.out.print(StringUtils.rightPad((String) map.get(KEY_NAME), 50));
+			System.out.println();
 			System.out.println();					
-			wrapAndPrint(map.get("description").toString());
-			System.out.println(map.get("help"));				
+			wrapAndPrint(map.get(KEY_DESCRIPTION).toString());
+			System.out.println(map.get(KEY_HELP));				
 			System.out.println("PARAMETERS");
 			System.out.println();
 
-			for (HashMap<String, String> paramMap : parameters) {
-
-				System.out.println(paramMap.get("parameter") + "\t\t" + paramMap.get("name"));
-				System.out.println("\t" + paramMap.get("type"));
-				System.out.println();
-				wrapAndPrint(paramMap.get("description"));
+			for (HashMap<String, Object> paramMap : parameters) {
+				
+				System.out.print(parameterToString(paramMap));
+				if (isBooleanOption(OPT_VERBOSE)) {
+					System.out.println();
+					wrapAndPrint((String) paramMap.get(KEY_DESCRIPTION));
+				}
 				System.out.println();
 			}
 		}
@@ -679,20 +709,18 @@ public class CliClient {
 		System.out.println(wrapped);
 	}
 
-	private ArrayList<HashMap<String, String>> getParameters(OperationDefinition oper) {
+	private ArrayList<HashMap<String, Object>> getParameters(OperationDefinition oper) {
 		
-		ArrayList<HashMap<String, String>> parameters = new ArrayList<>();
+		ArrayList<HashMap<String, Object>> parameters = new ArrayList<>();
 		for (Parameter parameter : oper.getParameters()) {
-			HashMap<String, String> parameterMap = new HashMap<String, String>();
+			HashMap<String, Object> parameterMap = new HashMap<>();
 			
-			// we should create yaml data structures for different parameter types
-			// just a string for now
-			String typeText = parameterToString(parameter);
 			
-			parameterMap.put("parameter", parameter.getID());
-			parameterMap.put("name", parameter.getDisplayName());
-			parameterMap.put("type", typeText);
-			parameterMap.put("description", parameter.getDescription());
+			parameterMap.put(KEY_PARAM, parameter.getID());
+			parameterMap.put(KEY_NAME, parameter.getDisplayName());
+			parameterMap.put(KEY_DESCRIPTION, parameter.getDescription());
+			HashMap<String, Object> type = parameterToYaml(parameter);
+			parameterMap.putAll(type);
 						
 			parameters.add(parameterMap);
 		}
@@ -705,10 +733,10 @@ public class CliClient {
 		for (ParameterRecord parameter : oper.getParameters()) {
 			HashMap<String, String> parameterMap = new HashMap<String, String>();			
 			
-			parameterMap.put("parameter", parameter.getNameID().getID());
-			parameterMap.put("name", parameter.getNameID().getDisplayName());
-			parameterMap.put("description", parameter.getNameID().getDescription());
-			parameterMap.put("value", parameter.getValue());
+			parameterMap.put(KEY_PARAM, parameter.getNameID().getID());
+			parameterMap.put(KEY_NAME, parameter.getNameID().getDisplayName());
+			parameterMap.put(KEY_DESCRIPTION, parameter.getNameID().getDescription());
+			parameterMap.put(KEY_VALUE, parameter.getValue());
 						
 			parameters.add(parameterMap);
 		}
@@ -729,8 +757,8 @@ public class CliClient {
 					
 					String toolId = chipsterTool.getID();
 					String toolName = chipsterTool.getDisplayName();
-					yamlTool.put("tool", toolId);
-					yamlTool.put("name", toolName);
+					yamlTool.put(KEY_TOOL, toolId);
+					yamlTool.put(KEY_NAME, toolName);
 					if (searchTerm == null || 
 							toolId.toLowerCase().contains(searchTerm.toLowerCase()) || 
 							toolName.toLowerCase().contains(searchTerm.toLowerCase())) {
@@ -751,8 +779,12 @@ public class CliClient {
 				YamlModule yamlModule = yamlModules.get(yamlModuleName);
 				for (String yamlCategoryName : yamlModule.keySet()) {
 					YamlCategory yamlCategory = yamlModule.get(yamlCategoryName);
-					for (YamlTool yamlTool : yamlCategory) {						
-						System.out.println(yamlModuleName + "\t\t" + yamlCategoryName + "\t\t" + yamlTool.get("tool") + "\t\t" + yamlTool.get("name"));
+					for (YamlTool yamlTool : yamlCategory) {
+						System.out.print(StringUtils.rightPad(yamlModuleName, 20));
+						System.out.print(StringUtils.rightPad(yamlCategoryName, 40));
+						System.out.print(StringUtils.rightPad(yamlTool.get(CMD_TOOL), 50));
+						System.out.print(StringUtils.rightPad(yamlTool.get(KEY_NAME), 40));
+						System.out.println();
 					}
 				}					
 			}
@@ -782,22 +814,22 @@ public class CliClient {
 					
 		DataBean bean = getDataset(dataset);
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("name", bean.getName());
-		map.put("date", new DateTime(bean.getDate()).toString());
-		map.put("size", bean.getSize()); // Long
-		map.put("notes", bean.getNotes());
+		map.put(KEY_NAME, bean.getName());
+		map.put(KEY_DATE, new DateTime(bean.getDate()).toString());
+		map.put(KEY_SIZE, bean.getSize()); // Long
+		map.put(KEY_NOTES, bean.getNotes());
 		
 		OperationRecord oper = bean.getOperationRecord();
-		map.put("tool", oper.getNameID().getID());
+		map.put(KEY_TOOL, oper.getNameID().getID());
 		
 		ArrayList<String> inputs = new ArrayList<>();	
 		for (InputRecord input : oper.getInputs()) {
 			inputs.add(input.getValue().getName());
 		}		
-		map.put("inputs", inputs);
+		map.put(KEY_INPUTS, inputs);
 				
 		ArrayList<HashMap<String, String>> params = getParameters(oper);
-		map.put("parameters", params);
+		map.put(KEY_PARAMETERS, params);
 				
 		HashMap<String, ArrayList<String>> outputTools = new HashMap<>();
 		
@@ -818,25 +850,28 @@ public class CliClient {
 			dumpYaml(map);
 		} else {
 
-			System.out.println("Dataset            " + map.get("name"));
-			System.out.println("Date               " + map.get("date"));
-			System.out.println("Size               " + map.get("size") + " bytes");
-			System.out.println("Notes              " + map.get("notes"));
-			System.out.println("Produced by tool   " + map.get("tool"));
+			System.out.println("Dataset            " + map.get(KEY_NAME));
+			System.out.println("Date               " + map.get(KEY_DATE));
+			System.out.println("Size               " + map.get(KEY_SIZE) + " bytes");
+			System.out.println("Notes              " + map.get(KEY_NOTES));
+			System.out.println("Produced by tool   " + map.get(CMD_TOOL));
 			
 			System.out.print(  "Using inputs       ");			
 			System.out.println(Strings.delimit(inputs, " "));
 			
 			System.out.print(  "Parameters         ");
 			for (HashMap<String, String> param : params) {
-				System.out.print(param.get("parameter") + "=" + param.get("value") + " ");
+				System.out.print(param.get(KEY_PARAM) + "=" + param.get(KEY_VALUE) + " ");
 			}
 			System.out.println(); // new line after loop
 			
 			System.out.println();			
-			System.out.println("Input of following tools and the datasets produced");
+			System.out.print(StringUtils.rightPad("INPUT OF", 50));
+			System.out.print("OUTPUT DATASETS");
+			System.out.println();
+			
 			for (String outputTool : outputTools.keySet()) {
-				System.out.print(outputTool + "\t\t");
+				System.out.print(StringUtils.rightPad(outputTool, 50));
 				ArrayList<String> outputDatasets = outputTools.get(outputTool);
 				System.out.println(Strings.delimit(outputDatasets, " "));	
 			}
@@ -868,67 +903,146 @@ public class CliClient {
 		System.out.print(yamlLib.dump(yaml));
 	}
 
-	private String parameterToString(Parameter parameter) {
-		if (parameter instanceof IntegerParameter) {
-			IntegerParameter number = (IntegerParameter) parameter;
-			String str = "integer, default " + number.getValueAsString();
-			if (number.getMinValue() != null || number.getMaxValue() != null) {
-				str += " (" + number.getMinValue() + "-" + number.getMaxValue() + ")";
+	@SuppressWarnings("unchecked")
+	private String parameterToString(HashMap<String, Object> map) {
+		
+		String str = "";
+		str += StringUtils.rightPad((String) map.get(KEY_PARAM), 30);
+		
+		String type = "";
+		
+		switch ((String)map.get(KEY_TYPE)) {
+		case KEY_INTEGER:
+			type = "integer" + minMaxDefaultToString(map);			
+			break;
+		case KEY_DECIMAL:
+			type = "decimal" + minMaxDefaultToString(map);
+			break;
+		case KEY_PERCENT:
+			type = "percent" + minMaxDefaultToString(map);
+			break;
+		case KEY_STRING:
+			type = "string" + minMaxDefaultToString(map);
+			break;
+		case KEY_METACOLUMN_SEL:
+			type = "phenodata column selection" + minMaxDefaultToString(map);			
+			break;
+		case KEY_ENUM:
+			if (map.containsKey(KEY_MAX) && ((Integer)map.get(KEY_MAX)) > 1) {
+				type = "multiple selection"; 				
+			} else {
+				type = "single selection";
 			}
-			return str;
+			if (map.containsKey(KEY_DEFAULT)) {
+				type += ", default " + map.get(KEY_DEFAULT);
+			}			
+			break;
+		}
+		
+		str += StringUtils.rightPad(type, 40);
+		str += "\n";
+		str += "    " + (String) map.get(KEY_NAME) + "\n";
+		
+		if (map.containsKey(KEY_OPTIONS)) {
+			str += "\n";
+			str += "    " + StringUtils.rightPad("OPTION", 60) + "NAME\n";
+			for (HashMap<String, String> option: (ArrayList<HashMap<String, String>>)map.get(KEY_OPTIONS)) {
+				str += "    ";
+				str += StringUtils.rightPad(option.get(KEY_OPTION), 60);
+				str += option.get(KEY_NAME) + "\n";
+				//str += "  " + option.get(KEY_OPTION) + "\t\t\t\t\t\t\t" + option.get(KEY_NAME) + "\n";
+			}
+		}
+		return str;
+	}
+	
+	private String minMaxDefaultToString(HashMap<String, Object> map) {
+		String str = "";
+		if (map.containsKey(KEY_MIN) || map.containsKey(KEY_MAX)) {		
+			str += " " + map.get(KEY_MIN) + "-" + map.get(KEY_MAX);
+		}
+		if (map.containsKey(KEY_DEFAULT)) {
+			str += ", default " + map.get(KEY_DEFAULT);
+		}
+		return str;
+	}
+
+	private HashMap<String, Object> parameterToYaml(Parameter parameter) {
+		HashMap<String, Object> map = new HashMap<>();
+		if (parameter instanceof IntegerParameter) {
+			map.put(KEY_TYPE, KEY_INTEGER);
+			IntegerParameter number = (IntegerParameter) parameter;
+			map.put(KEY_DEFAULT, number.getIntegerValue());
+			if (number.getMinValue() != Integer.MIN_VALUE) {
+				map.put(KEY_MIN, number.getMinValue());
+			}
+			if (number.getMaxValue() != Integer.MAX_VALUE) {
+				map.put(KEY_MAX, number.getMaxValue());
+			}
+			return map;
 			
 		} else if (parameter instanceof DecimalParameter) {
+			map.put(KEY_TYPE, KEY_DECIMAL);
 			DecimalParameter number = (DecimalParameter) parameter;
-			String str = "decimal, default " + number.getValueAsString();
-			if (number.getMinValue() != null || number.getMaxValue() != null) {
-				str += " (" + number.getMinValue() + "-" + number.getMaxValue() + ")";
+			map.put(KEY_DEFAULT, number.getDecimalValue()); // Float
+			if (number.getMinValue() != Float.MIN_VALUE) {
+				map.put(KEY_MIN, number.getMinValue());
 			}
-			return str;
+			if (number.getMaxValue() != Float.MAX_VALUE) {
+				map.put(KEY_MAX, number.getMaxValue());
+			}
+			return map;
 			
 		} else if (parameter instanceof PercentageParameter) {
+			map.put(KEY_TYPE, KEY_PERCENT);
 			PercentageParameter number = (PercentageParameter) parameter;
-			String str = "percentage, default " + number.getValueAsString();
-			if (number.getMinValue() != null || number.getMaxValue() != null) {
-				str += " (" + number.getMinValue() + "-" + number.getMaxValue() + ")";
+			map.put(KEY_DEFAULT, number.getIntegerValue());
+			if (number.getMinValue() != Integer.MIN_VALUE) {
+				map.put(KEY_MIN, number.getMinValue());
 			}
-			return str;
+			if (number.getMaxValue() != Integer.MAX_VALUE) {
+				map.put(KEY_MAX, number.getMaxValue());
+			}
+			return map;
+		} else if (parameter instanceof StringParameter) {
+			map.put(KEY_TYPE, KEY_STRING);
+			map.put(KEY_DEFAULT, parameter.getValueAsString());
+			return map;
+			
+		// how about COLUMN_SEL?
 			
 		} else if (parameter instanceof MetaColnameParameter) {
-			
-			return "phenodata column name, default " + parameter.getValueAsString();
+			map.put(KEY_TYPE, KEY_METACOLUMN_SEL);
+			map.put(KEY_DEFAULT, parameter.getValueAsString());
+			return map;
 			
 		} else if (parameter instanceof EnumParameter) {
 			
 			//also DataSelectionParameter
 			
 		    EnumParameter enumParam = (EnumParameter) parameter;
-		    if (enumParam.getMaxCount() > 1) {
-		        // List with multiple selections
-		        return "multiple selection:\n" + enumToString(enumParam);
-		    } else {
-		        // List with single selection
-		    	return "single selection:\n" + enumToString(enumParam);
-		    }
-		} else if (parameter instanceof StringParameter) {
-			return "string, default " + parameter.getValueAsString();
+		    map.put(KEY_TYPE, KEY_ENUM);		 
+			map.put(KEY_DEFAULT, enumParam.getValueAsString());
+			map.put(KEY_MIN, enumParam.getMinCount());
+			map.put(KEY_MAX, enumParam.getMaxCount());
+		    map.put(KEY_OPTIONS, enumOptionsToYaml(enumParam));
+		    return map;
 			
 		} else {		
 			throw new IllegalArgumentException("The given Parameter object, " + parameter.getID() + ", was not of recognized type!");
 		}
 	}
 	
-	private String enumToString(EnumParameter enumParam) {
+	private ArrayList<HashMap<String, String>> enumOptionsToYaml(EnumParameter enumParam) {
+		ArrayList<HashMap<String, String>> options = new ArrayList<>();
 		
-		String str = "";
-		
-		for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {
-			str += "\t\t" + opt.getValue() + "\t\t" + opt.toString(); 
-			if (opt.getValue().equals(enumParam.getValueAsString())) {
-				str += "\t(default)";
-			}
-			str += "\n";
+		for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {			
+			HashMap<String, String> map = new HashMap<>();
+			map.put(KEY_OPTION, opt.getValue());
+			map.put(KEY_NAME, opt.toString());
+			options.add(map);
 		}
-		return str;
+		return options;
 	}
 	
 	private DataBean getDataset(String name) throws UserErrorException {
