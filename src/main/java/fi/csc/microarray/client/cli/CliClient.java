@@ -336,89 +336,75 @@ public class CliClient {
 				
 		if (isCommand(CMD_LIST_DATASETS)) {
 			listDatasets(yaml);
-		}
-		
-		if (isCommand(CMD_LIST_SESSIONS)) {
+			
+		} else if (isCommand(CMD_LIST_SESSIONS)) {
 			listSessions(yaml);
-		}
-		
-		if (isCommand(CMD_DELETE_SESSION)) {
-			deleteSession(nameSpace.getString(ARG_DATASET));
-		}
-		
-		if (isCommand(CMD_DATASET)) {
-			String dataset = nameSpace.getString(ARG_DATASET);
-			viewDataset(dataset, yaml);
-		}
-		
-		if (isCommand(CMD_PRINT)) {
+			
+		} else if (isCommand(CMD_DELETE_SESSION)) {
+			deleteSession(nameSpace.getString(ARG_DATASET));			
+			
+		} else if (isCommand(CMD_PRINT)) {
 			String dataset = nameSpace.getString(ARG_DATASET);
 			printDataset(dataset);
-		}
-		
-		if (isCommand(CMD_LIST_TOOLS)) {
+			
+		} else if (isCommand(CMD_LIST_TOOLS)) {
 			tools(nameSpace.getString(ARG_SEARCH_TERM), yaml);
-		}
-		
-		if (isCommand(CMD_TOOL)) {
+			
+		} else if (isCommand(CMD_TOOL)) {
 			String tool = nameSpace.getString(ARG_TOOL_ID);			
 			tool(tool, yaml);
-		}
-		
-		if (isCommand(CMD_EXPORT)) {
+			
+		} else if (isCommand(CMD_EXPORT)) {
 			String dataset = nameSpace.getString(ARG_DATASET);
 			exportDataset(dataset);
-		}
-		
-		if (isCommand(CMD_IMPORT)) {
+			
+		} else if (isCommand(CMD_IMPORT)) {
 			String filename = nameSpace.getString(ARG_FILE);
 			importDataset(filename);
-		}
-		
-		if (isCommand(CMD_RENAME)) {									
+			
+		} else if (isCommand(CMD_RENAME)) {									
 			renameDataset(nameSpace.getString(ARG_OLD_NAME), nameSpace.getString(ARG_NEW_NAME));
-		}
-		
-		if (isCommand(CMD_RUN)) {
+			
+		} else 	if (isCommand(CMD_RUN)) {
 			
 			String tool = nameSpace.getString(ARG_TOOL_ID);
 			List<String> datasets = nameSpace.<String> getList(ARG_DATASET);
-			List<String> parameters = nameSpace.<String> getList(ARG_PARAMETER);
-			
+			List<String> parameters = nameSpace.<String> getList(ARG_PARAMETER);			
 			run(tool, datasets, parameters);
-		}
-		
-		if (isCommand(CMD_CLEAR_SESSION)) {
+			
+		} else if (isCommand(CMD_CLEAR_SESSION)) {
 			clearSession();
-		}
-		
-		if (isCommand(CMD_SAVE_WORKFLOW)) {
+			
+		} else if (isCommand(CMD_SAVE_WORKFLOW)) {
 			String data = nameSpace.getString(ARG_DATASET);
 			String file = nameSpace.getString(ARG_FILE);
 			saveWorkflow(data, file);
-		}
-		
-		if (isCommand(CMD_RUN_WORKFLOW)) {
+			
+		} else if (isCommand(CMD_RUN_WORKFLOW)) {
 			String data = nameSpace.getString(ARG_DATASET);
 			String file = nameSpace.getString(ARG_FILE);
 			runWorkflow(data, file);
-		}
-		
-		if (isCommand(CMD_DELETE)) {
-			deleteDataset(nameSpace.getString(ARG_DATASET));
-		}
 			
-		if (isCommand(CMD_HISTORY)) {
+		} else if (isCommand(CMD_DELETE)) {
+			deleteDataset(nameSpace.getString(ARG_DATASET));
+			
+		} else if (isCommand(CMD_HISTORY)) {
 			String dataset = nameSpace.getString(ARG_DATASET);
-			historyOfDataset(dataset, yaml);			
-		}
-		
-		if (isCommand(CMD_OPEN_SESSION)) {
+			historyOfDataset(dataset, yaml);
+			
+		} else if (isCommand(CMD_OPEN_SESSION)) {
 			openSession(nameSpace.getString(ARG_SESSION));
-		}
-						
-		if (isCommand(CMD_SAVE_SESSION)) {
+			
+		} else if (isCommand(CMD_SAVE_SESSION)) {
 			saveSession(nameSpace.getString(ARG_SESSION));
+			
+		} else if (isCommand(CMD_DATASET)) {
+			/* this must be after all command having "dataset" argument, because
+			 * isCommand() can't tell the difference betweeen command and 
+			 * argument.
+			 */ 		
+			String dataset = nameSpace.getString(ARG_DATASET);
+			viewDataset(dataset, yaml);
 		}
 	}
 	
