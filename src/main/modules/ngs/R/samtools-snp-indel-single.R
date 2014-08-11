@@ -2,7 +2,7 @@
 # INPUT alignment{...}.bam: "Sorted BAM files" TYPE BAM 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT variants.vcf
-# PARAMETER organism: "Reference sequence" TYPE [other, Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22] DEFAULT other (Reference sequence.)
+# PARAMETER organism: "Reference sequence" TYPE [other, Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.22] DEFAULT other (Reference sequence.)
 # PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
 # PARAMETER mpileup.r: "Call variants only for a certain region" TYPE STRING DEFAULT all (Only generate pileup in defined region. Region given as chromosome:start-end, e.g. 20:131505-131550.)
 # PARAMETER OPTIONAL mpileup.ub: "Disable probabilistic realignment for computation of BAC" TYPE [yes, no] DEFAULT no (Disable probabilistic realignment for the computation of base alignment quality (BAQ\). BAQ is the Phred-scaled probability of a read base being misaligned. Applying this option greatly helps to reduce false SNPs caused by misalignments.)
@@ -37,7 +37,7 @@ if (organism == "other"){
 	}
 }else{
 	# If not, we use the internal one.
-	internal.fa <- file.path(chipster.tools.path, "genomes", "fasta", paste(organism,".dna.toplevel.fa",sep="",collapse=""))
+	internal.fa <- file.path(chipster.tools.path, "genomes", "fasta", paste(organism,".fa",sep="",collapse=""))
 	# If chromosome names in BAM have chr, we make a temporary copy of fasta with chr names, otherwise we use it as is.
 	if(chr == "chr1"){
 		source(file.path(chipster.common.path, "seq-utils.R"))
