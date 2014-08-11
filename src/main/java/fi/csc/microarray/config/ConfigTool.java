@@ -60,7 +60,6 @@ public class ConfigTool {
 			{"message broker port", "61616"},
 			{"file broker protocol", "http"},
 			{"file broker port", "8080"},
-			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
 			{"admin e-mail address", "chipster-admin@mydomain"},
@@ -76,11 +75,10 @@ public class ConfigTool {
 	private final int BROKER_PORT_INDEX = 3;
 	private final int FILEBROKER_PORT_PROTOCOL = 4;
 	private final int FILEBROKER_PORT_INDEX = 5;
-	private final int WS_CODEBASE_INDEX = 6;
-	private final int WS_PORT = 7;
-	private final int MANAGER_PORT = 8;
-	private final int MANAGER_EMAIL = 9;
-	private final int MAX_JOBS_INDEX = 10;
+	private final int WS_PORT = 6;
+	private final int MANAGER_PORT = 7;
+	private final int MANAGER_EMAIL = 8;
+	private final int MAX_JOBS_INDEX = 9;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -277,16 +275,12 @@ public class ConfigTool {
 				String host = getInetAddress().getHostName();
 				configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] = host;
 				configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] = host;
-				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":" + configs[WS_PORT][VAL_INDEX];
 			} catch (UnknownHostException e) {
 				// ignore, sniffing failed
 			}
 			
 			// gather required data
 			for (int i = 0; i < configs.length; i++) {
-				if (i == WS_CODEBASE_INDEX) {
-					continue;
-				}
 				System.out.println("Please specify " + configs[i][KEY_INDEX] + " [" + configs[i][VAL_INDEX] + "]: ");
 				String line = in.readLine();
 				if (!line.trim().equals("")) {
@@ -337,7 +331,6 @@ public class ConfigTool {
 		try {
 			configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] = publicHost;
 			configs[BROKER_PRIVATE_HOST_INDEX][VAL_INDEX] = privateHost;
-			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + publicHost + ":" + configs[WS_PORT][VAL_INDEX];
 			
 			updateConfigs();
 
@@ -458,7 +451,7 @@ public class ConfigTool {
 	private void updateWsConfigFile(File configFile) throws Exception {
 		Document doc = openXmlForUpdating("Web Start", configFile, false);
 		Element jnlp = (Element)doc.getDocumentElement();
-		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
+		updateElementAttribute(jnlp, "codebase", getWebstartUrl());
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
 		NodeList arguments = applicationDesc.getElementsByTagName("argument");
 		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
@@ -538,7 +531,7 @@ public class ConfigTool {
 
 		Element clientModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "client");
 		if (clientModule != null) {
-			updateConfigEntryValue(clientModule, "manual-root", configs[WS_CODEBASE_INDEX][VAL_INDEX] + "/manual/");
+			updateConfigEntryValue(clientModule, "manual-root", getWebstartUrl() + "/manual/");
 		}
 		
 		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
@@ -639,6 +632,10 @@ public class ConfigTool {
 		return lines;
 	}
 
+	private String getWebstartUrl() {
+		return "http://" + configs[BROKER_PUBLIC_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
+
+	}
 	public static String[] getComponentDirsWithConfig() {
 		return componentDirsWithConfig;
 	}
