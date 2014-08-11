@@ -15,24 +15,22 @@ div.header-item {
 </head>
 <body>
 
-<!--  <h2>Version update 25.6.2014: What is new in Chipster 3.0</h2>
+<h2>Version update 13.8.2014: What is new in Chipster 3.0</h2>
 
 	<p>
-		This is a major update which contains improvements to the user interface functionality and looks. 
-		Importantly, all the NGS analysis tools except MEDIPS and variant annotation has been updated to use R3.0.2. 
+		<b>Summary:</b> This is a major update which contains improvements to the user interface functionality and looks. 
+		Importantly, all the NGS analysis tools except variant annotation have been updated to use R3.0.2. 
 		Several new NGS analysis tools have been added, and many existing tools have been updated and improved. 
-		The virtual machine has been updated to use Ubuntu 12.04.
+		The virtual machine has been updated to use Ubuntu 12.04. 
 	</p>
 
 	<ul>
-
-
 		<li><div class=header-item>Improvements to the user interface</div>
 			<ul>
-				<li>Information on the selected data set is now shown in the visualization panel, which also includes shortcuts to the visualizations.</li>
+				<li>Information on the selected data set is now shown in the visualization panel, which also includes shortcuts to the visualizations and the possibility to rename the file and add notes to it.</li>
 				<li>"Batch mode" of running analysis tools: You can launch several identical analysis jobs at the same time, if the analysis tool requires only one input file: Select the files, set the parameters, and click on the "Run for each" button.</li>
 				<li>"Batch mode" of running workflows: You can launch a workflow on several input files at the same time: Select the files and "Workflow / Run for each".</li>
-
+				<li><a href="genomeBrowser.html#owngenome">Possibility to visualize user-supplied genomes in the genome browser has been added.</a></li>
 			</ul>
 		</li>
 
@@ -42,18 +40,30 @@ div.header-item {
 				<li><a href="express.html">RNA-seq / Count reads per transcripts using eXpress</a>: Quantitates expression at transcript level.</li>
 				<li><a href="tophat2-with-index-building.html">Alignment / TopHat2 for paired end reads and own genome</a>: Aligns reads to user-supplied reference genome.</li>
 				<li><a href="tophat2-single-end-with-index-building.html">Alignment / TopHat2 for single end reads and own genome</a>: Aligns reads to user-supplied reference genome.</li>
+				<li><a href="dexseq-exoncount-own-gtf.R.html">RNA-seq / Count aligned reads per exons for DEXSeq using own GTF</a>: Counts reads per non-overlapping exonic regions using a user-supplied GTF file.</li>
+				<li><a href="unique-alignments-from.bamc.html"> Utilities / Retrieve unique alignments from BAM</a>: Retrieves unique alignments from BAM files.</li>
+				<li><a href="deseq2.html">RNA-seq / Differential expression using DESeq2</a>: Differential expression analysis using the DESeq2 Bioconductor package.</li>
 			</ul>
 		</li>
 
-		<li><div class=header-item>Updates to NGS analysis tools</div>		
+		<li><div class=header-item>Changes to NGS analysis tools</div>		
 			<ul>
-				<li><a href="dea-deseq.html">RNA-seq / Differential expression using DESeq</a>: DESeq2 option and GLM support have been added, so you can now analyze experiments containing several groups and a second experimental factor like pairing.</li>
+				<li><a href="dea-deseq.html">RNA-seq / Differential expression using DESeq</a>: GLM support have been added, so you can now analyze experiments containing a second experimental factor like pairing.</li>
 				<li><a href="dexseq-exoncount.html">RNA-seq / Count aligned reads per exons for DEXSeq</a>: Parameter to indicate stranded data has been added.</li>
 				<li><a href="tophat2.html">Alignment / TopHat2 for paired end reads</a>: New parameters to exclude discordant and mixed alignments have been added.</li>
 				<li><a href="rseqc.html">Quality control / RNA-seq quality metrics with RseQC</a>: Possibility to plot inner distance distribution has been added.</li>
-				<li><a href="pathways-ngs-hyperg-go.html">ChIP-seq and FAIRE-seq / GO enrichment for list of genes</a>: The tool can now analyze mouse, rat, fruitfly and arabidopsis data in addition to human, and it accepts Ensembl identifiers in addition to the EntrezGene ones.</li>
+				<li><a href="pathways-ngs-hyperg-go.html">ChIP-seq and FAIRE-seq / GO enrichment for list of genes</a>: The tool can now analyze mouse, rat, fruitfly and arabidopsis data in addition to human, and it accepts Ensembl identifiers in addition to EntrezGene ones.</li>
+				<li><a href="ngs-find-peaks-macs-two.html">ChIP-seq and FAIRE-seq / Find peaks using MACS</a>: The effective genome sizes have been updated and a possibility to provide a user-defined effective genome size has been added. 
+				MACS has been updated to v1.4.2 and v2.0 can be chosen with a parameter.</li>
+				<li>All GTF files have been updated to Ensembl 75.</li>
 				<li>HTSeq has been updated to version 0.6.1.</li>
-				<li>MACS peak calling tools have been updated to use MACS 1.4.2 and MACS 2.0.</li>
+				<li>The MeDIP-seq tool category has been temporarily removed for updating.</li>
+				
+			</ul>
+			
+		<li><div class=header-item>Updates to microarray analysis tools</div>		
+			<ul>
+				<li><a ordination-pca.html">Statistics / PCA</a>: Component loadings are reported.</li>
 			</ul>
 		</li>
 
@@ -62,7 +72,7 @@ div.header-item {
 
 	</ul>
 	<hr />
-	-->
+
 
 	<h2>Version update 21.5.2014: What is new in Chipster 2.12.1</h2>
 
