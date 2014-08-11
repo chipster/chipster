@@ -31,12 +31,12 @@ file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 dat2 <- dat[,grep("chip", names(dat))]
 
-# Test needs a parameter "groups" that specifies experimental conditions
+# Get the experimental group information from the relevant phenodata column
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
 
-# Read addittional factors for GLM test and DESeq2. Construct design matrix from this 
+# Read additional experimental factors from phenodata and construct design matrix from this information
 exp_factor <- NULL
 if(ad_factor != "EMPTY") {
 	exp_factor <- as.character (phenodata[,pmatch(ad_factor,colnames(phenodata))])
@@ -44,7 +44,7 @@ if(ad_factor != "EMPTY") {
 	rownames(design) <- colnames(dat2)
 }
 
-# Create a counts data object
+# Create a DESeqDataSet object from the counts file
 if (ad_factor == "EMPTY") {
 	counts_data <- DESeqDataSetFromMatrix(countData=dat2, colData=data.frame(condition=groups), design = ~ condition)
 } else if (ad_factor != "EMPTY") {
@@ -60,7 +60,7 @@ counts_data <- estimateDispersions(counts_data, fitType=dispersion_estimate)
 # Vector / variable that holds comparison names
 results_name <- NULL 
 
-# Calculate statistic for differential expression, merge with original data table and keep significant DEGs. If there are more than 2 groups, get pairwise results for each comparison.
+# Calculate statistic for differential expression, merge with original data table, keep significant DEGs, remove NAs and sort by FDR. If there are more than 2 groups, get pairwise results for each comparison.
 if (length(unique(groups)) == 2) {
 	results_table <- results(nbinomWaldTest(counts_data))
 	significant_table <- cbind(dat, results_table)[results_table$padj <= p.value.cutoff, ]
@@ -125,13 +125,12 @@ plotDispEsts(counts_data, main="Dispersion plot", cex=0.2)
 legend(x="topright", legend="fitted dispersion", col="red", cex=1, pch="-")
 dev.off()
 
-# Make histogram of p-values with overlaid significance cutoff and uniform distribution. When more than two groups, min.pvalue is taken over all comparisons for genes
+# Make histogram of p-values with overlaid significance cutoff. When more than two groups, min.pvalue is taken over all comparisons for genes
 pdf (file="p-value-plot-deseq2.pdf")
 hist(output_table$pval, breaks=100, col="blue", border="slateblue", freq=FALSE, main="P-value distribution", xlab="p-value", ylab="proportion (%)")
 hist(output_table$padj, breaks=100, col="red", border="slateblue", add=TRUE, freq=FALSE)
-abline(h=1, lwd=2, lty=2, col="black")
-abline(v=p.value.cutoff, lwd=2, lty=2, col="green")
-legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribution", "significance cutoff"), col=c("blue","red","black","green"), cex=1, pch=15)
+abline(v=p.value.cutoff, lwd=2, lty=2, col="black")
+legend (x="topright", legend=c("p-values","adjusted p-values", "significance cutoff"), col=c("blue","red","black"), cex=1, pch=15)
 dev.off()
 
 # Define function for making MA-plot of significant findings
