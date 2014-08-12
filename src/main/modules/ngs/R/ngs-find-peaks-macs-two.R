@@ -7,8 +7,8 @@
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER version: "MACS version" TYPE [1, 2] DEFAULT 1 (Determines if analysis is done using MACS1 or MACS2)
-# PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT user_specified (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
+# PARAMETER version: "MACS version" TYPE [1:"1.4.2", 2:"2.0"] DEFAULT 1 (Determines if analysis is done using MACS1 or MACS2)
+# PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
 # PARAMETER OPTIONAL userspecifed.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The length in nucleotides of the sequence reads. Option 0 envokes the default behaviour in which read length is auto-detected)
 # PARAMETER OPTIONAL band.with: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
@@ -27,8 +27,9 @@
 # 01.12.2012 MG, Modified to take BAM files as input. Modified to run version 1.4 of MACS.
 # 08.03.2011 MG, Modified to disable wiggle output.
 # 05.04.2014 MK, Polished. Added MACS2
+# 10.07.2014 AMS, Updated genome sizes, added parameter userspcified.size 
 
-# MK 05.05.2014: Instead of commeting code, use version control to store old code that could be useful in future
+# MK 05.05.2014: 
 # See version control for code that could be used if reading the experiment setup from the phenodata file, like is done for 
 # microarray data. The code allows multiple samples per treatment group and will automatically merge all samples into a 
 # single file per treatment group.      
