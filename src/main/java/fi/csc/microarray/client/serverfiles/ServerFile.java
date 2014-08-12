@@ -10,6 +10,8 @@ import java.net.URL;
 import java.util.LinkedList;
 
 public class ServerFile extends File {
+	
+	public static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
 
 	private String name;
 	private String url;
@@ -28,6 +30,18 @@ public class ServerFile extends File {
 		} else {
 			this.name = p.substring(p.lastIndexOf("/") + 1, p.length());
 		}
+	}
+
+	public ServerFile(File dir, String filename) {
+		this(concatenate(dir, filename));
+	}
+
+	private static String concatenate(File dir, String filename) {
+		String dirString = dir.getPath();
+		if (dirString.endsWith("/")) {
+			dirString = dirString.substring(0, dirString.length() - 1);
+		}
+		return dirString + "/" + filename;
 	}
 
 	public void addChild(ServerFile child) {
@@ -157,7 +171,7 @@ public class ServerFile extends File {
 
 	@Override
 	public boolean isAbsolute() {
-		return true;
+		return url.startsWith(SERVER_SESSION_ROOT_FOLDER);
 	}
 
 	@Override
