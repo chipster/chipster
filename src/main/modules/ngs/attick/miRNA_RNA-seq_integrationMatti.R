@@ -8,7 +8,7 @@
 # OUTPUT OPTIONAL correlation_known_interactions_only.tsv: correlation_known_interactions_only.tsv
 # PARAMETER order.column.mirna: "Phenodata column indicating sample order in miRNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
 # PARAMETER order.column.gene: "Phenodata column indicating sample order in RNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
-# PARAMETER OPTIONAL normalization: "Normalization" TYPE [none: none, cpm: CPM, cpmTMM: "CPM and TMM"] DEFAULT none (Should the miRNA and RNA counts be normalized. The normalization options are Counts Per Million (CPM\) of either raw counts or TMM (Trimmed Mean of M-values\) -normalized values, as calcualted by the edgeR package.)
+# PARAMETER OPTIONAL normalization.method: "Normalization" TYPE [none, cpm, TMM] DEFAULT none (Should the miRNA and RNA counts be normalized. Available methods are counts per million (cpm\) and trimmed mean of M-values (TMM\) based on the edgeR package.)
 # PARAMETER OPTIONAL filtering.method: "Filter by" TYPE [correlation, p.value] DEFAULT correlation (Should miRNA-RNA pairs be filtered by correlation or by p-value.)
 # PARAMETER OPTIONAL filter.threshold: "Filtering threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.90 (Filtering cut-off.)
 # PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (This (large\) matrix contains correlations between all miRNAs and genes, with no filtering applied.)
@@ -16,7 +16,6 @@
 # 08.24.2013, JTT Correlation analysis of miRNA-seq and RNA-seq data
 # 15.05.2014, MK Upgraded to R-3. Added support for gene symbols. Corrected typos.
 # 26.06.2014, EK Fixed a bug which prevented the recognition of Ensembl IDs.
-# 05.07.2014, EK Normalization reviewed.
 
 ## setwd("C:\\Users\\Jarno Tuimala\\Desktop\\Chipster2013\\miRNA_rna-seq\\sample_data")
 ## data_1<-read.table(file="mirna.tsv", header=T, sep="\t", row.names=1)
@@ -30,7 +29,7 @@
 ## save.full.matrix<-"no"
 
 if(order.column.mirna == "EMPTY" || order.column.gene == "EMPTY") {
-	stop("CHIPSTER-NOTE: Please indicate which phenodata columns describe the order of the samples with numbers.")
+  stop("CHIPSTER-NOTE: Please indicate which phenodata columns describing the order of the samples with numbers.")
 }
 
 # Loads the normalized data and phenodata files
@@ -41,35 +40,35 @@ phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
 # Figure out which is the miRNA data
 if ((("chiptype" %in% colnames(phenodata_1)) && (phenodata_1$chiptype[1] == "miRNA")) || (("experiment" %in% colnames(phenodata_1)) && (phenodata_1$experiment[1] == "mirna_seq"))) {
-	mirna.phenodata <- phenodata_1
-	mirna.data <- data_1
-	gene.phenodata <- phenodata_2
-	gene.data <- data_2
+  mirna.phenodata <- phenodata_1
+  mirna.data <- data_1
+  gene.phenodata <- phenodata_2
+  gene.data <- data_2
 }
 if ((("chiptype" %in% colnames(phenodata_2)) && (phenodata_2$chiptype[1] == "miRNA")) || (("experiment" %in% colnames(phenodata_2)) && (phenodata_2$experiment[1] == "mirna_seq"))) {
-	mirna.phenodata <- phenodata_2
-	mirna.data <- data_2
-	gene.phenodata <- phenodata_1
-	gene.data <- data_1
+  mirna.phenodata <- phenodata_2
+  mirna.data <- data_2
+  gene.phenodata <- phenodata_1
+  gene.data <- data_1
 }
 
 # If convert genomic BAM file has been used, table has a column which name is sequence
 if(length(grep("[0-9]+_[0-9]+_[acgt]{5,}", rownames(mirna.data)[1], ignore.case = TRUE)) > 0) {
-	mirna_id_list <- strsplit(as.character(rownames(mirna.data)), "_")
-	mirna_id <- NULL
-	for(i in 1:length(mirna_id_list)) {
-		#remove last three sections of the id
-		mirna_id <- c(mirna_id, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
-	}
+  mirna_id_list <- strsplit(as.character(rownames(mirna.data)), "_")
+  mirna_id <- NULL
+  for(i in 1:length(mirna_id_list)) {
+    #remove last three sections of the id
+    mirna_id <- c(mirna_id, paste(unlist(mirna_id_list[i])[1:((length(unlist(mirna_id_list[i])))-3)], collapse="_"))
+  }
 } else {
-	mirna_id <- as.character(rownames(mirna.data))
+  mirna_id <- as.character(rownames(mirna.data))
 }
 
 # Separates expression values and other columns
 mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
-# Pick those samples that do have a matching pair
+# pick those samples that do have a matching pair
 common.samples <- intersect(mirna.phenodata[,order.column.mirna], gene.phenodata[,order.column.gene])
 rownames(mirna.phenodata) <- mirna.phenodata[,order.column.mirna]
 rownames(gene.phenodata) <- gene.phenodata[,order.column.gene]
@@ -82,35 +81,38 @@ gene.order <- gene.phenodata[common.samples, 'n']
 mirna.data.3 <- mirna.data.2[,order(mirna.order)]
 gene.data.3 <- gene.data.2[,order(gene.order)]
 
-# Normalization
-if(normalization != "none") {
-	library(edgeR)
-	mirna3 <- DGEList(mirna.data.3)
-	gene3 <- DGEList(gene.data.3)
-	
-	if(normalization=="cpmTMM"){
-		mirna3.1 <- calcNormFactors(mirna3, method="TMM")
-		gene3.1 <- calcNormFactors(gene3, method="TMM")
-		mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=TRUE)
-		gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=TRUE)
-	}
-	else if (normalization=="cpm"){
-		mirna.data.3 <- cpm(mirna3)
-		gene.data.3 <- cpm(gene3)
-	}
+if(normalization.method != "none") {
+  # Normalization
+  if(normalization.method=="cpm") { norm.method <- "none"; } 
+  if(normalization.method=="TMM") { norm.method <- "TMM"; } 
+
+  library(edgeR)
+  mirna3 <- DGEList(mirna.data.3)
+  mirna3.1 <- calcNormFactors(mirna3, method=norm.method)
+
+  gene3 <- DGEList(gene.data.3)
+  gene3.1 <- calcNormFactors(gene3, method=norm.method)
+
+  if(normalization.method=="none") {
+    mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=FALSE)
+    gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=FALSE)
+  } else {
+    mirna.data.3 <- cpm(mirna3.1, normalized.lib.sizes=TRUE)
+    gene.data.3 <- cpm(gene3.1, normalized.lib.sizes=TRUE)
+  }
 }
 
 # Pearson correlation coefficients and the corresponding p-values are calculated for all possible miRNA-mRNA pairs
 library(WGCNA)
 corp<-function (x, y = NULL, use = "pairwise.complete.obs", alternative = c("two.sided", "less", "greater"), ...) {
-	cor = cor(x, y, use = use, ...)
-	x = as.matrix(x)
-	finMat = !is.na(x)
-	y = as.matrix(y)
-	np = t(finMat) %*% (!is.na(y))
-	T = sqrt(np - 2) * abs(cor)/sqrt(1 - cor^2)
-	p = 2 * pt(T, np - 2, lower.tail = FALSE)
-	list(cor = cor, p = p, nObs = np)
+    cor = cor(x, y, use = use, ...)
+    x = as.matrix(x)
+    finMat = !is.na(x)
+    y = as.matrix(y)
+    np = t(finMat) %*% (!is.na(y))
+    T = sqrt(np - 2) * abs(cor)/sqrt(1 - cor^2)
+    p = 2 * pt(T, np - 2, lower.tail = FALSE)
+    list(cor = cor, p = p, nObs = np)
 }
 d<-corp(t(gene.data.3), t(mirna.data.3), use="pairwise.complete.obs")
 
@@ -126,15 +128,15 @@ id<-as.character(rownames(gene.data))
 
 # Convert possible ENSEMBL IDs to Entrez Gene
 if(length(grep("ENS", id))>0) {
-	xx <- as.list(org.Hs.egENSEMBL2EG)
-	dd<-as.data.frame(unlist(xx))
-	id2<-as.data.frame(id)
-	m<-merge(id2, dd, by.x="id", by.y="row.names", sort=F, all.x=T)
+  xx <- as.list(org.Hs.egENSEMBL2EG)
+  dd<-as.data.frame(unlist(xx))
+  id2<-as.data.frame(id)
+  m<-merge(id2, dd, by.x="id", by.y="row.names", sort=F, all.x=T)
 } else {
-	xx <- as.list(org.Hs.egSYMBOL2EG)
-	dd<-as.data.frame(unlist(xx))
-	id2<-as.data.frame(id)
-	m<-merge(id2, dd, by.x="id", by.y="row.names", sort=F, all.x=T)
+  xx <- as.list(org.Hs.egSYMBOL2EG)
+  dd<-as.data.frame(unlist(xx))
+  id2<-as.data.frame(id)
+  m<-merge(id2, dd, by.x="id", by.y="row.names", sort=F, all.x=T)
 }
 colnames(m)<-c("id", "gene")
 
@@ -157,9 +159,9 @@ gc()
 mirna.ind<-unique(which(as.character(rownames(mirna.data)) %in% as.character(mid$mature_miRNA)))
 gene.ind<-which(as.character(m$gene) %in% unique(mid$gene_id[which(as.character(mid$mature_miRNA) %in% as.character(rownames(mirna.data.3)))]))
 if(length(mirna.ind)>=1 & length(gene.ind)>=1) {
-	df<-list(cor=d$cor[gene.ind,mirna.ind,drop=F], p=d$p[gene.ind,mirna.ind,drop=F], nObs=d$nObs[gene.ind,mirna.ind,drop=F])
+   df<-list(cor=d$cor[gene.ind,mirna.ind,drop=F], p=d$p[gene.ind,mirna.ind,drop=F], nObs=d$nObs[gene.ind,mirna.ind,drop=F])
 } else {
-	stop("CHIPSTER-NOTE: There are either no annotated miRNAs/mRNAs or any expressed miRNAs in your dataset! Aborting computations.")
+   stop("CHIPSTER-NOTE: There are either no annotated miRNAs/mRNAs or any expressed miRNAs in your dataset! Aborting computations.")
 }
 col.ind<-colSums(df$cor, na.rm=TRUE)!=0
 pval<-df$p[,col.ind,drop=F]
@@ -167,7 +169,7 @@ cval<-df$cor[,col.ind,drop=F]
 
 # Write out results
 if(save.full.matrix=="yes") {
-	write.table(d, "full_correlation_matrix.tsv", col.names=T, row.names=T, sep="\t", quote=F)
+   write.table(d, "full_correlation_matrix.tsv", col.names=T, row.names=T, sep="\t", quote=F)
 }
 
 # Some cleaning
@@ -179,8 +181,8 @@ gc()
 ptemp<-c()
 ctemp<-c()
 for(i in 1:ncol(pval)) {
-	ptemp<-c(ptemp, pval[,i])
-	ctemp<-c(ctemp, cval[,i])
+   ptemp<-c(ptemp, pval[,i])
+   ctemp<-c(ctemp, cval[,i])
 }
 
 # Fill in the result table
@@ -201,11 +203,11 @@ gc()
 
 # Filter the results on correlation or p-value
 if(filtering.method=="correlation") {
-	res2<-na.omit(res[res$pearson.correlation.coefficient>=filter.threshold | res$pearson.correlation.coefficient<=-filter.threshold,])
+   res2<-na.omit(res[res$pearson.correlation.coefficient>=filter.threshold | res$pearson.correlation.coefficient<=-filter.threshold,])
 }
 
 if(filtering.method=="p.value") {
-	res2<-na.omit(res[res$p.value<=filter.threshold,])
+   res2<-na.omit(res[res$p.value<=filter.threshold,])
 }
 
 # if(nrow(res2)==0) {

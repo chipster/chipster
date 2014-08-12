@@ -2,8 +2,8 @@
 # INPUT alignment{...}.bam: "Sorted BAM files" TYPE BAM 
 # INPUT OPTIONAL ownref.fa: "Reference sequence FASTA" TYPE GENERIC
 # OUTPUT variants.vcf
-# PARAMETER ref: "Reference sequence" TYPE [hg19.fa: "Human (hg19\)", mm9.fa: "Mouse (mm9\)", mm10.fa: "Mouse (mm10\)", rn4.fa: "Rat (rn4\)", Sus_scrofa.Sscrofa10.2.69.dna.toplevel.fa: "Pig (Sscrofa10.2.69\)", Gallus_gallus.Gallus_gallus-4.0.pre.fa: "Chicken (4.0\)", Bos_taurus.UMD3.1.69.dna.toplevel.fa: "Cow (UMD3.1.69\)"] DEFAULT hg19.fa (Reference sequence.)
-# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
+# PARAMETER organism: "Reference sequence" TYPE [other, Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.22] DEFAULT other (Reference sequence.)
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference sequence. Check your BAM and choose accordingly. This only applies to provided reference genomes.)
 # PARAMETER mpileup.r: "Call variants only for a certain region" TYPE STRING DEFAULT all (Only generate pileup in defined region. Region given as chromosome:start-end, e.g. 20:131505-131550.)
 # PARAMETER OPTIONAL mpileup.ub: "Disable probabilistic realignment for computation of BAC" TYPE [yes, no] DEFAULT no (Disable probabilistic realignment for the computation of base alignment quality (BAQ\). BAQ is the Phred-scaled probability of a read base being misaligned. Applying this option greatly helps to reduce false SNPs caused by misalignments.)
 # PARAMETER OPTIONAL mpileup.uc: "Downgrading coefficient" TYPE INTEGER DEFAULT 0 (Coefficient for downgrading mapping quality for reads containing excessive mismatches. The recommended value for BWA is 50. A zero value disables this functionality.)
@@ -20,6 +20,7 @@
 # AMS 30.5.2012
 # AMS 17.08.2012: Additional parameters as suggested by Jarno
 # AMS 24.6.2014: Changed handling of fasta file
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
 # binaries
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
@@ -27,18 +28,25 @@ bcftools.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "bcf
 vcfutils.binary <- c(file.path(chipster.tools.path, "samtools", "bcftools", "vcfutils.pl"))
 
 # If user provided fasta we use it, else use internal fasta
-if (file.exists("ownref.fa")){
-	refseq <- "ownref.fa"
+if (organism == "other"){
+	# If user has provided a FASTA, we use it
+	if (file.exists("ownref.fa")){
+		refseq <- paste("ownref.fa")
+	}else{
+		stop(paste('CHIPSTER-NOTE: ', "You need to provide a FASTA file or choose one of the provided reference genomes."))
+	}
 }else{
-	internal.refseq <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", ref))
-	if (chr == "chr1"){
+	# If not, we use the internal one.
+	internal.fa <- file.path(chipster.tools.path, "genomes", "fasta", paste(organism,".fa",sep="",collapse=""))
+	# If chromosome names in BAM have chr, we make a temporary copy of fasta with chr names, otherwise we use it as is.
+	if(chr == "chr1"){
 		source(file.path(chipster.common.path, "seq-utils.R"))
-		addChrToFasta(internal.refseq, "internal_chr.fa")
+		addChrToFasta(internal.fa, "internal_chr.fa") 
 		refseq <- paste("internal_chr.fa")
 	}else{
-		refseq <- paste(internal.refseq)
+		refseq <- paste(internal.fa)
 	}
-}
+}	
 
 # mpileup otions
 mpileup.options <- paste("mpileup -u")

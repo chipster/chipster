@@ -7,8 +7,9 @@
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER species: Genome TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER version: "MACS version" TYPE [1, 2] DEFAULT 1 (Determines if analysis is done using MACS1 or MACS2)
+# PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT user_specified (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
+# PARAMETER OPTIONAL userspecifed.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The length in nucleotides of the sequence reads. Option 0 envokes the default behaviour in which read length is auto-detected)
 # PARAMETER OPTIONAL band.with: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER OPTIONAL p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction, the cutoff needs to be substantially more conservative than what is usually applied.)
@@ -32,6 +33,7 @@
 # microarray data. The code allows multiple samples per treatment group and will automatically merge all samples into a 
 # single file per treatment group.      
 
+
 # MACS settings
 if(version == 1) {
 	macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
@@ -39,15 +41,13 @@ if(version == 1) {
 	macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
 }
 
-# Set up approximate mappable genome size depending on species
-if (species == "human") {
-	genome.size <- as.character(3.5e+9*0.978*.9)
-}
-if (species == "mouse") {
-	genome.size <- as.character(3.25e+9*0.978*.9)
-}
-if (species == "rat") {
-	genome.size <- as.character(3.05e+9*0.978*.9)
+if (precalculated.size == "user_specified") {
+	if (nchar(userspecifed.size) < 1){
+		stop(paste('CHIPSTER-NOTE: ', "You need to provide a value for mappable genome size or select one of the precalculated values."))
+	}
+	genome.size <- userspecifed.size
+}else{
+	genome.size <- precalculated.size
 }
 
 if (read.length == 0) {
