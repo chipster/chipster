@@ -3,19 +3,18 @@
 <head><title></title></head>
 <body>
 
-<h2>RNA-seq / Count aligned reads per exons for DEXSeq</h2>
+<h2>RNA-seq / Count aligned reads per exons for DEXSeq using own GTF</h2>
 
 <h3>Description</h3>
 
 <p>
-Given mapped reads in a BAM file, this tool counts the reads that fall into each non-overlapping exonic part using the script dexseq-count.py.
+Given mapped reads in a BAM file and genomic annotation in a GTF file, this tool counts the reads that fall into each non-overlapping exonic part using the script dexseq-count.py.
 </p>
 
 <h3>Parameters</h3>
 
 <ul>
 <li>Does the alignment file contain paired-end data (yes, no) [no]</li>
-<li>Reference organism []</li>
 <li>Chromosome names in the BAM file look like (chr1, 1) [1]</li>
 <li>Does the BAM file contain paired-end data (yes, no) [no]</li>
 <li>Was the data produced with a strand-specific protocol (yes, no, reverse) [no]</li>
