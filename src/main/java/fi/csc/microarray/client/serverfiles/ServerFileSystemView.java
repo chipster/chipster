@@ -103,4 +103,27 @@ public class ServerFileSystemView extends FileSystemView {
 		}
 		return null;
 	}
+	
+    /* 
+     * When Open button is pressed (but not when the file is opened with a double
+     * click), JFileChooser uses these methods to create new File instances. These methods
+     * make sure that those new instances will be also of ServerFile type. In practice this
+     * matters only in Windows, where plain File object uses wrong file separator.
+     */
+    public File createFileObject(String path) {
+        File f = new ServerFile(path);
+        return f;
+    }
+
+    /* 
+     * See comment of the method above.
+     */
+    public File createFileObject(File dir, String filename) {
+        if(dir == null) {
+            return new ServerFile(filename);
+        } else {
+            return new ServerFile(dir, filename);
+        }
+    }
+
 }

@@ -81,6 +81,7 @@ import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
+import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.client.session.UserSession;
@@ -123,7 +124,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class SwingClientApplication extends ClientApplication {
 
-	private static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
@@ -1382,7 +1382,7 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
 		List<DbSession> sessions = super.listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions);
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
 		sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1564,13 +1564,14 @@ public class SwingClientApplication extends ClientApplication {
 				try {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-					remoteSessionName = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
+					remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
 					sessionId = findMatchingSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
 						throw new RuntimeException();
 					}
 					
 				} catch (Exception e) {
+					reportException(e);
 					throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
 				}
 
@@ -1784,7 +1785,7 @@ public class SwingClientApplication extends ClientApplication {
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			String filename = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
+			String filename = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
 			String sessionUuid = null;
 			
 			try {
