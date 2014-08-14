@@ -1578,7 +1578,9 @@ public class SwingClientApplication extends ClientApplication {
 					remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
 					sessionId = findMatchingSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
-						throw new RuntimeException();
+						// user didn't select anything
+						showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
+						return;
 					}
 					
 				} catch (Exception e) {
