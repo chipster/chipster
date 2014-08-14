@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -180,6 +181,16 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// this had to be delayed as logging is not available before loading configuration
 		logger = Logger.getLogger(SwingClientApplication.class);
+		
+		Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler() {				
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				// we'll always output these to console and log for traceability and
+				// easier IDE navigation
+				System.err.println(e.getStackTrace());
+				logger.error("Uncaught exception in thread " + t.getName(), e);
+			}
+		});
 		
 		if (!SwingUtilities.isEventDispatchThread()) {
 			logger.error(new MicroarrayException("SwingClientApplication was created outside the Event Dispatch Thread."));
@@ -921,7 +932,7 @@ public class SwingClientApplication extends ClientApplication {
 		// easier IDE navigation
 		e.printStackTrace();
 		if (logger != null) {
-			logger.error(Exceptions.getStackTrace(e));
+			logger.error(e.getMessage(), e);
 		}
 	}
 

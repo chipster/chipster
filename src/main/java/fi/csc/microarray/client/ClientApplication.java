@@ -209,11 +209,6 @@ public abstract class ClientApplication {
 			return VisualisationMethod.getDefault();
 		}
 	}
-
-	
-	// 
-	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
-	//
 	
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
@@ -385,9 +380,6 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
-						
-			// disable http cache (only after initialization, because it slows down jar reading)
-			IOUtils.disableHttpCache();
 			
 			// disable http cache (only after initialization, because it makes 
 			// icon loading from jar much slower (about 18 seconds for icons in VisualConstants) 
