@@ -1,4 +1,4 @@
-# TOOL unique-alignments-from.bam.R: "Retrieve unique alignments from BAM" (Retrieve unique alignments from BAM. Input BAM needs to be sorted.)
+# TOOL unique-alignments-from-bam.R: "Retrieve unique alignments from BAM" (Retrieve unique alignments from BAM. Input BAM needs to be sorted. This tool is based on the SAMtools package.)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT OPTIONAL unique_alignments.bam
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)

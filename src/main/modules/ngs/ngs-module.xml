@@ -300,10 +300,10 @@
 			<resource>express.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>dea-deseq.R</resource>
+			<resource>deseq2.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>deseq2.R</resource>
+			<resource>dea-deseq.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>ngs-dea-edger-RNA.R</resource>
@@ -311,8 +311,6 @@
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-<!-- 	<tool runtime="R-2.15_bioc-2.11"><resource>edgeR-several_groups_V3.R</resource>
-		</tool>	 -->
 		<tool runtime="R-3.0">
 			<resource>DEXseq.R</resource>
 		</tool>
@@ -349,14 +347,18 @@
 		</tool>
 		-->
 		<tool runtime="R-3.0">
+			<resource>deseq2.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dea-deseq.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-		<tool runtime="R-3.0">
-			<resource>dea-deseq.R</resource>
-		</tool>
+		
 		<tool runtime="R-3.0">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
 		</tool> 
@@ -370,9 +372,6 @@
 			<resource>miRNA_RNA-seq_integration.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
-			<resource>correlation.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
 			<resource>ngs-correlation-analysis-mirna.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -383,7 +382,7 @@
 		</tool>
 	</category>
 
-	<category name="ChIP-seq and FAIRE-seq" color="#c0d2de">
+	<category name="ChIP-seq and DNase-seq" color="#c0d2de">
 		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
