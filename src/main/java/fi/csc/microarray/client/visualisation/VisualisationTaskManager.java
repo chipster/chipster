@@ -36,6 +36,18 @@ public class VisualisationTaskManager {
 
 			// do the actual work (if needed)
 			try {
+				
+				/*
+				 * At the moment, visualizations are created in background 
+				 * thread. Handling Swing components in other thread than EDT is 
+				 * a bad practice, but allows the program to continue, even when 
+				 * not-that-reliable visualizations get stuck with some weird 
+				 * data.
+				 * 
+				 * The real solution of course would be to fix the 
+				 * visualizations.
+				 */
+				
 				final JComponent visualisation = event.getNewMethod() != null ? frameManager.createVisualisation(event) : null;
 
 				// update GUI in EDT (and wait for it to happen)
