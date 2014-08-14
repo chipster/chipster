@@ -266,13 +266,22 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public JComponent getVisualisation(List<DataBean> datas) throws Exception {
 		
-		// this is not in EDT, do only minimal stuff to avoid problems if something else modifies databeans at the same time
-		this.datas = datas;
+		/* See VisualisationTaskManager.VisualisationRunnable.run()
+		 * 
+		 * This visualization is created so often that we start to see threading
+		 * problems. Methods getVisualisation() and visualisationShown() are
+		 * synchronized to make things little bit more predictable. 
+		 */
+		synchronized (this) {
 
-		panel = getPanelBase("gapy 20");						
-		scroller = new JScrollPane(panel);			
+			// this is not in EDT, do only minimal stuff to avoid problems if something else modifies databeans at the same time
+			this.datas = datas;
 
-		return scroller;
+			panel = getPanelBase("gapy 20");						
+			scroller = new JScrollPane(panel);			
+
+			return scroller;
+		}
 	}
 	
 	@Override
@@ -549,22 +558,25 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public void visualisationShown() {
 		
-		panel.removeAll();
-		
-		// this is EDT, now it's safe to access databeans
-		panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
-		panel.add(createVisualisations(), "aligny top");
-		
-		panel.addMouseListener(this);
-		scroller.setBorder(null);
-		updateFocusTraversal(scroller);
-		
-		if (getFrame().getVariables() != null) {
-			for (Variable variable : getFrame().getVariables()) {
-				//These are set by rename menu command
-				if (COMMAND.equals(variable.getName()) && RENAME_COMMAND.equals(variable.getExpression())) {
-					titleField.requestFocusInWindow();
-					titleField.getCaret().setDot(titleField.getText().length());
+		synchronized (this) {
+
+			panel.removeAll();
+
+			// this is EDT, now it's safe to access databeans
+			panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
+			panel.add(createVisualisations(), "aligny top");
+
+			panel.addMouseListener(this);
+			scroller.setBorder(null);
+			updateFocusTraversal(scroller);
+
+			if (getFrame().getVariables() != null) {
+				for (Variable variable : getFrame().getVariables()) {
+					//These are set by rename menu command
+					if (COMMAND.equals(variable.getName()) && RENAME_COMMAND.equals(variable.getExpression())) {
+						titleField.requestFocusInWindow();
+						titleField.getCaret().setDot(titleField.getText().length());
+					}
 				}
 			}
 		}
