@@ -37,7 +37,7 @@ if [[ "$force" == "0" ]]; then
 		# Install module
 		(
 		
-			bash $1
+			bash -veu $1
 		
 		)
 	
@@ -48,7 +48,7 @@ else
 	# Install module
 	(
 	
-		bash $1
+		bash -veu $1
 	)
 	
 	#If installed correctly, make sha256sum & flagfile
