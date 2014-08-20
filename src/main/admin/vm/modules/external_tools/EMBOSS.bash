@@ -1,4 +1,4 @@
-##depends:none
+##depends:none
 
 # EMBOSS, GPL
   apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
@@ -33,7 +33,7 @@
 	cd ..
 
 # REBASE reference data and indeces	
-	#	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
-	#wget_retry ftp://ftp.neb.com/pub/rebase/withrefm.txt
-	#wget_retry ftp://ftp.neb.com/pub/rebase/proto.txt
-	#../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt -equivalences Y
+	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
+	wget_retry ftp://ftp.neb.com/pub/rebase/withrefm.txt
+	wget_retry ftp://ftp.neb.com/pub/rebase/proto.txt
+	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt -equivalences Y
