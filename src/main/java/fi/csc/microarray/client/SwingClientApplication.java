@@ -830,12 +830,12 @@ public class SwingClientApplication extends ClientApplication {
 		// user-friendly message
 		if (userFixable) {
 			title = task.getErrorMessage();
-			message = task.getNamePrettyPrinted() + " was stopped. ";
+			message = task.getFullName() + " was stopped. ";
 		} 
 		
 		// generic message
 		else {
-			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			title = task.getFullName() + " did not complete successfully. ";
 			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
 		}		
 

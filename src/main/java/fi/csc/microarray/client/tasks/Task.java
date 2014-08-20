@@ -4,17 +4,15 @@
  */
 package fi.csc.microarray.client.tasks;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -90,7 +88,7 @@ public class Task {
 
 	
 	
-	private Operation operation;
+	private OperationRecord operationRecord;
 	private String id; 
 	private State state = State.NEW;
 	private String stateDetail = "";
@@ -100,80 +98,51 @@ public class Task {
 	private String errorMessage;
 	private String screenOutput;
 	private String sourceCode;
-	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
+	private ArrayList<DataBean> outputs = new ArrayList<>();
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
 	private boolean isLocal;	
 	
-	public Task(Operation operation) {
-		this.operation = operation;
+	public Task(OperationRecord operation) {
+		this.operationRecord = operation;
 		this.id = generateId();
-		this.isLocal = operation.getDefinition().isLocal();
+//		this.isLocal = operation.getDefinition().isLocal();
 	}
-	
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName() {
-		return operation.getDefinition().getFullName();
-	}	
 
 	public String getOperationID() {
-		return operation.getID();
+		return operationRecord.getNameID().getID();
 	}
 	
+	public String getName() {
+		return operationRecord.getNameID().getDisplayName();
+	}
 	
-	public String getNamePrettyPrinted() {
-		return operation.getDefinition().getFullName();
+	public String getFullName() {
+		return operationRecord.getCategoryName() + " / " + operationRecord.getNameID().getDisplayName();
 	}
 	
 	public Iterable<DataBean> getInputs() {
-		LinkedList<DataBean> beans = new LinkedList<DataBean>();
-		for (DataBinding binding : operation.getBindings()) {
-			beans.add(binding.getData());
-		}
-		return beans;
+		return operationRecord.getInputDataBeans();
 	}
 	
 	
 	public List<String> getParameters() throws TaskException, MicroarrayException {
 		List<String> parameterStrings;
 		parameterStrings = new LinkedList<String>();
-		for (Parameter parameter: operation.getParameters()) {
-			parameterStrings.add(parameter.getValueAsString());
+		for (ParameterRecord parameter: operationRecord.getParameters()) {
+			parameterStrings.add(parameter.getValue());
 		}
 		return parameterStrings;
 	}
-	
-	public DataBean getOutput(String name) {
-		return outputs.get(name);
-	}
-	
-	public DataBean getInput(String name) {
-		DataBinding binding = operation.getBinding(name);
-		if (binding != null) {
-			return binding.getData();
-		} else {
-			return null;
-		}
-	}
-	
-	public Iterable<String> getInputNames() {
-		LinkedList<String> bindingNames = new LinkedList<String>();
-		for (DataBinding binding : operation.getBindings()) {
-			bindingNames.add(binding.getName());
-		}
-		return bindingNames;
-	}
 
 	public int getInputCount() {
-		return operation.getBindings().size();
+		return operationRecord.getInputs().size();
 	}
 	
-	public void addOutput(String outputName, DataBean bean) {
-		this.outputs.put(outputName, bean);
+	public void addOutput(DataBean bean) {
+		this.outputs.add(bean);
 	}
 	
 	
@@ -213,12 +182,8 @@ public class Task {
 		return errorMessage;
 	}
 
-	public Iterable<String> outputNames() {
-		return outputs.keySet();
-	}
-
-	public Iterable<DataBean> outputs() {
-		return outputs.values();
+	public Iterable<DataBean> getOutputs() {
+		return outputs;
 	}
 
 	public String getScreenOutput() {
@@ -331,4 +296,7 @@ public class Task {
 		return isLocal;
 	}
 
+	public OperationRecord getOperationRecord() {
+		return operationRecord;
+	}
 }

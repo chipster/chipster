@@ -3,6 +3,7 @@ package fi.csc.microarray.client.operation;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
@@ -242,5 +243,13 @@ public class OperationRecord {
 		record.setCategoryColor(ToolCategory.UNKNOWN_CATEGORY_COLOR);
 		record.setSourceCode("Source code not available.");
 		return record;
+	}
+
+	public Iterable<DataBean> getInputDataBeans() {
+		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+		for (InputRecord input : getInputs()) {
+			beans.add(input.getValue());
+		}
+		return beans;
 	}
 }

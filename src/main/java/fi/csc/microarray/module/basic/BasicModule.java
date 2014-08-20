@@ -15,6 +15,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -157,7 +158,7 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
+	public void postProcessOutputMetadata(OperationRecord operation, DataBean metadataOutput) throws MicroarrayException, IOException {
 		// do nothing, we don't use metadata
 	}
 

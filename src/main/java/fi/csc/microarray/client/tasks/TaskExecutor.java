@@ -25,6 +25,7 @@ import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -331,7 +332,7 @@ public class TaskExecutor {
 				logger.debug("output " + name);
 				String dataId = resultMessage.getPayload(name);
 				DataBean bean = manager.createDataBean(name, dataId, true);
-				pendingTask.addOutput(name, bean);
+				pendingTask.addOutput(bean);
 			}
 		}
 
@@ -392,8 +393,8 @@ public class TaskExecutor {
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
-	public Task createTask(Operation operation) {
-		return new Task(operation);
+	public Task createTask(OperationRecord operationRecord) {
+		return new Task(operationRecord);
 	}
 	
 
@@ -421,7 +422,7 @@ public class TaskExecutor {
 			
 			Runnable taskRunnable = new LocalNGSPreprocess(task);
 			ClientApplication app = Session.getSession().getApplication();
-			app.runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			app.runBlockingTask("running " + task.getFullName(), taskRunnable);
 			return;
 		}
 		
@@ -451,14 +452,12 @@ public class TaskExecutor {
 					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
-
 					
-					for (final String name : task.getInputNames()) {
-
+					for (final DataBean bean : task.getInputs()) {
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							long length = Session.getSession().getApplication().getDataManager().getContentLength(task.getInput(name));
+							long length = Session.getSession().getApplication().getDataManager().getContentLength(bean);
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
@@ -470,15 +469,14 @@ public class TaskExecutor {
 						
 						
 						// transfer input contents to file broker if needed
-						DataBean bean = task.getInput(name);
 						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
 						// add the data id to the message
-						jobMessage.addPayload(name, bean.getId());
+						jobMessage.addPayload(bean.getName(), bean.getId());
 						
-						logger.debug("added input " + name + " to job message.");
+						logger.debug("added input " + bean.getName() + " to job message.");
 						i++;
-					}
+					}				
 
 					updateTaskState(task, State.WAITING, null, -1);
 					TempTopicMessagingListener replyListener = new ResultMessageListener(task);
@@ -692,16 +690,16 @@ public class TaskExecutor {
 	private void resendJobMessage(Task task, Destination replyTo) throws Exception {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
-		for (String name : task.getInputNames()) {
-			DataBean bean = task.getInput(name);
+		
+		for (DataBean bean : task.getInputs()) {
 			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
-			jobMessage.addPayload(name, bean.getId());
+			jobMessage.addPayload(bean.getName(), bean.getId());			
 		}
+				
 		jobMessage.setReplyTo(replyTo);
 
 		logger.debug("Retry replyTo is: " + jobMessage.getReplyTo());
 		requestTopic.sendMessage(jobMessage);
 
 	}
-
 }

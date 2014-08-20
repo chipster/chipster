@@ -318,7 +318,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 			}
 
-			Task task = executor.createTask(operation);
+			Task task = executor.createTask(new OperationRecord(operation));
 			
 			// Execute the task
 			System.out.println("running " + operation.getDefinition().getFullName());
@@ -346,10 +346,10 @@ public class SessionReplayTest extends MessagingTestBase {
 			try {
 				
 				// Link result beans, add to folders etc
-				Session.getSession().getApplication().onFinishedTask(task, operation);
+				Session.getSession().getApplication().onFinishedTask(task, null);
 
 				// Check that number of results and result names match
-				Iterator<DataBean> targetIterator = task.outputs().iterator();
+				Iterator<DataBean> targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					if (targetIterator.hasNext()) {
 						DataBean targetBean = targetIterator.next();
@@ -380,7 +380,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Find and replace metadata 
-				targetIterator = task.outputs().iterator();
+				targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
 
@@ -403,7 +403,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
 				List<String> outputsWithMisMatchingContents = new LinkedList<String>();
 
-				targetIterator = task.outputs().iterator();
+				targetIterator = task.getOutputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
 					try {

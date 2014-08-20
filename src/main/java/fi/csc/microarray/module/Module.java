@@ -14,6 +14,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -116,12 +117,12 @@ public interface Module {
 	/**
 	 * Post-processes metadata datasets after they have been created by finished tasks.
 	 * 
-	 * @param operation operation that generated the output metadata 
+	 * @param operationRecord operation that generated the output metadata 
 	 * @param metadataOutput the metadata output to post-process
 	 * @throws MicroarrayException
 	 * @throws IOException
 	 */
-	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException;
+	public void postProcessOutputMetadata(OperationRecord operationRecord, DataBean metadataOutput) throws MicroarrayException, IOException;
 	
 	/**
 	 * Returns visualisation methods of this module.
