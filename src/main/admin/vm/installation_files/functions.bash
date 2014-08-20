@@ -79,10 +79,18 @@ export -f install_file
 	
 wget_retry()
 {
-  while ! wget -t 1 -T 30 $*; do
-    echo "wget failed, retrying"
-    sleep 5
-  done
+	max_retries=10
+	i=1
+	while ! wget -t 1 -T 30 $*; do
+		if [ $i -ge $max_retries ]; then
+			echo "maximum number of retries exceeded"
+			return 1
+		fi
+		sleep 5
+		i=$((i+1))
+		echo "wget failed, retrying ($i/$max_retries)"
+		
+	done
 }
 
 export -f wget_retry
