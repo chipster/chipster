@@ -2,12 +2,14 @@ package fi.csc.microarray.client.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 import javax.jms.JMSException;
+import javax.swing.SwingUtilities;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.action.StoreTrueArgumentAction;
@@ -132,7 +134,7 @@ public class CliClient {
         System.setProperty("java.awt.headless", "true");
      }
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InvocationTargetException, InterruptedException {
 		new CliClient(args).runCliClient();
 	}
 
@@ -145,7 +147,7 @@ public class CliClient {
 		this.args = args;
 	}
 	
-	private void runCliClient() {
+	private void runCliClient() throws InvocationTargetException, InterruptedException {
 		
 		int exitValue = 1;
 		try {
@@ -157,10 +159,25 @@ public class CliClient {
 			e.printStackTrace();
 		}
 
-		if (app != null) {
-			app.quit();
+		// shutdown in EDT to prevent EDT callbacks from running code after 
+		// messaging is closed
+		SwingUtilities.invokeAndWait(new ShutdownRunnable(exitValue));
+	}
+	
+	public class ShutdownRunnable implements Runnable {			
+		private int exitValue;
+
+		public ShutdownRunnable(int exitValue) {
+			this.exitValue = exitValue;
 		}
-		System.exit(exitValue);
+
+		@Override
+		public void run() {				
+			if (app != null) {
+				app.quit();
+			}
+			System.exit(exitValue);
+		}
 	}
 	
 	private void parse() throws JMSException, Exception {

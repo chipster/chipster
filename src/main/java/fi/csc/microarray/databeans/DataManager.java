@@ -884,6 +884,7 @@ public class DataManager {
 		// try local content locations first
 		ContentLocation location = getClosestContentLocation(bean);
 		
+		
 		if (location != null) {
 			
 			// local available TODO maybe check if it really is available
@@ -915,7 +916,7 @@ public class DataManager {
 			if (remoteException != null) {
 				message += ": " + remoteException.getMessage(); 
 			}
-			throw new RuntimeException(message);	
+			throw new RuntimeException(message, remoteException);	
 		}
 
 	}
