@@ -330,7 +330,7 @@ public class TaskExecutor {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
 				String dataId = resultMessage.getPayload(name);
-				DataBean bean = manager.createDataBean(name, dataId);
+				DataBean bean = manager.createDataBean(name, dataId, true);
 				pendingTask.addOutput(name, bean);
 			}
 		}
