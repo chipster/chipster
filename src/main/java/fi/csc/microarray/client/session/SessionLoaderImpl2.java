@@ -208,7 +208,14 @@ public class SessionLoaderImpl2 {
 									
 			DataBean dataBean;
 			try {
-				dataBean = dataManager.createDataBean(name, dataId);				
+				
+				boolean onlyOnFilebroker = dataType.getLocation().isEmpty();
+				/* Don't ask content length from filebroker, if we have a other
+				 * content locations (hopefully local and fast) available. This
+				 * speeds up opening of a local session significantly (at least
+				 * in chipster-cli.
+				 */				
+				dataBean = dataManager.createDataBean(name, dataId, onlyOnFilebroker);		
 				
 				for (LocationType location : dataType.getLocation()) {
 					

@@ -586,14 +586,17 @@ public class DataManager {
 	 * tries to get the content length of the file from filebroker.
 	 * 
 	 * @param name name of the DataBean
+	 * @param updateContentLength 
 	 * @return new DataBean that is not connected to a DataFolder
 	 */
-	public DataBean createDataBean(String name, String dataId) throws MicroarrayException {
+	public DataBean createDataBean(String name, String dataId, boolean updateContentLength) throws MicroarrayException {
 		DataBean data = new DataBean(name, guessContentType(name), this, dataId);
-		/* Update content length. Usually it is updated when content location 
-		 * is added, but filebroker is not a content location.  
-		 */
-		getContentLength(data); 
+		if (updateContentLength) {
+			/* Update content length. Usually it is updated when content location 
+			 * is added, but filebroker is not a content location.  
+			 */
+			getContentLength(data);
+		}
 		return data;
 	}
 	
@@ -858,7 +861,8 @@ public class DataManager {
 		return folders;
 	}
 
-	public ChecksumInputStream getContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
+	public ChecksumInputStream getContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {		
+		
 		/* It's convenient to return a ChecksumInputStream, because it transparently handles situation of disabled 
 		 * checksum calculation. Method getContentStreamImpl creates many types of streams, so wrap a ChecksumInputStream
 		 * around the returned stream if necessary. 
