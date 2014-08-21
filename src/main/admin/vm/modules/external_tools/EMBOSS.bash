@@ -21,7 +21,7 @@
 	
 	./configure ${EMBOSS_OPTIONS}
 	make
-	echo "emboss_update_log.txt" - | make install
+	echo "emboss_update_log.txt" - |make install
 	
 	# temporarily use prebuilt emboss
 	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
