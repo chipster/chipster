@@ -5,6 +5,7 @@
 package fi.csc.microarray.client.tasks;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -105,10 +107,16 @@ public class Task {
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
 	private boolean isLocal;	
 	
-	public Task(OperationRecord operation) {
+	public Task(OperationRecord operation, boolean local) {
 		this.operationRecord = operation;
 		this.id = generateId();
-//		this.isLocal = operation.getDefinition().isLocal();
+		this.isLocal = local;
+	}
+
+	public Task(OperationRecord operationRecord, String jobId, boolean local) {
+		this.operationRecord = operationRecord;
+		this.id = jobId;
+		this.isLocal = local;
 	}
 
 	public String getOperationID() {
@@ -123,10 +131,13 @@ public class Task {
 		return operationRecord.getCategoryName() + " / " + operationRecord.getNameID().getDisplayName();
 	}
 	
-	public Iterable<DataBean> getInputs() {
-		return operationRecord.getInputDataBeans();
+	public Collection<InputRecord> getInputRecords() {
+		return operationRecord.getInputRecords();
 	}
 	
+	public Iterable<DataBean> getInputDataBeans() {
+		return operationRecord.getInputDataBeans();
+	}
 	
 	public List<String> getParameters() throws TaskException, MicroarrayException {
 		List<String> parameterStrings;
@@ -138,7 +149,7 @@ public class Task {
 	}
 
 	public int getInputCount() {
-		return operationRecord.getInputs().size();
+		return operationRecord.getInputRecords().size();
 	}
 	
 	public void addOutput(DataBean bean) {

@@ -99,7 +99,7 @@ public class WorkflowWriter {
 		
 		StringBuffer dataString = new StringBuffer("\ndatas = new WfDataBean[] {\n");
 		boolean first = true;
-		for (InputRecord inputRecord : operationRecord.getInputs()) {
+		for (InputRecord inputRecord : operationRecord.getInputRecords()) {
 			
 			// skip phenodata as it is bound automatically
 			if (inputRecord.getNameID().getID().equals("phenodata.tsv")) {

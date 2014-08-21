@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -393,8 +393,17 @@ public class TaskExecutor {
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
-	public Task createTask(OperationRecord operationRecord) {
-		return new Task(operationRecord);
+	public Task createNewTask(OperationRecord operationRecord, boolean local) {
+		// new job: create new id
+		Task task = new Task(operationRecord, local);
+		operationRecord.setJobId(task.getId());
+		return task;
+	}
+	
+	public Task createContinuedTask(OperationRecord operationRecord, boolean local) {
+		// continued job: use existing id
+		Task task = new Task(operationRecord, operationRecord.getJobId(), local);
+		return task;
 	}
 	
 
@@ -453,7 +462,9 @@ public class TaskExecutor {
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
 					
-					for (final DataBean bean : task.getInputs()) {
+					for (InputRecord input : task.getInputRecords()) {
+						String operationsInputName = input.getNameID().getID();
+						final DataBean bean = input.getValue();
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
@@ -472,7 +483,7 @@ public class TaskExecutor {
 						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
 						// add the data id to the message
-						jobMessage.addPayload(bean.getName(), bean.getId());
+						jobMessage.addPayload(operationsInputName, bean.getId());
 						
 						logger.debug("added input " + bean.getName() + " to job message.");
 						i++;
@@ -493,6 +504,53 @@ public class TaskExecutor {
 				} catch (Exception e) {
 					// could not send job message --> task fails
 					logger.error("Could not send job message.", e);
+					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
+					removeFromRunningTasks(task);
+				}
+			}
+		}).start();
+		logger.debug("task starter thread started");
+
+		// setup timeout checker if needed
+		if (timeout != -1) {
+			// we'll have to timeout this task
+			Timer timer = new Timer(timeout, new TimeoutListener(task));
+			timer.setRepeats(false);
+			timer.start();
+		}
+	}
+	
+	public void continueExecuting(final Task task) throws TaskException {
+		continueExecuting(task, -1);
+	}
+	
+	public void continueExecuting(final Task task, int timeout) throws TaskException {
+		logger.debug("Continuing task " + task.getName());
+
+		if (task.isLocal()) {						
+			throw new IllegalArgumentException("local tasks cannot be continued");
+		}
+
+		// set task as running (task becomes visible in the task list)
+		task.setStartTime(task.getStartTime());
+		addToRunningTasks(task);
+
+		// send job message (start task) in a background thread
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					CommandMessage commandMsg = new CommandMessage(CommandMessage.COMMAND_GET_JOB);
+					commandMsg.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, task.getId());
+										
+					updateTaskState(task, State.WAITING, null, -1);
+					TempTopicMessagingListener replyListener = new ResultMessageListener(task);
+					logger.debug("sending get-job message, jobId: " + task.getId());
+
+					requestTopic.sendReplyableMessage(commandMsg, replyListener);				
+					
+				} catch (Exception e) {
+					// could not send job message --> task fails
+					logger.error("Could not send get-job message.", e);
 					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
 					removeFromRunningTasks(task);
 				}
@@ -691,7 +749,7 @@ public class TaskExecutor {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		
-		for (DataBean bean : task.getInputs()) {
+		for (DataBean bean : task.getInputDataBeans()) {
 			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
 			jobMessage.addPayload(bean.getName(), bean.getId());			
 		}

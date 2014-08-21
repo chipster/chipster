@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -476,7 +477,7 @@ public abstract class ClientApplication {
 		OperationRecord operationRecord = new OperationRecord(operation);
 		
 		// start executing the task
-		Task task = taskExecutor.createTask(operationRecord);
+		Task task = taskExecutor.createNewTask(operationRecord, operation.getDefinition().isLocal());
 		
 		task.addTaskEventListener(new TaskEventListener() {
 			public void onStateChange(Task job, State oldState, State newState) {
@@ -501,11 +502,39 @@ public abstract class ClientApplication {
 		return task;
 	}
 	
+	public Task continueOperation(OperationRecord operationRecord) {
+
+		// assume that all continued operations are remote 
+		boolean local = false;
+		Task task = taskExecutor.createContinuedTask(operationRecord, local);
+		
+		task.addTaskEventListener(new TaskEventListener() {
+			public void onStateChange(Task job, State oldState, State newState) {
+				if (newState.isFinished()) {
+					try {						
+						// result listener is always null for continued tasks
+						onFinishedTask(job, null);
+					} catch (Exception e) {
+						reportException(e);
+					}
+				}
+			}
+		});
+
+		try {			
+			//taskExecutor.startExecuting(task);
+			taskExecutor.continueExecuting(task);
+		} catch (TaskException te) {
+			reportException(te);
+		}
+		return task;
+	}
+	
 	public void onNewTask(Task task, Operation oper) throws MicroarrayException, IOException {
 		
 		Module primaryModule = Session.getSession().getPrimaryModule();
 		
-		for (DataBean input : task.getInputs()) {
+		for (DataBean input : task.getInputDataBeans()) {
 			if (primaryModule.isMetadata(input)) {				
 				primaryModule.preProcessInputMetadata(oper, input);				
 			}
@@ -549,7 +578,7 @@ public abstract class ClientApplication {
 				// read operated datas
 				Module primaryModule = Session.getSession().getPrimaryModule();
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
-				for (DataBean bean : task.getInputs()) {
+				for (DataBean bean : task.getInputDataBeans()) {
 					// do not create derivation links for metadata datasets
 					// also do not create links for sources without parents
 					// this happens when creating the input databean for example
@@ -963,15 +992,21 @@ public abstract class ClientApplication {
 		 * of them and new session can be necessary to save. This has to set after the import. 
 		 */
 		boolean somethingToSave = manager.databeans().size() != 0;
+		
+		List<OperationRecord> unfinishedJobs = null;
 
 		try {
 			if (sessionFile != null) {
-				manager.loadSession(sessionFile, isDataless);
+				unfinishedJobs = manager.loadSession(sessionFile, isDataless);
 				currentRemoteSession = null;
 			} else {
-				manager.loadStorageSession(sessionId);
+				unfinishedJobs = manager.loadStorageSession(sessionId);
 				currentRemoteSession = sessionId;
-			}				
+			}
+			
+			for (OperationRecord operationRecord : unfinishedJobs) {
+				continueOperation(operationRecord);
+			}
 
 		} catch (Exception e) {
 			if (isExampleSession) {
@@ -996,11 +1031,16 @@ public abstract class ClientApplication {
 	public boolean saveSessionAndWait(boolean isRemote, File localFile, String remoteSessionName) {
 		
 		try {
+			List<OperationRecord> unfinishedJobs = new ArrayList<>();
+			for (Task task : Session.getSession().getApplication().getTaskExecutor().getTasks(false, true)) {
+				unfinishedJobs.add(task.getOperationRecord());
+			}
+			
 			if (isRemote) {
-				String sessionId = getDataManager().saveStorageSession(remoteSessionName);
+				String sessionId = getDataManager().saveStorageSession(remoteSessionName, unfinishedJobs);
 				currentRemoteSession = sessionId;
 			} else {
-				getDataManager().saveSession(localFile);
+				getDataManager().saveSession(localFile, unfinishedJobs);
 				currentRemoteSession = null;
 			}
 			

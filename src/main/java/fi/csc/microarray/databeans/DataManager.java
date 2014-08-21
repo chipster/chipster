@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -668,37 +669,40 @@ public class DataManager {
 
 	/**
 	 * Load session from a file.
+	 * @return 
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+	public List<OperationRecord> loadSession(File sessionFile, boolean isDataless) throws Exception {
 		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
-		sessionLoader.loadSession();
+		return sessionLoader.loadSession();
 	}
 
 	
 	/**
 	 * Load remote session from an URL.
+	 * @return 
 	 * 
 	 * @see #saveStorageSession(String) 
 	 */
-	public void loadStorageSession(String sessionId) throws Exception {
+	public List<OperationRecord> loadStorageSession(String sessionId) throws Exception {
 		SessionLoader sessionLoader = new SessionLoader(sessionId, this);
-		sessionLoader.loadSession();
+		return sessionLoader.loadSession();
 	}
 
 	/**
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
+	 * @param unfinishedJobs 
 	 * 
 	 * @return true if the session was saved perfectly
 	 * @throws Exception 
 	 */
-	public void saveSession(File sessionFile) throws Exception {
+	public void saveSession(File sessionFile, List<OperationRecord> unfinishedJobs) throws Exception {
 
 		// save session file
 		boolean metadataValid = false;
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this, unfinishedJobs);
 		metadataValid = sessionSaver.saveSession();
 
 		// check validation
@@ -734,10 +738,10 @@ public class DataManager {
 		return buffer.toString();
 	}
 
-	public String saveStorageSession(String name) throws Exception {
+	public String saveStorageSession(String name, List<OperationRecord> unfinishedJobs) throws Exception {
 						
 		String sessionId = CryptoKey.generateRandom();
-		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
+		SessionSaver sessionSaver = new SessionSaver(sessionId, this, unfinishedJobs);
 		// upload/move data files and upload metadata files, if needed
 		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
 		
@@ -1431,5 +1435,13 @@ public class DataManager {
 
 	private boolean isAccessible(ContentLocation location) {
 		return location.getHandler().isAccessible(location);
+	}
+
+	public void saveStorageSession(String saveName) throws Exception {
+		saveStorageSession(saveName, new ArrayList<OperationRecord>());
+	}
+
+	public void saveSession(File zipFile) throws Exception {
+		saveSession(zipFile, new ArrayList<OperationRecord>());
 	}
 }

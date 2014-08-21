@@ -280,7 +280,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 			// Get inputs
 			LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
-			for (InputRecord inputRecord : operationRecord.getInputs()) {
+			for (InputRecord inputRecord : operationRecord.getInputRecords()) {
 				DataBean inputBean = sourceDataBeanToTargetDataBean.get(inputRecord.getValue());
 				if (inputBean != null) {
 					inputBeans.add(inputBean);
@@ -318,7 +318,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 			}
 
-			Task task = executor.createTask(new OperationRecord(operation));
+			Task task = executor.createNewTask(new OperationRecord(operation), operation.getDefinition().isLocal());
 			
 			// Execute the task
 			System.out.println("running " + operation.getDefinition().getFullName());

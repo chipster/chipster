@@ -32,6 +32,8 @@ public class OperationRecord {
 
 	private LinkedHashMap<String, ParameterRecord> parameters = new LinkedHashMap<String, ParameterRecord>();
 	private LinkedHashMap<String, InputRecord> inputs = new LinkedHashMap<String, InputRecord>();
+
+	private String jobId;
 	
 	
 	public OperationRecord(Operation operation) {
@@ -107,7 +109,7 @@ public class OperationRecord {
 	 * Iteration order of the parameters is determined.
 	 * @return
 	 */
-	public Collection<InputRecord> getInputs() {
+	public Collection<InputRecord> getInputRecords() {
 		return inputs.values();
 	}
 
@@ -247,9 +249,17 @@ public class OperationRecord {
 
 	public Iterable<DataBean> getInputDataBeans() {
 		LinkedList<DataBean> beans = new LinkedList<DataBean>();
-		for (InputRecord input : getInputs()) {
+		for (InputRecord input : getInputRecords()) {
 			beans.add(input.getValue());
 		}
 		return beans;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+	
+	public String getJobId() {
+		return this.jobId;
 	}
 }

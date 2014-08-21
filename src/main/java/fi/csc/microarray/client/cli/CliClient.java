@@ -826,7 +826,7 @@ public class CliClient {
 		map.put(KEY_TOOL, oper.getNameID().getID());
 		
 		ArrayList<String> inputs = new ArrayList<>();	
-		for (InputRecord input : oper.getInputs()) {
+		for (InputRecord input : oper.getInputRecords()) {
 			inputs.add(input.getValue().getName());
 		}		
 		map.put(KEY_INPUTS, inputs);
