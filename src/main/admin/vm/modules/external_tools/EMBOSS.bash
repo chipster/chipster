@@ -24,7 +24,7 @@
 	echo "emboss_update_log.txt" - | make install
 	
 	# temporarily use prebuilt emboss
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	
 	# always create this link
 	ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
