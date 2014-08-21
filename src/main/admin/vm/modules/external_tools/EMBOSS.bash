@@ -11,20 +11,20 @@
 
  	 	 
 	##note version in path                                                                                                                                                              
-	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
-	#cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
+	cd ${TMPDIR_PATH}/EMBOSS-6.5.7
 
 	# DON'T UNCOMMENT THESE THREE LINES		
   	##wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
  	##gunzip patch-1-11.gz                                                                                                                                                               
 	##patch -p1 < patch-1-11                                                                                                                                                             
 	
-	#./configure ${EMBOSS_OPTIONS}
-	#make
-	#make install
+	./configure ${EMBOSS_OPTIONS}
+	make
+	echo "emboss_update_log.txt" - | make install
 	
 	# temporarily use prebuilt emboss
-	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
 	
 	# always create this link
 	ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
