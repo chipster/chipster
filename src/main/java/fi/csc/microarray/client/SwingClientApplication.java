@@ -1061,26 +1061,6 @@ public class SwingClientApplication extends ClientApplication {
 	public void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;
 
-		// Check the running tasks
-		if (taskExecutor.getRunningTaskCount() > 0) {
-			String message = "";
-			if (taskExecutor.getRunningTaskCount() == 1) {
-				message += "There is a running task.  Are you sure you want to cancel the running task?";
-			} else {
-				message += "There are " + taskExecutor.getRunningTaskCount() + " running tasks. " + "Are you sure you want to cancel all running tasks?";
-			}
-
-			Object[] options = { "Cancel running tasks", "Cancel" };
-
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-			if (returnValue == JOptionPane.YES_OPTION) {
-				taskExecutor.killAll();
-			} else {
-				return;
-			}
-		}
-
 		// Check for unsaved changes
 		returnValue = JOptionPane.DEFAULT_OPTION;
 

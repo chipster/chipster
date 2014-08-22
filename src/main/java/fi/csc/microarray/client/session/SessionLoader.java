@@ -36,6 +36,12 @@ public class SessionLoader {
 	}
 
 	
+	/**
+	 * @return a list of OperationRecords for tasks that were running when the
+	 *         session was saved
+	 *         
+	 * @throws Exception
+	 */
 	public List<OperationRecord> loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
@@ -59,7 +65,7 @@ public class SessionLoader {
 			// old format, use old loader
 			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();
-			return new ArrayList<OperationRecord>();
+			return null;
 			
 		} else {
 			// use new loader

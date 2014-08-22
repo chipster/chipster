@@ -474,6 +474,10 @@ public abstract class ClientApplication {
 			return null;
 		}
 		
+		// this operation needs to be stored in a session before the application
+		// is closed to be able to receive results later
+		unsavedChanges = true;
+		
 		OperationRecord operationRecord = new OperationRecord(operation);
 		
 		// start executing the task
@@ -522,7 +526,6 @@ public abstract class ClientApplication {
 		});
 
 		try {			
-			//taskExecutor.startExecuting(task);
 			taskExecutor.continueExecuting(task);
 		} catch (TaskException te) {
 			reportException(te);
@@ -1004,8 +1007,10 @@ public abstract class ClientApplication {
 				currentRemoteSession = sessionId;
 			}
 			
-			for (OperationRecord operationRecord : unfinishedJobs) {
-				continueOperation(operationRecord);
+			if (unfinishedJobs != null) {
+				for (OperationRecord operationRecord : unfinishedJobs) {
+					continueOperation(operationRecord);
+				}
 			}
 
 		} catch (Exception e) {

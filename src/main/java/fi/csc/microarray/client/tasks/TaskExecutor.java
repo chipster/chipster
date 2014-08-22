@@ -511,13 +511,7 @@ public class TaskExecutor {
 		}).start();
 		logger.debug("task starter thread started");
 
-		// setup timeout checker if needed
-		if (timeout != -1) {
-			// we'll have to timeout this task
-			Timer timer = new Timer(timeout, new TimeoutListener(task));
-			timer.setRepeats(false);
-			timer.start();
-		}
+		setupTimeoutTimer(task, timeout);
 	}
 	
 	public void continueExecuting(final Task task) throws TaskException {
@@ -558,6 +552,10 @@ public class TaskExecutor {
 		}).start();
 		logger.debug("task starter thread started");
 
+		setupTimeoutTimer(task, timeout);
+	}
+
+	private void setupTimeoutTimer(Task task, int timeout) {
 		// setup timeout checker if needed
 		if (timeout != -1) {
 			// we'll have to timeout this task

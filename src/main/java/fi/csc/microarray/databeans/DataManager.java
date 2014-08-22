@@ -669,7 +669,9 @@ public class DataManager {
 
 	/**
 	 * Load session from a file.
-	 * @return 
+	 * 
+	 * @return a list of OperationRecords for tasks that were running when the
+	 *         session was saved
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
@@ -681,7 +683,9 @@ public class DataManager {
 	
 	/**
 	 * Load remote session from an URL.
-	 * @return 
+	 * 
+	 * @return a list of OperationRecords for tasks that were running when the
+	 *         session was saved 
 	 * 
 	 * @see #saveStorageSession(String) 
 	 */

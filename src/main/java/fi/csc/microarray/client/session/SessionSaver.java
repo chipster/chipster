@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -123,11 +122,11 @@ public class SessionSaver {
 	}
 
 	public SessionSaver(File sessionFile, DataManager dataManager) {
-		this(sessionFile, dataManager, new ArrayList<OperationRecord>());
+		this(sessionFile, dataManager, null);
 	}
 
 	public SessionSaver(String sessionId, DataManager dataManager) {
-		this(sessionId, dataManager, new ArrayList<OperationRecord>());
+		this(sessionId, dataManager, null);
 	}
 
 	/**
@@ -214,8 +213,10 @@ public class SessionSaver {
 		// gather meta data
 		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
 		
-		for (OperationRecord job : this.unfinishedJobs) {
-			saveOperationRecord(job);
+		if (this.unfinishedJobs != null) {
+			for (OperationRecord job : this.unfinishedJobs) {
+				saveOperationRecord(job);
+			}
 		}
 	}
 
