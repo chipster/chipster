@@ -107,8 +107,8 @@ public class Task {
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
 	private boolean isLocal;	
 	
-	public Task(OperationRecord operation, boolean local) {
-		this.operationRecord = operation;
+	public Task(OperationRecord operationRecord, boolean local) {
+		this.operationRecord = operationRecord;
 		this.id = generateId();
 		this.isLocal = local;
 	}

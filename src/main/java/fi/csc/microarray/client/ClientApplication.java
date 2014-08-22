@@ -526,7 +526,9 @@ public abstract class ClientApplication {
 		});
 
 		try {			
+			
 			taskExecutor.continueExecuting(task);
+			
 		} catch (TaskException te) {
 			reportException(te);
 		}
@@ -614,7 +616,6 @@ public abstract class ClientApplication {
 				for (DataBean output : task.getOutputs()) {
 				
 					output.setOperationRecord(task.getOperationRecord());
-
 
 					// set sources
 					for (DataBean source : sources) {
@@ -1037,7 +1038,7 @@ public abstract class ClientApplication {
 		
 		try {
 			List<OperationRecord> unfinishedJobs = new ArrayList<>();
-			for (Task task : Session.getSession().getApplication().getTaskExecutor().getTasks(false, true)) {
+			for (Task task : Session.getSession().getApplication().getTaskExecutor().getTasks(true, true)) {
 				unfinishedJobs.add(task.getOperationRecord());
 			}
 			

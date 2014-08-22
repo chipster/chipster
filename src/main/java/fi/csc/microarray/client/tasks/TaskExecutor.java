@@ -366,6 +366,10 @@ public class TaskExecutor {
 
 			// end time(s)
 			pendingTask.setEndTime(System.currentTimeMillis());
+			
+			// clear job id, because it would cause job to continue when the
+			// session is opened next time
+			pendingTask.getOperationRecord().setJobId(null);
 
 			// update state
 			updateTaskState(pendingTask, state, stateDetail, -1);

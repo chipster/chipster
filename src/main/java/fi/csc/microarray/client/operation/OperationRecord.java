@@ -33,6 +33,8 @@ public class OperationRecord {
 	private LinkedHashMap<String, ParameterRecord> parameters = new LinkedHashMap<String, ParameterRecord>();
 	private LinkedHashMap<String, InputRecord> inputs = new LinkedHashMap<String, InputRecord>();
 
+	// jobId is set for operations that are still running and null for completed
+	// operations
 	private String jobId;
 	
 	
