@@ -445,8 +445,8 @@ public class CliClient {
 		app = new CliClientApplication(auth, isBooleanOption(OPT_VERBOSE), isBooleanOption(OPT_QUIET));
 
 		app.initialiseApplication(true);
-	}
-	
+	}	
+
 	private String openWorkingCopySession() throws UserErrorException, JMSException, Exception {
 		
 		String sessionName = nameSpace.getString(OPT_WORKING_COPY);

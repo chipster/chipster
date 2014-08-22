@@ -411,7 +411,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (historyMenuItem == null) {
 			historyMenuItem = new JMenuItem();
 			historyMenuItem.setText("Show history...");
-			historyMenuItem.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
+			historyMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.GENERATE_HISTORY_ICON));
 			historyMenuItem.setAccelerator(KeyStroke.getKeyStroke('H', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			historyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -444,7 +444,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (deleteMenuItem == null) {
 			deleteMenuItem = new JMenuItem();
 			deleteMenuItem.setText("Delete selected item");
-			deleteMenuItem.setIcon(VisualConstants.DELETE_MENUICON);
+			deleteMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.DELETE_MENUICON));
 			deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -656,7 +656,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (restoreViewMenuItem == null) {
 			restoreViewMenuItem = new JMenuItem();
 			restoreViewMenuItem.setText("Restore default");
-			restoreViewMenuItem.setIcon(VisualConstants.DEFAULT_VIEW_MENUICON);
+			restoreViewMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.DEFAULT_VIEW_MENUICON));
 			restoreViewMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.restoreDefaultView();
@@ -691,7 +691,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			contentMenuItem = new JMenuItem();
 			contentMenuItem.setText("User manual");
 			contentMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-			contentMenuItem.setIcon(VisualConstants.HELP_MENUICON);
+			contentMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.HELP_MENUICON));
 			contentMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome());

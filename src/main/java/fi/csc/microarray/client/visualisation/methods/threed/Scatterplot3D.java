@@ -87,9 +87,9 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	protected CoordinateArea coordinateArea;
 
-	private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
+	private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.getIcon(VisualConstants.ROTATE_CURSOR_IMAGE).getImage(), new Point(16, 16), "Rotate");
 
-	private static final Cursor ROTATE_AND_ZOOM_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
+	private static final Cursor ROTATE_AND_ZOOM_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.getIcon(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE).getImage(), new Point(16, 16), "Rotate");
 	private static final int DEFAULT_TO_DOT_PAINT_MODE = 20000;
 
 	protected DataBean data;

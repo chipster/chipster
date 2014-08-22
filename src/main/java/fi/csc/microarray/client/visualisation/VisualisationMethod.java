@@ -6,6 +6,7 @@ import javax.swing.ImageIcon;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
@@ -34,6 +35,7 @@ public class VisualisationMethod {
 
 	private String name;
 	private Class<? extends Visualisation> visualiser;
+	private String iconPath;
 	private ImageIcon icon;
 	private int orderNumber;
 	/**
@@ -42,16 +44,16 @@ public class VisualisationMethod {
 	private double durationEstimationFactor;
 	private String helpAddress = null;
 
-	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, String iconPath, int orderNumber, double durationEstimationFactor) {
 		this.name = name;
 		this.visualiser = visualiser;
-		this.icon = icon;
+		this.iconPath = iconPath;
 		this.orderNumber = orderNumber;
 		this.durationEstimationFactor = durationEstimationFactor;
 	}
 
-	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
-		this(name, visualiser, icon, orderNumber, durationEstimationFactor);
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, String iconPath, int orderNumber, double durationEstimationFactor, String helpAddress) {
+		this(name, visualiser, iconPath, orderNumber, durationEstimationFactor);
 		this.helpAddress = helpAddress;
 	}
 	
@@ -90,6 +92,9 @@ public class VisualisationMethod {
 	}
 
 	public ImageIcon getIcon() {
+		if (icon == null) {
+			icon = VisualConstants.getIcon(iconPath);
+		}
 		return icon;
 	}
 

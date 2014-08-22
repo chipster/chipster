@@ -117,7 +117,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 						return VisualConstants.INCOMPATIBLE_ICON;
 					}
 				} else {
-					VisualConstants.RUNNING_ICON.setImageObserver(table);
+					VisualConstants.getIcon(VisualConstants.RUNNING_ICON).setImageObserver(table);
 					return VisualConstants.RUNNING_ICON;
 					
 				}

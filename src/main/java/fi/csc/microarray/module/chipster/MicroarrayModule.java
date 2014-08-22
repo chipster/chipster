@@ -879,7 +879,7 @@ public class MicroarrayModule implements Module {
 	@Override
 	public Icon getIconFor(DataBean data) {
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA)) {
-			return VisualConstants.ICON_TYPE_PHENODATA;
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_PHENODATA);
 		} else {
 			return data.getContentType().getIcon();
 		}

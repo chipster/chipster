@@ -280,11 +280,11 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 			// TODO icon
 			helpButton = new JButton("Help");
 			cancelButton = new JButton("Cancel",
-					VisualConstants.IMPORT_CANCEL_ICON);
-			backButton = new JButton("Back", VisualConstants.IMPORT_BACK_ICON);
-			nextButton = new JButton("Next", VisualConstants.IMPORT_NEXT_ICON);
+					VisualConstants.getIcon(VisualConstants.IMPORT_CANCEL_ICON));
+			backButton = new JButton("Back", VisualConstants.getIcon(VisualConstants.IMPORT_BACK_ICON));
+			nextButton = new JButton("Next", VisualConstants.getIcon(VisualConstants.IMPORT_NEXT_ICON));
 			finishButton = new JButton("Finish",
-					VisualConstants.IMPORT_FINISH_ICON);
+					VisualConstants.getIcon(VisualConstants.IMPORT_FINISH_ICON));
 			nextButton.setHorizontalTextPosition(SwingConstants.LEADING);
 			finishButton.setHorizontalTextPosition(SwingConstants.LEADING);
 			cancelButton.setHorizontalTextPosition(SwingConstants.LEADING);

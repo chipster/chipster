@@ -57,9 +57,9 @@ public class ImageViewer extends Visualisation implements MouseListener {
 	}
 	
 	private static final Cursor ZOOM_IN_CURSOR = Toolkit.getDefaultToolkit().
-		createCustomCursor(VisualConstants.ZOOM_IN_CURSOR_IMAGE.getImage(), new Point(5,2), "ZoomIn");
+		createCustomCursor(VisualConstants.getIcon(VisualConstants.ZOOM_IN_CURSOR_IMAGE).getImage(), new Point(5,2), "ZoomIn");
 	private static final Cursor ZOOM_OUT_CURSOR = Toolkit.getDefaultToolkit().
-		createCustomCursor(VisualConstants.ZOOM_OUT_CURSOR_IMAGE.getImage(), new Point(5,2), "ZoomOut");
+		createCustomCursor(VisualConstants.getIcon(VisualConstants.ZOOM_OUT_CURSOR_IMAGE).getImage(), new Point(5,2), "ZoomOut");
 
 	private double calculateScale(){
 						

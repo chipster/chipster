@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jms.JMSException;
-import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
@@ -437,7 +436,7 @@ public class DataManager {
 	 * @param description a short textual description
 	 * @param extensions file extensions belonging to this type
 	 */
-	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, Icon icon, String... extensions) {
+	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, String icon, String... extensions) {
 		// create the content type
 		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, icon, extensions));
 		

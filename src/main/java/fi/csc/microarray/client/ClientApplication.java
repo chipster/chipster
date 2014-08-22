@@ -241,8 +241,7 @@ public abstract class ClientApplication {
 
 	private String initialisationWarnings = "";
 	
-	private String announcementText = null;
-	
+	private String announcementText = null;	
 
 	public ClientApplication() {
 		this(null);
@@ -266,7 +265,7 @@ public abstract class ClientApplication {
 
 			// Fetch announcements
 			fetchAnnouncements();
-			
+						
 			if (requestedModule == null) {
 				requestedModule = MicroarrayModule.class.getName();
 			}
@@ -274,26 +273,29 @@ public abstract class ClientApplication {
 			// Initialise modules
 			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
-
+			
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
 			
 			// Initialise data management
 			this.manager = new DataManager();
-			Session.getSession().setDataManager(manager);
+						
+			Session.getSession().setDataManager(manager);		
+			
 			modules.plugAll(this.manager, Session.getSession());
+						
 			this.selectionManager = new DataSelectionManager(this);
-			Session.getSession().setClientApplication(this);
-
+			Session.getSession().setClientApplication(this);			
+			
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
 			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			reportInitialisationThreadSafely(" ok", true);
-
 
 			if (!fast) {
 				// Check services
@@ -391,7 +393,7 @@ public abstract class ClientApplication {
 		}
 
 
-	}
+	}	
 
 	/**
 	 * Only root folder supported in this implementation.
@@ -1147,7 +1149,7 @@ public abstract class ClientApplication {
 	
 	public Icon getIconFor(DataItem element) {
 		if (element instanceof DataFolder) {
-			return VisualConstants.ICON_TYPE_FOLDER;
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_FOLDER);
 		} else {
 			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}

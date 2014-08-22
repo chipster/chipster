@@ -43,7 +43,6 @@ import org.jgraph.graph.VertexView;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.ToolBarComponentFactory;
@@ -311,12 +310,12 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			zoomInButton = ToolBarComponentFactory.createButton(false, false);
 			zoomInButton.setToolTipText("Zoom in");
 			this.initialiseToolBarButton(zoomInButton);
-			zoomInButton.setIcon(VisualConstants.ZOOM_IN_ICON);
+			zoomInButton.setIcon(VisualConstants.getIcon(VisualConstants.ZOOM_IN_ICON));
 
 			zoomOutButton = ToolBarComponentFactory.createButton(false, false);
 			zoomOutButton.setToolTipText("Zoom out");
 			this.initialiseToolBarButton(zoomOutButton);
-			zoomOutButton.setIcon(VisualConstants.ZOOM_OUT_ICON);
+			zoomOutButton.setIcon(VisualConstants.getIcon(VisualConstants.ZOOM_OUT_ICON));
 
 			autoZoomChecBbox = ToolBarComponentFactory.createCheckBox("Fit");
 			autoZoomChecBbox.setToolTipText("Scale workflow to show all datasets");
@@ -326,7 +325,7 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			historyButton = ToolBarComponentFactory.createButton(true, false);
 			historyButton.setToolTipText("Show analyse history for the selected dataset");
 			this.initialiseToolBarButton(historyButton);
-			historyButton.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
+			historyButton.setIcon(VisualConstants.getIcon(VisualConstants.GENERATE_HISTORY_ICON));
 			historyButton.setEnabled(false);
 
 			buttonToolBar = new JToolBar();

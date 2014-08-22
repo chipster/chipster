@@ -203,7 +203,7 @@ public class SwingClientApplication extends ClientApplication {
         this.requestedModule = module;
 
         // show splash screen
-		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
+		splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
 		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
@@ -379,7 +379,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 
 		// make window visible
-		mainFrame.setIconImage(VisualConstants.APPLICATION_ICON.getImage());
+		mainFrame.setIconImage(VisualConstants.getIcon(VisualConstants.APPLICATION_ICON).getImage());
 		mainFrame.pack();
 		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);

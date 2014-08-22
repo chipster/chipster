@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -12,6 +11,7 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.constants.VisualConstants;
 
 public class ToolBarComponentFactory {
 	
@@ -23,20 +23,14 @@ public class ToolBarComponentFactory {
 	
 	//J B U T T O N S //////////////////////////////////
 	
-	public static JButton createButton(String text, ImageIcon icon, boolean leftBorder, boolean rightBorder){
-		JButton button = new JButton(text,icon);		
+	public static JButton createButton(String text, String iconPath, boolean leftBorder, boolean rightBorder){
+		JButton button = new JButton(text, VisualConstants.getIcon(iconPath));		
 		initialiseButton(button,leftBorder,rightBorder);
 		return button;
 	}
 	
 	public static JButton createButton(String text, boolean leftBorder, boolean rightBorder){
 		JButton button = new JButton(text);
-		initialiseButton(button,leftBorder,rightBorder);
-		return button;
-	}
-	
-	public static JButton createButton(ImageIcon icon, boolean leftBorder, boolean rightBorder){
-		JButton button = new JButton(icon);
 		initialiseButton(button,leftBorder,rightBorder);
 		return button;
 	}
@@ -49,20 +43,14 @@ public class ToolBarComponentFactory {
 	
 	// J T O G G L E  B U T T O N S //////////////////////////////////////////////////
 	
-	public static JToggleButton createToggleButton(String text, ImageIcon icon, boolean leftBorder, boolean rightBorder){
-		JToggleButton button = new JToggleButton(text,icon);
+	public static JToggleButton createToggleButton(String text, String iconPath, boolean leftBorder, boolean rightBorder){
+		JToggleButton button = new JToggleButton(text, VisualConstants.getIcon(iconPath));
 		initialiseButton(button,leftBorder,rightBorder);
 		return button;
 	}
 	
 	public static JToggleButton createToggleButton(String text, boolean leftBorder, boolean rightBorder){
 		JToggleButton button = new JToggleButton(text);
-		initialiseButton(button,leftBorder,rightBorder);
-		return button;
-	}
-	
-	public static JToggleButton createToggleButton(ImageIcon icon, boolean leftBorder, boolean rightBorder){
-		JToggleButton button = new JToggleButton(icon);
 		initialiseButton(button,leftBorder,rightBorder);
 		return button;
 	}
