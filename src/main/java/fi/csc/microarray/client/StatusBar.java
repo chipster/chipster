@@ -73,7 +73,7 @@ public class StatusBar {
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 
-			jobListButton = new JButton(VisualConstants.ARROW_UP_ICON);
+			jobListButton = new JButton(VisualConstants.getIcon(VisualConstants.ARROW_UP_ICON));
 			jobListButton.setName("jobListButton");
 			jobListButton.setToolTipText("View tasks");
 

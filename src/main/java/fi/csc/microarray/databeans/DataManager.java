@@ -1469,6 +1469,7 @@ public class DataManager {
 				
 		ExecutorService executor = Executors.newCachedThreadPool();
 		try {
+			// run callables and wait until all have finished
 			List<Future<Object>> futures = executor.invokeAll(callables);
 			
 			for (Future<Object> future : futures) {
