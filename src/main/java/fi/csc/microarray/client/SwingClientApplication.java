@@ -187,7 +187,7 @@ public class SwingClientApplication extends ClientApplication {
 			public void uncaughtException(Thread t, Throwable e) {
 				// we'll always output these to console and log for traceability and
 				// easier IDE navigation
-				System.err.println(e.getStackTrace());
+				e.printStackTrace();
 				logger.error("Uncaught exception in thread " + t.getName(), e);
 			}
 		});
@@ -782,7 +782,7 @@ public class SwingClientApplication extends ClientApplication {
 			@Override
 			public void run() {
 				
-				runWorkflow(workflowScript, runForEach);
+				SwingClientApplication.super.runWorkflow(workflowScript, runForEach);
 			}
 		});
 		thread.start();
