@@ -13,7 +13,7 @@
 # PARAMETER OPTIONAL p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for adjusted p-values.)
 # PARAMETER OPTIONAL p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER OPTIONAL dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for a gene can be moderated across several genes with similar count numbers. This default tagwise option typically yields higher sensitivity and specificity. The option Common estimates one value which is then used for all the genes. Common dispersion is used regardless of the setting if no biological replicates are available.)
-# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for the common dispersion when no replicates are available.) 
+# PARAMETER OPTIONAL dispersion_estimate:"Dispersion value used if no replicates are available" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.16 (The value to use for the common dispersion when no replicates are available.) 
 # PARAMETER OPTIONAL normalization: "Apply TMM normalization" TYPE [yes, no] DEFAULT yes (Should normalization based on the trimmed mean of M-values \(TMM\) be performed to reduce the RNA composition effect.)
 # PARAMETER OPTIONAL w: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted image)
 # PARAMETER OPTIONAL h: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted image)
@@ -28,10 +28,9 @@
 # EK 30.4.2013, changes to descriptions, made genomic location info optional so that external count tables can be used
 # EK 2.5.2013, added dispersion plot and filtering based on counts, disabled extra MA plots
 # EK 5.5.2013, modified filtering based on counts, removed fixed prior.n
-# EK 19.11.2013, updated to edgeR 3.4.0 and enabled trended dispersion. Filtering set to 2 by default.
+# EK 19.11.2013, updated to edgeR 3.4.0. Filtering set to 2 by default.
+# EK 26.8.2014, added gene names to BED output
 
-# OUTPUT OPTIONAL ma-plot-raw-edger.pdf
-# OUTPUT OPTIONAL ma-plot-normalized-edger.pdf
 
 # Loads the libraries
 library(edgeR)
@@ -41,7 +40,6 @@ file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
 # Extracts expression value columns
-annotations <- dat[,-grep("chip", names(dat))]
 dat2 <- dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
@@ -96,28 +94,6 @@ if (number_samples > 2) {
 	dev.off()
 }
 
-# MA plots before and after normalization (currently disabled output)
-pdf(file="ma-plot-raw-edger.pdf", width=w/72, height=h/72)
-maPlot(dge_list$counts[, 1], dge_list$counts[, 2], normalize = FALSE, pch = 19, cex = 0.4, ylim = c(-8, 8))
-grid(col = "blue")
-title("Raw counts")
-abline(h = log2(dge_list$samples$norm.factors[2]/dge_list$samples$norm.factors[1]), col = "red", lwd = 2)
-abline(h = 0, col = "darkgreen", lwd = 1)
-legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"), cex=1, pch=19)
-dev.off()
-
-if (normalization == "yes") {
-	pdf(file="ma-plot-normalized-edger.pdf", width=w/72, height=h/72)
-	eff.libsize <- dge_list$samples$lib.size * dge_list$samples$norm.factors
-	maPlot(dge_list$counts[, 1]/eff.libsize[1], dge_list$counts[, 2]/eff.libsize[2],
-			normalize = TRUE, pch = 19, cex = 0.4, ylim = c(-8, 8))
-	grid(col = "blue")
-	title("Normalized counts")
-	legend (x="topleft", legend=c("not expressed in one condition","expressed in both conditions"), col=c("orange","black"), cex=1, pch=19)
-	abline(h = 0, col = "darkgreen", lwd = 1)
-	dev.off()
-}
-
 # Analysis using common dispersion
 if (dispersion_method == "common") {
 	# Calculate common dispersion
@@ -136,14 +112,14 @@ if (dispersion_method == "tagwise") {
 	dge_list <- estimateTagwiseDisp(dge_list)
 	# Statistical testing
 	stat_test <- exactTest(dge_list)
-	
+
 # Dispersion plot
-	pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
-	plotBCV(dge_list, main="Biological coefficient of variation")
-	dev.off()
+pdf(file="dispersion-edger.pdf", width=w/72, height=h/72)
+plotBCV(dge_list, main="Biological coefficient of variation")
+dev.off()
 }
 
-# Extract results in a nice-looking table
+# Extract results to a table
 number_tags <- dim (dge_list$counts) [1]
 results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
 results_table <- results_table$table
@@ -151,49 +127,50 @@ results_table <- results_table$table
 # Extract the significant tags based on adjusted p-value cutoff
 significant_results <- results_table[results_table$FDR<p_value_threshold,]
 
-# Make an MA-plot displaying the significant reads
-pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
-significant_indices <- rownames (significant_results)
-plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
-abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
-legend (x="topleft", legend=c("significantly differentially expressed","not significant"), col=c("red","black"),cex=1, pch=19)
-dev.off()
-
-# If significant results are found, create an output table with the original counts per sample together with the statistical tests results
-# If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
-if (dim(significant_results)[1] > 0) {
-	output_table <- data.frame (dat[significant_indices,], significant_results)
-	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-	these.colnames <- colnames(dat)
-	if("chr" %in% these.colnames) {
-		empty_column <- character(length(significant_indices))
-		bed_output <- output_table [,c("chr","start","end")]
-		bed_output <- cbind(bed_output,empty_column)
-		bed_output <- cbind(bed_output, output_table[,"logFC"])
-		source(file.path(chipster.common.path, "bed-utils.R"))
-		bed_output <- sort.bed(bed_output)
-		write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
-	}	
-}
-
-
 # Output a message if no significant genes are found
 if (dim(significant_results)[1] == 0) {
 	cat("No statistically significantly expressed genes were found.", file="edger-log.txt")
 }
 
 
-# Make histogram of p-values with overlaid significance cutoff and uniform distribution
+# If significant results are found, create an output table with the original counts per sample together with the statistical tests results
+# If genomic coordinates are present, output a sorted BED file for genome browser visualization and region matching tools
+if (dim(significant_results)[1] > 0) {
+	significant_indices <- rownames (significant_results)
+	output_table <- data.frame (dat[significant_indices,], significant_results)
+	write.table(output_table, file="de-list-edger.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	if("chr" %in% colnames(dat)) {
+		bed_output <- output_table [,c("chr","start","end")]
+		gene_names <- rownames(output_table)
+		bed_output <- cbind(bed_output,name=gene_names)
+		bed_output <- cbind(bed_output, score=output_table[,"logFC"])
+		source(file.path(chipster.common.path, "bed-utils.R"))
+		bed_output <- sort.bed(bed_output)
+		write.table(bed_output, file="de-list-edger.bed", sep="\t", row.names=F, col.names=F, quote=F)
+	}	
+}
+
+# Make an MA-plot displaying the significant tags (genes)
+pdf(file="ma-plot-edger.pdf", width=w/72, height=h/72)	
+# significant_indices <- rownames (significant_results)
+plotSmear(dge_list, de.tags = significant_indices, main = "MA plot")
+abline(h = c(-1, 0, 1), col = c("dodgerblue", "darkgreen", "dodgerblue"), lwd = 2)
+legend (x="topleft", legend=c("significantly differentially expressed","not significant"), col=c("red","black"),cex=1, pch=19)
+dev.off()
+
+# Make a histogram of p-values with overlaid significance cutoff
 pdf (file="p-value-plot-edger.pdf")
 hist(results_table$PValue, breaks=100, col="blue",
 		border="slateblue", freq=FALSE,
 		main="P-value distribution", xlab="p-value", ylab="proportion (%)")
 hist(results_table$FDR, breaks=100, col="red",
 		border="slateblue", add=TRUE, freq=FALSE)
-abline(h=1, lwd=2, lty=2, col="black")
-abline(v=p_value_threshold, lwd=2, lty=2, col="green")
-legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribution", "significance cutoff"), col=c("blue","red","black","green"),
+abline(v=p_value_threshold, lwd=2, lty=2, col="black")
+legend (x="topright", legend=c("p-values","adjusted p-values", "significance cutoff"), col=c("blue","red","black"),
 		cex=1, pch=15)
 dev.off()
+
+
+
 
 # EOF
