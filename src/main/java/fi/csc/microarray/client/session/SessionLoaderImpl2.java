@@ -491,8 +491,14 @@ public class SessionLoaderImpl2 {
 		createOperations();
 		linkOperationsToOutputs();
 				
-		// type tags are added anyway when databeans are linked, but 
-		// it's much faster to do it in parallel
+		/*
+		 * Type tags are added anyway in linkDataItemChildren(), but it's much
+		 * faster to do it in parallel. This must be done before
+		 * linkDataItemChildren(), which will trigger the slow sequential
+		 * initialization of TypeTags. Moreover, this must be done after
+		 * createDataBeans(), createOperations() and linkOperationsToOutputs(),
+		 * because all this information is needed in type tagging.
+		 */
 		dataManager.addTypeTagsAndVerifyContentLength(dataBeans.values());
 
 		linkDataItemChildren(dataManager.getRootFolder());
