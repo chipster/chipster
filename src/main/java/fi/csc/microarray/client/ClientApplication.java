@@ -1239,14 +1239,14 @@ public abstract class ClientApplication {
 				AtEndListener atEndListener = new AtEndListener() {
 					@Override
 					public void atEnd(boolean success) {
-						System.out.println("at end");
+						logger.debug("workflow run for each: at end");
 						latch.countDown();
 					}
 				};
 
 				// Run it
 				getSelectionManager().selectSingle(data, this);
-				System.out.println("selected " + getSelectionManager().getSelectedDataBeans().size());
+				logger.debug("workflow run for each: selected " + getSelectionManager().getSelectedDataBeans().size());
 				workflowManager.runScript(workflowScript, atEndListener);
 				try {
 					latch.await();
@@ -1256,7 +1256,7 @@ public abstract class ClientApplication {
 			}
 
 			// Restore original selection
-			System.out.println("restore");
+			logger.debug("workflow run for each: restore original selection");
 			Collection<DataItem> items = new LinkedList<DataItem>();
 			items.addAll(datas);
 			getSelectionManager().selectMultiple(items, this);
