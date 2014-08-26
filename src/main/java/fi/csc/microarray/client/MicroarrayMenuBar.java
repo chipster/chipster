@@ -519,7 +519,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			saveWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					File workflow = application.saveWorkflow();
-					addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+					if (workflow != null) {
+						addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+					}
 				}
 			});
 		}
