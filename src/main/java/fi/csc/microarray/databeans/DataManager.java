@@ -443,9 +443,9 @@ public class DataManager {
 	 * @param description a short textual description
 	 * @param extensions file extensions belonging to this type
 	 */
-	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, String icon, String... extensions) {
+	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, String iconPath, String... extensions) {
 		// create the content type
-		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, icon, extensions));
+		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, iconPath, extensions));
 		
 		
 		// add extensions to search map

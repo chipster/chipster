@@ -24,215 +24,115 @@ import fi.csc.microarray.client.Session;
 
 public class VisualConstants {
 	
-    // icons from Eclipse
-    public static final String PHENODATA_ICON = 
-        "/eclipse/phenodata.gif";
-    public static final String IMPORT_CANCEL_ICON = 
-        "/eclipse/import_cancel.gif";
-    public static final String IMPORT_NEXT_ICON = 
-        "/eclipse/import_forward.gif";
-    public static final String IMPORT_FINISH_ICON = 
-        "/eclipse/import_finish.png";
-    public static final String IMPORT_BACK_ICON = 
-       "/eclipse/import_backward.gif";
-    public static final String IMPORT_RESET_ICON = 
-    	"/eclipse/import_reset.png";
-    public static final String IMPORT_HEADER_ICON = 
-    	"/eclipse/import_header.png";
-    public static final String IMPORT_FOOTER_ICON = 
-    	"/eclipse/import_footer.png";
-    public static final String IMPORT_TITLE_ICON = 
-    	"/eclipse/import_title.png"; 
-    public static final String DEFAULT_VIEW_MENUICON = 
-        "/eclipse/defaultView.gif";
-    public static final String EXPORT_MENUICON = 
-        "/eclipse/export.gif";
-    public static final String PASTE_MENUICON = 
-        "/eclipse/paste.gif";
-    public static final String COPY_MENUICON = 
-        "/eclipse/copy.gif";
-    public static final String DELETE_MENUICON = 
-        "/eclipse/delete.gif";
-    public static final String HELP_MENUICON = 
-        "/eclipse/help.gif";
-    public static final String LINK_PHENODATA_MENUICON = 
-        "/link_phenodata.png";
-    public static final String LINK_MENUICON = 
-        "/eclipse/link.gif";
-    public static final String UNLINK_MENUICON = 
-        "/eclipse/unlink.gif";
-    public static final String QUICKLINK_ICON =
-        "/eclipse/bulb.gif";
+	// icons from Eclipse
+	public static final String PHENODATA_ICON = "/eclipse/phenodata.gif";
+	public static final String IMPORT_CANCEL_ICON = "/eclipse/import_cancel.gif";
+	public static final String IMPORT_NEXT_ICON = "/eclipse/import_forward.gif";
+	public static final String IMPORT_FINISH_ICON = "/eclipse/import_finish.png";
+	public static final String IMPORT_BACK_ICON = "/eclipse/import_backward.gif";
+	public static final String IMPORT_RESET_ICON = "/eclipse/import_reset.png";
+	public static final String IMPORT_HEADER_ICON = "/eclipse/import_header.png";
+	public static final String IMPORT_FOOTER_ICON = "/eclipse/import_footer.png";
+	public static final String IMPORT_TITLE_ICON = "/eclipse/import_title.png";
+	public static final String DEFAULT_VIEW_MENUICON = "/eclipse/defaultView.gif";
+	public static final String EXPORT_MENUICON = "/eclipse/export.gif";
+	public static final String DELETE_MENUICON = "/eclipse/delete.gif";
+	public static final String HELP_MENUICON = "/eclipse/help.gif";
+	public static final String LINK_PHENODATA_MENUICON = "/link_phenodata.png";
+	public static final String LINK_MENUICON = "/eclipse/link.gif";
+	public static final String UNLINK_MENUICON = "/eclipse/unlink.gif";
+	public static final String QUICKLINK_ICON = "/eclipse/bulb.gif";
 
 	// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
-	public static String ZOOM_IN_ICON = 
-		"/zoom-in.png";
-	public static String ZOOM_OUT_ICON = 
-		"/zoom-out.png";
-	public static String MAGNIFIER_ICON = 
-	    "/viewmag.png";
-    public static String CLOSE_FILE_ICON = 
-	    "/fileclose.png";
-	public static final String APPLICATION_ICON =
-        "/chipster_icon.png";
-	public static final String LOGIN_BANNER =
-        "/login_banner.png";
-    public static final String QUERY_PARAM_CLASS_ICON =
-        "/circle.gif";
-    public static final String QUERY_PARAM_INSTANCE_ICON =
-        "/square.gif";    
+	public static String ZOOM_IN_ICON = "/zoom-in.png";
+	public static String ZOOM_OUT_ICON = "/zoom-out.png";
+	public static String MAGNIFIER_ICON = "/viewmag.png";
+	public static String CLOSE_FILE_ICON = "/fileclose.png";
+	public static final String APPLICATION_ICON = "/chipster_icon.png";
+	public static final String LOGIN_BANNER = "/login_banner.png";
 
-    public static String ZOOM_IN_CURSOR_IMAGE= 
-		"/zoomInCursor.png";
-	public static String ZOOM_OUT_CURSOR_IMAGE = 
-		"/zoomOutCursor.png";
-	public static String ROTATE_CURSOR_IMAGE = 
-		"/3dRotateCursor.png";
-	public static String ROTATE_AND_ZOOM_CURSOR_IMAGE = 
-		"/rotatezoom.png";
-	public static String ROTATE_IMAGE = 
-		"/3dRotate.png";
-	public static String ARROW_ICON = 
-		"/arrow.png";
-	public static String HAND_ICON = 
-		"/hand.png";
-	public static String SHOW_ALL_ICON = 
-		"/showall.png";
-	public static final String DOUBLE_FORWARD_ICON = 
-		"/forward.png";		
-	public static final String DOUBLE_FORWARD_BW_ICON = 
-		"/forward_bw.png";
-	public static final String SUITABLE_ICON = 
-    	"/yes.png";
-    public static final String INCOMPATIBLE_ICON = 
-    	"/no.png";    
-    public static final String SUITABILITY_WARNING_ICON = 
-    	"/maybe.png";
-    public static String GENERATE_HISTORY_ICON =    	
-		"/history.png";
-    public static String TO_TOP_ICON = 
-		"/toTop.png";
-    public static String TO_BOTTOM_ICON = 
-		"/toBottom.png";
-    public static String REDRAW_ICON = 
-		"/redraw_bw.png";    
-    public static String MAXIMISE_ICON = 
-		"/maximise.png";
-    public static String RESTORE_ICON = 
-		"/restore.png";
-    public static String QUESTION_MARK_ICON = 
-		"/question_mark.png";
-    public static String SPLIT_ICON = 
-		"/split.png";
-    public static String TO_WINDOW_ICON = 
-		"/to_window.png";
-    public static String CLOSE_ICON = 
-		"/close.png";
-    
-    public static String XY_PLANE = 
-		"/XYPlane.png";
-    public static String XZ_PLANE = 
-		"/XZPlane.png";
-    public static String YZ_PLANE = 
-		"/YZPlane.png";
+	public static String ZOOM_IN_CURSOR_IMAGE = "/zoomInCursor.png";
+	public static String ZOOM_OUT_CURSOR_IMAGE = "/zoomOutCursor.png";
+	public static String ROTATE_CURSOR_IMAGE = "/3dRotateCursor.png";
+	public static String ROTATE_AND_ZOOM_CURSOR_IMAGE = "/rotatezoom.png";
+	public static String ROTATE_IMAGE = "/3dRotate.png";
+	public static String ARROW_ICON = "/arrow.png";
+	public static String HAND_ICON = "/hand.png";
+	public static final String DOUBLE_FORWARD_ICON = "/forward.png";
+	public static final String DOUBLE_FORWARD_BW_ICON = "/forward_bw.png";
+	public static final String SUITABLE_ICON = "/yes.png";
+	public static final String INCOMPATIBLE_ICON = "/no.png";
+	public static final String SUITABILITY_WARNING_ICON = "/maybe.png";
+	public static String GENERATE_HISTORY_ICON = "/history.png";
+	public static String TO_TOP_ICON = "/toTop.png";
+	public static String TO_BOTTOM_ICON = "/toBottom.png";
+	public static String REDRAW_ICON = "/redraw_bw.png";
+	public static String MAXIMISE_ICON = "/maximise.png";
+	public static String RESTORE_ICON = "/restore.png";
+	public static String QUESTION_MARK_ICON = "/question_mark.png";
+	public static String TO_WINDOW_ICON = "/to_window.png";
+	public static String CLOSE_ICON = "/close.png";
 
-    
-//Crystal icons, LGPL, http://www.everaldo.com/crystal/
-    public static String PHENODATA_MENUICON = 
-    		"/listicons/crystal-LGPL/kate.png";
-    public static String TEXT_MENUICON = 
-    		"/listicons/crystal-LGPL/txt.png";
-    public static String IMAGE_MENUICON = 
-    		"/listicons/crystal-LGPL/no3D.png";
-    public static String HTML_MENUICON = 
-    		"/listicons/crystal-LGPL/agt_web.png";
-    
-//Modified icons based on the Crystal icons, LGPL, http://www.everaldo.com/crystal/   
-    public static String PDF_MENUICON = 
-    		"/listicons/crystal-LGPL/modified/man.png";
-    public static String EXT_BROWSER_MENUICON = 
-    		"/listicons/crystal-LGPL/modified/ext-browser.png";
-    public static String SPREADSHEET_MENUICON = 
-    		"/listicons/crystal-LGPL/modified/spreadsheet.png";
-    public static String ARRAY_MENUICON = 
-    		"/listicons/crystal-LGPL/modified/array.png";
-    
-// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
-    public static String VENN_MENUICON = 
-    		"/listicons/venndi-48.png";
-    public static String EMPTY_MENUICON = 
-    		"/listicons/empty.png";
-    public static String SOM_MENUICON = 
-    		"/listicons/som2.png";
-    public static String SCATTER_MENUICON = 
-    		"/listicons/scatter4.png";
-    public static String PROFILE_MENUICON = 
-    		"/listicons/profile4.png";
-    public static String SCATTER3DPCA_MENUICON = 
-    		"/listicons/pca.png";
-    public static String HC_MENUICON = 
-    		"/listicons/hc3.png";
-    public static String SCATTER3D_MENUICON = 
-    		"/listicons/scatter3d_2.png";
-    public static String PROFILES_MENUICON = 
-    		"/listicons/profiles3.png";
-    public static String VOLCANO_MENUICON = 
-    		"/listicons/volcano2.png";
-    public static String HISTOGRAM_MENUICON = 
-    		"/listicons/histogram2.png";
-    public static String GB_MENUICON = 
-    		"/listicons/gb3.png";
-    public static String HEATMAP_MENUICON = 
-    		"/listicons/heatmap.png";
-    
-    
-    public static final String SPLASH_SCREEN =
-        "/splash.png";
-    public static final Color SPLASH_BORDER_COLOR =
-    	new Color(150, 150, 150);
-    public static final Font SPLASH_SCREEN_FONT = 
-    	new Font("SansSerif", Font.PLAIN, 10);
-	
-    public static final Font VISUALISATION_TITLE_FONT = 
-    	new Font("SansSerif", Font.PLAIN, 16);
-    
-    public static final Font MONOSPACED_FONT = 
-    	new Font("Monospaced", Font.PLAIN, 11);
+	public static String XY_PLANE = "/XYPlane.png";
+	public static String XZ_PLANE = "/XZPlane.png";
+	public static String YZ_PLANE = "/YZPlane.png";
 
+	// Crystal icons, LGPL, http://www.everaldo.com/crystal/
+	public static String PHENODATA_MENUICON = "/listicons/crystal-LGPL/kate.png";
+	public static String TEXT_MENUICON = "/listicons/crystal-LGPL/txt.png";
+	public static String IMAGE_MENUICON = "/listicons/crystal-LGPL/no3D.png";
+	public static String HTML_MENUICON = "/listicons/crystal-LGPL/agt_web.png";
 
+	// Modified icons based on the Crystal icons, LGPL,
+	// http://www.everaldo.com/crystal/
+	public static String PDF_MENUICON = "/listicons/crystal-LGPL/modified/man.png";
+	public static String EXT_BROWSER_MENUICON = "/listicons/crystal-LGPL/modified/ext-browser.png";
+	public static String SPREADSHEET_MENUICON = "/listicons/crystal-LGPL/modified/spreadsheet.png";
+	public static String ARRAY_MENUICON = "/listicons/crystal-LGPL/modified/array.png";
 
-    public static final String ICON_TYPE_BINARY =
-        "/types/binary.png";
-    public static final String ICON_TYPE_FOLDER =
-        "/types/folder.gif";
-    public static final String ICON_TYPE_HTML =
-        "/types/html.png";
-    public static final String ICON_TYPE_IMAGE =
-        "/types/image.png";
-    public static final String ICON_TYPE_PHENODATA =
-        "/types/phenodata.png";
-    public static final String ICON_TYPE_RAWDATA =
-        "/types/rawdata.png";
-    public static final String ICON_TYPE_TABLE =
-        "/types/table.png";
-    public static final String ICON_TYPE_TEXT =
-        "/types/text.png";
+	// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
+	public static String VENN_MENUICON = "/listicons/venndi-48.png";
 
-    public static final String ARROW_UP_ICON = 
-    	"/arrow_up.png";
-    public static final String ARROW_DOWN_ICON = 
-    	"/arrow_down.png";
-    public static final String STOP_ICON = 
-        "/stop.png";    
-    public static final String RUNNING_ICON = 
-        "/running.gif";
-    
-    public static final String OPEN_SESSION_LINK_ICON = 
-        "/tree.png";
-    public static final String IMPORT_LINK_ICON = 
-        "/table.png";
-    public static final String EXAMPLE_SESSION_ICON = 
-        "/try.png";
+	public static String SOM_MENUICON = "/listicons/som2.png";
+	public static String SCATTER_MENUICON = "/listicons/scatter4.png";
+	public static String PROFILE_MENUICON = "/listicons/profile4.png";
+	public static String SCATTER3DPCA_MENUICON = "/listicons/pca.png";
+	public static String HC_MENUICON = "/listicons/hc3.png";
+	public static String SCATTER3D_MENUICON = "/listicons/scatter3d_2.png";
+	public static String PROFILES_MENUICON = "/listicons/profiles3.png";
+	public static String VOLCANO_MENUICON = "/listicons/volcano2.png";
+	public static String HISTOGRAM_MENUICON = "/listicons/histogram2.png";
+	public static String GB_MENUICON = "/listicons/gb3.png";
+	public static String HEATMAP_MENUICON = "/listicons/heatmap.png";
+
+	public static final String SPLASH_SCREEN = "/splash.png";
+	public static final Color SPLASH_BORDER_COLOR = new Color(150, 150, 150);
+	public static final Font SPLASH_SCREEN_FONT = new Font("SansSerif",
+			Font.PLAIN, 10);
+
+	public static final Font VISUALISATION_TITLE_FONT = new Font("SansSerif",
+			Font.PLAIN, 16);
+
+	public static final Font MONOSPACED_FONT = new Font("Monospaced",
+			Font.PLAIN, 11);
+
+	public static final String ICON_TYPE_BINARY = "/types/binary.png";
+	public static final String ICON_TYPE_FOLDER = "/types/folder.gif";
+	public static final String ICON_TYPE_HTML = "/types/html.png";
+	public static final String ICON_TYPE_IMAGE = "/types/image.png";
+	public static final String ICON_TYPE_PHENODATA = "/types/phenodata.png";
+	public static final String ICON_TYPE_RAWDATA = "/types/rawdata.png";
+	public static final String ICON_TYPE_TABLE = "/types/table.png";
+	public static final String ICON_TYPE_TEXT = "/types/text.png";
+
+	public static final String ARROW_UP_ICON = "/arrow_up.png";
+	public static final String ARROW_DOWN_ICON = "/arrow_down.png";
+	public static final String STOP_ICON = "/stop.png";
+	public static final String RUNNING_ICON = "/running.gif";
+
+	public static final String OPEN_SESSION_LINK_ICON = "/tree.png";
+	public static final String IMPORT_LINK_ICON = "/table.png";
+	public static final String EXAMPLE_SESSION_ICON = "/try.png";
     
 
     public static final int LEFT_PANEL_WIDTH = 400;

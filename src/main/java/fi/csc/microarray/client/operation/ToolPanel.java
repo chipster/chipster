@@ -214,7 +214,7 @@ public class ToolPanel extends JPanel
         });
 
         // clear button in the search field
-        clearSearchButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        clearSearchButton = new JButton(VisualConstants.getIcon(VisualConstants.CLOSE_FILE_ICON));
         clearSearchButton.setFocusPainted(false);
         clearSearchButton.setContentAreaFilled(false);
         clearSearchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -258,7 +258,7 @@ public class ToolPanel extends JPanel
 		g.insets = new Insets(0, 0, 0, 0);
 		g.fill = GridBagConstraints.NONE;
 
-        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON), g);
+        searchPanel.add(new JLabel(VisualConstants.getIcon(VisualConstants.MAGNIFIER_ICON)), g);
 		g.gridx++;
         searchPanel.add(searchField, g);
 		g.gridx++;
