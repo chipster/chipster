@@ -348,7 +348,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			try {
 				
 				// Link result beans, add to folders etc
-				Session.getSession().getApplication().onFinishedTask(task, operation);
+				Session.getSession().getApplication().onFinishedTask(task, operation, task.getState());
 
 				// Check that number of results and result names match
 				Iterator<DataBean> targetIterator = task.outputs().iterator();
