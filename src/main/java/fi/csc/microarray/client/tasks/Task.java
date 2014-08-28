@@ -182,38 +182,34 @@ public class Task {
 	/**
 	 * Set the state of the Task. Also clear stateDetail field.
 	 * 
-	 * Listeners are notified of the state change.
-	 * 
 	 * Note: Only Task and TaskExecutor classes should use this method.
 	 * 
-	 * 
+	 * Note2: Call notifyTaskStateChangeListener() after this, but outside any
+	 * synchronized(Task) blocks. 
 	 * 
 	 * @param state
 	 */
 	public synchronized void  setState(State newState) {
-		State oldState = this.state;
 		this.state = newState;
 		this.stateDetail = "";
-		
+	}
+	
+	public void notifyTaskStateChangeListener(State oldState, State newState) {
 		/*
 		 * Notify listener
 		 * 
 		 * Use invokeAndWait instead of invokeLater. In CLI, we must know when
 		 * the task is completed and the next operation (usually session
-		 * saving) can be started. With invokeLater, there is no way of knowing
-		 * that and we end up having occasional
-		 * ConcurrentModificationExceptions, when this listener and next
-		 * operation (session saving) try access objects at the same time.
+		 * saving) can be started.
 		 */
 		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
 		try {
-			
+
 			SwingUtilities.invokeAndWait(changeNotifier);
 		} catch (InvocationTargetException | InterruptedException e) {
 			Session.getSession().getApplication().reportException(e);
 		}
 	}
-
 
 	public synchronized State getState() {
 		return state; 
