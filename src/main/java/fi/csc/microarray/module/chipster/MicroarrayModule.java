@@ -476,7 +476,7 @@ public class MicroarrayModule implements Module {
 		int topMargin = 15;
 		int leftMargin = 30;
 		c.insets.set(topMargin, leftMargin, 0, 0);
-		contentPanel.add(new JLabel(VisualConstants.QUICKLINK_ICON), c);
+		contentPanel.add(new JLabel(VisualConstants.getIcon(VisualConstants.QUICKLINK_ICON)), c);
 		JXHyperlink link;
 		boolean currentSelectionVisualisable = false;
 		try {

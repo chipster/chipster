@@ -53,7 +53,7 @@ public class ContentType {
 
 	public Icon getIcon() {
 		if (icon == null) {
-			VisualConstants.getIcon(iconPath);			 
+			icon = VisualConstants.getIcon(iconPath);			 
 		}
 		
 		return icon;

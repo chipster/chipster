@@ -483,7 +483,7 @@ public abstract class ClientApplication {
 				if (newState.isFinished()) {
 					try {
 						// FIXME there should be no need to pass the operation as it goes within the task
-						onFinishedTask(job, operation);
+						onFinishedTask(job, operation, newState);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -525,20 +525,21 @@ public abstract class ClientApplication {
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
 	 * 			   corresponding job entity.
+	 * @param newState 
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper, State state) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + task.getState());
+			logger.debug("operation finished, state is " + state);
 			
-			if (task.getState() == State.CANCELLED) {
+			if (state == State.CANCELLED) {
 				// task cancelled, do nothing
 				
-			} else if (!task.getState().finishedSuccesfully()) {
+			} else if (!state.finishedSuccesfully()) {
 				// task unsuccessful, report it
 				reportTaskError(task);
 				
@@ -623,7 +624,7 @@ public abstract class ClientApplication {
 			
 			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (task.getState().finishedSuccesfully()) {
+				if (state.finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();

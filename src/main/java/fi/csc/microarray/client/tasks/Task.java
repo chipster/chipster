@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.client.tasks;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 import javax.swing.SwingUtilities;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
@@ -193,9 +195,23 @@ public class Task {
 		this.state = newState;
 		this.stateDetail = "";
 		
-		// register change event to be invoked later
+		/*
+		 * Notify listener
+		 * 
+		 * Use invokeAndWait instead of invokeLater. In CLI, we must know when
+		 * the task is completed and the next operation (usually session
+		 * saving) can be started. With invokeLater, there is no way of knowing
+		 * that and we end up having occasional
+		 * ConcurrentModificationExceptions, when this listener and next
+		 * operation (session saving) try access objects at the same time.
+		 */
 		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
-		SwingUtilities.invokeLater(changeNotifier);
+		try {
+			
+			SwingUtilities.invokeAndWait(changeNotifier);
+		} catch (InvocationTargetException | InterruptedException e) {
+			Session.getSession().getApplication().reportException(e);
+		}
 	}
 
 
