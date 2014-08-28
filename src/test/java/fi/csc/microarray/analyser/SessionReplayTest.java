@@ -209,7 +209,8 @@ public class SessionReplayTest extends MessagingTestBase {
 			// been deleted for example to save space)
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
 					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
-					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
+					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
+					operationRecord.getInputs().size() > 0)) {
 				
 				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());

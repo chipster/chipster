@@ -144,6 +144,10 @@ public class OperationRecord {
 		this.inputs.put(nameID.getID(), new InputRecord(nameID, dataBean));
 	}
 	
+	public void addInput(NameID nameId, String dataId) {
+		this.inputs.put(nameID.getID(), new InputRecord(nameID, dataId));
+	}
+	
 	
 	/**
 	 * If the given DataBean is a value of an InputRecord in this OperationRecord,
@@ -194,22 +198,36 @@ public class OperationRecord {
 
 	private class DataBeanRecord {
 		private NameID nameID;
+		private String dataId; // for cases where DataBean itself is missing
 		private DataBean value;
 
 		public DataBeanRecord(NameID nameID, DataBean value) {
 			this.nameID = nameID;
+			if (value != null) {
+				dataId = value.getId();
+			}
 			this.value = value;
 		}
 		
 		public DataBeanRecord(String id, String displayName, String description, DataBean value) {
-			this.nameID = new NameID(id, displayName, description);
-			this.value = value;
+			this(new NameID(id, displayName, description), value);
 		}
+		
+		public DataBeanRecord(NameID nameID, String dataId) {
+			this.nameID = nameID;
+			this.dataId = dataId;
+			this.value = null;
+		}
+		
 		
 		public NameID getNameID() {
 			return nameID;
 		}
 
+		public String getDataId() {
+			return dataId;
+		}
+		
 		public DataBean getValue() {
 			return value;
 		}
@@ -229,6 +247,11 @@ public class OperationRecord {
 		public InputRecord(String id, String displayName, String description, DataBean value) {
 			super(id, displayName, description, value);
 		}
+		
+		public InputRecord (NameID nameID, String dataId) {
+			super(nameID, dataId);
+		}
+		
 	}
 
 	public void setNameID(NameID nameID) {

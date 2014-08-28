@@ -827,7 +827,14 @@ public class CliClient {
 		
 		ArrayList<String> inputs = new ArrayList<>();	
 		for (InputRecord input : oper.getInputs()) {
-			inputs.add(input.getValue().getName());
+			
+			String inputName = "";
+			if (input.getValue() != null) {
+				inputName = input.getValue().getName();
+			} else {
+				inputName = input.getDataId();
+			}
+			inputs.add(inputName);
 		}		
 		map.put(KEY_INPUTS, inputs);
 				

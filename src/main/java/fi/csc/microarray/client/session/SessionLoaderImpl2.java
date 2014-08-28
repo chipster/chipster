@@ -370,25 +370,36 @@ public class SessionLoaderImpl2 {
 			
 			// get data bean ids from session data
 			for (InputType inputType : operationTypes.get(operationRecord).getInput()) {
-				
-				String inputID = inputType.getData();
-				if (inputID == null) {
-					continue;
-				}
-				
-				// find the data bean
-				DataBean inputBean = dataBeans.get(inputID);
-				if (inputBean == null) {
-					continue;
-				}
-				
-				// skip phenodata, it is bound automatically
-				if (inputBean.queryFeatures("/phenodata/").exists()) {
-					continue; 
-				}
 
-				// add the reference to the operation record
-				operationRecord.addInput(createNameID(inputType.getName()), inputBean);
+				String inputID = inputType.getData();
+				
+				// data bean exists
+				
+				if (inputID != null) {
+					DataBean inputBean = dataBeans.get(inputID);
+					
+					// skip phenodata, it is bound automatically
+					if (inputBean.queryFeatures("/phenodata/").exists()) {
+						continue; 
+					}
+					// add the reference to the operation record
+					operationRecord.addInput(createNameID(inputType.getName()), inputBean);
+				}
+				
+				// data bean does not exist
+				else {
+
+					// try to skip phenodata, not reliable
+					if (inputType.getName().getId().equals("phenodata.tsv")) {
+						continue;
+					}
+					
+					// add the reference to the operation record
+					String dataId = inputType.getDataId();
+					if (dataId != null) {
+						operationRecord.addInput(createNameID(inputType.getName()), dataId);
+					}
+				}
 			}
 		}
 	}
