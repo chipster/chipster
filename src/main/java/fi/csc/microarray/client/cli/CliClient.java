@@ -1039,11 +1039,13 @@ public class CliClient {
 	private ArrayList<HashMap<String, String>> enumOptionsToYaml(EnumParameter enumParam) {
 		ArrayList<HashMap<String, String>> options = new ArrayList<>();
 		
-		for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {			
-			HashMap<String, String> map = new HashMap<>();
-			map.put(KEY_OPTION, opt.getValue());
-			map.put(KEY_NAME, opt.toString());
-			options.add(map);
+		if (enumParam.getOptions() != null ) {
+			for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {			
+				HashMap<String, String> map = new HashMap<>();
+				map.put(KEY_OPTION, opt.getValue());
+				map.put(KEY_NAME, opt.toString());
+				options.add(map);
+			}
 		}
 		return options;
 	}
