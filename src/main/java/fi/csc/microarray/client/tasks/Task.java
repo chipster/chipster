@@ -4,21 +4,18 @@
  */
 package fi.csc.microarray.client.tasks;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.swing.SwingUtilities;
-
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.ThreadUtils;
 
 /**
  * @author Aleksi Kallio, Taavi Hupponen
@@ -201,14 +198,10 @@ public class Task {
 		 * Use invokeAndWait instead of invokeLater. In CLI, we must know when
 		 * the task is completed and the next operation (usually session
 		 * saving) can be started.
-		 */
+		 */		
 		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
-		try {
-
-			SwingUtilities.invokeAndWait(changeNotifier);
-		} catch (InvocationTargetException | InterruptedException e) {
-			Session.getSession().getApplication().reportException(e);
-		}
+		
+		ThreadUtils.runInEDT(changeNotifier);		
 	}
 
 	public synchronized State getState() {
