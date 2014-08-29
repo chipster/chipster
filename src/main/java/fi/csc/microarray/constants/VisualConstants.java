@@ -272,6 +272,9 @@ public class VisualConstants {
 	public static final Color COLOR_BLUE_LIGHT = new Color(0xc0d2de);
 
 	public static ImageIcon getIcon(String iconPath) {
-		return new ImageIcon(VisualConstants.class.getResource(iconPath));
+		if (iconPath == null) {
+			return null;
+		}
+		return new ImageIcon(VisualConstants.class.getResource(iconPath));		
 	}
 }

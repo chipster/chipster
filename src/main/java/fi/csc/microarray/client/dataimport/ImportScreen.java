@@ -50,7 +50,7 @@ public class ImportScreen extends ScreenBase implements ImportScreenModel,
 	private static final int TOOLS_FRAME_WIDTH = 200;
 
 	private static final Dimension BUTTON_SIZE = new Dimension(80, 22);
-	private static final Dimension IMPORT_SCREEN_SIZE = new Dimension(850, 700);
+	private static final Dimension IMPORT_SCREEN_SIZE = new Dimension(900, 700);
 
 	/**
 	 * Logger for this class
