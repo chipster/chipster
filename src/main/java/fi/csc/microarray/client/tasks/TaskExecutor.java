@@ -105,7 +105,7 @@ public class TaskExecutor {
 	}
 
 	private enum ResultListenerState {
-		WAIT_FOR_ACK, WAIT_FOR_OFFER, WAIT_FOR_STATUS, FINISHED, TIMEOUT
+		WAIT_FOR_STATUS, FINISHED, TIMEOUT
 	};
 
 	/**
@@ -117,7 +117,6 @@ public class TaskExecutor {
 		Task pendingTask; 
 		// should be removed
 		ResultListenerState internalState;
-		String asId;
 
 		/**
 		 * @param pendingTask
@@ -125,7 +124,7 @@ public class TaskExecutor {
 		 */
 		public ResultMessageListener(Task pendingTask) {
 			this.pendingTask = pendingTask;
-			this.internalState = ResultListenerState.WAIT_FOR_ACK;
+			this.internalState = ResultListenerState.WAIT_FOR_STATUS;
 		}
 
 		public void onChipsterMessage(ChipsterMessage msg) {
@@ -161,85 +160,6 @@ public class TaskExecutor {
 
 			// ResultListener state machine
 			switch (internalState) {
-
-			case WAIT_FOR_ACK:
-				if (msg instanceof CommandMessage) {
-					CommandMessage commandMessage = (CommandMessage) msg;
-
-					// got ack message
-					if (CommandMessage.COMMAND_ACK.equals(commandMessage.getCommand())) {
-						logger.debug("Got ACK message.");
-						internalState = ResultListenerState.WAIT_FOR_OFFER;
-						// TODO set timeout
-
-					}
-
-					// got offer message
-					else if (CommandMessage.COMMAND_OFFER.equals(commandMessage.getCommand())) {
-
-						// store as-id
-						asId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_AS_ID);
-						logger.debug("Got OFFER from " + asId);
-
-						// switch state (before sending the accept, as we
-						// should be ready
-						// to receive status immediately after the accept
-						// has been sent)
-						internalState = ResultListenerState.WAIT_FOR_STATUS;
-
-						// send accept
-						CommandMessage acceptMessage = new CommandMessage(CommandMessage.COMMAND_ACCEPT_OFFER);
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, pendingTask.getId());
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, asId);
-						logger.debug("Sending ACCEPT_OFFER to " + asId);
-
-						try {
-							requestTopic.sendMessage(acceptMessage);
-							// TODO set timeout
-
-						} catch (JMSException e) {
-							logger.error("Could not send accept message.", e);
-
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
-							taskFinished(State.ERROR, "Sending message failed", null);
-						}
-					}
-				}
-				break;
-
-			case WAIT_FOR_OFFER:
-				if (msg instanceof CommandMessage) {
-					CommandMessage commandMessage = (CommandMessage) msg;
-					if (CommandMessage.COMMAND_OFFER.equals(commandMessage.getCommand())) {
-						// store as-id
-						asId = commandMessage.getNamedParameter(ParameterMessage.PARAMETER_AS_ID);
-
-						// switch state (before sending the accept, as we
-						// should be ready
-						// to receive status immediately after the accept
-						// has been sent)
-						internalState = ResultListenerState.WAIT_FOR_STATUS;
-
-						// send accept
-						CommandMessage acceptMessage = new CommandMessage(CommandMessage.COMMAND_ACCEPT_OFFER);
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_JOB_ID, pendingTask.getId());
-						acceptMessage.addNamedParameter(ParameterMessage.PARAMETER_AS_ID, asId);
-						try {
-							requestTopic.sendMessage(acceptMessage);
-							// TODO set timeout
-						} catch (JMSException e) {
-							logger.error("Could not send accept message.", e);
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
-							taskFinished(State.ERROR, "Sending message failed", null);
-						}
-					}
-				}
-				break;
-
 			case WAIT_FOR_STATUS:
 
 				// status message
@@ -305,8 +225,12 @@ public class TaskExecutor {
 							taskFinished(State.ERROR, "Retransferring data failed", null);
 						}
 						break;
+					default:
+						break;
 					}
 				}
+				break;
+			default:
 				break;
 			}
 
