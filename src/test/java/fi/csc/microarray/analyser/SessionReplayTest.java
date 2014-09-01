@@ -204,9 +204,13 @@ public class SessionReplayTest extends MessagingTestBase {
 		for (DataBean dataBean : sourceManager.databeans()) {
 			OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations and others without parent dataset
+			// pick import operations, local operations 
+			// and those which did have inputs when run, but don't have parents now (i.e. inputs have
+			// been deleted for example to save space)
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
-					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
+					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
+					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
+					operationRecord.getInputRecords().size() > 0)) {
 				
 				// load imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
@@ -345,8 +349,8 @@ public class SessionReplayTest extends MessagingTestBase {
 			Session.getSession().setDataManager(manager);
 			try {
 				
-				// Link result beans, add to folders etc
-				Session.getSession().getApplication().onFinishedTask(task, null);
+				// Link result beans, add to folders etc			
+				Session.getSession().getApplication().onFinishedTask(task, operation.getResultListener(), task.getState());
 
 				// Check that number of results and result names match
 				Iterator<DataBean> targetIterator = task.getOutputs().iterator();

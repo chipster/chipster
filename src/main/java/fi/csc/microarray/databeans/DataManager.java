@@ -11,13 +11,18 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.jms.JMSException;
-import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
@@ -438,9 +443,9 @@ public class DataManager {
 	 * @param description a short textual description
 	 * @param extensions file extensions belonging to this type
 	 */
-	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, Icon icon, String... extensions) {
+	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, String iconPath, String... extensions) {
 		// create the content type
-		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, icon, extensions));
+		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, iconPath, extensions));
 		
 		
 		// add extensions to search map
@@ -1180,7 +1185,7 @@ public class DataManager {
 	}
 	
 	public void connectChild(DataItem child, DataFolder parent) {
-
+		
 		// was it already connected?
 		boolean wasConnected = child.getParent() != null;
 
@@ -1219,14 +1224,17 @@ public class DataManager {
 
 	public void addTypeTags(DataBean data) throws IOException {
 
-		for (Module module : modules) {
-			try {
-				module.addTypeTags(data);
-				
-			} catch (MicroarrayException e) {
-				throw new RuntimeException(e);
+		if (!data.isTagsSet()) {
+			for (Module module : modules) {
+				try {
+					module.addTypeTags(data);
+
+				} catch (MicroarrayException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
+		data.setTagsSet(true);
 	}
 	
 	/**
@@ -1447,5 +1455,66 @@ public class DataManager {
 
 	public void saveSession(File zipFile) throws Exception {
 		saveSession(zipFile, new ArrayList<OperationRecord>());
+	}
+
+	/**
+	 * Optimization to speed up session loading
+	 * 
+	 * Normally TypeTags are added when a DataBean is put to a folder and
+	 * content length may be queried from filebroker when the DataBean is
+	 * created. All this happens sequentially and takes some time when many
+	 * DataBeans are created at once. This method does the aforementioned
+	 * queries in parallel.
+	 * 
+	 * Parallel processing needs some caution though. Each DataBean has its own
+	 * thread and must modify only its own tag list. Otherwise it should be safe
+	 * to read from DataBeans and Operations and there should be no need to
+	 * modify them. This creates also concurrent calls to JMSFileBrokerClient,
+	 * which is illegal according to JMS spec, but has been working ok in
+	 * ActiveMQ.
+	 * 
+	 * @param dataBeans
+	 */
+	public void addTypeTagsAndVerifyContentLength(Collection<DataBean> dataBeans) {
+
+		ArrayList<InitDataBeanCallable> callables = new ArrayList<>();
+		for (DataBean dataBean : dataBeans) {
+			callables.add(new InitDataBeanCallable(dataBean));
+		}
+				
+		ExecutorService executor = Executors.newCachedThreadPool();
+		try {
+			// run callables and wait until all have finished
+			List<Future<Object>> futures = executor.invokeAll(callables);
+			
+			for (Future<Object> future : futures) {
+				// check callable for exception, and throw if found
+				future.get();
+			}
+			
+		} catch (InterruptedException | ExecutionException e) {
+			Session.getSession().getApplication().reportExceptionThreadSafely(e);
+		}
+	}
+	
+	public class InitDataBeanCallable implements Callable<Object> {
+
+		private DataBean dataBean;
+
+		public InitDataBeanCallable(DataBean dataBean) {
+			this.dataBean = dataBean;
+		}
+
+		@Override
+		public Object call() throws Exception {
+			try {
+				Long size = getContentLength(dataBean);
+				setOrVerifyContentLength(dataBean, size);
+				addTypeTags(dataBean);
+			} catch (IOException | ContentLengthException e) {
+				Session.getSession().getApplication().reportExceptionThreadSafely(e);
+			}
+			return null;
+		}
 	}
 }

@@ -676,6 +676,8 @@ public class TaskExecutor {
 	 * @param completionPercentage 
 	 */
 	private void updateTaskState(Task task, State state, String stateDetail, int completionPercentage) {
+		
+		State oldState;				
 
 		// setting the state will notify Task listeners
 		synchronized (task) {
@@ -687,7 +689,8 @@ public class TaskExecutor {
 
 			// not finished yet, change state
 			else {
-
+				
+				oldState = task.getState();
 				task.setState(state);
 				if (stateDetail != null) {
 					task.setStateDetail(stateDetail);
@@ -698,6 +701,14 @@ public class TaskExecutor {
 				// notify TaskExecutor listeners
 				SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
 			}
+		}
+				
+		/*
+		 * do this outside synchronized of the block, because sometimes this
+		 * triggers GUI updates that try to access TaskExecutor from EDT
+		 */
+		if (oldState != null) {
+			task.notifyTaskStateChangeListener(oldState, state);
 		}
 	}
 

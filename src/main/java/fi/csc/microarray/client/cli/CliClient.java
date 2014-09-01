@@ -445,8 +445,8 @@ public class CliClient {
 		app = new CliClientApplication(auth, isBooleanOption(OPT_VERBOSE), isBooleanOption(OPT_QUIET));
 
 		app.initialiseApplication(true);
-	}
-	
+	}	
+
 	private String openWorkingCopySession() throws UserErrorException, JMSException, Exception {
 		
 		String sessionName = nameSpace.getString(OPT_WORKING_COPY);
@@ -827,7 +827,14 @@ public class CliClient {
 		
 		ArrayList<String> inputs = new ArrayList<>();	
 		for (InputRecord input : oper.getInputRecords()) {
-			inputs.add(input.getValue().getName());
+			
+			String inputName = "";
+			if (input.getValue() != null) {
+				inputName = input.getValue().getName();
+			} else {
+				inputName = input.getDataId();
+			}
+			inputs.add(inputName);
 		}		
 		map.put(KEY_INPUTS, inputs);
 				
@@ -1039,11 +1046,13 @@ public class CliClient {
 	private ArrayList<HashMap<String, String>> enumOptionsToYaml(EnumParameter enumParam) {
 		ArrayList<HashMap<String, String>> options = new ArrayList<>();
 		
-		for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {			
-			HashMap<String, String> map = new HashMap<>();
-			map.put(KEY_OPTION, opt.getValue());
-			map.put(KEY_NAME, opt.toString());
-			options.add(map);
+		if (enumParam.getOptions() != null ) {
+			for (SelectionOption opt : ((SelectionOption[])enumParam.getOptions())) {			
+				HashMap<String, String> map = new HashMap<>();
+				map.put(KEY_OPTION, opt.getValue());
+				map.put(KEY_NAME, opt.toString());
+				options.add(map);
+			}
 		}
 		return options;
 	}

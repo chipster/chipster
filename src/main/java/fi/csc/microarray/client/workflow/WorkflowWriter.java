@@ -128,8 +128,9 @@ public class WorkflowWriter {
 		for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
 			// Write code that sets the value only when value is not empty
 			if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
-				Parameter parameter = (Parameter)toolDefinition.getParameter(parameterRecord.getNameID().getID()).clone();
+				Parameter parameter = toolDefinition.getParameter(parameterRecord.getNameID().getID());
 				if (parameter != null) {
+					parameter = (Parameter) parameter.clone();
 					if (parameter instanceof DataSelectionParameter) {
 						((DataSelectionParameter)parameter).parseValueAndSetWithoutChecks(parameterRecord.getValue());
 					} else {

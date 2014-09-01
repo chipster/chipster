@@ -10,13 +10,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.SwingUtilities;
-
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.ThreadUtils;
 
 /**
  * @author Aleksi Kallio, Taavi Hupponen
@@ -160,24 +159,30 @@ public class Task {
 	/**
 	 * Set the state of the Task. Also clear stateDetail field.
 	 * 
-	 * Listeners are notified of the state change.
-	 * 
 	 * Note: Only Task and TaskExecutor classes should use this method.
 	 * 
-	 * 
+	 * Note2: Call notifyTaskStateChangeListener() after this, but outside any
+	 * synchronized(Task) blocks. 
 	 * 
 	 * @param state
 	 */
 	public synchronized void  setState(State newState) {
-		State oldState = this.state;
 		this.state = newState;
 		this.stateDetail = "";
-		
-		// register change event to be invoked later
-		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
-		SwingUtilities.invokeLater(changeNotifier);
 	}
-
+	
+	public void notifyTaskStateChangeListener(State oldState, State newState) {
+		/*
+		 * Notify listener
+		 * 
+		 * Use invokeAndWait instead of invokeLater. In CLI, we must know when
+		 * the task is completed and the next operation (usually session
+		 * saving) can be started.
+		 */		
+		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
+		
+		ThreadUtils.runInEDT(changeNotifier);		
+	}
 
 	public synchronized State getState() {
 		return state; 

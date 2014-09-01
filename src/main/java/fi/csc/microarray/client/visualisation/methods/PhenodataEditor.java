@@ -453,7 +453,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 				if(isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
 					DefaultTableCellRenderer header = new DefaultTableCellRenderer();
 					if(!data.queryFeatures("/phenodata/is-complete").exists()){
-						header.setIcon(VisualConstants.PHENODATA_ICON);
+						header.setIcon(VisualConstants.getIcon(VisualConstants.PHENODATA_ICON));
 						logger.debug("Header updated. Warning icon enabled.");
 					} else {
 						header.setIcon(null);

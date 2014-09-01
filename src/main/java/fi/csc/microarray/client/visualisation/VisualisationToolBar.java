@@ -190,7 +190,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	}
 
 	public Icon getMaximiseButtonIcon() {
-		return isMaximised ? VisualConstants.RESTORE_ICON : VisualConstants.MAXIMISE_ICON;
+		return VisualConstants.getIcon(isMaximised ? VisualConstants.RESTORE_ICON : VisualConstants.MAXIMISE_ICON);
 	}
 
 	public String getMaximiseButtonText() {

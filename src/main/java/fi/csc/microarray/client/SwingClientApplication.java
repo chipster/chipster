@@ -187,7 +187,7 @@ public class SwingClientApplication extends ClientApplication {
 			public void uncaughtException(Thread t, Throwable e) {
 				// we'll always output these to console and log for traceability and
 				// easier IDE navigation
-				System.err.println(e.getStackTrace());
+				e.printStackTrace();
 				logger.error("Uncaught exception in thread " + t.getName(), e);
 			}
 		});
@@ -203,7 +203,7 @@ public class SwingClientApplication extends ClientApplication {
         this.requestedModule = module;
 
         // show splash screen
-		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
+		splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
 		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
@@ -379,7 +379,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 
 		// make window visible
-		mainFrame.setIconImage(VisualConstants.APPLICATION_ICON.getImage());
+		mainFrame.setIconImage(VisualConstants.getIcon(VisualConstants.APPLICATION_ICON).getImage());
 		mainFrame.pack();
 		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);
@@ -782,7 +782,7 @@ public class SwingClientApplication extends ClientApplication {
 			@Override
 			public void run() {
 				
-				runWorkflow(workflowScript, runForEach);
+				SwingClientApplication.super.runWorkflow(workflowScript, runForEach);
 			}
 		});
 		thread.start();

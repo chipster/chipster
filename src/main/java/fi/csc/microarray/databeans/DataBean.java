@@ -147,6 +147,7 @@ public class DataBean extends DataItemBase {
 	private LinkedList<LinkedBean> incomingLinks = new LinkedList<LinkedBean>();
 
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
+	private boolean tagsSet = false;
 	
 	private String id;
 	
@@ -676,5 +677,13 @@ public class DataBean extends DataItemBase {
 
 	public void setChecksum(String checksum) {
 		this.checksum = checksum;
+	}
+
+	public boolean isTagsSet() {
+		return tagsSet;
+	}
+
+	public void setTagsSet(boolean tagsSet) {
+		this.tagsSet = tagsSet;
 	}
 }

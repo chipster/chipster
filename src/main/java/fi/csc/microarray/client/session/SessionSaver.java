@@ -610,14 +610,20 @@ public class SessionSaver {
 		// inputs
 		for (InputRecord inputRecord : operationRecord.getInputRecords()) {
 
-			String inputID = reversedItemIdMap.get(inputRecord.getValue());
-			// skip inputs which were not around when generating ids
-			if (inputID == null) {
-				continue;
-			}
 			InputType inputType = factory.createInputType();
 			inputType.setName(createNameType(inputRecord.getNameID()));
-			inputType.setData(inputID);
+			
+			// maybe it could be null in the future 
+			String inputDataId = inputRecord.getDataId(); 
+			if (inputDataId != null) {
+				inputType.setDataId(inputDataId);
+			}
+			
+			// data which was not around when generating ids
+			String inputID = reversedItemIdMap.get(inputRecord.getValue());
+			if (inputID != null) {
+				inputType.setData(inputID);
+			}
 			
 			operationType.getInput().add(inputType);
 		}

@@ -4,7 +4,7 @@
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-23
+# 2014-08-18
 
 source(file.path(chipster.common.path, 'library-Chipster.R'))
 
@@ -15,7 +15,8 @@ if (length(setdiff(pos, colnames(dat))) != 0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # load cytobands
-cytofile <- list.files(file.path(chipster.tools.path, "genomebrowser", "annotations"), pattern=paste0("^Homo.sapiens\\.", genome.build, ".*\\.cytoband-chr.txt"), full.name=TRUE)
+cytodir <- list.files(file.path(chipster.tools.path, "genomes", "genomebrowser", "Homo_sapiens"), pattern=paste0("^", genome.build, "\\..*$"), full.name=TRUE)
+cytofile <- file.path(cytodir, "cytoband-chr.txt")
 
 if (length(cytofile) == 0)
   stop('CHIPSTER-NOTE: Cytoband file not found.')
