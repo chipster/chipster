@@ -7,6 +7,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -629,5 +632,38 @@ public class OperationDefinition implements ExecutionItem {
 		return inputs.size() == 1;
 	}
 
-	
+	public String getParameterDefaultValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());					
+		String defaultValue = null;
+		if (parameter != null) {
+			 defaultValue  = parameter.getValueAsString();
+		}
+		return defaultValue;
+	}
+
+	public String getHumanReadableParameterValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());
+		
+		//EnumParameters have a display name for values
+		if (parameter instanceof EnumParameter) {
+			EnumParameter enumParameter = (EnumParameter) parameter;
+			
+			Object[] options = enumParameter.getOptions();
+			
+			// column selection doesn't have better name
+			if (options != null) {
+				// search for human readable name
+				for (Object choice : options) {
+					SelectionOption option = (SelectionOption) choice;
+					
+					//for (SelectionOption option : options) {
+					if (parameterRecord.getValue().equals(option.getValue())) {
+						
+						return option.toString();
+					}
+				}
+			}
+		}
+		return parameterRecord.getValue();
+	}
 }
