@@ -269,14 +269,15 @@ public class Strings {
 			sym = "T";
 		}
 
-		int div = (int) Math.pow(10, (pow - pow % 3));
-		
-		String roundNumber = "" + i / div + sym;
+		int div = (int) Math.pow(10, (pow - pow % 3));		
 		
 		if (round) {
+			// a space between number and symbol to make it less squeezed
+			String roundNumber = "" + i / div + " " + sym;
 			return roundNumber;
 		} else {
 					
+			String roundNumber = "" + i / div + sym;
 			String remainder = toHumanReadable(i % div, false, false);
 			return  roundNumber + " " + remainder;
 		}
