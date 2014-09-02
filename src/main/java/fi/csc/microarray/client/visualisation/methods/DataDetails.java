@@ -237,6 +237,7 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			panel.add(createTitleTextArea(data, true), "growx");			
 			panel.add(createDateLabel(data), "gapx " + INDENTION);
 			panel.add(createSizeLabel(data), "gapx " + INDENTION);
+			panel.add(createHistoryLink(data), "gapx " + INDENTION);
 			panel.add(createNotes(), "gapx " + INDENTION + ", growx");			
 			panel.add(createToolLabel(data), ", gapy 20");
 			createParameterTable(panel);
@@ -279,6 +280,18 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		}
 		JLabel label = new JLabel(text);
 		return label;		
+	}
+	
+	private JXHyperlink createHistoryLink(final DataBean data) {
+		JXHyperlink link = new JXHyperlink();
+		link.setText("History");
+		link.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				application.showHistoryScreenFor(data);
+			}
+		});
+		return link;		
 	}
 
 	private Component createToolLabel(DataBean data) {
