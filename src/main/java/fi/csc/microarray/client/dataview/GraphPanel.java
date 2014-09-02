@@ -87,8 +87,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	private JButton zoomOutButton;
 	private JCheckBox autoZoomChecBbox;
 
-	private JButton historyButton;
-
 	private boolean internalSelection = false;
 
 	private static final Logger logger = Logger.getLogger(GraphPanel.class);
@@ -160,8 +158,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 
 		} else if (source == autoZoomChecBbox) {
 			autoZoom();
-		} else if (source == historyButton) {
-			application.showHistoryScreenFor(application.getSelectionManager().getSelectedDataBean());
 		}
 	}
 
@@ -322,12 +318,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			autoZoomChecBbox.setSelected(true);
 			this.initialiseToolBarButton(autoZoomChecBbox);
 
-			historyButton = ToolBarComponentFactory.createButton(true, false);
-			historyButton.setToolTipText("Show analyse history for the selected dataset");
-			this.initialiseToolBarButton(historyButton);
-			historyButton.setIcon(VisualConstants.getIcon(VisualConstants.GENERATE_HISTORY_ICON));
-			historyButton.setEnabled(false);
-
 			buttonToolBar = new JToolBar();
 			buttonToolBar.setFloatable(false);
 			buttonToolBar.setMinimumSize(new Dimension(0, 0));
@@ -337,7 +327,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			buttonToolBar.add(zoomOutButton);
 			buttonToolBar.add(autoZoomChecBbox);
 			buttonToolBar.add(Box.createHorizontalGlue());
-			buttonToolBar.add(historyButton);
 		}
 		return buttonToolBar;
 	}
@@ -555,7 +544,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 					}
 
 					graph.repaint();
-					historyButton.setEnabled(application.getSelectionManager().getSelectedItem() instanceof DataBean);
 				}
 			});
 
