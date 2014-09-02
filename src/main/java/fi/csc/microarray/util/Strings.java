@@ -232,4 +232,53 @@ public class Strings {
 		}
 		return result;
 	}
+	
+	public static String toHumanReadable(long i) {
+		return toHumanReadable(i, true, false);
+	}
+	
+	public static String toRoundedHumanReadable(long i) {
+		return toHumanReadable(i, true, true);
+	}
+
+	public static String toHumanReadable(long i, boolean returnZero, boolean round) {
+
+		if (i == 0) {
+			if (returnZero) {
+				return "0";
+			} else {
+				return "";
+			}
+		} else if (i < 0) {
+			return "" + i;
+		}
+
+		int pow = (int) Math.log10(i);
+
+		String sym = "";
+		if (pow >= 3) {
+			sym = "k";
+		}
+		if (pow >= 6) {
+			sym = "M";
+		}
+		if (pow >= 9) {
+			sym = "G";
+		}
+		if (pow >= 12) {
+			sym = "T";
+		}
+
+		int div = (int) Math.pow(10, (pow - pow % 3));
+		
+		String roundNumber = "" + i / div + sym;
+		
+		if (round) {
+			return roundNumber;
+		} else {
+					
+			String remainder = toHumanReadable(i % div, false, false);
+			return  roundNumber + " " + remainder;
+		}
+	}
 }

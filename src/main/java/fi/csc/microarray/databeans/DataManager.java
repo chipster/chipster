@@ -37,6 +37,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.handlers.ContentHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
 import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
@@ -49,6 +50,8 @@ import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
@@ -137,6 +140,10 @@ public class DataManager {
 		}
 		
 	}
+	
+	private static final String AT_LEAST_ROWS_CACHENAME = "at-least-rows";
+	public static final int MAX_ROWS_TO_COUNT = 1000; 
+	public static final int MAX_BYTES_TO_COUNT = 100*1024;
 
 	public static final String DATA_NA_INFOTEXT = "Data currently not available";
 	private static final String TEMP_DIR_PREFIX = "chipster";
@@ -1502,4 +1509,37 @@ public class DataManager {
 			return null;
 		}
 	}
+
+	/**
+	 * Get a approximate row count of files under MAX_BYTES_TO_COUNT in size.
+	 * If there are more than MAX_ROWS_TO_COUNT, this number is returned. 
+	 * 
+	 * @param data
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public Long getFastRowCount(DataBean data) throws MicroarrayException {
+		if (getContentLength(data) < MAX_BYTES_TO_COUNT && 			
+				(data.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || 
+						data.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) || 
+						data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA))) {
+			
+			// check if rows are counted already 
+			Long cachedCount = (Long)data.getFromContentBoundCache(AT_LEAST_ROWS_CACHENAME);
+			if (cachedCount != null) {
+				return cachedCount; 
+
+			} else {
+				// count rows
+				Table rowCounter = data.queryFeatures("/column/*").asTable();
+				long rowCount = 0;
+				while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+					rowCount++;
+				}
+				data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
+				return rowCount;
+			}			
+		}
+		return null;
+	}	
 }

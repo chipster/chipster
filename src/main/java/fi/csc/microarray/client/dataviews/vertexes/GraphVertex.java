@@ -10,9 +10,9 @@ import org.jgraph.graph.GraphConstants;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.databeans.DataFolder;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -31,10 +31,6 @@ public class GraphVertex extends AbstractGraphVertex {
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(GraphVertex.class);
-	
-	private static final String AT_LEAST_ROWS_CACHENAME = "at-least-rows";
-	private static final int MAX_ROWS_TO_COUNT = 1000; 
-	private static final int MAX_BYTES_TO_COUNT = 100*1024;
 	
 	private List<GraphVertex> children;
 	
@@ -77,25 +73,10 @@ public class GraphVertex extends AbstractGraphVertex {
 		this.graph = graph;
 		
 		try {
-			int rowCount;
+			Long rowCount = Session.getSession().getDataManager().getFastRowCount(data);
 
-			if (Session.getSession().getDataManager().getContentLength(data) < MAX_BYTES_TO_COUNT) {
-				// check if rows are counted already 
-				Integer cachedCount = (Integer)data.getFromContentBoundCache(AT_LEAST_ROWS_CACHENAME);
-				if (cachedCount != null) {
-					rowCount = cachedCount; 
-
-				} else {
-					// count rows
-					Table rowCounter = data.queryFeatures("/column/*").asTable();
-					rowCount = 0;
-					while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
-						rowCount++;
-					}
-					data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Integer)rowCount);
-				}
-
-				if (rowCount < 1000) {
+			if (rowCount != null) {
+				if (rowCount < DataManager.MAX_ROWS_TO_COUNT) {
 					tooltipText = ", " + rowCount  + " rows";
 				} else {
 					tooltipText = ", over " + rowCount  + " rows";
