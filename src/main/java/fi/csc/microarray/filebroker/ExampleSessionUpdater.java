@@ -167,6 +167,22 @@ public class ExampleSessionUpdater extends FileServerListener {
 
 	     new Thread(r).start();
 	}
+	
+	/**
+	 * Run method exportServerSession() in a background thread 
+	 * 
+	 * @param sessionUuid
+	 * @param basename
+	 */
+	public void removeZipSessionInBackground(final String uuid) {
+	     Runnable r = new Runnable() {
+	         public void run() {
+	             removeZipSession(uuid);
+	         }
+	     };
+
+	     new Thread(r).start();
+	}	
 
 	/**
 	 * Export server session to zip session. Possible existing files are overwritten.
@@ -328,12 +344,12 @@ public class ExampleSessionUpdater extends FileServerListener {
 				}			
 			}
 
-			if (e instanceof BeforeRemoveSession) {
-				BeforeRemoveSession event = (BeforeRemoveSession) e;
+			if (e instanceof AfterRemoveSessionReply) {
+				AfterRemoveSessionReply event = (AfterRemoveSessionReply) e;
 
 				if (DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(event.getUsername())) {
 					logger.info("example session is being removed, removing also the zip file");
-					removeZipSession(event.getUuid());
+					removeZipSessionInBackground(event.getUuid());
 				}			
 			}
 		}
