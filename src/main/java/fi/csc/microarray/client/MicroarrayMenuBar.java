@@ -89,6 +89,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private JMenuItem manageSessionsMenuItem;
 
+	private JMenuItem openExampleSessionMenuItem;
+
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
 		add(getFileMenu());
@@ -163,6 +165,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				fileMenu.addSeparator();			
 			}
 			fileMenu.add(getMergeSessionMenu());
+			fileMenu.add(getOpenExampleSessionMenuItem());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
@@ -784,6 +787,21 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return fontSizeMenu;
+	}
+	
+	private JMenuItem getOpenExampleSessionMenuItem() {
+		if (openExampleSessionMenuItem == null) {
+			openExampleSessionMenuItem = new JMenuItem();
+			openExampleSessionMenuItem.setText("Open example session");
+			openExampleSessionMenuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					application.loadSession(true, true, true);
+				}
+
+			});
+		}
+		return openExampleSessionMenuItem;
 	}
 
 	private JMenuItem getClearSessionMenuItem() {

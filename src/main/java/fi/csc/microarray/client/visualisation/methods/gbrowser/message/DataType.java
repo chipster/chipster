@@ -32,5 +32,6 @@ public enum DataType {
 	COVERAGE_AVERAGE, 
 	CANCEL, 
 	REGION, 
-	NOTE 
+	NOTE,
+	BAM_TAG_NH
 	};

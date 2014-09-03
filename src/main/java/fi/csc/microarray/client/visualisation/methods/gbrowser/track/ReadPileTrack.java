@@ -139,7 +139,7 @@ public class ReadPileTrack extends Track {
 					if (rect.width < seq.length()) {
 						// Too little space - only show one rectangle for each read part
 
-						Color color = Color.gray;
+						Color color = getDefaultReadColor(readPart.getRead());
 
 						// Mark last line that will be drawn
 						if (lastBeforeMaxStackingDepthCut) {
@@ -180,7 +180,7 @@ public class ReadPileTrack extends Track {
 							Color border = Color.white;
 							long posInRef = readPart.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 							if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
-								bg = Color.gray;
+								bg = getDefaultReadColor(readPart.getRead());
 								border = bg;
 							} else {
 								switch (letter) {
@@ -243,6 +243,15 @@ public class ReadPileTrack extends Track {
 		}
 		
 		return drawables;
+	}
+
+	private Color getDefaultReadColor(Feature read) {
+		if (read.values.containsKey(DataType.BAM_TAG_NH)) {
+			return Color.lightGray;
+		} else {
+			return Color.gray;
+		}
+
 	}
 
 	private int getYCoord(int layer) {
@@ -344,6 +353,7 @@ public class ReadPileTrack extends Track {
 		addDataType(DataType.SEQUENCE);
 		addDataType(DataType.STRAND);
 		addDataType(DataType.CIGAR);
+		addDataType(DataType.BAM_TAG_NH);
 		
 		// We might also need reference sequence data
 		if (highlightSNP && this.getView().getBpRegion().getLength() < this.getView().getWidth() * 2) {
