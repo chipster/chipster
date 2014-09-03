@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -793,6 +794,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (openExampleSessionMenuItem == null) {
 			openExampleSessionMenuItem = new JMenuItem();
 			openExampleSessionMenuItem.setText("Open example session");
+			try {
+				openExampleSessionMenuItem.setEnabled(!Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty());
+			} catch (JMSException e) {
+				logger.debug("unable to list example sessions", e);
+			}
 			openExampleSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
