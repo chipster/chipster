@@ -67,6 +67,8 @@ public class ReadPileTrack extends Track {
 
 	private TreeSet<Read> dividedReads = new TreeSet<>();
 
+	private boolean markMultimappingReads;
+
 	public ReadPileTrack(DataThread refData, Color fontColor) {
 		super();
 		this.refData = refData;
@@ -246,7 +248,7 @@ public class ReadPileTrack extends Track {
 	}
 
 	private Color getDefaultReadColor(Feature read) {
-		if (read.values.containsKey(DataType.BAM_TAG_NH)) {
+		if (markMultimappingReads && read.values.containsKey(DataType.BAM_TAG_NH)) {
 			return Color.lightGray;
 		} else {
 			return Color.gray;
@@ -435,5 +437,9 @@ public class ReadPileTrack extends Track {
 	@Override
 	public boolean isShowMoreCapable() {
 		return true;
+	}
+
+	public void setMarkMultimappingReads(boolean markMultimappingReads) {
+		this.markMultimappingReads = markMultimappingReads;
 	}
 }
