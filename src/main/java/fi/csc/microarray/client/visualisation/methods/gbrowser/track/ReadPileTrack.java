@@ -251,7 +251,7 @@ public class ReadPileTrack extends Track {
 		if (markMultimappingReads) {
 			if (read.values.containsKey(DataType.BAM_TAG_NH)) {
 				Integer alignments = (Integer)read.values.get(DataType.BAM_TAG_NH);
-				if (alignments != null && alignments > 0) {
+				if (alignments != null && alignments > 1) {
 					return Color.lightGray;
 				}
 			}
