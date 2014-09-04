@@ -111,7 +111,7 @@ public class BamToDetailsConversion extends DataThread {
 				if (request.getRequestedContents().contains(DataType.BAM_TAG_NH)) {
 					Object ng = record.getAttribute("NH");
 					if (ng != null) {
-						values.put(DataType.BAM_TAG_NH, (Integer)record.getAttribute("NG"));
+						values.put(DataType.BAM_TAG_NH, (Integer)record.getAttribute("NH"));
 					}
 				}
 				

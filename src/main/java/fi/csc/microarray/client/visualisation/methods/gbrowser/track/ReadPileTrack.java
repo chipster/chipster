@@ -248,12 +248,15 @@ public class ReadPileTrack extends Track {
 	}
 
 	private Color getDefaultReadColor(Feature read) {
-		if (markMultimappingReads && read.values.containsKey(DataType.BAM_TAG_NH)) {
-			return Color.lightGray;
-		} else {
-			return Color.gray;
+		if (markMultimappingReads) {
+			if (read.values.containsKey(DataType.BAM_TAG_NH)) {
+				Integer alignments = (Integer)read.values.get(DataType.BAM_TAG_NH);
+				if (alignments != null && alignments > 0) {
+					return Color.lightGray;
+				}
+			}
 		}
-
+		return Color.gray;
 	}
 
 	private int getYCoord(int layer) {
