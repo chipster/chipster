@@ -66,8 +66,20 @@ public class IntegratedSelectionManager {
 
 		return names;
 	}
-
+	
 	public List<String> getSelectedLines() throws Exception {
+		return getSelectedLines(false);
+	}
+		
+	public List<String> getUnselectedLines() throws Exception {
+		return getSelectedLines(true);
+	}
+	
+
+	private List<String> getSelectedLines(boolean invert) throws Exception {
+		
+		boolean keepSelectedLines = !invert;
+		boolean keepUnselectedLines = invert;
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
 		
@@ -98,7 +110,11 @@ public class IntegratedSelectionManager {
 
 			for (int i = 0; (line = original.readLine()) != null; i++) {
 
-				if (Arrays.binarySearch(selectedRows, i) >= 0) {				
+				boolean isSelected = Arrays.binarySearch(selectedRows, i) >= 0;
+				
+				if ((keepSelectedLines && isSelected) 
+						|| (keepUnselectedLines && !isSelected)) {
+					
 					lines.add(line);
 				}
 			}	

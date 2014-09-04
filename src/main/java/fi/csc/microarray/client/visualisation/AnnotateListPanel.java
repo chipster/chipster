@@ -54,7 +54,7 @@ public class AnnotateListPanel extends JPanel {
 		filterButton.setEnabled(false);
 		filterButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				VisualisationUtilities.filterBySelection(datas);
+				VisualisationUtilities.filterBySelection(datas, false);
 			}
 		});
 

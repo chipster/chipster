@@ -74,16 +74,22 @@ public class Spreadsheet extends Visualisation {
 
 
 			JMenuItem filterMenuItem = new JMenuItem();
-			filterMenuItem.setText("Create dataset");
+			filterMenuItem.setText("Create dataset of selected rows");
 			filterMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					VisualisationUtilities.filterBySelection(getFrame().getDatas());
+					VisualisationUtilities.filterBySelection(getFrame().getDatas(), false);
 				}
 			});
 			this.add(filterMenuItem);
-
-			primaryModule.addSpeadsheetMenuItems(this, getFrame());
-
+			
+			JMenuItem filter2MenuItem = new JMenuItem();
+			filter2MenuItem.setText("Create dataset of unselected rows");
+			filter2MenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					VisualisationUtilities.filterBySelection(getFrame().getDatas(), true);
+				}
+			});
+			this.add(filter2MenuItem);
 		}
 	}
 
