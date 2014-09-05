@@ -74,7 +74,7 @@ public class Spreadsheet extends Visualisation {
 
 
 			JMenuItem filterMenuItem = new JMenuItem();
-			filterMenuItem.setText("Create dataset of selected rows");
+			filterMenuItem.setText("Create dataset from selected");
 			filterMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					VisualisationUtilities.filterBySelection(getFrame().getDatas(), false);
@@ -83,7 +83,7 @@ public class Spreadsheet extends Visualisation {
 			this.add(filterMenuItem);
 			
 			JMenuItem filter2MenuItem = new JMenuItem();
-			filter2MenuItem.setText("Create dataset of unselected rows");
+			filter2MenuItem.setText("Create dataset from unselected");
 			filter2MenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					VisualisationUtilities.filterBySelection(getFrame().getDatas(), true);

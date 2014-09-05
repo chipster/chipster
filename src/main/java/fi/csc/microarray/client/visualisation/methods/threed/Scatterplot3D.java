@@ -27,7 +27,7 @@ import javax.swing.JToggleButton;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -54,7 +54,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	protected JPanel paramPanel;
 	private JPanel settingsPanel;
-	private AnnotateListPanel list;
+	private SelectionList list;
 
 	private JToggleButton rotateTool = new JToggleButton(VisualConstants.getIcon(VisualConstants.ROTATE_IMAGE));
 	private JToggleButton handTool = new JToggleButton(VisualConstants.getIcon(VisualConstants.HAND_ICON));
@@ -192,8 +192,8 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	/**
 	 * Hook for PCA to change the word "genes"
 	 */
-	public AnnotateListPanel createListPanel() {
-		return new AnnotateListPanel();
+	public SelectionList createListPanel() {
+		return new SelectionList();
 	}
 
 	public JPanel createSettingsPanel() {
@@ -258,7 +258,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		return new JLabel("Color: ");
 	}
 
-	protected AnnotateListPanel getAnnotateList() {
+	protected SelectionList getAnnotateList() {
 		return list;
 	}
 
