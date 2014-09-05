@@ -21,6 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
 import fi.csc.microarray.client.visualisation.methods.PDFViewer;
+import fi.csc.microarray.client.visualisation.methods.SessionDetails;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.constants.VisualConstants;
@@ -49,6 +50,7 @@ public class BasicModule implements Module {
 	
 	public static class VisualisationMethods {
 		public static VisualisationMethod DATA_DETAILS = new VisualisationMethod("Dataset", DataDetails.class, VisualConstants.TEXT_MENUICON, 110, 0);
+		public static VisualisationMethod SESSION_DETAILS = new VisualisationMethod("Dataset", SessionDetails.class, VisualConstants.TEXT_MENUICON, 110, 0);
 		public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 100, 0.0002);
 		public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 100, 0.015); 
 		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 100, 0.008); 

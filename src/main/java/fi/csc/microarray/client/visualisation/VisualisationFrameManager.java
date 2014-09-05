@@ -18,6 +18,7 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
 	
@@ -121,7 +122,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			//panel causes only irritating flickering
 			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
 						
-			if(method != VisualisationMethod.getDefault()){
+			if(method != VisualisationMethods.DATA_DETAILS && method != VisualisationMethods.SESSION_DETAILS){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}

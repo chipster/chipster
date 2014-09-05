@@ -1576,7 +1576,7 @@ public class SwingClientApplication extends ClientApplication {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 					remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-					sessionId = findMatchingSessionUuid(sessions, remoteSessionName);
+					sessionId = getSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
 						// user didn't select anything
 						showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
@@ -1804,7 +1804,7 @@ public class SwingClientApplication extends ClientApplication {
 			try {
 				@SuppressWarnings("unchecked")
 				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionUuid = findMatchingSessionUuid(sessions, filename);
+				sessionUuid = getSessionUuid(sessions, filename);
 				if (sessionUuid == null) {
 					throw new RuntimeException("session not found");
 				}
@@ -1823,17 +1823,6 @@ public class SwingClientApplication extends ClientApplication {
 				reportException(e);
 			}
 		}
-	}
-
-	private String findMatchingSessionUuid(List<DbSession> sessions, String name) throws MalformedURLException {
-		String sessionUuid = null;
-		for (DbSession session : sessions) {
-			if (session.getName() != null && session.getName().equals(name)) {
-				sessionUuid = session.getDataId();
-				break;
-			}
-		}
-		return sessionUuid;
 	}
 
 	private void enableKeyboardShortcuts() {

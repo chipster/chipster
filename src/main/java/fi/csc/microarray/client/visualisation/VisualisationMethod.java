@@ -101,6 +101,10 @@ public class VisualisationMethod {
 	public static VisualisationMethod getDefault() {
 		return VisualisationMethods.DATA_DETAILS;
 	}
+	
+	public boolean isDefault() {
+		return this == VisualisationMethods.DATA_DETAILS || this == VisualisationMethods.SESSION_DETAILS;
+	}
 
 	/**
 	 * @param datas

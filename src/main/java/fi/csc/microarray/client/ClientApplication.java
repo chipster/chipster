@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -241,7 +242,11 @@ public abstract class ClientApplication {
 
 	private String initialisationWarnings = "";
 	
-	private String announcementText = null;	
+	private String announcementText = null;
+
+	private String currentSessionName;
+
+	private String sessionNotes;	
 
 	public ClientApplication() {
 		this(null);
@@ -973,10 +978,12 @@ public abstract class ClientApplication {
 		try {
 			if (sessionFile != null) {
 				manager.loadSession(sessionFile, isDataless);
-				currentRemoteSession = null;
+				currentRemoteSession = null;					
+				currentSessionName = sessionFile.getName().replace(".zip", "");
 			} else {
 				manager.loadStorageSession(sessionId);
 				currentRemoteSession = sessionId;
+				currentSessionName = getSessionName(listRemoteSessions(), sessionId);
 			}				
 
 		} catch (Exception e) {
@@ -1274,5 +1281,39 @@ public abstract class ClientApplication {
 		boolean specialUser = DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(Session.getSession().getUsername());
 		
 		return conf || specialUser;
+	}
+	
+	public String getSessionName() {
+		return currentSessionName;
+	}
+	
+	public String getSessionUuid(List<DbSession> sessions, String name) throws MalformedURLException {
+		String sessionUuid = null;
+		for (DbSession session : sessions) {
+			if (session.getName() != null && session.getName().equals(name)) {
+				sessionUuid = session.getDataId();
+				break;
+			}
+		}
+		return sessionUuid;
+	}
+	
+	public String getSessionName(List<DbSession> sessions, String uuid) throws MalformedURLException {
+		String name = null;
+		for (DbSession session : sessions) {
+			if (session.getDataId() != null && session.getDataId().equals(uuid)) {
+				name = session.getName();
+				break;
+			}
+		}
+		return name;
+	}
+	
+	public String getSessionNotes() {
+		return this.sessionNotes;
+	}
+	
+	public void setSessionNotes(String notes) {
+		this.sessionNotes = notes;
 	}
 }

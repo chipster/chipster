@@ -126,10 +126,10 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
 
 		// update maximise button
-		maximiseButton.setEnabled(datas != null && datas.size() > 0);
+		maximiseButton.setEnabled(!method.isDefault() && datas != null && datas.size() > 0);
 
 		// update method list
-		if (method != VisualisationMethods.DATA_DETAILS) {
+		if (!method.isDefault()) {
 			methodChoiceBox.setVisible(true);
 			fillMethodsFor(datas);
 			methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
@@ -137,7 +137,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			methodChoiceBox.setVisible(false);
 		}
 			
-		closeButton.setEnabled(method != VisualisationMethods.DATA_DETAILS);
+		closeButton.setEnabled(!method.isDefault());
 	}
 
 	/**
@@ -242,7 +242,11 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			List<DataBean> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
 
 			VisualisationMethod method = null;
-			method = VisualisationMethod.getDefault();			
+			method = VisualisationMethod.getDefault();
+			
+			if (currentDatas == null || currentDatas.isEmpty()) {
+				method = VisualisationMethods.SESSION_DETAILS;
+			}
 			
 			if (currentDatas == null || newDatas == null || !(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
 
