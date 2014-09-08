@@ -419,7 +419,7 @@ public class SwingClientApplication extends ClientApplication {
 		updateFocusTraversal();
 		restoreDefaultView();
 		enableKeyboardShortcuts();		
-		setVisualisationMethod();
+		setDefaultVisualisationMethod();
 		
 		// check for warnings generated at earlier non-GUI stages
 		if (!getInitialisationWarnings().isEmpty()) {
@@ -437,8 +437,8 @@ public class SwingClientApplication extends ClientApplication {
 	/**
 	 * Set default visualisation method (DataDetails)
 	 */
-	public void setVisualisationMethod() {
-		setVisualisationMethod(VisualisationMethod.getDefault(), null, getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+	public void setDefaultVisualisationMethod() {
+		setVisualisationMethod(null, null, getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 	}
 
 	protected void showDebugDialog(int type) {
@@ -970,7 +970,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * Is the selected databeans possible to visualise
 	 */
 	public boolean isSelectedDataVisualisable() {
-		return getDefaultVisualisationForSelection() != VisualisationMethod.getDefault();
+		return getDefaultVisualisationForSelection() != null;
 	}
 
 
@@ -1269,11 +1269,17 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target) {
-
-		if (method == null || datas == null) {
-			setVisualisationMethod();
+		
+		if (method == null) {
+			if (datas == null || datas.isEmpty()) {
+				method = VisualisationMethods.SESSION_DETAILS;
+			} else {				
+				method = VisualisationMethods.DATA_DETAILS;
+			}
+			super.setVisualisationMethod(method, variables, datas, target);
 			return;
 		}
+
 		long estimate = method.estimateDuration(datas);
 
 		if (estimate > SLOW_VISUALISATION_LIMIT) {

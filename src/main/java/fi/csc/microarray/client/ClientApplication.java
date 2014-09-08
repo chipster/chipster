@@ -148,9 +148,6 @@ public abstract class ClientApplication {
 	 */
 	public VisualisationMethod getDefaultVisualisationForSelection() {
 		logger.debug("getting default visualisation");
-		if (getSelectionManager().getSelectedDataBeans() == null || getSelectionManager().getSelectedDataBeans().size() == 0) {
-			return VisualisationMethod.getDefault();
-		}
 
 		try {
 			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
@@ -167,47 +164,11 @@ public abstract class ClientApplication {
 					}
 				}
 
-			/*
-			 * 
-			 * VisualisationMethod defaultMethodForDatas = null; // First, try
-			 * to find best suitable visualisation for all for (DataBean bean :
-			 * beans) { VisualisationMethod method = new
-			 * BioBean(bean).getDefaultVisualisation(); if
-			 * (defaultMethodForDatas == null &&
-			 * VisualisationMethod.isApplicableForMultipleDatas(method)) {
-			 * defaultMethodForDatas = method; } else { if
-			 * (defaultMethodForDatas != method) { // Searching for best method
-			 * for all failed defaultMethodForDatas = null; logger.debug("Method " +
-			 * method + " can not be used to visualise selected datas"); break; } } }
-			 * 
-			 * if (defaultMethodForDatas != null) { // Visualise datas if the
-			 * best method was found logger.debug("Method " +
-			 * defaultMethodForDatas + " will be used to visualise selected
-			 * datas"); return defaultMethodForDatas; } // Keep looking for
-			 * suitable visualisation DataBean firstData = beans.get(0);
-			 * 
-			 * for (VisualisationMethod method :
-			 * VisualisationMethod.getApplicableForMultipleDatas()) { if (method ==
-			 * VisualisationMethod.NONE) { continue; }
-			 * 
-			 * if (method.isApplicableTo(firstData)) { // The method is
-			 * applicable to one of the selected datas // Check that the same
-			 * method is applicable to the other // datasets too boolean
-			 * isSuitableMethod = true; for (DataBean otherData : beans) { if
-			 * (otherData.equals(firstData)) { continue; }
-			 * 
-			 * if (!method.isApplicableTo(otherData)) { isSuitableMethod =
-			 * false; logger.debug("Method " + method + " can not be used to
-			 * visualise selected datas"); break; } }
-			 * 
-			 * if (isSuitableMethod) { logger.debug("Method " + method + " will
-			 * be used to visualise selected datas"); return method; } } }
-			 */
-			return VisualisationMethod.getDefault();
+			return null;
 
 		} catch (Exception e) {
 			reportException(e);
-			return VisualisationMethod.getDefault();
+			return null;
 		}
 	}
 	

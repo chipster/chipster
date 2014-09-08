@@ -161,7 +161,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);
 			
 			if (closeBrowser) {
-				application.setVisualisationMethod();
+				application.setDefaultVisualisationMethod();
 			}
 		}
 		

@@ -253,26 +253,24 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		if (e instanceof DataItemRemovedEvent) {
 			// Data removed, check if it was part of visualisation
 			if (datas != null && datas.contains(((DataItemRemovedEvent) e).getDataItem())) {
-				application.setVisualisationMethod();
+				application.setDefaultVisualisationMethod();
 			}
 			
 			// Data removed, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.getDefault()) {
-				updateContextLinks();
+			if (VisualisationMethod.isDefault(method)) {
+				application.setDefaultVisualisationMethod();
 			}
 
 			
 		} else if (e instanceof DataItemCreatedEvent) {
 
 			// Data added, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.getDefault()) {
-				updateContextLinks();
+			if (VisualisationMethod.isDefault(method)) {
+				application.setDefaultVisualisationMethod();
 			}
-		}
+		}			
 	}
 
-	protected abstract void updateContextLinks();
-	
 	void setTitle(String title) {
 		return;
 	}

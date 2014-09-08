@@ -97,13 +97,9 @@ public class VisualisationMethod {
 		}
 		return icon;
 	}
-
-	public static VisualisationMethod getDefault() {
-		return VisualisationMethods.DATA_DETAILS;
-	}
 	
-	public boolean isDefault() {
-		return this == VisualisationMethods.DATA_DETAILS || this == VisualisationMethods.SESSION_DETAILS;
+	public static boolean isDefault(VisualisationMethod method) {
+		return method == null || method == VisualisationMethods.DATA_DETAILS || method == VisualisationMethods.SESSION_DETAILS;
 	}
 
 	/**

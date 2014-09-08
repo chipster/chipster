@@ -34,7 +34,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.Visu
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 /**
  * This panel contains the options for different data visualizations. It is a
@@ -95,7 +94,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 		helpButton.setVisible(false);
 
-		refreshVisualisationList(VisualisationMethod.getDefault(), null);
+		refreshVisualisationList(null, null);
 
 		// start listening
 		application.addClientEventListener(this);
@@ -124,20 +123,16 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	}
 
 	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
+		
+		boolean isDefaultMethod = VisualisationMethod.isDefault(method);
+		boolean isDatasets = datas != null && datas.size() > 0;
 
-		// update maximise button
-		maximiseButton.setEnabled(!method.isDefault() && datas != null && datas.size() > 0);
-
-		// update method list
-		if (!method.isDefault()) {
-			methodChoiceBox.setVisible(true);
-			fillMethodsFor(datas);
-			methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
-		} else {
-			methodChoiceBox.setVisible(false);
-		}
-			
-		closeButton.setEnabled(!method.isDefault());
+		fillMethodsFor(datas);
+		methodChoiceBox.setEnabled(isDatasets);
+		
+		maximiseButton.setEnabled(!isDefaultMethod);
+		methodChoiceBox.setVisible(!isDefaultMethod);
+		closeButton.setEnabled(!isDefaultMethod);
 	}
 
 	/**
@@ -146,24 +141,12 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		VisualisationFrame visualisation;
-
-		// TODO Find a reason for the stack overflow and remove this if and else
-		// block
-		if (application.getVisualisationFrameManager() != null) {
-			visualisation = application.getVisualisationFrameManager().getFrame(FrameType.MAIN);
-		} else {
-			// Only initialising, no real actions
-			return;
-		}
+		VisualisationFrame visualisation = application.getVisualisationFrameManager().getFrame(FrameType.MAIN);
 
 		if (source == methodChoiceBox) {
 			if (userComboAction) {
 
 				VisualisationMethod method = (VisualisationMethod) methodChoiceBox.getSelectedItem();
-				if (method == null) {
-					method = VisualisationMethod.getDefault();
-				}
 
 				if (visualisation.getMethod() != method) {
 					application.setVisualisationMethod(method, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
@@ -178,7 +161,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		} else if (source == detachButton) {
 			detach();
 		} else if (source == closeButton) {
-			application.setVisualisationMethod(VisualisationMethods.DATA_DETAILS, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+			application.setDefaultVisualisationMethod();
 		}
 	}
 
@@ -214,7 +197,6 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			VisualisationMethodChangedEvent e = (VisualisationMethodChangedEvent) event;
 
-			// FIXME multiple window compatibility
 			if (e.getTarget() == FrameType.MAIN) {
 
 				// update help button
@@ -233,20 +215,15 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 						// Make sure the selected visualisation is shown
 						methodChoiceBox.repaint();
 					}
-				} catch (Exception exc) {
-					application.reportException(exc);
+				} catch (Exception exception) {
+					application.reportException(exception);
 				}
 			}
 		} else if (event instanceof DatasetChoiceEvent) {
 			List<DataBean> currentDatas = application.getSelectionManager().getSelectedDataBeans();
 			List<DataBean> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
 
-			VisualisationMethod method = null;
-			method = VisualisationMethod.getDefault();
-			
-			if (currentDatas == null || currentDatas.isEmpty()) {
-				method = VisualisationMethods.SESSION_DETAILS;
-			}
+			VisualisationMethod method = null;					
 			
 			if (currentDatas == null || newDatas == null || !(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
 
@@ -258,42 +235,38 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	}
 
 	public static List<VisualisationMethod> getMethodsFor(List<DataBean> datas) {
-		// Arrays.asList doesn't support removing, so we need a new one
-		List<VisualisationMethod> applicableVisualisations = new ArrayList<VisualisationMethod>();
-		applicableVisualisations.addAll(Session.getSession().getVisualisations().getVisualisationMethods());
 
-		List<VisualisationMethod> onlyDefaultList = new ArrayList<VisualisationMethod>();
-		onlyDefaultList.add(VisualisationMethod.getDefault());
+		List<VisualisationMethod> allMethods = Session.getSession().getVisualisations().getVisualisationMethods();
+		List<VisualisationMethod> applicableMethods = new ArrayList<VisualisationMethod>(allMethods);
+		List<VisualisationMethod> emptyList = new ArrayList<VisualisationMethod>();
 
 		if (datas != null) {
 
-			for (VisualisationMethod method : Session.getSession().getVisualisations().getVisualisationMethods()) {
+			for (VisualisationMethod method : allMethods) {
 
 				try {
 
 					if (datas.size() == 1) {
 						if (!method.isApplicableTo(datas.get(0))) {
-							applicableVisualisations.remove(method);
+							applicableMethods.remove(method);
 						}
 					} else {
 
 						if (!method.isApplicableTo(datas)) {
-							applicableVisualisations.remove(method);
+							applicableMethods.remove(method);
 						}
 					}
 
 				} catch (Exception e) {
 					Session.getSession().getApplication().reportException(new MicroarrayException("Unable to check applicable visualisations for the dataset", e));
-
-					applicableVisualisations = onlyDefaultList;
-					break;
+					return emptyList;
 				}
 			}
 		} else {
-			applicableVisualisations = onlyDefaultList;
+			return emptyList ;
 		}
 		
-		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(applicableVisualisations);
+		LinkedList<VisualisationMethod> orderedMethods = new LinkedList<VisualisationMethod>(applicableMethods);
 		Collections.sort(orderedMethods, new VisualisationMethodOrderComparator());
 
 		return orderedMethods;
