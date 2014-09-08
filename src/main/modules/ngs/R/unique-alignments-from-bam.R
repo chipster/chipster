@@ -2,6 +2,7 @@
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # OUTPUT OPTIONAL unique_alignments.bam
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
+# PARAMETER OPTIONAL nhtag: "Add NH tag" TYPE [yes, no] DEFAULT no (Add NH tag.)
 
 # 2014.06.02 AMS 
 
@@ -14,10 +15,18 @@ if(paired == "yes") {
 	keep_id.command <- paste(samtools.binary, "view -q4 -F4 -f2 alignment.bam | cut -f1 | sort | uniq -d > alignment_id_keep.txt")
 	system(keep_id.command)
 	filtersamreads.command <- paste("java -Xmx4096m -jar", filtersamreads.binary, "I=alignment.bam FILTER=includeReadList RLF=alignment_id_keep.txt O=alignment_keep.bam VALIDATION_STRINGENCY=LENIENT")
-	system(filtersamreads.command) 
-	samtools.view <- paste(samtools.binary, "view -h alignment_keep.bam | perl -p -e 's/\n$/\tNH:i:1\n/g'")
+	system(filtersamreads.command)
+	if (nhtag == "yes"){
+		samtools.view <- paste(samtools.binary, "view -h alignment_keep.bam | perl -p -e 's/\n$/\tNH:i:1\n/g'")
+	}else{
+		samtools.view <- paste(samtools.binary, "view -h alignment_keep.bam")
+	}
 } else if(paired == "no") {
+if (nhtag == "yes"){
 	samtools.view <- paste(samtools.binary, "view -h -q4 -F4 alignment.bam | perl -p -e 's/\n$/\tNH:i:1\n/g'")
+} else{
+	samtools.view <- paste(samtools.binary, "view -h -q4 -F4 alignment.bam")
+}
 }
 # run
 command <- paste(samtools.view, "|", samtools.binary, "view -bS - > unique_alignments.bam")
