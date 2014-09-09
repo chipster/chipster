@@ -515,6 +515,9 @@ public class SessionLoaderImpl2 {
 		linkDataItemChildren(dataManager.getRootFolder());
 		linkDataBeans();
 		linkInputsToOperations();
+		
+		String notes = sessionType.getNotes();
+		Session.getSession().getApplication().getSessionManager().setSessionNotes(notes);
 	}
 
 }

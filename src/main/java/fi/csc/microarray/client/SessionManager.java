@@ -101,17 +101,17 @@ public class SessionManager {
 			currentRemoteSession = null;
 			String oldValue = currentSessionName;
 			currentSessionName = sessionFile.getName().replace(".zip", "");
-			application.fireClientEvent(new SessionChangedEvent(this, "session", oldValue, currentSessionName));
+			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, currentSessionName));
 		} else if (sessionId != null) {
 			String oldValue = currentRemoteSession;
 			currentRemoteSession = sessionId;
 			currentSessionName = getSessionName(listRemoteSessions(), sessionId);
-			application.fireClientEvent(new SessionChangedEvent(this, "session", oldValue, currentRemoteSession));
+			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, currentRemoteSession));
 		} else {
 			String oldValue = currentRemoteSession != null? currentRemoteSession : currentSessionName; 
 			currentRemoteSession = null;
 			currentSessionName = null;
-			application.fireClientEvent(new SessionChangedEvent(this, "session", oldValue, null));
+			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, null));
 		}
 	}
 	
@@ -275,6 +275,7 @@ public class SessionManager {
 
 	public void clearSessionWithoutConfirming() throws MalformedURLException, JMSException {
 		application.deleteDatasWithoutConfirming(dataManager.getRootFolder());
+		setSessionNotes(null);
 		setSession(null, null);
 	}	
 	

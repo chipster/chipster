@@ -193,7 +193,6 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 		if (event instanceof VisualisationMethodChangedEvent) {
 
-
 			VisualisationMethodChangedEvent e = (VisualisationMethodChangedEvent) event;
 
 			if (e.getTarget() == FrameType.MAIN) {

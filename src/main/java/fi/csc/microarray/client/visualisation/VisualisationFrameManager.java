@@ -18,6 +18,7 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.SessionManager.SessionChangedEvent;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -147,7 +148,7 @@ public class VisualisationFrameManager implements PropertyChangeListener, DataCh
 			// reset visualisation when selection changes
 			
 			List<DataBean> currentDatas = application .getSelectionManager().getSelectedDataBeans();
-			List<DataBean> newDatas = getVisualizedDatas();					
+			List<DataBean> newDatas = getVisualisedDatas();					
 			
 			if (currentDatas == null || newDatas == null || // prevent npe 
 					// update if selection has changed					
@@ -155,11 +156,17 @@ public class VisualisationFrameManager implements PropertyChangeListener, DataCh
 				
 				application.setVisualisationMethodToDefault();
 			}
+		} else if (event instanceof SessionChangedEvent) {					
+			if (VisualisationMethod.isDefault(getFrame(FrameType.MAIN).getMethod())) {
+				
+				// always update default visualisations
+				application.setVisualisationMethodToDefault();
+			}
 		}
 	}
 	
-	private List<DataBean> getVisualizedDatas() {
-		return application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
+	private List<DataBean> getVisualisedDatas() {
+		return getFrame(FrameType.MAIN).getDatas();
 	}
 
 	public void dataChanged(DataChangeEvent e) {
@@ -167,7 +174,7 @@ public class VisualisationFrameManager implements PropertyChangeListener, DataCh
 		if (e instanceof DataItemRemovedEvent) {
 			// reset visualisation if a visualized dataset was removed 
 			
-			List<DataBean> visualizedDatas = getVisualizedDatas();
+			List<DataBean> visualizedDatas = getVisualisedDatas();
 			
 			if (visualizedDatas != null && visualizedDatas.contains(((DataItemRemovedEvent) e).getDataItem())) {
 				application.setVisualisationMethodToDefault();

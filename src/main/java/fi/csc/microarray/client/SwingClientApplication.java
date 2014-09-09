@@ -1277,11 +1277,17 @@ public class SwingClientApplication extends ClientApplication {
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target) {
 		
 		if (method == null) {
-			if (datas == null || datas.isEmpty()) {
+			boolean datasetsSelected = (datas != null && !datas.isEmpty());
+			boolean datasetsExist = !getDataManager().databeans().isEmpty();
+			
+			if (datasetsSelected) {
+				method = VisualisationMethods.DATA_DETAILS;
+			} else if (datasetsExist) {
 				method = VisualisationMethods.SESSION_DETAILS;
 			} else {				
-				method = VisualisationMethods.DATA_DETAILS;
-			}
+				method = VisualisationMethods.EMPTY;
+			}				
+			
 			super.setVisualisationMethod(method, variables, datas, target);
 			return;
 		}

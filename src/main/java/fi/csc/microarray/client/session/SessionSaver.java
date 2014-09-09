@@ -198,6 +198,10 @@ public class SessionSaver {
 
 		// gather meta data
 		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
+		
+		// save session notes
+		String notes = Session.getSession().getApplication().getSessionManager().getSessionNotes();
+		sessionType.setNotes(notes);
 	}
 
 

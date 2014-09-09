@@ -71,6 +71,7 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.SwingTools;
 
 
 /**
@@ -954,5 +955,14 @@ public abstract class ClientApplication {
 	
 	public SessionManager getSessionManager() {
 		return sessionManager;
+	}
+	
+	public void fireClientEventThreadSafely(final PropertyChangeEvent event) {
+		SwingTools.runInEventDispatchThread(new Runnable() {			
+			@Override
+			public void run() {
+				fireClientEvent(event);
+			}
+		});		
 	}
 }
