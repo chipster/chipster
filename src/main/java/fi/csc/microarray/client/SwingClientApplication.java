@@ -124,6 +124,12 @@ import fi.csc.microarray.util.Strings;
  * 
  */
 public class SwingClientApplication extends ClientApplication {
+	
+	public static enum SessionSavingMethod {
+		LEAVE_DATA_AS_IT_IS,
+		INCLUDE_DATA_INTO_ZIP,
+		UPLOAD_DATA_TO_SERVER;
+	}
 
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
@@ -419,7 +425,7 @@ public class SwingClientApplication extends ClientApplication {
 		updateFocusTraversal();
 		restoreDefaultView();
 		enableKeyboardShortcuts();		
-		setDefaultVisualisationMethod();
+		setVisualisationMethodToDefault();
 		
 		// check for warnings generated at earlier non-GUI stages
 		if (!getInitialisationWarnings().isEmpty()) {
@@ -437,7 +443,7 @@ public class SwingClientApplication extends ClientApplication {
 	/**
 	 * Set default visualisation method (DataDetails)
 	 */
-	public void setDefaultVisualisationMethod() {
+	public void setVisualisationMethodToDefault() {
 		setVisualisationMethod(null, null, getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
 	}
 
@@ -1084,7 +1090,7 @@ public class SwingClientApplication extends ClientApplication {
 		// Check for unsaved changes
 		returnValue = JOptionPane.DEFAULT_OPTION;
 
-		if (super.hasUnsavedChanges()) {
+		if (getSessionManager().hasUnsavedChanges()) {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
@@ -1092,7 +1098,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					if (super.areCloudSessionsEnabled()) {
+					if (getSessionManager().areCloudSessionsEnabled()) {
 						saveSession(SessionSavingMethod.UPLOAD_DATA_TO_SERVER);
 					} else {
 						saveSession(SessionSavingMethod.INCLUDE_DATA_INTO_ZIP);
@@ -1398,7 +1404,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
-		List<DbSession> sessions = super.listRemoteSessions();
+		List<DbSession> sessions = super.getSessionManager().listRemoteSessions();
 		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
@@ -1582,7 +1588,7 @@ public class SwingClientApplication extends ClientApplication {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
 					remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
-					sessionId = getSessionUuid(sessions, remoteSessionName);
+					sessionId = getSessionManager().getSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
 						// user didn't select anything
 						showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
@@ -1612,15 +1618,20 @@ public class SwingClientApplication extends ClientApplication {
 				sessionFile = selectedFile;
 			} 
 
-			// clear previous session 
-			if (clear) {
-				if (!clearSession()) {
-					return; // loading cancelled
-				}
-			}		
+			try {
+				// clear previous session 
+				if (clear) {
+					if (!clearSession()) {
+						return; // loading cancelled
+					}
+				}		
 
-			// load the new session
-			loadSession(sessionFile, sessionId, remote, false, false);			
+				// load the new session
+				loadSession(sessionFile, sessionId, remote, false, false);
+				
+			} catch (MalformedURLException | JMSException e) {
+				reportException(e);
+			}
 		}
 		menuBar.updateMenuStatus();
 	}
@@ -1630,7 +1641,7 @@ public class SwingClientApplication extends ClientApplication {
 		// start loading the session
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {
-				loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession);
+				getSessionManager().loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession);
 			}
 		});
 	}
@@ -1639,7 +1650,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {
-				restoreSessionAndWait(file);
+				getSessionManager().restoreSessionAndWait(file);
 			}
 		});
 	}
@@ -1722,7 +1733,7 @@ public class SwingClientApplication extends ClientApplication {
 					public void run() {
 
 						// save
-						saveSessionAndWait(remote, file, file.getName());																				
+						getSessionManager().saveSessionAndWait(remote, file, file.getName());																				
 						
 						menuBar.updateMenuStatus();						
 					}
@@ -1737,19 +1748,21 @@ public class SwingClientApplication extends ClientApplication {
 
 	/**
 	 * @return true if cleared, false if canceled
+	 * @throws JMSException 
+	 * @throws MalformedURLException 
 	 */
-	public boolean clearSession() {
+	public boolean clearSession() throws MalformedURLException, JMSException {
 
 		int returnValue = JOptionPane.DEFAULT_OPTION;
-		if (hasUnsavedChanges()) {
+		if (getSessionManager().hasUnsavedChanges()) {
 
 			String message = "The current session contains unsaved changes.\nDo you want to clear it anyway?";
 			Object[] options = { "Cancel", "Clear" };
 			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Clear session", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 		}
 
-		if (!hasUnsavedChanges() || returnValue == 1) {
-			super.clearSessionWithoutConfirming();			
+		if (!getSessionManager().hasUnsavedChanges() || returnValue == 1) {
+			getSessionManager().clearSessionWithoutConfirming();			
 			return true;
 		}
 		return false;
@@ -1810,7 +1823,7 @@ public class SwingClientApplication extends ClientApplication {
 			try {
 				@SuppressWarnings("unchecked")
 				List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-				sessionUuid = getSessionUuid(sessions, filename);
+				sessionUuid = getSessionManager().getSessionUuid(sessions, filename);
 				if (sessionUuid == null) {
 					throw new RuntimeException("session not found");
 				}
@@ -1820,7 +1833,7 @@ public class SwingClientApplication extends ClientApplication {
 			
 			try {
 				// remove selected session
-				super.removeRemoteSession(sessionUuid);			
+				getSessionManager().removeRemoteSession(sessionUuid);			
 				// confirm to user
 				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
 				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);

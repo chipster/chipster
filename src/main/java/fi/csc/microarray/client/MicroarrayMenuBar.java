@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication.SessionSavingMethod;
+import fi.csc.microarray.client.SwingClientApplication.SessionSavingMethod;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.FeedbackDialog;
 import fi.csc.microarray.client.selection.DataSelectionManager;
@@ -33,7 +34,6 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -126,7 +126,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null);
 		
-		closeVisualisationMenuItem.setEnabled(method != null && method != VisualisationMethods.DATA_DETAILS);
+		closeVisualisationMenuItem.setEnabled(!VisualisationMethod.isDefault(method));
 
 		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
 		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
@@ -160,7 +160,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getOpenExampleSessionMenuItem());
-			if (application.areCloudSessionsEnabled()) {
+			if (application.getSessionManager().areCloudSessionsEnabled()) {
 				fileMenu.add(getLoadSessionMenuItem(true));
 				fileMenu.add(getSaveSessionMenuItem());
 				fileMenu.add(getManageSessionsMenuItem());
@@ -179,7 +179,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			joinSessionMenu = new JMenu();
 			joinSessionMenu.setText("Merge session");
 			joinSessionMenu.add(getLoadLocalSessionMenuItem(false));
-			if (application.areCloudSessionsEnabled()) {
+			if (application.getSessionManager().areCloudSessionsEnabled()) {
 				joinSessionMenu.add(getLoadSessionMenuItem(false));
 			}
 		}
@@ -650,7 +650,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			closeVisualisationMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-					application.setVisualisationMethod(VisualisationMethods.DATA_DETAILS, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+					application.setVisualisationMethodToDefault();
 				}
 
 			});
@@ -817,7 +817,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			clearSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-					application.clearSession();
+					try {
+						application.clearSession();
+					} catch (MalformedURLException | JMSException e1) {
+						application.reportException(e1);
+					}
 				}
 
 			});

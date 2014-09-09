@@ -8,6 +8,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +23,13 @@ import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SessionManager.SessionChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class SessionDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
+public class SessionDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener, PropertyChangeListener{
 		
 	private final String PLEASE_ADD_NOTES = "(Click here to add your notes)";
 
@@ -83,7 +86,7 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 			notesField.getDocument().addDocumentListener(this);
 			notesField.setRows(1);
 
-			setNotes(application.getSessionNotes());
+			setNotes(application.getSessionManager().getSessionNotes());
 			setNotesActive(false);
 			notesField.setEnabled(true);
 			
@@ -112,21 +115,27 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 		}
 	}
 
-	private JTextArea createTitleTextArea(boolean isSingle) {
+	private JTextArea createTitleTextArea() {
+				
+		titleField = new JTextArea("Session name");
+		titleField.setFont(titleField.getFont().deriveFont(titleField.getFont().getSize2D() * 1.5f));
+		titleField.setEditable(false);
 		
-		String name = application.getSessionName();
+		updateTitleField();
+		
+		return titleField;			
+	}
+	
+	private void updateTitleField() {
+		String name = application.getSessionManager().getSessionName();
 		
 		if (name == null) {
 			name = "Unsaved session";
 		}
 		
-		titleField = new JTextArea(name);
-		titleField.setFont(titleField.getFont().deriveFont(titleField.getFont().getSize2D() * 1.5f));
-		titleField.setEditable(false);
-		
-		return titleField;			
+		titleField.setText(name);
 	}
-	
+
 	private void endEditing() {
 		scroller.requestFocusInWindow();
 	}
@@ -135,7 +144,7 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 				
 		JPanel panel = getPanelBase("wrap 1, fillx");
 
-		panel.add(createTitleTextArea(true), "growx");			
+		panel.add(createTitleTextArea(), "growx");			
 		panel.add(createNotes(), "gapx " + INDENTION + ", growx");			
 								
 		return panel;
@@ -203,7 +212,7 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 		// do nothing, content is stored already
 		
 		if (e.getComponent() == notesField) {
-			setNotes(application.getSessionNotes());
+			setNotes(application.getSessionManager().getSessionNotes());
 			setNotesActive(false);
 		}
 	}
@@ -235,8 +244,13 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 	private void fieldUpdated(DocumentEvent e) {
 		if (e.getDocument() == notesField.getDocument()) {
 			setNotesActive(true);
-			application.setSessionNotes(getNotesContent());
+			application.getSessionManager().setSessionNotes(getNotesContent());
+			application.addClientEventListener(this);;
 		}
+	}
+	
+	public void removeVisualisation() {
+		application.removeClientEventListener(this);
 	}
 
 	@Override
@@ -278,6 +292,13 @@ public class SessionDetails extends Visualisation implements FocusListener, Docu
 
 			panel.addMouseListener(this);
 			scroller.setBorder(null);
+		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event instanceof SessionChangedEvent) {
+			updateTitleField();
 		}
 	}
 }

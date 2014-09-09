@@ -25,12 +25,8 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataChangeEvent;
-import fi.csc.microarray.databeans.DataChangeListener;
-import fi.csc.microarray.databeans.DataItemCreatedEvent;
-import fi.csc.microarray.databeans.DataItemRemovedEvent;
 
-public abstract class VisualisationFrame implements DataChangeListener {
+public abstract class VisualisationFrame {
 
 	public abstract void setContent(JComponent visualisationComponent);
 
@@ -82,8 +78,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 		this.setContent(viewChangerPanel);
 		viewChangerLayout.show(viewChangerPanel, VISUALISATION_PANEL_NAME);
-
-		application.getDataManager().addDataChangeListener(this);
 	}
 
 	private class SplitSizeHandler implements PropertyChangeListener {
@@ -246,29 +240,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	public VisualisationMethod getMethod() {
 		return method;
-	}
-
-	public void dataChanged(DataChangeEvent e) {
-		
-		if (e instanceof DataItemRemovedEvent) {
-			// Data removed, check if it was part of visualisation
-			if (datas != null && datas.contains(((DataItemRemovedEvent) e).getDataItem())) {
-				application.setDefaultVisualisationMethod();
-			}
-			
-			// Data removed, check if context links should be refreshed
-			if (VisualisationMethod.isDefault(method)) {
-				application.setDefaultVisualisationMethod();
-			}
-
-			
-		} else if (e instanceof DataItemCreatedEvent) {
-
-			// Data added, check if context links should be refreshed
-			if (VisualisationMethod.isDefault(method)) {
-				application.setDefaultVisualisationMethod();
-			}
-		}			
 	}
 
 	void setTitle(String title) {

@@ -28,7 +28,6 @@ import com.jgoodies.looks.Options;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.ToolBarComponentFactory;
-import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethodRepository.VisualisationMethodOrderComparator;
 import fi.csc.microarray.constants.VisualConstants;
@@ -161,7 +160,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		} else if (source == detachButton) {
 			detach();
 		} else if (source == closeButton) {
-			application.setDefaultVisualisationMethod();
+			application.setVisualisationMethodToDefault();
 		}
 	}
 
@@ -219,19 +218,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 					application.reportException(exception);
 				}
 			}
-		} else if (event instanceof DatasetChoiceEvent) {
-			List<DataBean> currentDatas = application.getSelectionManager().getSelectedDataBeans();
-			List<DataBean> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
-
-			VisualisationMethod method = null;					
-			
-			if (currentDatas == null || newDatas == null || !(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
-
-				application.setVisualisationMethod(method, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
-
-				refreshVisualisationList(method, application.getSelectionManager().getSelectedDataBeans());
-			}
-		}
+		} 
 	}
 
 	public static List<VisualisationMethod> getMethodsFor(List<DataBean> datas) {
