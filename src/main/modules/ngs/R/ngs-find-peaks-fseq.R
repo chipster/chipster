@@ -1,11 +1,13 @@
 # TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool will search for statistically significantly enriched broad peaks, such as regions of open chromatin or transcription factor / histone binding sites, in sequencing data. Peaks are identified by smoothing read count data to a continuous sequence density estimation-based probabilites that are directly proportional to the probability of seeing a sequence read at that location.) 
 # INPUT alignment.txt: "Read file" TYPE GENERIC 
+# INPUT OPTIONAL bff_files: "bff files" TYPE GENERIC
 # OUTPUT peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists.)
 # PARAMETER fragment.size: "Fragment size" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (Fragment size of the sequencing library. Set to -1, if your data contains more than 50000 mappable reads, in which case the fragment size is inferred from data.)
 # PARAMETER feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. In the case of DNase-seq, set this parameter to 0.)
 # PARAMETER extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
+# PARAMETER bff.folder: "Background model" TYPE [none: "None", own: "Own file", unique20bp_hg19: "Human Hg19 20 bp" , unique20bp_hg19: "Human Hg19 35 bp"] DEFAULT none (You can use the provided human bff files or provide your own as a tarred (and optionally gzipped\) folder.)
 
 # MK, 20.3.2012                                      
 # F-seq is a tool to find broad peaks from pre-aligned SAM/BAM/ELAND files. The analysis needs to  #
@@ -50,6 +52,21 @@ if (extend.reads > 0) {
 	#system(paste("cp -r ", getwd(), "/tmp/xxx/."))
 }
 
+bff_options <- paste(" ")
+if (bff.folder != "none"){
+	if (bff.folder == "own"){
+		# We assume the bff files are provided as a tarred (possibly gzipped) folder. 
+		# We don't know the original folder name so we use -C and --strip-components=1 to get just the files to our own folder
+		system("mkdir bff_folder")
+		system("tar xf bff_files -C bff_folder --strip-components=1")
+		bff_options <- paste("-b bff_folder")
+	}else {
+		bff <- c(file.path(chipster.tools.path, "fseq_bff", bff.folder))
+		bff_options <- paste("-b", bff)
+	}	
+}
+
+
 #Count number of aligned reads from the BED-file
 data <- read.table(file=input.file, sep="\t");
 nread <- nrow(data);
@@ -59,11 +76,11 @@ dir.create("alignment_fseq")
 
 #Execution of F-seq. Human data could benefit from background files that filter off uncertain areas. 
 #However, no script exists for creating background files at the moment. Default background files may be suboptimal
-if(fragment.size == -1) {
-	if(nread < 50000) { stop("CHIPSTER-NOTE: F-seq needs at least 50000 aligned reads for fragment size estimation")  }
-	system(paste(fseq.binary, "-l", feature.size," -t ", score.threshold," -of bed -o alignment_fseq", input.file));	
+if (fragment.size == -1) {
+	if (nread < 50000) { stop(paste('CHIPSTER-NOTE: ', "F-seq needs at least 50000 aligned reads for fragment size estimation"))  }
+	system(paste(fseq.binary, "-l", feature.size," -t ", score.threshold," -of bed -o alignment_fseq", bff_options, input.file));	
 } else {
-	system(paste(fseq.binary, "-f", fragment.size," -l", feature.size," -t ", score.threshold," -of bed -o alignment_fseq", input.file));	
+	system(paste(fseq.binary, "-f", fragment.size," -l", feature.size," -t ", score.threshold," -of bed -o alignment_fseq", bff_options, input.file));	
 }
 
 #Output of F-seq is a bunch of files stored in folder -o. 
@@ -83,3 +100,5 @@ if (nrow(data) > 1){
 	data <- sort.bed(data)
 }
 write.table(data, file="peaks.bed", sep="\t", row.names=F, col.names=F, quote=F)
+
+system("ls -l bff_folder > ls.txt")
