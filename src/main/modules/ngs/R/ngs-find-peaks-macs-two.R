@@ -27,7 +27,7 @@
 # 01.12.2012 MG, Modified to take BAM files as input. Modified to run version 1.4 of MACS.
 # 08.03.2011 MG, Modified to disable wiggle output.
 # 05.04.2014 MK, Polished. Added MACS2
-# 10.07.2014 AMS, Updated genome sizes, added parameter userspcified.size 
+# 10.07.2014 AMS, Updated genome sizes, added parameter userspecified.size 
 
 # MK 05.05.2014: 
 # See version control for code that could be used if reading the experiment setup from the phenodata file, like is done for 
@@ -121,7 +121,7 @@ if (build.model == "no") {
 						tsize=read.length,
 						gsize=genome.size,
 						"keep-dup"=keep.dup,
-						verbose=3, 
+						verbose=2, 
 						logFile="results.log", 
 						nomodel=no.model,
 						shiftsize=shift.size,
@@ -139,7 +139,7 @@ if (build.model == "yes") {
 						tsize=read.length,
 						gsize=genome.size,
 						"keep-dup"=keep.dup,
-						verbose=3, 
+						verbose=2, 
 						logFile="results.log", 
 						nomodel=no.model,
 						help=FALSE, 
