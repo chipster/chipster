@@ -76,7 +76,7 @@
      	<tool runtime="R-3.0"><resource>fdnadist.R</resource></tool>
    	    <tool runtime="R-3.0"><resource>fdnapars.R</resource></tool>
    	    <tool runtime="R-3.0"><resource>fprotdist.R</resource></tool>
-   	    <tool runtime="R-3.0"><resource>fprotpars.R</resource></tool>
+   	    <!-- <tool runtime="R-3.0"><resource>fprotpars.R</resource></tool>-->
    	    <tool runtime="R-3.0"><resource>fneighbor.R</resource></tool>
    	    <tool runtime="R-3.0"><resource>fdrawtree.R</resource></tool>
    	    <tool runtime="R-3.0"><resource>fdrawgram.R</resource></tool>

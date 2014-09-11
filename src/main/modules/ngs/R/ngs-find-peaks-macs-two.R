@@ -6,9 +6,8 @@
 # OUTPUT OPTIONAL model-plot.pdf: "A plot of the fitted peak model" 
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
-# PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER version: "MACS version" TYPE [1, 2] DEFAULT 1 (Determines if analysis is done using MACS1 or MACS2)
-# PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT user_specified (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
+# PARAMETER file.format: "Input file format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
+# PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
 # PARAMETER OPTIONAL userspecifed.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The length in nucleotides of the sequence reads. Option 0 envokes the default behaviour in which read length is auto-detected)
 # PARAMETER OPTIONAL band.with: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
@@ -27,20 +26,17 @@
 # 01.12.2012 MG, Modified to take BAM files as input. Modified to run version 1.4 of MACS.
 # 08.03.2011 MG, Modified to disable wiggle output.
 # 05.04.2014 MK, Polished. Added MACS2
+# 10.07.2014 AMS, Updated genome sizes, added parameter userspecified.size
+# 10.09.2014 EK, Removed MACS2 to a separate tool, fixed the bug in disabled model building, polished the script and output
 
-# MK 05.05.2014: Instead of commeting code, use version control to store old code that could be useful in future
-# See version control for code that could be used if reading the experiment setup from the phenodata file, like is done for 
-# microarray data. The code allows multiple samples per treatment group and will automatically merge all samples into a 
-# single file per treatment group.      
+# MK 05.05.2014: 
+# See version control for code that could be used if reading the experiment setup from the phenodata file, like is done for microarray data.      
 
 
-# MACS settings
-if(version == 1) {
-	macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
-} else {
-	macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
-}
+# MACS binary
+macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
 
+# Use user-specified genome size if given
 if (precalculated.size == "user_specified") {
 	if (nchar(userspecifed.size) < 1){
 		stop(paste('CHIPSTER-NOTE: ', "You need to provide a value for mappable genome size or select one of the precalculated values."))
@@ -120,12 +116,10 @@ if (build.model == "no") {
 						tsize=read.length,
 						gsize=genome.size,
 						"keep-dup"=keep.dup,
-						verbose=3, 
+						verbose=2, 
 						logFile="results.log", 
 						nomodel=no.model,
-						shiftsize=shift.size,
-						help=FALSE, 
-						version=FALSE)
+						shiftsize=shift.size)
 }
 if (build.model == "yes") {
 	command <- runMACS(treatment="treatment.bam", 
@@ -138,11 +132,9 @@ if (build.model == "yes") {
 						tsize=read.length,
 						gsize=genome.size,
 						"keep-dup"=keep.dup,
-						verbose=3, 
+						verbose=2, 
 						logFile="results.log", 
-						nomodel=no.model,
-						help=FALSE, 
-						version=FALSE)
+						nomodel=no.model)
 }
 
 
@@ -152,42 +144,21 @@ system.output <- system(gsub("^;", "", paste(pypath, command, sep=";")))
 if (system.output != 0) {
 	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value.") 
 }
-if (length(grep ("results_model.r",dir())) == 0) {
-	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model builing turned off.") 
-}
+#if (length(grep ("results_model.r",dir())) == 0) {
+#	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model building turned off.") 
+#}
 
-# Read in and parse the results
+# Read in and parse the results, sort according to the -10xlog10(pvalue)
+output <- read.table(file="results_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
+colnames(output)[7] <- "neg10xlog10pvalue"
+colnames(output)[9] <- "FDR_percentage"
+output <- output[ order(output[,7], decreasing=TRUE), ]
+write.table(output, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
-## If final == FALSE, parse the bootsrap results. Else parse the final results
-## This feature is not yet implemented.
-## <name> is the experiment name and it must be same than in the runMACS
-## 10xlog10(pvalue) values are sorted decreasingly"
-
-parseMACSResults <- function(name, final=FALSE){
-	if( final ) {
-		output <- read.table(file=name, skip=0, header=TRUE, stringsAsFactors=FALSE)
-		colnames(output)[7] <- "neg10xlog10pvalue"
-		## Sort the result according to the -10xlog10(pvalue)
-		output <- output[ order(output[,5], decreasing=TRUE), ]
-		return(output)
-	}
-}
-
-## Read in the results for the TRUE peaks
-results_TRUE <- parseMACSResults (name="results_peaks.xls",final=TRUE)
-results_TRUE$chr <- sub(".fa", "", results_TRUE$chr)
-results_TRUE$chr <- sub("chr", "", results_TRUE$chr)
-results_TRUE_ordered <- results_TRUE[order(results_TRUE$chr, results_TRUE$start),]
-write.table(results_TRUE_ordered, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
-if (version == 1) {
-	# MACS1 computes empirical FDR by swapping ChIP and control. These are stored in "negative_peaks" file 
-	results_FALSE <- parseMACSResults (name="results_negative_peaks.xls", final=TRUE)
-	results_FALSE$chr <- sub(".fa", "", results_FALSE$chr)
-	results_FALSE$chr <- sub("chr", "", results_FALSE$chr)
-	results_FALSE_ordered <- results_FALSE[order(results_FALSE$chr, results_FALSE$start),]
-	write.table(results_FALSE_ordered, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-}
+negoutput <- read.table(file="results_negative_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
+colnames(negoutput)[7] <- "neg10xlog10pvalue"
+negoutput <- negoutput[ order(negoutput[,7], decreasing=TRUE), ]
+write.table(negoutput, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 # Convert the name of some files to make it compatible with chipster output
 system("mv results.log analysis-log.txt")
