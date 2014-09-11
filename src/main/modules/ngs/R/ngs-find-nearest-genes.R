@@ -2,17 +2,17 @@
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
 # PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse_mm9: "Mouse (mm9\)", Mouse_mm10: "Mouse (mm10\)", Rat_rn4: "Rat (rn4\)", Rat_rn5: "Rat (rn5\)", Zebrafish_Zv8: "Zebrafish (Zv8\)", Zebrafish_Zv9: "Zebrafish (Zv9\)"] DEFAULT Human_hg19 (The genome to use for fetching annotations.)
-# PARAMETER chr_column: "Chr column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome infomration of peaks)
-# PARAMETER start_column: "Start coord column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks)
-# PARAMETER end_column: "End coord column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks)
+# PARAMETER chr_column: "Chromosome column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome infomration of peaks)
+# PARAMETER start_column: "Start coordinate column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks)
+# PARAMETER end_column: "End coordinate column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks)
 
 # 28.10.2010, MG Created
 # 09.02.2012, EK
-# 08.05.2014, MK New genome added to the list. Added BED support
+# 08.05.2014, MK New genomes added to the list. Added BED support.
+# 11.09.2014, EK Clarified the parameters
 
 # Possible additional parameters and output
 # OUTPUT unique-genes-list.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
-# OUTPUT logo-plot-{...}.png: "Logo plots for each consensus motif"
 # PARAMETER feature: "Genomic feature" TYPE [TSS, exon, miRNA] DEFAULT TSS (The genomic feature to look for in each region. Currently, transcription start site, exon or miRNA are supported feature types)
 # PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 
