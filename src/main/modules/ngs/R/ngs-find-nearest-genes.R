@@ -1,7 +1,7 @@
 # TOOL ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
-# PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse_mm9: "Mouse (mm9\)", Mouse_mm10: "Mouse (mm10\)", Rat_rn4: "Rat (rn4\)", Rat_rn5: "Rat (rn5\)", Zebraﬁsh_Zv8: "Zebraﬁsh (Zv8\)", Zebraﬁsh_Zv9: "Zebraﬁsh (Zv9\)"] DEFAULT EMPTY (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse_mm9: "Mouse (mm9\)", Mouse_mm10: "Mouse (mm10\)", Rat_rn4: "Rat (rn4\)", Rat_rn5: "Rat (rn5\)", Zebrafish_Zv8: "Zebrafish (Zv8\)", Zebrafish_Zv9: "Zebrafish (Zv9\)"] DEFAULT Human_hg19 (The genome to use for fetching annotations.)
 # PARAMETER chr_column: "Chr column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome infomration of peaks)
 # PARAMETER start_column: "Start coord column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks)
 # PARAMETER end_column: "End coord column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks)
@@ -55,14 +55,14 @@ if (species == "Rat_rn5") {
 	annotations <- TSS.rat.Rnor_5.0
 	ensembl_dataset <- "rnorvegicus_gene_ensembl"
 }
-if (species == "Zebraﬁsh_Zv8") {
-	data(TSS.zebraﬁsh.Zv8)
-	annotations <- TSS.zebraﬁsh.Zv8
+if (species == "Zebrafish_Zv8") {
+	data(TSS.zebrafish.Zv8)
+	annotations <- TSS.zebrafish.Zv8
 	ensembl_dataset <- "drerio_gene_ensembl"
 }
-if (species == "Zebraﬁsh_Zv9") {
-	data(TSS.zebraﬁsh.Zv9)
-	annotations <- TSS.zebraﬁsh.Zv9
+if (species == "Zebrafish_Zv9") {
+	data(TSS.zebrafish.Zv9)
+	annotations <- TSS.zebrafish.Zv9
 	ensembl_dataset <- "drerio_gene_ensembl"
 }
 
