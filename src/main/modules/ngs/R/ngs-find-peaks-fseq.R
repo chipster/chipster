@@ -1,18 +1,16 @@
-# TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool will search for statistically significantly enriched broad peaks, such as regions of open chromatin or transcription factor / histone binding sites, in sequencing data. Peaks are identified by smoothing read count data to a continuous sequence density estimation-based probabilites that are directly proportional to the probability of seeing a sequence read at that location.) 
+# TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool will search for statistically significantly enriched broad peaks, such as regions of open chromatin or transcription factor / histone binding sites, in sequencing data. Peaks are identified by smoothing read count data to a continuous sequence density estimation-based probabilites that are directly proportional to the probability of seeing a sequence read at that location. The analysis needs to be done for each file separately.) 
 # INPUT alignment.txt: "Read file" TYPE GENERIC 
 # INPUT OPTIONAL bff_files: "bff files" TYPE GENERIC
 # OUTPUT peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists.)
-# PARAMETER fragment.size: "Fragment size" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (Fragment size of the sequencing library. Set to -1, if your data contains more than 50000 mappable reads, in which case the fragment size is inferred from data.)
-# PARAMETER feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. In the case of DNase-seq, set this parameter to 0.)
-# PARAMETER extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
-# PARAMETER bff.folder: "Background model" TYPE [none: "None", own: "Own file", unique20bp_hg19: "Human Hg19 20 bp" , unique20bp_hg19: "Human Hg19 35 bp"] DEFAULT none (You can use the provided human bff files or provide your own as a tarred (and optionally gzipped\) folder.)
+# PARAMETER OPTIONAL score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists.)
+# PARAMETER OPTIONAL fragment.size: "Fragment size" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (Fragment size of the sequencing library. Set to -1, if your data contains more than 50000 mappable reads, in which case the fragment size is inferred from data. In the case of DNase-seq, set this parameter to 0.)
+# PARAMETER OPTIONAL feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. )
+# PARAMETER OPTIONAL extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
+# PARAMETER OPTIONAL bff.folder: "Mappability data for background model" TYPE [none: "None", own: "Own file", unique20bp_hg19: "Human Hg19 20 bp" , unique20bp_hg19: "Human Hg19 35 bp"] DEFAULT none (You can use the provided human bff files or provide your own as a tarred (and optionally gzipped\) folder.)
 
-# MK, 20.3.2012                                      
-# F-seq is a tool to find broad peaks from pre-aligned SAM/BAM/ELAND files. The analysis needs to  #
-# be done for each file separately. Found peaks are typically binned into categories representing  #
-# exons (first, last all), introns, TSS, promoters, intergenic. Motifs can also be searched        #
+# MK, 20.3.2012
+# AMK and EK, 11.09.2014 Added the mappability parameter b, clarified the script.
 
 #Export2sam.pl is a part of samtools and is used to convert ELAND outputs to SAM
 eland_to_sam.binary <- c(file.path(chipster.tools.path, "samtools-0.1.18", "misc", "export2sam.pl"))
@@ -74,8 +72,7 @@ nread <- nrow(data);
 #Output of F-seq is printed to a folder that must exists before F-seq is executed
 dir.create("alignment_fseq")
 
-#Execution of F-seq. Human data could benefit from background files that filter off uncertain areas. 
-#However, no script exists for creating background files at the moment. Default background files may be suboptimal
+#Execution of F-seq.
 if (fragment.size == -1) {
 	if (nread < 50000) { stop(paste('CHIPSTER-NOTE: ', "F-seq needs at least 50000 aligned reads for fragment size estimation"))  }
 	system(paste(fseq.binary, "-l", feature.size," -t ", score.threshold," -of bed -o alignment_fseq", bff_options, input.file));	
