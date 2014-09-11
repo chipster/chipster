@@ -9,6 +9,8 @@
 
 
 	<category name="Data retrieval" color="#e7df70">
+	   <tool runtime="R-3.0"><resource>edirect.R</resource></tool>
+       <tool runtime="R-3.0"><resource>edirect_fetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>ensemblfetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>dbfetch.R</resource></tool>
 	   <tool runtime="R-3.0"><resource>dbfetch_list.R</resource></tool>
@@ -85,6 +87,7 @@
     	<tool runtime="R-3.0"><resource>emboss_files.R</resource></tool>
 	    <tool runtime="R-3.0" module="common"><resource>select_columns.R</resource></tool> 
 	    <tool runtime="R-3.0"><resource>concatenate.R</resource></tool>
+	    <tool runtime="R-3.0"><resource>a5-miseq.R</resource></tool>
 	</category>
 	
 
