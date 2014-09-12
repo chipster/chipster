@@ -1,4 +1,4 @@
-# TOOL macs2-treatmentControl.R: "Find peaks using MACS2, treatment vs. control" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples relative to one or more control samples.)
+# TOOL macs2-treatmentControl.R: "Find peaks using MACS2, treatment vs. control" (Detects statistically significantly enriched genomic regions in ChIP-seq data using a control sample. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT control.bam: "Control data file" TYPE GENERIC 
 # OUTPUT macs2-peaks.tsv: "True enriched peaks" 
@@ -8,11 +8,11 @@
 # OUTPUT OPTIONAL macs2-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "Input file format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
-# PARAMETER OPTIONAL userspecifed.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
+# PARAMETER OPTIONAL userspecified.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
 # PARAMETER OPTIONAL q.value.threshold: "q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (The minimum FDR for peak detection.)
 # PARAMETER OPTIONAL read.length: "Read length" TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (The read length in nucleotides. Read length is autodetected if you set this to 0.)
 # PARAMETER OPTIONAL keep.dup: "Keep duplicate reads" TYPE [auto, all, 1] DEFAULT auto (Procedure used to handle duplicate reads. If auto, MACS computes the maximum reads at the exact same location based on binomal distribution using 1e-5 p-value cutoff. The option All option keeps all reads, while 1 keeps only one read per site.)
-# PARAMETER OPTIONAL build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed and set manually.)
+# PARAMETER OPTIONAL build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed and set with the parameter.)
 # PARAMETER OPTIONAL bandwidth: "Bandwidth" TYPE INTEGER FROM 1 TO 1000 DEFAULT 300 (The window size for picking regions to compute fragment size when building the shifting model.)
 # PARAMETER OPTIONAL shift.size: "Shift size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 100 (When model building has been switched off or when it fails, MACS will use this value as half of the fragment size to shift and extend reads.)
 # PARAMETER OPTIONAL m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Note that if the peak model is disabled this parameter has no effect.)
@@ -31,14 +31,15 @@ macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
 
 # Use user-specified genome size if given
 if (precalculated.size == "user_specified") {
-	if (nchar(userspecifed.size) < 1){
+	if (nchar(userspecified.size) < 1){
 		stop(paste('CHIPSTER-NOTE: ', "You need to provide a value for mappable genome size or select one of the precalculated values."))
 	}
-	genome.size <- userspecifed.size
+	genome.size <- userspecified.size
 }else{
 	genome.size <- precalculated.size
 }
 
+# If read length is left to zero, it should be estimated from data
 if (read.length == 0) {
 	read.length = FALSE
 }
@@ -145,11 +146,12 @@ if (system.output != 0) {
 #	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model builing turned off.") 
 #}
 
-# Read in and parse the results (rename and the p- and q-value columns, sort by q-value)
+# Read in and parse the results (rename and the p- and q-value columns, sort)
 output <- read.table(file="macs2_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
 colnames(output)[7] <- "neg10xlog10pvalue"
 colnames(output)[9] <- "neg10xlog10qvalue"
-output <- output[ order(output[,5], decreasing=TRUE), ]
+# output <- output[ order(output[,9], decreasing=TRUE), ]
+output <- output[order(output$chr, output$start),]
 write.table(output, file="macs2-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 # Sort the peaks BED
