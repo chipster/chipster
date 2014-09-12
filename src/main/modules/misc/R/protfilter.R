@@ -2,7 +2,7 @@
 # INPUT sequence: sequence TYPE GENERIC
 # OUTPUT OPTIONAL filtered_prot.fasta
 # OUTPUT OPTIONAL protfilter.log
-# PARAMETER OPTIONAL desctext: "Enter a pattern to search sequence descriotion field" TYPE STRING DEFAULT "" (The sequcences, that have matching string in sequence descriotion will be selected.)
+# PARAMETER OPTIONAL desctext: "Enter a pattern to search sequence description field" TYPE STRING DEFAULT "" (The sequcences, that have matching string in sequence descriotion will be selected.)
 # PARAMETER OPTIONAL casesensitive: "Do a case-sensitive search" TYPE [Y: Yes, N: No] DEFAULT N (Do a case-sensitive decriotion text search)
 # PARAMETER OPTIONAL pattern: "Search based on sequence patterns" TYPE STRING DEFAULT "" (The sequcences, that match the given sequence pattern are selected. The pattern search is performed with EMBOSS command fuzzpro. Pattern example\:\[FY\]-\[LIV\]-G-\[DE\]-E-A-Q-x-\[RKQ\]\(2\)-G )
 # PARAMETER OPTIONAL maxlength: "Maximum length of the protein" TYPE INTEGER DEFAULT 100000 (Sequences that are longer than the given value are filterd out.)

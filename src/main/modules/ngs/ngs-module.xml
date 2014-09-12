@@ -384,6 +384,12 @@
 
 	<category name="ChIP-seq and DNase-seq" color="#c0d2de">
 		<tool runtime="R-3.0">
+			<resource>macs2-treatmentOnly.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>macs2-treatmentControl.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
 		<tool runtime="R-3.0">

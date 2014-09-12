@@ -2,7 +2,7 @@
 # INPUT model.xml: "Dimont model" TYPE GENERIC (The XML representation of a motif model created using Dimont. Models are available from the Dimont output, one for each motif discovered.)
 # INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
 # OUTPUT dimont-predictor.log: Logfile (Logfile of the DimontPredictor run.)
-# OUTPUT dimont-predictor-predictions.txt: Predictions (Binding sites predicted by DimontPredictor.)
+# OUTPUT dimont-predictor-predictions.tsv: Predictions (Binding sites predicted by DimontPredictor.)
 # OUTPUT dimont-predictor-logo-rc.png: "Sequence logo (rc\)" (The sequence logo of the reverse complement of the predictions.)
 # OUTPUT dimont-predictor-logo.png: "Sequence logo" (The sequence logo of the predictions.)
 # PARAMETER pval: "p-value" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.001 (The maximum p-value allowed for predicted binding sites.)
@@ -33,3 +33,10 @@ command<-paste("java -Xms512M ", maxMemoryParameter, " -Djava.awt.headless=true 
 			   " > dimont-predictor.log",sep="",collapse="");
 
 system(command);
+
+files<-list.files(path=".",pattern="dimont-predictor.*\\.txt")
+
+for(file in files){
+	nf<-gsub(pattern="\\.txt$",replacement=".tsv",x=file,perl=T)
+	system(command=paste("mv",file,nf))
+}
