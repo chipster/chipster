@@ -1,13 +1,13 @@
 # TOOL ngs-find-peaks-fseq.R: "Find broad peaks using F-seq" (This tool will search for statistically significantly enriched broad peaks, such as regions of open chromatin or transcription factor / histone binding sites, in sequencing data. Peaks are identified by smoothing read count data to a continuous sequence density estimation-based probabilites that are directly proportional to the probability of seeing a sequence read at that location. The analysis needs to be done for each file separately.) 
 # INPUT alignment.txt: "Read file" TYPE GENERIC 
 # INPUT OPTIONAL bff_files: "bff files" TYPE GENERIC
-# OUTPUT peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
+# OUTPUT fseq-peaks.bed
 # PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER OPTIONAL score.threshold: "Score cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 4 (The cutoff for statistical significance. Larger values reduce the false discovery rate and produce shorter peaks lists.)
 # PARAMETER OPTIONAL fragment.size: "Fragment size" TYPE INTEGER FROM -1 TO 8000 DEFAULT -1 (Fragment size of the sequencing library. Set to -1, if your data contains more than 50000 mappable reads, in which case the fragment size is inferred from data. In the case of DNase-seq, set this parameter to 0.)
 # PARAMETER OPTIONAL feature.size: "Feature length" TYPE INTEGER FROM 0 TO 8000 DEFAULT 800 (The estimated feature length. The parameter controls the smoothness of the kernel density estimates. Larger values will lead to smoother kernel density estimation. )
 # PARAMETER OPTIONAL extend.reads: "Extend alignments" TYPE INTEGER FROM 0 TO 8000 DEFAULT 0 (Artificially extend each mapped read to a desired length, typically to the mean fragment length.)
-# PARAMETER OPTIONAL bff.folder: "Mappability data for background model" TYPE [none: "None", own: "Own file", unique20bp_hg19: "Human Hg19 20 bp" , unique20bp_hg19: "Human Hg19 35 bp"] DEFAULT none (You can use the provided human bff files or provide your own as a tarred (and optionally gzipped\) folder.)
+# PARAMETER OPTIONAL bff.folder: "Mappability data for background model" TYPE [none: "None", own: "Own file", unique20bp_hg19: "Human Hg19 20 bp" , unique35bp_hg19: "Human Hg19 35 bp"] DEFAULT none (You can use the provided human bff files or provide your own as a tarred (and optionally gzipped\) folder.)
 
 # MK, 20.3.2012
 # AMK and EK, 11.09.2014 Added the mappability parameter b, clarified the script.
@@ -91,11 +91,12 @@ for(i in 1:length(files)) {
 colnames(data) <- c("chr", "start", "end", "ID", "score")
 rownames(data) <- data[,4]
 
+
 #Sorting the BED
 source(file.path(chipster.common.path, "bed-utils.R"))
 if (nrow(data) > 1){	
 	data <- sort.bed(data)
 }
-write.table(data, file="peaks.bed", sep="\t", row.names=F, col.names=F, quote=F)
+write.table(data, file="fseq-peaks.bed", sep="\t", row.names=F, col.names=F, quote=F)
 
 system("ls -l bff_folder > ls.txt")
