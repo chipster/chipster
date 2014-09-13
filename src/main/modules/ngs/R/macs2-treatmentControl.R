@@ -1,11 +1,13 @@
 # TOOL macs2-treatmentControl.R: "Find peaks using MACS2, treatment vs. control" (Detects statistically significantly enriched genomic regions in ChIP-seq data using a control sample. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT control.bam: "Control data file" TYPE GENERIC 
-# OUTPUT macs2-peaks.tsv: "True enriched peaks" 
-# OUTPUT macs2-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
-# OUTPUT macs2-summits.bed: "True enriched peaks in a format compatible with the Genome Browser"
-# OUTPUT OPTIONAL macs2_model.pdf: "A plot of the fitted peak model"  
-# OUTPUT OPTIONAL macs2-log.txt: "Summary of analysis settings and run" 
+# OUTPUT macs2-peaks.tsv 
+# OUTPUT macs2-peaks.bed
+# OUTPUT macs2-summits.bed
+# OUTPUT OPTIONAL macs2_narrowpeak.bed
+# OUTPUT OPTIONAL macs2_broad_peaks.bed
+# OUTPUT OPTIONAL macs2_model.pdf  
+# OUTPUT OPTIONAL macs2-log.txt 
 # PARAMETER file.format: "Input file format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER precalculated.size: "Mappable genome size" TYPE [2.7e9: "human hg18 (2.7e9\)", 2.72e9: "human hg19 (2.72e9\)", 1.87e9: "mouse mm9 (1.87e9\)", 1.89e9: "mouse mm10 (1.89e9\)", 2.32e9: "rat rn5 (2.32e9\)", user_specified: "User specified"] DEFAULT 2.72e9 (Mappable genome size. You can use one of the precalculated ones or choose User specified and provide the size in the field below.)
 # PARAMETER OPTIONAL userspecified.size: "User specified mappable genome size" TYPE STRING (You can also use scientific notation, e.g. 1.23e9 . Remember to select User specified as Mappable genome size.)
@@ -17,13 +19,14 @@
 # PARAMETER OPTIONAL shift.size: "Shift size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 100 (When model building has been switched off or when it fails, MACS will use this value as half of the fragment size to shift and extend reads.)
 # PARAMETER OPTIONAL m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Note that if the peak model is disabled this parameter has no effect.)
 # PARAMETER OPTIONAL m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Note that if the peak model is disabled this parameter has no effect.)
+# PARAMETER OPTIONAL broad: "Call broad peaks" TYPE [yes, no] DEFAULT no (Call broad peaks by linking nearby highly enriched region.)
 
 # 26.05.2010 MG, Created
 # 01.12.2012 MG, Modified to take BAM files as input. Modified to run version 1.4 of MACS.
 # 08.03.2011 MG, Modified to disable wiggle output.
 # 05.04.2014 MK, Polished. Added MACS2
 # 10.07.2014 AMS, Updated genome sizes, added parameter userspecified.size
-# 09.09.2014 EK, Made a separate script for MACS2 in order to cope with new parameters and outputs, fixed the bug in disabled model building, polished the script and output      
+# 09.09.2014 EK, Made a separate script for MACS2 in order to cope with new parameters, fixed the bug in disabled model building, added the broad option and outputs, polished the script and output      
 
 
 # MACS binary
@@ -44,15 +47,18 @@ if (read.length == 0) {
 	read.length = FALSE
 }
 
-# Set up some parameters in case building peak model is disabled
+# Set up parameters
 if (build.model == "no") {
 	no.model <- TRUE
-#	shift.size <- bandwidth / 2
 }
-
-# Set up some parameters in case building peak model is enabled
 if (build.model == "yes") {
 	no.model <- FALSE
+}
+if (broad == "yes") {
+	call.broad <- TRUE
+}
+if (broad == "no") {
+	call.broad <- FALSE
 }
 
 # Set up the m-fold limits
@@ -113,7 +119,8 @@ if (build.model == "no") {
 						verbose=2, 
 						logFile="macs2-log.txt", 
 						nomodel=no.model,
-						shiftsize=shift.size)
+						shiftsize=shift.size,
+						broad=call.broad)
 						
 }
 if (build.model == "yes") {
@@ -131,7 +138,8 @@ if (build.model == "yes") {
 						logFile="macs2-log.txt", 
 						nomodel=no.model,
 						"auto-bimodal"=TRUE,
-						shiftsize=shift.size)
+						shiftsize=shift.size,
+						broad=call.broad)
 						
 }
 
@@ -171,6 +179,10 @@ if (file.exists("macs2_summits.bed")){
 	bed <- sort.bed(bed)
 	write.table(bed, file="macs2-summits.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
+
+# Add BED extension to the narrow peak format file
+system ("mv macs2_peaks.encodePeak macs2_narrowpeak.bed")
+
 
 # Source the R code for plotting the MACS model
 if (build.model == "yes") {

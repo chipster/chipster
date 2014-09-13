@@ -4,7 +4,7 @@
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER normalization.method: normalization.method TYPE [mas5: mas5, plier: plier, rma: rma, gcrma: gcrma, li-wong: li-wong] DEFAULT rma (Preprocessing method)
 # PARAMETER stabilize.variance: stabilize.variance TYPE [yes: yes, no: no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype: custom.chiptype TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hthgu133pluspmhsentrezg(hgu133pluspm): hthgu133pluspmhsentrezg(hgu133pluspm), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), hgu219hsentrezg(hgu219): hgu219hsentrezg(hgu219), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
+# PARAMETER custom.chiptype: custom.chiptype TYPE [empty: empty, hgu133ahsentrezg(hgu133a): hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2): hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus): hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2): hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b): hgu133bhsentrezg(hgu133b), hthgu133pluspmhsentrezg(hgu133pluspm): hthgu133pluspmhsentrezg(hgu133pluspm), hgfocushsentrezgcdf(hgfocus): hgfocushsentrezgcdf(hgfocus), hgu95av2hsentrezg(hgu95av2): hgu95av2hsentrezg(hgu95av2), hgu219hsentrezg(hgu219): hgu219hsentrezg(hgu219), moe430ammentrezg(moe430a): moe430ammentrezg(moe430a), moe430bmmentrezg(moe430b): moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430a2): mouse430a2mmentrezg(mouse430a2), mouse4302mmentrezg(mouse4302): mouse4302mmentrezg(mouse4302), mm74av1mmentrezg(mgu74a): mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2): mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2): mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2): mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a): rae230arnentrezg(rae230a), rae230brnentrezg(rae230b): rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302): rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a): rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b): rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c): rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
 
 
 # JTT 08.06.2006, Created
@@ -13,7 +13,8 @@
 # JTT 12.05.2009, Modified to work with R 2.9.0
 # MG 23.09.2009, Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12)
 # MG 12.11.2009, Changes to cope with dropped custom package support for certain array types
-# MK 25.10.2014, PMA calls created with try-catch. Script polished up
+# MK 25.10.2014, PMA calls created with try-catch. Script polished up.
+# EK 12.09.2014, Added HGFocus to altcdfs
 
 # Renaming variables
 norm<-normalization.method
