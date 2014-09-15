@@ -166,4 +166,14 @@ public class ChecksumInputStream extends DigestInputStream {
 		
 		Md5FileUtils.verify(bytes, contentLength);
 	}
+
+	/**
+	 * For normal use verifyContentLength() should be enough, but this can 
+	 * be useful for debug messages.
+	 * 
+	 * @return
+	 */
+	public Long getContentLength() {
+		return bytes;
+	}
 }

@@ -678,25 +678,36 @@ public class DataManager {
 		}
 		return bean;
 	}
+	
+	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+		loadSession(sessionFile, isDataless, null);
+	}
 
 	/**
 	 * Load session from a file.
+	 * @param xOffset 
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
+	public void loadSession(File sessionFile, boolean isDataless, Integer xOffset) throws Exception {
 		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
+		sessionLoader.setXOffset(xOffset);
 		sessionLoader.loadSession();
 	}
 
+	public void loadStorageSession(String sessionId) throws Exception {
+		loadStorageSession(sessionId, null);
+	}
 	
 	/**
 	 * Load remote session from an URL.
+	 * @param xOffset 
 	 * 
 	 * @see #saveStorageSession(String) 
 	 */
-	public void loadStorageSession(String sessionId) throws Exception {
+	public void loadStorageSession(String sessionId, Integer xOffset) throws Exception {
 		SessionLoader sessionLoader = new SessionLoader(sessionId, this);
+		sessionLoader.setXOffset(xOffset);
 		sessionLoader.loadSession();
 	}
 
@@ -1086,7 +1097,7 @@ public class DataManager {
 		return bean.getSize();
 	}
 	
-	private Long getContentLength(ContentLocation location) throws IOException {
+	public Long getContentLength(ContentLocation location) throws IOException {
 		return location.getHandler().getContentLength(location);
 	}
 	
