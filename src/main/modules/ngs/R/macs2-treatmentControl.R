@@ -156,8 +156,8 @@ if (system.output != 0) {
 
 # Read in and parse the results (rename and the p- and q-value columns, sort)
 output <- read.table(file="macs2_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
-colnames(output)[7] <- "neg10xlog10pvalue"
-colnames(output)[9] <- "neg10xlog10qvalue"
+colnames(output)[7] <- "neglog10pvalue"
+colnames(output)[9] <- "neglog10qvalue"
 # output <- output[ order(output[,9], decreasing=TRUE), ]
 output <- output[order(output$chr, output$start),]
 write.table(output, file="macs2-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
