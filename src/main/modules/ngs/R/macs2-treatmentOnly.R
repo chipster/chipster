@@ -18,7 +18,7 @@
 # PARAMETER OPTIONAL shift.size: "Shift size" TYPE INTEGER FROM 1 TO 1000 DEFAULT 100 (When model building has been switched off or when it fails, MACS will use this value as half of the fragment size to shift and extend reads.)
 # PARAMETER OPTIONAL m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
 # PARAMETER OPTIONAL m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Notice that if the peak model is disabled this parameter has no effect.)                     
-# PARAMETER OPTIONAL broad: "Call broad peaks" TYPE [yes, no] DEFAULT no (Call broad peaks by linking nearby highly enriched region.)
+# PARAMETER OPTIONAL broad: "Call broad peaks" TYPE [yes, no] DEFAULT no (Call broad peaks by linking nearby highly enriched regions.)
 
 # 26.05.2010 MG, Created
 # 24.11.2010 MG, Modified to take BAM files as input. Modified to run version 1.4 of MACS.
@@ -165,8 +165,8 @@ if (system.output != 0) {
 
 # Read in and parse the results
 output <- read.table(file="macs2_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
-colnames(output)[7] <- "neg10xlog10pvalue"
-colnames(output)[9] <- "neg10xlog10qvalue"
+colnames(output)[7] <- "neglog10pvalue"
+colnames(output)[9] <- "neglog10qvalue"
 output <- output[order(output$chr, output$start),]
 write.table(output, file="macs2-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
