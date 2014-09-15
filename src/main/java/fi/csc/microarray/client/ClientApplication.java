@@ -28,6 +28,8 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
 
+import com.sun.org.apache.bcel.internal.generic.LLOAD;
+
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
@@ -948,13 +950,28 @@ public abstract class ClientApplication {
 	}
 	
 	public void restoreSessionAndWait(File file) {
-		loadSessionAndWait(file, null, true, true, false);
+		loadSessionAndWait(file, null, true, true, false, 0);
 	}
 	
 	public void loadSessionAndWait(final File sessionFile,
 			final String sessionId, final boolean isDataless,
 			final boolean clearDeadTempDirs,
 			final boolean isExampleSession) {
+		loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession, null);
+	}
+	
+	/**
+	 * @param sessionFile
+	 * @param sessionId
+	 * @param isDataless
+	 * @param clearDeadTempDirs
+	 * @param isExampleSession
+	 * @param xOffset add this value to all DataBean.getX() values to move session sideways in workflow view    
+	 */
+	public void loadSessionAndWait(final File sessionFile,
+			final String sessionId, final boolean isDataless,
+			final boolean clearDeadTempDirs,
+			final boolean isExampleSession, Integer xOffset) {
 		
 		// check that it's a valid session file 
 		if (!isDataless) {
@@ -972,10 +989,10 @@ public abstract class ClientApplication {
 
 		try {
 			if (sessionFile != null) {
-				manager.loadSession(sessionFile, isDataless);
+				manager.loadSession(sessionFile, isDataless, xOffset);
 				currentRemoteSession = null;
 			} else {
-				manager.loadStorageSession(sessionId);
+				manager.loadStorageSession(sessionId, xOffset);
 				currentRemoteSession = sessionId;
 			}				
 

@@ -35,26 +35,27 @@ public class LayoutManager {
 	 * 
 	 * @param inserted GraphVertex, which position should be updated
 	 */
-	public void updateLayout(AbstractGraphVertex inserted) {		
+	public void updateLayout(AbstractGraphVertex inserted, DataBean bean) {		
 
-		if (!(inserted instanceof GraphVertex)) {
-			throw new IllegalArgumentException("vertex of type " + inserted.getClass().getSimpleName() + " not supported");
-		}
-		
-		GraphVertex vertex = (GraphVertex)inserted;
-		
-		logger.debug(vertex.getData().getName() + " is root: " + vertex.isRoot());
-		
-		if (vertex.isRoot()){
-			vertex.setPosition(getNewRootPosition());
-			
-		} else {
-			Point preferredPlace = getPreferredPlace(vertex);
-			vertex.setPosition(preferredPlace);
-		}
-		
-		logger.debug(vertex.getData().getName() + " got bounds: " + vertex.getBounds());
+		if (bean.getX() == null || bean.getY() == null) {
+			if (!(inserted instanceof GraphVertex)) {
+				throw new IllegalArgumentException("vertex of type " + inserted.getClass().getSimpleName() + " not supported");
+			}
 
+			GraphVertex vertex = (GraphVertex)inserted;
+
+			logger.debug(vertex.getData().getName() + " is root: " + vertex.isRoot());
+
+			if (vertex.isRoot()){
+				vertex.setPosition(getNewRootPosition());
+
+			} else {
+				Point preferredPlace = getPreferredPlace(vertex);
+				vertex.setPosition(preferredPlace);
+			}
+
+			logger.debug(vertex.getData().getName() + " got bounds: " + vertex.getBounds());
+		}
 	}
 	
 	/** 
