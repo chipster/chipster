@@ -683,6 +683,7 @@ public class DataManager {
 		loadSession(sessionFile, isDataless, null);
 	}
 
+
 	/**
 	 * Load session from a file.
 	 * @param xOffset 

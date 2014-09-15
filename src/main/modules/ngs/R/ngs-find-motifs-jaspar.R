@@ -1,14 +1,15 @@
-# TOOL ngs-find-motifs-jaspar.R: "Find motifs with GADEM and match to JASPAR" (Given a set of genomic regions, this tool performs a de novo motif discovery. It then matches the motifs against the known TFBS in the JASPAR database, and reports the 10 best matches.)
-# INPUT results.tsv: "Results data file" TYPE GENERIC 
+# TOOL ngs-find-motifs-jaspar.R: "Find motifs with GADEM and match to JASPAR" (Given a set of genomic regions, this tool performs a de novo motif discovery. It then matches the motifs against the known transcription factor binding motifs in the JASPAR database.)
+# INPUT results.tsv: "Peak data file" TYPE GENERIC 
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file" 
 # OUTPUT logo-plot-{...}.pdf: "Logo plots for each consensus motif" 
-# PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
-# PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 # PARAMETER genome: Genome TYPE [BSgenome.Hsapiens.UCSC.hg17: hg17, BSgenome.Hsapiens.UCSC.hg18: hg18, BSgenome.Hsapiens.UCSC.hg19: hg19, BSgenome.Mmusculus.UCSC.mm8: mm8, BSgenome.Mmusculus.UCSC.mm9: mm9, BSgenome.Mmusculus.UCSC.mm10: mm10, BSgenome.Rnorvegicus.UCSC.rn4: rn4, BSgenome.Rnorvegicus.UCSC.rn5: rn5, BSgenome.Dmelanogaster.UCSC.dm2: dm2, BSgenome.Dmelanogaster.UCSC.dm3: dm3] DEFAULT BSgenome.Hsapiens.UCSC.hg19 (The genome and version used when aligning the sequences.)
-# PARAMETER number.best.matches: "Number of matches" TYPE INTEGER FROM 1 TO 20 DEFAULT 10 (The number of best matching transcription factors for each consensus sequence found. This affects both the textual summary output and the LOGO plots.)
-# PARAMETER chr_column: "Chr column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome infomration of peaks)
-# PARAMETER start_column: "Start coord column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks)
-# PARAMETER end_column: "End coord column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks)
+# PARAMETER chr_column: "Chromosome column" TYPE COLUMN_SEL DEFAULT chr (Column containing chromosome information of peaks.)
+# PARAMETER start_column: "Start coordinate column" TYPE COLUMN_SEL DEFAULT start (Column containing start coordinates of peaks.)
+# PARAMETER end_column: "End coordinate column" TYPE COLUMN_SEL DEFAULT end (Column containing end coordinates of peaks.)
+# PARAMETER OPTIONAL p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
+# PARAMETER OPTIONAL e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
+# PARAMETER OPTIONAL number.best.matches: "Number of matches" TYPE INTEGER FROM 1 TO 20 DEFAULT 5 (The number of best matching transcription factors for each consensus sequence found. This affects both the textual summary output and the logo plots.)
+
 
 # MG, 26.05.2010
 # MG, 06.10.2011, added parameter to control number of best matches per TF and updated to changes in R-2.12.1
@@ -83,12 +84,11 @@ if (genome == "BSgenome.Dmelanogaster.UCSC.dm2" | genome == "BSgenome.Dmelanogas
 # file_name <- paste(path_jaspar, "/extdata/jaspar2009.txt", sep="/")
 # jaspar <- readPWMfile(file_name)
 #
-# Actually, as of veersion 1.1.6 of MotIV the Jaspar database and scores
+# Actually, as of version 1.1.6 of MotIV the Jaspar database and scores
 # are loaded automatically whem MotIV is loaded
 # the data is called jaspar and the scores jaspar.scores
 
-# Get the motifs from the GADEM objects
-# but first make sure that there were some motifs found
+# Get the motifs from the GADEM objects but first make sure that there were some motifs found
 # motifs_found <- try (results_motifs <- viewPWM(results_gadem))
 #if (class(motifs_found) == "try-error") {
 #	stop("CHIPSTER-NOTE: No common motifs were found among the query sequences! Retry with less stringent parameter settings or provide a longer list of query sequences.")
@@ -116,7 +116,7 @@ for (count in 1:number_motifs) {
 }
 names (pwm_list) <- names
 
-# Perform a MotIV analysis of alignment with TF:s from JASPAR, only the top 10 matches for each motif are collected
+# Perform a MotIV analysis of alignment with TF:s from JASPAR, only the top matches for each motif are collected
 results_alignment <- motifMatch(
 		inputPWM=pwm_list,
 		align="SWU",

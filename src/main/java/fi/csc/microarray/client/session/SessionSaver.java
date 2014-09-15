@@ -642,7 +642,7 @@ public class SessionSaver {
 				streamLength = in.getContentLength();
 				streamChecksum = in.getChecksum();
 				in.verifyContentLength(bean.getSize());
-				dataManager.setOrVerifyChecksum(bean, in.verifyChecksums());
+				dataManager.setOrVerifyChecksum(bean, streamChecksum);
 				
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
