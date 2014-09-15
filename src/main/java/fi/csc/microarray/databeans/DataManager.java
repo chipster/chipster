@@ -679,6 +679,7 @@ public class DataManager {
 		return bean;
 	}
 
+
 	/**
 	 * Load session from a file.
 	 * 
@@ -1086,7 +1087,7 @@ public class DataManager {
 		return bean.getSize();
 	}
 	
-	private Long getContentLength(ContentLocation location) throws IOException {
+	public Long getContentLength(ContentLocation location) throws IOException {
 		return location.getHandler().getContentLength(location);
 	}
 	
