@@ -4,9 +4,6 @@
  */
 package fi.csc.microarray.messaging;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
@@ -34,7 +31,8 @@ public class MessagingTopic {
 	public static enum Type {
 		NORMAL,
 		TEMPORARY,
-		NAMED_TEMPORARY;
+		NAMED_TEMPORARY,
+		MOCK;
 	}
 	
 	public static enum AccessMode {
@@ -59,6 +57,9 @@ public class MessagingTopic {
 		case TEMPORARY:
 			this.topic = session.createTemporaryTopic();
 			break;
+		case MOCK:
+			// initialise nothing
+			break;
 		default:
 			throw new RuntimeException("unknown type " + type);
 		}
@@ -71,6 +72,10 @@ public class MessagingTopic {
 	}
 
 	
+
+	/**
+	 * Not multithread safe.
+	 */
 	protected void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
 		MessagingTopic tempTopic = new MessagingTopic(session, null, Type.TEMPORARY, AccessMode.READ_WRITE, endpoint);
 		
@@ -89,6 +94,7 @@ public class MessagingTopic {
 	
 	/**
 	 * Sends the message and creates a temporary topic for replying.
+	 * Not multithread safe.
 	 * 
 	 * @param replyListener receives replies (if any) through hidden temporary topic
 	 */
@@ -98,6 +104,7 @@ public class MessagingTopic {
 	
 	/**
 	 * The basic message sending method. Sends a message without reply possibility.
+	 * Not multithread safe.
 	 */
 	public void sendMessage(ChipsterMessage message) throws JMSException {
 
@@ -149,28 +156,6 @@ public class MessagingTopic {
 			throw new IllegalStateException("Topic was created as write only");
 		}
 	}
-
-	/**
-	 * Creates a stream that is transferred using JMS messages. Stream is sent to all 
-	 * listeners of the topic. Running multiple streams on a same topic simultanously
-	 * will cause hell to break loose. So, this should be used only with dedicated temporary 
-	 * streaming topics. 
-	 * @throws JMSException 
-	 * @see #openJMSInputStream()
-	 */
-	public OutputStream openJMSOutputStream() throws JMSException {		
-		return endpoint.createOutputStream(topic);
-	}
-	
-	/**
-	 * Starts reading message to this topic traffic as a stream.
-	 * @throws JMSException 
-	 * @see #openJMSOutputStream()
-	 */
-	public InputStream openJMSInputStream() throws JMSException {
-		return endpoint.createInputStream(topic);
-	}
-
 
 	public MessagingEndpoint getEndpoint() {
 		return endpoint;

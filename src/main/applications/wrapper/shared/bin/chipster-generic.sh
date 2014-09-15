@@ -20,9 +20,6 @@ if [ ! $PLATFORM ]; then
 		elif [ "$ARCH" = "x86_64" ]; then
 			PLATFORM="linux-x86-64"
 		fi
-	else
-		# assume Mac OS X
-		PLATFORM="macosx"
 	fi		
 fi
 if [ ! $PLATFORM ]; then

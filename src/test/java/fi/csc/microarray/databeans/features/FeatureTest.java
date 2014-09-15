@@ -5,42 +5,35 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.ModuleManager;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class FeatureTest {
 
 	private DataManager manager;
 
-	public FeatureTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public FeatureTest() throws Exception {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		this.manager = new DataManager();
 		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
-	@Test(groups = {"unit"} )
-	public void testEmbeddedBinary() throws IOException, MicroarrayException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		DataBean binAffyMicroarray = manager.createDataBean("bin_affy.cel", new FileInputStream(TestConstants.BIN_AFFY_RESOURCE));
-		
-		Assert.assertFalse(affyMicroarray.queryFeatures("/embedded-binary-content/").exists());
-		Assert.assertTrue(binAffyMicroarray.queryFeatures("/embedded-binary-content/").exists());
-	}
-
-	@Test(groups = {"unit"} )
+	@Test
 	public void testPhenodataFeatures() throws IOException, MicroarrayException {
 		DataBean data = manager.createDataBean("filtered.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_RESOURCE));
 		DataBean phenoData= manager.createDataBean("phenodata.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_PHENODATA_RESOURCE));
+		phenoData.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		phenoData.addLink(Link.ANNOTATION, data);
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/").exists());
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/is_complete").exists());
@@ -51,7 +44,7 @@ public class FeatureTest {
 		Assert.assertTrue(data.queryFeatures("/phenodata/linked/is_complete").exists());
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testModifiers() throws IOException, MicroarrayException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult feature = affyMicroarray.queryFeatures("log(/normalised-expression)");
@@ -65,25 +58,14 @@ public class FeatureTest {
 		for (float f : feature.asFloats()) {
 			last = f;
 		}
-		Assert.assertEquals(last, 7.426265f);
+		Assert.assertEquals(last, 7.426265f, 0.01f);
 		
 		QueryResult doubleFeature = affyMicroarray.queryFeatures("log(log(/normalised-expression))");
 		Assert.assertTrue(doubleFeature.exists());
 
 	}
 	
-	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		new FeatureTest().testRowCount();
-	}
-
-	@Test(groups = {"unit"} )
-	public void testRowCount() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/10").asFloat(), 10f);
-		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/1000000").asFloat(), 15876f);
-	}
-	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testTableColumnIterable() throws MicroarrayException, FileNotFoundException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult mean = affyMicroarray.queryFeatures("/column/MEAN");
@@ -104,13 +86,15 @@ public class FeatureTest {
 		}
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testFeatures() throws MicroarrayException, IOException {
 		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		affyMicroarray.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+		affyMicroarray.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 		for (String feature : new String [] {"/normalised-expression", "/column/MEAN"}) {			
-			Assert.assertNotNull(affyMicroarray.queryFeatures(feature).asFloats(),"error in " + feature);
+			Assert.assertNotNull("error in " + feature, affyMicroarray.queryFeatures(feature).asFloats());
 			for (float f : affyMicroarray.queryFeatures(feature).asFloats()) {
-				Assert.assertTrue(f > 0.0, "illegal value: " + f + " in " + feature);
+				Assert.assertTrue("illegal value: " + f + " in " + feature, f > 0.0);
 			}
 		}
 		Assert.assertTrue(affyMicroarray.queryFeatures("/column/MEAN").asFloats().iterator().next() == 190f);
@@ -123,7 +107,9 @@ public class FeatureTest {
 
 		// SOM
 		DataBean somData = manager.createDataBean("som.tsv", new FileInputStream(TestConstants.SOM_CLUSTERED_RESOURCE));
-
+		somData.addTypeTag(MicroarrayModule.TypeTags.SOM_CLUSTERED_EXPRESSION_VALUES);
+		somData.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+				
 		Assert.assertTrue(MicroarrayModule.VisualisationMethods.SOM.isApplicableTo(somData));
 		Table som = somData.queryFeatures("/clusters/som").asTable();
 		Assert.assertNotNull(som);
@@ -131,9 +117,9 @@ public class FeatureTest {
 		
 		// hierarchical clustering
 		DataBean hcTree = manager.createDataBean("hs.tre", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_RESOURCE));
-		
 		DataBean hcHeatmap = manager.createDataBean("hc.tsv", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_HEATMAP_RESOURCE));
-		
+		hcHeatmap.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		hcHeatmap.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 
 		hcTree.addLink(Link.DERIVATION, hcHeatmap);
 

@@ -4,11 +4,10 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -30,7 +29,7 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.h2.tools.Server;
-import org.springframework.core.io.ClassPathResource;
+import org.joda.time.DateTime;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -39,6 +38,7 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -51,7 +51,8 @@ import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Emails;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 /**
  * Monitoring database and tool for Chipster server system.
@@ -65,22 +66,25 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	private class BackupTimerTask extends TimerTask {
 
-		private File baseBackupDir;
+		private BackupRotation backupRotation;
 		
 		public BackupTimerTask(File backupDir) {
-			this.baseBackupDir = backupDir;
+			this.backupRotation = new BackupRotation(backupDir);
 		}
-		
-		
+				
 		@Override
 		public void run() {
 			logger.info("Creating database backup");
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss.SSS");
-			String fileName = baseBackupDir.getAbsolutePath() + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
-			String sql = "SCRIPT TO '" + fileName + ".zip' COMPRESSION ZIP";
+			String fileName = backupRotation.getBackupFile(DateTime.now()).getPath();
+			String sql = "SCRIPT TO '" + fileName + "' COMPRESSION ZIP";
 			jdbcTemplate.execute(sql);
-		}
-		
+			
+			int affectedRows = jdbcTemplate.update(REMOVE_OLD_TEST_JOBS);
+			logger.info("cleaned up " + affectedRows + " old test jobs from database");
+			
+			int deletedFiles = backupRotation.rotate();
+			logger.info("cleaned up " + deletedFiles + " old database backup files");
+		}		
 	}
 	
 	
@@ -116,6 +120,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 			"username VARCHAR(200) PRIMARY KEY, " +
 			"ignoreInStatistics BOOLEAN DEFAULT FALSE" + 			
 			");";
+	
+	private static final String REMOVE_OLD_TEST_JOBS = 
+			"DELETE FROM JOBS " +
+			"WHERE starttime < DATEADD('MONTH', -1, CURRENT_DATE()) " + // at least a month old
+			"AND username IN (SELECT username FROM accounts WHERE ignoreinstatistics=TRUE);"; // username is a test account
 	
 	private static final String ADMIN_ROLE = "admin_role";
 	
@@ -187,7 +196,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	logger.info("Next database backup is scheduled at " + firstBackupTime.getTime().toString());
     	
 	    Timer timer = new Timer("chipster-manager-backup", true);
-	    File backupDir = DirectoryLayout.getInstance().getBackupDir();
+	    File backupDir = DirectoryLayout.getInstance().getManagerBackupDir();
     	timer.scheduleAtFixedRate(new BackupTimerTask(backupDir), firstBackupTime.getTime(), backupInterval*60*60*1000);
 	    
     	
@@ -210,7 +219,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	
     	
 		// initialize communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 		
 		// listen for job log messages
 		MessagingTopic jobLogTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.READ);
@@ -241,7 +250,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 
 	private void insertTestAccounts(String[] accounts) {
@@ -347,14 +356,24 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		    // formulate an email
 		    String replyEmail = !feedback.getEmail().equals("") ?
 		            feedback.getEmail() : "[not available]";
-		    String sessURL = !feedback.getSessionURL().equals("") ? 
-		            feedback.getSessionURL() : "[not available]";
+		        
+		    String sessionUrl = "[not available]";
+		    String sessionId = "[not available]";
+		    if (!feedback.getSessionURL().equals("")) {
+		    	sessionUrl = feedback.getSessionURL();
+		    	try {
+					sessionId = UrlTransferUtil.parseFilename(new URL(sessionUrl));
+				} catch (MalformedURLException e) {
+					logger.error(e);
+				}
+		    }
+
 		    String emailBody =
 		        feedback.getDetails() + "\n\n" +
 		        "username: " + feedback.getUsername() + "\n" +
 		        "email: " + replyEmail + "\n" +
-		        "session file: " + sessURL + "\n\n" +
-		        "Download the session file as .zip and open it in Chipster using magic shortcut SHIFT-CTRL-ALT-O\n\n";		    
+		        "session id: " + sessionId + "\n" +
+		        "Open session id in client using magic shortcut SHIFT-CTRL-ALT-O\n\n";		    
 		    for (String[] log : feedback.getLogs()) {
                 emailBody += log[0] + ": " + log[1] + "\n";
             }

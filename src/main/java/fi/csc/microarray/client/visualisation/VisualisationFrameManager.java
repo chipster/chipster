@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation;
 
 import java.awt.Component;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -8,12 +10,14 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 
 public class VisualisationFrameManager implements PropertyChangeListener{
 	
@@ -28,6 +32,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	private SimpleInternalFrame frameComponent;
 
 	private VisualisationToolBar toolBar;
+
+	private JComponent focusComponent;
 	
 	public enum FrameType { MAIN, SIDE, WINDOW };
 	
@@ -54,7 +60,12 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	
 	public Vector<Component> getFocusComponents(){
 		Vector<Component> order = new Vector<Component>();
-		order.addAll(toolBar.getFocusComponents());		
+
+		if (focusComponent != null) {
+			order.add(focusComponent);
+		}
+		order.addAll(toolBar.getFocusComponents());
+		
 		return order;
 	}
 	
@@ -108,13 +119,15 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			
 			//Special case: the empty  visualisation is so fast, that showing wait 
 			//panel causes only irritating flickering
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() != VisualisationMethod.NONE){
+			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
+						
+			if(method != VisualisationMethod.getDefault()){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
 			
 			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
-			if(((VisualisationMethodChangedEvent) event).getNewMethod() == VisualisationMethod.NONE){
+			if(method == VisualisationMethod.getDefault()){
 				if (toolBar.isMaximised) {
 					toolBar.maximiseOrRestoreVisualisation();
 				}
@@ -157,6 +170,8 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 		case MAIN:
 			mainFrame.showVisualisationComponent(visualisation);
 			updateInternalContent();
+			this.focusComponent = visualisation;
+			((SwingClientApplication)Session.getSession().getApplication()).updateFocusTraversal();
 			break;
 		case SIDE:
 			twinView = true;
@@ -178,7 +193,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 		case SIDE:
 			return sideFrame.createVisualisation(e);			
 		case WINDOW:
-			ExternalVisualisationFrame window;
+			final ExternalVisualisationFrame window;
 			if(e.getTargetFrameInstance() == null || !windows.contains(e.getTargetFrameInstance())){
 				window = new ExternalVisualisationFrame();
 				e.setTargetFrameInstance(window);
@@ -187,6 +202,26 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 				window = (ExternalVisualisationFrame)e.getTargetFrameInstance();
 			}
 			JComponent visualisation = window.createVisualisation(e);
+			
+			// Other visualisations are removed when the same frame gets the next (often empty) visualisation.
+			// In a detached window, we have to listen for window close event for clean up because the frame is
+			// disposable and won't be used for other visualisations.
+			window.getFrameComponent().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			window.getFrameComponent().addWindowListener(new WindowListener() {
+				
+				public void windowClosed(WindowEvent e) {
+					window.removeVisualisationComponent();
+					window.removeVisualiser();
+				}
+				
+				public void windowOpened(WindowEvent e) {}				
+				public void windowIconified(WindowEvent e) {}			
+				public void windowDeiconified(WindowEvent e) {}			
+				public void windowDeactivated(WindowEvent e) {}				
+				public void windowClosing(WindowEvent e) {}
+				public void windowActivated(WindowEvent e) {}								
+			});
+			
 			return visualisation;
 		}
 		return null;

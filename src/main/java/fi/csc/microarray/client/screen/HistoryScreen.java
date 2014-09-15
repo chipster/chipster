@@ -27,13 +27,8 @@ import javax.swing.event.CaretListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportUtils;
-import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.GeneralFileFilter;
-import fi.csc.microarray.util.Strings;
 
 /**
  * A screen for viewing the history (longer version) of a dataset as text.
@@ -54,8 +49,7 @@ public class HistoryScreen extends ScreenBase
 	private Map<String, JCheckBox> checkBoxes= new HashMap<String, JCheckBox>();
 	private JButton saveButton;
 	private JButton closeButton;
-	private DataBean data;
-	private String[] sourceCodes = null;
+	private DataBean data;	
 	private JFileChooser chooser = null;
 	
 	/**
@@ -157,100 +151,25 @@ public class HistoryScreen extends ScreenBase
 	 * @param data
 	 */
 	public void setData(DataBean data) {
-		this.data = data;
-		this.sourceCodes = null; // refresh source codes
+		this.data = data;		
 		refreshText();
 	}
 	
 	private void refreshText() {
 		textArea.setText(getHistoryText());
 	}
-
-	/**
-	 * Generates a String (usually consisting of many, many rows) about the
-	 * history of the selected dataset.
-	 * 
-	 * @return A String to be put in the textarea component of this screen.
-	 */
-	private String getHistoryText() {
-		if (data == null) {
-			return null;
-		}
-		StringBuffer historyText = new StringBuffer();
-		int i = 0;
-		for (DataBean listData : MicroarrayModule.getSourcePath(data)) {
-			if (checkBoxes.get("title").isSelected()) {
-				String title = "Step " + (i+1);
-				historyText.append(title + "\n");
-				historyText.append(Strings.repeat("-", title.length()) + "\n\n");
-			}	
-			if (checkBoxes.get("name").isSelected()) {
-				historyText.append("Dataset name: " + listData.getName() + "\n");
-			}
-			if (checkBoxes.get("date").isSelected()) {
-				historyText.append("Created " + listData.getDate().toString() + "\n");
-			}
-			if (checkBoxes.get("oper").isSelected()) {
-				OperationRecord operationRecord = listData.getOperationRecord();
-				historyText.append("Created with operation: ");
-				if (operationRecord != null) {
-					historyText.append(operationRecord.getFullName() + "\n");
-					if (checkBoxes.get("param").isSelected()) {
-
-						for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
-							historyText.append("Parameter " + parameterRecord.getNameID().getDisplayName() + ": " +
-									parameterRecord.getValue() + "\n");
-							
-						}
-					} else {
-                        historyText.append("\n");               
-                    }
-                    
-                    if (checkBoxes.get("code").isSelected()) {
-                        String[] sources;
-                        try {
-                            sources = getSourceCodes();                 
-                            if (sources[i] != null) {
-                                historyText.append("Operation source code:\n" + Strings.indent(sources[i], 4)  + "\n");
-                            } else {
-                                historyText.append("Operation source code: <not available>\n");
-                            }
-                        } catch (MicroarrayException e) {
-                            Session.getSession().getApplication().reportException(e);
-                        }               
-                    }
-				} else {
-					historyText.append("<last operation unknown>\n");
-				}
-			}
-			if (checkBoxes.get("notes").isSelected()) {
-				String notes = listData.getNotes();
-				if (notes != null) {
-					historyText.append("Notes: " + notes + "\n");
-				}
-			}
-			if (listData != data) {
-				// If we aren't yet at the end of the list:
-				historyText.append("\n");
-			}
-			i++;			
-		}
-		saveButton.setEnabled(true);
-		return historyText.toString();
-	}
 	
-	private String[] getSourceCodes() throws MicroarrayException {
-		if (sourceCodes == null) {
-			
-			// make list of wanted source codes
-			DataBean[] sourceDatas = MicroarrayModule.getSourcePath(data);
-			sourceCodes = new String[sourceDatas.length];
-			for (int i = 0; i < sourceDatas.length; i++){
-				// might be null, is ok
-				sourceCodes[i] = sourceDatas[i].getOperationRecord().getSourceCode();
-			}
-		}
-		return sourceCodes;
+	public String getHistoryText() {	
+		String history = application.getHistoryText(data, 
+				checkBoxes.get("title").isSelected(),
+				checkBoxes.get("name").isSelected(),
+				checkBoxes.get("date").isSelected(),
+				checkBoxes.get("oper").isSelected(),
+				checkBoxes.get("code").isSelected(),
+				checkBoxes.get("notes").isSelected(),
+				checkBoxes.get("param").isSelected());
+		saveButton.setEnabled(true);
+		return history;
 	}
 	
 	/**

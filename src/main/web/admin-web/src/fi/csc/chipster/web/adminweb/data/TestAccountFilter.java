@@ -5,12 +5,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.context.internal.ThreadLocalSessionContext;
 import org.hibernate.criterion.Restrictions;
-
-import com.vaadin.data.hbnutil.StringContainerFilter;
-
-import fi.csc.chipster.web.adminweb.hbncontainer.HibernateUtil;
 
 public class TestAccountFilter {
 

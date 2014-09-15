@@ -15,10 +15,11 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private Button jobsButton = new Button("Jobs");
 	private Button jobLogButton = new Button("Job log");
 	private Button statButton = new Button("Statistics");
+	private Button reportButton = new Button("Maintenance");
 	private ChipsterAdminUI app;
 	
-	private final ThemeResource servicesIcon = new ThemeResource("crystal/service-manager.png");
-	private final ThemeResource servicesIconBw = new ThemeResource("crystal/service-manager-bw.png");
+	private final ThemeResource servicesIcon = new ThemeResource("crystal/ksirtet.png");
+	private final ThemeResource servicesIconBw = new ThemeResource("crystal/ksirtet-bw.png");
 	private final ThemeResource storageIcon = new ThemeResource("crystal/volume-manager.png");
 	private final ThemeResource storageIconBw = new ThemeResource("crystal/volume-manager-bw.png");
 	private final ThemeResource jobsIcon = new ThemeResource("crystal/clock.png");
@@ -27,6 +28,8 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 	private final ThemeResource jobLogIconBw = new ThemeResource("crystal/vcalendar-bw.png");
 	private final ThemeResource statIcon = new ThemeResource("crystal/kchart-edited.png");
 	private final ThemeResource statIconBw = new ThemeResource("crystal/kchart-edited-bw.png");
+	private final ThemeResource reportIcon = new ThemeResource("crystal/service-manager.png");
+	private final ThemeResource reportIconBw = new ThemeResource("crystal/service-manager-bw.png");
 
 	public NavigationMenu(ChipsterAdminUI app) {
 		this.app = app;
@@ -45,6 +48,9 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 		
 		statButton.addClickListener(this);
 		addComponent(statButton);
+		
+		reportButton.addClickListener(this);
+		addComponent(reportButton);
 
 		setMargin(true);
 		setSpacing(true);
@@ -86,6 +92,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
 			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIconBw);
 			
 		} else if (view == storageButton) {
 			app.showStorageView();
@@ -95,6 +102,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
 			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIconBw);
 			
 		} else if (view == jobsButton) {
 			app.showJobsView();
@@ -104,6 +112,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIcon);
 			jobLogButton.setIcon(jobLogIconBw);
 			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIconBw);
 			
 		} else if (view == jobLogButton) {
 			app.showJobLogView();
@@ -113,6 +122,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIcon);
 			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIconBw);
 			
 		} else if (view == statButton) {
 			app.showStatView();
@@ -122,6 +132,17 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
 			statButton.setIcon(statIcon);
+			reportButton.setIcon(reportIconBw);
+			
+		} else if (view == reportButton) {
+			app.showReportView();
+			
+			servicesButton.setIcon(servicesIconBw);
+			storageButton.setIcon(storageIconBw);
+			jobsButton.setIcon(jobsIconBw);
+			jobLogButton.setIcon(jobLogIconBw);
+			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIcon);
 			
 		} else {
 			app.showEmtpyView();
@@ -131,6 +152,7 @@ public class NavigationMenu extends VerticalLayout implements ClickListener {
 			jobsButton.setIcon(jobsIconBw);
 			jobLogButton.setIcon(jobLogIconBw);
 			statButton.setIcon(statIconBw);
+			reportButton.setIcon(reportIconBw);
 		}
 	}
 }

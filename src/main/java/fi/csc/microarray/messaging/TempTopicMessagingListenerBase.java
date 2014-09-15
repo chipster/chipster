@@ -17,7 +17,9 @@ public abstract class TempTopicMessagingListenerBase implements TempTopicMessagi
 	 */
 	public void cleanUp()  {
 		try {
-			this.tempTopic.delete();
+			if (this.tempTopic != null) {
+				this.tempTopic.delete();
+			}
 		} catch (JMSException e) {
 			// nothing to do
 		}

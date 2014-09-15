@@ -15,7 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -57,8 +57,8 @@ public class Scatterplot3DPCA extends Scatterplot3D {
 	}
 
 	@Override
-	public AnnotateListPanel createListPanel() {
-		return new AnnotateListPanel("Chips", false);
+	public SelectionList createListPanel() {
+		return new SelectionList("Chips", false, false);
 	}
 
 	@Override

@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -61,7 +63,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 	public static MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
 		BufferedReader bufferedReader = null;
 		try {
-			bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+			bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getApplication().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)));
 			LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 			MatrixParseSettings settings = new MatrixParseSettings();
 
@@ -406,7 +408,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		@Override
 		public Table asTable() throws MicroarrayException {
 			if (indexCollector.isEmpty()) {
-				return null;
+				return null; // we have to return null, cannot return empty table (because it is not true). it is also specified by Feature interface.
 				
 			} else {
 				return new DynamicallyParsedTable(getDataBean(), settings, indexCollector);

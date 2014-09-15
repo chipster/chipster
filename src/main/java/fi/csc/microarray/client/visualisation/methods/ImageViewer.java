@@ -19,10 +19,12 @@ import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ImageViewer extends Visualisation implements MouseListener {
@@ -55,9 +57,9 @@ public class ImageViewer extends Visualisation implements MouseListener {
 	}
 	
 	private static final Cursor ZOOM_IN_CURSOR = Toolkit.getDefaultToolkit().
-		createCustomCursor(VisualConstants.ZOOM_IN_CURSOR_IMAGE.getImage(), new Point(5,2), "ZoomIn");
+		createCustomCursor(VisualConstants.getIcon(VisualConstants.ZOOM_IN_CURSOR_IMAGE).getImage(), new Point(5,2), "ZoomIn");
 	private static final Cursor ZOOM_OUT_CURSOR = Toolkit.getDefaultToolkit().
-		createCustomCursor(VisualConstants.ZOOM_OUT_CURSOR_IMAGE.getImage(), new Point(5,2), "ZoomOut");
+		createCustomCursor(VisualConstants.getIcon(VisualConstants.ZOOM_OUT_CURSOR_IMAGE).getImage(), new Point(5,2), "ZoomOut");
 
 	private double calculateScale(){
 						
@@ -130,7 +132,7 @@ public class ImageViewer extends Visualisation implements MouseListener {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] bytes = data.getContents();
+		byte[] bytes = Session.getSession().getDataManager().getContentBytes(data, DataNotAvailableHandling.NULL_ON_NA);
 		if (bytes != null) {
 			this.original = new ImageIcon(bytes).getImage();
 			this.scroller = new JScrollPane();			

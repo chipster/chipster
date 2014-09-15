@@ -2,8 +2,6 @@ package fi.csc.microarray.analyser;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -26,13 +24,14 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
@@ -40,10 +39,12 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.ServerStatusMessage;
 import fi.csc.microarray.messaging.message.SourceMessage;
+import fi.csc.microarray.messaging.message.SuccessMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 /**
  * Executes analysis jobs and handles input&output. Uses multithreading 
@@ -107,8 +108,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
 	private String localFilebrokerPath;
+	private String overridingFilebrokerIp;
 	
-
+	volatile private boolean stopGracefully;
+	
 	/**
 	 * 
 	 * @throws Exception 
@@ -126,12 +129,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
-		String fbPath = configuration.getString("comp", "local-filebroker-user-data-path");
-		if ("".equals(fbPath.trim())) {
-			this.localFilebrokerPath = null; // null => path optimisation not used
-		} else {
-			this.localFilebrokerPath = fbPath;
-		}
+		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
+		this.overridingFilebrokerIp = nullIfEmpty(configuration.getString("comp", "overriding-filebroker-ip"));				
 		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -154,22 +153,34 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		
 		// initialize communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 		
 		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
+		MessagingTopic filebrokerAdminTopic = endpoint.createTopic(Topics.Name.COMP_ADMIN_TOPIC, AccessMode.READ);
+		filebrokerAdminTopic.setListener(new CompAdminMessageListener());
+		
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 	
+
+	private String nullIfEmpty(String value) {
+		if ("".equals(value.trim())) {
+			return null;
+		} else {
+			return value;
+		}
+	}
+
 
 	public String getName() {
 		return "analyser";
@@ -286,20 +297,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 				String jobId = commandMessage.getParameters().get(0);
 				
-				AnalysisJob job;
-				synchronized(jobsLock) {
-					if (receivedJobs.containsKey(jobId)) {
-						job = receivedJobs.remove(jobId);
-					} else if (scheduledJobs.containsKey(jobId)) {
-						job = scheduledJobs.remove(jobId);
-					} else {
-						job = runningJobs.get(jobId);
-					}
-				}
-				
-				if (job != null) {
-					job.cancel();
-				} 
+				cancelJob(jobId, false);			
 			}
 			updateStatus();
 		}		
@@ -312,6 +310,28 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 
 
+	private void cancelJob(String jobId, boolean reportToClient) {
+		AnalysisJob job;
+		synchronized(jobsLock) {
+			if (receivedJobs.containsKey(jobId)) {
+				job = receivedJobs.remove(jobId);
+			} else if (scheduledJobs.containsKey(jobId)) {
+				job = scheduledJobs.remove(jobId);
+			} else {
+				job = runningJobs.get(jobId);
+			}
+		}
+		
+		if (job != null) {
+			job.cancel();
+		}
+		
+		if (reportToClient) {
+			job.updateStateToClient(JobState.ERROR, "canceled by server administrator");
+		}
+	}
+
+
 	public File getWorkDir() {
 		return workDir;
 	}
@@ -321,16 +341,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		return sweepWorkDir;
 	}
 
-
 	public void removeRunningJob(AnalysisJob job) {
-		String hostname = "";
-		
-		try {
-			hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException e1) {
-			logger.warn("Could not get local hostname.");
-			hostname = "";
-		}
+		String hostname = getHost();	
 		
 		char delimiter = ';';
 		try {
@@ -348,31 +360,28 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 		// send message to manager
 		sendJobLogMessage(job);
+		
+		checkStopGracefully();		
 	}
 	
 
 	
-	public void sendJobLogMessage(AnalysisJob job) {
-		JobLogMessage jobLogMessage;
-		String hostname = "";
-		
-		try {
-			hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException e1) {
-			logger.warn("Could not get local hostname.");
-			hostname = "";
+	private void checkStopGracefully() {
+		if (stopGracefully) {
+			synchronized(jobsLock) {
+				if (this.receivedJobs.size() == 0 && this.scheduledJobs.size() == 0 && this.runningJobs.size() == 0) {
+					shutdown();
+					System.exit(0);
+				}
+			}
 		}
+	}
+
+
+	public void sendJobLogMessage(AnalysisJob job) {
+		JobLogMessage jobLogMessage;		
 		
-		jobLogMessage = new JobLogMessage(
-				job.getInputMessage().getAnalysisId().replaceAll("\"", ""),
-				job.getState(),
-				job.getId(),
-				job.getExecutionStartTime(),
-				job.getExecutionEndTime(),
-				job.getResultMessage().getErrorMessage(),
-				job.getResultMessage().getOutputText(),
-				job.getInputMessage().getUsername(),
-				hostname);
+		jobLogMessage = jobToMesage(job);
 		
 		try {
 			managerTopic.sendMessage(jobLogMessage);
@@ -382,6 +391,35 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	
+	private JobLogMessage jobToMesage(AnalysisJob job) {
+		
+		String hostname = getHost();
+		
+		// current jobs in admin-web may not have starTime yet
+		Date startTime = job.getExecutionStartTime();
+		if (startTime == null) {
+			startTime = job.getScheduleTime();
+		}
+		if (startTime == null) {
+			startTime = job.getReceiveTime();
+		}
+		
+		JobLogMessage jobLogMessage = new JobLogMessage(
+				job.getInputMessage().getAnalysisId().replaceAll("\"", ""),
+				job.getState(),
+				job.getStateDetail(),
+				job.getId(),
+				startTime,
+				job.getExecutionEndTime(),
+				job.getResultMessage().getErrorMessage(),
+				job.getResultMessage().getOutputText(),
+				job.getInputMessage().getUsername(),
+				hostname);
+		
+		return jobLogMessage;
+	}
+
+
 	/**
 	 * This is the callback method for a job to send the result message. When a job is finished the thread
 	 * running a job will clean up all the data files after calling this method. 
@@ -444,6 +482,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			ResultMessage resultMessage = new ResultMessage("", JobState.FAILED_USER_ERROR, "", "Running tools is disabled for guest users.", 
 					"", jobMessage.getReplyTo());
 			sendReplyMessage(jobMessage, resultMessage);
+			return;
+		}
+		
+		// don't accept new jobs when shutting down
+		if (stopGracefully) {
 			return;
 		}
 		
@@ -636,6 +679,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 	}
 
+	/* 
+	 * Service wrapper's "stop" command
+	 */
 	public void shutdown() {
 		logger.info("shutdown requested");
 
@@ -647,5 +693,93 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 
 		logger.info("shutting down");
+	}
+	
+	private class CompAdminMessageListener implements MessagingListener {		
+
+		@Override
+		public void onChipsterMessage(ChipsterMessage msg) {						
+
+			try {
+
+				if (msg instanceof CommandMessage && CommandMessage.COMMAND_GET_COMP_STATUS.equals(((CommandMessage)msg).getCommand())) {
+
+					CommandMessage requestMessage = (CommandMessage) msg;								
+																							
+					ServerStatusMessage reply = SystemMonitorUtil.getSystemStats(AnalyserServer.this.workDir);
+
+					if (stopGracefully) {
+						reply.setStatus("Stopping gracefully...");
+					}
+					reply.setReceivedJobs(receivedJobs.size());
+					reply.setScheduledJobs(scheduledJobs.size());
+					reply.setRunningJobs(runningJobs.size());
+					reply.setHost(getHost());
+					reply.setHostId(id);									
+
+					endpoint.replyToMessage(requestMessage, reply);
+				}
+
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_LIST_RUNNING_JOBS.equals(((CommandMessage)msg).getCommand())) {
+					
+					
+					CommandMessage requestMessage = (CommandMessage) msg;
+					
+					synchronized (jobsLock) {
+						
+						ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
+						allJobs.addAll(receivedJobs.values());
+						allJobs.addAll(scheduledJobs.values());
+						allJobs.addAll(runningJobs.values());
+																		
+						for (AnalysisJob job : allJobs) {
+							JobLogMessage reply = jobToMesage(job);
+							endpoint.replyToMessage(requestMessage, reply);
+						}						
+					}
+				}
+
+
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_STOP_GRACEFULLY_COMP.equals(((CommandMessage)msg).getCommand())) {
+					CommandMessage requestMessage = (CommandMessage) msg;
+					
+					String compId = ((ParameterMessage)msg).getNamedParameter(ParameterMessage.PARAMETER_HOST_ID);
+					
+					if (id.equals(compId)) {
+
+						stopGracefully = true;						
+
+						logger.info("Server received a shutdown request. "
+								+ "It will shutdown after all scheduled and running jobs are completed. "
+								+ "Scheduling of new jobs is disabled.");
+
+						SuccessMessage reply = new SuccessMessage(true);									
+
+						endpoint.replyToMessage(requestMessage, reply);
+						
+						checkStopGracefully();
+					}
+				}
+				
+				else if (msg instanceof CommandMessage && CommandMessage.COMMAND_CANCEL.equals(((CommandMessage)msg).getCommand())) {
+					CommandMessage requestMessage = (CommandMessage) msg;
+					
+					String jobId = ((ParameterMessage)msg).getNamedParameter(ParameterMessage.PARAMETER_JOB_ID);
+					
+					logger.info("Request from CompAdminAPI to cancel a job " + jobId);
+					
+					cancelJob(jobId, true);
+
+					SuccessMessage reply = new SuccessMessage(true);									
+
+					endpoint.replyToMessage(requestMessage, reply);
+					
+					updateStatus();
+				}
+
+			} catch (Exception e) {
+				logger.error(e, e);
+			}
+		}
 	}
 }

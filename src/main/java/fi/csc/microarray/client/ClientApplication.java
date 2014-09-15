@@ -6,7 +6,6 @@ package fi.csc.microarray.client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.Timer;
 
@@ -48,26 +48,39 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.ValidationException;
+import fi.csc.microarray.databeans.HistoryText;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.filebroker.DbSession;
+import fi.csc.microarray.filebroker.DerbyMetadataServer;
+import fi.csc.microarray.filebroker.QuotaExceededException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
+import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 
@@ -90,67 +103,112 @@ public abstract class ClientApplication {
 	// Logger for this class
 	protected static Logger logger;
 
+	public static enum SessionSavingMethod {
+		LEAVE_DATA_AS_IT_IS,
+		INCLUDE_DATA_INTO_ZIP,
+		UPLOAD_DATA_TO_SERVER;
+	}
+	
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
-	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
+	public abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
+	public abstract void reportInitialisationThreadSafely(String report, boolean newline);
 	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
-	public abstract void reportTaskError(Task job) throws MicroarrayException;
-	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
-	public abstract DataFolder initializeFolderForImport(String folderName);
-	public abstract void showSourceFor(String operationName) throws TaskException;
-	public abstract void showHistoryScreenFor(DataBean data);
-    public abstract void showDetailsFor(DataBean data);
-    public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
-    public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
-    public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
-    public abstract void visualiseWithBestMethod(FrameType target);
-    public abstract void reportInitialisationThreadSafely(String report, boolean newline);
-    public abstract Icon getIconFor(DataItem data);
-	public abstract void viewHelp(String id);
-	public abstract void viewHelpFor(OperationDefinition operationDefinition);
+	public abstract void reportTaskError(Task job) throws MicroarrayException;		
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
-	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
-	public abstract void deleteDatas(DataItem... datas);	
-	public abstract void createLink(DataBean source, DataBean target, Link type);
-	public abstract void removeLink(DataBean source, DataBean target, Link type);
-	public abstract File saveWorkflow();
-	public abstract File openWorkflow();
-	public abstract void loadSession();
-	public abstract void loadSessionFrom(URL url);
-	public abstract void loadSessionFrom(File file);
-	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession();
-	public abstract void runWorkflow(URL workflowScript);
-	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
-	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
-	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
-	public abstract VisualisationFrameManager getVisualisationFrameManager();
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);	
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
-	public abstract DataManager getDataManager();
 
-	/**
-	 * Method is called periodically to maintain state that cannot be maintained 
-	 * in realtime. 
-	 */
-	public abstract void checkFreeMemory();
-	
-	// 
-	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
-	//
 	
 	/**
-	 * Listens to jobExecutor's state in general.
+	 * Gets default visualisation method for selected databeans. The method is
+	 * selected by following steps:
+	 * 
+	 * <ol>
+	 * <li>If no dataset is selected, return
+	 * <code>VisualisationMethod.NONE</code> </li>
+	 * <li>If only one dataset is selected, return the default method for the
+	 * data </li>
+	 * </li>
+	 * <li>If multiple datasets are selected, check the best method for each
+	 * dataset. If the best method is same for all selected datasets and it can
+	 * be used with multiple data, the best method is returned. </li>
+	 * <li>If the best method is not same for all of the datas, try to find
+	 * just some method which is suitable for all datas and can be used with
+	 * multiple datasets. </li>
+	 * <li>If there were no method to fill the requirements above, return
+	 * <code>VisualisationMethod.NONE</code> </li>
+	 * 
+	 * @return default visualisation method which is suitable for all selected
+	 *         datasets
 	 */
-	private PropertyChangeListener jobExecutorChangeListener = new PropertyChangeListener() {	
-		public void propertyChange(PropertyChangeEvent evt) {
-			taskCountChanged((Integer)evt.getNewValue(), true);
-			logger.debug("JobExecutor property changed event: " + evt.getPropertyName() + ": " + (Integer)evt.getNewValue());
-		}		
-	};
+	public VisualisationMethod getDefaultVisualisationForSelection() {
+		logger.debug("getting default visualisation");
+		if (getSelectionManager().getSelectedDataBeans() == null || getSelectionManager().getSelectedDataBeans().size() == 0) {
+			return VisualisationMethod.getDefault();
+		}
+
+		try {
+			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
+
+			if (beans.size() == 1) {
+				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
+			} else if (beans.size() > 1)
+				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
+					if (!method.getHeadlessVisualiser().isForMultipleDatas()) {
+						continue;
+					}
+					if (method.isApplicableTo(beans)) {
+						return method;
+					}
+				}
+
+			/*
+			 * 
+			 * VisualisationMethod defaultMethodForDatas = null; // First, try
+			 * to find best suitable visualisation for all for (DataBean bean :
+			 * beans) { VisualisationMethod method = new
+			 * BioBean(bean).getDefaultVisualisation(); if
+			 * (defaultMethodForDatas == null &&
+			 * VisualisationMethod.isApplicableForMultipleDatas(method)) {
+			 * defaultMethodForDatas = method; } else { if
+			 * (defaultMethodForDatas != method) { // Searching for best method
+			 * for all failed defaultMethodForDatas = null; logger.debug("Method " +
+			 * method + " can not be used to visualise selected datas"); break; } } }
+			 * 
+			 * if (defaultMethodForDatas != null) { // Visualise datas if the
+			 * best method was found logger.debug("Method " +
+			 * defaultMethodForDatas + " will be used to visualise selected
+			 * datas"); return defaultMethodForDatas; } // Keep looking for
+			 * suitable visualisation DataBean firstData = beans.get(0);
+			 * 
+			 * for (VisualisationMethod method :
+			 * VisualisationMethod.getApplicableForMultipleDatas()) { if (method ==
+			 * VisualisationMethod.NONE) { continue; }
+			 * 
+			 * if (method.isApplicableTo(firstData)) { // The method is
+			 * applicable to one of the selected datas // Check that the same
+			 * method is applicable to the other // datasets too boolean
+			 * isSuitableMethod = true; for (DataBean otherData : beans) { if
+			 * (otherData.equals(firstData)) { continue; }
+			 * 
+			 * if (!method.isApplicableTo(otherData)) { isSuitableMethod =
+			 * false; logger.debug("Method " + method + " can not be used to
+			 * visualise selected datas"); break; } }
+			 * 
+			 * if (isSuitableMethod) { logger.debug("Method " + method + " will
+			 * be used to visualise selected datas"); return method; } } }
+			 */
+			return VisualisationMethod.getDefault();
+
+		} catch (Exception e) {
+			reportException(e);
+			return VisualisationMethod.getDefault();
+		}
+	}
 	
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
@@ -173,6 +231,7 @@ public abstract class ClientApplication {
 
 	protected boolean unsavedChanges = false;
 	protected boolean unbackuppedChanges = false;
+	protected String currentRemoteSession = null;
 
 	protected File aliveSignalFile;
 	private LinkedList<File> deadDirectories = new LinkedList<File>();
@@ -182,7 +241,7 @@ public abstract class ClientApplication {
 
 	private String initialisationWarnings = "";
 	
-	private String announcementText = null;
+	private String announcementText = null;	
 
 	public ClientApplication() {
 		this(null);
@@ -193,12 +252,9 @@ public abstract class ClientApplication {
 		this.clientConstants = new ClientConstants();
 		this.serviceAccessor = new RemoteServiceAccessor();
 		this.overridingARL = overridingARL;
-		
-		// disable http cache
-		IOUtils.disableHttpCache();
 	}
     
-	protected void initialiseApplication() throws MicroarrayException, IOException {
+	public void initialiseApplication(boolean fast) throws MicroarrayException, IOException {
 		
 		//Executed outside EDT, modification of Swing forbidden
 		
@@ -209,39 +265,50 @@ public abstract class ClientApplication {
 
 			// Fetch announcements
 			fetchAnnouncements();
+						
+			if (requestedModule == null) {
+				requestedModule = MicroarrayModule.class.getName();
+			}
 			
 			// Initialise modules
 			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
-
+			
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
+			
 			// Initialise data management
 			this.manager = new DataManager();
-			Session.getSession().setDataManager(manager);
+						
+			Session.getSession().setDataManager(manager);		
+			
 			modules.plugAll(this.manager, Session.getSession());
+						
 			this.selectionManager = new DataSelectionManager(this);
-			Session.getSession().setClientApplication(this);
-		
+			Session.getSession().setClientApplication(this);			
+			
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
-			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
-			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
-			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisationThreadSafely(" ok", false);
+			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
+			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
+			this.taskExecutor = serviceAccessor.getTaskExecutor();
+			reportInitialisationThreadSafely(" ok", true);
 
-			// Check services
-			reportInitialisationThreadSafely("Checking remote services...", true);
-			String status = serviceAccessor.checkRemoteServices();
-			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
-				throw new Exception(status);
+			if (!fast) {
+				// Check services
+				reportInitialisationThreadSafely("Checking remote services...", false);
+				String status = serviceAccessor.checkRemoteServices();
+				if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
+					throw new Exception(status);
+				}
+				reportInitialisationThreadSafely(" ok", true);
 			}
-			reportInitialisationThreadSafely(" ok", false);
 			
 			// Fetch descriptions from compute server
-			reportInitialisationThreadSafely("Fetching analysis descriptions...", true);
+			reportInitialisationThreadSafely("Fetching analysis descriptions...", false);
 			initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
 			toolModules.addAll(serviceAccessor.getModules());
 
@@ -262,18 +329,18 @@ public abstract class ClientApplication {
 			toolModules.add(internalModule);
 
 			// Update to splash screen that we have loaded tools
-			reportInitialisationThreadSafely(" ok", false);
-
-			// start listening to job events
-			taskExecutor.addChangeListener(jobExecutorChangeListener);
+			reportInitialisationThreadSafely(" ok", true);
 
 			// definitions are now initialised
 			definitionsInitialisedLatch.countDown();
 			
-			reportInitialisationThreadSafely("Checking session backups...", true);
-			File mostRecentDeadTempDirectory = checkTempDirectories();
-			reportInitialisationThreadSafely(" ok", false);
-
+			File mostRecentDeadTempDirectory = null;
+			
+			if (!fast) {
+				reportInitialisationThreadSafely("Checking session backups...", false);
+				mostRecentDeadTempDirectory = checkTempDirectories();
+				reportInitialisationThreadSafely(" ok", true);
+			}
 			// we can initialise graphical parts of the system
 			initialiseGUIThreadSafely(mostRecentDeadTempDirectory);
 
@@ -284,22 +351,12 @@ public abstract class ClientApplication {
 					unbackuppedChanges = true;
 				}
 			});
-
-			// Start checking amount of free memory 
-			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ClientApplication.this.checkFreeMemory();
-				}
-			});
-			memoryCheckTimer.setCoalesce(true);
-			memoryCheckTimer.setRepeats(true);
-			memoryCheckTimer.setInitialDelay(0);
-			memoryCheckTimer.start();
-
+			
 			// Start checking if background backup is needed
 			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
 			aliveSignalFile.createNewFile();
 			aliveSignalFile.deleteOnExit();
+			
 
 			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
 				@Override
@@ -325,13 +382,28 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
-
+			
+			// disable http cache (only after initialization, because it makes 
+			// icon loading from jar much slower (about 18 seconds for icons in VisualConstants) 
+			IOUtils.disableHttpCache();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
-	}
 
+
+	}	
+
+	/**
+	 * Only root folder supported in this implementation.
+	 * 
+	 * @param folderName subclasses may use this to group imported datasets
+	 * @return always root folder in this implementation
+	 */
+	public DataFolder initializeFolderForImport(String folderName) {
+		return manager.getRootFolder();
+	}
 	/**
 	 * Add listener for applications state changes.
 	 */
@@ -384,7 +456,7 @@ public abstract class ClientApplication {
 	}
 	
 
-	public void executeOperation(final Operation operation) {
+	public Task executeOperation(final Operation operation) {
 
 		// check if guest user
 		if (!operation.getDefinition().isLocal() 
@@ -393,14 +465,14 @@ public abstract class ClientApplication {
 			
 			showDialog("Running tools is disabled for guest users.", "",
 					null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-			return;
+			return null;
 		}
 		
 		// check job count
 		if (taskExecutor.getRunningTaskCount() >= clientConstants.MAX_JOBS) {
 			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + clientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
 						null, Severity.INFO, false);
-			return;
+			return null;
 		}
 		
 		// start executing the task
@@ -411,7 +483,7 @@ public abstract class ClientApplication {
 				if (newState.isFinished()) {
 					try {
 						// FIXME there should be no need to pass the operation as it goes within the task
-						onFinishedTask(job, operation);
+						onFinishedTask(job, operation, newState);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -426,6 +498,8 @@ public abstract class ClientApplication {
 		} catch (TaskException | MicroarrayException | IOException te) {
 			reportException(te);
 		}
+		
+		return task;
 	}
 	
 	public void onNewTask(Task task, Operation oper) throws MicroarrayException, IOException {
@@ -451,20 +525,21 @@ public abstract class ClientApplication {
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
 	 * 			   corresponding job entity.
+	 * @param newState 
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper, State state) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + task.getState());
+			logger.debug("operation finished, state is " + state);
 			
-			if (task.getState() == State.CANCELLED) {
+			if (state == State.CANCELLED) {
 				// task cancelled, do nothing
 				
-			} else if (!task.getState().finishedSuccesfully()) {
+			} else if (!state.finishedSuccesfully()) {
 				// task unsuccessful, report it
 				reportTaskError(task);
 				
@@ -520,15 +595,8 @@ public abstract class ClientApplication {
 						output.addLink(Link.DERIVATION, source);
 					}
 
-					// initialise cache
-					try {
-						output.initialiseStreamStartCache();
-					} catch (IOException e) {
-						throw new MicroarrayException(e);
-					}
-
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(output);
+					manager.connectChild(output, folder);
 
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there
@@ -556,7 +624,7 @@ public abstract class ClientApplication {
 			
 			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (task.getState().finishedSuccesfully()) {
+				if (state.finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();
@@ -565,7 +633,7 @@ public abstract class ClientApplication {
 		}
 	}
 	
-	protected void quit() {		
+	public void quit() {		
 		logger.debug("quitting client");
 		
 		try {
@@ -580,10 +648,6 @@ public abstract class ClientApplication {
 		if (eventsEnabled) {
 			eventSupport.firePropertyChange(event);
 		}
-	}
-	
-	public List<File> getWorkflows() {
-		return workflowManager.getWorkflows();
 	}
 
 	public interface SourceCodeListener {
@@ -619,7 +683,7 @@ public abstract class ClientApplication {
 	}
 		
 	public void importWholeDirectory(File root) {
-		List<File> onlyFiles = new LinkedList<File>();
+		List<Object> onlyFiles = new LinkedList<Object>();
 		
 		for (File file : root.listFiles()) {				
 			if (file.isFile()) { //not a folder
@@ -627,7 +691,7 @@ public abstract class ClientApplication {
 			}
 		}
 		
-		ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, onlyFiles, root.getName(), true);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, onlyFiles, root.getName(), true);
 		ImportUtils.executeImport(importSession);
 	}
 
@@ -699,38 +763,29 @@ public abstract class ClientApplication {
 		}
 		return null;
 	}
-
 	
-	/**
-	 * FIXME Better handling for existing file
-	 * 
-	 * @param data
-	 * @param selectedFile
-	 */
-	protected void exportToFile(final DataBean data, final File selectedFile) {
-		runBlockingTask("exporting file", new Runnable() {
-
-			public void run() {
-				try {
-					File newFile = selectedFile;
-					int i = 1;
-					while (newFile.exists()) {
-						i++;
-						String[] parts = Files.parseFilename(selectedFile); 
-						newFile = new File(parts[0] + File.separator + parts[1] + "_" + i + "." + parts[2]);
-					}
-
-					newFile.createNewFile();		
-					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(data.getContentByteStream(), out);
-					out.close();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+	public void exportToFileAndWait(final DataBean data,
+			final File selectedFile) {
+		try {
+			File newFile = selectedFile;
+			int i = 1;
+			while (newFile.exists()) {
+				i++;
+				String[] parts = Files.parseFilename(selectedFile); 
+				newFile = new File(parts[0] + File.separator + parts[1] + "_" + i + "." + parts[2]);
 			}
-			
-		});
-		
+
+			newFile.createNewFile();		
+			FileOutputStream out = new FileOutputStream(newFile);
+			ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA);
+			IO.copy(in, out);
+			out.close();
+			manager.setOrVerifyChecksum(data, in.verifyChecksums());
+		} catch (ChecksumException e) {
+			reportExceptionThreadSafely(new ChecksumException("checksum validation of the exported file failed", e));
+		} catch (Exception e) {
+			reportExceptionThreadSafely(e);
+		}
 	}
 
 	public TaskExecutor getTaskExecutor() {
@@ -849,7 +904,7 @@ public abstract class ClientApplication {
 		// Remove them from bookkeeping in any case
 		deadDirectories.clear();
 	}
-
+	
 	private ToolModule getModule(String moduleName) {
 		for (ToolModule toolModule : toolModules) {
 			if (toolModule.getModuleName().equals(moduleName)) {
@@ -892,4 +947,332 @@ public abstract class ClientApplication {
 		return this.announcementText;
 	}
 	
+	public void restoreSessionAndWait(File file) {
+		loadSessionAndWait(file, null, true, true, false);
+	}
+	
+	public void loadSessionAndWait(final File sessionFile,
+			final String sessionId, final boolean isDataless,
+			final boolean clearDeadTempDirs,
+			final boolean isExampleSession) {
+		
+		// check that it's a valid session file 
+		if (!isDataless) {
+			if (!UserSession.isValidSessionFile(sessionFile)) {
+				Session.getSession().getApplication().showDialog("Could not open session file.", "The given file is not a valid session file.", "", Severity.INFO, true); 
+				return;
+			}
+		}
+			
+		/* If there wasn't data or it was just cleared, there is no need to warn about
+		 * saving after opening session. However, if there was datasets already, combination
+		 * of them and new session can be necessary to save. This has to set after the import. 
+		 */
+		boolean somethingToSave = manager.databeans().size() != 0;
+
+		try {
+			if (sessionFile != null) {
+				manager.loadSession(sessionFile, isDataless);
+				currentRemoteSession = null;
+			} else {
+				manager.loadStorageSession(sessionId);
+				currentRemoteSession = sessionId;
+			}				
+
+		} catch (Exception e) {
+			if (isExampleSession) {
+				Session.getSession().getApplication().showDialog("Opening example session failed.", "Please restart " + Session.getSession().getPrimaryModule().getDisplayName() + " to update example session links or see the details for more information.", Exceptions.getStackTrace(e), Severity.INFO, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			} else {
+				Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			}
+			logger.error("loading session failed", e);
+		}
+
+		unsavedChanges = somethingToSave;
+		
+		// If this was restored session, clear dead temp directories in the end.
+		// It is done inside this method to avoid building synchronization between
+		// session loading and temp directory cleaning during restore. 
+		if (clearDeadTempDirs) {
+			clearDeadTempDirectories();
+		}
+	}
+
+	
+	public boolean saveSessionAndWait(boolean isRemote, File localFile, String remoteSessionName) {
+		
+		try {
+			if (isRemote) {
+				String sessionId = getDataManager().saveStorageSession(remoteSessionName);
+				currentRemoteSession = sessionId;
+			} else {
+				getDataManager().saveSession(localFile);
+				currentRemoteSession = null;
+			}
+			
+			unsavedChanges = false;
+			return true;
+			
+		} catch (ValidationException e) {
+			Session.getSession().getApplication().showDialog(
+					"Problem with saving the session", 
+					"All the datasets were saved successfully, but there were troubles with saving " +
+					"the session information about them. This means that there may be problems when " +
+					"trying to open the saved session file later on.\n" +
+					"\n" +
+					"If you have important unsaved " +
+					"datasets in this session, it might be a good idea to export such datasets using the " +
+					"File -> Export functionality.", 
+					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			
+			return false;
+			
+		} catch (QuotaExceededException e) {
+			Session.getSession().getApplication().showDialog(
+					"Quota exceeded", 
+					"Saving session failed, because your disk space quota was exceeded.\n" +
+					"\n" +
+					"Please contact server maintainers to apply for more quota, remove some old sessions " +
+					"to free more disk space or save the session on your computer using the " +
+					"File -> Save local session functionality. ", 
+					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+			return false;
+
+		} catch (Exception e) {
+			Session.getSession().getApplication().showDialog(
+					"Saving session failed", 
+					"Unfortunately your session could not be saved. Please see the details for more " +
+					"information.\n" +
+					"\n" +
+					"If you have important unsaved datasets in this session, it might be " +
+					"a good idea to export such datasets using the File -> Export functionality.", 
+					Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+	}
+	
+	public DataManager getDataManager() {
+		return manager;
+	}
+	public LinkedList<ToolModule> getToolModules() {
+		return toolModules;
+	}
+	
+	public void importGroupAndWait(final Collection<ImportItem> datas,
+			final String folderName) {
+		DataBean lastGroupMember = null;
+
+		try {
+
+			for (ImportItem item : datas) {
+
+				String dataSetName = item.getInputFilename();
+				ContentType contentType = item.getType();
+				Object dataSource = item.getInput();
+
+
+				// Selects folder where data is imported to, or creates a
+				// new one
+				DataFolder folder = initializeFolderForImport(folderName);
+
+				// create the DataBean
+				DataBean data;
+				if (dataSource instanceof File) {
+					data = manager.createDataBean(dataSetName, (File) dataSource);
+					
+				} else if (dataSource instanceof URL) {
+					data = manager.createDataBean(dataSetName, ((URL) dataSource));
+					
+				} else {
+					throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
+				}
+
+				// set the content type
+				data.setContentType(contentType);
+
+				// add the operation (all databeans have their own import
+				// operation
+				// instance, it would be nice if they would be grouped)
+				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+				data.setOperationRecord(new OperationRecord(importOperation));
+
+				// data is ready now, make it visible
+				manager.connectChild(data, folder);
+
+				// Create group links only if both datas are raw type
+				if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
+
+					DataBean targetData = data;
+
+					// Link new data to all group linked datas of given cell
+					for (DataBean sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
+						logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
+						createLink(sourceData, targetData, DataBean.Link.GROUPING);
+					}
+
+					// Create link to the given cell after looping to avoid
+					// link duplication
+					createLink(lastGroupMember, targetData, DataBean.Link.GROUPING);
+				}
+
+				lastGroupMember = data;
+
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public String getHelpUrl(String page) {
+		if (!page.startsWith(HelpMapping.MANUAL_ROOT)) {
+			return HelpMapping.MANUAL_ROOT + page;
+		}
+		return page;
+	}
+	
+	public String getHelpFor(OperationDefinition definition) {
+		String url = definition.getHelpURL();
+	    if (url != null && !url.isEmpty()) {
+	        // Link is stored in operation definition
+	        url = definition.getHelpURL();
+	    } else {
+	        // Mostly for microarray
+	        // TODO: consider refactoring so that url is stored in definition
+	        // and this "else" branch is not needed
+	        url = HelpMapping.mapToHelppage(definition);
+	    }
+	    return url;
+	}
+	
+	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean oper, boolean code, boolean notes, boolean param) {
+		return new HistoryText(data).getHistoryText(title, name, date, oper, code, notes, param);
+	}
+	
+	public Icon getIconFor(DataItem element) {
+		if (element instanceof DataFolder) {
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_FOLDER);
+		} else {
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
+		}
+	}
+	
+	public void deleteDatasWithoutConfirming(DataItem... datas) {
+		
+		// check that we have something to delete
+		if (datas.length == 0) {
+			return; // no selection, do nothing
+		}		
+		
+		// remove all selections
+		getSelectionManager().clearAll(true, this);
+
+		// do actual delete
+		for (DataItem data : datas) {
+			manager.delete(data);
+		}
+		
+		unsavedChanges = false;
+	}
+	
+	public void clearSessionWithoutConfirming() {
+		this.deleteDatasWithoutConfirming(manager.getRootFolder());
+	}	
+	
+	public void createLink(DataBean source, DataBean target, Link type) {
+		source.addLink(type, target);
+	}
+
+	public void removeLink(DataBean source, DataBean target, Link type) {
+		source.removeLink(type, target);
+	}
+	
+	public List<DbSession> listRemoteSessions() throws JMSException {
+		return Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+	}
+	
+	public void removeRemoteSession(String sessionUuid) throws JMSException {
+		
+			if (currentRemoteSession != null && currentRemoteSession.equals(sessionUuid) && !getDataManager().databeans().isEmpty()) {
+				showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
+						+ "Removal of this session is prevented, because it may be the only copy of your current "
+						+ "datasets. If you want to keep the datasets, please save them as a sessions first. If you want to remove "
+						+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true);
+				return;
+			}
+
+			serviceAccessor.getFileBrokerClient().removeRemoteSession(sessionUuid);		
+
+	}
+	
+	public List<File> getWorkflows() {
+		return workflowManager.getWorkflows();
+	}
+	
+	public void saveWorkflow(File file) throws IOException {
+		workflowManager.saveSelectedWorkflow(file);
+	}
+	
+	public void runWorkflowAndWait(URL workflowScript) throws InterruptedException {
+		final CountDownLatch latch = new CountDownLatch(1);
+		workflowManager.runScript(workflowScript, new AtEndListener() {			
+			@Override
+			public void atEnd(boolean success) {
+				latch.countDown();
+			}
+		});
+		latch.await();
+	}
+	
+	public void runWorkflow(URL workflowScript, boolean runForEach) {
+		if (!runForEach) {
+			// Run once
+			workflowManager.runScript(workflowScript, null);
+
+		} else {
+			// Run for every selected data separately
+			
+			// Store current selection
+			List<DataBean> datas = getSelectionManager().getSelectedDataBeans();
+
+			// Select one by one and run workflow
+			for (DataBean data : datas) {
+
+				// Need synchronized latch to wait for each workflow execution
+				final CountDownLatch latch = new CountDownLatch(1);
+				AtEndListener atEndListener = new AtEndListener() {
+					@Override
+					public void atEnd(boolean success) {
+						logger.debug("workflow run for each: at end");
+						latch.countDown();
+					}
+				};
+
+				// Run it
+				getSelectionManager().selectSingle(data, this);
+				logger.debug("workflow run for each: selected " + getSelectionManager().getSelectedDataBeans().size());
+				workflowManager.runScript(workflowScript, atEndListener);
+				try {
+					latch.await();
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+
+			// Restore original selection
+			logger.debug("workflow run for each: restore original selection");
+			Collection<DataItem> items = new LinkedList<DataItem>();
+			items.addAll(datas);
+			getSelectionManager().selectMultiple(items, this);
+		}
+	}
+	public boolean hasUnsavedChanges() {
+		return unsavedChanges;
+	}
+	
+	public boolean areCloudSessionsEnabled() {
+		boolean conf =  DirectoryLayout.getInstance().getConfiguration().getBoolean("client", "enable-cloud-sessions");
+		boolean specialUser = DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(Session.getSession().getUsername());
+		
+		return conf || specialUser;
+	}
 }

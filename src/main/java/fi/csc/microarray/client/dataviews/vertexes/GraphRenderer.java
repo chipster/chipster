@@ -129,7 +129,7 @@ public class GraphRenderer extends VertexRenderer {
 		if(isPhenodata && !((PhenodataVertex)vertex).isPhenodataSet()){
 						
 			// Draws warning icon for phenodata vertex if phenodata is not set
-			ImageIcon icon = VisualConstants.PHENODATA_ICON;
+			ImageIcon icon = VisualConstants.getIcon(VisualConstants.PHENODATA_ICON);
 			
 			double iconHeight = icon.getIconHeight();
 			double iconWidth = icon.getIconWidth();

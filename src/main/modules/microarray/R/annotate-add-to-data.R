@@ -1,8 +1,8 @@
-# TOOL annotate-add-to-data.R: "Add annotations to data" (Annotates the genes, and adds the results to the datafile. Currently, this function only works with Agilent, Affymetrix and Illumina data.)
+# TOOL annotate-add-to-data.R: "Add annotations to data" (Annotates the genes, and adds the results to the datafile. Currently, this tool works only with Agilent, Affymetrix and Illumina data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT data-with-annotations.tsv: data-with-annotations.tsv 
-# PARAMETER conditional: conditional TYPE [yes: yes, no: no] DEFAULT no (When run in Conditional mode, each gene is not only annotated to the most specific GO term but also to all its parent terms up to the top of the hierarchy. This option is recommended in conjunction to the tool Hypergeometric test for GO run in the Conditional testing mode.)
+# PARAMETER conditional: "Use conditional GO term annotation" TYPE [yes: yes, no: no] DEFAULT no (When run in Conditional mode, each gene is annotated not only to the most specific GO term, but also to all its parent terms up to the top of the hierarchy. This option is recommended if you are using the tool \"Hypergeometric test for GO\" so that you run it in the Conditional mode.)
 
 # JTT 21.1.2009: Created
 # MG 25.10.2010: modified to cope with annomalies in Description names

@@ -3,15 +3,15 @@ package fi.csc.microarray.module.sequence;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -21,21 +21,20 @@ import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedEntity;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.LinkUtil;
 
 public class SequenceModule implements Module {
 
-	private static final String CATEGORY_PART_SEPARATOR = ":";
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
+	private static final String EXAMPLE_SESSION_FILE = "sequence-example-session.cs";
 
 	@Override
 	public void plugContentTypes(DataManager manager) {
@@ -53,12 +52,7 @@ public class SequenceModule implements Module {
 	public void plugModifiers(DataManager manager) {
 		// nothing to plug
 	}
-
-	@Override
-	public void plugTypeTags(DataManager manager) {
-		// nothing to plug
-	}
-
+	
 	@Override
 	public String[] getServerModuleNames() {
 		return new String[] { "sequence" };
@@ -149,8 +143,12 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
-		return new URL[] {  new URL(EXAMPLE_SESSION_URL) };
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws MalformedURLException {
+		//FIXME uuid needed, see MicroarrayModule. Maybe this is not needed in modules at all, because example session names come directly from the sessions
+		DbSession session = new DbSession(null, EXAMPLE_SESSION_FILE, null);
+		List<DbSession> sessions = new ArrayList<>();
+		sessions.add(session);
+		return sessions;
 	}
 
 	@Override
@@ -179,6 +177,11 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
+	public boolean countOperationResults() {
+		return false;
+	}
+
+	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}
@@ -199,11 +202,6 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
-		// do nothing
-	}
-
-	@Override
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		return Collections.nCopies(columns.getColumnCount(), false);
 	}
@@ -211,6 +209,16 @@ public class SequenceModule implements Module {
 	@Override
 	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
+	}
+
+	@Override
+	public void addTypeTags(DataBean data) {
+		// nothing to add
+	}
+	
+	@Override
+	public Icon getIconFor(DataBean data) {
+		return data.getContentType().getIcon();
 	}
 
 }

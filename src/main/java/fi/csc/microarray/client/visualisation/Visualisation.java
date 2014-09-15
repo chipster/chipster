@@ -13,8 +13,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -30,7 +30,7 @@ public abstract class Visualisation {
 
 	// public to be able to use this also in implementations of this class and
 	// in their inner classes
-	public final ClientApplication application = Session.getSession().getApplication();
+	public final SwingClientApplication application = (SwingClientApplication) Session.getSession().getApplication();
 
 	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
 
@@ -62,9 +62,9 @@ public abstract class Visualisation {
 		return panel;
 	}
 
-	public static void fillComboBox(JComboBox box, Object[] content) {
+	public static <T> void fillComboBox(JComboBox<T> box, T[] content) {
 		box.removeAllItems();
-		for (Object o : content) {
+		for (T o : content) {
 			box.addItem(o);
 		}
 	}
@@ -192,4 +192,6 @@ public abstract class Visualisation {
 		return bean.isContentTypeCompatitible("text/tab", "application/cel", "text/csv") && bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES, BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 
+	public void visualisationShown() {
+	}
 }

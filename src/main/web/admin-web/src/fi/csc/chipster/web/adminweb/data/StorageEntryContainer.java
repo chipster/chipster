@@ -1,18 +1,26 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
+
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
-import fi.csc.chipster.web.adminweb.util.RandomUtil;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI;
+import fi.csc.microarray.messaging.admin.StorageEntry;
 
-public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements
-Serializable {
+@SuppressWarnings("serial")
+public class StorageEntryContainer extends BeanItemContainer<StorageEntry> implements Serializable {
+	
+	private static final Logger logger = Logger.getLogger(StorageEntryContainer.class);
 
 	public static final String USERNAME = "username";
 	public static final String NAME = "name";
@@ -25,70 +33,36 @@ Serializable {
 		USERNAME, 		NAME, 			SIZE, 	DATE, 		DELETE_LINK };
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
-		"Username", 	"Session name", "Size", "Date", 	" " };
-
-	public StorageEntryContainer() throws InstantiationException,
-	IllegalAccessException {
+		"Username", 	"Session name", "Size", "Last access date", 	" " };
+	
+	private StorageAdminAPI adminEndpoint;
+	
+	public StorageEntryContainer(StorageAdminAPI adminEndpoint) throws InstantiationException, IllegalAccessException {
 		super(StorageEntry.class);
+		this.adminEndpoint = adminEndpoint;
 	}
 
-	public void update(final StorageView view) {
+	public void update(final StorageView view, final String username) {		
+			
+		List<StorageEntry> entries;
+		try {
+			if (username != null) {
+				entries = adminEndpoint.listStorageUsageOfSessions(username);
+			} else {
+				//clear table
+				entries = new LinkedList<>();
+			}
+			
+			if (entries != null) {
 
-		ExecutorService execService = Executors.newCachedThreadPool();
-		execService.execute(new Runnable() {
-
-			public void run() {
-				
-				//Simulate some delay
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-//				try {
-//
-//					NodeBase nodeSupport = new NodeBase() {
-//						public String getName() {
-//							return "chipster-admin-web";
-//						}
-//					};
-//
-//					ChipsterConfiguration.init();
-//					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
-//					AdminAPI api = new AdminAPI(
-//							endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ), new AdminAPILIstener() {
-//
-//								public void statusUpdated(Map<String, NodeStatus> statuses) {
-
-									/* Following operation has to lock table component, because addBean() will 
-									 * eventually modify its user interface. Keep the lock during the update loop
-									 * to avoid showing inconsistent state during the loop.
-									 */		
-				
-									//Following is null if data loading in this thread
-									//was faster than UI initialisation in another thread
+				//Following is null if data loading was faster than UI initialisation in another thread
 				if (view.getEntryTable().getUI() != null) {
 					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
 					tableLock.lock();
 					try {
-						final int COUNT = 300;
-
 						removeAllItems();
 
-						Random rnd = new Random();
-
-						StorageEntry entry;
-
-						for (int i = 0; i < COUNT; i++) {
-							entry = new StorageEntry();
-
-							entry.setDate(RandomUtil.getRandomDate(rnd, 2011));
-							entry.setUsername(RandomUtil.getRandomUserName(rnd));
-							entry.setSize(Math.abs(rnd.nextInt(rnd.nextInt(9000000))*1000l));
-							entry.setName(RandomUtil.getRandomSessionName(rnd));
-
+						for (StorageEntry entry : entries) {
 							addBean(entry);
 						}
 
@@ -96,33 +70,12 @@ Serializable {
 						tableLock.unlock();
 					}
 				}
-//								}
-//							});
-//
-//					//Wait for responses									
-//					e.g. api.areAllServicesUp(true);					
-//
-//					endpoint.close();										
-
-					view.entryUpdateDone();
-
-//				} catch (MicroarrayException e) {
-//					e.printStackTrace();
-//				} catch (JMSException e) {
-//					e.printStackTrace();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				} 
+			} else {
+				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
+				logger.error("timeout while waiting storage usage of sessions");
 			}
-		});
-	}
-
-	public void showUser(String username) {
-
-		this.removeContainerFilters(USERNAME);
-
-		if (username != null) {
-			this.addContainerFilter(USERNAME, username, false, true);
+		} catch (JMSException | InterruptedException e) {
+			logger.error(e);
 		}
 	}
 }

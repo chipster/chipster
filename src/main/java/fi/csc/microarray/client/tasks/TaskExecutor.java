@@ -9,8 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,15 +22,13 @@ import javax.swing.event.SwingPropertyChangeSupport;
 import org.apache.log4j.Logger;
 
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.FileBrokerException;
-import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -46,6 +42,7 @@ import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
@@ -62,7 +59,6 @@ public class TaskExecutor {
 
 	private static final Logger logger = Logger.getLogger(TaskExecutor.class);
 	private DataManager manager;
-	private FileBrokerClient fileBroker;
 
 	private MessagingTopic requestTopic;
 	private LinkedList<Task> tasks = new LinkedList<Task>();
@@ -261,13 +257,14 @@ public class TaskExecutor {
 					case COMPLETED:
 						updateTaskState(pendingTask, State.TRANSFERRING_OUTPUTS, null, -1);
 						try {
-							extractPayloads(resultMessage);
+							extractOutputs(resultMessage);
 						} catch (Exception e) {
 							logger.error("Getting outputs failed", e);
+							e.printStackTrace();
 
-							// usually taskFinished would pick the error message, from
-							// ResultMessage, but here we use the Exception.toString()
-							pendingTask.setErrorMessage(e.toString());
+							// usually taskFinished would pick the error message from
+							// ResultMessage, but here we use the stack trace
+							pendingTask.setErrorMessage(Exceptions.getStackTrace(e));
 							taskFinished(State.ERROR, "Transferring outputs failed", null);
 							break;
 						}
@@ -329,14 +326,11 @@ public class TaskExecutor {
 			}
 		}
 
-		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
+		private void extractOutputs(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
-				URL payloadUrl = resultMessage.getPayload(name);
-				InputStream payload = fileBroker.getFile(payloadUrl); 
-				DataBean bean = manager.createDataBean(name, payload);
-				bean.setCacheUrl(payloadUrl);
-				bean.setContentChanged(false);
+				String dataId = resultMessage.getPayload(name);
+				DataBean bean = manager.createDataBean(name, dataId, true);
 				pendingTask.addOutput(name, bean);
 			}
 		}
@@ -363,7 +357,7 @@ public class TaskExecutor {
 				// possible error message
 				if (resultMessage.getErrorMessage() != null) {
 					pendingTask.setErrorMessage(resultMessage.getErrorMessage());
-				}					
+				}
 				
 				// source code
 				pendingTask.setSourceCode(resultMessage.getSourceCode());
@@ -384,9 +378,8 @@ public class TaskExecutor {
 
 	}
 
-	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
+	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws Exception {
 		this.manager = manager;
-		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
 		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
@@ -424,9 +417,11 @@ public class TaskExecutor {
 	public void startExecuting(final Task task, int timeout) throws TaskException {
 		logger.debug("Starting task " + task.getName());
 
-		if (task.isLocal()) {
+		if (task.isLocal()) {			
+			
 			Runnable taskRunnable = new LocalNGSPreprocess(task);
-			Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			ClientApplication app = Session.getSession().getApplication();
+			app.runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
 			return;
 		}
 		
@@ -456,12 +451,14 @@ public class TaskExecutor {
 					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
+
+					
 					for (final String name : task.getInputNames()) {
 
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
-							long length = task.getInput(name).getContentLength();
+							long length = Session.getSession().getApplication().getDataManager().getContentLength(task.getInput(name));
 
 							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
@@ -474,27 +471,10 @@ public class TaskExecutor {
 						
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
-						try {
-							bean.getLock().readLock().lock();
-
-							// bean modified, upload
-							if (bean.isContentChanged()) {
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener)); 
-								bean.setContentChanged(false);
-							} 
-
-							// bean not modified, check cache, upload if needed
-							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), progressListener));
-							}
-
-						} finally {
-							bean.getLock().readLock().unlock();
-						}
-
-						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getCacheUrl());
+						manager.uploadToCacheIfNeeded(bean, progressListener);
 						
+						// add the data id to the message
+						jobMessage.addPayload(name, bean.getId());
 						
 						logger.debug("added input " + name + " to job message.");
 						i++;
@@ -515,7 +495,7 @@ public class TaskExecutor {
 				} catch (Exception e) {
 					// could not send job message --> task fails
 					logger.error("Could not send job message.", e);
-					updateTaskState(task, State.ERROR, "Sending message failed", -1);
+					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
 					removeFromRunningTasks(task);
 				}
 			}
@@ -638,6 +618,8 @@ public class TaskExecutor {
 	 * @param completionPercentage 
 	 */
 	private void updateTaskState(Task task, State state, String stateDetail, int completionPercentage) {
+		
+		State oldState;				
 
 		// setting the state will notify Task listeners
 		synchronized (task) {
@@ -649,7 +631,8 @@ public class TaskExecutor {
 
 			// not finished yet, change state
 			else {
-
+				
+				oldState = task.getState();
 				task.setState(state);
 				if (stateDetail != null) {
 					task.setStateDetail(stateDetail);
@@ -660,6 +643,14 @@ public class TaskExecutor {
 				// notify TaskExecutor listeners
 				SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
 			}
+		}
+				
+		/*
+		 * do this outside synchronized of the block, because sometimes this
+		 * triggers GUI updates that try to access TaskExecutor from EDT
+		 */
+		if (oldState != null) {
+			task.notifyTaskStateChangeListener(oldState, state);
 		}
 	}
 
@@ -709,20 +700,13 @@ public class TaskExecutor {
 		logger.debug("Message cancel thread started.");
 	}
 
-	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException, FileBrokerException {
+	private void resendJobMessage(Task task, Destination replyTo) throws Exception {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		for (String name : task.getInputNames()) {
 			DataBean bean = task.getInput(name);
-			try {
-				bean.getLock().readLock().lock();
-				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null)); // no progress listening on resends 
-				bean.setContentChanged(false);
-			} finally {
-				bean.getLock().readLock().unlock();
-			}
-			
-			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends
+			manager.uploadToCacheIfNeeded(bean, null); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getId());
 		}
 		jobMessage.setReplyTo(replyTo);
 

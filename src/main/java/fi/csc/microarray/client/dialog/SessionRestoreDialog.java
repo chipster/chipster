@@ -15,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.SwingClientApplication;
 
 /**
@@ -29,7 +28,7 @@ public class SessionRestoreDialog extends JDialog implements ActionListener {
 	private JButton restoreButton;
 	private JButton discardButton;
 	
-	private ClientApplication client;
+	private SwingClientApplication client;
 	private File sessionFile;
 	
 	/**

@@ -22,11 +22,32 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_DESCRIBE = "describe";
 	public final static String COMMAND_GET_SOURCE = "get-source";
 
-	public final static String COMMAND_URL_REQUEST ="url-request";
+	public final static String COMMAND_NEW_URL_REQUEST ="new-url-request";
+	public final static String COMMAND_GET_URL ="get-url";
+
+	@Deprecated
 	public final static String COMMAND_PUBLIC_URL_REQUEST ="public-url-request";
 	public final static String COMMAND_PUBLIC_FILES_REQUEST ="public-url-list-request";
 	public final static String COMMAND_DISK_SPACE_REQUEST ="disk-space-request";
 
+	public static final String COMMAND_MOVE_FROM_CACHE_TO_STORAGE = "move-from-cache-to-storage";
+	public static final String COMMAND_IS_AVAILABLE = "is-available";
+	public static final String COMMAND_STORE_SESSION = "store-session";
+	public static final String COMMAND_REMOVE_SESSION = "remove-session";
+	public static final String COMMAND_LIST_SESSIONS = "list-sessions";
+	public static final String COMMAND_GET_STATUS_REPORT = "get-status-report";
+
+	public static final String COMMAND_FILE_OPERATION_SUCCESSFUL = "file-operation-successful";
+	public static final String COMMAND_FILE_OPERATION_FAILED = "file-operation-failed";
+	public static final String COMMAND_FILE_OPERATION_DENIED = "file-operation-denied";
+
+	public static final String COMMAND_LIST_STORAGE_USAGE_OF_USERS = "get-storage-usage-by-user";
+	public static final String COMMAND_LIST_STORAGE_USAGE_OF_SESSIONS = "get-sessions-for-user";
+	public static final String COMMAND_GET_STORAGE_USAGE_TOTALS = "get-sessions-for-session-name";
+	
+	public static final String COMMAND_LIST_RUNNING_JOBS = "get-running-jobs";
+	public static final String COMMAND_GET_COMP_STATUS = "get-comp-status";
+	public static final String COMMAND_STOP_GRACEFULLY_COMP = "shutdown-comp";
 	
 	private String command;
 	

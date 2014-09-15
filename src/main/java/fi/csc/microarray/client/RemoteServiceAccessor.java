@@ -2,22 +2,20 @@ package fi.csc.microarray.client;
 
 import java.util.Collection;
 
-import javax.jms.JMSException;
-
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.JMSFileBrokerClient;
-import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.DescriptionMessageListener;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.admin.AdminAPI;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
@@ -28,7 +26,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	protected MessagingEndpoint endpoint;
 	protected MessagingTopic requestTopic;
 	protected TaskExecutor taskExecutor;
-	private FileBrokerClient filebrokerClient;
+	protected FileBrokerClient filebrokerClient;
 
 	private NodeBase nodeSupport = new NodeBase() {
 		public String getName() {
@@ -37,11 +35,27 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	};
 	private Collection<ToolModule> modules = null;
 
-	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
-		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
-	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
-		this.taskExecutor = new TaskExecutor(endpoint, manager);
-		this.filebrokerClient = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE));
+	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
+		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
+		this.initialise(endpoint, 
+				manager, 
+				new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE)));
+	}		
+
+	
+	/**
+	 * Initialise RemoteServiceAccessor with custom messaging endpoint and custom file broker client. This is used when file broker uses client code to manage example sessions.
+	 * 
+	 * @param endpoint
+	 * @param manager
+	 * @param authenticationRequestListener
+	 * @throws Exception
+	 */
+	public void initialise(MessagingEndpoint endpoint, DataManager manager, FileBrokerClient fileBrokerClient) throws Exception {
+		this.endpoint = endpoint;
+	    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);	    
+		this.filebrokerClient = fileBrokerClient;
+	    this.taskExecutor = new TaskExecutor(endpoint, manager);
 	}
 
 	public TaskExecutor getTaskExecutor() {
@@ -96,7 +110,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public FileBrokerClient getFileBrokerClient() throws Exception {
+	public FileBrokerClient getFileBrokerClient() {
         return filebrokerClient;
 	}
 

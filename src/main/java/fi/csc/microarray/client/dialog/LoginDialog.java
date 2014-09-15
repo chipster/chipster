@@ -136,7 +136,7 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 	}
 
 	private Component getBanner() {
-		return new JLabel(VisualConstants.LOGIN_BANNER);
+		return new JLabel(VisualConstants.getIcon(VisualConstants.LOGIN_BANNER));
 	}
 
 	public void actionPerformed(ActionEvent e) {

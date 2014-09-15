@@ -16,7 +16,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -38,8 +40,8 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
@@ -47,6 +49,7 @@ import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -83,7 +86,8 @@ public class ToolPanel extends JPanel
 	private JPanel operationCardPanel;
 	private LinkedList<ToolSelectorPanel> operationChoicePanels = new LinkedList<ToolSelectorPanel>();
 	private ToolFilterPanel toolFilterPanel;
-	private JTextField searchField;
+	// make sure this is initialized when the tool tip is set in method setSearchFieldToolTipText()
+	private JTextField searchField = new JTextField(18);;
 	private JButton clearSearchButton;
 	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
@@ -100,10 +104,18 @@ public class ToolPanel extends JPanel
 	private Operation currentOperation = null;
 
 	private LinkedList<ToolModule> toolModules;	
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	
+	public static enum Runnability {
+		RUNNABLE, RUNNABLE_AS_BATCH, NOT_RUNNABLE;
+
+		public boolean isRunnable() {
+			return this != NOT_RUNNABLE;
+		}		
+	};
+
 	/**
 	 * Creates a new ToolPanel.
 	 * 
@@ -159,14 +171,15 @@ public class ToolPanel extends JPanel
 				
 		parametersButton.addActionListener(this);
 		parametersButton.setEnabled(false);
-		parametersButton.setText(SHOW_PARAMETERS_TEXT);				
-
-		suitabilityLabel.setPreferredSize(new Dimension(
-				VisualConstants.INCOMPATIBLE_ICON.getIconHeight(),
-				VisualConstants.INCOMPATIBLE_ICON.getIconHeight()));		
+		parametersButton.setText(SHOW_PARAMETERS_TEXT);
 		
-		executeButton.setIcon(VisualConstants.DOUBLE_FORWARD_ICON);
-		executeButton.setDisabledIcon(VisualConstants.DOUBLE_FORWARD_BW_ICON);
+		int suitabilityLabelSize = VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON).getIconHeight();
+
+		suitabilityLabel.setPreferredSize(
+				new Dimension(suitabilityLabelSize, suitabilityLabelSize));		
+		
+		executeButton.setIcon(VisualConstants.getIcon(VisualConstants.DOUBLE_FORWARD_ICON));
+		executeButton.setDisabledIcon(VisualConstants.getIcon(VisualConstants.DOUBLE_FORWARD_BW_ICON));
 		executeButton.setText("<html><b>Run</b></html>");
 		executeButton.setHorizontalAlignment(SwingConstants.CENTER);
 		executeButton.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -181,7 +194,6 @@ public class ToolPanel extends JPanel
 	    // search panel contents
         
         // Text field
-        searchField = new JTextField(18);
         searchField.setMinimumSize(searchField.getPreferredSize());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -202,7 +214,7 @@ public class ToolPanel extends JPanel
         });
 
         // clear button in the search field
-        clearSearchButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        clearSearchButton = new JButton(VisualConstants.getIcon(VisualConstants.CLOSE_FILE_ICON));
         clearSearchButton.setFocusPainted(false);
         clearSearchButton.setContentAreaFilled(false);
         clearSearchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -246,7 +258,7 @@ public class ToolPanel extends JPanel
 		g.insets = new Insets(0, 0, 0, 0);
 		g.fill = GridBagConstraints.NONE;
 
-        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON), g);
+        searchPanel.add(new JLabel(VisualConstants.getIcon(VisualConstants.MAGNIFIER_ICON)), g);
 		g.gridx++;
         searchPanel.add(searchField, g);
 		g.gridx++;
@@ -478,27 +490,47 @@ public class ToolPanel extends JPanel
 		if (e.getSource() == parametersButton) {
 			parametersButtonClicked();
 		} else if (e.getSource() == executeButton ) {
-		    executeCurrentOperation();
+		    executeCurrentOperation(false);
 		}
 	}
 
-	private void executeCurrentOperation() {
-		// Check if we can run the operation
-		Suitability suitability = evaluateSuitability();
+	public void executeCurrentOperation(boolean failSilently) {
 		
-		if (!suitability.isOk()) {
-		    application.showDialog("Check parameters", suitability.toString(), "",
-		                           Severity.INFO, true,
-		                           DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+		// Check again if we can run the operation. It might not be possible even if the button
+		// was enabled, because parameter values might have changed.
+		Runnability runnability = evaluateRunnability();
+		if (!runnability.isRunnable()) {
+			if (!failSilently) {
+			    application.showDialog("Check parameters", runnability.toString(), "",
+                        Severity.INFO, true,
+                        DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+			}
 		    return;
 		}
 		
-		// Run it	    
+		// Everything is now ok, so proceed to actually run it (or them)	    
 		try {
-			// we MUST clone the operation, or otherwise results share the same
-			// operation as long as it is executed and parameter panel is not closed
-			Operation clonedOperation = new Operation(currentOperation);
-			application.executeOperation(clonedOperation);
+			
+			// When running, we must clone the operation, or otherwise results share the same
+			// operation as long as it is executed and parameter panel is not closed.
+			
+			if (runnability == Runnability.RUNNABLE_AS_BATCH) {
+				
+				// Do batch of runs
+				List<DataBean> datas = application.getSelectionManager().getSelectedDataBeans();
+				for (DataBean data : datas) {
+					Operation clonedOperation = new Operation(currentOperation);
+					clonedOperation.bindInputs(new DataBean[] { data });
+					application.executeOperation(clonedOperation);
+				}
+			
+			} else {
+				
+				// Do normal run
+				Operation clonedOperation = new Operation(currentOperation);
+				application.executeOperation(clonedOperation);
+			}
+			
 		} catch (MicroarrayException me) {
 			throw new RuntimeException(me);
 		}
@@ -618,16 +650,23 @@ public class ToolPanel extends JPanel
 	}
 
 	public void updateSuitability() {
-		Suitability suitability = evaluateSuitability();
-		if (suitability.isOk()) {
-			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+		
+		Runnability runnability = evaluateRunnability();
+		if (runnability == Runnability.RUNNABLE) {
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.SUITABLE_ICON));
+			executeButton.setText("<html><b>Run</b></html>");
+			executeButton.setEnabled(true);
+		} else if (runnability == Runnability.RUNNABLE_AS_BATCH) {
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.SUITABLE_ICON));
+			executeButton.setText("<html><b>Run for each</b></html>");
 			executeButton.setEnabled(true);
 		} else {
-			suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON));
+			executeButton.setText("<html><b>Run</b></html>");
 			executeButton.setEnabled(false);
 		}
 
-		suitabilityLabel.setToolTipText(" " + suitability.toString());
+		suitabilityLabel.setToolTipText(" " + runnability.toString());
 	}
 
 	private void clearOperationSelection() {
@@ -715,26 +754,36 @@ public class ToolPanel extends JPanel
 	
 	/**
 	 * Reevaluate the suitability of parameter values
-	 * and inputs.
+	 * and inputs. Returns runnability of selected inputs.
 	 */
-	private Suitability evaluateSuitability() {
+	private Runnability evaluateRunnability() {
+		
 		if (currentOperation == null) {
-			return Suitability.IMPOSSIBLE;
+			return Runnability.NOT_RUNNABLE;
 		}
 		
 		// Check suitability of parameters and inputs
-		Suitability suitability = currentOperation.evaluateSuitabilityFor(
-		        application.getSelectionManager().getSelectedDataBeans(), null);
+		List<DataBean> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
+		Suitability suitability = currentOperation.evaluateSuitabilityFor(selectedDatas);
 		
-		return suitability;
+		if (suitability.isOk()) {
+			// Is runnable
+			return Runnability.RUNNABLE;
+		} else if (currentOperation.getDefinition().isBatchable() && selectedDatas.size() > 1) {
+			// Check if it is batch runnable (run separately for each individual input)
+			List<DataBean> datas = selectedDatas;
+			
+			for (DataBean data : datas) {
+				if (!currentOperation.evaluateSuitabilityFor(Arrays.asList(new DataBean[] { data })).isOk()) {
+					// Does not work with this input, so cannot run as batch
+					return Runnability.NOT_RUNNABLE;			
+				}
+			}
+			return Runnability.RUNNABLE_AS_BATCH;
+		} else {
+			return Runnability.NOT_RUNNABLE;			
+		}		
 	}
-
-	public void runSelectedOperation() {
-		if (evaluateSuitability().isOk()) {
-			this.executeCurrentOperation();
-		}
-	}
-
 	
 	private void clearSearchField() {
 		searchField.setText("");
@@ -798,4 +847,11 @@ public class ToolPanel extends JPanel
 
 	}
 
+	public void focusSearchField() {
+		searchField.requestFocusInWindow();
+	}
+
+	public void setSearchFieldToolTipText(String text) {
+		searchField.setToolTipText(text);
+	}
 }

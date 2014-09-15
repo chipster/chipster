@@ -3,37 +3,31 @@ package fi.csc.microarray.analyser.emboss;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.security.CryptoKey;
 
 public class EmbossRoundtripTest {
     
     private static String path = "src/test/resources/";
     
     private boolean isResultOK = false; 
-
-    @BeforeSuite
-    protected void setUp() throws Exception {
-        DirectoryLayout.initialiseSimpleLayout();
-    }
 
     /**
      * Test EMBOSS analysis processing roundtrip: generate description on the compute service
@@ -72,10 +66,13 @@ public class EmbossRoundtripTest {
         // User uploads two files for input
         InputStream firstInput = new FileInputStream(path + "sequences/human_adh6.fasta");
         InputStream secondInput = new FileInputStream(path + "sequences/funghi_adh6.fasta");
-        URL firstUrl = resultCallback.getFileBrokerClient().addFile(firstInput, -1, null);
-        URL secondUrl = resultCallback.getFileBrokerClient().addFile(secondInput, -1, null);
-        jobMessage.addPayload("asequence", firstUrl);
-        jobMessage.addPayload("bsequence", secondUrl);
+        String firstDataId = CryptoKey.generateRandom();
+        String secondDataId = CryptoKey.generateRandom();
+
+        resultCallback.getFileBrokerClient().addFile(firstDataId, FileBrokerArea.CACHE, firstInput, -1, null);
+        resultCallback.getFileBrokerClient().addFile(secondDataId, FileBrokerArea.CACHE, secondInput, -1, null);
+        jobMessage.addPayload("asequence", firstDataId);
+        jobMessage.addPayload("bsequence", secondDataId);
         
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
@@ -109,7 +106,7 @@ public class EmbossRoundtripTest {
 
         private FileBrokerClient fileBroker = null;
 
-        public FileBrokerClient getFileBrokerClient() {
+        public FileBrokerClient getFileBrokerClient() throws Exception {
             // Create a mock file broker
             if (fileBroker == null) {
                 try {
@@ -149,7 +146,6 @@ public class EmbossRoundtripTest {
 
     public static void main(String[] args) throws Exception {
         EmbossRoundtripTest test = new EmbossRoundtripTest();
-        test.setUp();
         test.testRoundtripValidation();
         test.testRoundtripExecution();
         System.exit(0);

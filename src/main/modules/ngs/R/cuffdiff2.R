@@ -2,6 +2,7 @@
 # INPUT treatment1.bam: "Treatment BAM" TYPE BAM
 # INPUT control1.bam: "Control BAM" TYPE BAM
 # INPUT OPTIONAL annotation.gtf: "Annotation GTF" TYPE GTF
+# INPUT OPTIONAL genome.fa: "Genome for bias correction" TYPE GENERIC
 # OUTPUT OPTIONAL de-genes-cufflinks.tsv
 # OUTPUT OPTIONAL de-isoforms-cufflinks.tsv
 # OUTPUT OPTIONAL cufflinks-log.txt
@@ -29,12 +30,11 @@
 # OUTPUT OPTIONAL tss_groups.fpkm_tracking.tsv
 # OUTPUT OPTIONAL tss_groups.read_group_tracking.tsv
 # PARAMETER output.type: "Output type" TYPE [concise, complete] DEFAULT concise (Cuffdiff produces a large number of output files (over 20\). You can choose to see the complete output or just concise processed output.)
-# PARAMETER internalgtf: "Annotation GTF" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", mm10: "Mouse (mm10\)", rn4: "Rat (rn4\)"] DEFAULT hg19 (You can use own GTF file or one of those provided on the server.)
-# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1: "chr1", 1: "1"] DEFAULT chr1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER chr: "Chromosome names in my BAM file look like" TYPE [chr1, 1] DEFAULT 1 (Chromosome names must match in the BAM file and in the reference annotation. Check your BAM and choose accordingly.)
+# PARAMETER OPTIONAL organism: "Reference organism" TYPE [other, Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.BROADD2.67, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Homo_sapiens.NCBI36.54, Mus_musculus.GRCm38.75, Mus_musculus.NCBIM37.67, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.RGSC3.4.69, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.22] DEFAULT other (You can use own GTF file or one of those provided on the server.)
 # PARAMETER OPTIONAL fdr: "Allowed false discovery rate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR-adjusted p-values (q-values\) are calculated. The concise output files include only those genes or transcripts which have a q-value lower than the given FDR. The value of the Significant-column is adjusted accordingly (yes/no\) in all output files.) 
 # PARAMETER OPTIONAL mmread: "Enable multi-mapped read correction" TYPE [yes, no] DEFAULT no (By default, Cufflinks will uniformly divide each multi-mapped read to all of the positions it maps to. If multi-mapped read correction is enabled, Cufflinks will re-estimate the transcript abundances dividing each multi-mapped read probabilistically based on the initial abundance estimation, the inferred fragment length and fragment bias, if bias correction is enabled.)
-# PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cuffdiff can detect sequence-specific bias and correct for it in abundance estimation.)
-# PARAMETER OPTIONAL genome: "Genome used for bias correction" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", rn4: "Rat genome (rn4\)"] DEFAULT hg19 (Genome used for bias correction.)
+# PARAMETER OPTIONAL bias: "Correct for sequence-specific bias" TYPE [yes, no] DEFAULT no (Cuffdiff can detect sequence-specific bias and correct for it in abundance estimation. You will need to supply a reference genome as a FASTA file if you are not using one of the provided reference organisms.)
 
 # AMS 21.1.2013
 # check column renaming when replicates are enabled
@@ -42,6 +42,8 @@
 # AMS 02.07.2013 Added chr1/1 option, fixed handling of errors when no results are found.
 # EK 3.11.2013 Renamed bias correction parameter
 # AMS 11.11.2013 Added thread support
+# AMS 2014.06.18 Changed the handling of GTF files
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
 # binary
 cuffdiff.binary <- c(file.path(chipster.tools.path, "cufflinks2", "cuffdiff"))
@@ -56,59 +58,49 @@ if (mmread == "yes") {
 	cuffdiff.options <- paste(cuffdiff.options, "-u")
 }
 if (bias == "yes") {
-	if (genome == "hg19"){
-		genomefile <- "hg19.fa"
-	}
-	if (genome == "mm9"){
-		genomefile <- "mm9.fa"
-	}
-	if (genome == "mm10"){
-		genomefile <- "mm10.fa"
-	}
-	if (genome == "rn4"){
-		genomefile <- "rn4.fa"
-	}
-	if (chr == "chr1"){
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", genomefile))
+	if (organism == "other"){
+		# If user has provided a FASTA, we use it
+		if (file.exists("genome.fa")){
+			refseq <- paste("genome.fa")
+		}else{
+			stop(paste('CHIPSTER-NOTE: ', "If you choose to use bias correction, you need to provide a genome FASTA."))
+		}
 	}else{
-		genomefile <- c(file.path(chipster.tools.path, "genomes", "fasta", "nochr", genomefile))
-	}
-	cuffdiff.options <- paste(cuffdiff.options, "-b", genomefile)
+		# If not, we use the internal one.
+		internal.fa <- file.path(chipster.tools.path, "genomes", "fasta", paste(organism, ".fa" ,sep="" ,collapse=""))
+		# If chromosome names in BAM have chr, we make a temporary copy of fasta with chr names, otherwise we use it as is.
+		if(chr == "chr1"){
+			source(file.path(chipster.common.path, "seq-utils.R"))
+			addChrToFasta(internal.fa, "internal_chr.fa") 
+			refseq <- paste("internal_chr.fa")
+		}else{
+			refseq <- paste(internal.fa)
+		}
+	}	
+	cufflinks.options <- paste(cufflinks.options, "-b", refseq)
 }
-if (file.exists("annotation.gtf")){
-	cuffdiff.options <- paste(cuffdiff.options, "annotation.gtf")
+
+# If user has provided a GTF, we use it
+if (organism == "other"){
+	# If user has provided a GTF, we use it
+	if (file.exists("annotation.gtf")){
+		annotation.file <- "annotation.gtf"
+	}else{
+		stop(paste('CHIPSTER-NOTE: ', "You need provide a GTF file if you are not using one of the provided ones."))
+	}
 }else{
-	if (internalgtf == "hg19") {
-		if (chr == 1){
-			annotation.file <- "Homo_sapiens.GRCh37.68.gtf"
-		}else {
-			annotation.file <- "Homo_sapiens.GRCh37.68.chr.gtf"
-		}		
+	# If not, we use the internal one.
+		internal.gtf <- file.path(chipster.tools.path, "genomes", "gtf", paste(organism, ".gtf" ,sep="" ,collapse=""))
+	# If chromosome names in BAM have chr, we make a temporary copy of gtf with chr names, otherwise we use it as is.
+	if(chr == "chr1"){
+		source(file.path(chipster.common.path, "gtf-utils.R"))
+		addChrToGtf(internal.gtf, "internal_chr.gtf") 
+		annotation.file <- paste("internal_chr.gtf")
+	}else{
+		annotation.file <- paste(internal.gtf)
 	}
-	if (internalgtf == "mm9") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.NCBIM37.62.gtf"
-		}else {
-			annotation.file <- "Mus_musculus.NCBIM37.62.chr.gtf"
-		}
-	}
-	if (internalgtf == "mm10") {
-		if (chr == 1){
-			annotation.file <- "Mus_musculus.GRCm38.68.gtf"
-		}else{
-			annotation.file <- "Mus_musculus.GRCm38.68.chr.gtf"
-		}
-	}
-	if (internalgtf == "rn4") {
-		if (chr == 1){
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.gtf"
-		}else{
-			annotation.file <- "Rattus_norvegicus.RGSC3.4.68.chr.gtf"
-		}
-	}
-	annotation.file <- c(file.path(chipster.tools.path, "genomes", "gtf", annotation.file))
-	cuffdiff.options <- paste(cuffdiff.options, annotation.file)
-}
+}	
+cuffdiff.options <- paste(cuffdiff.options, annotation.file)
 
 # command
 command <- paste(cuffdiff.binary, "-q", "-o tmp", cuffdiff.options, "treatment1.bam", "control1.bam")

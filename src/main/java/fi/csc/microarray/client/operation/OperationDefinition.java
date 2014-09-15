@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.operation;
 
-import java.awt.Color;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,15 +7,17 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.description.GenericInputTypes;
-import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLSyntax.InputType;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
@@ -50,67 +51,24 @@ public class OperationDefinition implements ExecutionItem {
 	/**
 	 * An enumeration containing all possible results when evaluating an
 	 * operation's suitability to a dataset.
-	 * 
-	 * @author Janne Käki
-	 * 
 	 */
 	public static enum Suitability {
-		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS,
-		EMPTY_REQUIRED_PARAMETERS;
-
-		private static final Color GREEN = new Color(52, 196, 49);
-		private static final Color YELLOW = new Color(196, 186, 49);
-		private static final Color RED = new Color(196, 49, 49);
-		private static final Color COLOR_ALREADY_DONE = new Color(230, 180, 250);
-
-		public boolean isImpossible() {
-			return this == IMPOSSIBLE || this == NOT_ENOUGH_INPUTS || this == TOO_MANY_INPUTS;
-		}
+		SUITABLE, IMPOSSIBLE, EMPTY_REQUIRED_PARAMETERS;
 
 		public boolean isOk() {
 			return this == SUITABLE;
 		}
-
-		/**
-		 * @return The indicator color of this Suitability item (to be used, for
-		 *         example, as the background of the suitability label).
-		 */
-		public Color getIndicatorColor() {
-			if (isImpossible()) {
-				return RED;
-			} else if (isOk()) {
-				return GREEN;
-			} else if (this == ALREADY_DONE) {
-				return COLOR_ALREADY_DONE;
-			} else {
-				return YELLOW;
-			}
-		}
-
-		/**
-		 * @return A String representation of this Suitability item (to be used,
-		 *         for example, as the text in the suitability label).
-		 */
-		public String toString() {
-			switch (this) {
-			case SUITABLE:
-				return "Suitable";
-			case IMPOSSIBLE:
-				return "Impossible";
-			case ALREADY_DONE:
-				return "Already done";
-			case TOO_MANY_INPUTS:
-				return "Too many inputs";
-			case NOT_ENOUGH_INPUTS:
-				return "Not enough inputs";
-            case EMPTY_REQUIRED_PARAMETERS:
-                return "Some required parameters are empty";
-			default:
-				throw new RuntimeException("unknown suitability: " + this.name());
-			}
-		}
 	};
 
+	/**
+	 * The result of attempted binding. If binding was not successfull, then
+	 * bindings is null.
+	 */
+	public static class BindingResult {
+		Suitability suitability;
+		LinkedList<DataBinding> bindings = null;
+	}
+	
 	public static String IDENTIFIER_SEPARATOR = "/";
 
 	
@@ -245,7 +203,6 @@ public class OperationDefinition implements ExecutionItem {
 	private int colorCount;
 	private int outputCount = 0;
 	private LinkedList<InputDefinition> inputs = new LinkedList<InputDefinition>();
-	private Suitability evaluatedSuitability = null;
 
 	private boolean hasSourceCode;
 
@@ -369,29 +326,15 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
-	 * @param parametersSuitability is either null - indicating that the
-	 *        parameter suitability has not been checked yet or Suitability
-	 *        object defining the suitability of parameters in an encapsulating
-	 *        Operation object that calls this method.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
-	        Suitability parameterSuitability) {
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
 	       
-        // Input suitability gets checked while trying to bind the data
-        bindInputs(data);
+        // Attempt binding
+        BindingResult result = bindInputs(data);
 	    
-	    // Report only either input or parameter suitability
-	    if (evaluatedSuitability.isOk()) {
-	        if (parameterSuitability == null) {
-	        	evaluatedSuitability = parameterSuitability(getParameters());
-	        } else {
-	        	evaluatedSuitability = parameterSuitability;
-	        }
-	    }
-		
-		return getEvaluatedSuitability();
+		return result.suitability;
 	}
 	
 	/**
@@ -402,7 +345,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param params
 	 * @return
 	 */
-	public static Suitability parameterSuitability(List<Parameter> params) {
+	public static Suitability evaluateParameterSuitability(List<Parameter> params) {
         for (Parameter param : params) {
             // Required parameters can not be empty
             if (!param.isOptional() && (param.getValue() == null ||
@@ -474,10 +417,12 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param inputValues
 	 *            no changes are made to this parameter
-	 * @return null when binding could not be done
+	 * @return BindingResult object, where bindings is null when binding failed
 	 */
-	public LinkedList<DataBinding> bindInputs(Iterable<DataBean> inputValues) {
+	public BindingResult bindInputs(Iterable<DataBean> inputValues) {
 
+		BindingResult result = new BindingResult();
+		
 		// initialise
 		LinkedList<DataBinding> bindings = new LinkedList<DataBinding>();
 		LinkedList<DataBean> notProcessedInputValues = new LinkedList<DataBean>();
@@ -528,14 +473,14 @@ public class OperationDefinition implements ExecutionItem {
 			// input not bound and is mandatory, so can give up
 			if (!foundBinding && !input.isOptional()) {
 				logger.debug("  no binding found for " + input.id);
-				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-				return null;
+				result.suitability = Suitability.IMPOSSIBLE;
+				return result;
 			}
 		}
 		if (notProcessedInputValues.size() > 0) {
 			logger.debug("  " + notProcessedInputValues.size() + " concrete inputs were not bound");
-			this.evaluatedSuitability = Suitability.TOO_MANY_INPUTS;
-			return null;
+			result.suitability = Suitability.IMPOSSIBLE;
+			return result;
 		}
 
 		// automatically bind phenodata, if needed
@@ -554,16 +499,18 @@ public class OperationDefinition implements ExecutionItem {
 					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getID(), ChipsterInputTypes.PHENODATA));
 					
 				} else {
-					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-					return null;
+					result.suitability = Suitability.IMPOSSIBLE;
+					return result;
 				}
 			}
 			bindings.addAll(phenodataBindings);
 		}		
 		logger.debug("we have " + bindings.size() + " bindings after metadata retrieval");
 
-		this.evaluatedSuitability = Suitability.SUITABLE;
-		return bindings;
+		// return successful binding result
+		result.bindings = bindings;
+		result.suitability = Suitability.SUITABLE;
+		return result;
 	}
 
 	// TODO update to new type tag system
@@ -591,7 +538,7 @@ public class OperationDefinition implements ExecutionItem {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			
 		} else if (type == ChipsterInputTypes.PHENODATA) {
-			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			return data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			
 		} else if (type == GenericInputTypes.GENERIC) {
 			return true;
@@ -610,17 +557,9 @@ public class OperationDefinition implements ExecutionItem {
 		}
 	}
 
-	// TODO update to new type tag system
+	// TODO update to meta input type
 	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
 		return input.id.startsWith("phenodata");
-	}
-
-	/**
-	 * @return the suitability of last bindInputs-call or null
-	 * @see #bindInputs(Iterable)
-	 */
-	public Suitability getEvaluatedSuitability() {
-		return evaluatedSuitability;
 	}
 
 	public int getOutputCount() {
@@ -672,4 +611,59 @@ public class OperationDefinition implements ExecutionItem {
 		return isLocal;
 	}
 	
+	/**
+	 * Checks if the operation defined by this operation definition is safe to run as batch.
+	 * Batch run is tricky for input binding and input sensitive parameter evaluation, so 
+	 * we do strict checks and only allow "simple" operations to be run as batch. This is 
+	 * done to not confuse the user and create surprising effects to workflows, for example.
+	 * 
+	 * @return true if the operation passes checks and is safe to run as batch
+	 */
+	public boolean isBatchable() {
+		
+		// Check that parameters are not sensitive to inputs
+		for (Parameter parameter : parameters) {
+			if (parameter.isInputSensitive()) {
+				return false;
+			}
+		}
+		
+		// Allow only single input operations to be batched
+		return inputs.size() == 1;
+	}
+
+	public String getParameterDefaultValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());					
+		String defaultValue = null;
+		if (parameter != null) {
+			 defaultValue  = parameter.getValueAsString();
+		}
+		return defaultValue;
+	}
+
+	public String getHumanReadableParameterValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());
+		
+		//EnumParameters have a display name for values
+		if (parameter instanceof EnumParameter) {
+			EnumParameter enumParameter = (EnumParameter) parameter;
+			
+			Object[] options = enumParameter.getOptions();
+			
+			// column selection doesn't have better name
+			if (options != null) {
+				// search for human readable name
+				for (Object choice : options) {
+					SelectionOption option = (SelectionOption) choice;
+					
+					//for (SelectionOption option : options) {
+					if (parameterRecord.getValue().equals(option.getValue())) {
+						
+						return option.toString();
+					}
+				}
+			}
+		}
+		return parameterRecord.getValue();
+	}
 }

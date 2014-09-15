@@ -5,17 +5,15 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
@@ -25,13 +23,15 @@ import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel {
+	
+	private static Logger logger = Logger.getLogger(QuickLinkPanel.class); 
 
 	private SwingClientApplication application;
 
 	private JXHyperlink sessionLink;
+	private JXHyperlink localSessionLink;
 	private JXHyperlink importLink;
 	private JXHyperlink exampleLink;
-	private JXHyperlink exampleLinkAlternative;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
@@ -46,56 +46,14 @@ public class QuickLinkPanel extends JPanel {
 		// Prepare all available links
 		//
 		
-		// Check if example session is available
-		exampleLink = null;
-		exampleLinkAlternative = null;
-
-		try {
-			final URL[] urls = Session.getSession().getPrimaryModule().getExampleSessionUrls(application.isStandalone());
-			if (urls != null) {
-
-				if (urls.length == 1) {
-					exampleLink = LinkUtil.createLink("Example session ", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadSessionFrom(urls[0]);
-							} catch (Exception exception) {
-								application.reportException(exception);
-							}
-						}
-					});
-				}
-				
-				if (urls.length == 2) {
-					exampleLink = LinkUtil.createLink("microarray", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadSessionFrom(urls[0]);
-							} catch (Exception exception) {
-								application.reportException(exception);
-							}
-						}
-					});
-					
-					exampleLinkAlternative = LinkUtil.createLink("NGS", new AbstractAction() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							try {
-								application.loadSessionFrom(urls[1]);
-							} catch (Exception exception) {
-								application.reportException(exception);
-							}
-						}
-					});
-				}
+		exampleLink = LinkUtil.createLink("Open example session", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.loadSession(true, true, true);							
 			}
-		} catch (MalformedURLException mue) {
-			// ignore and let exampleLink be null
-		}
+		});
 		
-		importLink = LinkUtil.createLink("Import files ", new AbstractAction() {
+		importLink = LinkUtil.createLink("Import files", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -105,13 +63,13 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		importFolderLink = LinkUtil.createLink("Import folder ", new AbstractAction() {
+		importFolderLink = LinkUtil.createLink("Import folder", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.openDirectoryImportDialog();
 			}
 		});
-		importURLLink = LinkUtil.createLink("Import from URL ", new AbstractAction() {
+		importURLLink = LinkUtil.createLink("Import from URL", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -121,10 +79,16 @@ public class QuickLinkPanel extends JPanel {
 				}
 			}
 		});
-		sessionLink = LinkUtil.createLink("Open session ", new AbstractAction() {
+		sessionLink = LinkUtil.createLink("open cloud session", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				application.loadSession();
+				application.loadSession(true);
+			}
+		});
+		localSessionLink = LinkUtil.createLink("Open local session", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.loadSession(false);
 			}
 		});
 
@@ -138,31 +102,38 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(5, 10, 5, 10);
 		c.gridwidth = 2;
-		this.add(new JLabel("To start working with " + Session.getSession().getPrimaryModule().getDisplayName() + ", you need to load in data first:"), c);
+		this.add(new JLabel("To start working with " + Session.getSession().getPrimaryModule().getDisplayName() + ", you need to load in data first."), c);
 		c.gridwidth = 1;
 		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
-
-		if (exampleLink != null) {
-						
-			if (exampleLinkAlternative == null) {
-				
-				exampleLink.setText("Open example session ");
-				addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". " , exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
-
-			} else {
-
-				List<JXHyperlink> exampleLinks = new LinkedList<JXHyperlink>();
-				exampleLinks.add(exampleLink);
-				exampleLinks.add(exampleLinkAlternative);
-
-				addLinks("Open example session (*** or ***) to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ". ", exampleLinks, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
-			}			
+		
+		boolean showExamples = false;
+		
+		try {
+			showExamples = !Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty();
+		} catch (Exception e) {
+			logger.error("error in listing of public remote sessions" + e);
+			//continue without example sessions
+		}
+		
+		if (showExamples) {
+			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName(), exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c, this);
 		}
 	
+		String cloudSessionsString = "*** to continue working on previous sessions. You can also *** from the server.";
+		String localSessionsString = "*** to continue working on previous sessions.";
 		
-		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		if (application.areCloudSessionsEnabled()) {
+			List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+			openLinks.add(localSessionLink);
+			openLinks.add(sessionLink);		
+			addLinks(cloudSessionsString, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);
+		} else {
+			List<JXHyperlink> openLinks = new LinkedList<JXHyperlink>();
+			openLinks.add(localSessionLink);
+			addLinks(localSessionsString, openLinks, VisualConstants.OPEN_SESSION_LINK_ICON, c, this);	
+		}
 
 		
 		// common links
@@ -204,16 +175,16 @@ public class QuickLinkPanel extends JPanel {
 	}
 	
 	
-	private final static int MAX_ROW_CHARS = 42;
+	private final static int MAX_ROW_CHARS = 53;
 
-	public static void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c, JComponent component) {
+	public static void addLink(String description, JXHyperlink link, String iconPath, GridBagConstraints c, JComponent component) {
 	
-		LinkUtil.addLink(description, link, icon, c, component, MAX_ROW_CHARS, Color.white);
+		LinkUtil.addLink(description, link, VisualConstants.getIcon(iconPath), c, component, MAX_ROW_CHARS, Color.white);
 	}
 
 	
-	public static void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c, JComponent component) {
-		LinkUtil.addLinks(description, links, icon, c, component, MAX_ROW_CHARS, Color.white);
+	public static void addLinks(String description, List<JXHyperlink> links, String iconPath, GridBagConstraints c, JComponent component) {
+		LinkUtil.addLinks(description, links, VisualConstants.getIcon(iconPath), c, component, MAX_ROW_CHARS, Color.white);
 	}
 
 }

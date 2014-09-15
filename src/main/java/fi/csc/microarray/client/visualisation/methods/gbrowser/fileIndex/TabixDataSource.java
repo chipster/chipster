@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Set;
 
 import org.broad.tribble.readers.TabixReader;
 import org.broad.tribble.readers.TabixReader.Iterator;
@@ -20,7 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.SamBamUtils;
  */
 public class TabixDataSource extends DataSource {
 
-	private TabixReader reader;
+	private ChipsterTabixReader reader;
 
     public TabixDataSource(DataUrl repeat, DataUrl repeatIndex) throws URISyntaxException, IOException {
     	//TODO use the provided index instead of guessing
@@ -36,12 +37,20 @@ public class TabixDataSource extends DataSource {
         	fileString = (new File(repeatUrl.toURI()).getPath()); //Translate '%20' to space character, required in Windows
         }
         
-        this.reader = new TabixReader(fileString);
+        this.reader = new ChipsterTabixReader(fileString);       
 
         // TODO initialize chromosome name unnormaliser (see for example BamDataSource), 
-        //However, it isn't possible to get list of chromosomes from TabixReader. We could read that list 
-        //from the indexFile. This is not strictly necessary at the moment, because all our gtf 
-        //and repeat files obey Ensembl naming convention.
+    }
+    
+    public static class ChipsterTabixReader extends TabixReader {
+
+		public ChipsterTabixReader(String fn) throws IOException {
+			super(fn);
+		}
+    	
+		public Set<String> getChromosomes() {
+			return mChr2tid.keySet();
+		}
     }
     
 	public void clean() {
@@ -82,5 +91,9 @@ public class TabixDataSource extends DataSource {
 		}
 			
 		return iter;
+	}
+	
+	public Set<String> getChromosomes() {
+		return reader.getChromosomes();
 	}
 }

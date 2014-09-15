@@ -39,54 +39,46 @@ public class ImportItem {
 		}
 	}
 	
-	private File input;
-	private File output;
-	private Action action;
+	private Object input;
+	private String inputFilename;
 	private ContentType type;
-	
+	private Action action;
 	/**
 	 * Creates a new import item from file. By default the output filename 
 	 * is same as input filename.
 	 * 
 	 * @param input Input file
 	 */
-	public ImportItem(File input) {
+	public ImportItem(Object input, String inputFilename, ContentType type) {
 		this.input = input;
-		
-		// Default output name is same as input name
-		this.output = input.getAbsoluteFile();
+		this.inputFilename = inputFilename;
+		this.type = type;
+		this.action = Action.DIRECT; // by default import directly
 	}
 	
-	public File getInput(){
+	public Object getInput(){
 		return input;
-	}
-
-	public File getOutput() {
-		return output;
 	}
 
 	public Action getAction() {
 		return action;
 	}
-
-	public void setFilename(String output) {
-		this.output = new File(this.output.getParentFile().getPath() + File.separator + output);
+	public String getInputFilename() {
+		return inputFilename;
 	}
 
 	public ContentType getType() {
 		return type;
 	}
-
-	public void setType(ContentType type) {
-		this.type = type;
-	}
-	
 	public void setAction(Action action){
 		this.action = action;
 	}
-	
-	public String toString(){
-		return "ImportItem [input: " + input.getName() + ", output: " + output.getName() +
-				", type: " + type.getType() + ", action: " + action.toString();
+
+	public void setInputFilename(String inputFilename) {
+		this.inputFilename = inputFilename;
+	}
+
+	public void setInput(File input) {
+		this.input = input;
 	}
 }

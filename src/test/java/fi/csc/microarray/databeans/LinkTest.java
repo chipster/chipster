@@ -1,14 +1,11 @@
 package fi.csc.microarray.databeans;
 
-import java.io.IOException; 
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -16,17 +13,16 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class LinkTest {
 	private DataManager manager; 
 	
-	@BeforeSuite(alwaysRun = true)
-	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
+	@Before
+	public void init() throws Exception {			
 		this.manager = new DataManager();
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testLinks() throws MicroarrayException {
-		DataBean bean1 = manager.createDataBean("test1");
-		DataBean bean2 = manager.createDataBean("test2");
-		DataBean bean3 = manager.createDataBean("test3");
+		DataBean bean1 = manager.createLocalTempDataBean("test1");
+		DataBean bean2 = manager.createLocalTempDataBean("test2");
+		DataBean bean3 = manager.createLocalTempDataBean("test3");
 		
 		bean1.addLink(Link.ANNOTATION, bean3);
 		bean1.addLink(Link.DERIVATION, bean2);
@@ -57,11 +53,11 @@ public class LinkTest {
 		Assert.assertEquals(bean3.getLinkSources(Link.ANNOTATION).size(), 1);
 	}
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testTraversal() throws MicroarrayException {
-		final DataBean bean1 = manager.createDataBean("test1");
-		final DataBean bean2 = manager.createDataBean("test2");
-		final DataBean bean3 = manager.createDataBean("test3");
+		final DataBean bean1 = manager.createLocalTempDataBean("test1");
+		final DataBean bean2 = manager.createLocalTempDataBean("test2");
+		final DataBean bean3 = manager.createLocalTempDataBean("test3");
 		
 		bean1.addLink(Link.DERIVATION, bean2);
 		bean1.addLink(Link.DERIVATION, bean3);

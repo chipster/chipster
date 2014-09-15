@@ -29,6 +29,9 @@ repo.bioc <- "http://www.bioconductor.org"
 # They skip all packages that already have been installed
 #source("smip.R")
 
+#Unlike R, RScript does not seem to load the method-package, why some try-catches can crash
+library(methods)
+
 # Install packages, and their dependencies, from CRAN
 smart.install.packages(package="amap", mirror=repo.cran)
 smart.install.packages(package="ape", mirror=repo.cran)
@@ -211,7 +214,8 @@ smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chips
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/WECCA_0.40.tar.gz")
 smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/zinba_2.02.03.tar.gz")
-smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/QDNAseq_0.99.4.tar.gz") # will be in bioconductor in the future
+smart.install.packages("QDNAseq", mirror="http://www.bioconductor.org/packages/2.14/bioc", update=1) # This package is in Bioconductor only since version 2.14 (which is for R-3.1), hence the "forced" install instead of regular Bioconductor installation (which for R-3.0 uses Bioconductor 2.13).
+smart.install.packages(url.package="http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/mgug4852a.db_1.0.0.tar.gz")
 
 
 # affy_20 for R-2.12"		

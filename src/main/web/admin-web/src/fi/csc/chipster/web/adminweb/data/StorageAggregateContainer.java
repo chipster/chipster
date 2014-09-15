@@ -1,15 +1,24 @@
 package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 import fi.csc.chipster.web.adminweb.ui.StorageView;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI;
+import fi.csc.microarray.messaging.admin.StorageAggregate;
 
-public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements
-Serializable {
+public class StorageAggregateContainer extends BeanItemContainer<StorageAggregate> implements Serializable {
+	
+	private static final Logger logger = Logger.getLogger(StorageAggregateContainer.class);
 	
 	public static final String USERNAME = "username";
 	public static final String SIZE = "size";
@@ -19,12 +28,6 @@ Serializable {
 
 	public static final String[] COL_HEADERS_ENGLISH = new String[] {
 		"Username", 	"Total size" };
-	
-	
-
-	public final String TOTAL_USERNAME = "TOTAL";
-
-	private StorageEntryContainer entryContainer;
 
 	public long getDiskUsage() {
 		return diskUsage;
@@ -36,53 +39,44 @@ Serializable {
 
 	private long diskUsage = 0;
 	private long diskAvailable = 0;
+	private StorageAdminAPI adminEndpoint;
 
-	public StorageAggregateContainer(StorageEntryContainer entryContainer) throws InstantiationException,
+	public StorageAggregateContainer(StorageAdminAPI adminEndpoint) throws InstantiationException,
 	IllegalAccessException {
 		super(StorageAggregate.class);
-		
-		this.entryContainer = entryContainer;
+		this.adminEndpoint = adminEndpoint;
 	}
-
-	public StorageAggregate update(final StorageView view) {
-
-		removeAllItems();
+	
+	public void update(final StorageView view) {
 		
-		long totalSize = 0;
+		List<StorageAggregate> entries;
+		try {
+			entries = adminEndpoint.listStorageUsageOfUsers();		
 
-		HashMap<String, Long> aggregateMap = new HashMap<String, Long>();
-		
-		entryContainer.removeAllContainerFilters();
-		
-		for (StorageEntry entry : entryContainer.getItemIds()) {
-			
-			String username = entry.getUsername();
-			if (!aggregateMap.containsKey(username)) {
-				aggregateMap.put(username, entry.getSize());
+			if (entries != null) {
+				//Following is null if data loading in this thread
+				//was faster than UI initialisation in another thread
+				if (view.getEntryTable().getUI() != null) {
+					Lock tableLock = view.getEntryTable().getUI().getSession().getLockInstance();
+					tableLock.lock();
+					try {
+						removeAllItems();
+
+						for (StorageAggregate entry : entries) {
+							addBean(entry);
+						}
+
+					} finally {
+						tableLock.unlock();
+					}
+				}		
 			} else {
-				aggregateMap.put(username, aggregateMap.get(username) + entry.getSize());
+				Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
+				logger.error("timeout while waiting storage usage of users");
 			}
 			
-			totalSize += entry.getSize();
-		}
-		
-		StorageAggregate totalBean = new StorageAggregate();
-		totalBean.setUsername(TOTAL_USERNAME);
-		totalBean.setSize(totalSize);
-		this.addBean(totalBean);
-		
-		for (Entry<String, Long> aggregate : aggregateMap.entrySet()) {
-			
-			StorageAggregate bean = new StorageAggregate();
-			bean.setUsername(aggregate.getKey());
-			bean.setSize(aggregate.getValue());
-			
-			this.addBean(bean);
-		}
-				
-		this.diskUsage = totalSize;
-		this.diskAvailable = 500000000000l;
-		
-		return totalBean;
+		} catch (JMSException | InterruptedException e) {
+			logger.error(e);
+		}			
 	}
 }

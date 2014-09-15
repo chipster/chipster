@@ -7,12 +7,11 @@
 
 <h3>Description</h3>
 
-<p>Calculates principal components for the selected sample list and saves them for further use.</p>
+<p>Calculates principal components for a set of samples.</p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Data to use for the analysis (chips) [chips] </li>
 <li>Variability to explain (0...100) [80]</li>
 <li>Should data be scaled (yes,no) [no]</li>
 <li>Should data be centered (yes, no) [yes]</li>
@@ -20,17 +19,21 @@
 
 <h3>Details</h3>
 
-<p>A principal component analysis is run for samples. Principal components
+<p>Performs principal component analysis for samples. Principal components
 are retained until the explained variability exceeds the specified value.
 The output of the analysis can be visualized using the 3D scatterplot in the
-visualization panel. To do this, select the pca.tsv spreadhseet and change 
-the visualization method to 3D scatterplot for PCA</p>
+visualization panel. To do this, select the pca.tsv spreadsheet and change 
+the visualization method to "3D scatterplot for PCA".</p>
 </p>
 
 <h3>Output</h3>
 
-<p>A sample list with principal components (those are not expression values) and 
-another table indicating the proportion of variance explained by each component.</p>
+<p>The following output files are produced:
+<ul>
+<li>pca.tsv containing the principal components for the samples (these are not expression values).</li>
+<li>variance.tsv where the row "proportion of variance" indicates how much of the variance is explained by each component.</li>
+<li>loadings.tsv containing the component loadings. The higher the absolute value, the more that gene contributes to the difference in the samples along that principal component. </li>
+</ul>
 
 </body>
 

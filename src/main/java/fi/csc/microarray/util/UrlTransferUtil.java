@@ -16,10 +16,16 @@ import java.util.zip.DeflaterOutputStream;
 
 import javax.jms.JMSException;
 
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+
 public class UrlTransferUtil {
 
-	private static final int CHUNK_SIZE = 2048;
+	public static int HTTP_TIMEOUT_MILLISECONDS = 2000;
+	private static final long POST_UPLOAD_TIMEOUT_MILLISECONDS = 500;
 
+	private static final int CHUNK_SIZE = 2048;
+	
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
 		return url.openStream();		
 	}
@@ -29,6 +35,7 @@ public class UrlTransferUtil {
 		int start = url.getPath().contains("/") ? url.getPath().lastIndexOf("/") + 1 : url.getPath().length();
 		return url.getPath().substring(start);
 	}
+
 	
 	/**
 	 * Uploads a file (or similar) over HTTP.
@@ -42,53 +49,71 @@ public class UrlTransferUtil {
 	 * @return
 	 * @throws JMSException
 	 * @throws IOException
+	 * @throws ChecksumException 
 	 */
-    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, IOUtils.CopyProgressListener progressListener) throws IOException {
+    public static String uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, boolean useChecksums, IOUtils.CopyProgressListener progressListener) throws IOException, ChecksumException {
 
     	HttpURLConnection connection = null;
+    	String checksum = null;
+
     	try {
-    		connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
-    		connection.setRequestMethod("PUT");
-    		connection.setDoOutput(true);
+    		connection = prepareForUpload(url);
 
     		if (useChunked) {
     			// use chunked mode or otherwise URLConnection loads everything into memory
     			// (chunked mode not supported before JRE 1.5)
     			connection.setChunkedStreamingMode(CHUNK_SIZE);
     		}
-
+    		
+    		ChecksumInputStream is = null;
     		OutputStream os = null;
+    		
     		try {
+    			is = new ChecksumInputStream(fis, useChecksums, connection);    					    			
+    			
     			if (compress) {
         			Deflater deflater = new Deflater(Deflater.BEST_SPEED);
         			os = new DeflaterOutputStream(connection.getOutputStream(), deflater);
     			} else {
     				os = connection.getOutputStream();	
     			}
-    			IOUtils.copy(fis, os, progressListener);
-
+    			
+    			IOUtils.copy(is, os, progressListener);
+    			
     		} catch (IOException e) {
     			e.printStackTrace();
     			throw e;
 
     		} finally {
+    			IOUtils.closeIfPossible(is);
     			IOUtils.closeIfPossible(os);
-    			IOUtils.closeIfPossible(fis);
     		}
-
+    		
     		if (!isSuccessfulCode(connection.getResponseCode())) {
     			throw new IOException("PUT was not successful: "
     					+ connection.getResponseCode() + " " + connection.getResponseMessage());
     		}
     		
-    	} finally {
+    		checksum = is.verifyChecksums();
+    		
+		} finally {
     		IOUtils.disconnectIfPossible(connection);
     	}
 
-        return url;
+    	// Wait for upload server to make the file available, so that
+    	// after this method returns we can trust the file to be accessible.
+    	// Could be improved by explicitly trying to read from the URL.
+    	try {
+			Thread.sleep(POST_UPLOAD_TIMEOUT_MILLISECONDS);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+    	
+    	// May be null
+    	return checksum;
     }
     
-    private static boolean isSuccessfulCode(int responseCode) {
+    public static boolean isSuccessfulCode(int responseCode) {
 		return responseCode >= 200 && responseCode < 300; // 2xx => successful
 	}
     
@@ -119,5 +144,36 @@ public class UrlTransferUtil {
 			}
 	    	
 	    });
+	}
+
+	public static HttpURLConnection prepareForUpload(URL url) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
+		connection.setRequestMethod("PUT");
+		connection.setDoOutput(true);
+		return connection;
+	}
+
+	public static boolean isAccessible(URL url) throws IOException {
+		// check the URL
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setConnectTimeout(HTTP_TIMEOUT_MILLISECONDS);
+		connection.connect() ; 
+		return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+	}
+
+
+	public static Long getContentLength(URL url) throws IOException {
+		HttpURLConnection connection = null;
+		try {
+			connection = (HttpURLConnection)url.openConnection();
+			String lengthString = connection.getHeaderField("content-length");
+			if (lengthString != null) {
+				return Long.parseLong(lengthString);
+			} else {
+				return null;
+			}
+		} finally {
+			IOUtils.disconnectIfPossible(connection);
+		}
 	}
 }

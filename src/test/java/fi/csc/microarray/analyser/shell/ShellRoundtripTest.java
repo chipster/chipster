@@ -6,14 +6,12 @@ import java.util.Random;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
@@ -33,11 +31,6 @@ public class ShellRoundtripTest {
     private static String path = "src/test/resources/";
     
     private boolean isResultOK = false; 
-
-    @BeforeSuite
-    protected void setUp() throws Exception {
-        DirectoryLayout.initialiseSimpleLayout();
-    }
     
     @Test
     public void testRoundtripExecution() throws Exception {
@@ -85,7 +78,7 @@ public class ShellRoundtripTest {
 
         private FileBrokerClient fileBroker = null;
 
-        public FileBrokerClient getFileBrokerClient() {
+        public FileBrokerClient getFileBrokerClient() throws Exception {
             // Create a mock file broker
             if (fileBroker == null) {
                 try {
@@ -124,7 +117,6 @@ public class ShellRoundtripTest {
     
     public static void main(String[] args) throws Exception {
         ShellRoundtripTest test = new ShellRoundtripTest();
-        test.setUp();
         test.testRoundtripExecution();
         System.exit(0);
     }

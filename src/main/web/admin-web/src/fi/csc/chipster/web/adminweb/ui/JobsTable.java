@@ -7,6 +7,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.themes.BaseTheme;
 
 import fi.csc.chipster.web.adminweb.data.JobsContainer;
+import fi.csc.microarray.messaging.admin.JobsEntry;
 
 public class JobsTable extends Table {
 
@@ -40,7 +41,12 @@ public class JobsTable extends Table {
 				public void buttonClick(ClickEvent event) {
 
 					select(itemId);
-					view.cancel(itemId);
+					
+					if (itemId instanceof JobsEntry) {
+						JobsEntry job = (JobsEntry) itemId;
+						
+						view.cancel(job);
+					}
 				}
 			});
 

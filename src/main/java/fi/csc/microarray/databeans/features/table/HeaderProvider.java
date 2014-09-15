@@ -6,7 +6,9 @@ import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.ConstantStringFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
@@ -24,7 +26,7 @@ public class HeaderProvider extends FeatureProviderBase {
 
 	public Feature createFeature(String namePostfix, DataBean bean) {
 			
-		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()))) {
+		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EMPTY_ON_NA)))) {
 			
 			MatrixParseSettings settings = TableColumnProvider.inferSettings(bean);
 			LookaheadLineReader source = new LookaheadLineReader(bufferedReader);

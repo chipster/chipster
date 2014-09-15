@@ -29,6 +29,9 @@
 			<resource>prinseq-trimmer.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
+			<resource>trimmomatic.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -40,6 +43,7 @@
 		<tool runtime="R-3.0">
 			<resource>tagcleaner-statistics.R</resource>
 		</tool>
+
 <!--	<tool runtime="R-2.12">
 			<resource>prinseq-quality-trimmer.R</resource>
 		</tool>
@@ -61,7 +65,7 @@
 	</category>
 
 	<category name="Utilities" color="#d59f45">
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-create-experiment.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -70,14 +74,20 @@
 		<tool runtime="R-3.0">
 			<resource>ngs-filter-results-column.R</resource>
 		</tool>
+		<tool runtime="R-3.0">
+			<resource>filter-bed-value.R</resource>
+		</tool>
 		<tool runtime="R-3.0" module="common">
 		<resource>extract-samples-from-dataset.R</resource>
 		</tool>
 		<tool runtime="R-3.0" module="common">
 		<resource>select_columns.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>normalise-counts.R</resource>
 		</tool>		
 		<tool runtime="R-3.0">
 			<resource>samtools-index.R</resource>
@@ -107,6 +117,12 @@
 			<resource>samtools-consensus.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
+			<resource>samtools-index-fasta.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>unique-alignments-from-bam.R</resource>
+		</tool>
+				<tool runtime="R-3.0">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -128,9 +144,6 @@
 			<resource>fi.csc.chipster.tools.ngs.SortVcf</resource>
 		</tool>		
 		<tool runtime="R-3.0">
-			<resource>bedtools-slopbed.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
 			<resource>extract-features-from-BED.R</resource>
 		</tool>	
 		<tool runtime="R-3.0">
@@ -138,11 +151,14 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>fastx-renamer.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>fastx-collapser.R</resource>
 		</tool>		
-	    <tool runtime="R-2.12">
+	    <tool runtime="R-3.0">
 			<resource>test-data-in.R</resource>
 		</tool>	
-        <tool runtime="R-2.12">
+        <tool runtime="R-3.0">
 			<resource>test-data-in-out.R</resource>
 		</tool>	
 	</category>
@@ -185,6 +201,9 @@
 			<resource>bedtools-overlap.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
+			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+		<tool runtime="R-3.0">
 			<resource>bedtools-pairtobed.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -210,6 +229,12 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>tophat2-single-end.R</resource>
+		</tool>
+	    <tool runtime="R-3.0">
+			<resource>tophat2-with-index-building.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>tophat2-single-end-with-index-building.R</resource>
 		</tool>
 	    <tool runtime="R-3.0">
 			<resource>bwa.R</resource>
@@ -262,13 +287,22 @@
 		<tool runtime="R-3.0">
 			<resource>htseq-count.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>dexseq-exoncount.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.0">
+			<resource>dexseq-exoncount-own-gtf.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>express.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>deseq2.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>dea-deseq.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -277,9 +311,7 @@
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-<!-- 	<tool runtime="R-2.15_bioc-2.11"><resource>edgeR-several_groups_V3.R</resource>
-		</tool>	 -->
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>DEXseq.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -303,10 +335,10 @@
 	</category>
 
 	<category name="miRNA-seq" color="#629a9b">
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>convert-bam-to-edger.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>convert-miRBase-bam-to-edger.R</resource>
 		</tool>
 		<!--
@@ -315,57 +347,67 @@
 		</tool>
 		-->
 		<tool runtime="R-3.0">
+			<resource>deseq2.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>dea-deseq.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>edgeR-multivariate.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
-			<resource>dea-deseq.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
+		
+		<tool runtime="R-3.0">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
 		</tool> 
 		<tool runtime="R-3.0" module="common">
 			<resource>pathways-mirna-hyperg-go.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
+		<tool runtime="R-3.0" module="common">
+			<resource>pathways-mirna-hyperg-kegg.R</resource>
 		</tool>
-		<tool runtime="R-2.15_bioc-2.11">
+		<tool runtime="R-3.0">
 			<resource>miRNA_RNA-seq_integration.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-correlation-analysis-mirna.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-up-down-analysis-mirna.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-extract-target-gene-expression.R</resource>
 		</tool>
 	</category>
 
-	<category name="ChIP-seq and FAIRE-seq" color="#c0d2de">
-		<tool runtime="R-2.12">
+	<category name="ChIP-seq and DNase-seq" color="#c0d2de">
+		<tool runtime="R-3.0">
+			<resource>macs2-treatmentOnly.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>macs2-treatmentControl.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-two.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-fseq.R</resource>
 		</tool>		
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-find-nearest-genes.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-find-unique-genes.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>pathways-ngs-hyperg-go.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>ngs-find-motifs-jaspar.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
@@ -380,18 +422,10 @@
 		<tool runtime="R-3.0">
 			<resource>dimont-predictor.R</resource>
 		</tool>
-	</category>
-
-	<!--<category name="FAIRE-seq and DNAse-seq" color="#66CCFF">
-		<tool runtime="R-2.12">
-			<resource>ngs-find-peaks-fseq.R</resource>
-		</tool>
-		
-		<tool runtime="R-2.15">
+		<!--<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-zinba.R</resource>
-		</tool>
-		
-	</category>-->
+		</tool>-->
+	</category>
 
 	<category name="CNA-seq" color="#a49900">
 		<tool runtime="R-3.0"><resource>cna-define-experiment.R</resource></tool>
@@ -421,11 +455,11 @@
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
 	</category>
 
-	<category name="Methyl-seq" color="#83010b">
-		<tool runtime="R-2.12">
+<!--  	<category name="Methyl-seq" color="#83010b">
+		<tool runtime="R-3.0">
 			<resource>convertBAMtoMEDIPS.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
+		<tool runtime="R-3.0">
 			<resource>combineMEDIPS.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -435,39 +469,40 @@
 			<resource>MEDIPS_two_samples.R</resource>
 		</tool>
 	</category>
+-->
 	
 	<category name="Metagenomics" color="#83010b">
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
       		<resource>mothur-sffinfo.R</resource>
     	</tool>
-    	<tool runtime="R-2.15">
+    	<tool runtime="R-3.0">
       		<resource>merge-fasta-qual.R</resource>		
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-summaryseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-trimseqs-uniqueseqs.R</resource>
 		</tool>	
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-alignseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-filterseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-uniqueseqs.R</resource>
 		</tool>
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-precluster.R</resource>
 		</tool>		
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-chimera-uchime.R</resource>
 		</tool>		
-		<tool runtime="R-2.15">
+		<tool runtime="R-3.0">
 			<resource>mothur-classifyseqs.R</resource>
 		</tool>
-	    <tool runtime="R-2.15_bioc-2.11">
+	    <tool runtime="R-3.0">
 			<resource>mothur-analyses.R</resource>
 		</tool>
 	</category>

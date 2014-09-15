@@ -7,8 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
-import javax.jms.JMSException;
-
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
@@ -23,7 +21,7 @@ public class FileBrokerClientMock extends JMSFileBrokerClient {
     // Store all files in an array of streams
     HashMap<String, InputStream> files = new HashMap<String, InputStream>();
     
-    public FileBrokerClientMock() throws JMSException {
+    public FileBrokerClientMock() throws Exception {
         super(null);
     }
     

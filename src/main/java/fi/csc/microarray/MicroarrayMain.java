@@ -14,14 +14,14 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
-import fi.csc.microarray.messaging.AdminAPI;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.admin.AdminAPI;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
-import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
 
@@ -49,7 +49,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("ping-nagios", false, false, null, "query and print system status in nagios compatible format");			
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
-            cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
+            cmdParser.addParameter("-module", false, true, null, "client module (e.g. fi.csc.microarray.module.chipster.MicroarrayModule)");
 			
 			// parse commandline
 			cmdParser.parse(args);
@@ -65,10 +65,7 @@ public class MicroarrayMain {
 				System.exit(0);
 			}
 
-			// start application
-			
-			// disable http cache
-			IOUtils.disableHttpCache();
+			// start application		
 			
 			if (cmdParser.hasValue("authenticator")) {
 				new Authenticator(configURL);
@@ -77,7 +74,7 @@ public class MicroarrayMain {
 				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
-				new FileServer(configURL);
+				new FileServer(configURL, null);
 			
 			} else if (cmdParser.hasValue("webstart")) {
 				new WebstartJettyServer().start();
@@ -98,7 +95,7 @@ public class MicroarrayMain {
 						}
 					};
 					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
-					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
+					MessagingEndpoint endpoint = new JMSMessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					boolean fastCheck = cmdParser.hasValue("ping-nagios");
 					ok = api.areAllServicesUp(fastCheck);
@@ -145,7 +142,7 @@ public class MicroarrayMain {
 				// assume client by default
 
 				final String module = cmdParser.getValue("-module");
-				final String config = configURL;				
+				final String config = configURL;								
 				
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

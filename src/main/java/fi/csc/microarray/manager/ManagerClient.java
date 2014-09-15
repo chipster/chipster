@@ -1,6 +1,7 @@
 package fi.csc.microarray.manager;
 
 import java.net.URL;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -12,7 +13,9 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 public class ManagerClient {
 	
 	public ManagerClient(MessagingEndpoint endpoint) throws JMSException {
-		endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
+		if (endpoint != null) {
+			endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
+		}
 	}
 	
 	public void urlRequest(String username, URL url) {
@@ -20,8 +23,12 @@ public class ManagerClient {
 		
 	}
 
+	@Deprecated
 	public void publicUrlRequest(String username, URL url) {
 		
 	}
 
+	public void publicFilesRequest(String username, List<URL> files) {
+		
+	}
 }

@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataStatus;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.GeneRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.SearchRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.GBrowserException;
@@ -74,7 +74,7 @@ public abstract class DataThread {
 								
 								processRequest = 
 										dataRegion == null || 
-										dataRequest instanceof GeneRequest || //searched gene may be in other chromosome
+										dataRequest instanceof SearchRequest || //searched gene may be in other chromosome
 										(dataRegion != null && dataRegion.intersects(dataRequest));
 							}
 							
@@ -224,5 +224,7 @@ public abstract class DataThread {
 
 	public void poison() {
 		this.poison = true;
+		// wake up thread
+		dataRequestQueue.add(new DataRequest(new Region(), null, null));
 	}
 }

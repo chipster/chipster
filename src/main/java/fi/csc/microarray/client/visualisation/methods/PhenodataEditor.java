@@ -48,7 +48,7 @@ import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 
 /**
@@ -453,7 +453,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 				if(isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
 					DefaultTableCellRenderer header = new DefaultTableCellRenderer();
 					if(!data.queryFeatures("/phenodata/is-complete").exists()){
-						header.setIcon(VisualConstants.PHENODATA_ICON);
+						header.setIcon(VisualConstants.getIcon(VisualConstants.PHENODATA_ICON));
 						logger.debug("Header updated. Warning icon enabled.");
 					} else {
 						header.setIcon(null);
@@ -486,7 +486,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+		return bean.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 	}
 	
 

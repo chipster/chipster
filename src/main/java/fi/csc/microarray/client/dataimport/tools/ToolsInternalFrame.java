@@ -28,8 +28,10 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.painter.MattePainter;
 
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
@@ -98,6 +100,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		firstStepOptionPanel = new JXTaskPaneContainer();
 		firstStepOptionPanel.add(this.createDelimSelectorPanel());
 		firstStepOptionPanel.add(this.createDecimalSeparatorPanel());
+		firstStepOptionPanel.setBackgroundPainter(new MattePainter(Color.white));
 		JScrollPane scroll = new JScrollPane(firstStepOptionPanel);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		this.setContent(scroll);
@@ -115,6 +118,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		secondStepOptionPanel.add(this.getChipCountPanel());		
 		secondStepOptionPanel.add(this.createGuessTheRestPanel());		
 		secondStepOptionPanel.add(this.createDataTrimmingPanel());
+		secondStepOptionPanel.setBackgroundPainter(new MattePainter(Color.white));
 		JScrollPane scroll = new JScrollPane(secondStepOptionPanel);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		this.setContent(scroll);
@@ -132,7 +136,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	 * @return JPanel delimeter selection panel
 	 */
 	private JPanel createDelimSelectorPanel() {
-		JXTaskPane delimPanel = new JXTaskPane();
+		JXTaskPane delimPanel = createTaskPane();
 		delimPanel.setLayout(new GridBagLayout());
 
 		delimRadioButtons = new ArrayList<JRadioButton>();
@@ -200,6 +204,17 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		return delimPanel;
 	}
 	
+	private JXTaskPane createTaskPane() {
+		JXTaskPane pane = new JXTaskPane();
+		setUpTaskPane(pane);
+		return pane;
+	}
+
+	public static void setUpTaskPane(JXTaskPane pane) {
+		pane.getContentPane().setBackground(new JPanel().getBackground());
+		((JXPanel)pane.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
+	}
+
 	/**
 	 * Creates panel for decimal separator selecting.
 	 * This panel is used on the first step.
@@ -207,7 +222,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	 * @return panel for decimal separator selecting
 	 */
 	private JPanel createDecimalSeparatorPanel() {
-		JXTaskPane decimalSeparatorPanel = new JXTaskPane();
+		JXTaskPane decimalSeparatorPanel = createTaskPane();
 		decimalSeparatorPanel.setLayout(new GridBagLayout());
 
 		ButtonGroup separatorGroup = new ButtonGroup();
@@ -397,7 +412,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 
 	
 	private Component createGuessTheRestPanel() {
-		JXTaskPane guessTheRestPanel = new JXTaskPane();
+		JXTaskPane guessTheRestPanel = createTaskPane();
 		guessTheRestPanel.setLayout(new BorderLayout());
 		fillTheRestButton = new JButton("Complete the rest");
 		guessTheRestPanel.add(fillTheRestButton, BorderLayout.WEST);

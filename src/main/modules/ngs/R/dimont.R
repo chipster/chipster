@@ -1,7 +1,7 @@
 # TOOL dimont.R: "Find motifs with Dimont" (Dimont is a universal tool for de-novo motif discovery. Dimont has successfully been applied to ChIP-seq, ChIP-exo and protein-binding microarray (PBM\) data.)
 # INPUT seqdata.fa: "Input sequences" TYPE GENERIC (The input sequences for de-novo motif discovery in annotated FastA format. The required format can be generated using the \"Dimont data extractor\".)
 # OUTPUT dimont.log: Logfile (Logfile of the Dimont run.)
-# OUTPUT dimont-predictions-{...}.txt: Predictions (Binding sites predicted by Dimont.)
+# OUTPUT dimont-predictions-{...}.tsv: Predictions (Binding sites predicted by Dimont.)
 # OUTPUT dimont-logo-rc-{...}.png: "Sequence logo (rc\)" (The sequence logo of the reverse complement of the motif discovered by Dimont.)
 # OUTPUT dimont-logo-{...}.png: "Sequence logo" (The sequence logo of the motif discovered by Dimont.)
 # OUTPUT dimont-model-{...}.xml: "Dimont model" (The model (as XML\) of the motif discovered by Dimont. Can be used in \"Dimont Predictor\".)
@@ -46,3 +46,10 @@ command<-paste("java -Xms512M ", maxMemoryParameter, " -Djava.awt.headless=true 
 			   " threads=1 > dimont.log",sep="",collapse="");
 
 system(command);
+
+files<-list.files(path=".",pattern="dimont-predictions.*\\.txt")
+
+for(file in files){
+	nf<-gsub(pattern="\\.txt$",replacement=".tsv",x=file,perl=T)
+	system(command=paste("mv",file,nf))
+}

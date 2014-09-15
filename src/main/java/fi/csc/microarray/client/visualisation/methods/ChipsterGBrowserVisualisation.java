@@ -20,6 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -29,8 +30,6 @@ import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.BrowserSelectionListener;
@@ -45,6 +44,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.util.UnsortedData
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -57,8 +58,6 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  * @see GBrowserPlot
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
-	
-	private static final String ANNOTATIONS_PATH = "annotations";
 	
 	public static class BeanDataFile extends DataUrl {
 		
@@ -81,19 +80,24 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		 */
 		@Override
 		public InputStream getInputStream() throws IOException {
-			return bean.getContentByteStream();
+			return Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 		}
 
 		@Override
 		public File getLocalFile() throws IOException {
-			//Chipster2 backport fix
-			return Session.getSession().getDataManager().getLocalFile(bean);
+			
+			return Session.getSession().getDataManager().getLocalRandomAccessFile(bean);
 		}
 		
 		@Override
 		public URL getUrl() throws IOException {
-			//Chipster2 backport fix
-			return getLocalFile().toURI().toURL();
+			ContentLocation contentLocation = Session.getSession().getDataManager().getClosestRandomAccessContentLocation(bean);
+			
+			if (contentLocation == null) {				
+				getLocalFile();
+				contentLocation = Session.getSession().getDataManager().getClosestRandomAccessContentLocation(bean);
+			}
+			return contentLocation.getUrl();
 		}
 
 		public DataBean getDataBean() {
@@ -119,11 +123,11 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	 */
 	private static class ChipsterGBrowser extends GBrowser implements PropertyChangeListener, BrowserSelectionListener {
 		
-		private ClientApplication application;
+		private SwingClientApplication application;
 		private List<DataBean> datas;
 
 		public ChipsterGBrowser() {
-			this.application = Session.getSession().getApplication();							
+			this.application = (SwingClientApplication) Session.getSession().getApplication();							
 		}
 
 		@Override
@@ -157,7 +161,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 			application.showDialog(title, message, details, severity, modal, detailsVisibility, null);
 			
 			if (closeBrowser) {
-				application.setVisualisationMethod(VisualisationMethod.NONE, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				application.setVisualisationMethod();
 			}
 		}
 		
@@ -295,7 +299,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		public void openDownloadAnnotationsDialog(final Genome genome) {
 			Session.getSession().getApplication().showDialog(
 					"Download annotations for " + genome + "?",
-					"Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
+					"Downloading annotations is highly recommended to get optimal performance with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.",
 					"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
 						@Override
@@ -313,27 +317,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 						}
 					});
 
-		}
-		
-		@Deprecated
-		public URL getRemoteAnnotationsUrl() throws Exception {
-			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-			
-			List<URL> publicFiles = fileBroker.getPublicFiles();
-			if (publicFiles != null) {
-				
-				//find only the annotations folder for now
-				for (URL url : publicFiles) {
-					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
-						
-						String urlString = url.toString();
-						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
-						return new URL(annotationString);
-					}
-				}
-			}
-			
-			return null;			
 		}
 
 		public List<URL> getRemoteAnnotationFiles() throws Exception {
@@ -423,7 +406,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	}
 
 	private boolean isIndexData(DataBean bean) {
-		return bean.getName().endsWith(".bai");
+		return bean.getName().endsWith(".bai") || bean.getName().endsWith(".fai");
 	}
 
 	@Override
@@ -433,7 +416,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 	@Override
 	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
-		return interpretUserDatas(datas) != null;
+		return  !datas.isEmpty() && interpretUserDatas(datas) != null;
 	}
 
 	public class ObjVariable extends Variable {
@@ -488,7 +471,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					// Cna file				
 					interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data, data.getName())));
 				}
-			}						
+			} else if (data.hasTypeTag(MicroarrayModule.TypeTags.FASTA_FILE)) {
+				interpretations.add(new DataBeanInterpretation(TrackType.REFERENCE, new BeanDataFile(data)));
+			}
 		}
 
 		// Find interpretations for all secondary data types
@@ -520,11 +505,23 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		// Check that interpretations are now fully initialised
 		for (Interpretation interpretation : interpretations) {
-			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
+			
+			boolean isBam = interpretation.getPrimaryData().getName().endsWith(".bam");
+			boolean isFasta = interpretation.getType() == TrackType.REFERENCE;
+			
+			if ((isBam || isFasta) && interpretation.getIndexData() == null) {
+								
+				String indexName = null;
 				
-				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				if (isBam) {
+					indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				}
 				
-				//Chipster2 backport fixes on following 20 lines
+				if (isFasta) {
+					indexName = interpretation.getPrimaryData().getName() + ".fai";
+				}
+				
+				// index data wasn't among selected datasets, search from all datasets of the session
 				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
 				
 				if (beanList.size() == 1) {
@@ -577,6 +574,8 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 		browser.removeVisualisation();
 
 		application.removeClientEventListener(browser);
+		
+		browser = null;
 
 	}
 	
