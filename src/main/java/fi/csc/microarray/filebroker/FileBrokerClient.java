@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.jms.JMSException;
@@ -12,6 +13,12 @@ import javax.jms.JMSException;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public interface FileBrokerClient {
+
+	public static enum FileBrokerArea {
+		CACHE,
+		STORAGE
+	}
+	
 
 	/**
 	 * Ask for the filebroker to try to make certain amount of disk space available.
@@ -29,13 +36,13 @@ public interface FileBrokerClient {
 	 * @param file
 	 * @param contentLength -1 if unknown
 	 * @param progressListener may be null
-	 * @return url to the added file
+	 * @return 
 	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
 	 * @throws JMSException
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract String addFile(String dataId, FileBrokerArea area, InputStream file, long contentLength, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
 	 * Add file to file broker. Might use local transfer instead of uploading.
@@ -51,10 +58,10 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 * @throws NotEnoughDiskSpaceException
 	 */
-	public abstract URL addFile(File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
+	public abstract void addFile(String dataId, FileBrokerArea area, File file, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException;
 
 	/**
-	 *  Get the InputStream for a while from the FileBroker.
+	 *  Get the InputStream for a file from the FileBroker.
 	 *  
 	 *  If payload is not available right a way, wait for a while for
 	 *  the payload to become available. 
@@ -66,45 +73,24 @@ public interface FileBrokerClient {
 	 *  Unfortunately, the waiting slows down getting the InputStream for
 	 *  empty files. Empty files are not too common though.
 	 * 
-	 * @param url
 	 * @return
 	 * @throws IOException
+	 * @throws JMSException 
 	 */
-	public abstract InputStream getFile(URL url) throws IOException;
-
+	public abstract ChecksumInputStream getInputStream(String dataId) throws IOException, JMSException;
+	
 	/**
 	 * Get File pointed by url to destFile. Might use local file transfer instead
 	 * of downloading.
 	 * 
-	 * @see #getFile(URL)
 	 * 
 	 * @param destFile destination file that must not exist
-	 * @param url source file
 	 * 
 	 * @throws IOException
+	 * @throws JMSException 
+	 * @throws ChecksumException 
 	 */
-	public abstract void getFile(File destFile, URL url) throws IOException;
-
-	/**
-	 * Check if a file exists at the file broker.
-	 * 
-	 * This method should only be used to check if a cached file has been
-	 * removed on the server side.
-	 * 
-	 * This method should not be used to figuring out if a cached file should
-	 * be updated or not. 
-	 * 
-	 * TODO Check contentLength against connection.getContentLength()
-	 * TODO Checking content length may not be the best idea,
-	 * especially when using compression
-	 * 
-	 * @param url
-	 * @param contentLength
-	 * @return true if file exists and contentLength matches
-	 * @throws IOException 
-	 */
-	public abstract boolean checkFile(URL url, long contentLength);
-	
+	public abstract void getFile(String dataId, File destFile) throws IOException, JMSException, ChecksumException;	
 
 	/**
 	 * Retrieves the list of public files or folders from the file broker. Method blocks until result is
@@ -118,13 +104,54 @@ public interface FileBrokerClient {
 	public abstract List<URL> getPublicFiles() throws JMSException, MalformedURLException;
 
 	/**
-	 * Retrieves the root of the public file area from the file broker. Method blocks until result is
-	 * retrieved or timeout. Talks to the file broker using JMS.
-	 * 
-	 * @return the new URL, may be null if file broker sends null or if reply is not received before timeout
-	 *  
+	 * @param name
+	 * @param sessionId dataId of the session metadata file
+	 * @param dataIds dataIds of other files in session
 	 * @throws JMSException
 	 */
-	public abstract URL getPublicUrl() throws Exception;
+	public abstract void saveRemoteSession(String name, String sessionId, LinkedList<String> dataIds) throws JMSException;
+	
+	/**
+	 * Returns storage sessions (remote sessions) available at server. Returned array contains human readable names and corresponding URL's.
+	 * First name is result[0][0] and the corresponding URL is result[1][0].
+	 * 
+	 * @return array of names and URL's
+	 */
+	public abstract List<DbSession> listRemoteSessions() throws JMSException;
+	public abstract List<DbSession> listPublicRemoteSessions() throws JMSException;
+	/**
+	 * @param dataId dataId of the session metadata file
+	 * @throws JMSException
+	 */
+	public void removeRemoteSession(String dataId) throws JMSException;
 
+	/**
+	 * @param dataId
+	 * @param contentLength null if not available
+	 * @param checksum null if not available
+	 * @param area
+	 * @return
+	 * @throws JMSException
+	 */
+	public boolean isAvailable(String dataId, Long contentLength, String checksum, FileBrokerArea area) throws JMSException;
+
+
+	public boolean moveFromCacheToStorage(String dataId) throws JMSException, FileBrokerException;
+
+
+	/**
+	 * Internally client should use only dataIds instead of full URL and access data through 
+	 * FileBrokerClient.getInputStream(). Use this method to only to generate links that are 
+	 * needed outside Chipster and therefore don't have access to FileBrokerClient. 
+	 * 
+	 * @param dataId
+	 * @return
+	 * @throws JMSException
+	 * @throws FileBrokerException
+	 * @throws MalformedURLException 
+	 */
+	public String getExternalURL(String dataId) throws JMSException, FileBrokerException, MalformedURLException;
+
+
+	public Long getContentLength(String dataId) throws IOException, JMSException, FileBrokerException;
 }

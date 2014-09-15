@@ -10,8 +10,9 @@ import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
+import org.apache.log4j.Logger;
+
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.security.CryptoKey;
 
 /**
@@ -22,6 +23,41 @@ import fi.csc.microarray.security.CryptoKey;
  *
  */
 public class AuthorisedUrlRepository {
+	
+	public static class Authorisation {
+		private Date created;
+		private long fileSize;
+		
+		public Authorisation(Date created, long fileSize) {
+			this.created = created;
+			this.fileSize = fileSize;
+		}
+		
+		public Authorisation(long fileSize) {
+			this(new Date(), fileSize);
+		}
+		
+		public Authorisation(Authorisation o) {
+			this(o.created, o.fileSize);
+		}
+
+		public Date getCreated() {
+			return created;
+		}
+		public void setCreated(Date created) {
+			this.created = created;
+		}
+
+		public long getFileSize() {
+			return fileSize;
+		}
+
+		public void setFileSize(long fileSize) {
+			this.fileSize = fileSize;
+		}
+	}
+	
+	private static Logger logger = Logger.getLogger(AuthorisedUrlRepository.class);
 
 	/**
 	 * The time after which URL is removed from the repository, 
@@ -30,28 +66,30 @@ public class AuthorisedUrlRepository {
 	private static final int URL_LIFETIME_MINUTES = 10;
 	private static final String COMPRESSION_SUFFIX = ".compressed";
 
-	private HashMap<URL, Date> repository = new HashMap<URL, Date>();  
+	private HashMap<URL, Authorisation> repository = new HashMap<>();  
 	private Lock repositoryLock = new ReentrantLock();
 
 	private String host;
 	private int port;
-	private String userDataPath;
+	private String cachePath;
+	private String storagePath;
 	
-	public AuthorisedUrlRepository(String host, int port) {
+	public AuthorisedUrlRepository(String host, int port, String cachePath, String storagePath) {
 		this.host = host;
 		this.port = port;
-		
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		userDataPath = configuration.getString("filebroker", "user-data-path");
+		this.cachePath = cachePath;
+		this.storagePath = storagePath;
 	}
 
 	/**
 	 * Creates new URL and adds it to repository, where it has a 
 	 * limited lifetime.
+	 * @param area 
+	 * @param bytes 
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl(boolean useCompression) throws MalformedURLException {
+	public URL createAuthorisedUrl(String fileId, boolean useCompression, FileBrokerArea area, long bytes) throws Exception {
 
 		URL newUrl;
 
@@ -62,15 +100,21 @@ public class AuthorisedUrlRepository {
 
 		repositoryLock.lock();
 		try {
-			// create url that does not exist in the repository
-			do {
-				String filename = CryptoKey.generateRandom();
-				newUrl = new URL(host + ":" + port + "/" + userDataPath + "/" + filename + compressionSuffix);
+			// create url
+			if (area == FileBrokerArea.STORAGE) {
+				newUrl = constructStorageURL(fileId, compressionSuffix);
+			} else {
+				newUrl = constructCacheURL(fileId, compressionSuffix);
+			}
 				
-			} while (repository.containsKey(newUrl));
+			if (repository.containsKey(newUrl)) {
+				//two clients tried to upload the same file at the same time
+				//allow and handle collision in RestServlet
+				logger.debug("repository contains the url already, timestamp is renewed");
+			}
 
 			// store it
-			repository.put(newUrl, new Date());
+			repository.put(newUrl, new Authorisation(bytes));
 			
 		} finally {
 			repositoryLock.unlock();
@@ -79,12 +123,22 @@ public class AuthorisedUrlRepository {
 		return newUrl;
 	}
 	
+	public URL constructStorageURL(String filename, String compressionSuffix) throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + storagePath + "/" + filename + compressionSuffix);
+	}
+
+	public URL constructCacheURL(String filename, String compressionSuffix) throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + cachePath + "/" + filename + compressionSuffix);
+	}
+
 	/**
-	 * Checks if repository contains valid (not outdated) copy of the URL. 
+	 * Checks if repository contains valid (not outdated) copy of the URL.
+	 * @param url
+	 * @return Authorisation object the URL is valid, otherwise null
 	 */
-	public boolean isAuthorised(URL url) {
+	public Authorisation getAuthorisation(URL url) {
 	
-		boolean contains = false;
+		Authorisation authorisation = null;
 
 		repositoryLock.lock();
 		try {
@@ -92,27 +146,37 @@ public class AuthorisedUrlRepository {
 			Iterator<URL> keyIterator = repository.keySet().iterator(); // use iterator because we are removing
 			while (keyIterator.hasNext()) {
 				URL key = keyIterator.next();
-				if (!isDateValid(repository.get(key))) {
+				if (!isDateValid(repository.get(key).getCreated())) {
 					keyIterator.remove();
 				}
 			}
 
 			// check if url exists in up-to-date repository
-			contains = repository.containsKey(url);
+			authorisation = repository.get(url);
 
 		} finally {
 			repositoryLock.unlock();
 		}
 
-		return contains;
+		if (authorisation != null) {
+			//clone
+			return new Authorisation(authorisation);
+		} else {
+			return null;
+		}
 	}
 	
-	public boolean checkFilenameSyntax(String filename) {
-		String fileNameToCheck = filename;
+	
+	public static String stripCompressionSuffix(String filename) {
 		if (filename.endsWith(COMPRESSION_SUFFIX)) {
-			fileNameToCheck = filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
+			return filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
+		} else {
+			return filename;
 		}
-		
+
+	}
+	public static boolean checkFilenameSyntax(String filename) {
+		String fileNameToCheck = stripCompressionSuffix(filename);
 		return CryptoKey.validateKeySyntax(fileNameToCheck);
 	}
 	
@@ -126,6 +190,7 @@ public class AuthorisedUrlRepository {
 	public String getRootUrl() {
 		return host + ":" + port;
 	}
+	
 }
 
 

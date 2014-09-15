@@ -1,8 +1,10 @@
 package fi.csc.microarray.messaging;
 
+import java.util.Arrays;
+
 import org.apache.log4j.Logger;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.junit.After;
+import org.junit.Before;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -36,8 +38,9 @@ public abstract class MessagingTestBase {
 
 	
 	
-	@BeforeSuite
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
+		
 		
 		// use demo listener if no username or password
 		System.out.println("setting up authentication listener");
@@ -49,8 +52,9 @@ public abstract class MessagingTestBase {
 		
 		// use default config if no config url
 		System.out.println("initialising client");
+		DirectoryLayout.uninitialise();
 		if (configURL == null) {
-			DirectoryLayout.initialiseSimpleLayout().getConfiguration();
+			DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[]{"client"}));
 		} else {
 			try {
 				DirectoryLayout.initialiseClientLayout(configURL);
@@ -62,20 +66,21 @@ public abstract class MessagingTestBase {
 		System.out.println("setting up messaging");
 		logger = Logger.getLogger(MessagingTestBase.class);
 		logger.debug("loaded config");
-		endpoint =  new MessagingEndpoint(new NodeBase() {
+		endpoint =  new JMSMessagingEndpoint(new NodeBase() {
 			public String getName() {
 				return "test";
 			}
 		});
 		System.out.println("endpoint created");
-		endpoint.setAuthenticationListener(authenticationListener);
+		endpoint.setAuthenticationListener(authenticationListener);		
 	}
 	
-	@AfterSuite
-	protected void tearDown() throws Exception {
-		System.out.println("closing messaging endpoint");
-		endpoint.close();
-		endpoint = null;
+	@After
+	public void tearDown() throws Exception {
+		if (endpoint != null) {
+			System.out.println("closing messaging endpoint");
+			endpoint.close();
+			endpoint = null;
+		}
 	}
-
 }

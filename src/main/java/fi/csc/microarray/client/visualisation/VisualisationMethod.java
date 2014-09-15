@@ -6,10 +6,10 @@ import javax.swing.ImageIcon;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.methods.Empty;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule.VisualisationMethods;
 
 /**
  * <p>A data visualisation methods. This class is used for
@@ -26,13 +26,6 @@ import fi.csc.microarray.exception.MicroarrayException;
  * 
  */
 public class VisualisationMethod {
-
-	/**
-	 * Method None can be always available and spaces reserve space also for the longer names
-	 * when they aren't present. This is the easiest found way to keep things
-	 * steady. Duration estimation 0 means no limit.
-	 */
-	public static VisualisationMethod NONE = new VisualisationMethod("None                                   ", Empty.class, VisualConstants.EMPTY_MENUICON, 0, 0);
 	
 	public String getName() {
 		return name;
@@ -42,6 +35,7 @@ public class VisualisationMethod {
 
 	private String name;
 	private Class<? extends Visualisation> visualiser;
+	private String iconPath;
 	private ImageIcon icon;
 	private int orderNumber;
 	/**
@@ -50,16 +44,16 @@ public class VisualisationMethod {
 	private double durationEstimationFactor;
 	private String helpAddress = null;
 
-	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, String iconPath, int orderNumber, double durationEstimationFactor) {
 		this.name = name;
 		this.visualiser = visualiser;
-		this.icon = icon;
+		this.iconPath = iconPath;
 		this.orderNumber = orderNumber;
 		this.durationEstimationFactor = durationEstimationFactor;
 	}
 
-	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
-		this(name, visualiser, icon, orderNumber, durationEstimationFactor);
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, String iconPath, int orderNumber, double durationEstimationFactor, String helpAddress) {
+		this(name, visualiser, iconPath, orderNumber, durationEstimationFactor);
 		this.helpAddress = helpAddress;
 	}
 	
@@ -98,11 +92,14 @@ public class VisualisationMethod {
 	}
 
 	public ImageIcon getIcon() {
+		if (icon == null) {
+			icon = VisualConstants.getIcon(iconPath);
+		}
 		return icon;
 	}
 
 	public static VisualisationMethod getDefault() {
-		return VisualisationMethod.NONE;
+		return VisualisationMethods.DATA_DETAILS;
 	}
 
 	/**
@@ -112,7 +109,7 @@ public class VisualisationMethod {
 	 */
 	public long estimateDuration(List<DataBean> datas) {
 		if (datas.size() > 0) {
-			return (long) (datas.get(0).getContentLength() * durationEstimationFactor * datas.size());
+			return (long) (Session.getSession().getDataManager().getContentLength(datas.get(0)) * durationEstimationFactor * datas.size());
 		}
 		return -1;
 	}

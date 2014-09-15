@@ -37,11 +37,12 @@ public class ModuleManager {
 			module.plugFeatures(manager);
 			module.plugModifiers(manager);
 			module.plugContentTypes(manager);
-			module.plugTypeTags(manager);
 			if (session != null) {
 				session.getVisualisations().addVisualisationMethods(module.getVisualisationMethods());
 			}
 		}
+		
+		manager.setModules(this.modules);
 	}
 
 	public void addModule(Module module) {

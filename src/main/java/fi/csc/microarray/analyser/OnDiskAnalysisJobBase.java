@@ -2,15 +2,16 @@ package fi.csc.microarray.analyser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
 import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 
@@ -53,17 +54,16 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		}
 
 		// extract input files to work dir
-		// TODO security check input file names
 		try {
 			for (String fileName : inputMessage.payloadNames()) {
 				cancelCheck();
 
 				// get url and output file
-				URL url = inputMessage.getPayload(fileName);
+				String dataId = inputMessage.getPayload(fileName);
 				File localFile = new File(jobWorkDir, fileName);
 				
 				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getFile(new File(jobWorkDir, fileName), url);
+				resultHandler.getFileBrokerClient().getFile(dataId, new File(jobWorkDir, fileName));
 				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 			}
 		} catch (Exception e) {
@@ -117,11 +117,11 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			// add all described files to the result message
 			for (File outputFile : describedFiles) {
 	            // copy file to file broker
-	            URL url;
+	            String dataId = CryptoKey.generateRandom();
 	            try {
-	                url = resultHandler.getFileBrokerClient().addFile(outputFile, null);
-	                // put url to result message
-	                outputMessage.addPayload(outputFile.getName(), url);
+	                resultHandler.getFileBrokerClient().addFile(dataId, FileBrokerArea.CACHE, outputFile, null);
+	                // put dataId to result message
+	                outputMessage.addPayload(outputFile.getName(), dataId);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
 
 	            } catch (FileNotFoundException e) {

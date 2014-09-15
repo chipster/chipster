@@ -5,16 +5,16 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FilesTest {
 
 	private File testRoot, dir_1, dir_2;
 	
-	@BeforeTest
+	@Before
 	public void setUp() throws IOException {
 		// yes, yes, not perfect
 		testRoot = File.createTempFile("deltree-test-", "");
@@ -29,7 +29,7 @@ public class FilesTest {
 		Files.createSymbolicLink(dir_2, new File(dir_1, "dirLink"));
 	}
 	
-	@AfterTest
+	@After
 	public void tearDown() {
 		testRoot.delete();
 	}

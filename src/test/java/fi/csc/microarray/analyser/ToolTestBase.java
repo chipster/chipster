@@ -2,7 +2,7 @@ package fi.csc.microarray.analyser;
 
 import java.util.LinkedList;
 
-import org.testng.annotations.BeforeSuite;
+import org.junit.Before;
 
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
@@ -19,7 +19,7 @@ public class ToolTestBase extends AnalysisTestBase {
 		super(username, password, configURL);
 	}
 
-	@BeforeSuite(alwaysRun = true)
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 		serviceAccessor = new RemoteServiceAccessor();

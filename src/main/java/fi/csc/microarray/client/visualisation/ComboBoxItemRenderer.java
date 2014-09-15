@@ -6,12 +6,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.LineBorder;
 
-class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+class ComboBoxRenderer extends JLabel implements ListCellRenderer<VisualisationMethod> {
 	public ComboBoxRenderer() {
 		setOpaque(true);
 		setHorizontalAlignment(LEFT);
-		setVerticalAlignment(CENTER);
+		setVerticalAlignment(CENTER);		
 	}
 
 	/*
@@ -19,9 +20,10 @@ class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 	 * to the selected value and returns the label, set up
 	 * to display the text and image.
 	 */
+	@Override
 	public Component getListCellRendererComponent(
-			JList list,
-			Object value,
+			JList<? extends VisualisationMethod> list,
+			VisualisationMethod value,
 			int index,
 			boolean isSelected,
 			boolean cellHasFocus) {
@@ -43,10 +45,24 @@ class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 		}
 		
 		if (value != null) {
-			setIcon(icon);
-			setText(value.toString());
+						
+			if (index < 0) {
+				// closed menu
+				setIcon(null);
+				setBorder(null);
+				//setText(value.toString());
+			} else {
+				// open menu
+				setIcon(icon);
+				setBorder(new LineBorder(this.getBackground(), 5));
+			}
+			
+			// both closed and open menu look better when there is some empty space in front of the text
+			setText("  " + value.toString());
 			setFont(list.getFont());
 		}
+		
+		
 		return this;
 	}
 }

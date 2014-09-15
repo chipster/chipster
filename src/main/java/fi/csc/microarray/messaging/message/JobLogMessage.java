@@ -29,6 +29,7 @@ public class JobLogMessage extends ChipsterMessage {
 		
 	private static final String KEY_OPERATION = "operation";
 	private static final String KEY_STATE = "exitState";
+	private static final String KEY_STATE_DETAIL = "stateDetail";
 	private static final String KEY_JOB_ID = "jobId";
 	private static final String KEY_START_TIME = "startTime";
 	private static final String KEY_END_TIME = "endTime";
@@ -41,6 +42,7 @@ public class JobLogMessage extends ChipsterMessage {
 	
 	private String operation;
 	private JobState state;
+	private String stateDetail; // not logged
 	private String jobId;
 	private Date startTime;
 	private Date endTime;
@@ -51,10 +53,11 @@ public class JobLogMessage extends ChipsterMessage {
 	
 	
 
-	public JobLogMessage(String operation, JobState state, String jobId, Date startTime, Date endTime, String errorMessage, String outputText, String username, String compHost) {
+	public JobLogMessage(String operation, JobState state, String stateDetail, String jobId, Date startTime, Date endTime, String errorMessage, String outputText, String username, String compHost) {
 		super();
 		this.operation = operation;
 		this.state = state;
+		this.stateDetail = stateDetail;
 		this.jobId = jobId;
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -72,12 +75,21 @@ public class JobLogMessage extends ChipsterMessage {
 		super.unmarshal(from);
 	
 		this.operation = from.getString(KEY_OPERATION);
-		this.state = JobState.valueOf(from.getString(KEY_STATE));
+		if (from.getString(KEY_STATE) != null) {
+			this.state = JobState.valueOf(from.getString(KEY_STATE));
+		}
+		
+		this.stateDetail = from.getString(KEY_STATE_DETAIL);
+		
 		this.jobId = from.getString(KEY_JOB_ID);
 		try {
 			DateFormat df = DateFormat.getDateTimeInstance();
-			this.startTime = df.parse(from.getString(KEY_START_TIME));
-			this.endTime = df.parse(from.getString(KEY_END_TIME));
+			if (from.getString(KEY_START_TIME) != null) {
+				this.startTime = df.parse(from.getString(KEY_START_TIME));
+			}
+			if (from.getString(KEY_END_TIME) != null) {
+				this.endTime = df.parse(from.getString(KEY_END_TIME));
+			}
 		} catch (ParseException e) {
 			throw new JMSException(e.toString());
 		}
@@ -92,11 +104,16 @@ public class JobLogMessage extends ChipsterMessage {
 		
 		mapMessage.setString(KEY_OPERATION, this.operation);
 		mapMessage.setString(KEY_STATE, this.state.name());
+		mapMessage.setString(KEY_STATE_DETAIL, this.stateDetail);
 		mapMessage.setString(KEY_JOB_ID, this.jobId);		
 		
 		DateFormat df = DateFormat.getDateTimeInstance();
-		mapMessage.setString(KEY_START_TIME, df.format(this.startTime));
-		mapMessage.setString(KEY_END_TIME, df.format(this.endTime));
+		if (this.startTime != null) {
+			mapMessage.setString(KEY_START_TIME, df.format(this.startTime));
+		}
+		if (this.endTime != null) {
+			mapMessage.setString(KEY_END_TIME, df.format(this.endTime));
+		}
 		
 		mapMessage.setString(KEY_ERROR_MESSAGE, this.errorMessage);
 		mapMessage.setString(KEY_OUTPUT_TEXT, this.outputText);
@@ -205,8 +222,10 @@ public class JobLogMessage extends ChipsterMessage {
 		"username: " + username + "\n" +
 		"compHost: " + compHost + "\n";
 	}
-	
 
+	public String getStateDetail() {
+		return this.stateDetail;
+	}
 }
 	
 

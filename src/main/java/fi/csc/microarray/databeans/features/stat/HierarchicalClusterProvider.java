@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.NonexistingFeature;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.Strings;
 
 public class HierarchicalClusterProvider extends FeatureProviderBase {
 
@@ -28,17 +31,18 @@ public class HierarchicalClusterProvider extends FeatureProviderBase {
 		} else if ("tree".equals(namePostfix)) {
 			return new BasicFeature(bean, this) {
 				public Iterable<String> asStrings() throws MicroarrayException {
+					
 					BufferedReader reader = null;
 					String tree = "";
 					try {
-						reader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+						reader = new BufferedReader(new InputStreamReader(Session.getSession().getDataManager().getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA)));
 						boolean first = true;
 						for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 							tree += line;
 							if (first) {
 								// check first line to verify that this is a tree - a more robust yet efficient check would be very difficult to do...
 								if (!line.contains(":") && !line.contains("(")) {
-									return null;
+									throw new MicroarrayException("cannot parse tree: " + Strings.crop(line, 20));
 								}
 							}
 							first = false;

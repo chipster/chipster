@@ -21,7 +21,7 @@ import fi.csc.microarray.constants.VisualConstants;
 public class SplashScreen {
 	
 	private JFrame frame;
-	private String[] lines = new String[] { "", "", "" , ""};
+	private String lines = "";	
 	private int TEXT_HEIGHT = 70;
 	private JLabel textLabel;
 	private JPanel textPanel;
@@ -62,25 +62,18 @@ public class SplashScreen {
 	}
 
 	public void write(String string) {
-		lines[lines.length-1] = lines[lines.length-1] + string; 
+		lines += string;
 		updateText();
 	}
 	
 	public void writeLine(String newLine) {
-		for (int i = 0; i < lines.length-1; i++) {
-			lines[i] = lines[i+1];
-		}
-		
-		lines[lines.length-1] = newLine;
-		
+		lines += newLine + "<br>";
 		updateText();
 	}
 
 	private void updateText() {
-		String s = "<html>";
-		for (String line : lines) {
-			s += (line + "<br>");
-		}
+		String s = "<html>";		
+		s += lines;
 		textLabel.setText(s + "</html>");
 	}
 }

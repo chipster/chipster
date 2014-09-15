@@ -2,7 +2,7 @@ package fi.csc.chipster.web.adminweb.data;
 
 import java.io.Serializable;
 
-import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
+import fi.csc.microarray.messaging.admin.AdminAPI.NodeStatus.Status;
 
 public class ServiceEntry implements Serializable {
 	

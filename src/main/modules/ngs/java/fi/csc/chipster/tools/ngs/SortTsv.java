@@ -1,6 +1,9 @@
 package fi.csc.chipster.tools.ngs;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
@@ -42,10 +45,7 @@ public class SortTsv extends JavaAnalysisJobBase {
 				chrColumn = 1;
 			}
 			
-			// run sort
-			new TsvSorter().sort(
-					inputFile, outputFile, 
-					chrColumn, chrColumn + 1, new TsvLineParser(new DataUrl(inputFile), chrColumn));
+			sort(inputFile, outputFile, chrColumn);	
 
 		} catch (Exception e) {			
 			
@@ -55,5 +55,35 @@ public class SortTsv extends JavaAnalysisJobBase {
 		}
 
 		updateStateToClient(JobState.RUNNING, "sorting finished");
+	}
+	
+	private static void sort(File inputFile, File outputFile, int chrColumn) throws MalformedURLException, IOException, URISyntaxException, Exception {
+		// run sort
+		new TsvSorter().sort(
+				inputFile, outputFile, 
+				chrColumn, chrColumn + 1, new TsvLineParser(new DataUrl(inputFile), chrColumn));
+	}
+
+
+	public static void main(String[] args) throws Exception {
+
+		try {
+
+			File in = new File(args[0]);
+			File out = new File(args[1]);
+			int chrColumn = Integer.parseInt(args[2]) - 1;
+
+			sort(in, out, chrColumn);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+						
+			System.out.println(
+					"usage: SortGtf input-file output-file chr-column\n" +
+					"  chr-column:	number of column containin chromosomes, starting from 1\n" +
+					"  \n" + 
+					"example:\n " +
+					"  java -cp chipster-3.0.0.jar fi.csc.chipster.tools.ngs.SortTsv de-genes-cufflinks.tsv de-genes-cufflinks-sort.tsv 2");
+		}				
 	}
 }

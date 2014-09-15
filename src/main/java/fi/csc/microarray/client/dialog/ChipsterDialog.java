@@ -61,7 +61,7 @@ public class ChipsterDialog extends JDialog {
 	private DialogCloseListener dialogCloseListener;
 	private PluginButton pluginButton;
 	
-	public ChipsterDialog(SwingClientApplication app, DialogInfo dialogInfo, 
+	private ChipsterDialog(SwingClientApplication app, DialogInfo dialogInfo, 
 	        DetailsVisibility detailsVisibility, PluginButton pluginButton) {
 	    
         super(app != null ? app.getMainFrame() : null);
@@ -78,8 +78,8 @@ public class ChipsterDialog extends JDialog {
 		this.getContentPane().add(mainPanel);
 		
 		// locate and pack
-		this.setLocationByPlatform(true);
 		this.pack();
+		this.setLocationRelativeTo(app.getMainFrame());
 	}
 
 	private JPanel getMainPanel(DialogInfo dialogInfo) {

@@ -8,13 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Feature;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.RegionOperations;
 

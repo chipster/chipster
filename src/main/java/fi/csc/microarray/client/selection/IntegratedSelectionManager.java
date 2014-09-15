@@ -20,6 +20,7 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 
@@ -47,7 +48,7 @@ public class IntegratedSelectionManager {
 	}
 
 	public IntegratedEntity getPointSelection() {
-		return this.pointSelection;
+		return IntegratedSelectionManager.pointSelection;
 	}
 
 	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
@@ -65,12 +66,26 @@ public class IntegratedSelectionManager {
 
 		return names;
 	}
-
+	
 	public List<String> getSelectedLines() throws Exception {
+		return getSelectedLines(false);
+	}
+		
+	public List<String> getUnselectedLines() throws Exception {
+		return getSelectedLines(true);
+	}
+	
+
+	private List<String> getSelectedLines(boolean invert) throws Exception {
+		
+		boolean keepSelectedLines = !invert;
+		boolean keepUnselectedLines = invert;
 
 		List<String> lines = new ArrayList<String>(selectedRows.length + 1);
 		
-		try (BufferedReader original = new BufferedReader(new InputStreamReader(data.getContentByteStream()))) {
+		try (BufferedReader original = new BufferedReader(new InputStreamReader(
+				Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA)))) {
+			
 			String line;
 
 			// skip header
@@ -95,7 +110,11 @@ public class IntegratedSelectionManager {
 
 			for (int i = 0; (line = original.readLine()) != null; i++) {
 
-				if (Arrays.binarySearch(selectedRows, i) >= 0) {				
+				boolean isSelected = Arrays.binarySearch(selectedRows, i) >= 0;
+				
+				if ((keepSelectedLines && isSelected) 
+						|| (keepUnselectedLines && !isSelected)) {
+					
 					lines.add(line);
 				}
 			}	
@@ -115,7 +134,7 @@ public class IntegratedSelectionManager {
 			ext = "tsv";
 		}
 		
-		DataBean newData = dataManager.createDataBean("user_edited." + ext);
+		DataBean newData = dataManager.createLocalTempDataBean("user_edited." + ext);
 		
 		String header = primarySource.queryFeatures("/header").asString();
 		
@@ -142,7 +161,7 @@ public class IntegratedSelectionManager {
 		for (DataBean data : sources) {
 			newData.addLink(Link.MODIFICATION, data);
 		}
-		primarySource.getParent().addChild(newData);
+		dataManager.connectChild(newData, primarySource.getParent());
 		
 		return newData;
 	}
@@ -159,7 +178,7 @@ public class IntegratedSelectionManager {
 	 * Focus type of selection.
 	 */
 	public void setPointSelection(IntegratedEntity entity, Object source) {
-		this.pointSelection = entity;
+		IntegratedSelectionManager.pointSelection = entity;
 		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 

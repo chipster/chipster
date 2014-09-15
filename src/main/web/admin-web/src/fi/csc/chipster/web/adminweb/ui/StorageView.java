@@ -1,38 +1,46 @@
 package fi.csc.chipster.web.adminweb.ui;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.io.IOException;
 import java.util.concurrent.locks.Lock;
+
+import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.AbstractClientConnector;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressIndicator;
-import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.adminweb.ChipsterAdminUI;
-import fi.csc.chipster.web.adminweb.data.StorageAggregate;
 import fi.csc.chipster.web.adminweb.data.StorageAggregateContainer;
 import fi.csc.chipster.web.adminweb.data.StorageEntryContainer;
+import fi.csc.chipster.web.adminweb.util.Notificationutil;
 import fi.csc.chipster.web.adminweb.util.StringUtils;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.admin.StorageAdminAPI;
+import fi.csc.microarray.messaging.admin.StorageAggregate;
 
-public class StorageView extends VerticalLayout implements ClickListener, ValueChangeListener {
+@SuppressWarnings("serial")
+public class StorageView extends AsynchronousView implements ClickListener, ValueChangeListener, AfterUpdateCallBack {
+	
+	private static final Logger logger = Logger.getLogger(StorageView.class);
 
 	private static final String DISK_USAGE_BAR_CAPTION = "Total disk usage";
 	private StorageEntryTable entryTable;
 	private StorageAggregateTable aggregateTable;
 
 	private HorizontalLayout toolbarLayout;
-
-	private Button refreshButton = new Button("Refresh");
 
 	private StorageEntryContainer entryDataSource;
 	private StorageAggregateContainer aggregateDataSource;
@@ -41,9 +49,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	private ProgressIndicator diskUsageBar;
 	private HorizontalLayout storagePanels;
 	
-	private ProgressIndicator progressIndicator = new ProgressIndicator(0.0f);
-	private boolean updateDone;
-	private static final int POLLING_INTERVAL = 100;
+	private StorageAdminAPI adminEndpoint;
 
 	public StorageView(ChipsterAdminUI app) {
 
@@ -51,8 +57,7 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 		this.addComponent(getToolbar());
 		
-		progressIndicator.setWidth(100, Unit.PERCENTAGE);
-		this.addComponent(progressIndicator);
+		this.addComponent(super.getProggressIndicator());
 		
 		entryTable = new StorageEntryTable(this);
 		aggregateTable = new StorageAggregateTable(this);
@@ -93,113 +98,66 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 		this.setExpandRatio(storagePanels, 1);
 		
 		try {
-			entryDataSource = new StorageEntryContainer();
-			aggregateDataSource = new StorageAggregateContainer(entryDataSource);
+			
+			adminEndpoint = new StorageAdminAPI();
+			entryDataSource = new StorageEntryContainer(adminEndpoint);
+			aggregateDataSource = new StorageAggregateContainer(adminEndpoint);
 			
 			entryTable.setContainerDataSource(entryDataSource);
 			aggregateTable.setContainerDataSource(aggregateDataSource);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (JMSException | IOException | IllegalConfigurationException | MicroarrayException | InstantiationException | IllegalAccessException e) {
+			logger.error(e);
 		}		
 	}
 
 	public void update() {
 		
-		entryDataSource.update(this);
-		
-		//Disable during data update avoid concurrent modification
-		refreshButton.setEnabled(false);
-		
-		updateDone = false;
-		
-		progressIndicator.setPollingInterval(POLLING_INTERVAL);
-		
-		ExecutorService execService = Executors.newCachedThreadPool();
-		execService.execute(new Runnable() {
-			public void run() {
-				
-				try {
-					/* Separate delay from what happens in the Container, because communication between
-					 * threads is messy. Nevertheless, these delays should have approximately same duration
-					 * to prevent user from starting several background updates causing concurrent modifications.   
-					 */
-					final int DELAY = 300; 				
-					for (int i = 0; i <= DELAY; i++) {
-						
-						if (updateDone) {							
-							break;
-						}
-
-						//This happens in initialisation 
-						if (progressIndicator.getUI() != null ) {
-							
-							Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-							
-							//Component has to be locked before modification from background thread
-							indicatorLock.lock();					
-							try {
-								progressIndicator.setValue((float)i/DELAY);
-							} finally {
-								indicatorLock.unlock();
-							}
-						}
-
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							//Just continue
-						}
-					}
-					
-				} finally {
-					refreshButton.setEnabled(true);
-					
-					if (progressIndicator.getUI() != null) {
-						Lock indicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-
-						indicatorLock.lock();					
-						try {
-							progressIndicator.setValue(1.0f);
-							progressIndicator.setPollingInterval(Integer.MAX_VALUE);
-						} finally {
-							indicatorLock.unlock();
-						}
-					}
-				}
-			}
-		});
+		updateStorageAggregates();
+		updateStorageTotals();
 	}
 
-	private void updateDiskUsageBar() {
+	/**
+	 * Set disk usage. Calls from other threads are allowed.
+	 * 
+	 * @param usedSpace
+	 * @param freeSpace
+	 */
+	public void setDiskUsage(long usedSpace, long freeSpace) {
 		
-		long used = aggregateDataSource.getDiskUsage();
-		long total = aggregateDataSource.getDiskAvailable() + used;
-		
-		diskUsageBar.setValue(used / (float)total);
-		diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
-				StringUtils.getHumanReadable(used) + " / " + StringUtils.getHumanReadable(total) + " )");
-		
-		if (used / (float)total > 0.7) {
-			diskUsageBar.removeStyleName("ok");
-			diskUsageBar.addStyleName("fail");
-		} else {
-			diskUsageBar.removeStyleName("fail");
-			diskUsageBar.addStyleName("ok");
+		//maybe null if the UI thread hasn't initialized this yet
+		if (diskUsageBar.getUI() != null) {
+			Lock barLock = diskUsageBar.getUI().getSession().getLockInstance();
+			barLock.lock();
+			try {
+				long used = usedSpace;
+				long total = usedSpace + freeSpace;
+				float division = used / (float)total;
+				
+				diskUsageBar.setValue(division);
+				diskUsageBar.setCaption(DISK_USAGE_BAR_CAPTION + " ( " + 
+						StringUtils.getHumanReadable(used) + " / " + StringUtils.getHumanReadable(total) + " )");
+				
+				if (division > 0.7) {
+					diskUsageBar.removeStyleName("ok");
+					diskUsageBar.addStyleName("fail");
+				} else {
+					diskUsageBar.removeStyleName("fail");
+					diskUsageBar.addStyleName("ok");
+				}
+				
+				diskUsageBar.markAsDirty();
+			} finally {
+				barLock.unlock();
+			}
 		}
-		
-		diskUsageBar.markAsDirty();
 	}
 
 	public HorizontalLayout getToolbar() {
 
 		if (toolbarLayout == null) {
 			toolbarLayout = new HorizontalLayout();
-			refreshButton.addClickListener((ClickListener)this);
-			toolbarLayout.addComponent(refreshButton);
-
-			refreshButton.setIcon(new ThemeResource("../runo/icons/32/reload.png"));
+			
+			toolbarLayout.addComponent(super.createRefreshButton(this));
 			
 			Label spaceEater = new Label(" ");
 			toolbarLayout.addComponent(spaceEater);
@@ -226,37 +184,65 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 	public void buttonClick(ClickEvent event) {
 		final Button source = event.getButton();
 
-		if (source == refreshButton) {
-			
+		if (super.isRefreshButton(source)) {
+						
 			update();
-//			entryDataSource.update(this);
-//			aggregateDataSource.update(this);
-//			updateDiskUsageBar();
+			updateStorageEntries(null);
 		}
 	}
 
 	public void valueChange(ValueChangeEvent event) {
 		Property<?> property = event.getProperty();
 		if (property == aggregateTable) {
-			updateEntryFilter();
-			StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
-
-			if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-				entryDataSource.showUser(null);
-			} else {
-			}
+						
+			Object tableValue = aggregateTable.getValue();
+			if (tableValue instanceof StorageAggregate) {
+				StorageAggregate storageUser = (StorageAggregate) tableValue;
+				updateStorageEntries(storageUser.getUsername());
+			}			
 		}
 	}
 	
-	public void updateEntryFilter() {
-		
-		StorageAggregate selection = (StorageAggregate) aggregateTable.getValue();
+	private void updateStorageEntries(final String username) {
+		super.submitUpdate(new Runnable() {
 
-		if (aggregateDataSource.TOTAL_USERNAME.equals(selection.getUsername())) {
-			entryDataSource.showUser(null);
-		} else {
-			entryDataSource.showUser(selection.getUsername());
-		}
+			@Override
+			public void run() {				
+				entryDataSource.update(StorageView.this, username);
+			}			
+		}, this);
+	}
+	
+	private void updateStorageAggregates() {
+		super.submitUpdate(new Runnable() {
+
+			@Override
+			public void run() {				
+				aggregateDataSource.update(StorageView.this);
+			}			
+		}, this);
+	}
+	
+	private void updateStorageTotals() {
+		super.submitUpdate(new Runnable() {
+
+			@Override
+			public void run() {								
+				try {
+					Long[] totals = adminEndpoint.getStorageUsage();	
+					
+					if (totals != null) {
+						StorageView.this.setDiskUsage(totals[0], totals[1]);
+					} else {
+						Notification.show("Timeout", "Chipster filebroker server doesn't respond", Type.ERROR_MESSAGE);
+						logger.error("timeout while waiting storage usage totals");
+					}
+
+				} catch (JMSException | InterruptedException e) {
+					logger.error(e);
+				}			
+			}			
+		}, this);
 	}
 	
 	public ChipsterAdminUI getApp() {
@@ -265,18 +251,25 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 
 	public void delete(Object itemId) {
 		//TODO are you sure?
-		//TODO remove from the server
+		try {
+			adminEndpoint.deleteRemoteSession(entryDataSource.getItem(itemId).getBean().getID());
+		} catch (JMSException | MicroarrayException e) {			
+			Notificationutil.showFailNotification(e.getClass().getSimpleName(), e.getMessage());
+			logger.warn("could not delete session", e);
+			return;
+		}
+		
 		entryDataSource.removeItem(itemId);
 		
 		aggregateDataSource.update(this);
-		updateEntryFilter();
-		updateDiskUsageBar();
+		updateStorageTotals();
 	}
 	
 	/**
 	 * Calling from background threads allowed
 	 */
-	public void entryUpdateDone() {
+	@Override
+	public void updateDone() {
 					
 				
 		if (entryTable.getUI() != null) {
@@ -296,31 +289,22 @@ public class StorageView extends VerticalLayout implements ClickListener, ValueC
 			Lock aggregateTableLock = aggregateTable.getUI().getSession().getLockInstance();
 			aggregateTableLock.lock();
 			try {						
-				StorageAggregate totalItem = aggregateDataSource.update(this);
-
-				aggregateTable.select(totalItem);
 				aggregateTable.setVisibleColumns(StorageAggregateContainer.NATURAL_COL_ORDER);
-				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);
+				aggregateTable.setColumnHeaders(StorageAggregateContainer.COL_HEADERS_ENGLISH);				
 
 			} finally {
 				aggregateTableLock.unlock();
 			}
 		}
-		
-		if (progressIndicator.getUI() != null) {
-			Lock proggressIndicatorLock = progressIndicator.getUI().getSession().getLockInstance();
-			proggressIndicatorLock.lock();
-			try {						
-				updateDiskUsageBar();
-			} finally {
-				proggressIndicatorLock.unlock();
-			}
-		}
-
-		this.updateDone = true;
 	}
 
 	public AbstractClientConnector getEntryTable() {
 		return entryTable;
+	}
+
+	public void clean() {
+		if (adminEndpoint != null) {
+			adminEndpoint.clean();
+		}
 	}
 }

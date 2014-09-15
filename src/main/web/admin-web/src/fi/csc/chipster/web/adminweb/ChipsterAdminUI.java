@@ -1,6 +1,7 @@
 package fi.csc.chipster.web.adminweb;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -10,12 +11,14 @@ import com.vaadin.ui.VerticalLayout;
 
 import fi.csc.chipster.web.adminweb.ui.JobLogView;
 import fi.csc.chipster.web.adminweb.ui.JobsView;
+import fi.csc.chipster.web.adminweb.ui.ReportView;
 import fi.csc.chipster.web.adminweb.ui.ServicesView;
 import fi.csc.chipster.web.adminweb.ui.StatView;
 import fi.csc.chipster.web.adminweb.ui.StorageView;
 
+@SuppressWarnings("serial")
 @Theme("admin")
-public class ChipsterAdminUI extends UI {
+public class ChipsterAdminUI extends UI implements DetachListener {
 
 	private HorizontalLayout horizontalSplit;
 
@@ -26,6 +29,7 @@ public class ChipsterAdminUI extends UI {
 	private JobsView jobsView;
 	private JobLogView jobLogView;
 	private StatView statView;
+	private ReportView reportView;
 
 	private VerticalLayout emptyView;
 
@@ -61,15 +65,24 @@ public class ChipsterAdminUI extends UI {
 
 			jobsView = new JobsView(this);
 		}
+		jobsView.update();
 		return jobsView;
 	}
 	
 	private StatView getStatView() {
 		if (statView == null) {
-
 			statView = new StatView(this);
 		}
+		statView.update();
 		return statView;
+	}
+	
+	private ReportView getReportView() {		
+		if (reportView == null) {
+			reportView = new ReportView(this);
+		}
+		reportView.updateData();
+		return reportView;
 	}
 
 	private void buildMainLayout() {
@@ -123,6 +136,10 @@ public class ChipsterAdminUI extends UI {
 	public void showStatView() {
 		setMainComponent(getStatView());
 	}
+	
+	public void showReportView() {
+		setMainComponent(getReportView());
+	}
 
 	public void showEmtpyView() {
 		if (emptyView == null) {
@@ -167,5 +184,14 @@ public class ChipsterAdminUI extends UI {
 	protected void init(VaadinRequest request) {
 		
 		buildMainLayout();
+		
+		addDetachListener(this);
+	}
+
+	@Override
+	public void detach(DetachEvent event) {
+		if (storageView != null) {
+			storageView.clean();
+		}
 	}
 }

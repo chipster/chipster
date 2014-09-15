@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.UrlListMessage;
 
 /**

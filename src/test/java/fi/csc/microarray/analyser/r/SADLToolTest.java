@@ -2,15 +2,15 @@ package fi.csc.microarray.analyser.r;
 
 import java.io.ByteArrayInputStream;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.analyser.SADLTool.ParsedScript;
 
 public class SADLToolTest {
 
-	@Test(groups = { "unit"})
+	@Test
 	public void testEvilContent() throws Exception {	
 		// no empty line after header
 		String source = "# ANALYSIS Test/Test ()\ncontent\n";

@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -28,8 +28,8 @@ public class SADLDescriptionTest {
 		System.out.println("SADLDescriptionTest OK");
 	}
 
-	@Test(groups = {"unit"} )
-	private void testSADLTool() throws IOException {
+	@Test
+	public void testSADLTool() throws IOException {
 		
 		String rScript = 
 			"# TOOL \"BLAST\" / blastn.sadl: blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotode sequence database.)" + "\n" +
@@ -48,9 +48,10 @@ public class SADLDescriptionTest {
 
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testDescriptions() throws Exception {
-				
+
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseUnitTestLayout();
 		
 		LinkedList<String> resources = new LinkedList<String>();

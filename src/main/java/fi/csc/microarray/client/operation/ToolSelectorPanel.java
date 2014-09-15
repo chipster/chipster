@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -43,7 +44,7 @@ import fi.csc.microarray.constants.VisualConstants;
 public class ToolSelectorPanel extends JPanel
 								  implements ListSelectionListener {
 	
-	private final ClientApplication application = Session.getSession().getApplication();
+	private final SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 	
 	private ToolPanel toolPanel;
 	

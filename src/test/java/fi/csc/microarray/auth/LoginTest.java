@@ -10,18 +10,19 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Random;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.config.DirectoryLayout;
 
 public class LoginTest {
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void expirationTest() throws IOException, IllegalConfigurationException {
 
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
+		DirectoryLayout.uninitialise();
+		DirectoryLayout.initialiseUnitTestLayout();			
 		
 		String validUsername = "valid";
 		String expiredUsername = "expired";
@@ -64,6 +65,7 @@ public class LoginTest {
 	}
 
 	private AuthenticationProvider createAuthProvider(File testJaasConfigFile) throws IOException, IllegalConfigurationException {
+		DirectoryLayout.uninitialise();
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		AuthenticationProvider authProvider = new JaasAuthenticationProvider();
 		System.setProperty("java.security.auth.login.config", testJaasConfigFile.getPath());
@@ -148,7 +150,7 @@ public class LoginTest {
 	}
 	
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void randomTest() {
 		for (int i = 0; i < 100; i++) {
 			Assert.assertTrue(getShortRandomString(3).length() <= 3);

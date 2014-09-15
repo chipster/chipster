@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.UUID;
 
 import org.eclipse.jetty.util.IO;
-import org.testng.Assert;
+import org.junit.Assert;
 
 public class FileServerTest {
 	

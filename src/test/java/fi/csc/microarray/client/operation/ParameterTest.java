@@ -6,16 +6,14 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
-import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
@@ -28,17 +26,12 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public class ParameterTest {
     
-    private ToolParameterPanel panel;
-    private Parameter paramMulti;
-    private Parameter paramSingle;
-    
-    @BeforeSuite
-    protected void setUp() throws Exception {
-        DirectoryLayout.initialiseSimpleLayout();
-    }
+    private static ToolParameterPanel panel;
+    private static Parameter paramMulti;
+    private static Parameter paramSingle;
     
     @BeforeClass
-    public void prepareComponents() {
+    public static void prepareComponents() {
         ToolCategory category = new ToolCategory("Testational");
         OperationDefinition definition = new OperationDefinition("Testation id", null,
             category, "Testationing", false);
@@ -114,8 +107,7 @@ public class ParameterTest {
     public static void main(String[] args) {
         ParameterTest test = new ParameterTest();
         try {
-            test.setUp();            
-            test.prepareComponents();
+            prepareComponents();
             test.runTest();
             test.testVisually();
         } catch (Exception e) {

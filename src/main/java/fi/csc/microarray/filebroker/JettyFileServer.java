@@ -16,9 +16,11 @@ public class JettyFileServer {
 
 	private Server jettyInstance;
 	private AuthorisedUrlRepository urlRepository;
+	private DerbyMetadataServer metadataServer;
 	
-	public JettyFileServer(AuthorisedUrlRepository urlRepository) {
+	public JettyFileServer(AuthorisedUrlRepository urlRepository, DerbyMetadataServer metadataServer) {
 		this.urlRepository = urlRepository;
+		this.metadataServer = metadataServer;
 	}
 	
 	public void start(String resourceBase, int port, String protocol) throws Exception {
@@ -56,7 +58,7 @@ public class JettyFileServer {
 		ServletContextHandler root = new ServletContextHandler(jettyInstance, "/", false, false);
 		root.getInitParams().put("org.eclipse.jetty.servlet.Default.aliases", "true");
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet(urlRepository, urlRepository.getRootUrl())), "/*");
+		root.addServlet(new ServletHolder(new RestServlet(urlRepository.getRootUrl(), urlRepository, metadataServer)), "/*");
 		jettyInstance.start();
 	}
 	

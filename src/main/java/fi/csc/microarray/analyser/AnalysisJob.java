@@ -335,4 +335,9 @@ public abstract class AnalysisJob implements Runnable {
 	public void setExecutionEndTime(Date executionEndTime) {
 		this.executionEndTime = executionEndTime;
 	}
+
+
+	public String getStateDetail() {
+		return this.stateDetail;
+	}
 }

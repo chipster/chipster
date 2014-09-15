@@ -41,7 +41,7 @@ public interface ServiceAccessor {
 
 	public SourceMessageListener retrieveSourceCode(String id) throws Exception;
 
-	public FileBrokerClient getFileBrokerClient() throws Exception;
+	public FileBrokerClient getFileBrokerClient();
 
 	public void sendFeedbackMessage(FeedbackMessage message) throws Exception;
 

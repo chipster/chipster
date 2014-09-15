@@ -1,14 +1,14 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.util.ChromosomeNameUnnormaliser;
 
 public class ChromosomeNameUnnormaliserTest {
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void test() {
 		// Forward-reverse
 		Assert.assertEquals(new ChromosomeNameUnnormaliser("X").unnormalise(new Chromosome("X")), "X");

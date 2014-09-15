@@ -20,6 +20,10 @@
 		<entry entryKey="use-compression" type="boolean" description="should we compress data when sending it to filebroker">
 			<value>false</value>
 		</entry>
+		
+		<entry entryKey="use-checksums" type="boolean" description="should we calculate checksums when data is moved over the network">
+			<value>true</value>
+		</entry>
 
 		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
 			<value>http://chipster-filebroker.csc.fi:8080/public</value>
@@ -83,18 +87,18 @@
 	
 	<configuration-module moduleId="filebroker" description="file broker">
 	
-		<entry entryKey="file-root-path" type="string" description="path to file broker cache directory">
+		<entry entryKey="file-root-path" type="string" description="path to file broker root directory">
 			<value>file-root</value>
 		</entry>
-
-		<entry entryKey="user-data-path" type="string" description="path to data files of the users'">
-			<value>user-data</value>
+		
+		<entry entryKey="example-session-path" type="string" description="path to example session files'">
+			<value>example-session</value>
 		</entry>
 
-		<entry entryKey="public-data-path" type="string" description="path to public data files">
+		<entry entryKey="public-path" type="string" description="path to public data files">
 			<value>public</value>
 		</entry>
-		
+
 		<entry entryKey="file-life-time" type="int" description="how long files are stored in fileserver, seconds">
 			<value>86400</value>
 		</entry>
@@ -110,7 +114,10 @@
 		<entry entryKey="clean-up-target-percentage" type="int" description="when cleaning up drop disk usage to this percentage">
 			<value>70</value>
 		</entry>
-
+		
+		<entry entryKey="default-user-quota" type="int" description="maximum disk space that single user is allowed to consume, megabytes. set to -1 for unlimited quota">
+			<value>-1</value>
+		</entry>
 
 		<entry entryKey="clean-up-minimum-file-age" type="int" description="only clean up files older than this, seconds">
 			<value>259200</value>
@@ -120,15 +127,41 @@
 			<value>100</value>
 		</entry>
 
-
 		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		
         <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
         </entry>
 
+        <entry entryKey="metadata-port" type="int" description="server port to use for web interface to metadata server or 0 for no interface">
+			<value>0</value>
+        </entry>
+
 		<entry entryKey="jetty-debug" type="boolean" description="should Jetty web server run in debug mode (logs/wrapper.log)">
 			<value>false</value>
+		</entry>
+
+		<entry entryKey="log-rest" type="boolean" description="should get and put requests be logged (logs/wrapper.log)">
+			<value>false</value>
+		</entry>
+
+        
+        <entry entryKey="enable-metadata-backups" type="boolean" description="true to enable filebroker metadata db backups">
+			<value>true</value>
+		</entry>
+
+        <entry entryKey="metadata-backup-dir" type="string" description="base directory for metadata backups">
+			<value>metadata-backups</value>
+		</entry>
+
+        <entry entryKey="metadata-backup-time" type="string" description="cron like syntax for scheduling backups, see http://www.sauronsoftware.it/projects/cron4j/manual.php#p02 or cron manual for more info">
+			<value>10 0 * * *</value> <!-- ten past midnight, every day -->
+			<!-- <value>0 * * * *</value> --> <!-- ten past midnight, every day -->
+			<!-- <value>0 12 * * Sun</value> --> <!-- midday every Sunday -->
+		</entry>
+
+        <entry entryKey="metadata-backup-keep-count" type="int" description="max number of backups to keep, the oldest are deleted first, use -1 to keep all backups">
+			<value>100</value>
 		</entry>
         
 	</configuration-module>
@@ -144,7 +177,11 @@
     
 	<configuration-module moduleId="comp" description="comp service">
 
-		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's user data directory">
+		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's file root directory">
+			<value></value>
+		</entry>
+		
+		<entry entryKey="overriding-filebroker-ip" type="string" description="connect to filebroker using this ip address instead of its public address">
 			<value></value>
 		</entry>
 		
@@ -265,7 +302,7 @@
 			<value>chipster</value>
 		</entry>
 
-	    <entry entryKey="admin-test-account-list" type="string" description="comma separated list of accounts, which are considered test accounts in admin web stats">
+	    <entry entryKey="admin-test-account-list" type="string" description="comma separated list of accounts, which are considered test accounts in admin web stats and purged from database after 30 days">
 			<value></value>
 		</entry>
 	
@@ -310,9 +347,11 @@
 		<entry entryKey="enable-contact-support" type="boolean" description="Enable contact support menu item">
 			<value>false</value>
 		</entry>
-
+		
+		<entry entryKey="enable-cloud-sessions" type="boolean" description="Enable cloud sessions">
+			<value>false</value>
+		</entry>
 		
 	</configuration-module>
 	
-
 </configuration>

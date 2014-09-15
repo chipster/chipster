@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.runtimeIndex;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Strand;
+import fi.csc.microarray.util.Strings;
 
 public class GtfLineParser extends AbstractTsvLineParser {
 	
@@ -92,21 +94,22 @@ public class GtfLineParser extends AbstractTsvLineParser {
 	}
 
 	public static Map<String, String> parseAttributes(String attributeString) {
-
-		String[] split = attributeString.split(";");
+	
+		List<String> stringList = Strings.splitConsideringQuotes(attributeString, ';');
+		
 		Map<String, String> attributeMap = new HashMap<String, String>(); 
 
 		String key = null;
 		String value = null;
-		int indexOfQuotationMark = 0;
+		int indexOfSpace = 0;
+		
+		for (String keyAndValue : stringList) {
 
-		for (int i = 0; i < split.length; i++) {
+			keyAndValue = keyAndValue.trim();
+			indexOfSpace = keyAndValue.indexOf(" ");		
 
-			indexOfQuotationMark = split[i].indexOf("\"");
-
-			key = split[i].substring(0, indexOfQuotationMark - 1).trim();
-			value = split[i].substring(indexOfQuotationMark + 1, split[i]
-					.lastIndexOf("\""));
+			key = keyAndValue.substring(0, indexOfSpace).trim();
+			value = keyAndValue.substring(indexOfSpace + 1);
 			
 			attributeMap.put(key, value);
 		}

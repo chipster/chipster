@@ -3,7 +3,11 @@ package fi.csc.microarray.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Strings {
 		
@@ -196,5 +200,86 @@ public class Strings {
 		return result;
 	}
 
+	public static String rightPad(String[] array, int width) {
+		String line = "";
+		for (String title : array) {
+			line += StringUtils.rightPad(title, width);
+		}
+		return line;
+	}
+
+	public static List<String> splitConsideringQuotes(String input, char delimiter) {
+		// based on http://stackoverflow.com/questions/1757065/splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
+		List<String> result = new ArrayList<String>();
+		int start = 0;
+		boolean inQuotes = false;
+		
+		for (int current = 0; current < input.length(); current++) {
+			
+		    if (input.charAt(current) == '\"') {
+		    	inQuotes = !inQuotes; // toggle state
+		    }
+		    
+		    boolean atLastChar = (current == input.length() - 1);
+		    
+		    	
+		    if (input.charAt(current) == delimiter && !inQuotes) {
+		        result.add(input.substring(start, current).replace("\"", ""));
+		        start = current + 1;
+		    } else if (atLastChar) {
+		    	result.add(input.substring(start).replace("\"", ""));
+		    }
+		}
+		return result;
+	}
 	
+	public static String toHumanReadable(long i) {
+		return toHumanReadable(i, true, false);
+	}
+	
+	public static String toRoundedHumanReadable(long i) {
+		return toHumanReadable(i, true, true);
+	}
+
+	public static String toHumanReadable(long i, boolean returnZero, boolean round) {
+
+		if (i == 0) {
+			if (returnZero) {
+				return "0";
+			} else {
+				return "";
+			}
+		} else if (i < 0) {
+			return "" + i;
+		}
+
+		int pow = (int) Math.log10(i);
+
+		String sym = "";
+		if (pow >= 3) {
+			sym = "k";
+		}
+		if (pow >= 6) {
+			sym = "M";
+		}
+		if (pow >= 9) {
+			sym = "G";
+		}
+		if (pow >= 12) {
+			sym = "T";
+		}
+
+		int div = (int) Math.pow(10, (pow - pow % 3));		
+		
+		if (round) {
+			// a space between number and symbol to make it less squeezed
+			String roundNumber = "" + i / div + " " + sym;
+			return roundNumber;
+		} else {
+					
+			String roundNumber = "" + i / div + sym;
+			String remainder = toHumanReadable(i % div, false, false);
+			return  roundNumber + " " + remainder;
+		}
+	}
 }
