@@ -137,6 +137,8 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 				vertex = new GraphVertex(10, 10, data, this);
 			}
 		}
+		
+		vertex.setAllowsAutoLayout(!savedPosition);
 
 		// create derivational (DERIVATION/MODIFICATION) links
 		for (Link type : Link.derivationalTypes()) {
@@ -154,7 +156,9 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// The placement is unknown before the links are created. These stay valid only
 		// if no derivation/modification links are added.
+		
 		layoutManager.updateLayout(vertex, data);
+		
 		graphPanel.autoZoom();
 		scrollCellToVisibleAnimated(vertex);
 		repaint();
