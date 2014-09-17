@@ -70,6 +70,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private int scheduleTimeout;
 	private int offerDelay;
 	private int timeoutCheckInterval;
+	private int jobHeartbeatInterval;
 	private boolean sweepWorkDir;
 	private int maxJobs;
 	
@@ -107,6 +108,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> scheduledJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
 	private Timer timeoutTimer;
+	private Timer hearbeatTimer;
 	private String localFilebrokerPath;
 	private String overridingFilebrokerIp;
 	
@@ -127,6 +129,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.offerDelay = configuration.getInt("comp", "offer-delay");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
+		this.jobHeartbeatInterval = configuration.getInt("comp", "job-heartbeat-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");
 		this.localFilebrokerPath = nullIfEmpty(configuration.getString("comp", "local-filebroker-user-data-path"));
@@ -151,6 +154,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
 		
+		hearbeatTimer = new Timer(true);
+		hearbeatTimer.schedule(new JobHeartbeatTask(), jobHeartbeatInterval, jobHeartbeatInterval);
 		
 		// initialize communications
 		this.endpoint = new JMSMessagingEndpoint(this);
@@ -165,13 +170,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_FILEBROKER_TOPIC, AccessMode.WRITE), this.localFilebrokerPath, this.overridingFilebrokerIp);
 		
+		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
-	
 
 	private String nullIfEmpty(String value) {
 		if ("".equals(value.trim())) {
@@ -678,6 +683,19 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			}
 		}
 	}
+	
+	public class JobHeartbeatTask extends TimerTask {
+
+		@Override
+		public void run() {
+			synchronized (jobsLock) {
+				for (AnalysisJob job : getAllJobs()) {
+					job.updateStateToClient();
+				}
+			}
+		}	
+	}
+	
 
 	/* 
 	 * Service wrapper's "stop" command
@@ -693,6 +711,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 
 		logger.info("shutting down");
+	}
+	
+	private synchronized ArrayList<AnalysisJob> getAllJobs() {
+		ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
+		allJobs.addAll(receivedJobs.values());
+		allJobs.addAll(scheduledJobs.values());
+		allJobs.addAll(runningJobs.values());
+		return allJobs;
 	}
 	
 	private class CompAdminMessageListener implements MessagingListener {		
@@ -726,13 +752,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					CommandMessage requestMessage = (CommandMessage) msg;
 					
 					synchronized (jobsLock) {
-						
-						ArrayList<AnalysisJob> allJobs = new ArrayList<AnalysisJob>();
-						allJobs.addAll(receivedJobs.values());
-						allJobs.addAll(scheduledJobs.values());
-						allJobs.addAll(runningJobs.values());
-																		
-						for (AnalysisJob job : allJobs) {
+									
+						for (AnalysisJob job : getAllJobs()) {
 							JobLogMessage reply = jobToMesage(job);
 							endpoint.replyToMessage(requestMessage, reply);
 						}						
@@ -780,6 +801,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			} catch (Exception e) {
 				logger.error(e, e);
 			}
-		}
+		}	
 	}
 }

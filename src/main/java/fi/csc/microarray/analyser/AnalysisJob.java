@@ -204,7 +204,15 @@ public abstract class AnalysisJob implements Runnable {
 	}
 
 
+	public synchronized void updateStateToClient() {
+		this.updateStateToClient(this.state, this.stateDetail, true);
+	}
+	
 	public synchronized void updateStateToClient(JobState newState, String stateDetail) {
+		this.updateStateToClient(newState, stateDetail, false);
+	}
+
+	public synchronized void updateStateToClient(JobState newState, String stateDetail, boolean isHeartbeat) {
 
 		if (getState() == JobState.CANCELLED) {
 			return;
@@ -217,14 +225,9 @@ public abstract class AnalysisJob implements Runnable {
 		// send notification message
 		outputMessage.setState(this.state);
 		outputMessage.setStateDetail(this.stateDetail);
+		outputMessage.setHeartbeat(isHeartbeat);
 		resultHandler.sendResultMessage(inputMessage, outputMessage);
-	}
-
-	
-	
-	
-	
-	
+	}	
 	
 	public JobState getState() {
 		return this.state;
