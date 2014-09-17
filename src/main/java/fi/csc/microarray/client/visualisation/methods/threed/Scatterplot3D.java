@@ -27,7 +27,7 @@ import javax.swing.JToggleButton;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -54,11 +54,11 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	protected JPanel paramPanel;
 	private JPanel settingsPanel;
-	private AnnotateListPanel list;
+	private SelectionList list;
 
-	private JToggleButton rotateTool = new JToggleButton(VisualConstants.ROTATE_IMAGE);
-	private JToggleButton handTool = new JToggleButton(VisualConstants.HAND_ICON);
-	private JToggleButton selectTool = new JToggleButton(VisualConstants.ARROW_ICON);
+	private JToggleButton rotateTool = new JToggleButton(VisualConstants.getIcon(VisualConstants.ROTATE_IMAGE));
+	private JToggleButton handTool = new JToggleButton(VisualConstants.getIcon(VisualConstants.HAND_ICON));
+	private JToggleButton selectTool = new JToggleButton(VisualConstants.getIcon(VisualConstants.ARROW_ICON));
 
 	private JCheckBox autoCheckBox;
 
@@ -68,9 +68,9 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	private Tool tool = Tool.ROTATE;
 
-	private JButton toXY = new JButton(VisualConstants.XY_PLANE);
-	private JButton toXZ = new JButton(VisualConstants.XZ_PLANE);
-	private JButton toYZ = new JButton(VisualConstants.YZ_PLANE);
+	private JButton toXY = new JButton(VisualConstants.getIcon(VisualConstants.XY_PLANE));
+	private JButton toXZ = new JButton(VisualConstants.getIcon(VisualConstants.XZ_PLANE));
+	private JButton toYZ = new JButton(VisualConstants.getIcon(VisualConstants.YZ_PLANE));
 
 	protected JComboBox xBox;
 	protected JComboBox yBox;
@@ -87,9 +87,9 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 
 	protected CoordinateArea coordinateArea;
 
-	private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
+	private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.getIcon(VisualConstants.ROTATE_CURSOR_IMAGE).getImage(), new Point(16, 16), "Rotate");
 
-	private static final Cursor ROTATE_AND_ZOOM_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE.getImage(), new Point(16, 16), "Rotate");
+	private static final Cursor ROTATE_AND_ZOOM_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(VisualConstants.getIcon(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE).getImage(), new Point(16, 16), "Rotate");
 	private static final int DEFAULT_TO_DOT_PAINT_MODE = 20000;
 
 	protected DataBean data;
@@ -192,8 +192,8 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	/**
 	 * Hook for PCA to change the word "genes"
 	 */
-	public AnnotateListPanel createListPanel() {
-		return new AnnotateListPanel();
+	public SelectionList createListPanel() {
+		return new SelectionList();
 	}
 
 	public JPanel createSettingsPanel() {
@@ -258,7 +258,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		return new JLabel("Color: ");
 	}
 
-	protected AnnotateListPanel getAnnotateList() {
+	protected SelectionList getAnnotateList() {
 		return list;
 	}
 

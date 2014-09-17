@@ -10,7 +10,7 @@
 # OUTPUT OPTIONAL unaligned_2.fq
 # OUTPUT OPTIONAL multireads_1.fq
 # OUTPUT OPTIONAL multireads_2.fq
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", mm10: "Mouse genome (mm10\)", Rattus_norvegicus.Rnor_5.0.70.dna.toplevel: "Rat genome (rn5\)", rn4: "Rat genome (rn4\)", Halorubrum_lacusprofundi_ATCC_49239: "Halorubrum lacusprofundi ATCC 49239 genome", Canis_familiaris.CanFam3.1.71.dna.toplevel: "Dog genome (Ensembl canFam3\)", Gasterosteus_aculeatus.BROADS1.71.dna.toplevel: "Gasterosteus aculeatus genome (BROADS1.71\)", Drosophila_melanogaster.BDGP5.73.dna.toplevel: "Drosophila_melanogaster (BDGP5.73\)", athaliana.TAIR10: "A. thaliana genome (TAIR10\)", ovis_aries_texel: "Sheep genome (oar3.1\)", Schizosaccharomyces_pombe.ASM294v2.22.dna.toplevel: "Schizosaccharomyces pombe (ASM294v2.22\)", miRBase19_Rattus_norvegicus: "Rat miRBase 19", miRBase19_Mus_musculus: "Mouse miRBase 19", miRBase19_Homo_sapiens: "Human miRBase19", Escherichia_coli_n1.GCA_000303635.1.18.dna.toplevel: "E. coli genome (GCA_000303635.1.18\)" ] DEFAULT hg19 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER organism: "Genome or transcriptome" TYPE [Arabidopsis_thaliana.TAIR10.22, Bos_taurus.UMD3.1.75, Canis_familiaris.CanFam3.1.75, Drosophila_melanogaster.BDGP5.75, Gallus_gallus.Galgal4.75, Gasterosteus_aculeatus.BROADS1.75, Halorubrum_lacusprofundi_atcc_49239.GCA_000022205.1.22, Homo_sapiens.GRCh37.75, Mus_musculus.GRCm38.75, Ovis_aries.Oar_v3.1.75, Rattus_norvegicus.Rnor_5.0.75, Schizosaccharomyces_pombe.ASM294v2.22, Sus_scrofa.Sscrofa10.2.75, Vitis_vinifera.IGGP_12x.22, Yersinia_enterocolitica_subsp_palearctica_y11.GCA_000253175.1.22] DEFAULT Homo_sapiens.GRCh37.75 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
@@ -28,6 +28,7 @@
 # AMS 19.6.2012 Added unzipping
 # EK 1.11.2012 fixed SAM output
 # AMS 11.11.2013 Added thread support
+# AMS 04.07.2014 New genome/gtf/index locations & names
 
 # check out if the file is compressed and if so unzip it
 source(file.path(chipster.common.path, "zip-utils.R"))
@@ -36,6 +37,8 @@ unzipIfGZipFile("reads2.fq")
 
 # bowtie
 bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
+bowtie.index <- c(file.path(chipster.tools.path, "genomes", "indexes", "bowtie", organism))
+
 command.start <- paste("bash -c '", bowtie.binary)
 
 # common parameters
@@ -54,7 +57,7 @@ multiread.output <- ifelse(multiread.file == "yes", "--max multireads.fq", "")
 output.parameters <- paste(unaligned.output, multiread.output)
 
 # command ending
-command.end <- paste(genome, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2> bowtie.log'")
+command.end <- paste(bowtie.index, "-1 reads1.fq -2 reads2.fq 1> alignment.sam 2> bowtie.log'")
 
 # run bowtie
 bowtie.command <- paste(command.start, common.parameters, quality.parameter, orientation.parameter, mode.parameters, output.parameters, command.end)

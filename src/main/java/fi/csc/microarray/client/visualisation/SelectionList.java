@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation;
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -18,17 +17,19 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.methods.threed.DataPoint;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class AnnotateListPanel extends JPanel {
+public class SelectionList extends JPanel {
 
-	private JList selectedList;
-	private DefaultListModel selectedListModel;
-	private JButton filterButton;
+	private JList<String> selectedList;
+	private DefaultListModel<String> selectedListModel;
+	private JButton filterSelectedButton;
+	private JButton filterUnselectedButton;
 	private List<DataBean> datas = new ArrayList<DataBean>();
 
 	private ClientApplication application = Session.getSession().getApplication();
@@ -36,11 +37,12 @@ public class AnnotateListPanel extends JPanel {
 	private JLabel countLabel;
 	private String nameOfItems = "Genes";
 
-	public AnnotateListPanel() {
+	public SelectionList() {
 
-		this.setLayout(new BorderLayout());
-		selectedListModel = new DefaultListModel();
-		selectedList = new JList(selectedListModel);
+		// hidemode 3: don't reserve space for hidden components
+		this.setLayout(new MigLayout("gap 0, wrap 1, filly, hidemode 3", "[fill]", ""));
+		selectedListModel = new DefaultListModel<String>();
+		selectedList = new JList<String>(selectedListModel);
 
 		// disabling selections changes text to gray, so we just make it look
 		// like not selectable
@@ -49,27 +51,35 @@ public class AnnotateListPanel extends JPanel {
 
 		countLabel = new JLabel();
 
-		filterButton = new JButton("Create dataset");
-		filterButton.setToolTipText("Create new dataset from selected genes");
-		filterButton.setEnabled(false);
-		filterButton.addActionListener(new ActionListener() {
+		filterSelectedButton = new JButton("Create dataset from selected");
+		filterSelectedButton.setToolTipText("Create new dataset from selected rows");
+		filterSelectedButton.setEnabled(false);
+		filterSelectedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				VisualisationUtilities.filterBySelection(datas);
+				VisualisationUtilities.filterBySelection(datas, false);
+			}
+		});
+		
+		filterUnselectedButton = new JButton("Create dataset from unselected");
+		filterUnselectedButton.setToolTipText("Create new dataset from unselected rows");
+		filterUnselectedButton.setEnabled(false);
+		filterUnselectedButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				VisualisationUtilities.filterBySelection(datas, true);
 			}
 		});
 
-		this.add(countLabel, BorderLayout.NORTH);
-		this.add(new JScrollPane(selectedList), BorderLayout.CENTER);
-
-		JPanel buttonPanel = new JPanel(new BorderLayout());
-		buttonPanel.add(filterButton, BorderLayout.SOUTH);
-		this.add(buttonPanel, BorderLayout.SOUTH);
+		this.add(countLabel, "");
+		this.add(new JScrollPane(selectedList), "push, grow");
+		this.add(filterSelectedButton, "");
+		this.add(filterUnselectedButton, "");
 	}
 
-	public AnnotateListPanel(String nameOfItems, boolean filterButtonVisible){
+	public SelectionList(String nameOfItems, boolean filterSelectedButtonVisible, boolean filterUnselectedButtonVisible){
 		this();
 		this.nameOfItems  = nameOfItems;
-		this.filterButton.setVisible(filterButtonVisible);
+		this.filterSelectedButton.setVisible(filterSelectedButtonVisible);
+		this.filterUnselectedButton.setVisible(filterUnselectedButtonVisible);
 	}
 
 	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean showAnnotations, boolean dispatchEvent) {
@@ -78,7 +88,8 @@ public class AnnotateListPanel extends JPanel {
 
 		selectedListModel.removeAllElements();
 		setCount(content.size());
-		filterButton.setEnabled(content.size() > 0);
+		filterSelectedButton.setEnabled(content.size() > 0);
+		filterUnselectedButton.setEnabled(content.size() > 0);
 
 		if (showAnnotations) {
 			List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
@@ -146,7 +157,8 @@ public class AnnotateListPanel extends JPanel {
 
 		selectedListModel.removeAllElements();
 		setCount(content.size());
-		filterButton.setEnabled(content.size() > 0);
+		filterSelectedButton.setEnabled(content.size() > 0);
+		filterUnselectedButton.setEnabled(content.size() > 0);
 		/*
 		 * for(DataPoint row: content){
 		 * selectedListModel.addElement(row.toString()); }
@@ -191,7 +203,8 @@ public class AnnotateListPanel extends JPanel {
 
 		selectedListModel.removeAllElements();
 		setCount(rows.size());
-		filterButton.setEnabled(rows.size() > 0);
+		filterSelectedButton.setEnabled(rows.size() > 0);
+		filterUnselectedButton.setEnabled(rows.size() > 0);
 
 
 		//TODO getAnnotatedRowname should allow row index arguments, as it is used generally

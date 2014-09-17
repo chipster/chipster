@@ -22,7 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -36,10 +35,8 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.IntegratedEntity;
 import fi.csc.microarray.client.visualisation.Visualisation;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ChipsterGBrowserVisualisation;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
@@ -476,7 +473,7 @@ public class MicroarrayModule implements Module {
 		int topMargin = 15;
 		int leftMargin = 30;
 		c.insets.set(topMargin, leftMargin, 0, 0);
-		contentPanel.add(new JLabel(VisualConstants.QUICKLINK_ICON), c);
+		contentPanel.add(new JLabel(VisualConstants.getIcon(VisualConstants.QUICKLINK_ICON)), c);
 		JXHyperlink link;
 		boolean currentSelectionVisualisable = false;
 		try {
@@ -560,19 +557,6 @@ public class MicroarrayModule implements Module {
 	public String getManualHome() {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		return configuration.getString("client", "manual-root");
-	}
-
-	@Override
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, final VisualisationFrame visualisationFrame) {
-
-		JMenuItem annotateMenuItem = new JMenuItem();
-		annotateMenuItem.setText("Create dataset and annotate with Bioconductor");
-		annotateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				VisualisationUtilities.annotateBySelection(visualisationFrame.getDatas(), ANNOTATION_ID);
-			}
-		});
-		spreadsheetPopupMenu.add(annotateMenuItem);
 	}
 
 	@Override
@@ -879,7 +863,7 @@ public class MicroarrayModule implements Module {
 	@Override
 	public Icon getIconFor(DataBean data) {
 		if (data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA)) {
-			return VisualConstants.ICON_TYPE_PHENODATA;
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_PHENODATA);
 		} else {
 			return data.getContentType().getIcon();
 		}

@@ -12,21 +12,21 @@ import java.util.HashSet;
  * @author klemela
  *
  */
-public class GeneRequest extends DataRequest {
+public class SearchRequest extends DataRequest {
 	
-	private String gene = null;
+	private String searchString = null;
 
-	public GeneRequest(String gene, Chromosome chr) {
+	public SearchRequest(String gene, Chromosome chr) {
 		super(
 				//chr is used only to optimize Gtf reading, every chromosome is search for the gene
 				new Region(0l, Long.MAX_VALUE, chr), 
 				new HashSet<DataType>(), 
 				new DataStatus());
 		
-		this.gene = gene;
+		this.searchString = gene;
 	}
 	
 	public String getSearchString() {
-		return gene;
+		return searchString;
 	}
 }

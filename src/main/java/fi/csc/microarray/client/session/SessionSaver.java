@@ -466,7 +466,7 @@ public class SessionSaver {
 		dataType.setName(bean.getName());
 		dataType.setDataId(bean.getId());
 		dataType.setSize(bean.getSize()); //may be null
-		dataType.setChecksum(bean.getChecksum()); //may be null
+		dataType.setChecksum(bean.getChecksum()); //may be null				
 
 		// parent
 		if (bean.getParent() != null) {
@@ -577,14 +577,20 @@ public class SessionSaver {
 		// inputs
 		for (InputRecord inputRecord : operationRecord.getInputs()) {
 
-			String inputID = reversedItemIdMap.get(inputRecord.getValue());
-			// skip inputs which were not around when generating ids
-			if (inputID == null) {
-				continue;
-			}
 			InputType inputType = factory.createInputType();
 			inputType.setName(createNameType(inputRecord.getNameID()));
-			inputType.setData(inputID);
+			
+			// maybe it could be null in the future 
+			String inputDataId = inputRecord.getDataId(); 
+			if (inputDataId != null) {
+				inputType.setDataId(inputDataId);
+			}
+			
+			// data which was not around when generating ids
+			String inputID = reversedItemIdMap.get(inputRecord.getValue());
+			if (inputID != null) {
+				inputType.setData(inputID);
+			}
 			
 			operationType.getInput().add(inputType);
 		}
@@ -623,18 +629,42 @@ public class SessionSaver {
 			URL url = entry.getValue();
 			
 			String entryName = url.getRef();
+			
+			Long streamLength = null;
+			String streamChecksum = null;
 
 			// write bean contents to zip
 			try {
 				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
-				writeFile(zipOutputStream, entryName, in);				
+				writeFile(zipOutputStream, entryName, in);
+				streamLength = in.getContentLength();
+				streamChecksum = in.verifyChecksums();
 				in.verifyContentLength(bean.getSize());
-				dataManager.setOrVerifyChecksum(bean, in.verifyChecksums());
+				dataManager.setOrVerifyChecksum(bean, streamChecksum);
 				
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
-			} catch (ChecksumException | ContentLengthException e) {
-				throw new IOException(e);
+				
+			} catch (ContentLengthException e) {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg = "Wrong content length for dataset " + bean.getName() + ". "
+						+ "Length of input stream is " + streamLength + " bytes, " + 
+						"but DataManager expects " + manager.getContentLength(bean) + " bytes. ";					
+				msg += "Content locations: ";
+				for (ContentLocation location : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += location.getUrl() + " " + manager.getContentLength(location) + " bytes, ";
+				}						 															
+				throw new IOException(msg, e);
+				
+			} catch (ChecksumException e) {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg = "Wrong checksum for dataset " + bean.getName() + ". "
+						+ "Checksum of input stream is " + streamChecksum + ". "; 									
+				msg += "Content locations: ";
+				for (ContentLocation location : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += location.getUrl() + " " + manager.getContentLength(location) + " bytes, ";
+				}						 															
+				throw new IOException(msg, e);				
 			}
 		}
 	}

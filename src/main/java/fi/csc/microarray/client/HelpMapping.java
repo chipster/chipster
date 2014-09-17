@@ -12,6 +12,8 @@ public class HelpMapping {
 		String page = definition.getID();
 		if (page.contains(".")) {
 			page = page.substring(0, page.lastIndexOf(".")) + ".html"; 
+		} else {
+			page += ".html";
 		}
 		return MANUAL_ROOT + page;
 	}

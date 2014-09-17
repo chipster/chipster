@@ -189,6 +189,7 @@ public class SessionLoaderImpl2 {
 	}
 
 	private void createDataBeans() {
+		
 		for (DataType dataType : this.sessionType.getData()) {
 			String name = dataType.getName();
 			String id = dataType.getId();
@@ -208,7 +209,11 @@ public class SessionLoaderImpl2 {
 									
 			DataBean dataBean;
 			try {
-				dataBean = dataManager.createDataBean(name, dataId);				
+				
+				/* Don't ask content length from filebroker at this point,
+				 * but do it later in parallel along the type tags.
+				 */				
+				dataBean = dataManager.createDataBean(name, dataId, false);		
 				
 				for (LocationType location : dataType.getLocation()) {
 					
@@ -229,8 +234,8 @@ public class SessionLoaderImpl2 {
 					dataManager.addContentLocationForDataBean(dataBean, StorageMethod.valueOfConverted(location.getMethod()), url);
 				}
 				
-				// check that metadata has same size what createDataBean() or 
-				// addContentLocationForDataBean() got earlier from the real file
+				// Set file size from metadata. If there are external
+				// ContentLocations, the size must match.
 				dataManager.setOrVerifyContentLength(dataBean, dataType.getSize());
 				// set checksum from the metadata, but the checksum of the real file is calculated only 
 				// later during possible network transfers
@@ -253,7 +258,7 @@ public class SessionLoaderImpl2 {
 			
 			dataBeans.put(id, dataBean);
 			dataTypes.put(dataBean, dataType);
-		}
+		}		
 	}
 
 	
@@ -365,25 +370,36 @@ public class SessionLoaderImpl2 {
 			
 			// get data bean ids from session data
 			for (InputType inputType : operationTypes.get(operationRecord).getInput()) {
-				
-				String inputID = inputType.getData();
-				if (inputID == null) {
-					continue;
-				}
-				
-				// find the data bean
-				DataBean inputBean = dataBeans.get(inputID);
-				if (inputBean == null) {
-					continue;
-				}
-				
-				// skip phenodata, it is bound automatically
-				if (inputBean.queryFeatures("/phenodata/").exists()) {
-					continue; 
-				}
 
-				// add the reference to the operation record
-				operationRecord.addInput(createNameID(inputType.getName()), inputBean);
+				String inputID = inputType.getData();
+				
+				// data bean exists
+				
+				if (inputID != null) {
+					DataBean inputBean = dataBeans.get(inputID);
+					
+					// skip phenodata, it is bound automatically
+					if (inputBean.queryFeatures("/phenodata/").exists()) {
+						continue; 
+					}
+					// add the reference to the operation record
+					operationRecord.addInput(createNameID(inputType.getName()), inputBean);
+				}
+				
+				// data bean does not exist
+				else {
+
+					// try to skip phenodata, not reliable
+					if (inputType.getName().getId().equals("phenodata.tsv")) {
+						continue;
+					}
+					
+					// add the reference to the operation record
+					String dataId = inputType.getDataId();
+					if (dataId != null) {
+						operationRecord.addInput(createNameID(inputType.getName()), dataId);
+					}
+				}
 			}
 		}
 	}
@@ -484,14 +500,21 @@ public class SessionLoaderImpl2 {
 		createFolders();
 		createDataBeans();
 		createOperations();
-
-		// create the links between the objects
 		linkOperationsToOutputs();
+				
+		/*
+		 * Type tags are added anyway in linkDataItemChildren(), but it's much
+		 * faster to do it in parallel. This must be done before
+		 * linkDataItemChildren(), which will trigger the slow sequential
+		 * initialization of TypeTags. Moreover, this must be done after
+		 * createDataBeans(), createOperations() and linkOperationsToOutputs(),
+		 * because all this information is needed in type tagging.
+		 */
+		dataManager.addTypeTagsAndVerifyContentLength(dataBeans.values());
+
 		linkDataItemChildren(dataManager.getRootFolder());
 		linkDataBeans();
 		linkInputsToOperations();
-
-		
 	}
 
 }

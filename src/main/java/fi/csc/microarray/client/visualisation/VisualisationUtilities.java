@@ -10,29 +10,44 @@ import java.util.Map;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
-import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.ThreadUtils;
 
 public class VisualisationUtilities {
 
 	private static final ClientApplication application = Session.getSession().getApplication();
 
-	public static DataBean filterBySelection(List<DataBean> datas) {
+	/**
+	 * Create a dataset of selected rows when invert is false or a dataset of 
+	 * unselected rows when invert is true.
+	 * 
+	 * @param datas
+	 * @param invert
+	 * @return
+	 */
+	public static DataBean filterBySelection(List<DataBean> datas, boolean invert) {
 		try {
 
 			// Doing this with multiple datas isn't pretty, so here is a  simple solution
 			// for single data
 
 			if (datas.size() == 1) {				
-				Collection<String> lines = application.getSelectionManager().getSelectionManager(datas.get(0)).getSelectedLines();
+				IntegratedSelectionManager selectionManager = application.getSelectionManager().getSelectionManager(datas.get(0));
+				Collection<String> lines;
+				if (invert) {
+					lines = selectionManager.getUnselectedLines();
+				} else {
+					lines = selectionManager.getSelectedLines();
+				}
 				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			} else {
+				
+				if (invert) {
+					throw new IllegalArgumentException("inverted filtering isn't implemented for multiple datasets");
+				}
 
 				List<String[]> allColumns = new LinkedList<String[]>();
 
@@ -158,34 +173,7 @@ public class VisualisationUtilities {
 				lines.get(id).putAll(newColumns);
 			}
 		}
-
 		return lines;
-	}
-
-	public static void annotateBySelection(List<DataBean> datas, final String annotationOperationName) {
-
-		try {
-			final DataBean filterBySelection = filterBySelection(datas);
-
-			Thread thread = ThreadUtils.getBackgroundThread(new Runnable() {
-				public void run() {
-					try {
-
-						Operation annotationOperation = new Operation(application.getOperationDefinition(annotationOperationName), new DataBean[] { filterBySelection });
-						ResultBlocker opBlocker = new ResultBlocker();
-						annotationOperation.setResultListener(opBlocker);
-						application.executeOperation(annotationOperation);
-
-					} catch (MicroarrayException e) {
-						application.reportException(e);
-					}
-				}
-			});
-			thread.start();
-		} catch (Exception exp) {
-			application.reportException(new MicroarrayException("Unable to collect identifiers for annotation", exp));
-		}
-
 	}
 
 	public static Variable[] getVariablesFilteredInclusive(DataBean dataBean, String startsWith, boolean removeStart) {

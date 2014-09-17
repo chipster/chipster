@@ -15,6 +15,7 @@ You can zoom in to nucleotide level, highlight SNPs, view automatically calculat
 <li><a href="#select">Selecting files and annotations to be visualized</a></li>
 <li><a href="#navigation">Navigating and viewing options</a></li>
 <li><a href="#levels">Viewing at different zoom levels</a></li>
+<li><a href="#owngenome">Using own genome file (instead of the ones provided in Chipster)</a></li>
 <li><a href="#cna">Viewing copy number data</a></li>
 <li><a href="#saving">Saving the session</a></li>
 </ul>
@@ -22,8 +23,8 @@ You can zoom in to nucleotide level, highlight SNPs, view automatically calculat
 <a name="import"><h3>Data import: file formats, preprocessing</h3></a>
 
 <p>
-Chipster genome browser supports SAM, BAM, BED, GTF and VCF files as well as tsv, where the first three columns are chr, start and end. 
-SAM files need to be converted to BAM, BAM files need to be sorted and indexed, and BED, GTF, VCF and tsv files need to be sorted by chromosomal location. 
+Chipster genome browser supports SAM, BAM, BED, GTF, VCF and fasta files as well as tsv, where the first three columns are chr, start and end. 
+SAM files need to be converted to BAM, BAM and fasta files need to be sorted and indexed, and BED, GTF, VCF and tsv files need to be sorted by chromosomal location. 
 You can find sorting and indexing tools for the different file types in the Utilities category. If you import external files, 
 sorting and indexing is accomplished during the data import step with Chipster preprocessor. 
 If your data is already in the right format and your BAM file has the matching index file (.bai), you can skip the preprocessing step and import your data directly.
@@ -91,6 +92,19 @@ You can also choose to color only those bases which differ from the reference se
 When this option and total coverage has been selected, colored bars will be added to the coverage track on those positions, where more than 20% of the bases differ from the reference.
 </p>
 <img src="imageGBhighlightSNP.jpg"> 
+
+<a name="owngenome"><h3>Using own genome file</h3></a>
+<p>If you would like to visualize a genome which is not available in Chipster, please do the following:
+<ul>
+<li>Import the fasta file (e.g. genome.fasta) to Chipster</li>
+<li>Select the fasta file and run the tool "Utilities / Index FASTA"</li>
+<li>Rename the newly created index file (.fai) so that its name matches the fasta file (e.g. genome.fasta.fai).</li>
+<li>If you would like to visualize gene and transcript annotations, you need a GTF file which has the same format as the Ensembl GTF files.</li>
+<li>Select the fasta file and the GTF file and your analysis result files (BAM, BED, VCF etc) and open the Genome browser. Note that all the files must have the same chromosome naming.</li>
+<li>Your selected genome is now available in the Genome pull-down menu.</li>
+</ul>  
+</p>
+
 
 <a name="cna"><h3>Viewing copy number data</h3></a>
 <p>Chipster has a lot of analysis tools for microarray and sequencing based copy number data. 

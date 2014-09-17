@@ -9,14 +9,12 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedEntity;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.DataDetails;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
@@ -199,11 +197,6 @@ public class BasicModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "http://chipster.csc.fi/manual/index.html";
-	}
-
-	@Override
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
-		// do nothing
 	}
 
 	@Override

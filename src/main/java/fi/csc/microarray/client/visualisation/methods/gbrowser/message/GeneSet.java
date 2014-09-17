@@ -41,7 +41,7 @@ public class GeneSet extends HashMap<String, Gene>{
 			
 			Exon exon = iterator.next();
 			
-			if (!filterRegion.intersects(exon.getRegion())) {
+			if (filterRegion != null && !filterRegion.intersects(exon.getRegion())) {
 				iterator.remove();
 			}
 			

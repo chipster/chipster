@@ -47,7 +47,7 @@ import org.jfree.data.hc.HeatMap;
 
 import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -79,7 +79,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	OrderSuperviser orders;
 
 	private JPanel paramPanel;
-	private AnnotateListPanel list;
+	private SelectionList list;
 
 	// Selected indexes in the order of parent data bean
 	protected Set<Integer> selected = new HashSet<Integer>();
@@ -154,7 +154,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPanel();
-			list = new AnnotateListPanel();
+			list = new SelectionList();
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settings);

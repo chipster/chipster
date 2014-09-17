@@ -13,8 +13,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -30,7 +30,7 @@ public abstract class Visualisation {
 
 	// public to be able to use this also in implementations of this class and
 	// in their inner classes
-	public final ClientApplication application = Session.getSession().getApplication();
+	public final SwingClientApplication application = (SwingClientApplication) Session.getSession().getApplication();
 
 	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
 

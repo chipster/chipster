@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -89,6 +90,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private JMenuItem manageSessionsMenuItem;
 
+	private JMenuItem openExampleSessionMenuItem;
+
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
 		add(getFileMenu());
@@ -156,12 +159,13 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadLocalSessionMenuItem(true));
 			fileMenu.add(getSaveLocalSessionMenuItem());
 			fileMenu.addSeparator();
+			fileMenu.add(getOpenExampleSessionMenuItem());
 			if (application.areCloudSessionsEnabled()) {
 				fileMenu.add(getLoadSessionMenuItem(true));
 				fileMenu.add(getSaveSessionMenuItem());
 				fileMenu.add(getManageSessionsMenuItem());
-				fileMenu.addSeparator();			
 			}
+			fileMenu.addSeparator();			
 			fileMenu.add(getMergeSessionMenu());
 			fileMenu.add(getClearSessionMenuItem());
 			fileMenu.addSeparator();
@@ -411,7 +415,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (historyMenuItem == null) {
 			historyMenuItem = new JMenuItem();
 			historyMenuItem.setText("Show history...");
-			historyMenuItem.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
+			historyMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.GENERATE_HISTORY_ICON));
 			historyMenuItem.setAccelerator(KeyStroke.getKeyStroke('H', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			historyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -444,7 +448,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (deleteMenuItem == null) {
 			deleteMenuItem = new JMenuItem();
 			deleteMenuItem.setText("Delete selected item");
-			deleteMenuItem.setIcon(VisualConstants.DELETE_MENUICON);
+			deleteMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.DELETE_MENUICON));
 			deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -519,7 +523,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			saveWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					File workflow = application.saveWorkflow();
-					addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+					if (workflow != null) {
+						addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+					}
 				}
 			});
 		}
@@ -656,7 +662,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (restoreViewMenuItem == null) {
 			restoreViewMenuItem = new JMenuItem();
 			restoreViewMenuItem.setText("Restore default");
-			restoreViewMenuItem.setIcon(VisualConstants.DEFAULT_VIEW_MENUICON);
+			restoreViewMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.DEFAULT_VIEW_MENUICON));
 			restoreViewMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.restoreDefaultView();
@@ -691,7 +697,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			contentMenuItem = new JMenuItem();
 			contentMenuItem.setText("User manual");
 			contentMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-			contentMenuItem.setIcon(VisualConstants.HELP_MENUICON);
+			contentMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.HELP_MENUICON));
 			contentMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome());
@@ -782,6 +788,26 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return fontSizeMenu;
+	}
+	
+	private JMenuItem getOpenExampleSessionMenuItem() {
+		if (openExampleSessionMenuItem == null) {
+			openExampleSessionMenuItem = new JMenuItem();
+			openExampleSessionMenuItem.setText("Open example session");
+			try {
+				openExampleSessionMenuItem.setEnabled(!Session.getSession().getServiceAccessor().getFileBrokerClient().listPublicRemoteSessions().isEmpty());
+			} catch (JMSException e) {
+				logger.debug("unable to list example sessions", e);
+			}
+			openExampleSessionMenuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					application.loadSession(true, true, true);
+				}
+
+			});
+		}
+		return openExampleSessionMenuItem;
 	}
 
 	private JMenuItem getClearSessionMenuItem() {

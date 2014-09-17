@@ -112,13 +112,13 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			if (col == Column.ICON) { 
 				if (tasks.get(row).getState().isFinished()) {
 					if (tasks.get(row).getState().finishedSuccesfully()) {
-						return VisualConstants.SUITABLE_ICON;
+						return VisualConstants.getIcon(VisualConstants.SUITABLE_ICON);
 					} else {
-						return VisualConstants.INCOMPATIBLE_ICON;
+						return VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON);
 					}
 				} else {
-					VisualConstants.RUNNING_ICON.setImageObserver(table);
-					return VisualConstants.RUNNING_ICON;
+					VisualConstants.getIcon(VisualConstants.RUNNING_ICON).setImageObserver(table);
+					return VisualConstants.getIcon(VisualConstants.RUNNING_ICON);
 					
 				}
 				

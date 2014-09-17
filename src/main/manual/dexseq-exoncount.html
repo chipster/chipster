@@ -3,7 +3,7 @@
 <head><title></title></head>
 <body>
 
-<h2>RNA-seq / Map aligned reads to exons for DEXSeq</h2>
+<h2>RNA-seq / Count aligned reads per exons for DEXSeq</h2>
 
 <h3>Description</h3>
 
@@ -15,13 +15,19 @@ Given mapped reads in a BAM file, this tool counts the reads that fall into each
 
 <ul>
 <li>Does the alignment file contain paired-end data (yes, no) [no]</li>
-<li>Organism (human hg19.68, mouse mm10.68, mouse mm9.62, rat rn4.68) [human hg19.68]</li>
+<li>Reference organism []</li>
+<li>Chromosome names in the BAM file look like (chr1, 1) [1]</li>
+<li>Does the BAM file contain paired-end data (yes, no) [no]</li>
+<li>Was the data produced with a strand-specific protocol (yes, no, reverse) [no]</li>
+<li>Mode to handle reads overlapping more than one feature (union, intersection-strict, intersection-nonempty) [union]</li>
+
 </ul>
 
 <h3>Details</h3>
 
 <p> 
-Note that the chromosome names in your BAM file need to the chr prefix (e.g. chr1).
+Indicate if your data was not produced with a strand-specific RNA-seq protocol, so that a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. 
+Otherwise the read has to be mapped to the same strand as the feature.
 </p>
 
 <h3>Output</h3>

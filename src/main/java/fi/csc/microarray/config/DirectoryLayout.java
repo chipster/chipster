@@ -145,7 +145,7 @@ public class DirectoryLayout {
 		String javaRuntimeName = System.getProperty("java.runtime.name");
 		if (type == Type.SERVER || javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
 			// enable logging for all server runtimes and all client runtimes that are not OpenJDK
-			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config
+			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config		
 		}
 		
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());

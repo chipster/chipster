@@ -539,10 +539,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		
 		ChipsterMessage reply; 
 		try {
-						
-			dispatch(new FileServerListener.BeforeStoreSession(username, name, sessionId, fileIds, endpoint));			
+									
 			storeSession(username, name, sessionId, fileIds);			
-			dispatch(new FileServerListener.AfterStoreSession(username, name, sessionId, fileIds, endpoint));
 			
 			// everything went fine
 			reply = new CommandMessage(CommandMessage.COMMAND_FILE_OPERATION_SUCCESSFUL);
@@ -583,20 +581,19 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 	}
 
 	private void handleRemoveSessionRequest(MessagingEndpoint endpoint, final CommandMessage requestMessage) throws JMSException {
+
+		// parse request
+		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
 		
 		SuccessMessage reply;
 		try {
-
-			// parse request, if no uuid, try to get url, which was the old way
-			String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
+			// if no uuid, try to get url, which was the old way
 			if (sessionId == null) {
 				URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
 				sessionId = IOUtils.getFilenameWithoutPath(url);
 			}
-			
-			dispatch(new FileServerListener.BeforeRemoveSession(sessionId, requestMessage.getUsername(), endpoint));			
+						
 			removeSession(sessionId);			
-			dispatch(new FileServerListener.AfterRemoveSession(sessionId, requestMessage.getUsername(), endpoint));
 			
 			// reply
 			reply = new SuccessMessage(true);
@@ -606,6 +603,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 
 		// send
 		endpoint.replyToMessage(requestMessage, reply);
+		
+		dispatch(new FileServerListener.AfterRemoveSessionReply(sessionId, requestMessage.getUsername(), endpoint));
 	}
 
 	protected void removeSession(String sessionId) throws SQLException {

@@ -209,11 +209,6 @@ public abstract class ClientApplication {
 			return VisualisationMethod.getDefault();
 		}
 	}
-
-	
-	// 
-	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
-	//
 	
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
@@ -246,8 +241,7 @@ public abstract class ClientApplication {
 
 	private String initialisationWarnings = "";
 	
-	private String announcementText = null;
-	
+	private String announcementText = null;	
 
 	public ClientApplication() {
 		this(null);
@@ -271,7 +265,7 @@ public abstract class ClientApplication {
 
 			// Fetch announcements
 			fetchAnnouncements();
-			
+						
 			if (requestedModule == null) {
 				requestedModule = MicroarrayModule.class.getName();
 			}
@@ -279,26 +273,29 @@ public abstract class ClientApplication {
 			// Initialise modules
 			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
-
+			
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
 			
 			// Initialise data management
 			this.manager = new DataManager();
-			Session.getSession().setDataManager(manager);
+						
+			Session.getSession().setDataManager(manager);		
+			
 			modules.plugAll(this.manager, Session.getSession());
+						
 			this.selectionManager = new DataSelectionManager(this);
-			Session.getSession().setClientApplication(this);
-
+			Session.getSession().setClientApplication(this);			
+			
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
 			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			reportInitialisationThreadSafely(" ok", true);
-
 
 			if (!fast) {
 				// Check services
@@ -385,9 +382,6 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
-						
-			// disable http cache (only after initialization, because it slows down jar reading)
-			IOUtils.disableHttpCache();
 			
 			// disable http cache (only after initialization, because it makes 
 			// icon loading from jar much slower (about 18 seconds for icons in VisualConstants) 
@@ -399,7 +393,7 @@ public abstract class ClientApplication {
 		}
 
 
-	}
+	}	
 
 	/**
 	 * Only root folder supported in this implementation.
@@ -489,7 +483,7 @@ public abstract class ClientApplication {
 				if (newState.isFinished()) {
 					try {
 						// FIXME there should be no need to pass the operation as it goes within the task
-						onFinishedTask(job, operation);
+						onFinishedTask(job, operation, newState);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -531,20 +525,21 @@ public abstract class ClientApplication {
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
 	 * 			   corresponding job entity.
+	 * @param newState 
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper, State state) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + task.getState());
+			logger.debug("operation finished, state is " + state);
 			
-			if (task.getState() == State.CANCELLED) {
+			if (state == State.CANCELLED) {
 				// task cancelled, do nothing
 				
-			} else if (!task.getState().finishedSuccesfully()) {
+			} else if (!state.finishedSuccesfully()) {
 				// task unsuccessful, report it
 				reportTaskError(task);
 				
@@ -629,7 +624,7 @@ public abstract class ClientApplication {
 			
 			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (task.getState().finishedSuccesfully()) {
+				if (state.finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();
@@ -1155,7 +1150,7 @@ public abstract class ClientApplication {
 	
 	public Icon getIconFor(DataItem element) {
 		if (element instanceof DataFolder) {
-			return VisualConstants.ICON_TYPE_FOLDER;
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_FOLDER);
 		} else {
 			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
 		}
@@ -1247,14 +1242,14 @@ public abstract class ClientApplication {
 				AtEndListener atEndListener = new AtEndListener() {
 					@Override
 					public void atEnd(boolean success) {
-						System.out.println("at end");
+						logger.debug("workflow run for each: at end");
 						latch.countDown();
 					}
 				};
 
 				// Run it
 				getSelectionManager().selectSingle(data, this);
-				System.out.println("selected " + getSelectionManager().getSelectedDataBeans().size());
+				logger.debug("workflow run for each: selected " + getSelectionManager().getSelectedDataBeans().size());
 				workflowManager.runScript(workflowScript, atEndListener);
 				try {
 					latch.await();
@@ -1264,7 +1259,7 @@ public abstract class ClientApplication {
 			}
 
 			// Restore original selection
-			System.out.println("restore");
+			logger.debug("workflow run for each: restore original selection");
 			Collection<DataItem> items = new LinkedList<DataItem>();
 			items.addAll(datas);
 			getSelectionManager().selectMultiple(items, this);

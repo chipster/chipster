@@ -73,7 +73,7 @@ public class StatusBar {
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 
-			jobListButton = new JButton(VisualConstants.ARROW_UP_ICON);
+			jobListButton = new JButton(VisualConstants.getIcon(VisualConstants.ARROW_UP_ICON));
 			jobListButton.setName("jobListButton");
 			jobListButton.setToolTipText("View tasks");
 
@@ -131,7 +131,7 @@ public class StatusBar {
 		if (wasVisible && wasShowing && wasNotIconified && closeIfVisible) {
 			// hide
 			application.getTaskListScreen().getFrame().setVisible(false);
-			jobListButton.setIcon(VisualConstants.ARROW_UP_ICON);
+			jobListButton.setIcon(VisualConstants.getIcon(VisualConstants.ARROW_UP_ICON));
 			jobListButton.setToolTipText("View Task manager");
 		} else {
 			// show
@@ -141,7 +141,7 @@ public class StatusBar {
 			application.getTaskListScreen().getFrame().setFocusable(true);
 			application.getTaskListScreen().getFrame().requestFocus();
 			application.getTaskListScreen().getFrame().toFront();
-			jobListButton.setIcon(VisualConstants.ARROW_DOWN_ICON);
+			jobListButton.setIcon(VisualConstants.getIcon(VisualConstants.ARROW_DOWN_ICON));
 			jobListButton.setToolTipText("Hide Task manager");
 		}
 	}

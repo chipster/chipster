@@ -108,6 +108,13 @@ public class BamToDetailsConversion extends DataThread {
 					values.put(DataType.MATE_POSITION, mate);
 				}
 				
+				if (request.getRequestedContents().contains(DataType.BAM_TAG_NH)) {
+					Object ng = record.getAttribute("NH");
+					if (ng != null) {
+						values.put(DataType.BAM_TAG_NH, (Integer)record.getAttribute("NH"));
+					}
+				}
+				
 				/*
 				 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
 				 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding

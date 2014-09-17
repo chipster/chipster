@@ -54,39 +54,18 @@ public abstract class FileServerListener {
 			return fileIds;
 		}
 	}
-	
-	public static class BeforeStoreSession extends StoreSessionEvent {
-
-		public BeforeStoreSession(String username, String sessionName, String uuid, List<String> fileIds, MessagingEndpoint endpoint) {
-			super(username, sessionName, uuid, fileIds, endpoint);
-		}
-	}
-	
-	public static class AfterStoreSession extends StoreSessionEvent {
-
-		public AfterStoreSession(String username, String sessionName, String uuid, List<String> fileIds, MessagingEndpoint endpoint) {
-			super(username, sessionName, uuid, fileIds, endpoint);
-		}
-	}
-	
+		
 	public static class AfterStoreSessionReply extends StoreSessionEvent {
 
 		public AfterStoreSessionReply(String username, String sessionName, String uuid, List<String> fileIds, MessagingEndpoint endpoint) {
 			super(username, sessionName, uuid, fileIds, endpoint);
 		}
 	}
-	
-	public static class BeforeRemoveSession extends Event {
+		
+	public static class AfterRemoveSessionReply extends Event {
 
-		public BeforeRemoveSession(String uuid, String username, MessagingEndpoint endpoint) {
+		public AfterRemoveSessionReply(String uuid, String username, MessagingEndpoint endpoint) {
 			super(uuid, username, endpoint);
 		}		
-	}
-	
-	public static class AfterRemoveSession extends Event {
-
-		public AfterRemoveSession(String uuid, String username, MessagingEndpoint endpoint) {
-			super(uuid, username, endpoint);
-		}		
-	}
+	}	
 }

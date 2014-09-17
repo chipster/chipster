@@ -57,6 +57,8 @@ public class SampleTrackGroup extends TrackGroup {
 
 	private boolean fullMode;
 
+	private boolean markMultimappingReads;
+
 
     public SampleTrackGroup(GBrowserView view, DataThread details, DataThread coverage, DataThread estimate,
     		DataThread seqFile, String title) {
@@ -83,6 +85,7 @@ public class SampleTrackGroup extends TrackGroup {
         		readPileForward.setView(view);
         		readPileForward.addDataThread(detailsDataThread);
                 readPileForward.setSNPHighlight(highlightSnp);
+                readPileForward.setMarkMultimappingReads(markMultimappingReads);
         		addTrack(readPileForward);
         		separatorReadPile = new SeparatorTrack(Color.gray, 1);
         		separatorReadPile.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
@@ -123,7 +126,8 @@ public class SampleTrackGroup extends TrackGroup {
         		readPileReverse.setViewLimits(0, GBrowserConstants.SWITCH_VIEWS_AT);
         		readPileReverse.setView(view);
         		readPileReverse.addDataThread(detailsDataThread);
-        		readPileReverse.setSNPHighlight(highlightSnp);        
+        		readPileReverse.setSNPHighlight(highlightSnp);
+        		readPileReverse.setMarkMultimappingReads(markMultimappingReads);
         		readPileReverse.setStrand(Strand.REVERSE);
         		addTrack(readPileReverse);
         		
@@ -242,5 +246,9 @@ public class SampleTrackGroup extends TrackGroup {
 	public void setDensityGraphVisible(boolean selected) {
 		this.densityGraph = selected;
 		addTracks();
+	}
+
+	public void setMarkMultimappingReads(boolean selected) {
+		this.markMultimappingReads = selected;
 	}
 }

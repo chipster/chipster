@@ -59,8 +59,6 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  */
 public class ChipsterGBrowserVisualisation extends Visualisation {
 	
-	private static final String ANNOTATIONS_PATH = "annotations";
-	
 	public static class BeanDataFile extends DataUrl {
 		
 		private DataBean bean;
@@ -320,27 +318,6 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					});
 
 		}
-		
-		@Deprecated
-		public URL getRemoteAnnotationsUrl() throws Exception {
-			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-			
-			List<URL> publicFiles = fileBroker.getPublicFiles();
-			if (publicFiles != null) {
-				
-				//find only the annotations folder for now
-				for (URL url : publicFiles) {
-					if  (url.getPath().contains("/" + ANNOTATIONS_PATH)) {
-						
-						String urlString = url.toString();
-						String annotationString = urlString.substring(0, urlString.indexOf("/" + ANNOTATIONS_PATH) + ANNOTATIONS_PATH.length() + 1);
-						return new URL(annotationString);
-					}
-				}
-			}
-			
-			return null;			
-		}
 
 		public List<URL> getRemoteAnnotationFiles() throws Exception {
 			FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
@@ -429,7 +406,7 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 	}
 
 	private boolean isIndexData(DataBean bean) {
-		return bean.getName().endsWith(".bai");
+		return bean.getName().endsWith(".bai") || bean.getName().endsWith(".fai");
 	}
 
 	@Override
@@ -494,7 +471,9 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 					// Cna file				
 					interpretations.add(new DataBeanInterpretation(TrackType.CNA, new BeanDataFile(data, data.getName())));
 				}
-			}						
+			} else if (data.hasTypeTag(MicroarrayModule.TypeTags.FASTA_FILE)) {
+				interpretations.add(new DataBeanInterpretation(TrackType.REFERENCE, new BeanDataFile(data)));
+			}
 		}
 
 		// Find interpretations for all secondary data types
@@ -526,10 +505,23 @@ public class ChipsterGBrowserVisualisation extends Visualisation {
 
 		// Check that interpretations are now fully initialised
 		for (Interpretation interpretation : interpretations) {
-			if (interpretation.getPrimaryData().getName().endsWith(".bam") && interpretation.getIndexData() == null) {
+			
+			boolean isBam = interpretation.getPrimaryData().getName().endsWith(".bam");
+			boolean isFasta = interpretation.getType() == TrackType.REFERENCE;
+			
+			if ((isBam || isFasta) && interpretation.getIndexData() == null) {
+								
+				String indexName = null;
 				
-				String indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				if (isBam) {
+					indexName = interpretation.getPrimaryData().getName().replace(".bam", ".bam.bai");
+				}
 				
+				if (isFasta) {
+					indexName = interpretation.getPrimaryData().getName() + ".fai";
+				}
+				
+				// index data wasn't among selected datasets, search from all datasets of the session
 				LinkedList<DataBean> beanList = application.getDataManager().getDataBeans(indexName);
 				
 				if (beanList.size() == 1) {

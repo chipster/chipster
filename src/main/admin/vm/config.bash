@@ -39,10 +39,15 @@ export TMPDIR_PATH=$TMPDIR/install
 export USERNAME=chipster
 export GROUPNAME=chipster
 
-export CHIPSTER_UID 1001
-export CHIPSTER_GID 1001
+export CHIPSTER_UID=1001
+export CHIPSTER_GID=1001
 export UBUNTU_UID=1000
 export UBUNTU_GID=1000
+
+export EMBOSS_VERSION=6.5.7
+export EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+
 
 # nic.funet.fi service endpoint
 export NIC_MIRROR=bio.nic.funet.fi
@@ -59,5 +64,7 @@ if [ ! -d $paralleldir ]; then
 	mkdir $paralleldir
 fi
 
+# squid proxy
+export http_proxy="http://192.168.15.254:3128"
 
 

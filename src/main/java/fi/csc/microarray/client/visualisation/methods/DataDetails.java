@@ -34,15 +34,14 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
-import fi.csc.microarray.client.operation.parameter.EnumParameter;
-import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
-import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.Strings;
 
 public class DataDetails extends Visualisation implements FocusListener, DocumentListener, MouseListener{
 	
@@ -237,6 +236,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 
 			panel.add(createTitleTextArea(data, true), "growx");			
 			panel.add(createDateLabel(data), "gapx " + INDENTION);
+			panel.add(createSizeLabel(data), "gapx " + INDENTION);
+			panel.add(createHistoryLink(data), "gapx " + INDENTION);
 			panel.add(createNotes(), "gapx " + INDENTION + ", growx");			
 			panel.add(createToolLabel(data), ", gapy 20");
 			createParameterTable(panel);
@@ -256,6 +257,42 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		JLabel dateLabel = new JLabel(data.getDate().toString());
 		return dateLabel;		
 	}
+	
+	private JLabel createSizeLabel(DataBean data) {
+		String text = null;
+		
+		try {
+			Long rowCount = Session.getSession().getDataManager().getFastRowCount(data);
+
+			if (rowCount != null && rowCount < DataManager.MAX_ROWS_TO_COUNT) {
+				text = rowCount  + " rows";
+			}
+		} catch (MicroarrayException e) {
+			Session.getSession().getApplication().reportException(e);
+		}
+		
+		if (text == null) {
+			if (data.getSize() != null) {
+				text = Strings.toRoundedHumanReadable(data.getSize()) + "B";
+			} else {
+				text = "Size unknown";
+			}
+		}
+		JLabel label = new JLabel(text);
+		return label;		
+	}
+	
+	private JXHyperlink createHistoryLink(final DataBean data) {
+		JXHyperlink link = new JXHyperlink();
+		link.setText("History");
+		link.addActionListener(new ActionListener() {		
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				application.showHistoryScreenFor(data);
+			}
+		});
+		return link;		
+	}
 
 	private Component createToolLabel(DataBean data) {
 		JLabel toolLabel = new JLabel(getNameText(data));
@@ -266,13 +303,22 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public JComponent getVisualisation(List<DataBean> datas) throws Exception {
 		
-		// this is not in EDT, do only minimal stuff to avoid problems if something else modifies databeans at the same time
-		this.datas = datas;
+		/* See VisualisationTaskManager.VisualisationRunnable.run()
+		 * 
+		 * This visualization is created so often that we start to see threading
+		 * problems. Methods getVisualisation() and visualisationShown() are
+		 * synchronized to make things little bit more predictable. 
+		 */
+		synchronized (this) {
 
-		panel = getPanelBase("gapy 20");						
-		scroller = new JScrollPane(panel);			
+			// this is not in EDT, do only minimal stuff to avoid problems if something else modifies databeans at the same time
+			this.datas = datas;
 
-		return scroller;
+			panel = getPanelBase("gapy 20");						
+			scroller = new JScrollPane(panel);			
+
+			return scroller;
+		}
 	}
 	
 	@Override
@@ -313,40 +359,18 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			if (params != null) {
 				for (ParameterRecord parameterRecord : params) {
 
-					//Find out default value
+					// find out default value and human readable value
 					OperationDefinition tool = application.getOperationDefinition(operationRecord.getNameID().getID());
-
-					String defaultValue = "";
 					
-					//Parameter value
-					String valueString = parameterRecord.getValue();
-
-					if (tool != null) {
-						Parameter parameter = tool.getParameter(parameterRecord.getNameID().getID());
-						if (parameter != null) {
-							defaultValue = parameter.getValueAsString();
-						}
-						
-						//EnumParameters have a display name for values
-						if (parameter instanceof EnumParameter) {
-							EnumParameter enumParameter = (EnumParameter) parameter;
-							
-							Object[] options = enumParameter.getOptions();
-							
-							// column selection doesn't have better name
-							if (options != null) {
-								// search for human readable name
-								for (Object choice : options) {
-									SelectionOption option = (SelectionOption) choice;
-									
-									//for (SelectionOption option : options) {
-									if (parameterRecord.getValue().equals(option.getValue())) {
+					String defaultValue = null;
+					String valueString = null;
 										
-										valueString = option.toString();
-									}
-								}
-							}
-						}
+					if (tool != null) {
+						defaultValue = tool.getParameterDefaultValue(parameterRecord);
+						valueString = tool.getHumanReadableParameterValue(parameterRecord);
+						
+					} else {						
+						valueString = parameterRecord.getValue();
 					}
 
 					JTextArea name = new JTextArea(parameterRecord.getNameID().getDisplayName());					
@@ -361,8 +385,8 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 					name.setEditable(false);
 					value.setEditable(false);
 
-					//Fade out default values
-					if (defaultValue.equals(parameterRecord.getValue())) {
+					// fade out default values
+					if (defaultValue != null && defaultValue.equals(parameterRecord.getValue())) {
 						value.setForeground(Color.gray);
 					}
 					
@@ -549,22 +573,25 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 	@Override
 	public void visualisationShown() {
 		
-		panel.removeAll();
-		
-		// this is EDT, now it's safe to access databeans
-		panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
-		panel.add(createVisualisations(), "aligny top");
-		
-		panel.addMouseListener(this);
-		scroller.setBorder(null);
-		updateFocusTraversal(scroller);
-		
-		if (getFrame().getVariables() != null) {
-			for (Variable variable : getFrame().getVariables()) {
-				//These are set by rename menu command
-				if (COMMAND.equals(variable.getName()) && RENAME_COMMAND.equals(variable.getExpression())) {
-					titleField.requestFocusInWindow();
-					titleField.getCaret().setDot(titleField.getText().length());
+		synchronized (this) {
+
+			panel.removeAll();
+
+			// this is EDT, now it's safe to access databeans
+			panel.add(createDatasetPanel(datas), "gapx 20, aligny top, width " + (LEFT_WIDTH + INDENTION));				
+			panel.add(createVisualisations(), "aligny top");
+
+			panel.addMouseListener(this);
+			scroller.setBorder(null);
+			updateFocusTraversal(scroller);
+
+			if (getFrame().getVariables() != null) {
+				for (Variable variable : getFrame().getVariables()) {
+					//These are set by rename menu command
+					if (COMMAND.equals(variable.getName()) && RENAME_COMMAND.equals(variable.getExpression())) {
+						titleField.requestFocusInWindow();
+						titleField.getCaret().setDot(titleField.getText().length());
+					}
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 # TOOL ngs-find-unique-genes.R: "Find unique and annotated genes" (This tool takes a list of ENSEMBL gene identifiers, removes duplicates and fetches annotation information. The output file is compatible with downstream tools used for example for pathway analysis.)
 # INPUT ensembl-list.tsv: "Table with ENSEMBL identifiers" TYPE GENERIC 
 # OUTPUT unique-genes.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
-# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat", Zebraﬁsh: "Zebraﬁsh"] DEFAULT EMPTY (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human: "Human", Mouse: "Mouse", Rat: "Rat", Zebrafish: "Zebrafish"] DEFAULT Human (The genome to use for fetching annotations.)
 
 # MG, 13.07.2011                                       
 # EK, 17.05.2012, fixed parameters
@@ -26,7 +26,7 @@ if (species == "Mouse") {
 if (species == "Rat") {
 	ensembl_dataset <- "rnorvegicus_gene_ensembl"
 }
-if (species == "Zebraﬁsh") {
+if (species == "Zebrafish") {
 	ensembl_dataset <- "drerio_gene_ensembl"
 }
 

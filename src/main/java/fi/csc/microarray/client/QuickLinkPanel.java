@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -178,14 +177,14 @@ public class QuickLinkPanel extends JPanel {
 	
 	private final static int MAX_ROW_CHARS = 53;
 
-	public static void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c, JComponent component) {
+	public static void addLink(String description, JXHyperlink link, String iconPath, GridBagConstraints c, JComponent component) {
 	
-		LinkUtil.addLink(description, link, icon, c, component, MAX_ROW_CHARS, Color.white);
+		LinkUtil.addLink(description, link, VisualConstants.getIcon(iconPath), c, component, MAX_ROW_CHARS, Color.white);
 	}
 
 	
-	public static void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c, JComponent component) {
-		LinkUtil.addLinks(description, links, icon, c, component, MAX_ROW_CHARS, Color.white);
+	public static void addLinks(String description, List<JXHyperlink> links, String iconPath, GridBagConstraints c, JComponent component) {
+		LinkUtil.addLinks(description, links, VisualConstants.getIcon(iconPath), c, component, MAX_ROW_CHARS, Color.white);
 	}
 
 }

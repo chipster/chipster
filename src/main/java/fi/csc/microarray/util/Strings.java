@@ -222,14 +222,64 @@ public class Strings {
 		    
 		    boolean atLastChar = (current == input.length() - 1);
 		    
-		    if (atLastChar) {
-		    	result.add(input.substring(start).replace("\"", ""));
 		    	
-		    } else if (input.charAt(current) == delimiter && !inQuotes) {
+		    if (input.charAt(current) == delimiter && !inQuotes) {
 		        result.add(input.substring(start, current).replace("\"", ""));
 		        start = current + 1;
+		    } else if (atLastChar) {
+		    	result.add(input.substring(start).replace("\"", ""));
 		    }
 		}
 		return result;
+	}
+	
+	public static String toHumanReadable(long i) {
+		return toHumanReadable(i, true, false);
+	}
+	
+	public static String toRoundedHumanReadable(long i) {
+		return toHumanReadable(i, true, true);
+	}
+
+	public static String toHumanReadable(long i, boolean returnZero, boolean round) {
+
+		if (i == 0) {
+			if (returnZero) {
+				return "0";
+			} else {
+				return "";
+			}
+		} else if (i < 0) {
+			return "" + i;
+		}
+
+		int pow = (int) Math.log10(i);
+
+		String sym = "";
+		if (pow >= 3) {
+			sym = "k";
+		}
+		if (pow >= 6) {
+			sym = "M";
+		}
+		if (pow >= 9) {
+			sym = "G";
+		}
+		if (pow >= 12) {
+			sym = "T";
+		}
+
+		int div = (int) Math.pow(10, (pow - pow % 3));		
+		
+		if (round) {
+			// a space between number and symbol to make it less squeezed
+			String roundNumber = "" + i / div + " " + sym;
+			return roundNumber;
+		} else {
+					
+			String roundNumber = "" + i / div + sym;
+			String remainder = toHumanReadable(i % div, false, false);
+			return  roundNumber + " " + remainder;
+		}
 	}
 }

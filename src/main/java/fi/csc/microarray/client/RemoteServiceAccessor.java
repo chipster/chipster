@@ -39,8 +39,9 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 		endpoint = new JMSMessagingEndpoint(nodeSupport, authenticationRequestListener);
 		this.initialise(endpoint, 
 				manager, 
-				new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE)));	
+				new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE)));
 	}		
+
 	
 	/**
 	 * Initialise RemoteServiceAccessor with custom messaging endpoint and custom file broker client. This is used when file broker uses client code to manage example sessions.

@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
+import fi.csc.microarray.client.serverfiles.ServerFile;
 import fi.csc.microarray.client.serverfiles.ServerFileSystemView;
 import fi.csc.microarray.client.serverfiles.ServerFileUtils;
 import fi.csc.microarray.client.session.UserSession;
@@ -123,7 +125,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class SwingClientApplication extends ClientApplication {
 
-	private static final String SERVER_SESSION_ROOT_FOLDER = "Sessions at server";
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
@@ -181,6 +182,16 @@ public class SwingClientApplication extends ClientApplication {
 		// this had to be delayed as logging is not available before loading configuration
 		logger = Logger.getLogger(SwingClientApplication.class);
 		
+		Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionHandler() {				
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				// we'll always output these to console and log for traceability and
+				// easier IDE navigation
+				e.printStackTrace();
+				logger.error("Uncaught exception in thread " + t.getName(), e);
+			}
+		});
+		
 		if (!SwingUtilities.isEventDispatchThread()) {
 			logger.error(new MicroarrayException("SwingClientApplication was created outside the Event Dispatch Thread."));
 			System.exit(1);
@@ -192,7 +203,7 @@ public class SwingClientApplication extends ClientApplication {
         this.requestedModule = module;
 
         // show splash screen
-		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
+		splashScreen = new SplashScreen(VisualConstants.getIcon(VisualConstants.SPLASH_SCREEN));
 		reportInitialisationThreadSafely("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
@@ -368,7 +379,7 @@ public class SwingClientApplication extends ClientApplication {
 		});
 
 		// make window visible
-		mainFrame.setIconImage(VisualConstants.APPLICATION_ICON.getImage());
+		mainFrame.setIconImage(VisualConstants.getIcon(VisualConstants.APPLICATION_ICON).getImage());
 		mainFrame.pack();
 		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);
@@ -771,7 +782,7 @@ public class SwingClientApplication extends ClientApplication {
 			@Override
 			public void run() {
 				
-				runWorkflow(workflowScript, runForEach);
+				SwingClientApplication.super.runWorkflow(workflowScript, runForEach);
 			}
 		});
 		thread.start();
@@ -921,7 +932,7 @@ public class SwingClientApplication extends ClientApplication {
 		// easier IDE navigation
 		e.printStackTrace();
 		if (logger != null) {
-			logger.error(Exceptions.getStackTrace(e));
+			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -1382,7 +1393,7 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser populateFileChooserFromServer() throws JMSException, Exception, MalformedURLException {
 		JFileChooser sessionFileChooser;
 		List<DbSession> sessions = super.listRemoteSessions();
-		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(SERVER_SESSION_ROOT_FOLDER, sessions);
+		ServerFileSystemView view = ServerFileSystemView.parseFromPaths(ServerFile.SERVER_SESSION_ROOT_FOLDER, sessions);
 		sessionFileChooser = new JFileChooser(view.getRoot(), view); // we do not need to use ImportUtils.getFixedFileChooser() here
 		sessionFileChooser.putClientProperty("sessions", sessions);
 		sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1564,13 +1575,16 @@ public class SwingClientApplication extends ClientApplication {
 				try {
 					@SuppressWarnings("unchecked")
 					List<DbSession> sessions = (List<DbSession>)fileChooser.getClientProperty("sessions");
-					remoteSessionName = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
+					remoteSessionName = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
 					sessionId = findMatchingSessionUuid(sessions, remoteSessionName);
 					if (sessionId == null) {
-						throw new RuntimeException();
+						// user didn't select anything
+						showDialog("Session \"" + selectedFile + "\" not found", Severity.INFO, true);
+						return;
 					}
 					
 				} catch (Exception e) {
+					reportException(e);
 					throw new RuntimeException("internal error: URL or name from save dialog was invalid"); // should never happen
 				}
 
@@ -1784,7 +1798,7 @@ public class SwingClientApplication extends ClientApplication {
 		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			String filename = selectedFile.getPath().substring(SERVER_SESSION_ROOT_FOLDER.length()+1);
+			String filename = selectedFile.getPath().substring(ServerFile.SERVER_SESSION_ROOT_FOLDER.length()+1);
 			String sessionUuid = null;
 			
 			try {

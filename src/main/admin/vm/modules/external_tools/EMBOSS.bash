@@ -1,24 +1,32 @@
 ##depends:none
 
 # EMBOSS, GPL
-  	apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
- 	 # also vmbin from nic
+  apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images
+ 	# also vmbin from nic
 
- 	 EMBOSS_VERSION=6.5.7
- 	 EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
- 	 
-	#note version in path                                                                                                                                                              
+ 	#EMBOSS_VERSION=6.5.7
+ 	#EMBOSS_PATH=${TOOLS_PATH}/EMBOSS-${EMBOSS_VERSION}
+	## used also by other emboss related apps (depend on EMBOSS.bash)
+	#export EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
+
+ 	 	 
+	##note version in path                                                                                                                                                              
 	curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}.tar.gz | tar -xz -C ${TMPDIR_PATH}/
-  	cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+	cd ${TMPDIR_PATH}/EMBOSS-6.5.7
+
+	# DON'T UNCOMMENT THESE THREE LINES		
+  	##wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
+ 	##gunzip patch-1-11.gz                                                                                                                                                               
+	##patch -p1 < patch-1-11                                                                                                                                                             
 	
-  	#wget ftp://emboss.open-bio.org/pub/EMBOSS/fixes/patches/patch-1-11.gz                                                                                                              
- 	 #gunzip patch-1-11.gz                                                                                                                                                               
-	  #patch -p1 < patch-1-11                                                                                                                                                             
-	
-	EMBOSS_OPTIONS="--prefix=${EMBOSS_PATH}"
 	./configure ${EMBOSS_OPTIONS}
 	make
-	make install
+	echo "emboss_update_log.txt" - |make install
+	
+	# temporarily use prebuilt emboss
+	#curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/EMBOSS/EMBOSS-${EMBOSS_VERSION}-vmbin.tar.gz | tar -xz -C ${TOOLS_PATH}/
+	
+	# always create this link
 	ln -s EMBOSS-6.5.7 ${TOOLS_PATH}/emboss
 
 # EMBOSS extras
@@ -34,4 +42,4 @@
 	cd ${EMBOSS_PATH}/share/EMBOSS/data/REBASE
 	wget_retry ftp://ftp.neb.com/pub/rebase/withrefm.txt
 	wget_retry ftp://ftp.neb.com/pub/rebase/proto.txt
-	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt
+	../../../../bin/rebaseextract -infile withrefm.txt -protofile proto.txt -equivalences Y

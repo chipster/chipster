@@ -1,11 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.gui;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import net.miginfocom.swing.MigLayout;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
 
 /**
@@ -15,7 +13,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Selectable;
  */
 public class SelectionPanel extends JPanel implements BrowserSelectionListener {
 
-	private JPanel panel;
 	private JTextArea textArea;
 	private SelectionManager selectionManager;
 
@@ -23,18 +20,10 @@ public class SelectionPanel extends JPanel implements BrowserSelectionListener {
 		
 		this.selectionManager = selectionManager;
 		selectionManager.addSelectionListener(this);
-		
-		panel = new JPanel();
-		panel.setLayout(new BorderLayout());
+		this.setLayout(new MigLayout("insets 0", "[grow, fill]", "[grow, fill]"));
 
 		textArea = new JTextArea();
-		panel.add(textArea, BorderLayout.CENTER);
-
-		JScrollPane scroller = new JScrollPane(panel);
-		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		this.setLayout(new BorderLayout());
-		this.add(scroller, BorderLayout.CENTER);			
+		this.add(textArea);		
 	}
 
 	@Override
