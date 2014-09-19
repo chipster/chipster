@@ -98,8 +98,8 @@
       		<simpleAuthenticationPlugin>
          		<users>
            			<authenticationUser groups="clients,all" password="client" username="client"/>
-                    <authenticationUser groups="analysers,all" password="comp" username="comp"/>
-                    <authenticationUser groups="jobmanagers,all" password="jobmanager" username="jobmanager"/>
+				<authenticationUser groups="analysers,all" password="comp" username="comp"/>
+				<authenticationUser groups="jobmanagers,all" password="jobmanager" username="jobmanager"/>
            			<authenticationUser groups="authenticators,all" password="auth" username="auth"/>
            			<authenticationUser groups="managers,all" password="manager" username="manager"/>
            			<authenticationUser groups="filebrokers,all" password="filebroker" username="filebroker"/>
@@ -114,9 +114,9 @@
                				<authorizationEntry admin="all" read="authenticators" topic="request-topic" write="clients"/>
                				<authorizationEntry admin="all" read="filebrokers" topic="authorised-filebroker-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="filebroker-topic" write="clients"/>
-                            <authorizationEntry admin="all" read="filebrokers" topic="filebroker-admin-topic" write="managers"/>
-                            <authorizationEntry admin="all" read="analysers" topic="authorized-managed-request-topic" write="jobmanagers"/>
-                            <authorizationEntry admin="all" read="jobmanagers" topic="comp-admin-topic" write="managers"/>
+					<authorizationEntry admin="all" read="filebrokers" topic="filebroker-admin-topic" write="managers"/>
+					<authorizationEntry admin="all" read="analysers" topic="authorized-managed-request-topic" write="jobmanagers"/>
+					<authorizationEntry admin="all" read="analysers,jobmanagers" topic="comp-admin-topic" write="managers"/>
                				<authorizationEntry admin="all" read="managers" topic="job-log-topic" write="analysers,authenticators"/>
                				<authorizationEntry admin="all" read="authenticators" topic="feedback-topic" write="clients"/>
                				<authorizationEntry admin="all" read="managers" topic="authorised-feedback-topic" write="authenticators"/>
