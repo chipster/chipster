@@ -1,6 +1,6 @@
 # Construction end deconstruction of CGHregions objects.
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2014-03-24
+# 2014-09-22
 
 library(Biobase)
 library(CGHregions)
@@ -162,11 +162,11 @@ regioningPlus <- function (cghdata.called, threshold=0.00001, cghdata.regions=NU
   
   # calculate median logratios and segments
   region.medians <- regions(cghdata.regions)
-  for (row in rownames(region.medians)) {
+  for (i in 1:nrow(region.medians)) {
     index <- chromosomes(cghdata.called) == chromosomes(cghdata.regions)[i] &
              bpstart(cghdata.called) >= bpstart(cghdata.regions)[i] &
              bpend(cghdata.called) <= bpend(cghdata.regions)[i]
-    region.medians[row,] <- apply(copynumber(cghdata.called)[index,], 2, median, na.rm=TRUE)
+    region.medians[i,] <- apply(copynumber(cghdata.called)[index, , drop=FALSE], 2, median, na.rm=TRUE)
   }
   regdata$medians <- region.medians
   
