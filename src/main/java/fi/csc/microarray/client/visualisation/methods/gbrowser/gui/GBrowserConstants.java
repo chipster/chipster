@@ -92,6 +92,8 @@ public class GBrowserConstants {
             "/gbrowserLegend/n.png";
     public static final String GB_LEGEND_READ_ICON = 
             "/gbrowserLegend/read.png";
+    public static final String GB_LEGEND_MULTIMAPPING_ICON = 
+            "/gbrowserLegend/multimapping.png";
     public static final String GB_LEGEND_MORE_READS_ICON = 
             "/gbrowserLegend/more-reads.png";
     public static final String GB_LEGEND_END_ICON = 

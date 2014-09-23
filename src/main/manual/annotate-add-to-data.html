@@ -11,11 +11,15 @@
 
 <h3>Parameters</h3>
 
-None
+Use conditional GO term annotation (yes/no) [no]
 
 <h3>Details</h3>
 
-<p>Currently, Affymetrix probe set IDs, Illumina Target IDs and Agilent probe names can be annotated.</p>
+<p>Currently, Affymetrix probe set IDs, Illumina Target IDs and Agilent probe names can be annotated. 
+Note that if a gene is annotated with several terms of the same branch in the Gene Ontology (GO) hierarchy, 
+(e.g. Regulation of cell death / Regulation of programmed cell death / Regulation of apoptotic process), 
+this tool will list by deafult only the most specific term and ignore the parent terms. 
+You can get all the terms by setting the Conditional parameter to yes.</p>
 
 <h3>Output</h3>
 

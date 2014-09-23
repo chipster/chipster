@@ -8,7 +8,6 @@ import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -16,7 +15,6 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -193,14 +191,6 @@ public interface Module {
 	 * @return
 	 */
 	public String getManualHome();
-
-	/**
-	 * Called by Spreadsheet to allow adding of module specific menu items to popup menu.
-	 * 
-	 * @param spreadsheetPopupMenu the popup to add items to 
-	 * @param visualisationFrame spreadsheet visualisation frame
-	 */
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame);
 
 	/**
 	 * Flags spreadsheet columns that support linking by this module.

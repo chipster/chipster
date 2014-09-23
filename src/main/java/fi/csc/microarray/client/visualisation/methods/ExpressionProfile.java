@@ -33,7 +33,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -50,7 +50,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	private LinkedList<ProfileRow> rows;
 	private SelectableChartPanel selectableChartPanel;
 	private  JPanel paramPanel;
-	private AnnotateListPanel list;
+	private SelectionList list;
 
 	private CategoryPlot plot;
 	
@@ -70,7 +70,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
-			list = new AnnotateListPanel();
+			list = new SelectionList();
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Selected", list);

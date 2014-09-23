@@ -14,7 +14,9 @@
 # OUTPUT OPTIONAL converted.meganon
 # OUTPUT OPTIONAL converted.nexus
 # OUTPUT OPTIONAL converted.fastq
+# OUTPUT OPTIONAL converted.gff3
 # PARAMETER osformat: "Output sequence format" TYPE [ fasta: "Standard Pearson FASTA format, but with the accession number included after the identifier if available.",  ncbi: "NCBI style FASTA format with the database name, entry name and accession number separated by pipe | characters.", gifasta: "NCBI fasta format with NCBI-style IDs using GI number", pir: "NBRF/PIR entry format, as used in the PIR database sequence files.", text: "Plain sequence, no annotation or heading.", aln: "Clustalw multiple alignment format", selex: "Selex format", pfam: "Stockholm pfam format", phylip: "Phylip interleaved format", hennig86: "Hennig86 output format", mega: "Mega interleaved output format", meganon: "Mega non-interleaved output format", nexus: "Nexus/paup interleaved format", fastq: "FASTQ short read format with phred quality"] DEFAULT fasta (Output format type)
+# PARAMETER offormat : "Include feature information" TYPE [ none: "No",  gff3: "Yes"] DEFAULT none (Include the feature data in the output if it is included in the input file.)
 
 # K.M 28.10.2013
 
@@ -49,6 +51,9 @@ if (num.queryseq > 50000){
 ecommand <- paste("seqret")
 emboss.path <- file.path(chipster.tools.path, "emboss" ,"bin")
 emboss.binary <- file.path(emboss.path,ecommand)
+if ( offormat == "gff3"){
+	emboss.binary <- paste(emboss.binary, "-feature -offormat gff3")
+}
 command.full <- paste(emboss.binary, "-sequence input.txt -osformat", osformat,"-auto -outseq ", outfile, " 2> log.txt" )
 system(command.full)
 system("ls -l > log.txt")

@@ -12,7 +12,6 @@ import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -23,7 +22,6 @@ import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.selection.IntegratedEntity;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
@@ -202,11 +200,6 @@ public class SequenceModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "http://chipster.csc.fi/embster/manual";
-	}
-
-	@Override
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
-		// do nothing
 	}
 
 	@Override

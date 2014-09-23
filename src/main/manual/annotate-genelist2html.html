@@ -18,11 +18,17 @@
 
 <h3>Details</h3>
 
-<p>Currently, Affymetrix probe set IDs, Illumina Target IDs and Agilent probe names can be annotated.</p>
+<p>Currently, Affymetrix probe set IDs, Illumina Target IDs and Agilent probe names can be annotated. 
+Note that if a gene is annotated with several terms of the same branch in the Gene Ontology (GO) hierarchy, 
+(e.g. Regulation of cell death / Regulation of programmed cell death / Regulation of apoptotic process), 
+this tool will list only the most specific term and the parent terms are ignored.
+If you would like to list all the terms, please use the tool "Annotation / Add annotations to data" so that you set the parameter Conditional to yes.
+</p>
 
-<p>If the annotated dataset contains p-values or expression values, those can be included in the annotation table.
-P-values and expression values can be calculated using some statistical test, especially empirical Bayes, or using
-the utility toll for calculation fold changes between exactly two groups.</p>
+<p>If the dataset contains p-values or expression values, these can be included in the annotation table.
+P-values and expression values can be calculated using statistical tests, especially empirical Bayes, or using
+the tool "Utilities / Calculate fold change".</p>
+
 
 <h3>Output</h3>
 

@@ -121,6 +121,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 		//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put("DensityGraphTrack", new JCheckBox("Density graph", false));
 		trackSwitches.put("RepeatMaskerTrack", new JCheckBox("Low complexity regions", false));
+		trackSwitches.put("multimapping", new JCheckBox("Mark multimapping reads", false));
 	}
 	
 	public JPanel getParameterPanel() {
@@ -472,6 +473,7 @@ public class GBrowserSettings implements ActionListener, RegionListener {
 				samples.setCoverageType((CoverageType) coverageTypeBox.getSelectedItem());
 				samples.setReadsVisible(trackSwitches.get("Reads").isSelected());
 				samples.setHighlightSnp(trackSwitches.get("highlightSNP").isSelected());
+				samples.setMarkMultimappingReads(trackSwitches.get("multimapping").isSelected());
 				samples.setDensityGraphVisible(trackSwitches.get("DensityGraphTrack").isSelected());
 			}		
 		}

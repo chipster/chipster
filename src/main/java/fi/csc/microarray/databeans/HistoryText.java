@@ -1,6 +1,8 @@
 package fi.csc.microarray.databeans;
 
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -11,6 +13,7 @@ public class HistoryText {
 	
 	private String[] sourceCodes;
 	private DataBean data;
+	private ClientApplication application = Session.getSession().getApplication();
 	
 	public HistoryText(DataBean data) {
 		this.data = data;
@@ -50,8 +53,20 @@ public class HistoryText {
 					if (param) {
 
 						for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+							
+							// find out human readable value
+							OperationDefinition tool = application .getOperationDefinition(operationRecord.getNameID().getID());
+							
+							String valueString = null;
+												
+							if (tool != null) {
+								valueString = tool.getHumanReadableParameterValue(parameterRecord);								
+							} else {						
+								valueString = parameterRecord.getValue();
+							}							
+							
 							historyText.append("Parameter " + parameterRecord.getNameID().getDisplayName() + ": " +
-									parameterRecord.getValue() + "\n");
+									valueString + "\n");
 							
 						}
 					} else {

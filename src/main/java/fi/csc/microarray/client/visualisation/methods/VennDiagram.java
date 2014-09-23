@@ -26,9 +26,9 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.selection.SelectionEvent;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -48,7 +48,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	private ChartPanel chartPanel;
 
 	private JPanel paramPanel;
-	private AnnotateListPanel list;
+	private SelectionList list;
 	private JButton useButton;
 	private JComboBox colBox;
 	private Variable colVar;
@@ -61,7 +61,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPane1l();
-			list = new AnnotateListPanel("Unique", true);
+			list = new SelectionList("Unique", true, false);
 
 			JTabbedPane tabPane = new JTabbedPane();
 			
