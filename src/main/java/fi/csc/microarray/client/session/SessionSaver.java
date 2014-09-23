@@ -66,7 +66,7 @@ public class SessionSaver {
 	private static final Logger logger = Logger.getLogger(SessionSaver.class);
 
 	
-	private final int DATA_BLOCK_SIZE = 2048;
+	private final int DATA_BLOCK_SIZE = 64*1024;
 	
 	private File sessionFile;
 	private String sessionId;

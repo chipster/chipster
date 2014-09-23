@@ -528,25 +528,33 @@ public class TaskExecutor {
 
 		removeFromRunningTasks(task);
 	}
-
+	
 	public void killAll() {
 		synchronized (runningTasks) {
-
 			// copy of runningTasks, avoid concurrent modification by kill(Task task)
-			LinkedList<Task> tasksToKill = new LinkedList<Task>();
-			for (Task task : runningTasks) {
-				tasksToKill.add(task);
-			}
-			for (Task task : tasksToKill) {
-				kill(task);
-			}
-
-			runningTasks.clear();
-			SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
+			LinkedList<Task> tasksToKill = new LinkedList<Task>(runningTasks);			
+			killAll(tasksToKill);
 		}
 	}
 
-	public Collection<Task> getTasks(boolean onlyRunning, boolean showHidden) {
+	public void killAll(List<Task> tasks) {
+		synchronized (runningTasks) {
+
+			for (Task task : tasks) {
+				kill(task);
+			}
+
+			SwingUtilities.invokeLater(new TaskExecutorChangeNotifier(this));
+		}
+	}
+	
+	public void killUploadingTasks() {
+		synchronized (runningTasks) {
+			killAll(getUploadingTasks());
+		}		
+	}
+
+	public List<Task> getTasks(boolean onlyRunning, boolean showHidden) {
 		synchronized (runningTasks) {
 			// select if we return only running or all
 			LinkedList<Task> taskList = onlyRunning ? runningTasks : tasks;
@@ -568,11 +576,31 @@ public class TaskExecutor {
 		}
 	}
 
+	private List<Task> getUploadingTasks() {
+			
+		synchronized (runningTasks) {
+			Collection<Task> allTasks = getTasks(true, true);
+			LinkedList<Task> uploadingTasks = new LinkedList<Task>();
+			for (Task task : allTasks) {
+				if (task.getState() == Task.State.NEW || 
+						task.getState() == Task.State.TRANSFERRING_INPUTS) {
+					uploadingTasks.add(task);
+				}
+			}
+			return uploadingTasks;
+		}
+	}
+	
 	public int getRunningTaskCount() {
 		synchronized (runningTasks) {
 			Collection<Task> taskList = getTasks(true, false);
 			return taskList.size();
 		}
+	}
+	
+
+	public int getUploadingTaskCount() {
+		return getUploadingTasks().size();
 	}
 
 	/**
@@ -696,5 +724,5 @@ public class TaskExecutor {
 		logger.debug("Retry replyTo is: " + jobMessage.getReplyTo());
 		requestTopic.sendMessage(jobMessage);
 
-	}
+	}	
 }
