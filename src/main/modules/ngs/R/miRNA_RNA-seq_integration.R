@@ -8,7 +8,7 @@
 # OUTPUT OPTIONAL correlation_known_interactions_only.tsv: correlation_known_interactions_only.tsv
 # PARAMETER order.column.mirna: "Phenodata column indicating sample order in miRNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
 # PARAMETER order.column.gene: "Phenodata column indicating sample order in RNA data" TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples with numbers, so that RNA and miRNA data can be correctly matched.)
-# PARAMETER OPTIONAL normalization: "Normalization" TYPE [none: none, cpm: CPM, cpmTMM: "CPM and TMM"] DEFAULT none (Should the miRNA and RNA counts be normalized. The normalization options are Counts Per Million (CPM\) of either raw counts or TMM (Trimmed Mean of M-values\) -normalized values, as calcualted by the edgeR package.)
+# PARAMETER OPTIONAL normalization: "Normalization" TYPE [none: none, cpm: CPM, cpmTMM: "CPM and TMM"] DEFAULT none (Should the miRNA and RNA counts be normalized? The normalization options are Counts Per Million (CPM\) of either raw counts or TMM (Trimmed Mean of M-values\) -normalized values, as calculated by the edgeR package.)
 # PARAMETER OPTIONAL filtering.method: "Filter by" TYPE [correlation, p.value] DEFAULT correlation (Should miRNA-RNA pairs be filtered by correlation or by p-value.)
 # PARAMETER OPTIONAL filter.threshold: "Filtering threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.90 (Filtering cut-off.)
 # PARAMETER OPTIONAL save.full.matrix: "Output also the full miRNA-RNA correlation matrix" TYPE [yes, no] DEFAULT no (This (large\) matrix contains correlations between all miRNAs and genes, with no filtering applied.)
