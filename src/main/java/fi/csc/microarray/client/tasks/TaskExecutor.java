@@ -427,13 +427,27 @@ public class TaskExecutor {
 					logger.warn("received not enough disk space when uploading input", nedse);
 					updateTaskState(task, State.FAILED_USER_ERROR, "Not enough disk space", -1);
 					task.setErrorMessage("There was not enough disk space in Chipster server to run the task. Please try again later.");
-					removeFromRunningTasks(task);
+					removeFromRunningTasks(task);									
 					
 				} catch (Exception e) {
-					// could not send job message --> task fails
-					logger.error("Could not send job message.", e);
-					updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
-					removeFromRunningTasks(task);
+					
+					if (e instanceof IOException && "Stream Closed".equals(e.getMessage())) {
+						String msg = "Uploading input data was interrupted. \n"
+								+ "\n"
+								+ "Source of the input data was lost before \n"
+								+ "upload was completed. This may happen \n"
+								+ "the current session file is replace by \n"
+								+ "saving a new session with the same file name. \n"
+								+ "\n"
+								+ "Please run the tool again.\n";  
+						updateTaskState(task, State.ERROR, msg, -1);
+						removeFromRunningTasks(task);						
+					} else {
+						// could not send job message --> task fails
+						logger.error("Could not send job message.", e);
+						updateTaskState(task, State.ERROR, "Sending message failed: " + e.getMessage(), -1);
+						removeFromRunningTasks(task);
+					}
 				}
 			}
 		}).start();
