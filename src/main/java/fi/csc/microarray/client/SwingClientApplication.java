@@ -1071,7 +1071,7 @@ public class SwingClientApplication extends ClientApplication {
 				message += "There are " + taskExecutor.getUploadingTaskCount() + " tasks uploading input files. " + "Are you sure you want to cancel these tasks?";
 			}
 
-			Object[] options = { "Cancel running tasks", "Cancel" };
+			Object[] options = { "Cancel uploading tasks", "Cancel" };
 
 			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
