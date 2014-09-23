@@ -53,6 +53,7 @@ import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.security.CryptoKey;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -1273,6 +1274,20 @@ public class DataManager {
 			setOrVerifyContentLength(bean, getContentLength(location));
 		} catch (IOException e) {
 			logger.error("content length not available: " + e);
+		} catch (ContentLengthException e) {
+			try {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg;
+				msg = "Wrong content length for dataset " + bean.getName() + ". "
+						+ " In ContentLocation " + location.getUrl() +  ", length is " + getContentLength(location) + " bytes. ";
+				msg += "Content locations: ";
+				for (ContentLocation loc : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += loc.getUrl() + " " + manager.getContentLength(loc) + " bytes, ";
+				}
+				throw new ContentLengthException(msg);
+			} catch (IOException e1) {
+				logger.error("another exception while handling " + Exceptions.getStackTrace(e), e);
+			}					
 		}
 		bean.addContentLocation(location);
 		
