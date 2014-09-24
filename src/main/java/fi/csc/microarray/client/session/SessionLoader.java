@@ -2,10 +2,13 @@ package fi.csc.microarray.client.session;
 
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
 import de.schlichtherle.truezip.zip.ZipFile;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -33,7 +36,13 @@ public class SessionLoader {
 	}
 
 	
-	public void loadSession() throws Exception {
+	/**
+	 * @return a list of OperationRecords for tasks that were running when the
+	 *         session was saved
+	 *         
+	 * @throws Exception
+	 */
+	public List<OperationRecord> loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
 		InputStreamReader metadataReader = null;
@@ -56,6 +65,7 @@ public class SessionLoader {
 			// old format, use old loader
 			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();
+			return null;
 			
 		} else {
 			// use new loader
@@ -65,7 +75,7 @@ public class SessionLoader {
 			} else {
 				impl = new SessionLoaderImpl2(sessionId, dataManager, isDatalessSession);
 			}
-			impl.loadSession();
+			return impl.loadSession();
 		}
 	}
 }

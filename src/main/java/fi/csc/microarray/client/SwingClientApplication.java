@@ -830,12 +830,12 @@ public class SwingClientApplication extends ClientApplication {
 		// user-friendly message
 		if (userFixable) {
 			title = task.getErrorMessage();
-			message = task.getNamePrettyPrinted() + " was stopped. ";
+			message = task.getFullName() + " was stopped. ";
 		} 
 		
 		// generic message
 		else {
-			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			title = task.getFullName() + " did not complete successfully. ";
 			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
 		}		
 
@@ -933,6 +933,7 @@ public class SwingClientApplication extends ClientApplication {
 		e.printStackTrace();
 		if (logger != null) {
 			logger.error(e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 
@@ -1060,22 +1061,22 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;
-
+		
 		// Check the running tasks
-		if (taskExecutor.getRunningTaskCount() > 0) {
+		if (taskExecutor.getUploadingTaskCount() > 0) {
 			String message = "";
-			if (taskExecutor.getRunningTaskCount() == 1) {
-				message += "There is a running task.  Are you sure you want to cancel the running task?";
+			if (taskExecutor.getUploadingTaskCount() == 1) {
+				message += "There is a task uploading input files.  Are you sure you want to cancel the task?";
 			} else {
-				message += "There are " + taskExecutor.getRunningTaskCount() + " running tasks. " + "Are you sure you want to cancel all running tasks?";
+				message += "There are " + taskExecutor.getUploadingTaskCount() + " tasks uploading input files. " + "Are you sure you want to cancel these tasks?";
 			}
 
-			Object[] options = { "Cancel running tasks", "Cancel" };
+			Object[] options = { "Cancel uploading tasks", "Cancel" };
 
 			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm close", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 			if (returnValue == JOptionPane.YES_OPTION) {
-				taskExecutor.killAll();
+				taskExecutor.killUploadingTasks();
 			} else {
 				return;
 			}
@@ -1088,7 +1089,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved to server before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 			if (returnValue == 0) {
 				try {

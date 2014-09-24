@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +36,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
@@ -475,15 +476,20 @@ public abstract class ClientApplication {
 			return null;
 		}
 		
+		// this operation needs to be stored in a session before the application
+		// is closed to be able to receive results later
+		unsavedChanges = true;
+		
+		OperationRecord operationRecord = new OperationRecord(operation);
+		
 		// start executing the task
-		Task task = taskExecutor.createTask(operation);
+		Task task = taskExecutor.createNewTask(operationRecord, operation.getDefinition().isLocal());
 		
 		task.addTaskEventListener(new TaskEventListener() {
 			public void onStateChange(Task job, State oldState, State newState) {
 				if (newState.isFinished()) {
 					try {
-						// FIXME there should be no need to pass the operation as it goes within the task
-						onFinishedTask(job, operation, newState);
+						onFinishedTask(job, operation.getResultListener(), newState);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -502,13 +508,40 @@ public abstract class ClientApplication {
 		return task;
 	}
 	
+	public Task continueOperation(OperationRecord operationRecord) {
+
+		// assume that all continued operations are remote 
+		boolean local = false;
+		Task task = taskExecutor.createContinuedTask(operationRecord, local);
+		
+		task.addTaskEventListener(new TaskEventListener() {
+			public void onStateChange(Task job, State oldState, State newState) {
+				if (newState.isFinished()) {
+					try {						
+						// result listener is always null for continued tasks
+						onFinishedTask(job, null, newState);
+					} catch (Exception e) {
+						reportException(e);
+					}
+				}
+			}
+		});
+
+		try {			
+			
+			taskExecutor.continueExecuting(task);
+			
+		} catch (TaskException te) {
+			reportException(te);
+		}
+		return task;
+	}
+	
 	public void onNewTask(Task task, Operation oper) throws MicroarrayException, IOException {
 		
 		Module primaryModule = Session.getSession().getPrimaryModule();
 		
-		for (String inputName : task.getInputNames()) {
-			DataBean input = task.getInput(inputName);
-
+		for (DataBean input : task.getInputDataBeans()) {
 			if (primaryModule.isMetadata(input)) {				
 				primaryModule.preProcessInputMetadata(oper, input);				
 			}
@@ -521,6 +554,8 @@ public abstract class ClientApplication {
 	 * results and inserts it to the data set views.
 	 * 
 	 * @param task The finished task.
+	 * @param resultListener will be notified when the task completes. It is 
+	 * ignored if the client is restarted before the task is completed.
 	 * @param oper The finished operation, which in fact is the GUI's
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
@@ -529,9 +564,10 @@ public abstract class ClientApplication {
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, Operation oper, State state) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, ResultListener resultListener, State state) throws MicroarrayException, IOException {
 		
-		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
+		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();	
+		
 		try {
 
 			logger.debug("operation finished, state is " + state);
@@ -550,23 +586,21 @@ public abstract class ClientApplication {
 				// read operated datas
 				Module primaryModule = Session.getSession().getPrimaryModule();
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
-				for (DataBinding binding : oper.getBindings()) {
+				for (DataBean bean : task.getInputDataBeans()) {
 					// do not create derivation links for metadata datasets
 					// also do not create links for sources without parents
 					// this happens when creating the input databean for example
 					// for import tasks
 					// FIXME should such a source be deleted here?
-					if (!primaryModule.isMetadata(binding.getData()) && (binding.getData().getParent() != null)) {
-						sources.add(binding.getData());
+					if (!primaryModule.isMetadata(bean) && (bean.getParent() != null)) {
+						sources.add(bean);
 
 					}
 				}
 
 				// decide output folder
 				DataFolder folder = null;
-				if (oper.getOutputFolder() != null) {
-					folder = oper.getOutputFolder();
-				} else if (sources.size() > 0) {
+				if (sources.size() > 0) {
 					for (DataBean source : sources) {
 						if (source.getParent() != null) {
 							folder = source.getParent();
@@ -581,14 +615,10 @@ public abstract class ClientApplication {
 
 				// read outputs and create derivational links for non-metadata beans
 				DataBean metadataOutput = null;
-				OperationRecord operationRecord = new OperationRecord(oper);
-				operationRecord.setSourceCode(task.getSourceCode());
 				
-				for (String outputName : task.outputNames()) {
-
-					DataBean output = task.getOutput(outputName);
-					output.setOperationRecord(operationRecord);
-
+				for (DataBean output : task.getOutputs()) {
+				
+					output.setOperationRecord(task.getOperationRecord());
 
 					// set sources
 					for (DataBean source : sources) {
@@ -615,7 +645,7 @@ public abstract class ClientApplication {
 						}
 					}
 
-					primaryModule.postProcessOutputMetadata(oper, metadataOutput);				
+					primaryModule.postProcessOutputMetadata(task.getOperationRecord(), metadataOutput);				
 				}
 
 			}			
@@ -623,11 +653,11 @@ public abstract class ClientApplication {
 		} finally {
 			
 			// notify result listener
-			if (oper.getResultListener() != null) {
+			if (resultListener != null) {
 				if (state.finishedSuccesfully()) {
-					oper.getResultListener().resultData(newBeans);
+					resultListener.resultData(newBeans);
 				} else {
-					oper.getResultListener().noResults();
+					resultListener.noResults();
 				}
 			}
 		}
@@ -969,15 +999,23 @@ public abstract class ClientApplication {
 		 * of them and new session can be necessary to save. This has to set after the import. 
 		 */
 		boolean somethingToSave = manager.databeans().size() != 0;
+		
+		List<OperationRecord> unfinishedJobs = null;
 
 		try {
 			if (sessionFile != null) {
-				manager.loadSession(sessionFile, isDataless);
+				unfinishedJobs = manager.loadSession(sessionFile, isDataless);
 				currentRemoteSession = null;
 			} else {
-				manager.loadStorageSession(sessionId);
+				unfinishedJobs = manager.loadStorageSession(sessionId);
 				currentRemoteSession = sessionId;
-			}				
+			}
+			
+			if (unfinishedJobs != null) {
+				for (OperationRecord operationRecord : unfinishedJobs) {
+					continueOperation(operationRecord);
+				}
+			}
 
 		} catch (Exception e) {
 			if (isExampleSession) {
@@ -1002,11 +1040,16 @@ public abstract class ClientApplication {
 	public boolean saveSessionAndWait(boolean isRemote, File localFile, String remoteSessionName) {
 		
 		try {
+			List<OperationRecord> unfinishedJobs = new ArrayList<>();
+			for (Task task : Session.getSession().getApplication().getTaskExecutor().getTasks(true, true)) {
+				unfinishedJobs.add(task.getOperationRecord());
+			}
+			
 			if (isRemote) {
-				String sessionId = getDataManager().saveStorageSession(remoteSessionName);
+				String sessionId = getDataManager().saveStorageSession(remoteSessionName, unfinishedJobs);
 				currentRemoteSession = sessionId;
 			} else {
-				getDataManager().saveSession(localFile);
+				getDataManager().saveSession(localFile, unfinishedJobs);
 				currentRemoteSession = null;
 			}
 			
