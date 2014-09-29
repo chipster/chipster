@@ -166,16 +166,23 @@ public class SessionManager {
 		boolean specialUser = DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(Session.getSession().getUsername());
 		
 		return conf || specialUser;
-	}
+	}	
 	
 	public void restoreSessionAndWait(File file) {
-		loadSessionAndWait(file, null, true, true, false);
+		loadSessionAndWait(file, null, true, true, false, 0);
 	}
 	
 	public void loadSessionAndWait(final File sessionFile,
 			final String sessionId, final boolean isDataless,
 			final boolean clearDeadTempDirs,
 			final boolean isExampleSession) {
+		loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession, null);
+	}
+	
+	public void loadSessionAndWait(final File sessionFile,
+			final String sessionId, final boolean isDataless,
+			final boolean clearDeadTempDirs,
+			final boolean isExampleSession, Integer xOffset) {
 		
 		// check that it's a valid session file 
 		if (!isDataless) {

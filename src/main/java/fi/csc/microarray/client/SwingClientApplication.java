@@ -1624,17 +1624,20 @@ public class SwingClientApplication extends ClientApplication {
 				sessionFile = selectedFile;
 			} 
 
+			int xOffset = 0;
+
 			try {
 				// clear previous session 
 				if (clear) {
 					if (!clearSession()) {
 						return; // loading cancelled
 					}
-				}		
+				} else {
+					xOffset = (int) getGraphPanel().getGraph().getGraphSize().getWidth();
+				}
 
 				// load the new session
-				loadSession(sessionFile, sessionId, remote, false, false);
-				
+				loadSession(sessionFile, sessionId, remote, false, false, xOffset);			
 			} catch (MalformedURLException | JMSException e) {
 				reportException(e);
 			}
@@ -1642,12 +1645,12 @@ public class SwingClientApplication extends ClientApplication {
 		menuBar.updateMenuStatus();
 	}
 	
-	public void loadSession(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession) {
+	public void loadSession(final File sessionFile, final String sessionId, final boolean isDataless, final boolean clearDeadTempDirs, final boolean isExampleSession, final Integer xOffset) {
 
 		// start loading the session
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {
-				getSessionManager().loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession);
+				getSessionManager().loadSessionAndWait(sessionFile, sessionId, isDataless, clearDeadTempDirs, isExampleSession, xOffset);
 			}
 		});
 	}
@@ -1896,7 +1899,7 @@ public class SwingClientApplication extends ClientApplication {
 		                JOptionPane.PLAIN_MESSAGE);		    
 				
 			    if (sessionId != null) {
-			    	loadSession(null, sessionId, true, false, false);
+			    	loadSession(null, sessionId, true, false, false, null);
 			    }
 			}
 		});
@@ -1921,5 +1924,9 @@ public class SwingClientApplication extends ClientApplication {
 				return false;
 			}
 		});
+	}
+	
+	public GraphPanel getGraphPanel() {
+		return graphPanel;
 	}
 }
