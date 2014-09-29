@@ -3,7 +3,7 @@ package fi.csc.microarray.filebroker;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -40,7 +40,7 @@ public class JettyFileServer {
 			
 		case "https":
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-			connector = new SslSelectChannelConnector(KeyAndTrustManager.createSslContextFactory(
+			connector = new SslSocketConnector(KeyAndTrustManager.createSslContextFactory(
 					configuration.getString("security", "keystore"),
 					configuration.getString("security", "keypass"), 
 					configuration.getString("security", "keyalias"), 
