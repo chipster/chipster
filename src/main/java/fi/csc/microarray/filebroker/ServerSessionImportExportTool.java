@@ -104,7 +104,9 @@ public class ServerSessionImportExportTool {
 	 */
 	public String filenameToBasename(String filename) throws IllegalArgumentException {
 		if (nameCheck.matcher(filename).matches()) {
-			return filename.replace(".zip", "");
+			// remove .zip at the end of the line
+			// but keep everything else, e.g. .zip.zip becomes .zip 
+			return filename.replaceAll(".zip$", "");
 		} else {
 			throw new IllegalArgumentException("Illegal character in filename '" + filename + "'");
 		}

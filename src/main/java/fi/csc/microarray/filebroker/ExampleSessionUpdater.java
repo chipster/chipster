@@ -17,18 +17,21 @@ import de.schlichtherle.truezip.file.TFile;
 import fi.csc.microarray.messaging.DirectMessagingEndpoint;
 
 /**
- * Synchronize example sessions in zip format and example sessions stored as server sessions.
+ * Synchronize example sessions in zip format and example sessions stored as
+ * server sessions.
  * 
- * Storing example session as server sessions enables many handy features, like deduplication 
- * of the derived datasets and easy modification of these session in the client. On the contrary, example
- * sessions stored as zip files are easy to handle in server update scripts. This class tries to take 
- * advantages of both storage methods by keeping example session stored both as server sessions 
- * and zip files.
+ * Storing example session as server sessions enables many handy features, like
+ * deduplication of the datasets and easy modification of these session in the
+ * client. On the contrary, example sessions stored as zip files are easy to
+ * handle in server update scripts. This class tries to take advantages of both
+ * storage methods by keeping example session stored both as server sessions and
+ * zip files.
  * 
- * It is assumed that example sessions of the running instance are modified in the client and example
- * sessions of the stopped instance are modified in zip files. When the FileServer starts, the 
- * server sessions are updated to the same state with zip files. When the server sessions are modified
- * on the fly, the same operations are also applied to zip sessions.
+ * It is assumed that example sessions of the running instance are modified in
+ * the client and example sessions of the stopped instance are modified in zip
+ * files. When the FileServer starts, the server sessions are updated to the
+ * same state with zip files. When the server sessions are modified on the fly,
+ * the same operations are also applied to zip sessions.
  * 
  * @author klemela
  */
@@ -169,15 +172,15 @@ public class ExampleSessionUpdater extends FileServerListener {
 	}
 	
 	/**
-	 * Run method exportServerSession() in a background thread 
+	 * Run method removeZipSession() in a background thread 
 	 * 
 	 * @param sessionUuid
 	 * @param basename
 	 */
-	public void removeZipSessionInBackground(final String uuid) {
+	public void removeZipSessionInBackground(final File file) {
 	     Runnable r = new Runnable() {
 	         public void run() {
-	             removeZipSession(uuid);
+	             removeZipSession(file);
 	         }
 	     };
 
@@ -297,18 +300,15 @@ public class ExampleSessionUpdater extends FileServerListener {
 	}
 
 	/**
-	 * Find a session name for the session uuid and remove a zip session of that name.
+	 * Remove a zip session and update the tar archive
 	 * 
-	 * @param uuid
+	 * @param zipFile
 	 */
-	public void removeZipSession(String uuid) {
-		try {
-			String basename = uuidToBasename(uuid);			
-			File zipFile = basenameToFile(basename);
-			removeIfExists(zipFile);
-			
+	public void removeZipSession(File zipFile) {
+		try {		
+			removeIfExists(zipFile);			
 			updateExampleSessionArchive();
-		} catch (SQLException | IOException e) {
+		} catch (IOException e) {
 			logger.error("removing example session failed ", e);
 		}
 	}
@@ -344,12 +344,20 @@ public class ExampleSessionUpdater extends FileServerListener {
 				}			
 			}
 
-			if (e instanceof AfterRemoveSessionReply) {
-				AfterRemoveSessionReply event = (AfterRemoveSessionReply) e;
+			if (e instanceof BeforeRemoveSession) {
+				BeforeRemoveSession event = (BeforeRemoveSession) e;
 
-				if (DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(event.getUsername())) {
+				if (DerbyMetadataServer.DEFAULT_EXAMPLE_SESSION_OWNER.equals(event.getUsername())) {					
 					logger.info("example session is being removed, removing also the zip file");
-					removeZipSessionInBackground(event.getUuid());
+					try {
+						// convert uuid to filename before the session is deleted
+						String basename = uuidToBasename(event.getUuid());
+						File file = basenameToFile(basename);
+						logger.info("remove example session: " + file.getName());
+						removeZipSessionInBackground(file);
+					} catch (SQLException ex) {
+						logger.error("removing example session failed ", ex);
+					}
 				}			
 			}
 		}

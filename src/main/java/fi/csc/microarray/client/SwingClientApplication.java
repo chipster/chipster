@@ -1088,7 +1088,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			Object[] options = { "Save and close", "Close without saving", "Cancel" };
 
-			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved to server before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 			if (returnValue == 0) {
 				try {
@@ -1818,10 +1818,11 @@ public class SwingClientApplication extends ClientApplication {
 			
 			try {
 				// remove selected session
-				super.removeRemoteSession(sessionUuid);			
-				// confirm to user
-				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				if (super.removeRemoteSession(sessionUuid)) {			
+					// confirm to user
+					DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				}
 
 			} catch (JMSException e) {
 				reportException(e);
