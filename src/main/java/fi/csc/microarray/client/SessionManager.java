@@ -279,18 +279,18 @@ public class SessionManager {
 		setSession(null, null);
 	}	
 	
-	public void removeRemoteSession(String sessionUuid) throws JMSException {
-
-		if (isCurrentRemoteSession(sessionUuid) && !dataManager.databeans().isEmpty()) {
+	public boolean removeRemoteSession(String sessionUuid) throws JMSException {
+		
+		if (currentRemoteSession != null && currentRemoteSession.equals(sessionUuid) && !dataManager.databeans().isEmpty()) {
 			application.showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
 					+ "Removal of this session is prevented, because it may be the only copy of your current "
 					+ "datasets. If you want to keep the datasets, please save them as a sessions first. If you want to remove "
 					+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true);
-			return;
+			return false;
 		}
 
-		Session.getSession().getServiceAccessor().getFileBrokerClient().removeRemoteSession(sessionUuid);		
-
+		Session.getSession().getServiceAccessor().getFileBrokerClient().removeRemoteSession(sessionUuid);
+		return true;
 	}
 
 	public boolean hasUnsavedChanges() {

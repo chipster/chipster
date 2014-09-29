@@ -1839,10 +1839,11 @@ public class SwingClientApplication extends ClientApplication {
 			
 			try {
 				// remove selected session
-				getSessionManager().removeRemoteSession(sessionUuid);			
-				// confirm to user
-				DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
-				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				if (getSessionManager().removeRemoteSession(sessionUuid)) {			
+					// confirm to user
+					DialogInfo info = new DialogInfo(Severity.INFO, "Remove successful", "Session " + selectedFile.getName() + " removed successfully.", "", Type.MESSAGE);
+					ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				}
 
 			} catch (JMSException e) {
 				reportException(e);

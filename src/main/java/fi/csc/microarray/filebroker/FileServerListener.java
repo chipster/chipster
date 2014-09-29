@@ -62,9 +62,9 @@ public abstract class FileServerListener {
 		}
 	}
 		
-	public static class AfterRemoveSessionReply extends Event {
+	public static class BeforeRemoveSession extends Event {
 
-		public AfterRemoveSessionReply(String uuid, String username, MessagingEndpoint endpoint) {
+		public BeforeRemoveSession(String uuid, String username, MessagingEndpoint endpoint) {
 			super(uuid, username, endpoint);
 		}		
 	}	

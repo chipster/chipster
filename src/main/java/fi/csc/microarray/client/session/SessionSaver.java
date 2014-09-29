@@ -470,7 +470,7 @@ public class SessionSaver {
 		dataType.setName(bean.getName());
 		dataType.setDataId(bean.getId());
 		dataType.setSize(bean.getSize()); //may be null
-		dataType.setChecksum(bean.getChecksum()); //may be null
+		dataType.setChecksum(bean.getChecksum()); //may be null				
 
 		// parent
 		if (bean.getParent() != null) {
@@ -633,18 +633,42 @@ public class SessionSaver {
 			URL url = entry.getValue();
 			
 			String entryName = url.getRef();
+			
+			Long streamLength = null;
+			String streamChecksum = null;
 
 			// write bean contents to zip
 			try {
 				ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(entry.getKey(), DataNotAvailableHandling.EXCEPTION_ON_NA);
-				writeFile(zipOutputStream, entryName, in);				
+				writeFile(zipOutputStream, entryName, in);
+				streamLength = in.getContentLength();
+				streamChecksum = in.verifyChecksums();
 				in.verifyContentLength(bean.getSize());
-				dataManager.setOrVerifyChecksum(bean, in.verifyChecksums());
+				dataManager.setOrVerifyChecksum(bean, streamChecksum);
 				
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException("could not access dataset for saving: " + entryName); // in future we should skip these and just warn
-			} catch (ChecksumException | ContentLengthException e) {
-				throw new IOException(e);
+				
+			} catch (ContentLengthException e) {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg = "Wrong content length for dataset " + bean.getName() + ". "
+						+ "Length of input stream is " + streamLength + " bytes, " + 
+						"but DataManager expects " + manager.getContentLength(bean) + " bytes. ";					
+				msg += "Content locations: ";
+				for (ContentLocation location : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += location.getUrl() + " " + manager.getContentLength(location) + " bytes, ";
+				}						 															
+				throw new IOException(msg, e);
+				
+			} catch (ChecksumException e) {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg = "Wrong checksum for dataset " + bean.getName() + ". "
+						+ "Checksum of input stream is " + streamChecksum + ". "; 									
+				msg += "Content locations: ";
+				for (ContentLocation location : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += location.getUrl() + " " + manager.getContentLength(location) + " bytes, ";
+				}						 															
+				throw new IOException(msg, e);				
 			}
 		}
 	}
