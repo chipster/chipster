@@ -164,6 +164,8 @@ public class DataBean extends DataItemBase {
 	
 	private Long size;
 	private String checksum;
+	private Integer x;
+	private Integer y;
 	
 	public DataBean(String name, ContentType contentType, DataManager manager) {
 		this(name, contentType, manager, CryptoKey.generateRandom());
@@ -685,5 +687,18 @@ public class DataBean extends DataItemBase {
 
 	public void setTagsSet(boolean tagsSet) {
 		this.tagsSet = tagsSet;
+	}
+
+	public void setPosition(Integer x, Integer y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public Integer getX() {
+		return this.x;
+	}
+	
+	public Integer getY() {
+		return this.y;
 	}
 }

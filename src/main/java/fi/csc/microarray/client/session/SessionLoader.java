@@ -20,6 +20,8 @@ public class SessionLoader {
 	private File sessionFile;
 	private String sessionId;
 	private boolean isDatalessSession;
+	private Integer xOffset;
+	private String sessionNotes;
 
 	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
 		this.sessionFile = sessionFile;
@@ -75,7 +77,18 @@ public class SessionLoader {
 			} else {
 				impl = new SessionLoaderImpl2(sessionId, dataManager, isDatalessSession);
 			}
-			return impl.loadSession();
+			impl.setXOffset(xOffset);
+			List<OperationRecord> tasks = impl.loadSession();
+			sessionNotes = impl.getSessionNotes();
+			return tasks;
 		}
+	}
+
+	public void setXOffset(Integer xOffset) {
+		this.xOffset = xOffset;
+	}
+
+	public String getSessionNotes() {
+		return this.sessionNotes;
 	}
 }

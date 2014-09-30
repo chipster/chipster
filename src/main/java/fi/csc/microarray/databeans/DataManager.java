@@ -27,11 +27,8 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.session.SessionLoader;
-import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
@@ -679,120 +676,6 @@ public class DataManager {
 		}
 		return bean;
 	}
-
-
-	/**
-	 * Load session from a file.
-	 * 
-	 * @return a list of OperationRecords for tasks that were running when the
-	 *         session was saved
-	 * 
-	 * @see #saveSession(File, ClientApplication)
-	 */
-	public List<OperationRecord> loadSession(File sessionFile, boolean isDataless) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
-		return sessionLoader.loadSession();
-	}
-
-	
-	/**
-	 * Load remote session from an URL.
-	 * 
-	 * @return a list of OperationRecords for tasks that were running when the
-	 *         session was saved 
-	 * 
-	 * @see #saveStorageSession(String) 
-	 */
-	public List<OperationRecord> loadStorageSession(String sessionId) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionId, this);
-		return sessionLoader.loadSession();
-	}
-
-	/**
-	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
-	 * File is a zip file with all the data files and one metadata file.
-	 * @param unfinishedJobs 
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveSession(File sessionFile, List<OperationRecord> unfinishedJobs) throws Exception {
-
-		// save session file
-		boolean metadataValid = false;
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this, unfinishedJobs);
-		metadataValid = sessionSaver.saveSession();
-
-		// check validation
-		if (!metadataValid) {
-			// save was successful but metadata validation failed, file might be usable
-			String validationDetails = sessionSaver.getValidationErrors();
-			throw new ValidationException(validationDetails);
-		}
-	}
-
-	
-	/**
-	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
-	 * Does not save actual data inside databeans.
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveLightweightSession(File sessionFile) throws Exception {
-
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		sessionSaver.saveLightweightSession();
-	}
-
-	/**
-	 * Returns debug print out of current session state.
-	 * 
-	 * @return print out of session state
-	 */
-	public String printSession() {
-		StringBuffer buffer = new StringBuffer();
-		SessionSaver.dumpSession(rootFolder, buffer);
-		return buffer.toString();
-	}
-
-	public String saveStorageSession(String name, List<OperationRecord> unfinishedJobs) throws Exception {
-						
-		String sessionId = CryptoKey.generateRandom();
-		SessionSaver sessionSaver = new SessionSaver(sessionId, this, unfinishedJobs);
-		// upload/move data files and upload metadata files, if needed
-		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
-		
-		// add metadata to file broker database (make session visible)
-		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionId, dataIds);
-		
-		return sessionId;
-	}
-
-	
-	
-	
-	/**
-	 * Like saveStorageSession, but upload necessary files to cache instead of storage and returns sessionId
-	 * instead of writing it to metadata database.
-	 * 
-	 * @return 
-	 * 
-	 * @return sessionId
-	 * @throws Exception 
-	 */
-	public String saveFeedbackSession() throws Exception {
-	
-		String sessionId = CryptoKey.generateRandom();
-		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
-		// upload/move data files and upload metadata files, if needed
-		sessionSaver.saveFeedbackSession();
-		
-		return sessionId;
-	}
-
-	
-	
 	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
@@ -1472,14 +1355,6 @@ public class DataManager {
 		return location.getHandler().isAccessible(location);
 	}
 
-	public void saveStorageSession(String saveName) throws Exception {
-		saveStorageSession(saveName, new ArrayList<OperationRecord>());
-	}
-
-	public void saveSession(File zipFile) throws Exception {
-		saveSession(zipFile, new ArrayList<OperationRecord>());
-	}
-
 	/**
 	 * Optimization to speed up session loading
 	 * 
@@ -1572,5 +1447,5 @@ public class DataManager {
 			}			
 		}
 		return null;
-	}	
+	}
 }

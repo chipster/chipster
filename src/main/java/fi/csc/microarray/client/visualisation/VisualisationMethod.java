@@ -56,7 +56,7 @@ public class VisualisationMethod {
 		this(name, visualiser, iconPath, orderNumber, durationEstimationFactor);
 		this.helpAddress = helpAddress;
 	}
-	
+
 	public String toString() {
 		return this.name;
 	}
@@ -97,9 +97,12 @@ public class VisualisationMethod {
 		}
 		return icon;
 	}
-
-	public static VisualisationMethod getDefault() {
-		return VisualisationMethods.DATA_DETAILS;
+	
+	public static boolean isDefault(VisualisationMethod method) {
+		return method == null || 
+				method == VisualisationMethods.DATA_DETAILS || 
+				method == VisualisationMethods.SESSION_DETAILS ||
+				method == VisualisationMethods.EMPTY;
 	}
 
 	/**

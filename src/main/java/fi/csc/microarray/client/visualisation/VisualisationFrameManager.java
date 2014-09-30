@@ -18,8 +18,14 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.session.SessionManager.SessionChangedEvent;
+import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataChangeEvent;
+import fi.csc.microarray.databeans.DataChangeListener;
+import fi.csc.microarray.databeans.DataItemRemovedEvent;
 
-public class VisualisationFrameManager implements PropertyChangeListener{
+public class VisualisationFrameManager implements PropertyChangeListener, DataChangeListener{
 	
 	private VisualisationTaskManager visualisationTaskManager = new VisualisationTaskManager(this);
 	
@@ -34,12 +40,15 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	private VisualisationToolBar toolBar;
 
 	private JComponent focusComponent;
+
+	private SwingClientApplication application = (SwingClientApplication) Session.getSession().getApplication();
 	
 	public enum FrameType { MAIN, SIDE, WINDOW };
 	
 	public VisualisationFrameManager(){
-		Session.getSession().getApplication().addClientEventListener(this);
 		toolBar = new VisualisationToolBar();
+		application.addClientEventListener(this);
+		application.getDataManager().addDataChangeListener(this);
 	}
 	
 	public JPanel getFramesPanel(){
@@ -114,25 +123,62 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	public void propertyChange(PropertyChangeEvent event) {
 
 		if (event instanceof VisualisationMethodChangedEvent) {
+			
+			// execute visualisation change events
+			
 			VisualisationMethodChangedEvent e = (VisualisationMethodChangedEvent) event;
-			//logger.debug("VisualisationPanel got VisualisationMethodChangedEvent with method: " + visualisationEvent.getNewMethod());
 			
 			//Special case: the empty  visualisation is so fast, that showing wait 
 			//panel causes only irritating flickering
 			VisualisationMethod method = ((VisualisationMethodChangedEvent) event).getNewMethod();
 						
-			if(method != VisualisationMethod.getDefault()){
+			if(!VisualisationMethod.isDefault(method)){
 				// draw wait panel while executing
 				this.showWaitPanel(e.getTarget());
 			}
 			
 			//If visualization is removed (e.g. by opening a new session) in maximized state it becomes difficult to do anything
-			if(method == VisualisationMethod.getDefault()){
-				if (toolBar.isMaximised) {
-					toolBar.maximiseOrRestoreVisualisation();
-				}
+			if (toolBar.isMaximised) {
+				toolBar.maximiseOrRestoreVisualisation();
 			}
 			visualisationTaskManager.visualise(e);
+			
+		} else if (event instanceof DatasetChoiceEvent) {
+			
+			// reset visualisation when selection changes
+			
+			List<DataBean> currentDatas = application .getSelectionManager().getSelectedDataBeans();
+			List<DataBean> newDatas = getVisualisedDatas();					
+			
+			if (currentDatas == null || newDatas == null || // prevent npe 
+					// update if selection has changed					
+					!(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
+				
+				application.setVisualisationMethodToDefault();
+			}
+		} else if (event instanceof SessionChangedEvent) {					
+			if (VisualisationMethod.isDefault(getFrame(FrameType.MAIN).getMethod())) {
+				
+				// always update default visualisations
+				application.setVisualisationMethodToDefault();
+			}
+		}
+	}
+	
+	private List<DataBean> getVisualisedDatas() {
+		return getFrame(FrameType.MAIN).getDatas();
+	}
+
+	public void dataChanged(DataChangeEvent e) {
+		
+		if (e instanceof DataItemRemovedEvent) {
+			// reset visualisation if a visualized dataset was removed 
+			
+			List<DataBean> visualizedDatas = getVisualisedDatas();
+			
+			if (visualizedDatas != null && visualizedDatas.contains(((DataItemRemovedEvent) e).getDataItem())) {
+				application.setVisualisationMethodToDefault();
+			}			
 		}
 	}
 
@@ -171,7 +217,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 			mainFrame.showVisualisationComponent(visualisation);
 			updateInternalContent();
 			this.focusComponent = visualisation;
-			((SwingClientApplication)Session.getSession().getApplication()).updateFocusTraversal();
+			application.updateFocusTraversal();
 			break;
 		case SIDE:
 			twinView = true;

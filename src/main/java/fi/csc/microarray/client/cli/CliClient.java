@@ -3,6 +3,7 @@ package fi.csc.microarray.client.cli;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -455,12 +456,12 @@ public class CliClient {
 			File session = new File(sessionName);
 			if (session.exists()) {
 				// dataless session
-				app.loadSessionAndWait(session, null, true, false, false);
+				app.getSessionManager().loadSessionAndWait(session, null, true, false, false);
 			}
 		} else {
 			try {			
 				String sessionId = getSessionId(sessionName); // throws UserErrorException if not found
-				app.loadSessionAndWait(null, sessionId, true, false, false);
+				app.getSessionManager().loadSessionAndWait(null, sessionId, true, false, false);
 			} catch (UserErrorException e) {
 				// working copy doesn't exist, will be created when saved
 			}
@@ -474,30 +475,30 @@ public class CliClient {
 		if (isLocalSession(sessionName)) {
 			File session = new File(sessionName);
 			if (session.exists()) {
-				app.loadSessionAndWait(session, null, false, false, false);
+				app.getSessionManager().loadSessionAndWait(session, null, false, false, false);
 			} else {
 				throw new UserErrorException("session not found: " + sessionName);
 			}
 		} else {
 			String sessionId = getSessionId(sessionName); // throws UserErrorException if not found
-			app.loadSessionAndWait(null, sessionId, true, false, false);
+			app.getSessionManager().loadSessionAndWait(null, sessionId, true, false, false);
 		}
 	}
 
 	private void checkCloudConfiguration() throws UserErrorException {
-		if (!app.areCloudSessionsEnabled()) {
+		if (!app.getSessionManager().areCloudSessionsEnabled()) {
 			throw new UserErrorException("cloud sessions are disabled on this server, use local .zip sessions instead");
 		}
 	}
 
 	private void deleteSession(String sessionName) throws JMSException, Exception {
 		String sessionId = getSessionId(sessionName);
-		app.removeRemoteSession(sessionId);
+		app.getSessionManager().removeRemoteSession(sessionId);
 	}
 
 	private void saveWorkingCopySession(String workingCopy) throws Exception {
 		if (isLocalSession(workingCopy)) {
-			app.getDataManager().saveLightweightSession(new File(workingCopy));
+			app.getSessionManager().saveLightweightSession(new File(workingCopy));
 		} else {
 			saveSession(workingCopy);
 		}
@@ -505,10 +506,10 @@ public class CliClient {
 	
 	private void saveSession(String workingCopy) throws Exception {
 		if (isLocalSession(workingCopy)) {
-			app.saveSessionAndWait(false, new File(workingCopy), null);
+			app.getSessionManager().saveSessionAndWait(false, new File(workingCopy), null);
 		} else {
 			checkCloudConfiguration();
-			app.saveSessionAndWait(true, null, workingCopy);
+			app.getSessionManager().saveSessionAndWait(true, null, workingCopy);
 		}
 	}
 
@@ -517,7 +518,7 @@ public class CliClient {
 	}
 
 	private void listSessions(boolean yaml) throws JMSException, Exception {
-		List<DbSession> sessions = app.listRemoteSessions();
+		List<DbSession> sessions = app.getSessionManager().listRemoteSessions();
 		ArrayList<String> list = new ArrayList<String>();
 		for (DbSession session : sessions) {
 			list.add(session.getName());
@@ -530,8 +531,8 @@ public class CliClient {
 		app.deleteDatasWithoutConfirming(bean);
 	}
 	
-	private void clearSession() {		
-		app.clearSessionWithoutConfirming();
+	private void clearSession() throws MalformedURLException, JMSException {		
+		app.getSessionManager().clearSessionWithoutConfirming();
 	}
 	
 	private void saveWorkflow(String dataset, String filename) throws IOException, UserErrorException {
@@ -1066,7 +1067,7 @@ public class CliClient {
 	}
 	
 	private String getSessionId(String sessionName) throws JMSException, Exception {
-		List<DbSession> sessions = app.listRemoteSessions();
+		List<DbSession> sessions = app.getSessionManager().listRemoteSessions();
 		
 		for (DbSession session : sessions) {
 			if (sessionName.equals(session.getName())) {

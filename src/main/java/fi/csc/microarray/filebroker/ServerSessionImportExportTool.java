@@ -6,10 +6,11 @@ import java.util.regex.Pattern;
 
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.session.SessionManager;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.module.ModuleManager;
 
 /**
@@ -27,6 +28,8 @@ public class ServerSessionImportExportTool {
 	private static final String LOCAL_FILEBROKER_IP = "127.0.0.1";
 
 	public DataManager dataManager;
+
+	private SessionManager sessionManager;
 	
 	//A whitelist of allowed characters in file names 
 	private static Pattern nameCheck = Pattern.compile("[a-zA-Z0-9_\\-\\.\\ \\(\\)]*");
@@ -41,7 +44,9 @@ public class ServerSessionImportExportTool {
 				endpoint.createTopic(Topics.Name.FILEBROKER_TOPIC, AccessMode.WRITE), 
 				null, 
 				LOCAL_FILEBROKER_IP );
-		serviceAccessor.initialise(endpoint, dataManager, fileBrokerClient);		
+		serviceAccessor.initialise(endpoint, dataManager, fileBrokerClient);
+		
+		this.sessionManager = new SessionManager(dataManager, fileBrokerClient, null);
 		//module manager is needed when session loading checks if a file is phenodata
 		ModuleManager moduleManager = new ModuleManager();		
 		moduleManager.plugAll(dataManager, null);
@@ -59,9 +64,9 @@ public class ServerSessionImportExportTool {
 	 */
 	public void importSession(File session) throws Exception {
 
-		this.dataManager.loadSession(session, false);		
+		this.sessionManager.loadLocalSession(session, false);		
 		String saveName = filenameToBasename(session.getName());		
-		this.dataManager.saveStorageSession(saveName);		
+		this.sessionManager.saveStorageSession(saveName);		
 		this.dataManager.deleteAllDataItems();
 	}
 
@@ -75,8 +80,8 @@ public class ServerSessionImportExportTool {
 	 */
 	public void exportSession(String uuid, File zipFile) throws MalformedURLException, Exception {
 
-		this.dataManager.loadStorageSession(uuid);
-		this.dataManager.saveSession(zipFile);		
+		this.sessionManager.loadStorageSession(uuid);
+		this.sessionManager.saveSession(zipFile);		
 		this.dataManager.deleteAllDataItems();			
 	}
 	
@@ -104,7 +109,9 @@ public class ServerSessionImportExportTool {
 	 */
 	public String filenameToBasename(String filename) throws IllegalArgumentException {
 		if (nameCheck.matcher(filename).matches()) {
-			return filename.replace(".zip", "");
+			// remove .zip at the end of the line
+			// but keep everything else, e.g. .zip.zip becomes .zip 
+			return filename.replaceAll(".zip$", "");
 		} else {
 			throw new IllegalArgumentException("Illegal character in filename '" + filename + "'");
 		}

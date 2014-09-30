@@ -29,6 +29,8 @@ import fi.csc.microarray.databeans.DataItem;
 public abstract class AbstractGraphVertex extends DefaultGraphCell {
 
 	private MicroarrayGraph graph;
+
+	private boolean allowsAutoLayout;
 	
 	public static Color DEFAULT_VERTEX_COLOR = VisualConstants.CATEGORY_COLORS[0]; 
 	public static final Border BORDER_NORMAL =
@@ -95,14 +97,14 @@ public abstract class AbstractGraphVertex extends DefaultGraphCell {
 	public int getY() {
 		return (int) this.getBounds().getY();
 	}
-
+	
 	/**
 	 * Sets new value to horizontal and vertical positions
 	 * @param x
 	 * @param y
 	 */
 	public void setPosition(Point point) {
-
+		
 		Map attrs = new Hashtable();
 		GraphConstants.setBounds(attrs, new Rectangle2D.Double(
 				point.getX(), point.getY(), getDefaultWidth(), getDefaultHeight()));
@@ -163,6 +165,12 @@ public abstract class AbstractGraphVertex extends DefaultGraphCell {
 	public abstract void addChildVertex(GraphVertex child);
 	
 	public abstract boolean removeChildVertex(GraphVertex child);
+
+	public boolean getAllowsAutolayout() {
+		return allowsAutoLayout;
+	}
 	
-	
+	public void setAllowsAutoLayout(boolean allowsAutoLayout) {
+		this.allowsAutoLayout = allowsAutoLayout;
+	}
 }

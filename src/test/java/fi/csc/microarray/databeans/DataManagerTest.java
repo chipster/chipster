@@ -9,15 +9,18 @@ import org.junit.Test;
 
 import fi.csc.microarray.ClientContextUtil;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.session.SessionManager;
 
 public class DataManagerTest {
 
-	private DataManager manager; 
+	private DataManager manager;
+	private SessionManager sessionManager; 
 	
 	@Before
 	public void init() throws Exception {
 		ClientContextUtil.setupClientContext();
 		this.manager = Session.getSession().getDataManager();
+		this.sessionManager = new SessionManager(manager, Session.getSession().getServiceAccessor().getFileBrokerClient(), null);
 	}
 	
 	@Test
@@ -38,13 +41,13 @@ public class DataManagerTest {
 		
 		// save
 		File session = File.createTempFile("test-remote-session", ".zip");
-		manager.saveLightweightSession(session);
+		sessionManager.saveLightweightSession(session);
 
 		// clear
 		manager.deleteAllDataItems();
 
 		// load
-		manager.loadSession(session, true);
+		sessionManager.loadLocalSession(session, true);
 		
 		// check
 		Assert.assertEquals(manager.getRootFolder().getChildCount(), 1);

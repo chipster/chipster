@@ -585,6 +585,8 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		// parse request
 		String sessionId = requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_UUID);
 		
+		dispatch(new FileServerListener.BeforeRemoveSession(sessionId, requestMessage.getUsername(), endpoint));
+		
 		SuccessMessage reply;
 		try {
 			// if no uuid, try to get url, which was the old way
@@ -592,7 +594,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				URL url = new URL(requestMessage.getNamedParameter(ParameterMessage.PARAMETER_SESSION_URL));
 				sessionId = IOUtils.getFilenameWithoutPath(url);
 			}
-						
+					
 			removeSession(sessionId);			
 			
 			// reply
@@ -602,9 +604,7 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 		}
 
 		// send
-		endpoint.replyToMessage(requestMessage, reply);
-		
-		dispatch(new FileServerListener.AfterRemoveSessionReply(sessionId, requestMessage.getUsername(), endpoint));
+		endpoint.replyToMessage(requestMessage, reply);		
 	}
 
 	protected void removeSession(String sessionId) throws SQLException {
