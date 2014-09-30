@@ -2,7 +2,6 @@ package fi.csc.microarray.client.session;
 
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -22,6 +21,7 @@ public class SessionLoader {
 	private boolean isDatalessSession;
 	private Integer xOffset;
 	private String sessionNotes;
+	private List<OperationRecord> unfinishedJobs;
 
 	public SessionLoader(File sessionFile, boolean isDatalessSession, DataManager dataManager) throws MicroarrayException {
 		this.sessionFile = sessionFile;
@@ -44,7 +44,7 @@ public class SessionLoader {
 	 *         
 	 * @throws Exception
 	 */
-	public List<OperationRecord> loadSession() throws Exception {
+	public void loadSession() throws Exception {
 		
 		ZipFile zipFile = null;
 		InputStreamReader metadataReader = null;
@@ -67,7 +67,7 @@ public class SessionLoader {
 			// old format, use old loader
 			SessionLoaderImpl1 impl = new SessionLoaderImpl1(sessionFile, dataManager, isDatalessSession);
 			impl.loadSession();
-			return null;
+			return;
 			
 		} else {
 			// use new loader
@@ -78,9 +78,9 @@ public class SessionLoader {
 				impl = new SessionLoaderImpl2(sessionId, dataManager, isDatalessSession);
 			}
 			impl.setXOffset(xOffset);
-			List<OperationRecord> tasks = impl.loadSession();
+			impl.loadSession();
 			sessionNotes = impl.getSessionNotes();
-			return tasks;
+			unfinishedJobs = impl.getUnfinishedOperations();
 		}
 	}
 
@@ -90,5 +90,9 @@ public class SessionLoader {
 
 	public String getSessionNotes() {
 		return this.sessionNotes;
+	}
+
+	public List<OperationRecord> getUnifinishedJobs() {
+		return unfinishedJobs;
 	}
 }

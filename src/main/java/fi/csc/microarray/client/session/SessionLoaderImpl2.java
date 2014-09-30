@@ -547,7 +547,7 @@ public class SessionLoaderImpl2 {
 		return this.sessionNotes;
 	}
 
-	private List<OperationRecord> getUnfinishedOperations() {
+	public List<OperationRecord> getUnfinishedOperations() {
 		
 		ArrayList<OperationRecord> unfinished = new ArrayList<>();
 		

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,7 @@ import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.session.SessionManager;
 import fi.csc.microarray.client.session.SessionManager.SessionChangedEvent;
-import fi.csc.microarray.client.session.SessionManager.SessionManagerListener;
+import fi.csc.microarray.client.session.SessionManager.SessionManagerCallback;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -233,7 +234,7 @@ public abstract class ClientApplication {
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			
-			this.sessionManager = new SessionManager(manager, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerListener(this));
+			this.sessionManager = new SessionManager(manager, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerCallback(this));
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			reportInitialisationThreadSafely(" ok", true);
@@ -297,11 +298,11 @@ public abstract class ClientApplication {
 
 	}	
 	
-	public class ClientSessionManagerListener implements SessionManagerListener {
+	public class ClientSessionManagerCallback implements SessionManagerCallback {
 
 		private ClientApplication app;
 
-		public ClientSessionManagerListener(ClientApplication app) {
+		public ClientSessionManagerCallback(ClientApplication app) {
 			this.app = app;
 		}
 
@@ -320,6 +321,22 @@ public abstract class ClientApplication {
 		@Override
 		public void sessionChanged(SessionChangedEvent e) {
 			app.fireClientEventThreadSafely(e);
+		}
+
+		@Override
+		public List<OperationRecord> getUnfinishedJobs() {
+			List<OperationRecord> unfinishedJobs = new ArrayList<>();			
+			for (Task task : Session.getSession().getApplication().getTaskExecutor().getTasks(true, true)) {
+				unfinishedJobs.add(task.getOperationRecord());
+			}
+			return unfinishedJobs;
+		}
+
+		@Override
+		public void continueJobs(List<OperationRecord> unifinishedJobs) {
+			for (OperationRecord job : unifinishedJobs) {
+				continueOperation(job);
+			}
 		}		
 	}
 

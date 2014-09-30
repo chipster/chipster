@@ -100,11 +100,10 @@ public class SessionSaver {
 	 * @param sessionFile file to write out metadata and possible data
 	 * @param unfinishedJobs 
 	 */
-	public SessionSaver(File sessionFile, DataManager dataManager, List<OperationRecord> unfinishedJobs) {
+	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
 		this.sessionId = null;
 		this.dataManager = dataManager;
-		this.unfinishedJobs = unfinishedJobs;
 	}
 
 	/**
@@ -112,19 +111,14 @@ public class SessionSaver {
 	 * 
 	 * @param sessionUrl url to write out metadata
 	 */
-	public SessionSaver(String sessionId, DataManager dataManager, List<OperationRecord> unfinishedJobs) {
+	public SessionSaver(String sessionId, DataManager dataManager) {
 		this.sessionFile = null;
 		this.sessionId = sessionId;
 		this.dataManager = dataManager;
+	}
+	
+	public void setUnfinishedJobs(List<OperationRecord> unfinishedJobs) {
 		this.unfinishedJobs = unfinishedJobs;
-	}
-
-	public SessionSaver(File sessionFile, DataManager dataManager) {
-		this(sessionFile, dataManager, null);
-	}
-
-	public SessionSaver(String sessionId, DataManager dataManager) {
-		this(sessionId, dataManager, null);
 	}
 
 	/**
