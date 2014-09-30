@@ -451,7 +451,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		switch (type) {
 		default:
-			String dump = manager.printSession();
+			String dump = getSessionManager().printSession();
 			ChipsterDialog.showDialog(this, new DialogInfo(Severity.INFO, "Session URL dump", "See details for URL's of data beans.", dump), DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
 		}
 	}
@@ -1092,7 +1092,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		if (getSessionManager().hasUnsavedChanges()) {
 
-			Object[] options = { "Save and close", "Close without saving", "Cancel" };
+			Object[] options = { "Save", "Close without saving", "Cancel" };
 
 			returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), "Do you want the session to be saved to server before closing Chipster?", "Confirm close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 

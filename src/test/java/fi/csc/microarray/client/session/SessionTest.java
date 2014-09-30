@@ -175,6 +175,8 @@ public class SessionTest {
 		toolModules.addAll(serviceAccessor.getModules());
 		FileBrokerClient fileBrokerClient = serviceAccessor.getFileBrokerClient();
 		
+		SessionManager sessionManager = new SessionManager(manager, fileBrokerClient, null);
+		
 		// create data
 		DataBean data = manager.createDataBean("test");
 		data.setParent(manager.getRootFolder());
@@ -182,7 +184,7 @@ public class SessionTest {
 		
 		// save storage session
 		String sessionName = "unit test session " + new Random().nextInt(10000);
-		manager.saveStorageSession(sessionName);
+		sessionManager.saveStorageSession(sessionName);
 				
 		// delete all data
 		manager.deleteAllDataItems();
@@ -190,7 +192,7 @@ public class SessionTest {
 		// load session
 		List<DbSession> sessions = fileBrokerClient.listRemoteSessions();
 		String sessionId = findSession(sessionName, sessions);
-		manager.loadStorageSession(sessionId);
+		sessionManager.loadStorageSession(sessionId);
 
 		// assert loaded data is ok
 		Assert.assertEquals(manager.databeans().size(), dbCountOrig);

@@ -37,6 +37,9 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.selection.DataSelectionManager;
+import fi.csc.microarray.client.session.SessionManager;
+import fi.csc.microarray.client.session.SessionManager.SessionChangedEvent;
+import fi.csc.microarray.client.session.SessionManager.SessionManagerListener;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -216,7 +219,6 @@ public abstract class ClientApplication {
 			// Initialise data management
 			this.manager = new DataManager();
 			
-			this.sessionManager = new SessionManager(this);
 						
 			Session.getSession().setDataManager(manager);		
 			
@@ -230,6 +232,8 @@ public abstract class ClientApplication {
 			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
+			this.sessionManager = new SessionManager(manager, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerListener(this));
 			
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			reportInitialisationThreadSafely(" ok", true);
@@ -292,6 +296,32 @@ public abstract class ClientApplication {
 
 
 	}	
+	
+	public class ClientSessionManagerListener implements SessionManagerListener {
+
+		private ClientApplication app;
+
+		public ClientSessionManagerListener(ClientApplication app) {
+			this.app = app;
+		}
+
+		@Override
+		public void showDialog(String title, String message, String details,
+				Severity severity, boolean modal,
+				DetailsVisibility detailsVisibility) {
+			app.showDialog(title, message, details, severity, modal, detailsVisibility, null);
+		}
+
+		@Override
+		public void reportException(Exception e) {
+			app.reportException(e);
+		}
+
+		@Override
+		public void sessionChanged(SessionChangedEvent e) {
+			app.fireClientEventThreadSafely(e);
+		}		
+	}
 
 	/**
 	 * Only root folder supported in this implementation.

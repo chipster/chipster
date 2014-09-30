@@ -77,6 +77,9 @@ public class SessionLoaderImpl2 {
 	private Integer xOffset;
 
 
+	private String sessionNotes;
+
+
 	public SessionLoaderImpl2(File sessionFile, DataManager dataManager, boolean isDatalessSession) {
 		this.sessionFile = sessionFile;
 		this.sessionId = null;
@@ -528,11 +531,14 @@ public class SessionLoaderImpl2 {
 		linkDataBeans();
 		linkInputsToOperations();
 		
-		String notes = sessionType.getNotes();
-		Session.getSession().getApplication().getSessionManager().setSessionNotes(notes);
+		this.sessionNotes = sessionType.getNotes();
 	}
 	
 	public void setXOffset(Integer xOffset) {
 		this.xOffset = xOffset;
+	}
+
+	public String getSessionNotes() {
+		return this.sessionNotes;
 	}
 }

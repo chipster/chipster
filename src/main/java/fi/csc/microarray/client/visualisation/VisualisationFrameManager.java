@@ -18,8 +18,8 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.SessionManager.SessionChangedEvent;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.session.SessionManager.SessionChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;

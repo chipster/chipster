@@ -498,7 +498,7 @@ public class CliClient {
 
 	private void saveWorkingCopySession(String workingCopy) throws Exception {
 		if (isLocalSession(workingCopy)) {
-			app.getDataManager().saveLightweightSession(new File(workingCopy));
+			app.getSessionManager().saveLightweightSession(new File(workingCopy));
 		} else {
 			saveSession(workingCopy);
 		}

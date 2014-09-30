@@ -1,4 +1,4 @@
-package fi.csc.microarray.client;
+package fi.csc.microarray.client.session;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,24 +14,42 @@ import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataManager.ValidationException;
 import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.filebroker.DerbyMetadataServer;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.QuotaExceededException;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 
 public class SessionManager {
 	
 	private Logger logger = Logger.getLogger(SessionManager.class);
+
+	/**
+	 * Reports session validation related problems.
+	 */
+	@SuppressWarnings("serial")
+	public static class ValidationException extends Exception {
+		public ValidationException(String validationDetails) {
+			super(validationDetails);
+		}		
+	}
 	
+	public interface SessionManagerListener {
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility);		
+		public void reportException(Exception e);
+		public void sessionChanged(SessionChangedEvent e);		
+	}
+		
 	protected static final String ALIVE_SIGNAL_FILENAME = "i_am_alive";
 	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
 	
@@ -45,12 +63,24 @@ public class SessionManager {
 	protected File aliveSignalFile;
 	private LinkedList<File> deadDirectories = new LinkedList<File>();
 	
-	private ClientApplication application;
 	private DataManager dataManager;
+	private FileBrokerClient fileBrokerClient;
+	private SessionManagerListener listener;
 	
-	public SessionManager(ClientApplication application) throws IOException {
-		this.application = application;
-		this.dataManager = application.getDataManager();
+	/**
+	 * @param dataManager
+	 * @param fileBrokerClient
+	 * @param listener if null, SessionChangedEvents are ignored and error messages are thrown as RuntimeExceptions
+	 * @throws IOException
+	 */
+	public SessionManager(final DataManager dataManager, FileBrokerClient fileBrokerClient, SessionManagerListener listener) throws IOException {
+		this.dataManager = dataManager;
+		this.fileBrokerClient = fileBrokerClient;
+		if (listener == null) {
+			listener = new BasicSessionManagerListener();
+		} else {
+			this.listener = listener;
+		}
 		
 		// Remember changes to confirm close only when necessary and to backup when necessary
 		dataManager.addDataChangeListener(new DataChangeListener() {
@@ -76,7 +106,7 @@ public class SessionManager {
 					sessionFile.deleteOnExit();
 
 					try {
-						dataManager.saveLightweightSession(sessionFile);
+						saveLightweightSession(sessionFile);
 
 					} catch (Exception e1) {
 						logger.warn(e1); // do not care that much about failing session backups
@@ -91,9 +121,155 @@ public class SessionManager {
 		timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 		timer.start();
 	}
+	
+	public class BasicSessionManagerListener implements SessionManagerListener {
+
+		@Override
+		public void showDialog(String title, String message, String details,
+				Severity severity, boolean modal,
+				DetailsVisibility detailsVisibility) {
+			throw new RuntimeException(title + ": " + message + " (" + details + ")");
+		}
+
+		@Override
+		public void reportException(Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		@Override
+		public void sessionChanged(SessionChangedEvent e) {
+			// ignore
+		}		
+	}
+	
+	public void loadLocalSession(File sessionFile, boolean isDataless) throws Exception {
+		loadLocalSession(sessionFile, isDataless, null);
+	}
+
+
+	/**
+	 * Load session from a file.
+	 * @param xOffset 
+	 * 
+	 * @see #saveSession(File, ClientApplication)
+	 */
+	public void loadLocalSession(File sessionFile, boolean isDataless, Integer xOffset) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, dataManager);
+		loadSession(sessionLoader, xOffset);
+	}
+
+	public void loadStorageSession(String sessionId) throws Exception {
+		loadStorageSession(sessionId, null);
+	}
+	
+	/**
+	 * Load remote session from an URL.
+	 * @param xOffset 
+	 * 
+	 * @see #saveStorageSession(String) 
+	 */
+	public void loadStorageSession(String sessionId, Integer xOffset) throws Exception {
+		SessionLoader sessionLoader = new SessionLoader(sessionId, dataManager);
+		loadSession(sessionLoader, xOffset);
+	}
+
+	private void loadSession(SessionLoader sessionLoader, Integer xOffset) throws Exception {
+		sessionLoader.setXOffset(xOffset);
+		sessionLoader.loadSession();
+		// set session notes directly to field because this doesn't trigger unsaved changes
+		sessionNotes = sessionLoader.getSessionNotes();
+	}
+
+
+	/**
+	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
+	 * File is a zip file with all the data files and one metadata file.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveSession(File sessionFile) throws Exception {
+
+		// save session file
+		boolean metadataValid = false;
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, dataManager);
+		sessionSaver.setSessionNotes(sessionNotes);
+		metadataValid = sessionSaver.saveSession();
+
+		// check validation
+		if (!metadataValid) {
+			// save was successful but metadata validation failed, file might be usable
+			String validationDetails = sessionSaver.getValidationErrors();
+			throw new ValidationException(validationDetails);
+		}
+	}
+
+	
+	/**
+	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
+	 * Does not save actual data inside databeans.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveLightweightSession(File sessionFile) throws Exception {
+
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, dataManager);
+		sessionSaver.setSessionNotes(sessionNotes);
+		sessionSaver.saveLightweightSession();
+	}
+
+	/**
+	 * Returns debug print out of current session state.
+	 * 
+	 * @return print out of session state
+	 */
+	public String printSession() {
+		StringBuffer buffer = new StringBuffer();
+		SessionSaver.dumpSession(dataManager.getRootFolder(), buffer);
+		return buffer.toString();
+	}
+
+	public String saveStorageSession(String name) throws Exception {
+						
+		String sessionId = CryptoKey.generateRandom();
+		SessionSaver sessionSaver = new SessionSaver(sessionId, dataManager);
+		sessionSaver.setSessionNotes(sessionNotes);
+		// upload/move data files and upload metadata files, if needed
+		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
+		
+		// add metadata to file broker database (make session visible)
+		fileBrokerClient.saveRemoteSession(name, sessionId, dataIds);
+		
+		return sessionId;
+	}
+
+	
+	
+	
+	/**
+	 * Like saveStorageSession, but upload necessary files to cache instead of storage and returns sessionId
+	 * instead of writing it to metadata database.
+	 * 
+	 * @return 
+	 * 
+	 * @return sessionId
+	 * @throws Exception 
+	 */
+	public String saveFeedbackSession() throws Exception {
+	
+		String sessionId = CryptoKey.generateRandom();
+		SessionSaver sessionSaver = new SessionSaver(sessionId, dataManager);
+		sessionSaver.setSessionNotes(sessionNotes);
+		// upload/move data files and upload metadata files, if needed
+		sessionSaver.saveFeedbackSession();
+		
+		return sessionId;
+	}
+
 
 	public List<DbSession> listRemoteSessions() throws JMSException {
-		return Session.getSession().getServiceAccessor().getFileBrokerClient().listRemoteSessions();
+		return fileBrokerClient.listRemoteSessions();
 	}
 
 	public void setSession(File sessionFile, String sessionId) throws MalformedURLException, JMSException {
@@ -101,17 +277,17 @@ public class SessionManager {
 			currentRemoteSession = null;
 			String oldValue = currentSessionName;
 			currentSessionName = sessionFile.getName().replace(".zip", "");
-			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, currentSessionName));
+			listener.sessionChanged(new SessionChangedEvent(this, "session", oldValue, currentSessionName));
 		} else if (sessionId != null) {
 			String oldValue = currentRemoteSession;
 			currentRemoteSession = sessionId;
 			currentSessionName = getSessionName(listRemoteSessions(), sessionId);
-			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, currentRemoteSession));
+			listener.sessionChanged(new SessionChangedEvent(this, "session", oldValue, currentRemoteSession));
 		} else {
 			String oldValue = currentRemoteSession != null? currentRemoteSession : currentSessionName; 
 			currentRemoteSession = null;
 			currentSessionName = null;
-			application.fireClientEventThreadSafely(new SessionChangedEvent(this, "session", oldValue, null));
+			listener.sessionChanged(new SessionChangedEvent(this, "session", oldValue, null));
 		}
 	}
 	
@@ -146,6 +322,9 @@ public class SessionManager {
 	}
 	
 	public void setSessionNotes(String notes) {
+		if (this.sessionNotes != null && !this.sessionNotes.equals(notes)) {			
+			unsavedChanges = true;
+		}
 		this.sessionNotes = notes;
 	}
 
@@ -200,9 +379,9 @@ public class SessionManager {
 
 		try {
 			if (sessionFile != null) {
-				dataManager.loadSession(sessionFile, isDataless);
+				loadLocalSession(sessionFile, isDataless);
 			} else {
-				dataManager.loadStorageSession(sessionId);
+				loadStorageSession(sessionId);
 			}
 			
 			setSession(sessionFile, sessionId);
@@ -232,9 +411,9 @@ public class SessionManager {
 			String sessionId = null;
 			
 			if (isRemote) {
-				sessionId = dataManager.saveStorageSession(remoteSessionName);				
+				sessionId = saveStorageSession(remoteSessionName);				
 			} else {
-				dataManager.saveSession(localFile);
+				saveSession(localFile);
 			}
 			
 			setSession(localFile, sessionId);
@@ -243,7 +422,7 @@ public class SessionManager {
 			return true;
 			
 		} catch (ValidationException e) {
-			Session.getSession().getApplication().showDialog(
+			listener.showDialog(
 					"Problem with saving the session", 
 					"All the datasets were saved successfully, but there were troubles with saving " +
 					"the session information about them. This means that there may be problems when " +
@@ -252,51 +431,52 @@ public class SessionManager {
 					"If you have important unsaved " +
 					"datasets in this session, it might be a good idea to export such datasets using the " +
 					"File -> Export functionality.", 
-					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN);
 			
 			return false;
 			
 		} catch (QuotaExceededException e) {
-			Session.getSession().getApplication().showDialog(
+			listener.showDialog(
 					"Quota exceeded", 
 					"Saving session failed, because your disk space quota was exceeded.\n" +
 					"\n" +
 					"Please contact server maintainers to apply for more quota, remove some old sessions " +
 					"to free more disk space or save the session on your computer using the " +
 					"File -> Save local session functionality. ", 
-					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+					e.getMessage(), Severity.WARNING, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
 			return false;
 
 		} catch (Exception e) {
-			Session.getSession().getApplication().showDialog(
+			listener.showDialog(
 					"Saving session failed", 
 					"Unfortunately your session could not be saved. Please see the details for more " +
 					"information.\n" +
 					"\n" +
 					"If you have important unsaved datasets in this session, it might be " +
 					"a good idea to export such datasets using the File -> Export functionality.", 
-					Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+					Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN);
 			return false;
 		}
 	}
-
+	
 	public void clearSessionWithoutConfirming() throws MalformedURLException, JMSException {
-		application.deleteDatasWithoutConfirming(dataManager.getRootFolder());
+		dataManager.deleteAllDataItems();
 		setSessionNotes(null);
 		setSession(null, null);
-	}	
+		unsavedChanges = false;
+	}
 	
 	public boolean removeRemoteSession(String sessionUuid) throws JMSException {
 		
 		if (currentRemoteSession != null && currentRemoteSession.equals(sessionUuid) && !dataManager.databeans().isEmpty()) {
-			application.showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
+			listener.showDialog("Remove prevented", "You were trying to remove a cloud session that is your last saved session. "
 					+ "Removal of this session is prevented, because it may be the only copy of your current "
 					+ "datasets. If you want to keep the datasets, please save them as a sessions first. If you want to remove "
-					+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true);
+					+ "the datasets, please delete them before removing the cloud session.", null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
 			return false;
 		}
 
-		Session.getSession().getServiceAccessor().getFileBrokerClient().removeRemoteSession(sessionUuid);
+		fileBrokerClient.removeRemoteSession(sessionUuid);
 		return true;
 	}
 
@@ -312,18 +492,18 @@ public class SessionManager {
 				Files.delTree(dir);
 			}
 		} catch (Exception e) {
-			application.reportException(e);
+			listener.reportException(e);
 		}
 
 		// Remove them from bookkeeping in any case
 		deadDirectories.clear();
 	}
-	
+
 	/**
 	 * Collects all dead temp directories and returns the most recent
 	 * that has a restorable session .
 	 */
-	protected File checkTempDirectories() throws IOException {
+	public File checkTempDirectories() throws IOException {
 
 		Iterable<File> tmpDirectories = dataManager.listAllRepositories();
 		File mostRecentDeadSignalFile = null;
@@ -386,6 +566,5 @@ public class SessionManager {
 		}
 		
 		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
-	}
-	
+	}	
 }

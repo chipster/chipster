@@ -42,6 +42,7 @@ import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.session.SessionManager;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -193,7 +194,8 @@ public class SessionReplayTest extends MessagingTestBase {
 		// Load session
 		// some loading code uses Session.getSession().getDataManagers
 		Session.getSession().setDataManager(sourceManager);
-		sourceManager.loadSession(session, false);
+		SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getFileBrokerClient(), null);
+		sourceSessionManager.loadLocalSession(session, false);
 		Session.getSession().setDataManager(manager);
 		
 		// Pick import operations and copy imported data beans to target manager 

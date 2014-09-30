@@ -174,7 +174,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
     	String sessionUrl;
     	if (attachSessionBox.isSelected()) {
 
-    		String sessionId = application.getDataManager().saveFeedbackSession();
+    		String sessionId = application.getSessionManager().saveFeedbackSession();
     		sessionUrl = fileBrokerClient.getExternalURL(sessionId);
 
     	} else {

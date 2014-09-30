@@ -91,6 +91,9 @@ public class SessionSaver {
 	private String validationErrors;
 
 
+	private String sessionNotes;
+
+
 
 	/**
 	 * Create a new instance for every session to be saved.
@@ -200,8 +203,7 @@ public class SessionSaver {
 		saveMetadataRecursively(dataManager.getRootFolder(), saveData, skipLocalLocations);
 		
 		// save session notes
-		String notes = Session.getSession().getApplication().getSessionManager().getSessionNotes();
-		sessionType.setNotes(notes);
+		sessionType.setNotes(sessionNotes);
 	}
 
 
@@ -735,6 +737,10 @@ public class SessionSaver {
 			}
 		}
 		
+	}
+
+	public void setSessionNotes(String sessionNotes) {
+		this.sessionNotes = sessionNotes;
 	}
 	
 //    public static void main(String args[])

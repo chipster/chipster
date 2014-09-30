@@ -27,11 +27,8 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.session.SessionLoader;
-import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
@@ -150,18 +147,6 @@ public class DataManager {
 	private static final String TEMP_DIR_PREFIX = "chipster";
 	private static final int MAX_FILENAME_LENGTH = 256;
 	private static final Logger logger = Logger.getLogger(DataManager.class);
-
-	/**
-	 * Reports session validation related problems.
-	 */
-	@SuppressWarnings("serial")
-	public static class ValidationException extends Exception {
-
-		public ValidationException(String validationDetails) {
-			// TODO Auto-generated constructor stub
-		}
-		
-	}
 
 	/**
 	 * The initial name for the root folder.
@@ -678,125 +663,7 @@ public class DataManager {
 			logger.error(e,e);
 		}
 		return bean;
-	}
-	
-	public void loadSession(File sessionFile, boolean isDataless) throws Exception {
-		loadSession(sessionFile, isDataless, null);
-	}
-
-
-	/**
-	 * Load session from a file.
-	 * @param xOffset 
-	 * 
-	 * @see #saveSession(File, ClientApplication)
-	 */
-	public void loadSession(File sessionFile, boolean isDataless, Integer xOffset) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionFile, isDataless, this);
-		sessionLoader.setXOffset(xOffset);
-		sessionLoader.loadSession();
-	}
-
-	public void loadStorageSession(String sessionId) throws Exception {
-		loadStorageSession(sessionId, null);
-	}
-	
-	/**
-	 * Load remote session from an URL.
-	 * @param xOffset 
-	 * 
-	 * @see #saveStorageSession(String) 
-	 */
-	public void loadStorageSession(String sessionId, Integer xOffset) throws Exception {
-		SessionLoader sessionLoader = new SessionLoader(sessionId, this);
-		sessionLoader.setXOffset(xOffset);
-		sessionLoader.loadSession();
-	}
-
-	/**
-	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
-	 * File is a zip file with all the data files and one metadata file.
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveSession(File sessionFile) throws Exception {
-
-		// save session file
-		boolean metadataValid = false;
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		metadataValid = sessionSaver.saveSession();
-
-		// check validation
-		if (!metadataValid) {
-			// save was successful but metadata validation failed, file might be usable
-			String validationDetails = sessionSaver.getValidationErrors();
-			throw new ValidationException(validationDetails);
-		}
-	}
-
-	
-	/**
-	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
-	 * Does not save actual data inside databeans.
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveLightweightSession(File sessionFile) throws Exception {
-
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		sessionSaver.saveLightweightSession();
-	}
-
-	/**
-	 * Returns debug print out of current session state.
-	 * 
-	 * @return print out of session state
-	 */
-	public String printSession() {
-		StringBuffer buffer = new StringBuffer();
-		SessionSaver.dumpSession(rootFolder, buffer);
-		return buffer.toString();
-	}
-
-	public String saveStorageSession(String name) throws Exception {
-						
-		String sessionId = CryptoKey.generateRandom();
-		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
-		// upload/move data files and upload metadata files, if needed
-		LinkedList<String> dataIds = sessionSaver.saveStorageSession();
-		
-		// add metadata to file broker database (make session visible)
-		Session.getSession().getServiceAccessor().getFileBrokerClient().saveRemoteSession(name, sessionId, dataIds);
-		
-		return sessionId;
-	}
-
-	
-	
-	
-	/**
-	 * Like saveStorageSession, but upload necessary files to cache instead of storage and returns sessionId
-	 * instead of writing it to metadata database.
-	 * 
-	 * @return 
-	 * 
-	 * @return sessionId
-	 * @throws Exception 
-	 */
-	public String saveFeedbackSession() throws Exception {
-	
-		String sessionId = CryptoKey.generateRandom();
-		SessionSaver sessionSaver = new SessionSaver(sessionId, this);
-		// upload/move data files and upload metadata files, if needed
-		sessionSaver.saveFeedbackSession();
-		
-		return sessionId;
-	}
-
-	
-	
+	}	
 	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
@@ -1568,5 +1435,5 @@ public class DataManager {
 			}			
 		}
 		return null;
-	}	
+	}
 }
