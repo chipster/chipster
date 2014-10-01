@@ -22,7 +22,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.10.0.jar" sourcepath="ext/lib-src/activemq-parent-5.10.0-source-release.zip"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-dom.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svg-dom.jar"/>
