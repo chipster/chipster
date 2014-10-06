@@ -235,10 +235,9 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 			DataBean data = datas.get(0);
 
 			panel.add(createTitleTextArea(data, true), "growx");			
-			panel.add(createDateLabel(data), "gapx " + INDENTION);
-			panel.add(createSizeLabel(data), "gapx " + INDENTION);
-			panel.add(createHistoryLink(data), "gapx " + INDENTION);
+			panel.add(createSizeAndDateLabel(data), "gapx " + INDENTION);
 			panel.add(createNotes(), "gapx " + INDENTION + ", growx");			
+			panel.add(createHistoryLink(data), "gapx " + INDENTION);
 			panel.add(createToolLabel(data), ", gapy 20");
 			createParameterTable(panel);
 			
@@ -253,12 +252,16 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 		return panel;
 	}
 
-	private JLabel createDateLabel(DataBean data) {
-		JLabel dateLabel = new JLabel(data.getDate().toString());
-		return dateLabel;		
+	private JLabel createSizeAndDateLabel(DataBean data) {
+		JLabel label = new JLabel(getSizeText(data) + ", " + getDateText(data));
+		return label;		
 	}
 	
-	private JLabel createSizeLabel(DataBean data) {
+	private String getDateText(DataBean data) {
+		return data.getDate().toString();		
+	}
+	
+	private String getSizeText(DataBean data) {
 		String text = null;
 		
 		try {
@@ -278,13 +281,12 @@ public class DataDetails extends Visualisation implements FocusListener, Documen
 				text = "Size unknown";
 			}
 		}
-		JLabel label = new JLabel(text);
-		return label;		
+		return text;
 	}
 	
 	private JXHyperlink createHistoryLink(final DataBean data) {
 		JXHyperlink link = new JXHyperlink();
-		link.setText("History");
+		link.setText("Analysis history");
 		link.addActionListener(new ActionListener() {		
 			@Override
 			public void actionPerformed(ActionEvent e) {				
