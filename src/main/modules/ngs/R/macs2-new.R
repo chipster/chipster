@@ -75,7 +75,9 @@ if (keep.dup == "yes") {
 # build peak model
 if (build.model == "no") {
 	options <- paste(options, "--nomodel")
-} 
+} else{
+	options <- paste(options, "--auto-bimodal")
+}
 
 # bandwidth (only applicable to model building)
 if (build.model == "yes") {
@@ -83,6 +85,7 @@ if (build.model == "yes") {
 } 
 
 # shift size
+options <- paste(options, "--shiftsize", shift.size)
 
 # Set up the m-fold limits
 mfold.limits <- paste (as.character(m.fold.lower),",",as.character(m.fold.upper), sep="")
@@ -93,6 +96,9 @@ options <- paste(options, "-m", mfold.limits)
 if (broad == "yes") {
 	options <- paste(options, "--broad")
 } 
+
+# common options
+options <- paste(options, "--verbose=2")
 
 # Run macs
 macs.command <- paste(macs.binary, options, "2> macs2-log.txt")
