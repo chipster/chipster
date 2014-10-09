@@ -68,9 +68,7 @@ if (read.length > 0) {
 }
 
 # keep duplicat reads
-if (keep.dup == "yes") {
-	options <- paste(options, "--keep-dup")
-}
+options <- paste(options, "--keep-dup", keep.dup)
 
 # build peak model
 if (build.model == "no") {
