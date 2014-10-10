@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # Picard tools, Apache License V2.0, MIT
   cd ${TMPDIR_PATH}/

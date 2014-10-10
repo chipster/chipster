@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # EMBOSS, GPL
   apt-get -y install libgd2-noxpm-dev # sudo, emboss needs this to create png images

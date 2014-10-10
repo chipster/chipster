@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/

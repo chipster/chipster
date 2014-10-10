@@ -1,6 +1,6 @@
 ##depends:external_tools/ClusterBuster.bash
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # Jaspar, no license
   cd ${TMPDIR_PATH}/

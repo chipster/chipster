@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/

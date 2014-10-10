@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
  # mothur GPLv3
   cd ${TMPDIR_PATH}/

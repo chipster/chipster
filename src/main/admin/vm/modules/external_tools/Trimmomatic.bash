@@ -1,6 +1,6 @@
 ##depends:none
 
-source ./installation_files/functions.bash
+source ../installation_files/functions.bash
 
 # Trimmomatic, GPL
   cd ${TMPDIR_PATH}/
