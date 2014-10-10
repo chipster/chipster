@@ -27,6 +27,7 @@ wget_retry()
     sleep 5
   done
 }
+export -f wget_retry
 
 ## System update
 aptitude update
