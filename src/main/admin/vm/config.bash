@@ -64,6 +64,9 @@ if [ ! -d $paralleldir ]; then
 	mkdir $paralleldir
 fi
 
+# load a few auxiliary Bash functions
+source installation_files/functions.bash
+
 # squid proxy
 export http_proxy="http://192.168.15.254:3128"
 
