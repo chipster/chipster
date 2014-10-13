@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # RSeQC, GPLv3
   cd ${TMPDIR_PATH}/
   wget_retry -nv -O RSeQC-2.3.7.tar.gz http://sourceforge.net/projects/rseqc/files/RSeQC-2.3.7.tar.gz/download

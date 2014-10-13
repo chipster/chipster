@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
   wget_retry -O bwa-0.6.1.tar.bz2 http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download
