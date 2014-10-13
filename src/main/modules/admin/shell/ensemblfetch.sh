@@ -96,6 +96,11 @@ do
                   shift
                   outputmode=("file")
               ;;
+              '-tmp')
+               TMPDIR=($2)
+               shift
+               shift
+              ;;
               '-help')
                  echo " ----------------------------------------------------------------------------------"
                  echo " ensemblfetch retrieves genomic, cDNA or peptide sequences of a given species from "
