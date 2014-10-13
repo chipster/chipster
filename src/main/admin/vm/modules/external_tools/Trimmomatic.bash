@@ -1,5 +1,7 @@
 ##depends:none
 
+source ../installation_files/functions.bash
+
 # Trimmomatic, GPL
   cd ${TMPDIR_PATH}/
   wget_retry -nv http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.32.zip
