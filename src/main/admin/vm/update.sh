@@ -7,7 +7,7 @@
 
 # Update file web location and name
 UPDATE_URL_PREFIX=http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/virtual_machines/updates
-MAIN_UPDATE_FILE=update-exec.sh
+MAIN_UPDATE_FILE=update-exec3.sh
 
 # Figure out Chipster major version and corresponding URL
 CHIPSTER_VERSION=`ls -1 shared/lib | grep ^chipster-[0-9\\.]*.jar | gawk 'match($0, "chipster-([0-9\\\\.]*).jar", g) {print g[1]}'`
