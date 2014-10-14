@@ -87,6 +87,7 @@ public class DerbyMetadataServer {
 	private static String SQL_SELECT_SESSIONS_BY_USERNAME = "SELECT name, CAST(null AS VARCHAR(200)) as folder, uuid FROM CHIPSTER.SESSIONS WHERE username = ? UNION SELECT name, show_as_folder as folder, uuid FROM CHIPSTER.SESSIONS,  CHIPSTER.SPECIAL_USERS WHERE CHIPSTER.SESSIONS.username = CHIPSTER.SPECIAL_USERS.username";
 	private static String SQL_SELECT_SESSIONS_BY_NAME_AND_USERNAME = "SELECT uuid FROM chipster.sessions WHERE name = ? AND username = ?";
 	private static String SQL_DELETE_SESSION  = "DELETE FROM chipster.sessions WHERE uuid = ?";
+	private static String SQL_SELECT_SESSIONS_BY_USERNAME_AND_UUID  = "SELECT uuid FROM chipster.sessions WHERE username = ? AND uuid = ?";
 	private static String SQL_UPDATE_SESSION_NAME  = "UPDATE chipster.sessions SET name = ? WHERE uuid = ?";
 	
 	private static String SQL_INSERT_FILE  = "INSERT INTO chipster.files (uuid, size, created, last_accessed) VALUES (?, ?, ?, ?)";
@@ -99,7 +100,6 @@ public class DerbyMetadataServer {
 	private static String SQL_DELETE_BELONGS_TO  = "DELETE FROM chipster.belongs_to WHERE session_uuid = ?";
 	
 	private static String SQL_INSERT_SPECIAL_USER  = "INSERT INTO chipster.special_users (username, show_as_folder) VALUES (?, ?)";
-	private static String SQL_DELETE_SPECIAL_USER  = "DELETE FROM chipster.special_users WHERE username = ?";
 	
 	private static String SQL_LIST_STORAGE_USAGE_OF_USER = "SELECT SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid WHERE chipster.sessions.username = ?";
 	private static String SQL_LIST_STORAGE_USAGE_OF_USERS = "SELECT chipster.sessions.username, SUM(chipster.files.size) as size FROM chipster.sessions JOIN chipster.belongs_to ON chipster.sessions.uuid = chipster.belongs_to.session_uuid JOIN chipster.files ON chipster.files.uuid = chipster.belongs_to.file_uuid GROUP BY chipster.sessions.username";
@@ -392,6 +392,23 @@ public class DerbyMetadataServer {
 	}
 
 	/**
+	 * Checks if user owns the session and can remove it.
+	 * @param username 
+	 * @param sessionUuid
+	 * @return true if operation is allowed
+	 * @throws SQLException 
+	 */
+	public boolean isUsernameAllowedToRemoveSession(String username, String sessionUuid) throws SQLException {
+		PreparedStatement ps = connection.prepareStatement(SQL_SELECT_SESSIONS_BY_USERNAME_AND_UUID);
+		ps.setString(1, username);		
+		ps.setString(2, sessionUuid);
+		ResultSet rs = ps.executeQuery();
+
+		return rs.next(); // return true if result set is not empty
+	}
+	
+	
+ 	/**
 	 * Removes session and dependent entries from the database. Dependent entries
 	 * include file-session of the removed session and all linked files that are not
 	 * linked to any other sessions.

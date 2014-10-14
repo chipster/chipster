@@ -603,10 +603,16 @@ public class FileServer extends NodeBase implements MessagingListener, DirectMes
 				sessionId = IOUtils.getFilenameWithoutPath(url);
 			}
 					
-			removeSession(sessionId);			
+			if (metadataServer.isUsernameAllowedToRemoveSession(requestMessage.getUsername(), sessionId)) {
+
+				removeSession(sessionId);			
+				reply = new SuccessMessage(true);
+				
+			} else {
+				
+				reply = new SuccessMessage(false, "user it not allowed to remove the session");
+			}
 			
-			// reply
-			reply = new SuccessMessage(true);
 		} catch (Exception e) {
 			reply = new SuccessMessage(false, e);
 		}
