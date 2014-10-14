@@ -43,25 +43,6 @@
 		<tool runtime="R-3.0">
 			<resource>tagcleaner-statistics.R</resource>
 		</tool>
-
-<!--	<tool runtime="R-2.12">
-			<resource>prinseq-quality-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>prinseq-AT-trimmer.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>prinseq-length-filter.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>prinseq-N-filter.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>prinseq-complexity-filter.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>prinseq-duplicate-filter.R</resource>
-		</tool>-->
 	</category>
 
 	<category name="Utilities" color="#d59f45">
@@ -86,6 +67,8 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>normalise-counts.R</resource>
+		</tool>
+		<tool runtime="R-3.0" module="common"><resource>a5-miseq.R</resource>
 		</tool>		
 		<tool runtime="R-3.0">
 			<resource>samtools-index.R</resource>
