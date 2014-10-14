@@ -323,18 +323,6 @@ public class DerbyMetadataServer {
 		ps.setTimestamp(4, now);
 		ps.execute();
 	}
-	
-	/**
-	 * Removes a data file from the database.
-	 * 
-	 * @param uuid unique identifier (filename) of the file
-	 * @throws SQLException
-	 */
-	public void removeFile(String uuid) throws SQLException {
-		PreparedStatement ps = connection.prepareStatement(SQL_DELETE_FILE);
-		ps.setString(1, uuid);
-		ps.execute();
-	}
 
 	/**
 	 * Adds special username to the database. All sessions owned by the special
@@ -348,18 +336,6 @@ public class DerbyMetadataServer {
 		PreparedStatement ps = connection.prepareStatement(SQL_INSERT_SPECIAL_USER);
 		ps.setString(1, username);
 		ps.setString(2, showAsFolder);
-		ps.execute();
-	}
-	
-	/**
-	 * Removes a special user from the database.
-	 * 
-	 * @param uuid special username to remove
-	 * @throws SQLException
-	 */
-	public void removeSpecialUser(String username) throws SQLException {
-		PreparedStatement ps = connection.prepareStatement(SQL_DELETE_SPECIAL_USER);
-		ps.setString(1, username);
 		ps.execute();
 	}
 	
