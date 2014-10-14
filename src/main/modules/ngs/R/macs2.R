@@ -1,4 +1,4 @@
-# TOOL macs2-new.R: "Find peaks using MACS2" (Detects statistically significantly enriched genomic regions in ChIP-seq data, using a control sample if available. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
+# TOOL macs2.R: "Find peaks using MACS2" (Detects statistically significantly enriched genomic regions in ChIP-seq data, using a control sample if available. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT OPTIONAL control.bam: "Control data file" TYPE GENERIC 
 # OUTPUT macs2-log.txt
