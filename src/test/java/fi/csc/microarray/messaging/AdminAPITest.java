@@ -2,20 +2,21 @@ package fi.csc.microarray.messaging;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.admin.AdminAPI;
 
 public class AdminAPITest extends MessagingTestBase {
 
-	@BeforeSuite
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 	}
 
-	@Test(groups = { "smoke"})
+	@Test
 	public void testAdminAPI() throws JMSException, InterruptedException {
 		
 		MessagingTopic adminTopic = this.endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE);

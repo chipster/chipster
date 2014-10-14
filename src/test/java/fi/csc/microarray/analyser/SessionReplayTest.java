@@ -1,6 +1,5 @@
 package fi.csc.microarray.analyser;
 
-import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -9,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,17 +22,14 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.Icon;
-
+import org.junit.Assert;
 import org.springframework.validation.Errors;
-import org.testng.Assert;
 
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
 import fi.csc.microarray.client.ServiceAccessor;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -47,19 +42,17 @@ import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.client.session.SessionLoader.LoadMethod;
+import fi.csc.microarray.client.session.SessionManager;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataManager.ContentLocation;
+import fi.csc.microarray.databeans.DataManager.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -116,47 +109,48 @@ public class SessionReplayTest extends MessagingTestBase {
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
 		try {
-			// Set up main (target) system
-			manager = new DataManager();
-			moduleManager.plugAll(manager, null);
-			executor = new TaskExecutor(super.endpoint, manager);
-			toolModules = new LinkedList<ToolModule>();
-			serviceAccessor = new RemoteServiceAccessor();
-			serviceAccessor.initialise(manager, this.authenticationListener);
-			serviceAccessor.fetchDescriptions(new MicroarrayModule());
-			toolModules.addAll(serviceAccessor.getModules());
-			Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules));
+		// Set up main (target) system
+		manager = new DataManager();
+		moduleManager.plugAll(manager, null);
+		executor = new TaskExecutor(super.endpoint, manager);
+		toolModules = new LinkedList<ToolModule>();
+		serviceAccessor = new RemoteServiceAccessor();
+		serviceAccessor.initialise(manager, this.authenticationListener);
+		serviceAccessor.fetchDescriptions(new MicroarrayModule());
+		Session.getSession().setServiceAccessor(serviceAccessor);
+		toolModules.addAll(serviceAccessor.getModules());
+		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules, manager));
+		
+		// Set up source system
+		sourceManager = new DataManager();
+		moduleManager.plugAll(sourceManager, null);
+		
+		// Run all sessions
+		for (File testSession : sessionsDir.listFiles()) {
 			
-			// Set up source system
-			sourceManager = new DataManager();
-			moduleManager.plugAll(sourceManager, null);
-			
-			// Run all sessions
-			for (File testSession : sessionsDir.listFiles()) {
-				
-				// Zip files only, maybe should check if it really is a session file
-				if (!testSession.getName().endsWith(".zip")) {
-					continue;
-				}
-	
-				// Clear data managers after previous session
-				manager.deleteAllDataItems();
-				sourceManager.deleteAllDataItems();
-				
-				// Test session
-				try {
-					testSession(testSession);
-				} catch (Throwable e) {
-					e.printStackTrace();
-					sessionsWithErrors.put(testSession, e);
-				}
+			// Zip files only, maybe should check if it really is a session file
+			if (!testSession.getName().endsWith(".zip")) {
+				continue;
 			}
+
+			// Clear data managers after previous session
+			manager.deleteAllDataItems();
+			sourceManager.deleteAllDataItems();
+			
+			// Test session
+			try {
+				testSession(testSession);
+			} catch (Throwable e) {
+				e.printStackTrace();
+				sessionsWithErrors.put(testSession, e);
+			}
+		}
 		} finally {
 			if (serviceAccessor != null) {
 				serviceAccessor.close();
 			}
 		}
-		
+
 		// Create reports
 		createReports();
 		
@@ -193,12 +187,16 @@ public class SessionReplayTest extends MessagingTestBase {
 		return true;
 	}
 
-	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
+	private void testSession(File session) throws Exception {
 
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
 
 		// Load session
-		sourceManager.loadSession(session, LoadMethod.NORMAL);
+		// some loading code uses Session.getSession().getDataManagers
+		Session.getSession().setDataManager(sourceManager);
+		SessionManager sourceSessionManager = new SessionManager(sourceManager, serviceAccessor.getFileBrokerClient(), null);
+		sourceSessionManager.loadLocalSession(session, false);
+		Session.getSession().setDataManager(manager);
 		
 		// Pick import operations and copy imported data beans to target manager 
 		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
@@ -208,11 +206,29 @@ public class SessionReplayTest extends MessagingTestBase {
 		for (DataBean dataBean : sourceManager.databeans()) {
 			OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations and others without parent dataset
+			// pick import operations, local operations 
+			// and those which did have inputs when run, but don't have parents now (i.e. inputs have
+			// been deleted for example to save space)
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) ||
-					dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0) {
-				// copy imported databean, add mapping
-				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getContentUrl().getRef());
+					"LocalNGSPreprocess.java".equals(operationRecord.getNameID().getID()) ||
+					(dataBean.getLinkTargets(Link.derivationalTypes()).size() == 0 &&
+					operationRecord.getInputs().size() > 0)) {
+				
+				// load imported databean, add mapping
+				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName());
+				URL urlInSessionZip = null;
+				for (ContentLocation contentLocation : sourceManager.getContentLocationsForDataBeanSaving(dataBean)) {
+					if (contentLocation.getMethod() == StorageMethod.LOCAL_SESSION_ZIP) {
+						urlInSessionZip = contentLocation.getUrl(); 
+					}
+				}
+				
+				if (urlInSessionZip == null) {
+					throw new IllegalArgumentException("session file " + session.getName() + " must contain all data files (missing " + dataBean.getName() + ")");
+				}
+				URL url = new URL(session.toURI().toURL(), "#" + urlInSessionZip.getRef());
+				manager.addContentLocationForDataBean(dataBeanCopy, StorageMethod.LOCAL_SESSION_ZIP, url);
+
 				sourceDataBeanToTargetDataBean.put(dataBean, dataBeanCopy);
 				dataBeansInSourceManagerWhichWereCopied.add(dataBean);
 				
@@ -220,7 +236,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				dataBeanCopy.setOperationRecord(operationRecord);
 				
 				// TODO what if not in the root folder in the source manager
-				manager.getRootFolder().addChild(dataBeanCopy);
+				manager.connectChild(dataBeanCopy, manager.getRootFolder());
 				rootLevelOperationRecords.add(operationRecord);
 			}
 
@@ -336,7 +352,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			try {
 				
 				// Link result beans, add to folders etc
-				Session.getSession().getApplication().onFinishedTask(task, operation);
+				Session.getSession().getApplication().onFinishedTask(task, operation, task.getState());
 
 				// Check that number of results and result names match
 				Iterator<DataBean> targetIterator = task.outputs().iterator();
@@ -380,7 +396,7 @@ public class SessionReplayTest extends MessagingTestBase {
 						OutputStream metadataOut = manager.getContentOutputStreamAndLockDataBean(targetBean);
 						InputStream sourceIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
+							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 							IOUtils.copy(sourceIn, metadataOut);
 						} finally {
 							IOUtils.closeIfPossible(sourceIn);
@@ -407,7 +423,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
 					
 					// Collect size matches
-					if (sourceBean.getContentLength() != targetBean.getContentLength()) {
+					if (Session.getSession().getDataManager().getContentLength(sourceBean) != Session.getSession().getDataManager().getContentLength(targetBean)) {
 						if (sourceBean.getName().equals(targetBean.getName())) {
 							outputsWithMisMatchingSizes.add(sourceBean.getName());
 						} else {
@@ -419,8 +435,8 @@ public class SessionReplayTest extends MessagingTestBase {
 					if (CHECK_CONTENTS) {
 						InputStream sourceIn = null, targetIn = null;
 						try {
-							sourceIn = sourceBean.getContentByteStream();
-							targetIn = targetBean.getContentByteStream();
+							sourceIn = sourceManager.getContentStream(sourceBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+							targetIn = manager.getContentStream(targetBean, DataNotAvailableHandling.EXCEPTION_ON_NA);
 							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
 
 								if (sourceBean.getName().equals(targetBean.getName())) {
@@ -477,12 +493,12 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		// exact size
 		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {
-			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength(), "comparing output size");
+			Assert.assertEquals("comparing output size", Session.getSession().getDataManager().getContentLength(bean1), Session.getSession().getDataManager().getContentLength(bean2));
 		}
 
 		// zero size not allowed if source non-zero
-		if (bean1.getContentLength() > 0) {
-			Assert.assertTrue(bean2.getContentLength() > 0, "zero size dataset");
+		if (Session.getSession().getDataManager().getContentLength(bean1) > 0) {
+			Assert.assertTrue("zero size dataset", Session.getSession().getDataManager().getContentLength(bean2) > 0);
 		}
 	}
 
@@ -946,7 +962,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	}
 	
 	private String createSessionLink(File sessionFile) {
-		return "<a href=\"sessions/" + sessionFile.getName() + "\">" + sessionFile.getName() + "</a>";
+		return "<a href=\"" + sessionsDir + "/" + sessionFile.getName() + "\">" + sessionFile.getName() + "</a>";
 	}
 	
 	
@@ -978,9 +994,10 @@ public class SessionReplayTest extends MessagingTestBase {
 
 		private SessionReplayTest parent;
 
-		public SessionLoadingSkeletonApplication(SessionReplayTest parent, LinkedList<ToolModule> toolModules) {
+		public SessionLoadingSkeletonApplication(SessionReplayTest parent, LinkedList<ToolModule> toolModules, DataManager manager) {
 			this.parent = parent;
 			this.toolModules = toolModules;
+			this.manager = manager;
 			logger = org.apache.log4j.Logger.getLogger(SessionLoadingSkeletonApplication.class);
 		}
 		
@@ -988,75 +1005,9 @@ public class SessionReplayTest extends MessagingTestBase {
 		public OperationDefinition getOperationDefinition(String toolId) {
 			return parent.getOperationDefinition(toolId, toolModules);
 		};
-		
-		@Override
-		public void checkFreeMemory() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
 
 		@Override
-		public void createLink(DataBean source, DataBean target, Link type) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void deleteDatas(DataItem... datas) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void flipTaskListVisibility(boolean closeIfVisible) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public DataManager getDataManager() {
-			return manager;
-//			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public Icon getIconFor(DataItem data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public VisualisationFrameManager getVisualisationFrameManager() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void importGroup(Collection<ImportItem> datas, String folderName) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		protected void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public DataFolder initializeFolderForImport(String folderName) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void loadSession() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void loadSessionFrom(URL url) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void loadSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void removeLink(DataBean source, DataBean target, Link type) {
+		public void initialiseGUIThreadSafely(File session) throws MicroarrayException, IOException {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1076,32 +1027,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void restoreSessionFrom(File file) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void runBlockingTask(String taskName, Runnable runnable) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void saveSession() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public File saveWorkflow() {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void setMaximisedVisualisationMode(boolean maximisedVisualisationMode) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showDetailsFor(DataBean data) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
 
@@ -1121,65 +1047,8 @@ public class SessionReplayTest extends MessagingTestBase {
 		}
 
 		@Override
-		public void showHistoryScreenFor(DataBean data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, DataItem data) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showPopupMenuFor(MouseEvent e, List<DataItem> datas) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void showSourceFor(String operationName) throws TaskException {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		protected void taskCountChanged(int newTaskCount, boolean attractAttention) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void viewHelp(String id) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void viewHelpFor(OperationDefinition operationDefinition) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void visualiseWithBestMethod(FrameType target) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
 		public void reportExceptionThreadSafely(Exception e) {
 			throw new UnsupportedOperationException("not supported by skeleton app");
 		}
-
-		@Override
-		public File openWorkflow(boolean runForEach) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-
-		@Override
-		public void runWorkflow(URL workflowScript, boolean runForEach) {
-			throw new UnsupportedOperationException("not supported by skeleton app");
-		}
-		
 	}
-
 }

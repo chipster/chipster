@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.messaging.JMSMessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -23,7 +24,7 @@ import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 /**
  * @author Aleksi Kallio
@@ -69,7 +70,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		sessionPool = new SecureSessionPool();
 		
 		// initialise communications
-		this.endpoint = new MessagingEndpoint(this);
+		this.endpoint = new JMSMessagingEndpoint(this);
 
 		// create authorised topics
 		authorisedTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.WRITE);       
@@ -101,7 +102,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("authenticator is up and running [" + ApplicationConstants.VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+		logger.info("[mem: " + SystemMonitorUtil.getMemInfo() + "]");
 	}
 	
 	private class RequestListener implements MessagingListener {

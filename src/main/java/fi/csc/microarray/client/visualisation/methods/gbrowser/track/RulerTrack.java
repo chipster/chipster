@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.DataResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
+import fi.csc.microarray.util.Strings;
 
 /**
  * Ruler that shows coordinates.
@@ -39,7 +40,7 @@ public class RulerTrack extends Track {
 		for (long bp = start; bp <= end; bp += magnitude) {
 
 			int x = getView().bpToTrack(new BpCoord(bp, region.start.chr));
-			String text = Utils.toHumanReadable(bp);
+			String text = Strings.toHumanReadable(bp);
 
 			drawables.add(new TextDrawable(x + 4, textY, text, Color.black));
 			//drawables.add(new LineDrawable(x, textY - 2, x, textY + 6, Color.black));

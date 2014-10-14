@@ -28,15 +28,24 @@ public class UrlMessage extends ChipsterMessage {
 	
 	public void unmarshal(MapMessage from) throws JMSException {
 		super.unmarshal(from);
-		try {
-			this.url = new URL(from.getString(KEY_URL));
-		} catch (MalformedURLException e) {
-			handleException(e);
+		String urlString = from.getString(KEY_URL);
+		if (urlString == null) {
+			this.url = null;
+		} else {
+			try {
+				this.url = new URL(from.getString(KEY_URL));
+			} catch (MalformedURLException e) {
+				handleException(e);
+			}
 		}
 	}
 
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
-		mapMessage.setString(KEY_URL, this.url.toString());
+		String urlString = null;
+		if (this.url != null) {
+			urlString = this.url.toString();
+		}
+		mapMessage.setString(KEY_URL, urlString);
 	}
 }

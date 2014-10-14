@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.log4j.PropertyConfigurator;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.filebroker.FileServer;
 
 
 /**
@@ -37,9 +38,6 @@ public class DirectoryLayout {
 	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
 	public static final String WEB_APPS_DIR = "webapps"; 
 
-	
-	private static final String DEBUG_BASE_DIR = "debug-base-dir";
-
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
 	private static final String LOGS_DIR_SYSTEM_PROPERTY = "chipster_logs_dir";
 	private static final String SECURITY_DIR_SYSTEM_PROPERTY = "chipster_security_dir";
@@ -58,7 +56,22 @@ public class DirectoryLayout {
 	private Type type;
 	private Configuration configuration = null;
 	private AvailableConfiguration availableConfiguration;
+	private static File baseDirOverride = null;
 	private static DirectoryLayout instance;
+	
+	/**
+	 * Uninitialise (reset) directory layout. For testing purposes.
+	 */
+	public static void uninitialise() {
+		instance = null;
+	}
+	
+	/**
+	 * Override default base dir with something else. For testing purposes.
+	 */
+	public static void setBaseDirOverride(File baseDirOverride) {
+		DirectoryLayout.baseDirOverride = baseDirOverride;
+	}
 	
 	public static DirectoryLayout initialiseServerLayout(List<String> specificModules)
 	        throws IOException, IllegalConfigurationException {
@@ -132,7 +145,7 @@ public class DirectoryLayout {
 		String javaRuntimeName = System.getProperty("java.runtime.name");
 		if (type == Type.SERVER || javaRuntimeName == null || !javaRuntimeName.contains("OpenJDK")) {
 			// enable logging for all server runtimes and all client runtimes that are not OpenJDK
-			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config
+			PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j-enabled.properties")); // replaced with "enabled" config		
 		}
 		
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
@@ -192,11 +205,13 @@ public class DirectoryLayout {
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File fileRoot = new File(getBaseDir(), configuration.getString("filebroker", "file-root-path"));
-			File userDataRoot = new File(fileRoot, configuration.getString("filebroker", "user-data-path"));
-			File publicDataRoot = new File(fileRoot, configuration.getString("filebroker", "public-data-path"));
+			File cacheRoot = new File(fileRoot, FileServer.CACHE_PATH);
+			File storageRoot = new File(fileRoot, FileServer.STORAGE_PATH);
+			File publicRoot = new File(fileRoot, configuration.getString("filebroker", "public-path"));
 			initialise(fileRoot);
-			initialise(userDataRoot);
-			initialise(publicDataRoot);
+			initialise(cacheRoot);
+			initialise(storageRoot);
+			initialise(publicRoot);
 			
 			return fileRoot;
 			
@@ -205,7 +220,7 @@ public class DirectoryLayout {
 		}
 	}
 
-	public File getBackupDir() throws IOException, IllegalConfigurationException {
+	public File getManagerBackupDir() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File backupDir = new File(getBaseDir(), configuration.getString("manager", "backup-dir"));
 			return initialise(backupDir);
@@ -214,6 +229,17 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
+
+	public File getFilebrokerMetadataBackupDir() throws IOException, IllegalConfigurationException {
+		if (type == Type.SERVER) {
+			File backupDir = new File(getBaseDir(), configuration.getString("filebroker", "metadata-backup-dir"));
+			return initialise(backupDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
 	
 	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
@@ -280,20 +306,17 @@ public class DirectoryLayout {
 	}
 
 	private File getBaseDir() throws IOException {
-		if (type == Type.CLIENT) {
+
+		if (baseDirOverride != null) {
+			return baseDirOverride;
+			
+		} else if (type == Type.CLIENT) {
 			// use OS specific dir for clients
 			return getClientSettingsDir(); 
 			
 		} else {
 			// use working dir as a base dir for server components
-			File baseDir = new File(System.getProperty("user.dir"));
-			
-			// switch to debug dir if exists
-			File debugRoot = new File(baseDir, DEBUG_BASE_DIR);
-			if (debugRoot.exists()) {
-				baseDir = debugRoot;
-			}
-			return baseDir;
+			return new File(System.getProperty("user.dir"));
 		}
 	}
 	

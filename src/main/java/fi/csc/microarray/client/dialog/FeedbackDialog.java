@@ -7,8 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
+import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -23,11 +25,14 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.ServiceAccessor;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.session.SessionLoader;
-import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
+import fi.csc.microarray.security.CryptoKey;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Dialog for user to give feedback, report an error etc.
@@ -36,6 +41,7 @@ import fi.csc.microarray.messaging.message.FeedbackMessage;
  *
  */
 public class FeedbackDialog extends JDialog implements ActionListener {
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(FeedbackDialog.class);
 	
     private SwingClientApplication application;
@@ -131,6 +137,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent event) {
+    	
         if (event.getSource() == okButton) {
             // check mandatory fields
             if (detailArea.getText().length() == 0) {
@@ -147,66 +154,59 @@ public class FeedbackDialog extends JDialog implements ActionListener {
    
     	            // send feedback message using manager topic
     	            try {              
-    	            	ServiceAccessor serviceAccessor = Session.getSession().getServiceAccessor();
-    	                String sessionURL;
-    	                if (attachSessionBox.isSelected()) {
-							File sessionFile = UserSession.findBackupFile(application.getDataManager().getRepository(), true);
-							sessionFile.deleteOnExit();
-							
-							try {
-								application.getDataManager().saveFeedbackSession(sessionFile);
-								sessionURL = serviceAccessor.getFileBrokerClient().addFile(new FileInputStream(sessionFile), sessionFile.length(), null).toString();
-							} catch (Exception e) {
-								logger.warn(e); // do not care that much about failing session backups
-								// lol
-								sessionURL = "http://failed-to-create-or-upload-session";
-							} finally {
-								sessionFile.delete();
-							}
-    	                	
-
-    	                } else {
-    	                    // user does not want to give data
-    	                    sessionURL = "";
-    	                }
-    	                
-    	                // prepare feedback message
-    	                String messageText = detailArea.getText() + "\n\nError message:\n" + errorMessage;
-    	                FeedbackMessage message = new FeedbackMessage(messageText,
-    	                        emailField.getText(), sessionURL);
-    	                
-    	                // attach log files if client allows
-    	                if (attachLogsBox.isSelected()) {
-    	                    File logDir = DirectoryLayout.getInstance().getLogsDir();
-    	                    for (File logFile : logDir.listFiles()) {
-    	                        // save it with the file broker
-    	                    	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-    	                        String logURL = fileBroker.addFile(new FileInputStream(logFile), logFile.length(), null).toString();
-    	                        message.addLog(logFile.getName(), logURL);
-    	                    }
-    	                }
-    	                
-    	                // send feedback message to manager
-    	                serviceAccessor.sendFeedbackMessage(message);
+    	            	sendFeedback();
     	                
     	            } catch (Exception e) {
     	                application.reportException(e);
-    	            }
-    			
-    			
-    			
-    			
+    	            }    			    			    			    
     			}
     		});
-
-            
-            
-            
-            
-            
         } else {
             // close
             this.dispose();
         }
+    }
+    
+    private void sendFeedback() throws Exception, JMSException, FileBrokerException, IOException, NotEnoughDiskSpaceException, FileNotFoundException {
+    	ServiceAccessor serviceAccessor = Session.getSession().getServiceAccessor();
+    	FileBrokerClient fileBrokerClient = serviceAccessor.getFileBrokerClient();
+
+    	String sessionUrl;
+    	if (attachSessionBox.isSelected()) {
+
+    		String sessionId = application.getSessionManager().saveFeedbackSession();
+    		sessionUrl = fileBrokerClient.getExternalURL(sessionId);
+
+    	} else {
+    		// user does not want to give data
+    		sessionUrl = "";
+    	}
+
+    	// prepare feedback message
+    	String messageText = detailArea.getText() + "\n\nError message:\n" + errorMessage;
+    	FeedbackMessage message = new FeedbackMessage(messageText,
+    			emailField.getText(), sessionUrl);
+
+    	// attach log files if client allows
+    	if (attachLogsBox.isSelected()) {
+    		File logDir = DirectoryLayout.getInstance().getLogsDir();
+    		for (File logFile : logDir.listFiles()) {
+    			//create a copy of log, because otherwise it may grow during the upload and server side size check fails
+    			File copyOfLog = File.createTempFile("chipster-temp-file", "");
+    			copyOfLog.deleteOnExit();
+    			IOUtils.copy(logFile, copyOfLog);
+
+    			// save it with the file broker    	                    	
+    			String dataId = CryptoKey.generateRandom();
+    			fileBrokerClient.addFile(dataId, FileBrokerArea.CACHE, new FileInputStream(copyOfLog), copyOfLog.length(), null);
+
+    			String url = fileBrokerClient.getExternalURL(dataId);
+    			message.addLog(logFile.getName(), url);
+    			copyOfLog.delete();
+    		}
+    	}
+
+    	// send feedback message to manager
+    	serviceAccessor.sendFeedbackMessage(message);
     }
 }

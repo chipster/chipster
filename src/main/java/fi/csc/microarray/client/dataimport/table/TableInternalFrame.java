@@ -344,8 +344,8 @@ public class TableInternalFrame extends SimpleInternalFrame implements
 	
 	public void addCornerComponents(){
 
-		toTopButton = new JButton(VisualConstants.TO_TOP_ICON); 
-		toBottomButton = new JButton(VisualConstants.TO_BOTTOM_ICON);
+		toTopButton = new JButton(VisualConstants.getIcon(VisualConstants.TO_TOP_ICON)); 
+		toBottomButton = new JButton(VisualConstants.getIcon(VisualConstants.TO_BOTTOM_ICON));
 
 		toTopButton.setToolTipText("Go to beginning of the table");
 		toBottomButton.setToolTipText("Go to end of the table");

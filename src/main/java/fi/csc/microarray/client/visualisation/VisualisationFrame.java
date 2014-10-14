@@ -9,8 +9,8 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -20,23 +20,19 @@ import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataChangeEvent;
-import fi.csc.microarray.databeans.DataChangeListener;
-import fi.csc.microarray.databeans.DataItemCreatedEvent;
-import fi.csc.microarray.databeans.DataItemRemovedEvent;
 
-public abstract class VisualisationFrame implements DataChangeListener {
+public abstract class VisualisationFrame {
 
 	public abstract void setContent(JComponent visualisationComponent);
 
 	private static final Color BG = Color.white;
 
-	protected ClientApplication application = Session.getSession().getApplication();
+	protected SwingClientApplication application = (SwingClientApplication) Session.getSession().getApplication();
 
 	private static final String WAIT_PANEL_NAME = "wait";
 	private static final String VISUALISATION_PANEL_NAME = "visualisation";
@@ -56,6 +52,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public Visualisation visualiser;
 
 	private JPanel waitPanel;
+
+	private Vector<Component> focusComponents;
 
 	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
@@ -78,16 +76,8 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		waitPanel.add(waitLabel, BorderLayout.CENTER);
 		viewChangerPanel.add(waitPanel, WAIT_PANEL_NAME);
 
-		// show empty panel
-		try {
-			this.showVisualisationComponent(VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>()));
-		} catch (Exception e) {
-			application.reportException(e);
-		}
 		this.setContent(viewChangerPanel);
 		viewChangerLayout.show(viewChangerPanel, VISUALISATION_PANEL_NAME);
-
-		application.getDataManager().addDataChangeListener(this);
 	}
 
 	private class SplitSizeHandler implements PropertyChangeListener {
@@ -110,7 +100,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 				this.method = e.getNewMethod();
 
 				removeVisualiser();
-
 				visualiser = method.getVisualiser(this);
 			}
 			this.variables = e.getVariables();
@@ -153,13 +142,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			} else {
 				componentToReturn = visualisationComponent;
 			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("visualisationpanel contains following components:");
-				for (Component component : paramSplit.getComponents()) {
-					logger.debug("\t" + component);
-				}
-			}
+			
 		} catch (Exception e1) {
 			application.reportException(e1);
 			componentToReturn = visualiser.getDefaultVisualisation();
@@ -174,14 +157,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public void showVisualisationComponent(JComponent panel) {
 		// Clean
 		removeVisualisationComponent();
-
-		if (panel == null) {
-			try {
-				panel = VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>());
-			} catch (Exception e) {
-				application.reportException(e);
-			}
-		}
 
 		String title = "Visualisation";
 		if (datas != null && datas.size() > 0) {
@@ -202,6 +177,9 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		// Split obeys divider locations only after it's shown, else side visualisations hide parameters
 		if (paramSplit != null) {
 			paramSplit.setDividerLocation(0.5);
+		}
+		if (visualiser != null) {
+			visualiser.visualisationShown();
 		}
 	}
 
@@ -264,32 +242,15 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		return method;
 	}
 
-	public void dataChanged(DataChangeEvent e) {
-		
-		if (e instanceof DataItemRemovedEvent) {
-			// Data removed, check if it was part of visualisation
-			if (datas != null && datas.contains(((DataItemRemovedEvent) e).getDataItem())) {
-				application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
-			}
-			
-			// Data removed, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.NONE) {
-				updateContextLinks();
-			}
-
-			
-		} else if (e instanceof DataItemCreatedEvent) {
-
-			// Data added, check if context links should be refreshed
-			if (method == null || method == VisualisationMethod.NONE) {
-				updateContextLinks();
-			}
-		}
-	}
-
-	protected abstract void updateContextLinks();
-	
 	void setTitle(String title) {
 		return;
+	}
+	
+	public Vector<Component> getFocusComponents() {
+		return focusComponents;
+	}
+	
+	public Visualisation getVisualisation() {
+		return visualiser;
 	}
 }

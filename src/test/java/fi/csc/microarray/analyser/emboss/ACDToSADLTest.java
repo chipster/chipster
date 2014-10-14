@@ -2,26 +2,18 @@ package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.analyser.emboss.ACDToSADL.SADLParameterCreator;
 import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLParser.ParseException;
-import fi.csc.microarray.analyser.emboss.ACDToSADL;
-import fi.csc.microarray.analyser.emboss.ACDToSADL.SADLParameterCreator;
 
 public class ACDToSADLTest {
     private static String path = "src/test/resources/";
-    
-    @BeforeSuite
-    protected void setUp() throws Exception {
-        DirectoryLayout.initialiseSimpleLayout();
-    }
 
     public static ACDDescription getTestDescription(String appName) {
         ACDDescription acd = new ACDDescription(new File(path + appName + ".acd"));
@@ -93,7 +85,6 @@ public class ACDToSADLTest {
     
     public static void main(String[] args) throws Exception {
         ACDToSADLTest test = new ACDToSADLTest();
-        test.setUp();
         test.testACDToSADL();
     }
     

@@ -7,6 +7,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.EnumParameter;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -15,7 +18,6 @@ import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLSyntax.InputType;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
@@ -536,7 +538,7 @@ public class OperationDefinition implements ExecutionItem {
 			return data.hasTypeTag(MicroarrayModule.TypeTags.GTF_FILE);
 			
 		} else if (type == ChipsterInputTypes.PHENODATA) {
-			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			return data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA);
 			
 		} else if (type == GenericInputTypes.GENERIC) {
 			return true;
@@ -555,7 +557,7 @@ public class OperationDefinition implements ExecutionItem {
 		}
 	}
 
-	// TODO update to new type tag system
+	// TODO update to meta input type
 	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
 		return input.id.startsWith("phenodata");
 	}
@@ -630,5 +632,38 @@ public class OperationDefinition implements ExecutionItem {
 		return inputs.size() == 1;
 	}
 
-	
+	public String getParameterDefaultValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());					
+		String defaultValue = null;
+		if (parameter != null) {
+			 defaultValue  = parameter.getValueAsString();
+		}
+		return defaultValue;
+	}
+
+	public String getHumanReadableParameterValue(ParameterRecord parameterRecord) {
+		Parameter parameter = getParameter(parameterRecord.getNameID().getID());
+		
+		//EnumParameters have a display name for values
+		if (parameter instanceof EnumParameter) {
+			EnumParameter enumParameter = (EnumParameter) parameter;
+			
+			Object[] options = enumParameter.getOptions();
+			
+			// column selection doesn't have better name
+			if (options != null) {
+				// search for human readable name
+				for (Object choice : options) {
+					SelectionOption option = (SelectionOption) choice;
+					
+					//for (SelectionOption option : options) {
+					if (parameterRecord.getValue().equals(option.getValue())) {
+						
+						return option.toString();
+					}
+				}
+			}
+		}
+		return parameterRecord.getValue();
+	}
 }

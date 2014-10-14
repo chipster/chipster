@@ -1,4 +1,4 @@
-# TOOL ngs-find-peaks-macs-two.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples relative to one or more control samples.)
+# TOOL ngs-find-peaks-macs-two.R: "Find peaks using MACS, treatment vs. control" (Detects statistically significantly enriched genomic regions in ChIP-seq data using a control sample. If you have several samples, you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT control.bam: "Control data file" TYPE GENERIC 
 # OUTPUT positive-peaks.tsv: "True enriched peaks" 
@@ -46,6 +46,7 @@ if (precalculated.size == "user_specified") {
 	genome.size <- precalculated.size
 }
 
+# If read length is left to zero, it should be estimated from data
 if (read.length == 0) {
 	read.length = FALSE
 }
@@ -148,16 +149,18 @@ if (system.output != 0) {
 #	stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model building turned off.") 
 #}
 
-# Read in and parse the results, sort according to the -10xlog10(pvalue)
+# Read in and parse the results, sort 
 output <- read.table(file="results_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
 colnames(output)[7] <- "neg10xlog10pvalue"
 colnames(output)[9] <- "FDR_percentage"
-output <- output[ order(output[,7], decreasing=TRUE), ]
+# output <- output[ order(output[,7], decreasing=TRUE), ]
+output <- output[order(output$chr, output$start),]
 write.table(output, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 negoutput <- read.table(file="results_negative_peaks.xls", skip=0, header=TRUE, stringsAsFactors=FALSE)
 colnames(negoutput)[7] <- "neg10xlog10pvalue"
-negoutput <- negoutput[ order(negoutput[,7], decreasing=TRUE), ]
+# negoutput <- negoutput[ order(negoutput[,7], decreasing=TRUE), ]
+output <- output[order(output$chr, output$start),]
 write.table(negoutput, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 # Convert the name of some files to make it compatible with chipster output

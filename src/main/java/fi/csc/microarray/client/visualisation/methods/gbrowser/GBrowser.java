@@ -21,6 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToCoverageEstimateConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.BamToDetailsConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.GtfToFeatureConversion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileIndex.IndexedFastaConversion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.AnnotationType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.gui.AnnotationManager.Genome;
@@ -76,7 +77,7 @@ public class GBrowser {
 	private GeneIndexActions gia;
 
 	private ViewLimiter viewLimiter;
-	protected boolean geneSearchDone;
+	protected volatile boolean geneSearchDone;
 
 	private GBrowserSettings settings;
 
@@ -233,6 +234,15 @@ public class GBrowser {
 				analyses.addTrackGroup(geneGroup);
 				
 				break;
+				
+			case REFERENCE:
+				// if not shown already as reference sequence
+				if (!getCustomGenome(getGenome()).equals(interpretation)) {
+					IndexedFastaConversion fastaConversion = interpretation.getFastaDataThread(this);								
+					TrackGroup fastaGroup = new SampleTrackGroup(dataView, null, null, null, fastaConversion, getTitle(interpretation));							
+					analyses.addTrackGroup(fastaGroup);				
+				}
+				break;
 
 			case CNA:
 
@@ -359,8 +369,27 @@ public class GBrowser {
 		if (annotation != null) {
 			return annotation.getUrl();					
 		} else {
-			return null;
+			// if there isn't such annotation, then this must be a user's own file
+			Interpretation customGenome = getCustomGenome(genome);
+			if (customGenome != null) {
+				if (type == AnnotationType.REFERENCE) {
+					return customGenome.getPrimaryData();
+				}
+				if (type == AnnotationType.REFERENCE_INDEX) {
+					return customGenome.getIndexData();
+				}					
+			} 
+			return null;		
 		}
+	}
+
+	private Interpretation getCustomGenome(Genome genome) {
+		for (Interpretation interpretation : interpretations) {
+			if (interpretation.getName().equals(genome.speciesId)) {
+				return interpretation;					
+			}
+		}
+		return null;
 	}
 
 	public void showVisualisation() throws URISyntaxException, IOException, GBrowserException {
@@ -399,90 +428,92 @@ public class GBrowser {
 	private GeneIndexActions getGeneIndexActions() {
 
 		if (gia == null) {
-			showDialog("Gene search failed", "Gene search is not initialized, is annotation data missing?", null, true, false, true, false);
+			showDialog("Gene search not available", "Gene search is disabled, because there is no annotation data for this genome.", null, true, false, true, false);
 		}
 		return gia;
 	}
 
 	public void requestGeneSearch(String gene) {
+		// do not start blocking task if search is not available for this genome
+		if (getGeneIndexActions() != null) {
+			runBlockingTask("searching gene", new Runnable() {
 
-		runBlockingTask("searching gene", new Runnable() {
+				@Override
+				public void run() {
 
-			@Override
-			public void run() {
+					int TIME_OUT = 30*1000;
+					int INTERVAL = 100;
 
-				int TIME_OUT = 30*1000;
-				int INTERVAL = 100;
+					long startTime = System.currentTimeMillis();
 
-				long startTime = System.currentTimeMillis();
+					while (System.currentTimeMillis() < startTime + TIME_OUT) {
 
-				while (System.currentTimeMillis() < startTime + TIME_OUT) {
-
-					if (!geneSearchDone) {
-						try {
-							Thread.sleep(INTERVAL);
-						} catch (InterruptedException e) {
-							//Just continue
+						if (!geneSearchDone) {
+							try {
+								Thread.sleep(INTERVAL);
+							} catch (InterruptedException e) {
+								//Just continue
+							}
+						} else {
+							break;
 						}
+					}		
+
+					if (geneSearchDone) {
+
+						geneSearchDone = false;
+
 					} else {
-						break;
+
+						//Give up
+						SwingUtilities.invokeLater(new Runnable() {
+
+							@Override
+							public void run() {
+
+								showDialog("Search failed",
+										"Unexpected error happened in the search. Please inform the developers if the problem persists.", null,
+										true, false, false, false);
+							}
+
+						});
 					}
-				}		
+				}
+			});		
 
-				if (geneSearchDone) {
+			getGeneIndexActions().requestLocation(gene, new GeneIndexActions.GeneLocationListener() {
 
-					geneSearchDone = false;
+				@Override
+				public void geneLocation(Region geneLocation) {
 
-				} else {
+					geneSearchDone = true;
 
-					//Give up
-					SwingUtilities.invokeLater(new Runnable() {
+					if (geneLocation == null) {
 
-						@Override
-						public void run() {
+						// Move to last known location
+						settings.processLocationPanelInput();
 
-							showDialog("Search failed",
-									"Unexpected error happened in the search. Please inform the developers if the problem persists.", null,
+						// Tell the user 
+						showDialog("Not found", "Gene was not found", null,	false, false, false, false);
+
+					} else {
+
+						// Update coordinate controls with gene's location
+
+						Chromosome resultChr = new Chromosome(geneLocation.start.chr);
+
+						if (settings.setChromosome(resultChr)) {
+
+							setLocation(settings.getChromosome(), geneLocation.start.bp, geneLocation.end.bp);
+						} else {
+							showDialog("Different chromosome", 
+									"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
 									true, false, false, false);
 						}
-
-					});
-				}
-			}
-		});
-
-		getGeneIndexActions().requestLocation(gene, new GeneIndexActions.GeneLocationListener() {
-
-			@Override
-			public void geneLocation(Region geneLocation) {
-
-				geneSearchDone = true;
-
-				if (geneLocation == null) {
-
-					// Move to last known location
-					settings.processLocationPanelInput();
-
-					// Tell the user 
-					showDialog("Not found", "Gene was not found", null,	false, false, false, false);
-
-				} else {
-
-					// Update coordinate controls with gene's location
-
-					Chromosome resultChr = new Chromosome(geneLocation.start.chr);
-
-					if (settings.setChromosome(resultChr)) {
-
-						setLocation(settings.getChromosome(), geneLocation.start.bp, geneLocation.end.bp);
-					} else {
-						showDialog("Different chromosome", 
-								"Searched gene was found from chromosome " + resultChr + " but there is no data for that chromosome", "" + geneLocation, 
-								true, false, false, false);
 					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	public void setLocation(Chromosome chr, Long start, Long end) {
@@ -653,16 +684,6 @@ public class GBrowser {
 		} catch (IOException e) {
 			reportException(e);
 		}
-	}
-
-	/**
-	 * Override this method to specify location for remote annotations
-	 */
-	@Deprecated
-	public URL getRemoteAnnotationsUrl() throws Exception {
-		//"http://chipster-filebroker.csc.fi:8080/public/annotations/"
-		System.out.println("getRemoteAnnotationsUrl not implemented");
-		return null;
 	}
 
 	/**

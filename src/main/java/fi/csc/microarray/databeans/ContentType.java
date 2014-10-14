@@ -2,6 +2,8 @@ package fi.csc.microarray.databeans;
 
 import javax.swing.Icon;
 
+import fi.csc.microarray.constants.VisualConstants;
+
 /**
  * 
  * Content type for DataBeans.
@@ -20,14 +22,15 @@ public class ContentType {
 	private boolean supported;
 	private String description;
 	private String[] extensions;
+	private String iconPath;
 	private Icon icon;
 	private boolean binary;
 	
-	public ContentType(String name, boolean supported, boolean binary, String description, Icon icon, String... extensions) {
+	public ContentType(String name, boolean supported, boolean binary, String description, String iconPath, String... extensions) {
 		this.type = name;
 		this.supported = supported;
 		this.description = description;
-		this.icon = icon;
+		this.iconPath = iconPath;
 		this.extensions = extensions;
 		this.binary = binary;
 	}
@@ -49,6 +52,10 @@ public class ContentType {
 	}
 
 	public Icon getIcon() {
+		if (icon == null) {
+			icon = VisualConstants.getIcon(iconPath);			 
+		}
+		
 		return icon;
 	}
 	

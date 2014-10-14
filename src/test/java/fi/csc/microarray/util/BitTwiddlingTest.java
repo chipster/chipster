@@ -2,18 +2,18 @@ package fi.csc.microarray.util;
 
 import java.util.UUID;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class BitTwiddlingTest {
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void testByteConversions() {
 		// int -> byte
 		for (int i = 0; i < 1000; i++) {
 			int original = (int)UUID.randomUUID().getLeastSignificantBits();
 			int converted = BitTwiddling.bytesToInt(BitTwiddling.intToBytes(original));
-			Assert.assertTrue(original == converted, "comparing 0x" + Integer.toHexString(original) + " and 0x" + Integer.toHexString(converted));
+			Assert.assertTrue("comparing 0x" + Integer.toHexString(original) + " and 0x" + Integer.toHexString(converted), original == converted);
 		}
 		
 		// byte -> int
@@ -24,7 +24,7 @@ public class BitTwiddlingTest {
 			}
 			byte[] converted = BitTwiddling.intToBytes(BitTwiddling.bytesToInt(original));
 			for (int c = 0; c < original.length; c++) {
-				Assert.assertTrue(original[c] == converted[c], "comparing " + original[c] + " and " + converted[c]);	
+				Assert.assertTrue("comparing " + original[c] + " and " + converted[c], original[c] == converted[c]);	
 			}
 		}
 	}

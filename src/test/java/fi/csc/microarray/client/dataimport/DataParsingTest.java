@@ -3,12 +3,10 @@ package fi.csc.microarray.client.dataimport;
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.util.MemUtil;
+import fi.csc.microarray.util.SystemMonitorUtil;
 
 public class DataParsingTest {
 	
@@ -43,11 +41,11 @@ public class DataParsingTest {
 		public void setValue(int state) {
 			// Every 10000
 			if(state % 10000 == 0 && state != 0){
-				System.out.println("Line: " + state + "   percents done: " + (int)(((float)state/(float)max) * 100) + "%   memory usage: " + MemUtil.getMemInfo());
+				System.out.println("Line: " + state + "   percents done: " + (int)(((float)state/(float)max) * 100) + "%   memory usage: " + SystemMonitorUtil.getMemInfo());
 			}
 			
 			// If memory usage raises too high the test is failed
-			Assert.assertTrue(MemUtil.getUsed() < memoryLimit, "Memory limit exceeded. Limit: " + MemUtil.bytesToMegas(memoryLimit) + " Mb, used " + MemUtil.bytesToMegas(MemUtil.getUsed()));
+			Assert.assertTrue("Memory limit exceeded. Limit: " + SystemMonitorUtil.bytesToMegas(memoryLimit) + " Mb, used " + SystemMonitorUtil.bytesToMegas(SystemMonitorUtil.getUsed()), SystemMonitorUtil.getUsed() < memoryLimit);
 			
 		}
 
@@ -58,11 +56,7 @@ public class DataParsingTest {
 		}
 	}
 	
-	public DataParsingTest() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
-	}
-	
-	@Test(groups = {"stress"} ) // needs more memory than JVM default
+	@Test
 	public void testSmallSizedRealData() throws IOException{
 		System.out.println("\n");
 		System.out.println("Small sized real data (Rows: ~15000, Column: 4, Size: 384kb, Delimiter: Tab, Decimal separator: Dot)");
@@ -70,8 +64,9 @@ public class DataParsingTest {
 		System.out.println("===============================");
 		long start = System.currentTimeMillis();
 		ConversionModel model = new ConversionModel(null);
-		model.setInputFile(new File("examples/affy_example.cel"));
-		model.chopData(false, new TestInformator(8*MB));
+		model.setInputFile(new File("src/test/resources/affy_example.cel"));
+		//originally the limit was 8 MB so probably it has been enough at some point, but now we need more
+		model.chopData(false, new TestInformator(30*MB));
 		System.out.println("Best suitable delimiter was: " + model.getDelim().getName());
 		System.out.println("===============================");
 		System.out.println("Parsing done. Total time: " + (System.currentTimeMillis() - start));

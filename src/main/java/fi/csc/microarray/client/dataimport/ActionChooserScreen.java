@@ -8,7 +8,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +30,13 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem.Action;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
-import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DialogCloseListener;
+import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.util.IOUtils;
 
 public class ActionChooserScreen implements ActionListener, DialogCloseListener {
 
@@ -154,6 +154,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
 		dialog.pack();
 		dialog.pack();
+		okButton.requestFocusInWindow();
 		dialog.setVisible(true);
 	}
 
@@ -176,7 +177,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 
 					for (int row = 0; row < data.length; row++) {
 						ImportItem item = importSession.getItemAtIndex(row);
-						Object[] rowData = { item.getOutput().getName(), item.getType(), item.getAction() };
+						Object[] rowData = { item.getInputFilename(), item.getType(), item.getAction() };
 						data[row] = rowData;
 					}
 
@@ -205,7 +206,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 
 					// Filename
 					if (column == 0) {
-						return item.getOutput().getName();
+						return item.getInputFilename();
 					}
 
 					// Type
@@ -235,7 +236,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 
 					// change filename
 					else if (column == NAME_COLUMN_INDEX) {
-						item.setFilename((String) value);
+						item.setInputFilename((String) value);
 					}
 
 					// others are illegal
@@ -280,9 +281,9 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 			for (int row = 0; row < importSession.getItemCount(); row++) {
 				int index = table.convertRowIndexToModel(row);
 				ImportItem item = importSession.getItemAtIndex(index);
-				File file = item.getInput();
-				if (file.getName().endsWith(".zip") && item.getAction().equals(ImportItem.Action.CUSTOM)) {
-					warnings = warnings + "File " + file.getName() + " is a ZIP file, and cannot be handled by import tool.\n";
+				String filename = IOUtils.getFilename(item.getInput());
+				if (filename.endsWith(".zip") && item.getAction().equals(ImportItem.Action.CUSTOM)) {
+					warnings = warnings + "File " + filename + " is a ZIP file, and cannot be handled by import tool.\n";
 				}
 			}
 
@@ -328,7 +329,7 @@ public class ActionChooserScreen implements ActionListener, DialogCloseListener 
 			}
 		}
 		
-		Session.getSession().getApplication().importGroup(directImportDatas, importSession.getDestinationFolder());
+		((SwingClientApplication) Session.getSession().getApplication()).importGroup(directImportDatas, importSession.getDestinationFolder());
 
 		// Check if there were any custom files
 		if (importSession.hasCustomFiles()) {

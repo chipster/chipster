@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
@@ -176,7 +177,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		
 		// Skip import
 		else if (e.getSource() == skipButton) {
-			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+			((SwingClientApplication) application).importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			this.dispose();
 		}
 

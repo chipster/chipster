@@ -77,11 +77,9 @@
 		<tool runtime="R-3.0">
 			<resource>filter-bed-value.R</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common">
-		<resource>extract-samples-from-dataset.R</resource>
+		<tool runtime="R-3.0" module="common"><resource>extract-samples-from-dataset.R</resource>
 		</tool>
-		<tool runtime="R-3.0" module="common">
-		<resource>select_columns.R</resource>
+		<tool runtime="R-3.0" module="common"><resource>select_columns.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>process-preprocessed-counts.R</resource>
@@ -115,6 +113,9 @@
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>samtools-consensus.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>samtools-index-fasta.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>unique-alignments-from-bam.R</resource>
@@ -381,13 +382,19 @@
 
 	<category name="ChIP-seq and DNase-seq" color="#c0d2de">
 		<tool runtime="R-3.0">
+			<resource>macs2.R</resource>
+		</tool>
+<!--  	<tool runtime="R-3.0">
+			<resource>macs2-treatmentOnly.R</resource>
+		</tool>
+		<tool runtime="R-3.0">
+			<resource>macs2-treatmentControl.R</resource>
+		</tool>-->
+		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-macs-two.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>macs2-treatmentControl.R</resource>
 		</tool>
 		<tool runtime="R-3.0">
 			<resource>ngs-find-peaks-fseq.R</resource>
@@ -447,6 +454,7 @@
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-profile.R</resource></tool>
 		<tool runtime="R-3.0" module="common"><resource>acgh-expression-test.R</resource></tool>	
 		<tool runtime="R-3.0" module="common"><resource>acgh-plot-combined-expression.R</resource></tool>
+		
 	</category>
 
 <!--  	<category name="Methyl-seq" color="#83010b">
@@ -501,21 +509,6 @@
 		</tool>
 	</category>
 
-
-<!--  	<category name="Motif discovery" color="#aaff00">
-		<tool runtime="R-3.0">
-			<resource>dimont-extract-data.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>dimont-extract-data-custom.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>dimont.R</resource>
-		</tool>
-		<tool runtime="R-3.0">
-			<resource>dimont-predictor.R</resource>
-		</tool>
-	</category>-->
 
 
 </module>

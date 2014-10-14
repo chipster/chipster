@@ -2,6 +2,7 @@ package fi.csc.microarray.databeans;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,40 +10,140 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import javax.swing.Icon;
+import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.session.SessionLoader;
-import fi.csc.microarray.client.session.SessionLoader.LoadMethod;
-import fi.csc.microarray.client.session.SessionSaver;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
-import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
+import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.databeans.handlers.ContentHandler;
+import fi.csc.microarray.databeans.handlers.LocalFileContentHandler;
+import fi.csc.microarray.databeans.handlers.RemoteContentHandler;
+import fi.csc.microarray.databeans.handlers.ZipContentHandler;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
+import fi.csc.microarray.filebroker.ContentLengthException;
+import fi.csc.microarray.filebroker.FileBrokerClient.FileBrokerArea;
+import fi.csc.microarray.filebroker.FileBrokerException;
+import fi.csc.microarray.filebroker.NotEnoughDiskSpaceException;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.security.CryptoKey;
 import fi.csc.microarray.util.Exceptions;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 import fi.csc.microarray.util.Strings;
 
 public class DataManager {
 
+	/**
+	 * Defines a location where the actual file content of the DataBean can be accessed from.
+	 * Location might be local, remote or contained within another file (zip). 
+	 */
+	public static class ContentLocation {
+		
+		StorageMethod method;
+		URL url;
+		private ContentHandler handler;
+		
+		public ContentLocation(StorageMethod method, ContentHandler handler, URL url) {
+			this.method = method;
+			this.handler = handler;
+			this.url = url;
+		}
+		
+		public StorageMethod getMethod() {
+			return method;
+		}
+
+		public URL getUrl() {
+			return url;
+		}
+
+		public ContentHandler getHandler() {
+			return handler;
+		}
+	}
+
+	
+	public static enum StorageMethod {
+		
+		LOCAL_ORIGINAL(true, true),
+		LOCAL_TEMP(true, true),
+		LOCAL_SESSION_ZIP(true, false),
+		REMOTE_ORIGINAL(false, true);
+		
+		// Groups that describe how fast different methods are to access.
+		// Keep these up-to-date when you add methods!
+		public static StorageMethod[] LOCAL_FILE_METHODS = {LOCAL_ORIGINAL, LOCAL_TEMP};
+		public static StorageMethod[] REMOTE_FILE_METHODS = {REMOTE_ORIGINAL};
+		public static StorageMethod[] OTHER_SLOW_METHODS = {LOCAL_SESSION_ZIP};
+		
+		private boolean isLocal;
+		private boolean isRandomAccess;
+		
+		StorageMethod(boolean isLocal, boolean isRandomAccess) {
+			this.isLocal = isLocal;
+			this.isRandomAccess = isRandomAccess;
+		}
+
+		public boolean isLocal() {
+			return isLocal;
+		}
+
+		public boolean isRandomAccess() {
+			return isRandomAccess;
+		}
+		
+		/**
+		 * Returns value of given name, so that old names are first converted to new naming scheme and
+		 * then used to call {@link Enum#valueOf(Class, String)}.
+		 * 
+		 * @param name name or old name of StorageMethod enum value
+		 * 
+		 * @return StorageMethod enum value
+		 */
+		public static StorageMethod valueOfConverted(String name) {
+			if ("REMOTE_STORAGE".equals(name)) {
+				name = "REMOTE_ORIGINAL";
+			} else if ("LOCAL_USER".equals(name)) {
+				name = "LOCAL_ORIGINAL";
+			} else if ("LOCAL_SESSION".equals(name)) {
+				name = "LOCAL_SESSION_ZIP";
+			}
+
+			return valueOf(name);
+		}
+		
+	}
+	
+	private static final String AT_LEAST_ROWS_CACHENAME = "at-least-rows";
+	public static final int MAX_ROWS_TO_COUNT = 1000; 
+	public static final int MAX_BYTES_TO_COUNT = 100*1024;
+
+	public static final String DATA_NA_INFOTEXT = "Data currently not available";
 	private static final String TEMP_DIR_PREFIX = "chipster";
 	private static final int MAX_FILENAME_LENGTH = 256;
 	private static final Logger logger = Logger.getLogger(DataManager.class);
@@ -60,7 +161,6 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
-	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
@@ -68,11 +168,13 @@ public class DataManager {
 
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
-
-	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
-	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
+	private LinkedList<Module> modules;
 	
-	public DataManager() throws IOException {
+	private ZipContentHandler zipContentHandler = new ZipContentHandler();
+	private LocalFileContentHandler localFileContentHandler = new LocalFileContentHandler();
+	private RemoteContentHandler remoteContentHandler = new RemoteContentHandler();
+	
+	public DataManager() throws Exception {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
 
 		// initialize repository 		
@@ -118,7 +220,7 @@ public class DataManager {
 	 */
 	public DataFolder createFolder(DataFolder root, String name) {
 		DataFolder folder = new DataFolder(this, name);
-		root.addChild(folder); // events are dispatched from here
+		connectChild(folder, root); // events are dispatched from here
 		return folder;
 	}
 
@@ -202,6 +304,7 @@ public class DataManager {
 		File repository = new File(tempRoot, fileName);
 		
 		// if directory with that name already exists, add running number 
+		// this could be replaced with Java 7's Files.createTempDirectory
 		boolean repositoryCreated = false;
 		for (int i = 1;  !repositoryCreated && i < 1000; i++) {
 			repositoryCreated = repository.mkdir();
@@ -333,9 +436,9 @@ public class DataManager {
 	 * @param description a short textual description
 	 * @param extensions file extensions belonging to this type
 	 */
-	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, Icon icon, String... extensions) {
+	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, String iconPath, String... extensions) {
 		// create the content type
-		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, icon, extensions));
+		contentTypes.put(mimeType, new ContentType(mimeType, supported, binary, description, iconPath, extensions));
 		
 		
 		// add extensions to search map
@@ -416,7 +519,6 @@ public class DataManager {
 		// no match found
 		return null;
 	}
-
 	
 	/**
 	 * Find and return the first DataBean with the given name.
@@ -454,92 +556,87 @@ public class DataManager {
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name) throws MicroarrayException {
-		File contentFile;
+	public DataBean createLocalTempDataBean(String name) throws MicroarrayException {
 		try {
-			contentFile = createNewRepositoryFile(name);
-		} catch (IOException e) {
+			File contentFile = createNewRepositoryFile(name);
+			DataBean bean = createDataBean(name);
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());
+			return bean;
+
+		} catch (IOException | ContentLengthException e) {
 			throw new MicroarrayException(e);
 		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * Create a local temporary file DataBean with content, without a parent 
-	 * folder and without sources. If a reference to this bean
-	 * is lost it can not be accessed any more.
-	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
-		return createDataBean(name, content, null, new DataBean[] {});
-	}
-
-	/**
-	 * Create a local file DataBean.
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * For now, only file URLs are supported.
-	 * 
-	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
-		File contentFile;
-		try {
-			contentFile = new File(url.toURI());
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not convert " + url + " to a file");
-		}
-		
-		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
-	 * be found using the zipEntryName.
-	 * 
-	 * @param name
-	 * @param zipFile
-	 * @param zipEntryName
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
-		URL url;
-		try {
-			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-
-	/**
-	 * Create a zip file DataBean. Bean contents are already in the zipFile.
-	 * 
-	 * @param name
-	 * @param url location of the zip file, zip entry name as the fragment
-	 * @return
-	 * @throws MicroarrayException
-	 */
-	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
 	}
 
 	
 	/**
-	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
+	 * Creates new DataBean. Infers content type of the created DataBean from the name.
+	 * 
+	 * @param name name of the DataBean
+	 * @return new DataBean that is not connected to a DataFolder
 	 */
-	private DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	public DataBean createDataBean(String name) throws MicroarrayException {
+		DataBean data = new DataBean(name, guessContentType(name), this);
+		return data;
+	}
+
+	/**
+	 * Convenience method for creating a filebroker DataBean. Infers content type of the created DataBean from the name and
+	 * tries to get the content length of the file from filebroker.
+	 * 
+	 * @param name name of the DataBean
+	 * @param updateContentLength 
+	 * @return new DataBean that is not connected to a DataFolder
+	 */
+	public DataBean createDataBean(String name, String dataId, boolean updateContentLength) throws MicroarrayException {
+		DataBean data = new DataBean(name, guessContentType(name), this, dataId);
+		if (updateContentLength) {
+			/* Update content length. Usually it is updated when content location 
+			 * is added, but filebroker is not a content location.  
+			 */
+			getContentLength(data);
+		}
+		return data;
+	}
+	
+	/**
+	 * Convenience method for creating a local file DataBean. Initialises the DataBean with local file
+	 * location. The file is used directly, the contents are not copied anywhere.
+	 * 
+	 */
+	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
+		try {
+			DataBean bean = createDataBean(name);
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_ORIGINAL, contentFile.toURI().toURL());
+			return bean;
+			
+		} catch (IOException | ContentLengthException e) {
+			throw new MicroarrayException(e);
+		}
+	}
+	
+	/**
+	 * Convenience method for creating a remote url DataBean. Initialises the DataBean with the url
+	 * location. The url is used directly, the contents are not copied anywhere.
+	 * 
+	 */
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException {		
+		DataBean bean = createDataBean(name);
+		try {
+			addContentLocationForDataBean(bean, StorageMethod.REMOTE_ORIGINAL, url);
+		} catch (ContentLengthException e) {
+			// shouldn't happen, because newly created bean doesn't have size set
+			logger.error(e,e);
+		}
+		return bean;
+	}
+	
+	/**
+	 * Convenience method for creating a local temporary file DataBean with content.
+	 * Content stream is read into a temp file and location of the file is stored
+	 * to DataBean.
+	 */
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -556,130 +653,17 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, StorageMethod.LOCAL_TEMP, folder, sources, contentFile);
-		return bean;
-	}
-	
-
-	/**
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	private DataBean createDataBean(String name, StorageMethod type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
-		URL url;
-		try {
-			 url = contentFile.toURI().toURL();
+		DataBean bean = createDataBean(name);
+		try {			
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, contentFile.toURI().toURL());			
 		} catch (MalformedURLException e) {
 			throw new MicroarrayException(e);
+		} catch (ContentLengthException e) {
+			// shouldn't happen, because newly created bean doesn't have size set
+			logger.error(e,e);
 		}
-		
-		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, localFileDataBeanHandler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-	
-	
-	/**
-	 * Load session from a file.
-	 * 
-	 * @see #saveSession(File, ClientApplication)
-	 */
-	public void loadSession(File sessionFile, LoadMethod loadMethod) {
-		SessionLoader sessionLoader;
-		try {
-			sessionLoader = new SessionLoader(sessionFile, loadMethod, this);
-			sessionLoader.loadSession();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			logger.error("loading session failed", e);
-		}
-	}
-
-	/**
-	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
-	 * File is a zip file with all the data files and one metadata file.
-	 * 
-	 * @return true if the session was saved perfectly
-	 */
-	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		boolean metadataValid = false;
-		try {
-			// save
-			metadataValid = sessionSaver.saveSession();
-		} catch (Exception e) {
-			// save failed, warn about it
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		}
-
-		// check validation, warn if not valid, return false
-		if (!metadataValid) {
-			// save was successful but metadata validation failed, warn about it
-			String validationDetails = sessionSaver.getValidationErrors();
-			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		}
-
-		return true;
-	}
-
-	
-	/**
-	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
-	 * Does not save actual data inside databeans.
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveLightweightSession(File sessionFile) throws Exception {
-
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		sessionSaver.saveLightweightSession();
-	}
-
-	
-	/**
-	 * The same as saveLightweightSession(), but before saving the session, makes sure
-	 * that all data bean contents have been uploaded to cache. Uploads in necessary.
-	 * 
-	 * @return true if the session was saved perfectly
-	 * @throws Exception 
-	 */
-	public void saveFeedbackSession(File sessionFile) throws Exception {
-	
-		// upload beans to cache if necessary
-		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-		for (DataBean bean : this.databeans()) {
-			try {
-				bean.getLock().readLock().lock();
-
-				// bean modified, upload
-				if (bean.isContentChanged()) {
-					bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null)); 
-					bean.setContentChanged(false);
-				} 
-
-				// bean not modified, check cache, upload if needed
-				else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-					bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), bean.getContentLength(), null));
-				}
-
-			} finally {
-				bean.getLock().readLock().unlock();
-			}
-		
-		}
-
-		// save lightweight session
-		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
-		sessionSaver.saveLightweightSession();
-	}
-
-	
-	
-	
+		return bean;
+	}	
 	
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
@@ -729,7 +713,7 @@ public class DataManager {
 		// remove bean
 		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(bean);
+			disconnectChild(bean, folder);
 		}
 		
 		// remove physical file
@@ -770,33 +754,137 @@ public class DataManager {
 		return folders;
 	}
 
-	/**
-	 * FIXME add locking
-	 * 
-	 * @param bean
-	 * @return
-	 * @throws IOException 
-	 */
-	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
-
-		bean.setContentChanged(true);
+	public ChecksumInputStream getContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {		
 		
-		// Only local temp beans support output, so convert to local temp bean if needed
-		if (!bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
-			this.convertToLocalTempDataBean(bean);
+		/* It's convenient to return a ChecksumInputStream, because it transparently handles situation of disabled 
+		 * checksum calculation. Method getContentStreamImpl creates many types of streams, so wrap a ChecksumInputStream
+		 * around the returned stream if necessary. 
+		 */
+		InputStream baseStream  = getBaseContentStream(bean, naHandling);
+		
+		if (baseStream instanceof ChecksumInputStream) {
+			// JMSFileBrokerClient enables checksum calculation by default 			
+			return (ChecksumInputStream) baseStream;
+		} else if (baseStream == null) {
+			return null;
+		} else {
+			/* Disable checksum calculation for other streams (local copies etc.), 
+			 * because of supposed performance implications. Nevertheless, enabling
+			 * might work as well and would provide more thorough data integrity check.
+			 */
+			return new ChecksumInputStream(baseStream, false);
+		}
+	}
+		
+	private InputStream getBaseContentStream(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
+
+		// try local content locations first
+		ContentLocation location = getClosestContentLocation(bean);
+		
+		
+		if (location != null) {
+			
+			// local available TODO maybe check if it really is available
+			return location.getHandler().getInputStream(location);
+		 
+		} 
+		
+		// try from filebroker
+		Exception remoteException;
+		try {
+			return Session.getSession().getServiceAccessor().getFileBrokerClient().getInputStream(bean.getId());
+		} catch (Exception e) {
+			remoteException = e;
 		}
 		
-		return bean.getHandler().getOutputStream(bean);
+		// not available
+		switch (naHandling) {
+		case EMPTY_ON_NA:
+			return new ByteArrayInputStream(new byte[] {});
+
+		case INFOTEXT_ON_NA:
+			return new ByteArrayInputStream(DATA_NA_INFOTEXT.getBytes());
+
+		case NULL_ON_NA:
+			return null;
+
+		default:
+			String message = "data contents not available";
+			if (remoteException != null) {
+				message += ": " + remoteException.getMessage(); 
+			}
+			throw new RuntimeException(message, remoteException);	
+		}
+
+	}
+
+	
+	/**
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array. Returns null if none of the content locations are available. 
+	 * 
+	 * @throws IOException 
+	 * 
+	 * @see #getContentStream()
+	 */
+	public byte[] getContentBytes(DataBean bean, DataNotAvailableHandling naHandling) throws IOException {
+		return getContentBytes(bean, -1, naHandling); // -1 means "no max length"
 	}
 
 	/**
-	 * FIXME locks
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array. Gathers only maxLength first bytes. Returns null if 
+	 * none of the content locations are available. 
 	 * 
-	 * @param bean
-	 * @param out
-	 * @throws MicroarrayException
-	 * @throws IOException
+	 * @throws IOException 
+	 * 
+	 * @see #getContentStream()
 	 */
+	public byte[] getContentBytes(DataBean bean, long maxLength, DataNotAvailableHandling naHandling) throws IOException {
+		
+		InputStream in = null;
+		try {
+			in = getContentStream(bean, naHandling);
+			if (in != null) {
+				return Files.inputStreamToBytes(in, maxLength);
+				
+			} else {
+				return null;
+			}
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+
+	
+	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+
+		// only local temp beans support output, so convert to local temp bean if needed
+		ContentLocation tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		if (tempLocalLocation == null) {
+			this.convertToLocalTempDataBean(bean);			
+			tempLocalLocation = bean.getContentLocation(StorageMethod.LOCAL_TEMP);
+		}
+
+		// remove all other locations, as they will become obsolete when OutputStream is written to
+		while (bean.getContentLocations().size() > 1) {
+			for (ContentLocation location : bean.getContentLocations()) {
+				if (location != tempLocalLocation) {
+					bean.removeContentLocation(location);
+					break; // remove outside of the iterator, cannot continue 
+				}
+			}
+		}
+		
+		// change data id
+		bean.setId(CryptoKey.generateRandom());
+		bean.setChecksum(null);
+		bean.setSize(null);
+		
+		return tempLocalLocation.getHandler().getOutputStream(tempLocalLocation); 
+	}
+
 	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
 			throws MicroarrayException, IOException {
 		try {
@@ -809,38 +897,104 @@ public class DataManager {
 	}
 
 	public File getLocalFile(DataBean bean) throws IOException {
+		
+		ContentLocation location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
+		
 		// convert non local file beans to local file beans
-		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
+		if (location == null) {
 			this.convertToLocalTempDataBean(bean);
+			location = bean.getContentLocation(StorageMethod.LOCAL_FILE_METHODS);
 		}
 		
 		// get the file
-		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler) bean.getHandler();
-		return handler.getFile(bean);
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
+	}
+	
+	/**
+	 * Get a local file with random access support, in practice a temp file. If random access support 
+	 * isn't really needed, please use method getLocalFile().
+	 * 
+	 * 
+	 * @param bean
+	 * @return
+	 * @throws IOException
+	 */
+	public File getLocalRandomAccessFile(DataBean bean) throws IOException {
+		
+		//Check if there is a suitable location already
+		ContentLocation location = getClosestRandomAccessContentLocation(bean);		
+		if (location == null || !location.getMethod().isLocal()) {
+			//Closest random access location isn't local, make a local copy (temp files do support random access)
+			this.convertToLocalTempDataBean(bean);
+		}
+				
+		//Now this is a local random access copy
+		location = getClosestRandomAccessContentLocation(bean);
+		
+		// get the file
+		LocalFileContentHandler handler = (LocalFileContentHandler) location.getHandler();
+		return handler.getFile(location);
+	}
+
+	
+	/**
+	 * <p>Returns content size in bytes. Returns -1 if 
+	 * data is not available.</p>
+	 * 
+	 * <p>Size reported by content location is stored in DataBean in
+	 * read from there when possible.</p>
+	 */
+	public Long getContentLength(DataBean bean) {
+		if (bean.getSize() == null) {
+			try {
+				ContentLocation location = getClosestContentLocation(bean);
+				if (location != null) {
+					bean.setSize(getContentLength(location));
+				} else {
+					Long size = Session.getSession().getServiceAccessor().getFileBrokerClient().getContentLength(bean.getId());
+					if (size != null) {
+						bean.setSize(size);
+					} else {
+						return -1l;
+					}
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return bean.getSize();
+	}
+	
+	public Long getContentLength(ContentLocation location) throws IOException {
+		return location.getHandler().getContentLength(location);
 	}
 	
 	
 	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
-		// FIXME lock bean
 		
-		// TODO think about that name
-		// copy contents to new file
-		File newFile = this.createNewRepositoryFile(bean.getName());
-		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-		BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
 		try {
-			IOUtils.copy(in, out);
-		} finally {
-			IOUtils.closeIfPossible(in);
-			IOUtils.closeIfPossible(out);
+			// copy contents to new file
+			File newFile = this.createNewRepositoryFile(bean.getName());
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+			ChecksumInputStream inputStream = getContentStream(bean, DataNotAvailableHandling.EXCEPTION_ON_NA);
+			BufferedInputStream in = new BufferedInputStream(inputStream);
+			try {
+				IOUtils.copy(in, out);
+
+				setOrVerifyChecksum(bean, inputStream.verifyChecksums());
+			} finally {
+				IOUtils.closeIfPossible(in);
+				IOUtils.closeIfPossible(out);
+			}
+
+			// update url, type and handler in the bean
+			URL newURL = newFile.toURI().toURL();
+			addContentLocationForDataBean(bean, StorageMethod.LOCAL_TEMP, newURL);
+		} catch (ChecksumException | ContentLengthException e) {
+			// corrupted data  
+			throw new IOException();
 		}
-		// update url, type and handler in the bean
-		URL newURL = newFile.toURI().toURL();
-		
-		bean.setContentUrl(newURL);
-		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
-		bean.setHandler(localFileDataBeanHandler);
-		bean.setContentChanged(true);
 	}
 	
 	
@@ -863,7 +1017,7 @@ public class DataManager {
 		// remove this folder (unless root)
 		DataFolder parent = folder.getParent();
 		if (parent != null) {
-			parent.removeChild(folder);
+			disconnectChild(folder, parent);
 		}
 	}
 	
@@ -879,14 +1033,6 @@ public class DataManager {
 				return npf;
 			}
 		}
-	}
-
-	public void plugTypeTag(TypeTag typeTag) {
-		this.tagMap.put(typeTag.getName(), typeTag);
-	}
-	
-	public TypeTag getTypeTag(String name) {
-		return this.tagMap.get(name);
 	}
 
 	public Iterable<File> listAllRepositories() {
@@ -911,10 +1057,383 @@ public class DataManager {
 	}
 
 	public void flushSession() {
-		zipDataBeanHandler.closeZipFiles();
+		zipContentHandler.closeZipFiles();
+	}
+
+	public void setModules(LinkedList<Module> modules) {
+		this.modules = modules;
 	}
 	
-	public ZipDataBeanHandler getZipDataBeanHandler() {
-		return this.zipDataBeanHandler;
+	public void connectChild(DataItem child, DataFolder parent) {
+		
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+
+		// connect to this
+		child.setParent(parent);
+
+		// add
+		parent.children.add(child);
+
+		// add type tags to data beans
+		if (child instanceof DataBean) {
+			try {
+				addTypeTags((DataBean) child);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// dispatch events if needed
+		if (!wasConnected) {
+			dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void disconnectChild(DataItem child, DataFolder parent) {
+		// remove connections
+		child.setParent(null);
+
+		// remove
+		parent.children.remove(child);
+
+		// dispatch events
+		dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+
+	public void addTypeTags(DataBean data) throws IOException {
+
+		if (!data.isTagsSet()) {
+			for (Module module : modules) {
+				try {
+					module.addTypeTags(data);
+
+				} catch (MicroarrayException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		data.setTagsSet(true);
+	}
+	
+	/**
+	 * Returns the handler instance of a given StorageMethod. Handler instances are DataManager specific.
+	 */
+	private ContentHandler getHandlerFor(StorageMethod method) {
+		switch (method) {
+		
+		case LOCAL_SESSION_ZIP:
+			return zipContentHandler;
+
+		case LOCAL_TEMP:
+		case LOCAL_ORIGINAL:
+			return localFileContentHandler;
+					
+		case REMOTE_ORIGINAL:
+			return remoteContentHandler;
+			
+		default:
+			throw new IllegalArgumentException("unrecognised method: " + method);	
+		
+		}
+	}
+	
+	public void addContentLocationForDataBean(DataBean bean, StorageMethod method, URL url) throws ContentLengthException {
+		ContentLocation location = new ContentLocation(method, getHandlerFor(method), url);
+		try {
+			setOrVerifyContentLength(bean, getContentLength(location));
+		} catch (IOException e) {
+			logger.error("content length not available: " + e);
+		} catch (ContentLengthException e) {
+			try {
+				DataManager manager = Session.getSession().getDataManager();
+				String msg;
+				msg = "Wrong content length for dataset " + bean.getName() + ". "
+						+ " In ContentLocation " + location.getUrl() +  ", length is " + getContentLength(location) + " bytes. ";
+				msg += "Content locations: ";
+				for (ContentLocation loc : manager.getContentLocationsForDataBeanSaving(bean)) {
+					msg += loc.getUrl() + " " + manager.getContentLength(loc) + " bytes, ";
+				}
+				throw new ContentLengthException(msg);
+			} catch (IOException e1) {
+				logger.error("another exception while handling " + Exceptions.getStackTrace(e), e);
+			}					
+		}
+		bean.addContentLocation(location);
+		
+	}
+
+	/**
+	 * Get ContentLocations for DataBean. Only needed when saving a session.
+	 * @param bean
+	 */
+	public List<ContentLocation> getContentLocationsForDataBeanSaving(DataBean bean) {
+		return bean.getContentLocations();
+	}
+
+	
+	public boolean uploadToStorageIfNeeded(DataBean bean) throws Exception {
+
+		// check if already in storage
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.STORAGE)) {
+			return true;
+		}
+		
+		// move from cache if possible
+		if (Session.getSession().getServiceAccessor().getFileBrokerClient().moveFromCacheToStorage(bean.getId())) {
+			return true;
+		}
+				
+		// upload
+		return upload(bean, FileBrokerArea.STORAGE, null);		
+	}
+	
+	/**
+	 * 
+	 * @param bean
+	 * @param progressListener
+	 * @return 
+	 * @throws NotEnoughDiskSpaceException
+	 * @throws FileBrokerException
+	 * @throws JMSException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public boolean uploadToCacheIfNeeded(DataBean bean, CopyProgressListener progressListener) throws NotEnoughDiskSpaceException, FileBrokerException, JMSException, IOException, Exception {
+		
+		try {
+			bean.getLock().readLock().lock();
+
+			// upload only if not already available in cache or storage
+			if (Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.CACHE) ||
+				Session.getSession().getServiceAccessor().getFileBrokerClient().isAvailable(bean.getId(), bean.getSize(), bean.getChecksum(), FileBrokerArea.STORAGE)) {
+				return false;
+			}
+			
+			// need to upload
+			return upload(bean, FileBrokerArea.CACHE, progressListener);
+
+		} finally {
+			bean.getLock().readLock().unlock();
+		}
+	}
+
+	private boolean upload(DataBean dataBean, FileBrokerArea area, CopyProgressListener progressListener) throws Exception {
+		// check if content is still available
+		if (dataBean.getContentLocations().size() == 0) {
+			return false;
+		}
+		
+		// try to upload
+		try {
+			String checksum = Session.getSession().getServiceAccessor().getFileBrokerClient().addFile(
+					dataBean.getId(), 
+					area, 
+					getContentStream(dataBean, DataNotAvailableHandling.EXCEPTION_ON_NA), 
+					getContentLength(dataBean), 
+					progressListener);
+			
+			setOrVerifyChecksum(dataBean, checksum);
+
+		} catch (Exception e) {
+			logger.warn("could not upload data: " + dataBean.getName(), e);
+			throw e;
+		}
+		return true;
+	}
+
+	/**
+	 * Do the appropriate operation with checksum regardless of dataBean's state. When dataBean
+	 * doesn't yet have checksum we can only set it. If checksum exists already, it must equal with 
+	 * the given checksum or CheckusmException is thrown.
+	 * 
+	 * @param dataBean
+	 * @param checksum
+	 * @throws ChecksumException
+	 */
+	public void setOrVerifyChecksum(DataBean dataBean, String checksum)
+			throws ChecksumException {
+		if (checksum != null) {
+			if (dataBean.getChecksum() == null) {
+				dataBean.setChecksum(checksum);
+			} else {
+				if (!checksum.equals(dataBean.getChecksum())) {
+					throw new ChecksumException();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Do the appropriate operation with content length regardless of dataBean's state. When dataBean
+	 * doesn't yet have content length we can only set it. If content length exists already, it must equal with 
+	 * the given content length or ContentLengthException is thrown.
+	 * 
+	 * @param dataBean
+	 * @param checksum
+	 * @throws ContentLengthException
+	 */
+	public void setOrVerifyContentLength(DataBean dataBean, Long contentLength)
+			throws ContentLengthException {
+		if (contentLength != null) {
+			if (dataBean.getSize() == null) {
+				dataBean.setSize(contentLength);
+			} else {
+				if (!contentLength.equals(dataBean.getSize())) {
+					throw new ContentLengthException();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the ContentLocation that is likely to be the fastest available and 
+	 * supports random access. 
+	 * All returned ContentLocations are checked to be accessible. Returns null
+	 * if none of the locations are accessible.
+	 */
+	public ContentLocation getClosestRandomAccessContentLocation(DataBean bean) {
+
+		List<ContentLocation> closestContentLocations = getClosestContentLocationList(bean);
+			
+		for (ContentLocation contentLocation : closestContentLocations) {
+			if (contentLocation != null && contentLocation.method.isRandomAccess() && isAccessible(contentLocation)) {
+				return contentLocation;
+			}
+		}
+
+		// nothing was accessible
+		return null;
+	}
+	
+	/**
+	 * Returns the ContentLocation that is likely to be the fastest available. 
+	 * All returned ContentLocations are checked to be accessible. Returns null
+	 * if none of the locations are accessible.
+	 */
+	private ContentLocation getClosestContentLocation(DataBean bean) {
+
+		List<ContentLocation> closestContentLocations = getClosestContentLocationList(bean);
+			
+		for (ContentLocation contentLocation : closestContentLocations) {
+			if (contentLocation != null && isAccessible(contentLocation)) {
+				return contentLocation;
+			}
+		}
+
+		// nothing was accessible
+		return null;
+	}
+
+	
+	private List<ContentLocation> getClosestContentLocationList(DataBean bean) {
+		
+		List<ContentLocation> closestLocations = new LinkedList<ContentLocation>();
+
+		closestLocations.addAll(bean.getContentLocations(StorageMethod.LOCAL_FILE_METHODS));
+		closestLocations.addAll(bean.getContentLocations(StorageMethod.REMOTE_FILE_METHODS));
+		closestLocations.addAll(bean.getContentLocations(StorageMethod.OTHER_SLOW_METHODS));
+
+		return closestLocations;
+	}
+
+
+	private boolean isAccessible(ContentLocation location) {
+		return location.getHandler().isAccessible(location);
+	}
+
+	/**
+	 * Optimization to speed up session loading
+	 * 
+	 * Normally TypeTags are added when a DataBean is put to a folder and
+	 * content length may be queried from filebroker when the DataBean is
+	 * created. All this happens sequentially and takes some time when many
+	 * DataBeans are created at once. This method does the aforementioned
+	 * queries in parallel.
+	 * 
+	 * Parallel processing needs some caution though. Each DataBean has its own
+	 * thread and must modify only its own tag list. Otherwise it should be safe
+	 * to read from DataBeans and Operations and there should be no need to
+	 * modify them. This creates also concurrent calls to JMSFileBrokerClient,
+	 * which is illegal according to JMS spec, but has been working ok in
+	 * ActiveMQ.
+	 * 
+	 * @param dataBeans
+	 */
+	public void addTypeTagsAndVerifyContentLength(Collection<DataBean> dataBeans) {
+
+		ArrayList<InitDataBeanCallable> callables = new ArrayList<>();
+		for (DataBean dataBean : dataBeans) {
+			callables.add(new InitDataBeanCallable(dataBean));
+		}
+				
+		ExecutorService executor = Executors.newCachedThreadPool();
+		try {
+			// run callables and wait until all have finished
+			List<Future<Object>> futures = executor.invokeAll(callables);
+			
+			for (Future<Object> future : futures) {
+				// check callable for exception, and throw if found
+				future.get();
+			}
+			
+		} catch (InterruptedException | ExecutionException e) {
+			Session.getSession().getApplication().reportExceptionThreadSafely(e);
+		}
+	}
+	
+	public class InitDataBeanCallable implements Callable<Object> {
+
+		private DataBean dataBean;
+
+		public InitDataBeanCallable(DataBean dataBean) {
+			this.dataBean = dataBean;
+		}
+
+		@Override
+		public Object call() throws Exception {
+			try {
+				Long size = getContentLength(dataBean);
+				setOrVerifyContentLength(dataBean, size);
+				addTypeTags(dataBean);
+			} catch (IOException | ContentLengthException e) {
+				Session.getSession().getApplication().reportExceptionThreadSafely(e);
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Get a approximate row count of files under MAX_BYTES_TO_COUNT in size.
+	 * If there are more than MAX_ROWS_TO_COUNT, this number is returned. 
+	 * 
+	 * @param data
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public Long getFastRowCount(DataBean data) throws MicroarrayException {
+		if (getContentLength(data) < MAX_BYTES_TO_COUNT && 			
+				(data.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || 
+						data.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES) || 
+						data.hasTypeTag(MicroarrayModule.TypeTags.PHENODATA))) {
+			
+			// check if rows are counted already 
+			Long cachedCount = (Long)data.getFromContentBoundCache(AT_LEAST_ROWS_CACHENAME);
+			if (cachedCount != null) {
+				return cachedCount; 
+
+			} else {
+				// count rows
+				Table rowCounter = data.queryFeatures("/column/*").asTable();
+				long rowCount = 0;
+				while (rowCounter != null && rowCounter.nextRow() && rowCount < MAX_ROWS_TO_COUNT) {
+					rowCount++;
+				}
+				data.putToContentBoundCache(AT_LEAST_ROWS_CACHENAME, (Long)rowCount);
+				return rowCount;
+			}			
+		}
+		return null;
 	}
 }

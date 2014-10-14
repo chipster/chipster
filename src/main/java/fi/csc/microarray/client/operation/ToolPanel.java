@@ -40,8 +40,8 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
@@ -86,7 +86,8 @@ public class ToolPanel extends JPanel
 	private JPanel operationCardPanel;
 	private LinkedList<ToolSelectorPanel> operationChoicePanels = new LinkedList<ToolSelectorPanel>();
 	private ToolFilterPanel toolFilterPanel;
-	private JTextField searchField;
+	// make sure this is initialized when the tool tip is set in method setSearchFieldToolTipText()
+	private JTextField searchField = new JTextField(18);;
 	private JButton clearSearchButton;
 	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
@@ -103,7 +104,7 @@ public class ToolPanel extends JPanel
 	private Operation currentOperation = null;
 
 	private LinkedList<ToolModule> toolModules;	
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	
@@ -170,14 +171,15 @@ public class ToolPanel extends JPanel
 				
 		parametersButton.addActionListener(this);
 		parametersButton.setEnabled(false);
-		parametersButton.setText(SHOW_PARAMETERS_TEXT);				
-
-		suitabilityLabel.setPreferredSize(new Dimension(
-				VisualConstants.INCOMPATIBLE_ICON.getIconHeight(),
-				VisualConstants.INCOMPATIBLE_ICON.getIconHeight()));		
+		parametersButton.setText(SHOW_PARAMETERS_TEXT);
 		
-		executeButton.setIcon(VisualConstants.DOUBLE_FORWARD_ICON);
-		executeButton.setDisabledIcon(VisualConstants.DOUBLE_FORWARD_BW_ICON);
+		int suitabilityLabelSize = VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON).getIconHeight();
+
+		suitabilityLabel.setPreferredSize(
+				new Dimension(suitabilityLabelSize, suitabilityLabelSize));		
+		
+		executeButton.setIcon(VisualConstants.getIcon(VisualConstants.DOUBLE_FORWARD_ICON));
+		executeButton.setDisabledIcon(VisualConstants.getIcon(VisualConstants.DOUBLE_FORWARD_BW_ICON));
 		executeButton.setText("<html><b>Run</b></html>");
 		executeButton.setHorizontalAlignment(SwingConstants.CENTER);
 		executeButton.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -192,7 +194,6 @@ public class ToolPanel extends JPanel
 	    // search panel contents
         
         // Text field
-        searchField = new JTextField(18);
         searchField.setMinimumSize(searchField.getPreferredSize());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -213,7 +214,7 @@ public class ToolPanel extends JPanel
         });
 
         // clear button in the search field
-        clearSearchButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        clearSearchButton = new JButton(VisualConstants.getIcon(VisualConstants.CLOSE_FILE_ICON));
         clearSearchButton.setFocusPainted(false);
         clearSearchButton.setContentAreaFilled(false);
         clearSearchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -257,7 +258,7 @@ public class ToolPanel extends JPanel
 		g.insets = new Insets(0, 0, 0, 0);
 		g.fill = GridBagConstraints.NONE;
 
-        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON), g);
+        searchPanel.add(new JLabel(VisualConstants.getIcon(VisualConstants.MAGNIFIER_ICON)), g);
 		g.gridx++;
         searchPanel.add(searchField, g);
 		g.gridx++;
@@ -652,15 +653,15 @@ public class ToolPanel extends JPanel
 		
 		Runnability runnability = evaluateRunnability();
 		if (runnability == Runnability.RUNNABLE) {
-			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.SUITABLE_ICON));
 			executeButton.setText("<html><b>Run</b></html>");
 			executeButton.setEnabled(true);
 		} else if (runnability == Runnability.RUNNABLE_AS_BATCH) {
-			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.SUITABLE_ICON));
 			executeButton.setText("<html><b>Run for each</b></html>");
 			executeButton.setEnabled(true);
 		} else {
-			suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
+			suitabilityLabel.setIcon(VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON));
 			executeButton.setText("<html><b>Run</b></html>");
 			executeButton.setEnabled(false);
 		}
@@ -846,4 +847,11 @@ public class ToolPanel extends JPanel
 
 	}
 
+	public void focusSearchField() {
+		searchField.requestFocusInWindow();
+	}
+
+	public void setSearchFieldToolTipText(String text) {
+		searchField.setToolTipText(text);
+	}
 }

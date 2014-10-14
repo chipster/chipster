@@ -33,7 +33,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
-import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.SelectionList;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -52,7 +52,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	protected SelectableChartPanel selectableChartPanel;
 
 	protected JPanel paramPanel;
-	protected AnnotateListPanel list;
+	protected SelectionList list;
 
 	protected JComboBox xBox;
 	protected JComboBox yBox;
@@ -74,7 +74,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			paramPanel.setLayout(new BorderLayout());
 
 			JPanel settings = this.createSettingsPanel();
-			list = new AnnotateListPanel();
+			list = new SelectionList();
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settings);

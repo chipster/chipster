@@ -152,8 +152,11 @@ public class CoverageTrack extends ScaleTrack {
 
 				if (increment > 0) {
 					Color c = GBrowserConstants.charColors[nt.ordinal()];
+					
+					int scaledY = super.getScaledY(y);
+					int scaledIncrement = super.getScaledY(increment);
 
-					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, Color.black));
+					drawables.add(new RectDrawable(endX, scaledY, bpWidth, scaledIncrement, c, Color.black));
 
 					y += increment;
 				}

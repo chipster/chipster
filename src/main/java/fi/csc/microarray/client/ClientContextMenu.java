@@ -18,13 +18,12 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
-import fi.csc.microarray.databeans.DataBean.Link;
 
 /**
  * Context menu for set of selected DataItems.
@@ -95,23 +94,23 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		visualiseMenuItem = new JMenuItem("Visualise");
 		visualiseMenuItem.setFont(this.getFont().deriveFont(Font.BOLD));
 		metadataLinkMenu = new JMenu("Link to phenodata");
-		metadataLinkMenu.setIcon(VisualConstants.LINK_PHENODATA_MENUICON);
+		metadataLinkMenu.setIcon(VisualConstants.getIcon(VisualConstants.LINK_PHENODATA_MENUICON));
 		linksMenu = new JMenu("Links between selected");
 		linkToMenu = new JMenu("Link");
-		linkToMenu.setIcon(VisualConstants.LINK_MENUICON);
+		linkToMenu.setIcon(VisualConstants.getIcon(VisualConstants.LINK_MENUICON));
 		linksMenu.add(linkToMenu);
 		unlinkMenu = new JMenu("Unlink");
-		unlinkMenu.setIcon(VisualConstants.UNLINK_MENUICON);
+		unlinkMenu.setIcon(VisualConstants.getIcon(VisualConstants.UNLINK_MENUICON));
 		linksMenu.add(unlinkMenu);
 
 		renameMenuItem = new JMenuItem("Rename");
 		deleteMenuItem = new JMenuItem("Delete");
-		deleteMenuItem.setIcon(VisualConstants.DELETE_MENUICON);
+		deleteMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.DELETE_MENUICON));
 		importMenuItem = new JMenuItem("Import files...");
 		exportMenuItem = new JMenuItem("Export...");
-		exportMenuItem.setIcon(VisualConstants.EXPORT_MENUICON);
+		exportMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.EXPORT_MENUICON));
 		historyMenuItem = new JMenuItem("View history as text");
-		historyMenuItem.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
+		historyMenuItem.setIcon(VisualConstants.getIcon(VisualConstants.GENERATE_HISTORY_ICON));
 		saveWorkflowItem = new JMenuItem("Save workflow");
 		
 		
@@ -302,7 +301,8 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			application.visualiseWithBestMethod(FrameType.MAIN);
 
 		} else if (source == renameMenuItem) {
-			new RenameDialog(application, this.selectedItem);
+			
+			application.showRenameView();
 
 		} else if (source == deleteMenuItem) {
 			if (selectedItem instanceof DataFolder) {

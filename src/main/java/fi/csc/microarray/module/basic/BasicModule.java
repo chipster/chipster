@@ -2,25 +2,27 @@ package fi.csc.microarray.module.basic;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.IntegratedEntity;
-import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.DataDetails;
+import fi.csc.microarray.client.visualisation.methods.EmptyVisualisation;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
 import fi.csc.microarray.client.visualisation.methods.PDFViewer;
+import fi.csc.microarray.client.visualisation.methods.SessionDetails;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.constants.VisualConstants;
@@ -33,9 +35,9 @@ import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
 import fi.csc.microarray.databeans.features.table.HeaderProvider;
-import fi.csc.microarray.databeans.features.table.RowCountProvider;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.DbSession;
 import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
@@ -47,13 +49,16 @@ public class BasicModule implements Module {
 		public static final TypeTag PHENODATA = new TypeTag("phenodata", "phenodata table");
 	}
 	
-	public static class VisualisationMethods {		
-		public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0002);
-		public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
-		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
-		public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
+	public static class VisualisationMethods {
+		public static VisualisationMethod EMPTY = new VisualisationMethod("Empty", EmptyVisualisation.class, VisualConstants.TEXT_MENUICON, 1000, 0);
+		public static VisualisationMethod DATA_DETAILS = new VisualisationMethod("Dataset", DataDetails.class, VisualConstants.TEXT_MENUICON, 110, 0);
+		public static VisualisationMethod SESSION_DETAILS = new VisualisationMethod("Dataset", SessionDetails.class, VisualConstants.TEXT_MENUICON, 110, 0);
+		public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 100, 0.0002);
+		public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 100, 0.015); 
+		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 100, 0.008); 
+		public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.PDF_MENUICON, 100, 0);
 		public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
-		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, -1, -1);
+		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EXT_BROWSER_MENUICON, 1, -1);
 	}
 	
 	public void plugContentTypes(DataManager manager) {
@@ -99,7 +104,6 @@ public class BasicModule implements Module {
 		manager.plugFeatureFactory("/phenodata", new PhenodataProvider()); // FIXME should be in microarray module, but phenodata checks must be fixed first
 		manager.plugFeatureFactory("/column", new TableColumnProvider());
 		manager.plugFeatureFactory("/header", new HeaderProvider());
-		manager.plugFeatureFactory("/rowcount", new RowCountProvider());
 	}
 
 	@Override
@@ -107,11 +111,6 @@ public class BasicModule implements Module {
 		manager.plugModifier("log", new LogModifier());
 		manager.plugModifier("neg", new NegModifier());
 		manager.plugModifier("restrict", new RestrictModifier());
-	}
-
-	@Override
-	public void plugTypeTags(DataManager manager) {
-		manager.plugTypeTag(TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 
 	@Override
@@ -128,7 +127,8 @@ public class BasicModule implements Module {
 	public VisualisationMethod[] getVisualisationMethods() {
 		
 		return new VisualisationMethod[] {
-				VisualisationMethod.NONE,
+				//VisualisationMethod.NONE,
+				//VisualisationMethods.DATA_DETAILS,
 				VisualisationMethods.SPREADSHEET,
 				VisualisationMethods.SHOW_IMAGE, 
 				VisualisationMethods.WEBVIEW, 
@@ -139,8 +139,8 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public URL[] getExampleSessionUrls(boolean isStandalone) throws MalformedURLException {
-		return null;
+	public List<DbSession> getExampleSessions(boolean isStandalone) throws MalformedURLException {
+		return new ArrayList<DbSession>();
 	}
 
 	@Override
@@ -179,6 +179,11 @@ public class BasicModule implements Module {
 	}
 
 	@Override
+	public boolean countOperationResults() {
+		return true;
+	}
+
+	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}
@@ -199,11 +204,6 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
-		// do nothing
-	}
-
-	@Override
 	public List<Boolean> flagLinkableColumns(Table columns, DataBean data) {
 		return Collections.nCopies(columns.getColumnCount(), false);
 	}
@@ -211,5 +211,18 @@ public class BasicModule implements Module {
 	@Override
 	public IntegratedEntity createLinkableEntity(Table columns, DataBean data) {
 		return null;
+	}
+
+	@Override
+	public void addTypeTags(DataBean data) {
+
+		if (data.isContentTypeCompatitible("text/tab", "text/csv")) {
+			data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+		}
+	}
+
+	@Override
+	public Icon getIconFor(DataBean data) {
+		return data.getContentType().getIcon();
 	}
 }

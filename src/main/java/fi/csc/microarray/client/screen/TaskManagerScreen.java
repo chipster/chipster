@@ -29,14 +29,12 @@ import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
-
 import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.hyperlink.LinkModel;
 import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.tasks.Task;
@@ -53,7 +51,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 
 	private static Logger logger = Logger.getLogger(TaskManagerScreen.class);
 
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 
 	private Dimension BUTTON_SIZE = new Dimension(120,22);
 	private JFrame frame = new JFrame("Tasks");
@@ -114,13 +112,13 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			if (col == Column.ICON) { 
 				if (tasks.get(row).getState().isFinished()) {
 					if (tasks.get(row).getState().finishedSuccesfully()) {
-						return VisualConstants.SUITABLE_ICON;
+						return VisualConstants.getIcon(VisualConstants.SUITABLE_ICON);
 					} else {
-						return VisualConstants.INCOMPATIBLE_ICON;
+						return VisualConstants.getIcon(VisualConstants.INCOMPATIBLE_ICON);
 					}
 				} else {
-					VisualConstants.RUNNING_ICON.setImageObserver(table);
-					return VisualConstants.RUNNING_ICON;
+					VisualConstants.getIcon(VisualConstants.RUNNING_ICON).setImageObserver(table);
+					return VisualConstants.getIcon(VisualConstants.RUNNING_ICON);
 					
 				}
 				

@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Timer;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.Test;
+import org.junit.Test;
 
 public class FileCleanUpTest {
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testCleanUp() throws IOException {
 		Timer t = new Timer(true);
 		t.schedule(new FileCleanUpTimerTask(File.createTempFile("test", ""), 60*1000), 0, 1000);
@@ -20,7 +20,7 @@ public class FileCleanUpTest {
 	}
 	
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void listFilesSortByDate() throws IOException {
 		List<File> files = Files.listFilesRecursivelySortByDateOldestFirst(new File("/home/hupponen/Documents"));
 		for (File file : files) {
@@ -29,7 +29,7 @@ public class FileCleanUpTest {
 	}
 
 	
-	@Test(groups = {"unit"} )
+	@Test
 	public void makeSpace() throws IOException {
 		File f = new File("/home/hupponen");
 		System.out.println(Files.partitionHasUsableSpacePercentage(f, 27));

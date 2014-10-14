@@ -43,8 +43,8 @@ import org.jgraph.graph.VertexView;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.dataviews.vertexes.AbstractGraphVertex;
 import fi.csc.microarray.client.dataviews.vertexes.GraphRenderer;
@@ -77,7 +77,7 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 
 	private MicroarrayGraph graph = null;
 
-	private ClientApplication application = Session.getSession().getApplication();
+	private SwingClientApplication application = (SwingClientApplication)Session.getSession().getApplication();
 	private GraphModel model = new DefaultGraphModel(); // FIXME memory leak
 
 	private JScrollPane graphScroller = null;
@@ -86,8 +86,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
 	private JCheckBox autoZoomChecBbox;
-
-	private JButton historyButton;
 
 	private boolean internalSelection = false;
 
@@ -160,8 +158,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 
 		} else if (source == autoZoomChecBbox) {
 			autoZoom();
-		} else if (source == historyButton) {
-			application.showHistoryScreenFor(application.getSelectionManager().getSelectedDataBean());
 		}
 	}
 
@@ -310,23 +306,17 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			zoomInButton = ToolBarComponentFactory.createButton(false, false);
 			zoomInButton.setToolTipText("Zoom in");
 			this.initialiseToolBarButton(zoomInButton);
-			zoomInButton.setIcon(VisualConstants.ZOOM_IN_ICON);
+			zoomInButton.setIcon(VisualConstants.getIcon(VisualConstants.ZOOM_IN_ICON));
 
 			zoomOutButton = ToolBarComponentFactory.createButton(false, false);
 			zoomOutButton.setToolTipText("Zoom out");
 			this.initialiseToolBarButton(zoomOutButton);
-			zoomOutButton.setIcon(VisualConstants.ZOOM_OUT_ICON);
+			zoomOutButton.setIcon(VisualConstants.getIcon(VisualConstants.ZOOM_OUT_ICON));
 
 			autoZoomChecBbox = ToolBarComponentFactory.createCheckBox("Fit");
 			autoZoomChecBbox.setToolTipText("Scale workflow to show all datasets");
 			autoZoomChecBbox.setSelected(true);
 			this.initialiseToolBarButton(autoZoomChecBbox);
-
-			historyButton = ToolBarComponentFactory.createButton(true, false);
-			historyButton.setToolTipText("Show analyse history for the selected dataset");
-			this.initialiseToolBarButton(historyButton);
-			historyButton.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
-			historyButton.setEnabled(false);
 
 			buttonToolBar = new JToolBar();
 			buttonToolBar.setFloatable(false);
@@ -337,7 +327,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			buttonToolBar.add(zoomOutButton);
 			buttonToolBar.add(autoZoomChecBbox);
 			buttonToolBar.add(Box.createHorizontalGlue());
-			buttonToolBar.add(historyButton);
 		}
 		return buttonToolBar;
 	}
@@ -555,7 +544,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 					}
 
 					graph.repaint();
-					historyButton.setEnabled(application.getSelectionManager().getSelectedItem() instanceof DataBean);
 				}
 			});
 

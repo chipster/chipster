@@ -2,29 +2,22 @@ package fi.csc.microarray.description;
 
 import java.io.IOException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLDescription.Output;
+import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
-import fi.csc.microarray.description.SADLDescription.Input;
-import fi.csc.microarray.description.SADLDescription.Output;
-import fi.csc.microarray.description.SADLDescription.Name;
-import fi.csc.microarray.description.SADLDescription.Parameter;
-import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 public class SADLParserTest {
 
-	@BeforeTest
-	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
-	}
-
-	@Test(groups = {"unit"} )
+	@Test
 	public void testVVSADLCompatibility() throws MicroarrayException, IOException {
 		String vvsadl = "ANALYSIS \"Test utilities\"/\"Test tool\" (Just a test analysis for development. These descriptions are sometimes very\n" + 
 				"long and might get hard to read.)\n" + 
@@ -50,7 +43,7 @@ public class SADLParserTest {
 		
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testParsing() throws MicroarrayException, IOException {
 		String sadl = "TOOL util-test.R: \"Test tool\" (Just a test analysis for development. These descriptions are sometimes very\n" + 
 				"long and might get hard to read. (Note that certain operators must be escaped.\\))\n" + 
@@ -152,7 +145,7 @@ public class SADLParserTest {
 		Assert.assertFalse(parsedDescription.parameters().get(6).isOptional());
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testRoundtrip() throws MicroarrayException, IOException {
 
 		// create description
@@ -183,7 +176,7 @@ public class SADLParserTest {
 		
 	}
 
-	@Test(groups = {"unit"} )
+	@Test
 	public void testEscapes() throws MicroarrayException, IOException {
 
 		// create description and check

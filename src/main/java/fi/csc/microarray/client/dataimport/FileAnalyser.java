@@ -211,7 +211,6 @@ public class FileAnalyser {
 	/**
 	 * Returns if the file is already analysed
 	 * 
-	 * @param areaRequestHandler another file
 	 * @return is file already analysed
 	 */
 	public boolean isAnalysed(){

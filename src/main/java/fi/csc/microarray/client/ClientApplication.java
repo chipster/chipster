@@ -4,9 +4,6 @@
  */
 package fi.csc.microarray.client;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -23,7 +20,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
-import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.IO;
@@ -41,35 +37,44 @@ import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.selection.DataSelectionManager;
-import fi.csc.microarray.client.session.UserSession;
+import fi.csc.microarray.client.session.SessionManager;
+import fi.csc.microarray.client.session.SessionManager.SessionChangedEvent;
+import fi.csc.microarray.client.session.SessionManager.SessionManagerListener;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataNotAvailableHandling;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataChangeEvent;
-import fi.csc.microarray.databeans.DataChangeListener;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.HistoryText;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.ChecksumException;
+import fi.csc.microarray.filebroker.ChecksumInputStream;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.ModuleManager;
+import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.SwingTools;
 
 
 /**
@@ -82,74 +87,72 @@ import fi.csc.microarray.util.IOUtils;
  */
 public abstract class ClientApplication {
 
-	protected static final String ALIVE_SIGNAL_FILENAME = "i_am_alive";
-
 	protected static final int MEMORY_CHECK_INTERVAL = 2*1000;
-	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	// Logger for this class
 	protected static Logger logger;
-
+	
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
-	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
+	public abstract void initialiseGUIThreadSafely(File mostRecentDeadTempDirectory) throws MicroarrayException, IOException;
+	public abstract void reportInitialisationThreadSafely(String report, boolean newline);
 	public abstract void reportExceptionThreadSafely(Exception e);
 	public abstract void reportException(Exception e);
-	public abstract void reportTaskError(Task job) throws MicroarrayException;
-	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
-	public abstract DataFolder initializeFolderForImport(String folderName);
-	public abstract void showSourceFor(String operationName) throws TaskException;
-	public abstract void showHistoryScreenFor(DataBean data);
-    public abstract void showDetailsFor(DataBean data);
-    public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
-    public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
-    public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
-    public abstract void visualiseWithBestMethod(FrameType target);
-    public abstract void reportInitialisationThreadSafely(String report, boolean newline);
-    public abstract Icon getIconFor(DataItem data);
-	public abstract void viewHelp(String id);
-	public abstract void viewHelpFor(OperationDefinition operationDefinition);
+	public abstract void reportTaskError(Task job) throws MicroarrayException;		
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
-	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
-	public abstract void deleteDatas(DataItem... datas);	
-	public abstract void createLink(DataBean source, DataBean target, Link type);
-	public abstract void removeLink(DataBean source, DataBean target, Link type);
-	public abstract void loadSession();
-	public abstract void loadSessionFrom(URL url);
-	public abstract void loadSessionFrom(File file);
-	public abstract void restoreSessionFrom(File file);
-	public abstract void saveSession();
-	public abstract File saveWorkflow();
-	public abstract File openWorkflow(boolean runForEach);
-	public abstract void runWorkflow(URL workflowScript, boolean runForEach);
-	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
-	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
-	public abstract VisualisationFrameManager getVisualisationFrameManager();
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);	
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
-	public abstract DataManager getDataManager();
 
-	/**
-	 * Method is called periodically to maintain state that cannot be maintained 
-	 * in realtime. 
-	 */
-	public abstract void checkFreeMemory();
-	
-	// 
-	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
-	//
 	
 	/**
-	 * Listens to jobExecutor's state in general.
+	 * Gets default visualisation method for selected databeans. The method is
+	 * selected by following steps:
+	 * 
+	 * <ol>
+	 * <li>If no dataset is selected, return
+	 * <code>VisualisationMethod.NONE</code> </li>
+	 * <li>If only one dataset is selected, return the default method for the
+	 * data </li>
+	 * </li>
+	 * <li>If multiple datasets are selected, check the best method for each
+	 * dataset. If the best method is same for all selected datasets and it can
+	 * be used with multiple data, the best method is returned. </li>
+	 * <li>If the best method is not same for all of the datas, try to find
+	 * just some method which is suitable for all datas and can be used with
+	 * multiple datasets. </li>
+	 * <li>If there were no method to fill the requirements above, return
+	 * <code>VisualisationMethod.NONE</code> </li>
+	 * 
+	 * @return default visualisation method which is suitable for all selected
+	 *         datasets
 	 */
-	private PropertyChangeListener jobExecutorChangeListener = new PropertyChangeListener() {	
-		public void propertyChange(PropertyChangeEvent evt) {
-			taskCountChanged((Integer)evt.getNewValue(), true);
-			logger.debug("JobExecutor property changed event: " + evt.getPropertyName() + ": " + (Integer)evt.getNewValue());
-		}		
-	};
+	public VisualisationMethod getDefaultVisualisationForSelection() {
+		logger.debug("getting default visualisation");
+
+		try {
+			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
+
+			if (beans.size() == 1) {
+				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
+			} else if (beans.size() > 1)
+				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
+					if (!method.getHeadlessVisualiser().isForMultipleDatas()) {
+						continue;
+					}
+					if (method.isApplicableTo(beans)) {
+						return method;
+					}
+				}
+
+			return null;
+
+		} catch (Exception e) {
+			reportException(e);
+			return null;
+		}
+	}
 	
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
@@ -170,18 +173,14 @@ public abstract class ClientApplication {
 	protected TaskExecutor taskExecutor;
 	private AuthenticationRequestListener overridingARL;
 
-	protected boolean unsavedChanges = false;
-	protected boolean unbackuppedChanges = false;
-
-	protected File aliveSignalFile;
-	private LinkedList<File> deadDirectories = new LinkedList<File>();
-
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 
 	private String initialisationWarnings = "";
 	
 	private String announcementText = null;
+		
+	private SessionManager sessionManager;
 
 	public ClientApplication() {
 		this(null);
@@ -192,12 +191,9 @@ public abstract class ClientApplication {
 		this.clientConstants = new ClientConstants();
 		this.serviceAccessor = new RemoteServiceAccessor();
 		this.overridingARL = overridingARL;
-		
-		// disable http cache
-		IOUtils.disableHttpCache();
 	}
     
-	protected void initialiseApplication() throws MicroarrayException, IOException {
+	public void initialiseApplication(boolean fast) throws MicroarrayException, IOException {
 		
 		//Executed outside EDT, modification of Swing forbidden
 		
@@ -208,39 +204,52 @@ public abstract class ClientApplication {
 
 			// Fetch announcements
 			fetchAnnouncements();
+						
+			if (requestedModule == null) {
+				requestedModule = MicroarrayModule.class.getName();
+			}
 			
 			// Initialise modules
 			final ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
-
+			
 			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
-
+			
 			// Initialise data management
 			this.manager = new DataManager();
-			Session.getSession().setDataManager(manager);
+			
+						
+			Session.getSession().setDataManager(manager);		
+			
 			modules.plugAll(this.manager, Session.getSession());
+						
 			this.selectionManager = new DataSelectionManager(this);
-			Session.getSession().setClientApplication(this);
-		
+			Session.getSession().setClientApplication(this);			
+			
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
-			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
-			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
-			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisationThreadSafely(" ok", false);
+			reportInitialisationThreadSafely("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", false);
+			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			
+			this.sessionManager = new SessionManager(manager, serviceAccessor.getFileBrokerClient(), new ClientSessionManagerListener(this));
+			
+			this.taskExecutor = serviceAccessor.getTaskExecutor();
+			reportInitialisationThreadSafely(" ok", true);
 
-			// Check services
-			reportInitialisationThreadSafely("Checking remote services...", true);
-			String status = serviceAccessor.checkRemoteServices();
-			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
-				throw new Exception(status);
+			if (!fast) {
+				// Check services
+				reportInitialisationThreadSafely("Checking remote services...", false);
+				String status = serviceAccessor.checkRemoteServices();
+				if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
+					throw new Exception(status);
+				}
+				reportInitialisationThreadSafely(" ok", true);
 			}
-			reportInitialisationThreadSafely(" ok", false);
 			
 			// Fetch descriptions from compute server
-			reportInitialisationThreadSafely("Fetching analysis descriptions...", true);
+			reportInitialisationThreadSafely("Fetching analysis descriptions...", false);
 			initialisationWarnings += serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
 			toolModules.addAll(serviceAccessor.getModules());
 
@@ -261,76 +270,68 @@ public abstract class ClientApplication {
 			toolModules.add(internalModule);
 
 			// Update to splash screen that we have loaded tools
-			reportInitialisationThreadSafely(" ok", false);
-
-			// start listening to job events
-			taskExecutor.addChangeListener(jobExecutorChangeListener);
+			reportInitialisationThreadSafely(" ok", true);
 
 			// definitions are now initialised
 			definitionsInitialisedLatch.countDown();
 			
-			reportInitialisationThreadSafely("Checking session backups...", true);
-			File mostRecentDeadTempDirectory = checkTempDirectories();
-			reportInitialisationThreadSafely(" ok", false);
-
+			File mostRecentDeadTempDirectory = null;
+			
+			if (!fast) {
+				reportInitialisationThreadSafely("Checking session backups...", false);
+				mostRecentDeadTempDirectory = sessionManager.checkTempDirectories();
+				reportInitialisationThreadSafely(" ok", true);
+			}
 			// we can initialise graphical parts of the system
-			initialiseGUIThreadSafely(mostRecentDeadTempDirectory);
-
-			// Remember changes to confirm close only when necessary and to backup when necessary
-			manager.addDataChangeListener(new DataChangeListener() {
-				public void dataChanged(DataChangeEvent event) {
-					unsavedChanges = true;
-					unbackuppedChanges = true;
-				}
-			});
-
-			// Start checking amount of free memory 
-			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ClientApplication.this.checkFreeMemory();
-				}
-			});
-			memoryCheckTimer.setCoalesce(true);
-			memoryCheckTimer.setRepeats(true);
-			memoryCheckTimer.setInitialDelay(0);
-			memoryCheckTimer.start();
-
-			// Start checking if background backup is needed
-			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
-			aliveSignalFile.createNewFile();
-			aliveSignalFile.deleteOnExit();
-
-			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
-					if (unbackuppedChanges) {
-
-						File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
-						sessionFile.deleteOnExit();
-
-						try {
-							getDataManager().saveLightweightSession(sessionFile);
-
-						} catch (Exception e1) {
-							logger.warn(e1); // do not care that much about failing session backups
-						}
-					}
-					unbackuppedChanges = false;
-				}
-			});
-
-			timer.setCoalesce(true);
-			timer.setRepeats(true);
-			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
-			timer.start();
-
+			initialiseGUIThreadSafely(mostRecentDeadTempDirectory);		
+			
+			// disable http cache (only after initialization, because it makes 
+			// icon loading from jar much slower (about 18 seconds for icons in VisualConstants) 
+			IOUtils.disableHttpCache();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
+
+
+	}	
+	
+	public class ClientSessionManagerListener implements SessionManagerListener {
+
+		private ClientApplication app;
+
+		public ClientSessionManagerListener(ClientApplication app) {
+			this.app = app;
+		}
+
+		@Override
+		public void showDialog(String title, String message, String details,
+				Severity severity, boolean modal,
+				DetailsVisibility detailsVisibility) {
+			app.showDialog(title, message, details, severity, modal, detailsVisibility, null);
+		}
+
+		@Override
+		public void reportException(Exception e) {
+			app.reportException(e);
+		}
+
+		@Override
+		public void sessionChanged(SessionChangedEvent e) {
+			app.fireClientEventThreadSafely(e);
+		}		
 	}
 
+	/**
+	 * Only root folder supported in this implementation.
+	 * 
+	 * @param folderName subclasses may use this to group imported datasets
+	 * @return always root folder in this implementation
+	 */
+	public DataFolder initializeFolderForImport(String folderName) {
+		return manager.getRootFolder();
+	}
 	/**
 	 * Add listener for applications state changes.
 	 */
@@ -383,7 +384,7 @@ public abstract class ClientApplication {
 	}
 	
 
-	public void executeOperation(final Operation operation) {
+	public Task executeOperation(final Operation operation) {
 
 		// check if guest user
 		if (!operation.getDefinition().isLocal() 
@@ -392,14 +393,14 @@ public abstract class ClientApplication {
 			
 			showDialog("Running tools is disabled for guest users.", "",
 					null, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-			return;
+			return null;
 		}
 		
 		// check job count
 		if (taskExecutor.getRunningTaskCount() >= clientConstants.MAX_JOBS) {
 			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + clientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
 						null, Severity.INFO, false);
-			return;
+			return null;
 		}
 		
 		// start executing the task
@@ -410,7 +411,7 @@ public abstract class ClientApplication {
 				if (newState.isFinished()) {
 					try {
 						// FIXME there should be no need to pass the operation as it goes within the task
-						onFinishedTask(job, operation);
+						onFinishedTask(job, operation, newState);
 					} catch (Exception e) {
 						reportException(e);
 					}
@@ -425,6 +426,8 @@ public abstract class ClientApplication {
 		} catch (TaskException | MicroarrayException | IOException te) {
 			reportException(te);
 		}
+		
+		return task;
 	}
 	
 	public void onNewTask(Task task, Operation oper) throws MicroarrayException, IOException {
@@ -450,20 +453,21 @@ public abstract class ClientApplication {
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
 	 * 			   corresponding job entity.
+	 * @param newState 
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper, State state) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + task.getState());
+			logger.debug("operation finished, state is " + state);
 			
-			if (task.getState() == State.CANCELLED) {
+			if (state == State.CANCELLED) {
 				// task cancelled, do nothing
 				
-			} else if (!task.getState().finishedSuccesfully()) {
+			} else if (!state.finishedSuccesfully()) {
 				// task unsuccessful, report it
 				reportTaskError(task);
 				
@@ -519,15 +523,8 @@ public abstract class ClientApplication {
 						output.addLink(Link.DERIVATION, source);
 					}
 
-					// initialise cache
-					try {
-						output.initialiseStreamStartCache();
-					} catch (IOException e) {
-						throw new MicroarrayException(e);
-					}
-
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(output);
+					manager.connectChild(output, folder);
 
 					// check if this is metadata
 					// for now this must be after folder.addChild(), as type tags are added there
@@ -555,7 +552,7 @@ public abstract class ClientApplication {
 			
 			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (task.getState().finishedSuccesfully()) {
+				if (state.finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();
@@ -564,7 +561,7 @@ public abstract class ClientApplication {
 		}
 	}
 	
-	protected void quit() {		
+	public void quit() {		
 		logger.debug("quitting client");
 		
 		try {
@@ -579,10 +576,6 @@ public abstract class ClientApplication {
 		if (eventsEnabled) {
 			eventSupport.firePropertyChange(event);
 		}
-	}
-	
-	public List<File> getWorkflows() {
-		return workflowManager.getWorkflows();
 	}
 
 	public interface SourceCodeListener {
@@ -618,7 +611,7 @@ public abstract class ClientApplication {
 	}
 		
 	public void importWholeDirectory(File root) {
-		List<File> onlyFiles = new LinkedList<File>();
+		List<Object> onlyFiles = new LinkedList<Object>();
 		
 		for (File file : root.listFiles()) {				
 			if (file.isFile()) { //not a folder
@@ -626,7 +619,7 @@ public abstract class ClientApplication {
 			}
 		}
 		
-		ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, onlyFiles, root.getName(), true);
+		ImportSession importSession = new ImportSession(ImportSession.Source.FILE, onlyFiles, root.getName(), true);
 		ImportUtils.executeImport(importSession);
 	}
 
@@ -698,38 +691,29 @@ public abstract class ClientApplication {
 		}
 		return null;
 	}
-
 	
-	/**
-	 * FIXME Better handling for existing file
-	 * 
-	 * @param data
-	 * @param selectedFile
-	 */
-	protected void exportToFile(final DataBean data, final File selectedFile) {
-		runBlockingTask("exporting file", new Runnable() {
-
-			public void run() {
-				try {
-					File newFile = selectedFile;
-					int i = 1;
-					while (newFile.exists()) {
-						i++;
-						String[] parts = Files.parseFilename(selectedFile); 
-						newFile = new File(parts[0] + File.separator + parts[1] + "_" + i + "." + parts[2]);
-					}
-
-					newFile.createNewFile();		
-					FileOutputStream out = new FileOutputStream(newFile);
-					IO.copy(data.getContentByteStream(), out);
-					out.close();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+	public void exportToFileAndWait(final DataBean data,
+			final File selectedFile) {
+		try {
+			File newFile = selectedFile;
+			int i = 1;
+			while (newFile.exists()) {
+				i++;
+				String[] parts = Files.parseFilename(selectedFile); 
+				newFile = new File(parts[0] + File.separator + parts[1] + "_" + i + "." + parts[2]);
 			}
-			
-		});
-		
+
+			newFile.createNewFile();		
+			FileOutputStream out = new FileOutputStream(newFile);
+			ChecksumInputStream in = Session.getSession().getDataManager().getContentStream(data, DataNotAvailableHandling.EXCEPTION_ON_NA);
+			IO.copy(in, out);
+			out.close();
+			manager.setOrVerifyChecksum(data, in.verifyChecksums());
+		} catch (ChecksumException e) {
+			reportExceptionThreadSafely(new ChecksumException("checksum validation of the exported file failed", e));
+		} catch (Exception e) {
+			reportExceptionThreadSafely(e);
+		}
 	}
 
 	public TaskExecutor getTaskExecutor() {
@@ -763,90 +747,6 @@ public abstract class ClientApplication {
 	 */
 	public boolean isStandalone() {
 		return false; // standalone not supported
-	}
-
-	/**
-	 * Collects all dead temp directories and returns the most recent
-	 * that has a restorable session .
-	 */
-	protected File checkTempDirectories() throws IOException {
-
-		Iterable<File> tmpDirectories = getDataManager().listAllRepositories();
-		File mostRecentDeadSignalFile = null;
-		
-		for (File directory : tmpDirectories) {
-
-			// Skip current temp directory
-			if (directory.equals(getDataManager().getRepository())) {
-				continue;
-			}			
-			
-			// Check is it alive, wait until alive file should have been updated
-			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
-			long originalLastModified = aliveSignalFile.lastModified();
-			boolean unsuitable = false;
-			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {			
-				
-				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
-				// until we see new update that confirms it is alive, or have waited long
-				// enough that the time since last update grows larger than twice the interval.
-				
-				// Check if restorable
-				if (UserSession.findBackupFile(directory, false) == null) {
-					// Does not have backup file, so not interesting for backup.
-					// Should be removed anyway, but removing empty directories is not
-					// important enough to warrant the extra waiting that follows next.
-					// So we will skip this and if it was dead, it will be anyway 
-					// cleaned away in the next client startup.
-					
-					unsuitable = true;
-					break;
-				}
-				
-				// Check if updated
-				if (aliveSignalFile.lastModified() != originalLastModified) {
-					unsuitable = true;
-					break; // we saw an update, it is alive
-				}
-
-				// Wait for it to update
-				try {
-					Thread.sleep(1000); // 1 second
-				} catch (InterruptedException e) {
-					// ignore
-				}
-			}
-
-			if (!unsuitable) {
-				// It is dead, might be the one that should be recovered, check that
-				deadDirectories.add(directory);
-				File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
-				if (UserSession.findBackupFile(directory, false) != null 
-						&& (mostRecentDeadSignalFile == null 
-						|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
-
-					mostRecentDeadSignalFile = deadSignalFile;
-
-				}
-			}
-		}
-		
-		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
-	}
-	
-	public void clearDeadTempDirectories() {
-		
-		// Try to clear dead temp directories
-		try {
-			for (File dir : deadDirectories) {
-				Files.delTree(dir);
-			}
-		} catch (Exception e) {
-			reportException(e);
-		}
-
-		// Remove them from bookkeeping in any case
-		deadDirectories.clear();
 	}
 
 	private ToolModule getModule(String moduleName) {
@@ -891,4 +791,208 @@ public abstract class ClientApplication {
 		return this.announcementText;
 	}
 	
+	
+	public DataManager getDataManager() {
+		return manager;
+	}
+	public LinkedList<ToolModule> getToolModules() {
+		return toolModules;
+	}
+	
+	public void importGroupAndWait(final Collection<ImportItem> datas,
+			final String folderName) {
+		DataBean lastGroupMember = null;
+
+		try {
+
+			for (ImportItem item : datas) {
+
+				String dataSetName = item.getInputFilename();
+				ContentType contentType = item.getType();
+				Object dataSource = item.getInput();
+
+
+				// Selects folder where data is imported to, or creates a
+				// new one
+				DataFolder folder = initializeFolderForImport(folderName);
+
+				// create the DataBean
+				DataBean data;
+				if (dataSource instanceof File) {
+					data = manager.createDataBean(dataSetName, (File) dataSource);
+					
+				} else if (dataSource instanceof URL) {
+					data = manager.createDataBean(dataSetName, ((URL) dataSource));
+					
+				} else {
+					throw new RuntimeException("unknown data source type: " + dataSource.getClass().getSimpleName());
+				}
+
+				// set the content type
+				data.setContentType(contentType);
+
+				// add the operation (all databeans have their own import
+				// operation
+				// instance, it would be nice if they would be grouped)
+				Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+				data.setOperationRecord(new OperationRecord(importOperation));
+
+				// data is ready now, make it visible
+				manager.connectChild(data, folder);
+
+				// Create group links only if both datas are raw type
+				if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
+
+					DataBean targetData = data;
+
+					// Link new data to all group linked datas of given cell
+					for (DataBean sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
+						logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
+						createLink(sourceData, targetData, DataBean.Link.GROUPING);
+					}
+
+					// Create link to the given cell after looping to avoid
+					// link duplication
+					createLink(lastGroupMember, targetData, DataBean.Link.GROUPING);
+				}
+
+				lastGroupMember = data;
+
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public String getHelpUrl(String page) {
+		if (!page.startsWith(HelpMapping.MANUAL_ROOT)) {
+			return HelpMapping.MANUAL_ROOT + page;
+		}
+		return page;
+	}
+	
+	public String getHelpFor(OperationDefinition definition) {
+		String url = definition.getHelpURL();
+	    if (url != null && !url.isEmpty()) {
+	        // Link is stored in operation definition
+	        url = definition.getHelpURL();
+	    } else {
+	        // Mostly for microarray
+	        // TODO: consider refactoring so that url is stored in definition
+	        // and this "else" branch is not needed
+	        url = HelpMapping.mapToHelppage(definition);
+	    }
+	    return url;
+	}
+	
+	public String getHistoryText(DataBean data, boolean title, boolean name, boolean date, boolean oper, boolean code, boolean notes, boolean param) {
+		return new HistoryText(data).getHistoryText(title, name, date, oper, code, notes, param);
+	}
+	
+	public Icon getIconFor(DataItem element) {
+		if (element instanceof DataFolder) {
+			return VisualConstants.getIcon(VisualConstants.ICON_TYPE_FOLDER);
+		} else {
+			return Session.getSession().getPrimaryModule().getIconFor((DataBean) element);
+		}
+	}
+	
+	public void deleteDatasWithoutConfirming(DataItem... datas) {
+		
+		// check that we have something to delete
+		if (datas.length == 0) {
+			return; // no selection, do nothing
+		}		
+		
+		// remove all selections
+		getSelectionManager().clearAll(true, this);
+
+		// do actual delete
+		for (DataItem data : datas) {
+			manager.delete(data);
+		}
+	}
+
+	public void createLink(DataBean source, DataBean target, Link type) {
+		source.addLink(type, target);
+	}
+
+	public void removeLink(DataBean source, DataBean target, Link type) {
+		source.removeLink(type, target);
+	}
+	
+	public List<File> getWorkflows() {
+		return workflowManager.getWorkflows();
+	}
+	
+	public void saveWorkflow(File file) throws IOException {
+		workflowManager.saveSelectedWorkflow(file);
+	}
+	
+	public void runWorkflowAndWait(URL workflowScript) throws InterruptedException {
+		final CountDownLatch latch = new CountDownLatch(1);
+		workflowManager.runScript(workflowScript, new AtEndListener() {			
+			@Override
+			public void atEnd(boolean success) {
+				latch.countDown();
+			}
+		});
+		latch.await();
+	}
+	
+	public void runWorkflow(URL workflowScript, boolean runForEach) {
+		if (!runForEach) {
+			// Run once
+			workflowManager.runScript(workflowScript, null);
+
+		} else {
+			// Run for every selected data separately
+			
+			// Store current selection
+			List<DataBean> datas = getSelectionManager().getSelectedDataBeans();
+
+			// Select one by one and run workflow
+			for (DataBean data : datas) {
+
+				// Need synchronized latch to wait for each workflow execution
+				final CountDownLatch latch = new CountDownLatch(1);
+				AtEndListener atEndListener = new AtEndListener() {
+					@Override
+					public void atEnd(boolean success) {
+						logger.debug("workflow run for each: at end");
+						latch.countDown();
+					}
+				};
+
+				// Run it
+				getSelectionManager().selectSingle(data, this);
+				logger.debug("workflow run for each: selected " + getSelectionManager().getSelectedDataBeans().size());
+				workflowManager.runScript(workflowScript, atEndListener);
+				try {
+					latch.await();
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+
+			// Restore original selection
+			logger.debug("workflow run for each: restore original selection");
+			Collection<DataItem> items = new LinkedList<DataItem>();
+			items.addAll(datas);
+			getSelectionManager().selectMultiple(items, this);
+		}
+	}
+	
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+	
+	public void fireClientEventThreadSafely(final PropertyChangeEvent event) {
+		SwingTools.runInEventDispatchThread(new Runnable() {			
+			@Override
+			public void run() {
+				fireClientEvent(event);
+			}
+		});		
+	}
 }
