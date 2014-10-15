@@ -1,4 +1,4 @@
-# TOOL macs2-new.R: "Find peaks using MACS2" (Detects statistically significantly enriched genomic regions in ChIP-seq data, using a control sample if available. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
+# TOOL macs2.R: "Find peaks using MACS2" (Detects statistically significantly enriched genomic regions in ChIP-seq data, using a control sample if available. If you have several samples,you need to merge them first to one ChIP file and one control file. BAM files can be merged with the Utilities tool \"Merge BAM\".)
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT OPTIONAL control.bam: "Control data file" TYPE GENERIC 
 # OUTPUT macs2-log.txt
@@ -27,7 +27,7 @@
 # 10.07.2014 AMS, Updated genome sizes, added parameter userspecified.size
 # 09.09.2014 EK, Made a separate script for MACS2 in order to cope with new parameters, fixed the bug in disabled model building, added the broad option and outputs, polished the script and output      
 # 07.10.2014 AMS, Simplified script structure
-# 13.10.2014 EK, Modifed to use MACS2.1.0
+# 13.10.2014 EK, Modified to use MACS2.1.0
 
 # MACS binary
 macs.binary <- file.path(chipster.tools.path, "macs", "macs2")
