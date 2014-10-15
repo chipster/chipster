@@ -58,9 +58,9 @@ update_ensembl_url_file ()
 
     # remove duplicates, because some species are on multiple sites
     cat ensembl_urls \
-      | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/caenorhabditis_elegans" \
-      | grep -v "ensembl.org:21/pub/${ensembl_version}fasta/saccharomyces_cerevisiae" \
-      | grep -v "ensemblgenomes.org:21/pub/metazoa/${ensembl_genomes_version}/fasta/drosophila_melanogaster" \
+      | grep -v "ensembl.org/pub/${ensembl_version}fasta/caenorhabditis_elegans" \
+      | grep -v "ensembl.org/pub/${ensembl_version}fasta/saccharomyces_cerevisiae" \
+      | grep -v "ensemblgenomes.org/pub/metazoa/${ensembl_genomes_version}/fasta/drosophila_melanogaster" \
       > filtered_urls
 
     cat filtered_urls > $url_file
@@ -319,8 +319,14 @@ do
       filename=$(grep -i "/$species/" tmp_$$/ensembl_species.txt | awk -F "/" '{print $(NF)}' )
       echo
       echo "Downloading the genomic sequece of $name"
-      echo 
-      wget -o log "$url" >> /dev/null
+      echo
+
+      # resolve exact url, because possible http proxy doesn't support wildcards
+      wildcard_name=$(basename $url)
+      path=$(dirname $url)
+      exact_url=$(curl --proxy "" --silent --list-only $path/ | grep -E "$wildcard_name")
+
+      wget -o log "$exact_url" >> /dev/null
       gzipfile=$(ls $filename | grep -i $species)
       echo "Unzipping $gzipfile"
       if [[ $outputmode == "single" ]]
