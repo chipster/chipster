@@ -65,6 +65,6 @@ if [ ! -d $paralleldir ]; then
 fi
 
 # squid proxy
-export http_proxy="http://192.168.15.254:3128"
+export http_proxy="http://192.168.15.35:3128"
 
 
