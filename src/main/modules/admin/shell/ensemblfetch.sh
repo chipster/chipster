@@ -47,7 +47,9 @@ update_ensembl_url_file ()
     rm -f ensembl_urls
     while read url
     do
-      curl --silent --list-only $url > directories
+      # there may be a proxy (squid) set in environment variable to make file downloads faster,
+      # but it must be disabled for directory listing, because squid converts directory listing to html
+      curl --proxy "" --silent --list-only $url > directories
       while read directory
       do
         echo "$url$directory/" >> ensembl_urls
