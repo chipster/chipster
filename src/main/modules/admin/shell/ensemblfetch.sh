@@ -323,8 +323,8 @@ do
 
       # resolve exact url, because possible http proxy doesn't support wildcards
       wildcard_name=$(basename $url)
-      path=$(dirname $url)
-      exact_url=$(curl --proxy "" --silent --list-only $path/ | grep -E "$wildcard_name")
+      path=$(dirname $url)"/"
+      exact_url="$path"$(curl --proxy "" --silent --list-only $path/ | grep -E "$wildcard_name")
 
       wget -o log "$exact_url" >> /dev/null
       gzipfile=$(ls $filename | grep -i $species)
